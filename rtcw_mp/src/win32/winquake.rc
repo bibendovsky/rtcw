@@ -7,7 +7,16 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "winres.h"
+
+//BBi
+//#include "winres.h"
+
+#ifdef APSTUDIO_INVOKED
+    #include "winres.h"
+#else
+    #include <Windows.h>
+#endif // APSTUDIO_INVOKED
+//BBi
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS

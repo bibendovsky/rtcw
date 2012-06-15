@@ -7,7 +7,15 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "winres.h"
+
+//BBi Workaround for MSVC EE
+//#include "winres.h"
+
+#ifdef APSTUDIO_INVOKED
+    #include "winres.h"
+#else
+    #include <Windows.h>
+#endif // APSTUDIO_INVOKED
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS

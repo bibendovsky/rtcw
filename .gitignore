@@ -43,7 +43,9 @@ local.properties
 
 # Build results
 [Dd]ebug/
+[Dd]ebug [Dd]edicated/
 [Rr]elease/
+[Rr]elease [Dd]edicated/
 *_i.c
 *_p.c
 *.ilk
