@@ -41,19 +41,19 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\build\win32\vc2010\rtcw_common_release_x86.props" />
+    <Import Project="..\..\prj\win32\vc2010\rtcw_common_release_x86.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\build\win32\vc2010\rtcw_common_release_x86.props" />
+    <Import Project="..\..\prj\win32\vc2010\rtcw_common_release_x86.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\build\win32\vc2010\rtcw_common_debug_x86.props" />
+    <Import Project="..\..\prj\win32\vc2010\rtcw_common_debug_x86.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\build\win32\vc2010\rtcw_common_debug_x86.props" />
+    <Import Project="..\..\prj\win32\vc2010\rtcw_common_debug_x86.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -72,22 +72,18 @@
       <TypeLibraryName>.\Debug/wolf.tlb</TypeLibraryName>
     </Midl>
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;BOTLIB;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CURL_STATICLIB;BOTLIB;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile />
-    <PreLinkEvent>
-      <Message>compile libcurl</Message>
-      <Command>cd curl-7.12.2\lib
-nmake /f Makefile.vc6 CFG=debug
-</Command>
-    </PreLinkEvent>
+    <PreLinkEvent />
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>dinput8.lib;iphlpapi.lib;winmm.lib;wsock32.lib;curl-7.12.2\lib\libcurld.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;iphlpapi.lib;winmm.lib;wldap32.lib;ws2_32.lib;libcurl_7260_s_mt_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>8388608</StackReserveSize>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\lib\win32\vc2010;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -114,13 +110,6 @@ nmake /f Makefile.vc6 CFG=debug
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <CustomBuildStep>
-      <Command>cd curl-7.12.2
-cd lib
-nmake /f Makefile.vc6 CFG=release
-</Command>
-      <Outputs>libcurl.lib;%(Outputs)</Outputs>
-    </CustomBuildStep>
     <Midl>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MkTypLibCompatible>true</MkTypLibCompatible>
@@ -129,21 +118,16 @@ nmake /f Makefile.vc6 CFG=release
       <TypeLibraryName>.\Release/wolf.tlb</TypeLibraryName>
     </Midl>
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;BOTLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CURL_STATICLIB;BOTLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile />
-    <PreLinkEvent>
-      <Message>compile libcurl</Message>
-      <Command>cd curl-7.12.2\lib
-nmake /f Makefile.vc6 CFG=release
-</Command>
-    </PreLinkEvent>
+    <PreLinkEvent />
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>dinput8.lib;iphlpapi.lib;winmm.lib;wsock32.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;iphlpapi.lib;winmm.lib;wldap32.lib;ws2_32.lib;libcurl_7260_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>8388608</StackReserveSize>
-      <AdditionalLibraryDirectories>.\curl-7.12.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\lib\win32\vc2010;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">
