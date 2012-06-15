@@ -75,14 +75,13 @@
       </HeaderFileName>
     </Midl>
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;BOTLIB;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;botlib.lib;renderer.lib;splines.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>8388608</StackReserveSize>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -100,14 +99,13 @@
       </HeaderFileName>
     </Midl>
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;BOTLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;botlib.lib;renderer.lib;splines.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>8388608</StackReserveSize>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -125,14 +123,13 @@
       </HeaderFileName>
     </Midl>
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;DEDICATED;DO_LIGHT_DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;BOTLIB;DEDICATED;DO_LIGHT_DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;botlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>8388608</StackReserveSize>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -150,14 +147,13 @@
       </HeaderFileName>
     </Midl>
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;DO_LIGHT_DEDICATED;DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;BOTLIB;DEBUG;DO_LIGHT_DEDICATED;DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;botlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>8388608</StackReserveSize>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -165,6 +161,35 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="botlib\be_aas_bspq3.c" />
+    <ClCompile Include="botlib\be_aas_cluster.c" />
+    <ClCompile Include="botlib\be_aas_debug.c" />
+    <ClCompile Include="botlib\be_aas_entity.c" />
+    <ClCompile Include="botlib\be_aas_file.c" />
+    <ClCompile Include="botlib\be_aas_main.c" />
+    <ClCompile Include="botlib\be_aas_move.c" />
+    <ClCompile Include="botlib\be_aas_optimize.c" />
+    <ClCompile Include="botlib\be_aas_reach.c" />
+    <ClCompile Include="botlib\be_aas_route.c" />
+    <ClCompile Include="botlib\be_aas_routealt.c" />
+    <ClCompile Include="botlib\be_aas_routetable.c" />
+    <ClCompile Include="botlib\be_aas_sample.c" />
+    <ClCompile Include="botlib\be_ai_char.c" />
+    <ClCompile Include="botlib\be_ai_chat.c" />
+    <ClCompile Include="botlib\be_ai_gen.c" />
+    <ClCompile Include="botlib\be_ai_goal.c" />
+    <ClCompile Include="botlib\be_ai_move.c" />
+    <ClCompile Include="botlib\be_ai_weap.c" />
+    <ClCompile Include="botlib\be_ai_weight.c" />
+    <ClCompile Include="botlib\be_ea.c" />
+    <ClCompile Include="botlib\be_interface.c" />
+    <ClCompile Include="botlib\l_crc.c" />
+    <ClCompile Include="botlib\l_libvar.c" />
+    <ClCompile Include="botlib\l_log.c" />
+    <ClCompile Include="botlib\l_memory.c" />
+    <ClCompile Include="botlib\l_precomp.c" />
+    <ClCompile Include="botlib\l_script.c" />
+    <ClCompile Include="botlib\l_struct.c" />
     <ClCompile Include="client\cl_cgame.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
@@ -202,6 +227,150 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="client\cl_ui.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jcapimin.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jccoefct.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jccolor.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jcdctmgr.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jchuff.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jcinit.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jcmainct.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jcmarker.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jcmaster.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jcomapi.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jcparam.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jcphuff.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jcprepct.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jcsample.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jctrans.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jdapimin.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jdapistd.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jdatadst.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jdatasrc.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jdcoefct.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jdcolor.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jddctmgr.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jdhuff.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jdinput.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jdmainct.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jdmarker.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jdmaster.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jdpostct.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jdsample.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jdtrans.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jerror.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jfdctflt.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jidctflt.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jmemmgr.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jmemnobs.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="jpeg-6\jutils.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -253,6 +422,102 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="renderer\tr_animation.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_backend.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_bsp.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_cmds.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_cmesh.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_curve.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_flares.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_font.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_image.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_init.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_light.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_main.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_marks.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_mesh.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_model.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_noise.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_scene.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_shade.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_shader.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_shade_calc.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_shadows.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_sky.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_surface.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_world.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="server\sv_bot.c" />
     <ClCompile Include="server\sv_ccmds.c" />
     <ClCompile Include="server\sv_client.c" />
@@ -266,12 +531,52 @@
     <ClCompile Include="qcommon\vm.c" />
     <ClCompile Include="qcommon\vm_interpreted.c" />
     <ClCompile Include="qcommon\vm_x86.c" />
+    <ClCompile Include="splines\math_angles.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="splines\math_matrix.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="splines\math_quaternion.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="splines\math_vector.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="splines\q_parse.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="splines\splines.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="splines\util_str.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="win32\win_gamma.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="win32\win_glimp.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="win32\win_input.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="win32\win_main.c" />
     <ClCompile Include="win32\win_net.c" />
+    <ClCompile Include="win32\win_qgl.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="win32\win_shared.c" />
     <ClCompile Include="win32\win_snd.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
@@ -281,18 +586,68 @@
     <ClCompile Include="win32\win_wndproc.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="A3D\a3dWrapperdp.h" />
+    <ClInclude Include="botlib\be_aas_bsp.h" />
+    <ClInclude Include="botlib\be_aas_cluster.h" />
+    <ClInclude Include="botlib\be_aas_debug.h" />
+    <ClInclude Include="botlib\be_aas_def.h" />
+    <ClInclude Include="botlib\be_aas_entity.h" />
+    <ClInclude Include="botlib\be_aas_file.h" />
+    <ClInclude Include="botlib\be_aas_funcs.h" />
+    <ClInclude Include="botlib\be_aas_main.h" />
+    <ClInclude Include="botlib\be_aas_move.h" />
+    <ClInclude Include="botlib\be_aas_optimize.h" />
+    <ClInclude Include="botlib\be_aas_reach.h" />
+    <ClInclude Include="botlib\be_aas_route.h" />
+    <ClInclude Include="botlib\be_aas_routealt.h" />
+    <ClInclude Include="botlib\be_aas_routetable.h" />
+    <ClInclude Include="botlib\be_aas_sample.h" />
+    <ClInclude Include="botlib\be_ai_weight.h" />
+    <ClInclude Include="botlib\be_interface.h" />
+    <ClInclude Include="botlib\l_crc.h" />
+    <ClInclude Include="botlib\l_libvar.h" />
+    <ClInclude Include="botlib\l_log.h" />
+    <ClInclude Include="botlib\l_memory.h" />
+    <ClInclude Include="botlib\l_precomp.h" />
+    <ClInclude Include="botlib\l_script.h" />
+    <ClInclude Include="botlib\l_struct.h" />
+    <ClInclude Include="botlib\l_utils.h" />
+    <ClInclude Include="game\be_aas.h" />
+    <ClInclude Include="game\be_ai_char.h" />
+    <ClInclude Include="game\be_ai_chat.h" />
+    <ClInclude Include="game\be_ai_gen.h" />
+    <ClInclude Include="game\be_ai_goal.h" />
+    <ClInclude Include="game\be_ai_move.h" />
+    <ClInclude Include="game\be_ai_weap.h" />
+    <ClInclude Include="game\be_ea.h" />
     <ClInclude Include="game\bg_public.h" />
     <ClInclude Include="botai\botai.h" />
     <ClInclude Include="game\botlib.h" />
     <ClInclude Include="cgame\cg_public.h" />
     <ClInclude Include="client\client.h" />
+    <ClInclude Include="jpeg-6\jchuff.h" />
+    <ClInclude Include="jpeg-6\jconfig.h" />
+    <ClInclude Include="jpeg-6\jdct.h" />
+    <ClInclude Include="jpeg-6\jdhuff.h" />
+    <ClInclude Include="jpeg-6\jerror.h" />
+    <ClInclude Include="jpeg-6\jinclude.h" />
+    <ClInclude Include="jpeg-6\jmemsys.h" />
+    <ClInclude Include="jpeg-6\jmorecfg.h" />
+    <ClInclude Include="jpeg-6\jpegint.h" />
+    <ClInclude Include="jpeg-6\jpeglib.h" />
+    <ClInclude Include="jpeg-6\jversion.h" />
     <ClInclude Include="qcommon\cm_local.h" />
     <ClInclude Include="qcommon\cm_patch.h" />
     <ClInclude Include="qcommon\cm_polylib.h" />
     <ClInclude Include="qcommon\cm_public.h" />
     <ClInclude Include="game\g_public.h" />
-    <ClInclude Include="A3D\ia3dapi.h" />
+    <ClInclude Include="renderer\anorms256.h" />
+    <ClInclude Include="splines\math_angles.h" />
+    <ClInclude Include="splines\math_matrix.h" />
+    <ClInclude Include="splines\math_quaternion.h" />
+    <ClInclude Include="splines\math_vector.h" />
+    <ClInclude Include="splines\splines.h" />
+    <ClInclude Include="splines\util_list.h" />
+    <ClInclude Include="splines\util_str.h" />
     <ClInclude Include="ui\keycodes.h" />
     <ClInclude Include="client\keys.h" />
     <ClInclude Include="game\q_shared.h" />
@@ -300,8 +655,6 @@
     <ClInclude Include="qcommon\qfiles.h" />
     <ClInclude Include="renderer\qgl.h" />
     <ClInclude Include="server\server.h" />
-    <ClInclude Include="A3D\snd_A3D.h" />
-    <ClInclude Include="A3D\snd_a3dg.h" />
     <ClInclude Include="client\snd_local.h" />
     <ClInclude Include="client\snd_public.h" />
     <ClInclude Include="game\surfaceflags.h" />
@@ -311,6 +664,7 @@
     <ClInclude Include="ui\ui_public.h" />
     <ClInclude Include="qcommon\unzip.h" />
     <ClInclude Include="qcommon\vm_local.h" />
+    <ClInclude Include="win32\glw_win.h" />
     <ClInclude Include="win32\resource.h" />
     <ClInclude Include="win32\win_local.h" />
   </ItemGroup>
@@ -984,6 +1338,7 @@
     </CustomBuildStep>
   </ItemGroup>
   <ItemGroup>
+    <None Include="renderer\ref_trin.def" />
     <None Include="win32\qe3.ico" />
   </ItemGroup>
   <ItemGroup>
