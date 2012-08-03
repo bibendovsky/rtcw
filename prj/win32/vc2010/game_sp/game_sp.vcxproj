@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{99EE8E3F-250E-4082-A92E-C7BC6202FDFE}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\rtcw_sp_release.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\rtcw_sp_debug.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">qagamex86</TargetName>
+    <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreLinkEventUseInBuild>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">qagamex86</TargetName>
+    <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</PreLinkEventUseInBuild>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;BUILDING_REF_GL;DEBUG;GAMEDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <PreLinkEvent>
+      <Message>Building game function table...</Message>
+      <Command>..\extractfuncs\extractfuncs.bat</Command>
+    </PreLinkEvent>
+    <Link>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>game_sp.def</ModuleDefinitionFile>
+      <SubSystem>Windows</SubSystem>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+    </Link>
+    <Bscmake />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;GAMEDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <PreLinkEvent>
+      <Message>Building game function table...</Message>
+      <Command>..\extractfuncs\extractfuncs.bat</Command>
+    </PreLinkEvent>
+    <Link>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>game_sp.def</ModuleDefinitionFile>
+      <SubSystem>Windows</SubSystem>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+    </Link>
+    <Bscmake />
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\game\ai_cast.c" />
+    <ClCompile Include="..\..\..\..\src\game\ai_cast_characters.c" />
+    <ClCompile Include="..\..\..\..\src\game\ai_cast_debug.c" />
+    <ClCompile Include="..\..\..\..\src\game\ai_cast_events.c" />
+    <ClCompile Include="..\..\..\..\src\game\ai_cast_fight.c" />
+    <ClCompile Include="..\..\..\..\src\game\ai_cast_func_attack.c" />
+    <ClCompile Include="..\..\..\..\src\game\ai_cast_func_boss1.c" />
+    <ClCompile Include="..\..\..\..\src\game\ai_cast_funcs.c" />
+    <ClCompile Include="..\..\..\..\src\game\ai_cast_script.c" />
+    <ClCompile Include="..\..\..\..\src\game\ai_cast_script_actions.c" />
+    <ClCompile Include="..\..\..\..\src\game\ai_cast_script_ents.c" />
+    <ClCompile Include="..\..\..\..\src\game\ai_cast_sight.c" />
+    <ClCompile Include="..\..\..\..\src\game\ai_cast_think.c" />
+    <ClCompile Include="..\..\..\..\src\botai\ai_chat.c" />
+    <ClCompile Include="..\..\..\..\src\botai\ai_cmd.c" />
+    <ClCompile Include="..\..\..\..\src\botai\ai_dmnet.c" />
+    <ClCompile Include="..\..\..\..\src\botai\ai_dmq3.c" />
+    <ClCompile Include="..\..\..\..\src\botai\ai_main.c" />
+    <ClCompile Include="..\..\..\..\src\botai\ai_team.c" />
+    <ClCompile Include="..\..\..\..\src\game\bg_animation.c" />
+    <ClCompile Include="..\..\..\..\src\game\bg_misc.c" />
+    <ClCompile Include="..\..\..\..\src\game\bg_pmove.c" />
+    <ClCompile Include="..\..\..\..\src\game\bg_slidemove.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_active.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_alarm.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_bot.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_client.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_cmds.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_combat.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_items.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_main.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_mem.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_misc.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_missile.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_mover.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_props.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_save.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_script.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_script_actions.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_session.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_spawn.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_svcmds.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_syscalls.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_target.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_team.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_tramcar.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_trigger.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_utils.c" />
+    <ClCompile Include="..\..\..\..\src\game\g_weapon.c" />
+    <ClCompile Include="..\..\..\..\src\game\q_math.c" />
+    <ClCompile Include="..\..\..\..\src\game\q_shared.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="game_sp.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\src\game\ai_cast.h" />
+    <ClInclude Include="..\..\..\..\src\game\ai_cast_fight.h" />
+    <ClInclude Include="..\..\..\..\src\game\ai_cast_global.h" />
+    <ClInclude Include="..\..\..\..\src\botai\ai_chat.h" />
+    <ClInclude Include="..\..\..\..\src\botai\ai_cmd.h" />
+    <ClInclude Include="..\..\..\..\src\botai\ai_dmnet.h" />
+    <ClInclude Include="..\..\..\..\src\botai\ai_dmq3.h" />
+    <ClInclude Include="..\..\..\..\src\botai\ai_main.h" />
+    <ClInclude Include="..\..\..\..\src\botai\ai_team.h" />
+    <ClInclude Include="..\..\..\..\src\game\be_aas.h" />
+    <ClInclude Include="..\..\..\..\src\game\be_ai_char.h" />
+    <ClInclude Include="..\..\..\..\src\game\be_ai_chat.h" />
+    <ClInclude Include="..\..\..\..\src\game\be_ai_gen.h" />
+    <ClInclude Include="..\..\..\..\src\game\be_ai_goal.h" />
+    <ClInclude Include="..\..\..\..\src\game\be_ai_move.h" />
+    <ClInclude Include="..\..\..\..\src\game\be_ai_weap.h" />
+    <ClInclude Include="..\..\..\..\src\game\be_ea.h" />
+    <ClInclude Include="..\..\..\..\src\game\bg_local.h" />
+    <ClInclude Include="..\..\..\..\src\game\bg_public.h" />
+    <ClInclude Include="..\..\..\..\src\botai\botai.h" />
+    <ClInclude Include="..\..\..\..\src\game\botlib.h" />
+    <ClInclude Include="..\..\..\..\src\botai\chars.h" />
+    <ClInclude Include="..\..\..\..\src\game\g_local.h" />
+    <ClInclude Include="..\..\..\..\src\game\g_public.h" />
+    <ClInclude Include="..\..\..\..\src\game\g_team.h" />
+    <ClInclude Include="..\..\..\..\src\botai\inv.h" />
+    <ClInclude Include="..\..\..\..\src\botai\match.h" />
+    <ClInclude Include="..\..\..\..\src\game\q_shared.h" />
+    <ClInclude Include="..\..\..\..\src\game\surfaceflags.h" />
+    <ClInclude Include="..\..\..\..\src\botai\syn.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

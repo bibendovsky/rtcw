@@ -1,0 +1,18 @@
+-----------------------
+Check for FIXME and TODO
+
+-----------------------
+Merge licenses an update all source files.
+
+
+-----------------------
+Recheck code for merge:
+
+game/ai_cast_func_boss1.c
+	AIFunc_FlameZombie_Portal
+
+	AIFunc_FlameZombie_PortalStart
+
+
+qcommon/files.c
+	FS_ReferencedPakNames
