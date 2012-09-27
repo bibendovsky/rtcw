@@ -82,11 +82,23 @@ void *AAS_RT_GetClearedMemory( unsigned long size ) {
 	memorycount += size;
 
 	// ptr = GetClearedMemory(size);
+
+#if !defined RTCW_ET
 	//ptr = GetClearedHunkMemory(size);
+#else
+	ptr = GetClearedHunkMemory( size );
+#endif RTCW_XX
+
 	// Ryan - 01102k, need to use this, since the routetable calculations use up a lot of memory
 	// this will be a non-issue once we transfer the remnants of the routetable over to the aasworld
+
+#if !defined RTCW_ET
 	ptr = malloc( size );
 	memset( ptr, 0, size );
+#else
+	//ptr = malloc (size);
+	//memset (ptr, 0, size);
+#endif RTCW_XX
 
 	return ptr;
 }
@@ -169,7 +181,13 @@ void AAS_RT_CalcTravelTimesToGoalArea( int goalarea ) {
 			rt->reachable_index = reach;
 			rt->travel_time = travel;
 		} else {
+
+#if !defined RTCW_ET
 			rt->reachable_index = -1;
+#else
+			//rt->reachable_index = -1;
+#endif RTCW_XX
+
 			rt->travel_time = 0;
 		}
 	}
@@ -965,7 +983,13 @@ void AAS_RT_BuildRouteTable( void ) {
 		{
 			// kill the parent links
 			next = area_childlocaldata[i]->parentlink;
+
+#if !defined RTCW_ET
 			// TTimo: suggest () around assignment used as truth value
+#else
+			// TTimo gcc: suggests () around assignment used as truth value
+#endif RTCW_XX
+
 			while ( ( trav = next ) )
 			{
 				next = next->next;
@@ -1150,8 +1174,14 @@ AAS_RT_GetHidePos
   "src" is hiding ent, "dest" is the enemy
 =================
 */
+
+#if !defined RTCW_ET
 int AAS_NearestHideArea( int srcnum, vec3_t origin, int areanum, int enemynum, vec3_t enemyorigin, int enemyareanum, int travelflags );
+#endif RTCW_XX
+
 qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destpos, int destnum, int destarea, vec3_t returnPos ) {
+
+#if !defined RTCW_ET
 	static int tfl = TFL_DEFAULT & ~( TFL_JUMPPAD | TFL_ROCKETJUMP | TFL_BFGJUMP | TFL_GRAPPLEHOOK | TFL_DOUBLEJUMP | TFL_RAMPJUMP | TFL_STRAFEJUMP | TFL_LAVA );   //----(SA)	modified since slime is no longer deadly
 //	static int tfl = TFL_DEFAULT & ~(TFL_JUMPPAD|TFL_ROCKETJUMP|TFL_BFGJUMP|TFL_GRAPPLEHOOK|TFL_DOUBLEJUMP|TFL_RAMPJUMP|TFL_STRAFEJUMP|TFL_SLIME|TFL_LAVA);
 
@@ -1436,6 +1466,10 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 	botimport.Print( PRT_MESSAGE, "Fuzzy RT HidePos FAILED: %i ms\n", pretime + Sys_MilliSeconds() );
 	return qfalse;
 #endif
+#else
+	return 0;
+#endif RTCW_XX
+
 }
 
 /*

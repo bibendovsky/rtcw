@@ -47,6 +47,11 @@ typedef enum {
 	UI_CVAR_SET,
 	UI_CVAR_VARIABLEVALUE,
 	UI_CVAR_VARIABLESTRINGBUFFER,
+
+#if defined RTCW_ET
+	UI_CVAR_LATCHEDVARIABLESTRINGBUFFER,
+#endif RTCW_XX
+
 	UI_CVAR_SETVALUE,
 	UI_CVAR_RESET,
 	UI_CVAR_CREATE,
@@ -54,6 +59,11 @@ typedef enum {
 	UI_ARGC,
 	UI_ARGV,
 	UI_CMD_EXECUTETEXT,
+
+#if defined RTCW_ET
+	UI_ADDCOMMAND,
+#endif RTCW_XX
+
 	UI_FS_FOPENFILE,
 	UI_FS_READ,
 
@@ -65,6 +75,11 @@ typedef enum {
 	UI_FS_FCLOSEFILE,
 	UI_FS_GETFILELIST,
 	UI_FS_DELETEFILE,
+
+#if defined RTCW_ET
+	UI_FS_COPYFILE,
+#endif RTCW_XX
+
 	UI_R_REGISTERMODEL,
 	UI_R_REGISTERSKIN,
 	UI_R_REGISTERSHADERNOMIP,
@@ -80,14 +95,24 @@ typedef enum {
 	//----(SA)
 	UI_R_RENDERSCENE,
 	UI_R_SETCOLOR,
+
+#if defined RTCW_ET
+	UI_R_DRAW2DPOLYS,
+#endif RTCW_XX
+
 	UI_R_DRAWSTRETCHPIC,
+
+#if defined RTCW_ET
+	UI_R_DRAWROTATEDPIC,
+#endif RTCW_XX
+
 	UI_UPDATESCREEN,        // 30
 	UI_CM_LERPTAG,
 	UI_CM_LOADMODEL,
 	UI_S_REGISTERSOUND,
 	UI_S_STARTLOCALSOUND,
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	UI_S_FADESTREAMINGSOUND,    //----(SA)	added
 	UI_S_FADEALLSOUNDS,         //----(SA)	added
 #endif RTCW_XX
@@ -95,6 +120,11 @@ typedef enum {
 	UI_KEY_KEYNUMTOSTRINGBUF,
 	UI_KEY_GETBINDINGBUF,
 	UI_KEY_SETBINDING,
+
+#if defined RTCW_ET
+	UI_KEY_BINDINGTOKEYS,
+#endif RTCW_XX
+
 	UI_KEY_ISDOWN,
 	UI_KEY_GETOVERSTRIKEMODE,
 	UI_KEY_SETOVERSTRIKEMODE,
@@ -122,10 +152,20 @@ typedef enum {
 	UI_R_REGISTERFONT,
 	UI_R_MODELBOUNDS,
 	UI_PC_ADD_GLOBAL_DEFINE,
+
+#if defined RTCW_ET
+	UI_PC_REMOVE_ALL_GLOBAL_DEFINES,
+#endif RTCW_XX
+
 	UI_PC_LOAD_SOURCE,
 	UI_PC_FREE_SOURCE,
 	UI_PC_READ_TOKEN,
 	UI_PC_SOURCE_FILE_AND_LINE,
+
+#if defined RTCW_ET
+	UI_PC_UNREAD_TOKEN,
+#endif RTCW_XX
+
 	UI_S_STOPBACKGROUNDTRACK,
 	UI_S_STARTBACKGROUNDTRACK,
 	UI_REAL_TIME,
@@ -150,9 +190,14 @@ typedef enum {
 	UI_LAN_GETSERVERPING,
 	UI_LAN_SERVERISVISIBLE,
 	UI_LAN_COMPARESERVERS,
+
+#if defined RTCW_ET
+	UI_LAN_SERVERISINFAVORITELIST,
+#endif RTCW_XX
+
 	UI_CL_GETLIMBOSTRING,           // NERVE - SMF
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	UI_SET_PBCLSTATUS,              // DHM - Nerve
 	UI_CHECKAUTOUPDATE,             // DHM - Nerve
 	UI_GET_AUTOUPDATE,              // DHM - Nerve
@@ -161,7 +206,12 @@ typedef enum {
 	UI_SET_PBSVSTATUS,              // TTimo
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	UI_MEMSET = 100,
+#else
+	UI_MEMSET = 200,
+#endif RTCW_XX
+
 	UI_MEMCPY,
 	UI_STRNCPY,
 	UI_SIN,
@@ -169,10 +219,20 @@ typedef enum {
 	UI_ATAN2,
 	UI_SQRT,
 	UI_FLOOR,
+
+#if !defined RTCW_ET
 	UI_CEIL
+#else
+	UI_CEIL,
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	UI_GETHUNKDATA
+#endif RTCW_XX
 
 } uiImport_t;
 
+#if !defined RTCW_ET
 typedef enum {
 	UIMENU_NONE,
 	UIMENU_MAIN,
@@ -216,6 +276,7 @@ typedef enum {
 #endif RTCW_XX
 
 } uiMenuCommand_t;
+#endif RTCW_XX
 
 #define SORT_HOST           0
 #define SORT_MAP            1
@@ -230,6 +291,11 @@ typedef enum {
 #if defined RTCW_SP
 #define SORT_SAVENAME       0
 #define SORT_SAVETIME       1
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#define SORT_FILTERS        5
+#define SORT_FAVOURITES     6
 #endif RTCW_XX
 
 typedef enum {
@@ -267,7 +333,7 @@ typedef enum {
 
 #if defined RTCW_SP
 	UI_HASUNIQUECDKEY
-#elif defined RTCW_MP
+#else
 	UI_HASUNIQUECDKEY,
 #endif RTCW_XX
 
@@ -277,7 +343,14 @@ typedef enum {
 
 #if defined RTCW_MP
 	UI_CHECKEXECKEY     // NERVE - SMF
+#elif defined RTCW_ET
+	UI_CHECKEXECKEY,        // NERVE - SMF
 #endif RTCW_XX
+
+#if defined RTCW_ET
+	UI_WANTSBINDKEYS,
+#endif RTCW_XX
+
 
 } uiExport_t;
 

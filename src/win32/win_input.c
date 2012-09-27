@@ -161,7 +161,7 @@ void IN_ActivateWin32Mouse( void ) {
 
 #if defined RTCW_SP
 	ClipCursor( &window_rect );
-#elif defined RTCW_MP
+#else
 	// NERVE - SMF - dont do this in developer mode
 	if ( !com_developer->integer ) {
 		ClipCursor( &window_rect );
@@ -181,7 +181,7 @@ void IN_DeactivateWin32Mouse( void ) {
 
 #if defined RTCW_SP
 	ClipCursor( NULL );
-#elif defined RTCW_MP
+#else
 	// NERVE - SMF - dont do this in developer mode
 	if ( !com_developer->integer ) {
 		ClipCursor( NULL );
@@ -233,6 +233,9 @@ DEFINE_GUID( GUID_XAxis,   0xA36D02E0,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x5
 DEFINE_GUID( GUID_YAxis,   0xA36D02E1,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00 );
 DEFINE_GUID( GUID_ZAxis,   0xA36D02E2,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00 );
 
+#if defined RTCW_ET
+static unsigned int mstate_di;
+#endif RTCW_XX
 
 #define DINPUT_BUFFERSIZE           16
 #define iDirectInputCreate( a,b,c,d ) pDirectInputCreate( a,b,c,d )
@@ -242,7 +245,9 @@ HRESULT ( WINAPI * pDirectInputCreate )( HINSTANCE hinst, DWORD dwVersion,
 
 #endif ///// (SA) DOOMSOUND
 
+#if !defined RTCW_ET
 static HINSTANCE hInstDI;
+#endif RTCW_XX
 
 typedef struct MYDATA {
 	LONG lX;                    // X axis goes here
@@ -252,6 +257,14 @@ typedef struct MYDATA {
 	BYTE bButtonB;              // Another button goes here
 	BYTE bButtonC;              // Another button goes here
 	BYTE bButtonD;              // Another button goes here
+
+#if defined RTCW_ET
+	BYTE bButtonE;              // Another button goes here
+	BYTE bButtonF;              // Another button goes here
+	BYTE bButtonG;              // Another button goes here
+	BYTE bButtonH;              // Another button goes here
+#endif RTCW_XX
+
 } MYDATA;
 
 static DIOBJECTDATAFORMAT rgodf[] = {
@@ -262,6 +275,14 @@ static DIOBJECTDATAFORMAT rgodf[] = {
 	{ 0,              FIELD_OFFSET( MYDATA, bButtonB ), DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0,},
 	{ 0,              FIELD_OFFSET( MYDATA, bButtonC ), 0x80000000 | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0,},
 	{ 0,              FIELD_OFFSET( MYDATA, bButtonD ), 0x80000000 | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0,},
+
+#if defined RTCW_ET
+	{ 0,              FIELD_OFFSET( MYDATA, bButtonE ), 0x80000000 | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0,},
+	{ 0,              FIELD_OFFSET( MYDATA, bButtonF ), 0x80000000 | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0,},
+	{ 0,              FIELD_OFFSET( MYDATA, bButtonG ), 0x80000000 | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0,},
+	{ 0,              FIELD_OFFSET( MYDATA, bButtonH ), 0x80000000 | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0,},
+#endif RTCW_XX
+
 };
 
 #define NUM_OBJECTS ( sizeof( rgodf ) / sizeof( rgodf[0] ) )
@@ -277,6 +298,13 @@ static DIDATAFORMAT df = {
 
 static LPDIRECTINPUT g_pdi;
 static LPDIRECTINPUTDEVICE g_pMouse;
+
+#if defined RTCW_ET
+#define             MAX_MOUSE_BUTTONS 8
+
+qboolean directInput = qfalse;
+static qboolean directInput_acquired = qfalse;
+#endif RTCW_XX
 
 /*
 ============================================================
@@ -305,9 +333,27 @@ void IN_ActivateMouse( void ) {
 		return;
 	}
 
+#if !defined RTCW_ET
 	s_wmv.mouseActive = qtrue;
 
 	IN_ActivateWin32Mouse();
+#else
+	if ( directInput ) {
+		if ( g_pMouse ) {
+
+			if ( !directInput_acquired ) {
+				IDirectInputDevice_Acquire( g_pMouse );
+				directInput_acquired = qtrue;
+			}
+		} else {
+			return;
+		}
+	} else {
+		IN_ActivateWin32Mouse();
+	}
+	s_wmv.mouseActive = qtrue;
+#endif RTCW_XX
+
 }
 
 
@@ -325,11 +371,112 @@ void IN_DeactivateMouse( void ) {
 	if ( !s_wmv.mouseActive ) {
 		return;
 	}
+
+#if !defined RTCW_ET
 	s_wmv.mouseActive = qfalse;
 
 	IN_DeactivateWin32Mouse();
+#else
+	if ( directInput ) {
+
+		if ( g_pMouse ) {
+
+			if ( directInput_acquired ) {
+
+				IDirectInputDevice_Unacquire( g_pMouse );
+				directInput_acquired = qfalse;
+			}
+		}
+	} else {
+
+		IN_DeactivateWin32Mouse();
+	}
+
+	s_wmv.mouseActive = qfalse;
+#endif RTCW_XX
+
 }
 
+#if defined RTCW_ET
+/*
+===========
+IN_InitDInput
+===========
+*/
+
+#undef DEFINE_GUID
+
+#define DEFINE_GUID( name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8 ) \
+	EXTERN_C const GUID name \
+	= { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }
+
+DEFINE_GUID( IID_IDirectInput8A,     0xBF798030,0x483A,0x4DA2,0xAA,0x99,0x5D,0x64,0xED,0x36,0x97,0x00 );
+
+qboolean IN_InitDInput( void ) {
+	HRESULT hResult;
+	DIPROPDWORD dipdw = {
+		{
+			sizeof( DIPROPDWORD ),        // diph.dwSize
+			sizeof( DIPROPHEADER ),       // diph.dwHeaderSize
+			0,                          // diph.dwObj
+			DIPH_DEVICE,                // diph.dwHow
+		},
+		DINPUT_BUFFERSIZE,              // dwData
+	};
+
+#ifdef __GNUC__
+	hResult = DirectInputCreate( g_wv.hInstance, DIRECTINPUT_VERSION, &g_pdi, NULL );
+#else
+	hResult = DirectInput8Create( g_wv.hInstance, DIRECTINPUT_VERSION, &IID_IDirectInput8A, &g_pdi, NULL );
+#endif
+
+	if ( FAILED( hResult ) ) {
+#ifdef __GNUC__
+		Com_Printf( "DirectInput8Create failed\n" );
+#else
+		Com_Printf( "DirectInput8Create failed\n" );
+#endif
+		return qfalse;
+	}
+
+	// obtain an interface to the system mouse device.
+	hResult = IDirectInput_CreateDevice( g_pdi, &GUID_SysMouse, &g_pMouse, NULL );
+
+	if ( FAILED( hResult ) ) {
+		Com_Printf( "Couldn't open DI mouse device\n" );
+		return qfalse;
+	}
+
+	// set the data format to "mouse format".
+	hResult = IDirectInputDevice_SetDataFormat( g_pMouse, &df );
+
+	if ( FAILED( hResult ) ) {
+		Com_Printf( "Couldn't set DI mouse format\n" );
+		return qfalse;
+	}
+
+	// set the DirectInput cooperativity level.
+	hResult = IDirectInputDevice_SetCooperativeLevel( g_pMouse, g_wv.hWnd,
+													  DISCL_EXCLUSIVE | DISCL_FOREGROUND );
+
+	if ( FAILED( hResult ) ) {
+		Com_Printf( "Couldn't set DI coop level\n" );
+		return qfalse;
+	}
+
+
+	// set the buffer size to DINPUT_BUFFERSIZE elements.
+	// the buffer size is a DWORD property associated with the device
+	hResult = IDirectInputDevice_SetProperty( g_pMouse, DIPROP_BUFFERSIZE, &dipdw.diph );
+
+	if ( FAILED( hResult ) ) {
+		Com_Printf( "Couldn't set DI buffersize\n" );
+		return qfalse;
+	}
+
+	return qtrue;
+}
+#endif RTCW_XX
 
 
 /*
@@ -347,7 +494,28 @@ void IN_StartupMouse( void ) {
 
 	s_wmv.mouseInitialized = qtrue;
 
+#if !defined RTCW_ET
 	IN_InitWin32Mouse();
+#else
+#ifdef DI_SUPPORT
+	// yay directinput for you
+	// changed to 2 as pb was messing with me when I set it to -1
+	if ( in_mouse->integer == 2 ) {
+		directInput = IN_InitDInput();
+
+		if ( directInput ) {
+			Com_Printf( "DirectInput initialized\n" );
+		} else {
+			Com_Printf( "DirectInput not initialized\n" ); // or maybe not :(
+		}
+	}
+
+	if ( !directInput ) {
+#endif
+	Cvar_Set( "in_mouse", "1" );    //fretn
+	IN_InitWin32Mouse();
+#endif RTCW_XX
+
 }
 
 /*
@@ -358,12 +526,23 @@ IN_MouseEvent
 void IN_MouseEvent( int mstate ) {
 	int i;
 
+#if !defined RTCW_ET
 	if ( !s_wmv.mouseInitialized ) {
+#else
+	if ( !s_wmv.mouseInitialized && !directInput ) {
+#endif RTCW_XX
+
 		return;
 	}
 
 // perform button actions
+
+#if !defined RTCW_ET
 	for  ( i = 0 ; i < 3 ; i++ )
+#else
+	for ( i = 0 ; i < 5 ; i++ )
+#endif RTCW_XX
+
 	{
 		if ( ( mstate & ( 1 << i ) ) &&
 			 !( s_wmv.oldButtonState & ( 1 << i ) ) ) {
@@ -388,7 +567,94 @@ IN_MouseMove
 void IN_MouseMove( void ) {
 	int mx, my;
 
+#if defined RTCW_ET
+	int i;
+	DIDEVICEOBJECTDATA od;
+	DWORD dwElements;
+	HRESULT hResult;
+	int shiftbytes;
+
+	if ( directInput ) {
+		mx = 0;
+		my = 0;
+
+		for (;; ) {
+			dwElements = 1;
+
+			hResult = IDirectInputDevice_GetDeviceData( g_pMouse,
+														sizeof( DIDEVICEOBJECTDATA ), &od, &dwElements, 0 );
+
+			if ( ( hResult == DIERR_INPUTLOST ) || ( hResult == DIERR_NOTACQUIRED ) ) {
+				directInput_acquired = qtrue;
+				IDirectInputDevice_Acquire( g_pMouse );
+				break;
+			}
+
+			// Unable to read data or no data available
+			if ( FAILED( hResult ) || dwElements == 0 ) {
+				break;
+			}
+
+			// Look at the element to see what happened
+			switch ( od.dwOfs ) {
+			case DIMOFS_X:
+				mx += od.dwData;
+				break;
+
+			case DIMOFS_Y:
+				my += od.dwData;
+				break;
+
+			case DIMOFS_Z:
+
+				if ( (int)od.dwData > 0 ) {
+					Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MWHEELUP, qtrue, 0, NULL );
+					Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MWHEELUP, qfalse, 0, NULL );
+				} else {
+					Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MWHEELDOWN, qtrue, 0, NULL );
+					Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MWHEELDOWN, qfalse, 0, NULL );
+				}
+
+				break;
+
+			case DIMOFS_BUTTON0:
+			case DIMOFS_BUTTON1:
+			case DIMOFS_BUTTON2:
+			case DIMOFS_BUTTON3:
+			case DIMOFS_BUTTON0 + 4:
+			case DIMOFS_BUTTON0 + 5:
+			case DIMOFS_BUTTON0 + 6:
+			case DIMOFS_BUTTON0 + 7:
+				shiftbytes = ( od.dwOfs - DIMOFS_BUTTON0 );
+				if ( od.dwData & 0x80 ) {
+					mstate_di |= ( 1 << ( shiftbytes ) );
+				} else {
+					mstate_di &= ~( 1 << ( shiftbytes ) );
+				}
+				break;
+			}
+		}
+
+		// perform button actions
+		for ( i = 0 ; i < MAX_MOUSE_BUTTONS ; i++ ) {
+			if ( ( mstate_di & ( 1 << i ) ) && !( s_wmv.oldButtonState & ( 1 << i ) ) ) {
+				Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MOUSE1 + i, qtrue, 0, NULL );
+			}
+
+			if ( !( mstate_di & ( 1 << i ) ) && ( s_wmv.oldButtonState & ( 1 << i ) ) ) {
+				Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MOUSE1 + i, qfalse, 0, NULL );
+			}
+		}
+
+		s_wmv.oldButtonState = mstate_di;
+	} else {
+#endif RTCW_XX
+
 	IN_Win32Mouse( &mx, &my );
+
+#if defined RTCW_ET
+	}
+#endif RTCW_XX
 
 	if ( !mx && !my ) {
 		return;
@@ -411,7 +677,7 @@ IN_Startup
 */
 void IN_Startup( void ) {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// TODO: no joystick support yet...
 #endif RTCW_XX
 
@@ -434,6 +700,29 @@ void IN_Shutdown( void ) {
 	IN_DeactivateMouse();
 	IN_ShutdownMIDI();
 	Cmd_RemoveCommand( "midiinfo" );
+
+#if defined RTCW_ET
+	if ( directInput ) {
+
+		// release our mouse
+		if ( g_pMouse ) {
+			IDirectInputDevice_SetCooperativeLevel( g_pMouse, g_wv.hWnd, DISCL_NONEXCLUSIVE | DISCL_BACKGROUND );
+			IDirectInputDevice_Release( g_pMouse );
+		}
+
+		if ( g_pdi ) {
+			IDirectInput_Release( g_pdi );
+		}
+
+		g_pMouse = NULL;
+		g_pdi = NULL;
+
+		// reset our values
+		directInput_acquired = qfalse;
+		directInput = qfalse;
+	}
+#endif RTCW_XX
+
 }
 
 
@@ -560,7 +849,7 @@ void IN_StartupJoystick( void ) {
 
 #if defined RTCW_SP
 //		Com_DPrintf ("Joystick is not active.\n");
-#elif defined RTCW_MP
+#else
 		Com_DPrintf( "Joystick is not active.\n" );
 #endif RTCW_XX
 
@@ -572,7 +861,7 @@ void IN_StartupJoystick( void ) {
 
 #if defined RTCW_SP
 		Com_Printf( "joystick not found -- driver not present\n" );
-#elif defined RTCW_MP
+#else
 		Com_DPrintf( "joystick not found -- driver not present\n" );
 #endif RTCW_XX
 
@@ -620,7 +909,7 @@ void IN_StartupJoystick( void ) {
 	} else {
 		Com_DPrintf( "no POV\n" );
 	}
-#elif defined RTCW_MP
+#else
 	Com_Printf( "Joystick found.\n" );
 	Com_Printf( "Pname: %s\n", joy.jc.szPname );
 	Com_Printf( "OemVxD: %s\n", joy.jc.szOEMVxD );

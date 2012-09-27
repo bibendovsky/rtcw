@@ -235,9 +235,17 @@ typedef struct miptex_s
 // leaffaces, leafbrushes, planes, and verts are still bounded by
 // 16 bit short limits
 #define MAX_MAP_MODELS      1024
+
+#if !defined RTCW_ET
 #define MAX_MAP_BRUSHES     8192
 #define MAX_MAP_ENTITIES    2048
 #define MAX_MAP_ENTSTRING   0x40000
+#else
+#define MAX_MAP_BRUSHES     16384
+#define MAX_MAP_ENTITIES    4096
+#define MAX_MAP_ENTSTRING   ( 128 * MAX_MAP_ENTITIES )
+#endif RTCW_XX
+
 #define MAX_MAP_TEXINFO     8192
 
 #define MAX_MAP_AREAS       256
@@ -376,7 +384,8 @@ typedef struct
 
 #define SURF_LIGHT      0x1     // value will hold the light strength
 
-#define SURF_SLICK      0x2     // effects game physics
+#if !defined RTCW_ET
+define SURF_SLICK      0x2     // effects game physics
 
 #define SURF_SKY        0x4     // don't draw, but add to skybox
 #define SURF_WARP       0x8     // turbulent water warp
@@ -387,7 +396,7 @@ typedef struct
 
 #define SURF_HINT       0x100   // make a primary bsp splitter
 #define SURF_SKIP       0x200   // completely ignore, allowing non-closed brushes
-
+#endif RTCW_XX
 
 
 typedef struct

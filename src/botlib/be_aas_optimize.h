@@ -37,3 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 
 void AAS_Optimize( void );
 
+#if defined RTCW_ET
+void AAS_RemoveNonReachability( void );
+void AAS_RemoveNonGrounded( void );
+#endif RTCW_XX
+

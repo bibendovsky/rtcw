@@ -424,7 +424,7 @@ void MakeNodePortal( node_t *node ) {
 #if defined RTCW_SP
 	float dist = 0;       // TTimo: init
 	int side = 0;
-#elif defined RTCW_MP
+#else
 	float dist;
 	int side;
 #endif RTCW_XX
@@ -498,7 +498,7 @@ void SplitNodePortals( node_t *node ) {
 
 #if defined RTCW_SP
 	int side = 0; // TTimo: init
-#elif defined RTCW_MP
+#else
 	int side;
 #endif RTCW_XX
 

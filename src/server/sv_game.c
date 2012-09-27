@@ -108,11 +108,24 @@ SV_GameDropClient
 Disconnects the client with a message
 ===============
 */
+
+#if !defined RTCW_ET
 void SV_GameDropClient( int clientNum, const char *reason ) {
+#else
+void SV_GameDropClient( int clientNum, const char *reason, int length ) {
+#endif RTCW_XX
+
 	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
 		return;
 	}
 	SV_DropClient( svs.clients + clientNum, reason );
+
+#if defined RTCW_ET
+	if ( length ) {
+		SV_TempBanNetAddress( svs.clients[ clientNum ].netchan.remoteAddress, length );
+	}
+#endif RTCW_XX
+
 }
 
 
@@ -260,7 +273,13 @@ void SV_GetServerinfo( char *buffer, int bufferSize ) {
 	if ( bufferSize < 1 ) {
 		Com_Error( ERR_DROP, "SV_GetServerinfo: bufferSize == %i", bufferSize );
 	}
+
+#if !defined RTCW_ET
 	Q_strncpyz( buffer, Cvar_InfoString( CVAR_SERVERINFO ), bufferSize );
+#else
+	Q_strncpyz( buffer, Cvar_InfoString( CVAR_SERVERINFO | CVAR_SERVERINFO_NOUPDATE ), bufferSize );
+#endif RTCW_XX
+
 }
 
 /*
@@ -293,6 +312,59 @@ void SV_GetUsercmd( int clientNum, usercmd_t *cmd ) {
 	*cmd = svs.clients[clientNum].lastUsercmd;
 }
 
+#if defined RTCW_ET
+/*
+====================
+SV_SendBinaryMessage
+====================
+*/
+static void SV_SendBinaryMessage( int cno, char *buf, int buflen ) {
+	if ( cno < 0 || cno >= sv_maxclients->integer ) {
+		Com_Error( ERR_DROP, "SV_SendBinaryMessage: bad client %i", cno );
+		return;
+	}
+
+	if ( buflen < 0 || buflen > MAX_BINARY_MESSAGE ) {
+		Com_Error( ERR_DROP, "SV_SendBinaryMessage: bad length %i", buflen );
+		svs.clients[cno].binaryMessageLength = 0;
+		return;
+	}
+
+	svs.clients[cno].binaryMessageLength = buflen;
+	memcpy( svs.clients[cno].binaryMessage, buf, buflen );
+}
+
+/*
+====================
+SV_BinaryMessageStatus
+====================
+*/
+static int SV_BinaryMessageStatus( int cno ) {
+	if ( cno < 0 || cno >= sv_maxclients->integer ) {
+		return qfalse;
+	}
+
+	if ( svs.clients[cno].binaryMessageLength == 0 ) {
+		return MESSAGE_EMPTY;
+	}
+
+	if ( svs.clients[cno].binaryMessageOverflowed ) {
+		return MESSAGE_WAITING_OVERFLOW;
+	}
+
+	return MESSAGE_WAITING;
+}
+
+/*
+====================
+SV_GameBinaryMessageReceived
+====================
+*/
+void SV_GameBinaryMessageReceived( int cno, const char *buf, int buflen, int commandTime ) {
+	VM_Call( gvm, GAME_MESSAGERECEIVED, cno, buf, buflen, commandTime );
+}
+#endif RTCW_XX
+
 //==============================================
 
 static int  FloatAsInt( float f ) {
@@ -319,13 +391,31 @@ The module is making a system call
 
 #define VMF( x )  ( (float *)args )[x]
 
+#if defined RTCW_ET
+// show_bug.cgi?id=574
+extern int S_RegisterSound( const char *name, qboolean compressed );
+extern int S_GetSoundLength( sfxHandle_t sfxHandle );
+#endif RTCW_XX
+
 int SV_GameSystemCalls( int *args ) {
 	switch ( args[0] ) {
 	case G_PRINT:
+
+#if !defined RTCW_ET
 		Com_Printf( "%s", VMA( 1 ) );
+#else
+		Com_Printf( "%s", (char *)VMA( 1 ) );
+#endif RTCW_XX
+
 		return 0;
 	case G_ERROR:
+
+#if !defined RTCW_ET
 		Com_Error( ERR_DROP, "%s", VMA( 1 ) );
+#else
+		Com_Error( ERR_DROP, "%s", (char *)VMA( 1 ) );
+#endif RTCW_XX
+
 		return 0;
 
 #if defined RTCW_SP
@@ -350,6 +440,13 @@ int SV_GameSystemCalls( int *args ) {
 	case G_CVAR_VARIABLE_STRING_BUFFER:
 		Cvar_VariableStringBuffer( VMA( 1 ), VMA( 2 ), args[3] );
 		return 0;
+
+#if defined RTCW_ET
+	case G_CVAR_LATCHEDVARIABLESTRINGBUFFER:
+		Cvar_LatchedVariableStringBuffer( VMA( 1 ), VMA( 2 ), args[3] );
+		return 0;
+#endif RTCW_XX
+
 	case G_ARGC:
 		return Cmd_Argc();
 	case G_ARGV:
@@ -386,7 +483,13 @@ int SV_GameSystemCalls( int *args ) {
 		SV_LocateGameData( VMA( 1 ), args[2], args[3], VMA( 4 ), args[5] );
 		return 0;
 	case G_DROP_CLIENT:
+
+#if !defined RTCW_ET
 		SV_GameDropClient( args[1], VMA( 2 ) );
+#else
+		SV_GameDropClient( args[1], VMA( 2 ), args[3] );
+#endif RTCW_XX
+
 		return 0;
 	case G_SEND_SERVER_COMMAND:
 		SV_GameSendServerCommand( args[1], VMA( 2 ) );
@@ -441,7 +544,13 @@ int SV_GameSystemCalls( int *args ) {
 		return CM_AreasConnected( args[1], args[2] );
 
 	case G_BOT_ALLOCATE_CLIENT:
+
+#if !defined RTCW_ET
 		return SV_BotAllocateClient();
+#else
+		return SV_BotAllocateClient( args[1] );
+#endif RTCW_XX
+
 	case G_BOT_FREE_CLIENT:
 		SV_BotFreeClient( args[1] );
 		return 0;
@@ -473,7 +582,28 @@ int SV_GameSystemCalls( int *args ) {
 		Sys_SnapVector( VMA( 1 ) );
 		return 0;
 	case G_GETTAG:
+
+#if !defined RTCW_ET
 		return SV_GetTag( args[1], VMA( 2 ), VMA( 3 ) );
+#else
+		return SV_GetTag( args[1], args[2], VMA( 3 ), VMA( 4 ) );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	case G_REGISTERTAG:
+		return SV_LoadTag( VMA( 1 ) );
+
+		// START	xkan, 10/28/2002
+	case G_REGISTERSOUND:
+#ifdef DOOMSOUND    ///// (SA) DOOMSOUND
+		return S_RegisterSound( VMA( 1 ) );
+#else
+		return S_RegisterSound( VMA( 1 ), args[2] );
+#endif  ///// (SA) DOOMSOUND
+	case G_GET_SOUND_LENGTH:
+		return S_GetSoundLength( args[1] );
+		// END		xkan, 10/28/2002
+#endif RTCW_XX
 
 		//====================================
 
@@ -496,6 +626,12 @@ int SV_GameSystemCalls( int *args ) {
 		return botlib_export->PC_ReadTokenHandle( args[1], VMA( 2 ) );
 	case BOTLIB_PC_SOURCE_FILE_AND_LINE:
 		return botlib_export->PC_SourceFileAndLine( args[1], VMA( 2 ), VMA( 3 ) );
+
+#if defined RTCW_ET
+	case BOTLIB_PC_UNREAD_TOKEN:
+		botlib_export->PC_UnreadLastTokenHandle( args[1] );
+		return 0;
+#endif RTCW_XX
 
 	case BOTLIB_START_FRAME:
 		return botlib_export->BotLibStartFrame( VMF( 1 ) );
@@ -537,6 +673,16 @@ int SV_GameSystemCalls( int *args ) {
 	case BOTLIB_AAS_TRACE_AREAS:
 		return botlib_export->aas.AAS_TraceAreas( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), args[5] );
 
+#if defined RTCW_ET
+	case BOTLIB_AAS_BBOX_AREAS:
+		return botlib_export->aas.AAS_BBoxAreas( VMA( 1 ), VMA( 2 ), VMA( 3 ), args[4] );
+	case BOTLIB_AAS_AREA_CENTER:
+		botlib_export->aas.AAS_AreaCenter( args[1], VMA( 2 ) );
+		return 0;
+	case BOTLIB_AAS_AREA_WAYPOINT:
+		return botlib_export->aas.AAS_AreaWaypoint( args[1], VMA( 2 ) );
+#endif RTCW_XX
+
 	case BOTLIB_AAS_POINT_CONTENTS:
 		return botlib_export->aas.AAS_PointContents( VMA( 1 ) );
 	case BOTLIB_AAS_NEXT_BSP_ENTITY:
@@ -553,6 +699,11 @@ int SV_GameSystemCalls( int *args ) {
 	case BOTLIB_AAS_AREA_REACHABILITY:
 		return botlib_export->aas.AAS_AreaReachability( args[1] );
 
+#if defined RTCW_ET
+	case BOTLIB_AAS_AREA_LADDER:
+		return botlib_export->aas.AAS_AreaLadder( args[1] );
+#endif RTCW_XX
+
 	case BOTLIB_AAS_AREA_TRAVEL_TIME_TO_GOAL_AREA:
 		return botlib_export->aas.AAS_AreaTravelTimeToGoalArea( args[1], VMA( 2 ), args[3], args[4] );
 
@@ -567,20 +718,52 @@ int SV_GameSystemCalls( int *args ) {
 		botlib_export->aas.AAS_RT_ShowRoute( VMA( 1 ), args[2], args[3] );
 		return 0;
 
+#if !defined RTCW_ET
 	case BOTLIB_AAS_RT_GETHIDEPOS:
 		return botlib_export->aas.AAS_RT_GetHidePos( VMA( 1 ), args[2], args[3], VMA( 4 ), args[5], args[6], VMA( 7 ) );
 
 	case BOTLIB_AAS_FINDATTACKSPOTWITHINRANGE:
 		return botlib_export->aas.AAS_FindAttackSpotWithinRange( args[1], args[2], args[3], VMF( 4 ), args[5], VMA( 6 ) );
+#else
+		//case BOTLIB_AAS_RT_GETHIDEPOS:
+		//	return botlib_export->aas.AAS_RT_GetHidePos( VMA(1), args[2], args[3], VMA(4), args[5], args[6], VMA(7) );
+
+		//case BOTLIB_AAS_FINDATTACKSPOTWITHINRANGE:
+		//	return botlib_export->aas.AAS_FindAttackSpotWithinRange( args[1], args[2], args[3], VMF(4), args[5], VMA(6) );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	case BOTLIB_AAS_GETROUTEFIRSTVISPOS:
 		return botlib_export->aas.AAS_GetRouteFirstVisPos( VMA( 1 ), VMA( 2 ), args[3], VMA( 4 ) );
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	case BOTLIB_AAS_NEARESTHIDEAREA:
+		return botlib_export->aas.AAS_NearestHideArea( args[1], VMA( 2 ), args[3], args[4], VMA( 5 ), args[6], args[7], VMF( 8 ), VMA( 9 ) );
+
+	case BOTLIB_AAS_LISTAREASINRANGE:
+		return botlib_export->aas.AAS_ListAreasInRange( VMA( 1 ), args[2], VMF( 3 ), args[4], VMA( 5 ), args[6] );
+
+	case BOTLIB_AAS_AVOIDDANGERAREA:
+		return botlib_export->aas.AAS_AvoidDangerArea( VMA( 1 ), args[2], VMA( 3 ), args[4], VMF( 5 ), args[6] );
+
+	case BOTLIB_AAS_RETREAT:
+		return botlib_export->aas.AAS_Retreat( VMA( 1 ), args[2], VMA( 3 ), args[4], VMA( 5 ), args[6], VMF( 7 ), VMF( 8 ), args[9] );
+
+	case BOTLIB_AAS_ALTROUTEGOALS:
+		return botlib_export->aas.AAS_AlternativeRouteGoals( VMA( 1 ), VMA( 2 ), args[3], VMA( 4 ), args[5], args[6] );
+#endif RTCW_XX
+
 	case BOTLIB_AAS_SETAASBLOCKINGENTITY:
 		botlib_export->aas.AAS_SetAASBlockingEntity( VMA( 1 ), VMA( 2 ), args[3] );
 		return 0;
+
+#if defined RTCW_ET
+	case BOTLIB_AAS_RECORDTEAMDEATHAREA:
+		botlib_export->aas.AAS_RecordTeamDeathArea( VMA( 1 ), args[2], args[3], args[4], args[5] );
+		return 0;
+#endif RTCW_XX
+
 		// done.
 
 	case BOTLIB_EA_SAY:
@@ -635,6 +818,13 @@ int SV_GameSystemCalls( int *args ) {
 	case BOTLIB_EA_CROUCH:
 		botlib_export->ea.EA_Crouch( args[1] );
 		return 0;
+
+#if defined RTCW_ET
+	case BOTLIB_EA_WALK:
+		botlib_export->ea.EA_Walk( args[1] );
+		return 0;
+#endif RTCW_XX
+
 	case BOTLIB_EA_MOVE_UP:
 		botlib_export->ea.EA_MoveUp( args[1] );
 		return 0;
@@ -659,6 +849,12 @@ int SV_GameSystemCalls( int *args ) {
 	case BOTLIB_EA_VIEW:
 		botlib_export->ea.EA_View( args[1], VMA( 2 ) );
 		return 0;
+
+#if defined RTCW_ET
+	case BOTLIB_EA_PRONE:
+		botlib_export->ea.EA_Prone( args[1] );
+		return 0;
+#endif RTCW_XX
 
 	case BOTLIB_EA_END_REGULAR:
 		botlib_export->ea.EA_EndRegular( args[1], VMF( 2 ) );
@@ -907,6 +1103,17 @@ int SV_GameSystemCalls( int *args ) {
 		return FloatAsInt( ceil( VMF( 1 ) ) );
 
 
+#if defined RTCW_ET
+	case PB_STAT_REPORT:
+		return 0 ;
+
+	case G_SENDMESSAGE:
+		SV_SendBinaryMessage( args[1], VMA( 2 ), args[3] );
+		return 0;
+	case G_MESSAGESTATUS:
+		return SV_BinaryMessageStatus( args[1] );
+#endif RTCW_XX
+
 	default:
 		Com_Error( ERR_DROP, "Bad game system trap: %i", args[0] );
 	}
@@ -954,7 +1161,7 @@ static void SV_InitGameVM( qboolean restart ) {
 		svs.clients[i].gentity = NULL;
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// use the current msec count for a random seed
 	// init for this gamestate
 	VM_Call( gvm, GAME_INIT, svs.time, Com_Milliseconds(), restart );
@@ -996,6 +1203,11 @@ Called on a normal map change, not on a map_restart
 */
 void SV_InitGameProgs( void ) {
 
+#if defined RTCW_ET
+	sv.num_tagheaders = 0;
+	sv.num_tags = 0;
+#endif RTCW_XX
+
 #if defined RTCW_SP
 	cvar_t  *var;
 	//FIXME these are temp while I make bots run in vm
@@ -1010,7 +1222,7 @@ void SV_InitGameProgs( void ) {
 
 	// load the dll or bytecode
 	gvm = VM_Create( "qagame", SV_GameSystemCalls, Cvar_VariableValue( "vm_game" ) );
-#elif defined RTCW_MP
+#else
 	// load the dll
 	gvm = VM_Create( "qagame", SV_GameSystemCalls, VMI_NATIVE );
 #endif RTCW_XX
@@ -1038,7 +1250,7 @@ qboolean SV_GameCommand( void ) {
 	return VM_Call( gvm, GAME_CONSOLE_COMMAND );
 }
 
-
+#if !defined RTCW_ET
 /*
 ====================
 SV_SendMoveSpeedsToGame
@@ -1050,6 +1262,29 @@ void SV_SendMoveSpeedsToGame( int entnum, char *text ) {
 	}
 	VM_Call( gvm, GAME_RETRIEVE_MOVESPEEDS_FROM_CLIENT, entnum, text );
 }
+#endif RTCW_XX
+
+#if defined RTCW_ET
+/*
+====================
+SV_GameIsSinglePlayer
+====================
+*/
+qboolean SV_GameIsSinglePlayer( void ) {
+	return( com_gameInfo.spGameTypes & ( 1 << g_gameType->integer ) );
+}
+
+/*
+====================
+SV_GameIsCoop
+
+	This is a modified SinglePlayer, no savegame capability for example
+====================
+*/
+qboolean SV_GameIsCoop( void ) {
+	return( com_gameInfo.coopGameTypes & ( 1 << g_gameType->integer ) );
+}
+#endif RTCW_XX
 
 /*
 ====================
@@ -1061,13 +1296,37 @@ SV_GetTag
 
 #if defined RTCW_SP
 extern qboolean CL_GetTag( int clientNum, char *tagname, orientation_t *or );
-#elif defined RTCW_MP
+#else
 extern qboolean CL_GetTag( int clientNum, char *tagname, orientation_t * or );
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 qboolean SV_GetTag( int clientNum, char *tagname, orientation_t *or ) {
+#else
+qboolean SV_GetTag( int clientNum, int tagFileNumber, char *tagname, orientation_t *or ) {
+	int i;
+#endif RTCW_XX
 
-#if defined RTCW_SP || (defined RTCW_MP && !defined DEDICATED)
+#if defined RTCW_ET
+	if ( tagFileNumber > 0 && tagFileNumber <= sv.num_tagheaders ) {
+		for ( i = sv.tagHeadersExt[tagFileNumber - 1].start; i < sv.tagHeadersExt[tagFileNumber - 1].start + sv.tagHeadersExt[tagFileNumber - 1].count; i++ ) {
+			if ( !Q_stricmp( sv.tags[i].name, tagname ) ) {
+				VectorCopy( sv.tags[i].origin, or->origin );
+				VectorCopy( sv.tags[i].axis[0], or->axis[0] );
+				VectorCopy( sv.tags[i].axis[1], or->axis[1] );
+				VectorCopy( sv.tags[i].axis[2], or->axis[2] );
+				return qtrue;
+			}
+		}
+	}
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	// Gordon: lets try and remove the inconsitancy between ded/non-ded servers...
+	// Gordon: bleh, some code in clientthink_real really relies on this working on player models...
+#endif RTCW_XX
+
+#if defined RTCW_SP || (!defined RTCW_SP && !defined DEDICATED)
 // TTimo: dedicated only binary defines DEDICATED
 	if ( com_dedicated->integer ) {
 		return qfalse;

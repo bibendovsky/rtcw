@@ -39,6 +39,13 @@ static shader_t shader;
 static texModInfo_t texMods[MAX_SHADER_STAGES][TR_MAX_TEXMODS];
 static qboolean deferLoad;
 
+#if defined RTCW_ET
+// ydnar: these are here because they are only referenced while parsing a shader
+static char implicitMap[ MAX_QPATH ];
+static unsigned implicitStateBits;
+static cullType_t implicitCullType;
+#endif RTCW_XX
+
 #define FILE_HASH_SIZE      4096
 
 static shader_t*       hashTable[FILE_HASH_SIZE];
@@ -117,7 +124,7 @@ void R_RemapShader( const char *shaderName, const char *newShaderName, const cha
 
 #if defined RTCW_SP
 	COM_StripExtension( shaderName, strippedName );
-#elif defined RTCW_MP
+#else
 	COM_StripExtension2( shaderName, strippedName, sizeof( strippedName ) );
 #endif RTCW_XX
 
@@ -637,6 +644,8 @@ static qboolean ParseStage( shaderStage_t *stage, char **text ) {
 //----(SA)	end
 #elif defined RTCW_MP
 				stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT );
+#else
+				stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse );
 #endif RTCW_XX
 
 				if ( !stage->bundle[0].image[0] ) {
@@ -659,6 +668,8 @@ static qboolean ParseStage( shaderStage_t *stage, char **text ) {
 			stage->bundle[0].image[0] = R_FindImageFileExt( token, !shader.noMipMaps, !shader.noPicMip, shader.characterMip, GL_CLAMP );
 #elif defined RTCW_MP
 			stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_CLAMP );
+#else
+			stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_CLAMP, qfalse );
 #endif RTCW_XX
 
 			if ( !stage->bundle[0].image[0] ) {
@@ -666,6 +677,49 @@ static qboolean ParseStage( shaderStage_t *stage, char **text ) {
 				return qfalse;
 			}
 		}
+
+#if defined RTCW_ET
+		//
+		// lightmap <name>
+		//
+		else if ( !Q_stricmp( token, "lightmap" ) ) {
+			token = COM_ParseExt( text, qfalse );
+			if ( !token[0] ) {
+				ri.Printf( PRINT_WARNING, "WARNING: missing parameter for 'lightmap' keyword in shader '%s'\n", shader.name );
+				return qfalse;
+			}
+
+//----(SA)	fixes startup error and allows polygon shadows to work again
+			if ( !Q_stricmp( token, "$whiteimage" ) || !Q_stricmp( token, "*white" ) ) {
+//----(SA)	end
+				stage->bundle[0].image[0] = tr.whiteImage;
+				continue;
+			}
+//----(SA) added
+			else if ( !Q_stricmp( token, "$dlight" ) ) {
+				stage->bundle[0].image[0] = tr.dlightImage;
+				continue;
+			}
+//----(SA) end
+			else if ( !Q_stricmp( token, "$lightmap" ) ) {
+				stage->bundle[0].isLightmap = qtrue;
+				if ( shader.lightmapIndex < 0 ) {
+					stage->bundle[0].image[0] = tr.whiteImage;
+				} else {
+					stage->bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
+				}
+				continue;
+			} else {
+				stage->bundle[0].image[0] = R_FindImageFile( token, qfalse, qfalse, GL_CLAMP, qtrue );
+				if ( !stage->bundle[0].image[0] ) {
+					ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
+					return qfalse;
+				}
+				stage->bundle[0].isLightmap = qtrue;
+			}
+		}
+#endif RTCW_XX
+
 		//
 		// animMap <frequency> <image1> .... <imageN>
 		//
@@ -692,6 +746,8 @@ static qboolean ParseStage( shaderStage_t *stage, char **text ) {
 					stage->bundle[0].image[num] = R_FindImageFileExt( token, !shader.noMipMaps, !shader.noPicMip, shader.characterMip, GL_REPEAT );
 #elif defined RTCW_MP
 					stage->bundle[0].image[num] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT );
+#else
+					stage->bundle[0].image[num] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT, qfalse );
 #endif RTCW_XX
 
 					if ( !stage->bundle[0].image[num] ) {
@@ -995,6 +1051,14 @@ static qboolean ParseStage( shaderStage_t *stage, char **text ) {
 		}
 	}
 
+#if defined RTCW_ET
+	// ydnar: if shader stage references a lightmap, but no lightmap is present
+	// (vertex-approximated surfaces), then set cgen to vertex
+	if ( stage->bundle[ 0 ].isLightmap && shader.lightmapIndex < 0 &&
+		 stage->bundle[ 0 ].image[ 0 ] == tr.whiteImage ) {
+		stage->rgbGen = CGEN_EXACT_VERTEX;
+	}
+#endif RTCW_XX
 
 	//
 	// implicitly assume that a GL_ONE GL_ZERO blend mask disables blending
@@ -1191,7 +1255,13 @@ static void ParseSkyParms( char **text ) {
 		for ( i = 0 ; i < 6 ; i++ ) {
 			Com_sprintf( pathname, sizeof( pathname ), "%s_%s.tga"
 						 , token, suf[i] );
+
+#if !defined RTCW_ET
 			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP );
+#else
+			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP, qfalse );
+#endif RTCW_XX
+
 			if ( !shader.sky.outerbox[i] ) {
 				shader.sky.outerbox[i] = tr.defaultImage;
 			}
@@ -1221,7 +1291,13 @@ static void ParseSkyParms( char **text ) {
 		for ( i = 0 ; i < 6 ; i++ ) {
 			Com_sprintf( pathname, sizeof( pathname ), "%s_%s.tga"
 						 , token, suf[i] );
+
+#if !defined RTCW_ET
 			shader.sky.innerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP );
+#else
+			shader.sky.innerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_REPEAT, qfalse );
+#endif RTCW_XX
+
 			if ( !shader.sky.innerbox[i] ) {
 				shader.sky.innerbox[i] = tr.defaultImage;
 			}
@@ -1332,7 +1408,14 @@ infoParm_t infoParms[] = {
 
 //	{"flesh",		0,	SURF_FLESH,		0 },
 	{"glass",        0,  SURF_GLASS,     0 },    //----(SA)	added
+
+#if !defined RTCW_ET
 	{"ceramic",      0,  SURF_CERAMIC,   0 },    //----(SA)	added
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	{"splash",       0,  SURF_SPLASH,    0 },    //----(SA)	added
+#endif RTCW_XX
 
 	// steps
 	{"metal",        0,  SURF_METAL,     0 },
@@ -1403,6 +1486,10 @@ static qboolean ParseShader( char **text ) {
 
 	s = 0;
 
+#if defined RTCW_ET
+	tr.allowCompress = qtrue;   // Arnout: allow compression by default
+#endif RTCW_XX
+
 	token = COM_ParseExt( text, qtrue );
 	if ( token[0] != '{' ) {
 		ri.Printf( PRINT_WARNING, "WARNING: expecting '{', found '%s' instead in shader '%s'\n", token, shader.name );
@@ -1419,6 +1506,11 @@ static qboolean ParseShader( char **text ) {
 
 		// end of shader definition
 		if ( token[0] == '}' ) {
+
+#if defined RTCW_ET
+			tr.allowCompress = qtrue;   // Arnout: allow compression by default
+#endif RTCW_XX
+
 			break;
 		}
 		// stage definition
@@ -1489,7 +1581,7 @@ static qboolean ParseShader( char **text ) {
 
 #if defined RTCW_SP
 		else if ( !Q_stricmp( token, "nomipmaps" ) ) {
-#elif defined RTCW_MP
+#else
 		else if ( ( !Q_stricmp( token, "nomipmaps" ) ) || ( !Q_stricmp( token,"nomipmap" ) ) ) {
 #endif RTCW_XX
 
@@ -1530,12 +1622,23 @@ static qboolean ParseShader( char **text ) {
 				return qfalse;
 			}
 
+#if defined RTCW_ET
+			shader.fogParms.colorInt = ColorBytes4( shader.fogParms.color[0] * tr.identityLight,
+													shader.fogParms.color[1] * tr.identityLight,
+													shader.fogParms.color[2] * tr.identityLight, 1.0 );
+#endif RTCW_XX
+
 			token = COM_ParseExt( text, qfalse );
 			if ( !token[0] ) {
 				ri.Printf( PRINT_WARNING, "WARNING: missing parm for 'fogParms' keyword in shader '%s'\n", shader.name );
 				continue;
 			}
 			shader.fogParms.depthForOpaque = atof( token );
+
+#if defined RTCW_ET
+			shader.fogParms.depthForOpaque = shader.fogParms.depthForOpaque < 1 ? 1 : shader.fogParms.depthForOpaque;
+			shader.fogParms.tcScale = 1.0f / shader.fogParms.depthForOpaque;
+#endif RTCW_XX
 
 			// skip any old gradient directions
 			SkipRestOfLine( text );
@@ -1638,7 +1741,7 @@ static qboolean ParseShader( char **text ) {
 			} else {                      // density "exp" fog
 				Com_sprintf( fogString, sizeof( fogString ), "0 5 %f %f %f %f 200", fogvar, watercolor[0], watercolor[1], watercolor[2] );
 //				R_SetFog(FOG_WATER, 0, 5, watercolor[0], watercolor[1], watercolor[2], fogvar);
-#elif defined RTCW_MP
+#else
 				R_SetFog( FOG_WATER, 0, fogvar, watercolor[0], watercolor[1], watercolor[2], 1.1 );
 			} else {                      // density "exp" fog
 				R_SetFog( FOG_WATER, 0, 5, watercolor[0], watercolor[1], watercolor[2], fogvar );
@@ -1681,7 +1784,7 @@ static qboolean ParseShader( char **text ) {
 
 #if defined RTCW_SP
 			if ( fogDensity >= 1 ) { // linear
-#elif defined RTCW_MP
+#else
 			if ( fogDensity > 1 ) {  // linear
 #endif RTCW_XX
 
@@ -1694,7 +1797,7 @@ static qboolean ParseShader( char **text ) {
 //			R_SetFog(FOG_MAP, 0, fogFar, fogColor[0], fogColor[1], fogColor[2], fogDensity);
 			ri.Cvar_Set( "r_mapFogColor", va( "0 %d %f %f %f %f 0", fogFar, fogDensity, fogColor[0], fogColor[1], fogColor[2] ) );
 //			R_SetFog(FOG_CMD_SWITCHFOG, FOG_MAP, 50, 0, 0, 0, 0);
-#elif defined RTCW_MP
+#else
 			R_SetFog( FOG_MAP, 0, fogFar, fogColor[0], fogColor[1], fogColor[2], fogDensity );
 			R_SetFog( FOG_CMD_SWITCHFOG, FOG_MAP, 50, 0, 0, 0, 0 );
 #endif RTCW_XX
@@ -1740,11 +1843,77 @@ static qboolean ParseShader( char **text ) {
 			}
 			continue;
 		}
+
+#if defined RTCW_ET
+		// ydnar: distancecull <opaque distance> <transparent distance> <alpha threshold>
+		else if ( !Q_stricmp( token, "distancecull" ) ) {
+			int i;
+
+
+			for ( i = 0; i < 3; i++ )
+			{
+				token = COM_ParseExt( text, qfalse );
+				if ( token[ 0 ] == 0 ) {
+					ri.Printf( PRINT_WARNING, "WARNING: missing distancecull parms in shader '%s'\n", shader.name );
+				} else {
+					shader.distanceCull[ i ] = atof( token );
+				}
+			}
+
+			if ( shader.distanceCull[ 1 ] - shader.distanceCull[ 0 ] > 0 ) {
+				// distanceCull[ 3 ] is an optimization
+				shader.distanceCull[ 3 ] = 1.0 / ( shader.distanceCull[ 1 ] - shader.distanceCull[ 0 ] );
+			} else
+			{
+				shader.distanceCull[ 0 ] = 0;
+				shader.distanceCull[ 1 ] = 0;
+				shader.distanceCull[ 2 ] = 0;
+				shader.distanceCull[ 3 ] = 0;
+			}
+			continue;
+		}
+#endif RTCW_XX
+
 		// sort
 		else if ( !Q_stricmp( token, "sort" ) ) {
 			ParseSort( text );
 			continue;
+
+#if !defined RTCW_ET
 		} else
+#else
+		}
+		// ydnar: implicit default mapping to eliminate redundant/incorrect explicit shader stages
+		else if ( !Q_stricmpn( token, "implicit", 8 ) ) {
+			// set implicit mapping state
+			if ( !Q_stricmp( token, "implicitBlend" ) ) {
+				implicitStateBits = GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
+				implicitCullType = CT_TWO_SIDED;
+			} else if ( !Q_stricmp( token, "implicitMask" ) )     {
+				implicitStateBits = GLS_DEPTHMASK_TRUE | GLS_ATEST_GE_80;
+				implicitCullType = CT_TWO_SIDED;
+			} else    // "implicitMap"
+			{
+				implicitStateBits = GLS_DEPTHMASK_TRUE;
+				implicitCullType = CT_FRONT_SIDED;
+			}
+
+			// get image
+			token = COM_ParseExt( text, qfalse );
+			if ( token[ 0 ] != '\0' ) {
+				Q_strncpyz( implicitMap, token, sizeof( implicitMap ) );
+			} else
+			{
+				implicitMap[ 0 ] = '-';
+				implicitMap[ 1 ] = '\0';
+			}
+
+			continue;
+		}
+		// unknown directive
+		else
+#endif RTCW_XX
+
 		{
 			ri.Printf( PRINT_WARNING, "WARNING: unknown general shader parameter '%s' in '%s'\n", token, shader.name );
 			return qfalse;
@@ -1753,8 +1922,19 @@ static qboolean ParseShader( char **text ) {
 
 	//
 	// ignore shaders that don't have any stages, unless it is a sky or fog
+
+#if defined RTCW_ET
+	// ydnar: or have implicit mapping
+#endif RTCW_XX
+
 	//
+
+#if !defined RTCW_ET
 	if ( s == 0 && !shader.isSky && !( shader.contentFlags & CONTENTS_FOG ) ) {
+#else
+	if ( s == 0 && !shader.isSky && !( shader.contentFlags & CONTENTS_FOG ) && implicitMap[ 0 ] == '\0' ) {
+#endif RTCW_XX
+
 		return qfalse;
 	}
 
@@ -1793,6 +1973,14 @@ static void ComputeStageIteratorFunc( void ) {
 	if ( r_ignoreFastPath->integer ) {
 		return;
 	}
+
+#if defined RTCW_ET
+	// ydnar: stages with tcMods can't be fast-pathed
+	if ( stages[ 0 ].bundle[ 0 ].numTexMods != 0 ||
+		 stages[ 0 ].bundle[ 1 ].numTexMods != 0 ) {
+		return;
+	}
+#endif RTCW_XX
 
 	//
 	// see if this can go into the vertex lit fast path
@@ -1987,7 +2175,7 @@ static qboolean CollapseMultitexture( void ) {
 	return qtrue;
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 =============
 FixRenderCommandList
@@ -2020,28 +2208,62 @@ static void FixRenderCommandList( int newShader ) {
 				curCmd = (const void *)( sp_cmd + 1 );
 				break;
 			}
+
+#if defined RTCW_ET
+			case RC_2DPOLYS:
+			{
+				const poly2dCommand_t *sp_cmd = (const poly2dCommand_t *)curCmd;
+				curCmd = (const void *)( sp_cmd + 1 );
+				break;
+			}
+			break;
+#endif RTCW_XX
+
 			case RC_DRAW_SURFS:
 			{
 				int i;
 				drawSurf_t  *drawSurf;
 				shader_t    *shader;
 				int fogNum;
+
+#if defined RTCW_ET
+				int frontFace;
+#endif RTCW_XX
+
 				int entityNum;
 				int dlightMap;
 				int sortedIndex;
 				const drawSurfsCommand_t *ds_cmd =  (const drawSurfsCommand_t *)curCmd;
 
 				for ( i = 0, drawSurf = ds_cmd->drawSurfs; i < ds_cmd->numDrawSurfs; i++, drawSurf++ ) {
+
+#if !defined RTCW_ET
 					R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlightMap );
+#else
+					R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &frontFace, &dlightMap );
+#endif RTCW_XX
+
 					sortedIndex = ( ( drawSurf->sort >> QSORT_SHADERNUM_SHIFT ) & ( MAX_SHADERS - 1 ) );
 					if ( sortedIndex >= newShader ) {
 						sortedIndex++;
+
+#if !defined RTCW_ET
 						drawSurf->sort = ( sortedIndex << QSORT_SHADERNUM_SHIFT ) | entityNum | ( fogNum << QSORT_FOGNUM_SHIFT ) | (int)dlightMap;
 					}
+#else
+						drawSurf->sort = ( sortedIndex << QSORT_SHADERNUM_SHIFT )
+										 | ( entityNum << QSORT_ENTITYNUM_SHIFT ) | ( fogNum << QSORT_FOGNUM_SHIFT ) | ( frontFace << QSORT_FRONTFACE_SHIFT ) | dlightMap;
+#endif RTCW_XX
+
 				}
 				curCmd = (const void *)( ds_cmd + 1 );
 				break;
 			}
+
+#if defined RTCW_ET
+			}
+#endif RTCW_XX
+
 			case RC_DRAW_BUFFER:
 			{
 				const drawBufferCommand_t *db_cmd = (const drawBufferCommand_t *)curCmd;
@@ -2090,7 +2312,7 @@ static void SortNewShader( void ) {
 		tr.sortedShaders[i + 1]->sortedIndex++;
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// Arnout: fix rendercommandlist
 	FixRenderCommandList( i + 1 );
 #endif RTCW_XX
@@ -2116,11 +2338,21 @@ static shader_t *GeneratePermanentShader( void ) {
 	}
 
 	// Ridah, caching system
+
+#if !defined RTCW_ET
 	newShader = R_CacheShaderAlloc( sizeof( shader_t ) );
+#else
+	newShader = R_CacheShaderAlloc( shader.lightmapIndex < 0 ? va( "%s lm: %i", shader.name, shader.lightmapIndex ) : NULL, sizeof( shader_t ) );
+#endif RTCW_XX
 
 	*newShader = shader;
 
+#if !defined RTCW_ET
 	if ( shader.sort <= SS_OPAQUE ) {
+#else
+	if ( shader.sort <= SS_SEE_THROUGH ) {  // ydnar: was SS_DECAL, this allows grates to be fogged
+#endif RTCW_XX
+
 		newShader->fogPass = FP_EQUAL;
 	} else if ( shader.contentFlags & CONTENTS_FOG ) {
 		newShader->fogPass = FP_LE;
@@ -2140,7 +2372,12 @@ static shader_t *GeneratePermanentShader( void ) {
 			break;
 		}
 		// Ridah, caching system
+
+#if !defined RTCW_ET
 		newShader->stages[i] = R_CacheShaderAlloc( sizeof( stages[i] ) );
+#else
+		newShader->stages[i] = R_CacheShaderAlloc( NULL, sizeof( stages[i] ) );
+#endif RTCW_XX
 
 		*newShader->stages[i] = stages[i];
 
@@ -2152,7 +2389,12 @@ static shader_t *GeneratePermanentShader( void ) {
 			}
 			size = newShader->stages[i]->bundle[b].numTexMods * sizeof( texModInfo_t );
 			// Ridah, caching system
+
+#if !defined RTCW_ET
 			newShader->stages[i]->bundle[b].texMods = R_CacheShaderAlloc( size );
+#else
+			newShader->stages[i]->bundle[b].texMods = R_CacheShaderAlloc( NULL, size );
+#endif RTCW_XX
 
 			memcpy( newShader->stages[i]->bundle[b].texMods, stages[i].bundle[b].texMods, size );
 		}
@@ -2256,6 +2498,133 @@ static void VertexLightingCollapse( void ) {
 	}
 }
 
+#if defined RTCW_ET
+/*
+SetImplicitShaderStages() - ydnar
+sets a shader's stages to one of several defaults
+*/
+
+static void SetImplicitShaderStages( image_t *image ) {
+	// set implicit cull type
+	if ( implicitCullType && !shader.cullType ) {
+		shader.cullType = implicitCullType;
+	}
+
+	// set shader stages
+	switch ( shader.lightmapIndex )
+	{
+		// dynamic colors at vertexes
+	case LIGHTMAP_NONE:
+		stages[ 0 ].bundle[ 0 ].image[ 0 ] = image;
+		stages[ 0 ].active = qtrue;
+		stages[ 0 ].rgbGen = CGEN_LIGHTING_DIFFUSE;
+		stages[ 0 ].stateBits = implicitStateBits;
+		break;
+
+		// gui elements (note state bits are overridden)
+	case LIGHTMAP_2D:
+		stages[ 0 ].bundle[ 0 ].image[ 0 ] = image;
+		stages[ 0 ].active = qtrue;
+		stages[ 0 ].rgbGen = CGEN_VERTEX;
+		stages[ 0 ].alphaGen = AGEN_SKIP;
+		stages[ 0 ].stateBits = GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
+		break;
+
+		// fullbright is disabled per atvi request
+	case LIGHTMAP_WHITEIMAGE:
+
+		// explicit colors at vertexes
+	case LIGHTMAP_BY_VERTEX:
+		stages[ 0 ].bundle[ 0 ].image[ 0 ] = image;
+		stages[ 0 ].active = qtrue;
+		stages[ 0 ].rgbGen = CGEN_EXACT_VERTEX;
+		stages[ 0 ].alphaGen = AGEN_SKIP;
+		stages[ 0 ].stateBits = implicitStateBits;
+		break;
+
+		// use lightmap pass
+	default:
+		// masked or blended implicit shaders need texture first
+		if ( implicitStateBits & ( GLS_ATEST_BITS | GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) {
+			stages[ 0 ].bundle[ 0 ].image[ 0 ] = image;
+			stages[ 0 ].active = qtrue;
+			stages[ 0 ].rgbGen = CGEN_IDENTITY;
+			stages[ 0 ].stateBits = implicitStateBits;
+
+			stages[ 1 ].bundle[ 0 ].image[ 0 ] = tr.lightmaps[ shader.lightmapIndex ];
+			stages[ 1 ].bundle[ 0 ].isLightmap = qtrue;
+			stages[ 1 ].active = qtrue;
+			stages[ 1 ].rgbGen = CGEN_IDENTITY;
+			stages[ 1 ].stateBits = GLS_DEFAULT | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHFUNC_EQUAL;
+		}
+		// otherwise do standard lightmap + texture
+		else
+		{
+			stages[ 0 ].bundle[ 0 ].image[ 0 ] = tr.lightmaps[ shader.lightmapIndex ];
+			stages[ 0 ].bundle[ 0 ].isLightmap = qtrue;
+			stages[ 0 ].active = qtrue;
+			stages[ 0 ].rgbGen = CGEN_IDENTITY;
+			stages[ 0 ].stateBits = GLS_DEFAULT;
+
+			stages[ 1 ].bundle[ 0 ].image[ 0 ] = image;
+			stages[ 1 ].active = qtrue;
+			stages[ 1 ].rgbGen = CGEN_IDENTITY;
+			stages[ 1 ].stateBits = GLS_DEFAULT | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
+		}
+		break;
+	}
+
+	#if 0
+	if ( shader.lightmapIndex == LIGHTMAP_NONE ) {
+		// dynamic colors at vertexes
+		stages[0].bundle[0].image[0] = image;
+		stages[0].active = qtrue;
+		stages[0].rgbGen = CGEN_LIGHTING_DIFFUSE;
+		stages[0].stateBits = GLS_DEFAULT;
+	} else if ( shader.lightmapIndex == LIGHTMAP_BY_VERTEX ) {
+		// explicit colors at vertexes
+		stages[0].bundle[0].image[0] = image;
+		stages[0].active = qtrue;
+		stages[0].rgbGen = CGEN_EXACT_VERTEX;
+		stages[0].alphaGen = AGEN_SKIP;
+		stages[0].stateBits = GLS_DEFAULT;
+	} else if ( shader.lightmapIndex == LIGHTMAP_2D ) {
+		// GUI elements
+		stages[0].bundle[0].image[0] = image;
+		stages[0].active = qtrue;
+		stages[0].rgbGen = CGEN_VERTEX;
+		stages[0].alphaGen = AGEN_VERTEX;
+		stages[0].stateBits = GLS_DEPTHTEST_DISABLE |
+							  GLS_SRCBLEND_SRC_ALPHA |
+							  GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
+	} else if ( shader.lightmapIndex == LIGHTMAP_WHITEIMAGE ) {
+		// fullbright level
+		stages[0].bundle[0].image[0] = tr.whiteImage;
+		stages[0].active = qtrue;
+		stages[0].rgbGen = CGEN_IDENTITY_LIGHTING;
+		stages[0].stateBits = GLS_DEFAULT;
+
+		stages[1].bundle[0].image[0] = image;
+		stages[1].active = qtrue;
+		stages[1].rgbGen = CGEN_IDENTITY;
+		stages[1].stateBits |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
+	} else {
+		// two pass lightmap
+		stages[0].bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
+		stages[0].bundle[0].isLightmap = qtrue;
+		stages[0].active = qtrue;
+		stages[0].rgbGen = CGEN_IDENTITY;       // lightmaps are scaled on creation for identitylight
+		stages[0].stateBits = GLS_DEFAULT;
+
+		stages[1].bundle[0].image[0] = image;
+		stages[1].active = qtrue;
+		stages[1].rgbGen = CGEN_IDENTITY;
+		stages[1].stateBits |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
+	}
+	#endif
+}
+#endif RTCW_XX
+
 /*
 =========================
 FinishShader
@@ -2267,10 +2636,16 @@ from the current global working shader
 static shader_t *FinishShader( void ) {
 	int stage, i;
 	qboolean hasLightmapStage;
+
+#if !defined RTCW_ET
 	qboolean vertexLightmap;
+#endif RTCW_XX
 
 	hasLightmapStage = qfalse;
+
+#if !defined RTCW_ET
 	vertexLightmap = qfalse;
+#endif RTCW_XX
 
 	//
 	// set sky stuff appropriate
@@ -2372,6 +2747,14 @@ static shader_t *FinishShader( void ) {
 			// premultiplied alpha
 			else if ( ( blendSrcBits == GLS_SRCBLEND_ONE ) && ( blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA ) ) {
 				pStage->adjustColorsForFog = ACFF_MODULATE_RGBA;
+
+#if defined RTCW_ET
+			}
+			// ydnar: zero + blended alpha, one + blended alpha
+			else if ( blendSrcBits == GLS_SRCBLEND_SRC_ALPHA || blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA ) {
+				pStage->adjustColorsForFog = ACFF_MODULATE_ALPHA;
+#endif RTCW_XX
+
 			} else {
 				// we can't adjust this one correctly, so it won't be exactly correct in fog
 			}
@@ -2403,6 +2786,9 @@ static shader_t *FinishShader( void ) {
 #elif defined RTCW_MP
 	// NERVE - SMF - temp fix, terrain is having problems with lighting collapse
 	if ( 0 && ( stage > 1 && ( ( r_vertexLight->integer && !r_uiFullScreen->integer ) || glConfig.hardwareType == GLHW_PERMEDIA2 ) ) ) {
+#else
+	// NERVE - SMF - temp fix, terrain is having problems with lighting collapse
+	if ( 0 && ( stage > 1 && ( glConfig.hardwareType == GLHW_PERMEDIA2 ) ) ) {
 #endif RTCW_XX
 
 		VertexLightingCollapse();
@@ -2418,14 +2804,20 @@ static shader_t *FinishShader( void ) {
 	}
 
 	if ( shader.lightmapIndex >= 0 && !hasLightmapStage ) {
+
+#if !defined RTCW_ET
 		if ( vertexLightmap ) {
 			ri.Printf( PRINT_DEVELOPER, "WARNING: shader '%s' has VERTEX forced lightmap!\n", shader.name );
 		} else {
+#endif RTCW_XX
+
 			ri.Printf( PRINT_DEVELOPER, "WARNING: shader '%s' has lightmap but no lightmap stage!\n", shader.name );
 			shader.lightmapIndex = LIGHTMAP_NONE;
 		}
-	}
 
+#if !defined RTCW_ET
+	}
+#endif RTCW_XX
 
 	//
 	// compute number of passes
@@ -2450,6 +2842,111 @@ static shader_t *FinishShader( void ) {
 
 //========================================================================================
 
+#if defined RTCW_ET
+//bani - dynamic shader list
+typedef struct dynamicshader dynamicshader_t;
+struct dynamicshader {
+	char *shadertext;
+	dynamicshader_t *next;
+};
+static dynamicshader_t *dshader = NULL;
+
+/*
+====================
+RE_LoadDynamicShader
+
+bani - load a new dynamic shader
+
+if shadertext is NULL, looks for matching shadername and removes it
+
+returns qtrue if request was successful, qfalse if the gods were angered
+====================
+*/
+qboolean RE_LoadDynamicShader( const char *shadername, const char *shadertext ) {
+	const char *func_err = "WARNING: RE_LoadDynamicShader";
+	dynamicshader_t *dptr, *lastdptr;
+	char *q, *token;
+
+	if ( !shadername && shadertext ) {
+		ri.Printf( PRINT_WARNING, "%s called with NULL shadername and non-NULL shadertext:\n%s\n", func_err, shadertext );
+		return qfalse;
+	}
+
+	if ( shadername && strlen( shadername ) >= MAX_QPATH ) {
+		ri.Printf( PRINT_WARNING, "%s shadername %s exceeds MAX_QPATH\n", func_err, shadername );
+		return qfalse;
+	}
+
+	//empty the whole list
+	if ( !shadername && !shadertext ) {
+		dptr = dshader;
+		while ( dptr ) {
+			lastdptr = dptr->next;
+			Z_Free( dptr->shadertext );
+			Z_Free( dptr );
+			dptr = lastdptr;
+		}
+		dshader = NULL;
+		return qtrue;
+	}
+
+	//walk list for existing shader to delete, or end of the list
+	dptr = dshader;
+	lastdptr = NULL;
+	while ( dptr ) {
+		q = dptr->shadertext;
+
+		token = COM_ParseExt( &q, qtrue );
+
+		if ( ( token[0] != 0 ) && !Q_stricmp( token, shadername ) ) {
+			//request to nuke this dynamic shader
+			if ( !shadertext ) {
+				if ( !lastdptr ) {
+					dshader = NULL;
+				} else {
+					lastdptr->next = dptr->next;
+				}
+				Z_Free( dptr->shadertext );
+				Z_Free( dptr );
+				return qtrue;
+			}
+			ri.Printf( PRINT_WARNING, "%s shader %s already exists!\n", func_err, shadername );
+			return qfalse;
+		}
+		lastdptr = dptr;
+		dptr = dptr->next;
+	}
+
+	//cant add a new one with empty shadertext
+	if ( !shadertext || !strlen( shadertext ) ) {
+		ri.Printf( PRINT_WARNING, "%s new shader %s has NULL shadertext!\n", func_err, shadername );
+		return qfalse;
+	}
+
+	//create a new shader
+	dptr = (dynamicshader_t *)Z_Malloc( sizeof( *dptr ) );
+	if ( !dptr ) {
+		Com_Error( ERR_FATAL, "Couldn't allocate struct for dynamic shader %s\n", shadername );
+	}
+	if ( lastdptr ) {
+		lastdptr->next = dptr;
+	}
+	dptr->shadertext = Z_Malloc( strlen( shadertext ) + 1 );
+	if ( !dptr->shadertext ) {
+		Com_Error( ERR_FATAL, "Couldn't allocate buffer for dynamic shader %s\n", shadername );
+	}
+	Q_strncpyz( dptr->shadertext, shadertext, strlen( shadertext ) + 1 );
+	dptr->next = NULL;
+	if ( !dshader ) {
+		dshader = dptr;
+	}
+
+//	ri.Printf( PRINT_ALL, "Loaded dynamic shader [%s] with shadertext [%s]\n", shadername, shadertext );
+
+	return qtrue;
+}
+#endif RTCW_XX
+
 /*
 ====================
 FindShaderInShaderText
@@ -2466,16 +2963,65 @@ static char *FindShaderInShaderText( const char *shadername ) {
 	char *p = s_shaderText;
 	char *token;
 
+#if defined RTCW_ET
+#ifdef SH_LOADTIMING
+	static int total = 0;
+
+	int start = Sys_Milliseconds();
+#endif // _DEBUG
+#endif RTCW_XX
+
 	if ( !p ) {
 		return NULL;
 	}
+
+#if defined RTCW_ET
+	//bani - if we have any dynamic shaders loaded, check them first
+	if ( dshader ) {
+		dynamicshader_t *dptr;
+		char    *q;
+		int i;
+
+		dptr = dshader;
+		i = 0;
+		while ( dptr ) {
+			if ( !dptr->shadertext || !strlen( dptr->shadertext ) ) {
+				ri.Printf( PRINT_WARNING, "WARNING: dynamic shader %s(%d) has no shadertext\n", shadername, i );
+			} else {
+				q = dptr->shadertext;
+
+				token = COM_ParseExt( &q, qtrue );
+
+				if ( ( token[0] != 0 ) && !Q_stricmp( token, shadername ) ) {
+#ifdef SH_LOADTIMING
+					total += Sys_Milliseconds() - start;
+					Com_Printf( "Shader lookup: %i, total: %i\n", Sys_Milliseconds() - start, total );
+#endif // _DEBUG
+//					ri.Printf( PRINT_ALL, "Found dynamic shader [%s] with shadertext [%s]\n", shadername, dptr->shadertext );
+					return q;
+				}
+			}
+			i++;
+			dptr = dptr->next;
+		}
+	}
+#endif RTCW_XX
 
 	// Ridah, optimized shader loading
 
 #if defined RTCW_SP
 	{
+#else
+	if ( r_cacheShaders->integer ) {
+		/*if (strstr( shadername, "/" ) && !strstr( shadername, "." ))*/ {
+			unsigned short int checksum;
+#endif RTCW_XX
+
 		shaderStringPointer_t *pShaderString;
+
+#if defined RTCW_SP
 		unsigned short int checksum;
+#endif RTCW_XX
 
 		checksum = generateHashValue( shadername );
 
@@ -2487,39 +3033,27 @@ static char *FindShaderInShaderText( const char *shadername ) {
 			token = COM_ParseExt( &p, qtrue );
 
 			if ( ( token[0] != 0 ) && !Q_stricmp( token, shadername ) ) {
+
+#if defined RTCW_ET
+#ifdef SH_LOADTIMING
+					total += Sys_Milliseconds() - start;
+					Com_Printf( "Shader lookup: %i, total: %i\n", Sys_Milliseconds() - start, total );
+#endif // _DEBUG
+#endif RTCW_XX
+
 				return p;
 			}
 
 			pShaderString = pShaderString->next;
 		}
-	}
-#elif defined RTCW_MP
-	if ( r_cacheShaders->integer ) {
-		/*if (strstr( shadername, "/" ) && !strstr( shadername, "." ))*/ {
-			unsigned short int checksum;
-			shaderStringPointer_t *pShaderString;
 
-			checksum = generateHashValue( shadername );
-
-			// if it's known, skip straight to it's position
-			pShaderString = &shaderChecksumLookup[checksum];
-			while ( pShaderString && pShaderString->pStr ) {
-				p = pShaderString->pStr;
-
-				token = COM_ParseExt( &p, qtrue );
-
-				if ( ( token[0] != 0 ) && !Q_stricmp( token, shadername ) ) {
-					return p;
-				}
-
-				pShaderString = pShaderString->next;
-			}
-
+#if !defined RTCW_SP
 			// it's not even in our list, so it mustn't exist
 			return NULL;
 		}
-	}
 #endif RTCW_XX
+
+	}
 
 	// done.
 
@@ -2566,6 +3100,33 @@ static char *FindShaderInShaderText( const char *shadername ) {
 			SkipRestOfLine( &p );
 		}
 	}
+#else
+	// look for label
+	// note that this could get confused if a shader name is used inside
+	// another shader definition
+	while ( 1 ) {
+		token = COM_ParseExt( &p, qtrue );
+		if ( token[0] == 0 ) {
+			break;
+		}
+
+		if ( !Q_stricmp( token, shadername ) ) {
+#ifdef SH_LOADTIMING
+			total += Sys_Milliseconds() - start;
+			Com_Printf( "Shader lookup: %i, total: %i\n", Sys_Milliseconds() - start, total );
+#endif // _DEBUG
+			return p;
+		}
+
+		SkipBracedSection( &p );
+	}
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#ifdef SH_LOADTIMING
+	total += Sys_Milliseconds() - start;
+	Com_Printf( "Shader lookup: %i, total: %i\n", Sys_Milliseconds() - start, total );
+#endif // _DEBUG
 #endif RTCW_XX
 
 	return NULL;
@@ -2590,8 +3151,12 @@ shader_t *R_FindShaderByName( const char *name ) {
 
 #if defined RTCW_SP
 	COM_StripExtension( name, strippedName );
-#elif defined RTCW_MP
+#else
 	COM_StripExtension2( name, strippedName, sizeof( strippedName ) );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	COM_FixPath( strippedName );
 #endif RTCW_XX
 
 	hash = generateHashValue( strippedName );
@@ -2612,6 +3177,58 @@ shader_t *R_FindShaderByName( const char *name ) {
 
 	return tr.defaultShader;
 }
+
+#if defined RTCW_ET
+/*
+===============
+R_FindLightmap - ydnar
+given a (potentially erroneous) lightmap index, attempts to load
+an external lightmap image and/or sets the index to a valid number
+===============
+*/
+
+#define EXTERNAL_LIGHTMAP   "lm_%04d.tga"    // THIS MUST BE IN SYNC WITH Q3MAP2
+
+void R_FindLightmap( int *lightmapIndex ) {
+	image_t     *image;
+	char fileName[ MAX_QPATH ];
+
+
+	// don't fool with bogus lightmap indexes
+	if ( *lightmapIndex < 0 ) {
+		return;
+	}
+
+	// does this lightmap already exist?
+	if ( *lightmapIndex < tr.numLightmaps && tr.lightmaps[ *lightmapIndex ] != NULL ) {
+		return;
+	}
+
+	// bail if no world dir
+	if ( tr.worldDir == NULL ) {
+		*lightmapIndex = LIGHTMAP_BY_VERTEX;
+		return;
+	}
+
+	// sync up render thread, because we're going to have to load an image
+	R_SyncRenderThread();
+
+	// attempt to load an external lightmap
+	sprintf( fileName, "%s/" EXTERNAL_LIGHTMAP, tr.worldDir, *lightmapIndex );
+	image = R_FindImageFile( fileName, qfalse, qfalse, GL_CLAMP, qtrue );
+	if ( image == NULL ) {
+		*lightmapIndex = LIGHTMAP_BY_VERTEX;
+		return;
+	}
+
+	// add it to the lightmap list
+	if ( *lightmapIndex >= tr.numLightmaps ) {
+		tr.numLightmaps = *lightmapIndex + 1;
+	}
+	tr.lightmaps[ *lightmapIndex ] = image;
+}
+#endif RTCW_XX
+
 
 
 /*
@@ -2654,16 +3271,25 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 		return tr.defaultShader;
 	}
 
+#if !defined RTCW_ET
 	// use (fullbright) vertex lighting if the bsp file doesn't have
 	// lightmaps
 	if ( lightmapIndex >= 0 && lightmapIndex >= tr.numLightmaps ) {
 		lightmapIndex = LIGHTMAP_BY_VERTEX;
 	}
+#else
+	// ydnar: validate lightmap index
+	R_FindLightmap( &lightmapIndex );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	COM_StripExtension( name, strippedName );
-#elif defined RTCW_MP
+#else
 	COM_StripExtension2( name, strippedName, sizeof( strippedName ) );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	COM_FixPath( strippedName );
 #endif RTCW_XX
 
 	hash = generateHashValue( strippedName );
@@ -2672,10 +3298,10 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 	// see if the shader is already loaded
 	//
 
-#if defined RTCW_SP
 	for ( sh = hashTable[hash]; sh; sh = sh->next ) {
 		// index by name
 
+#if !defined RTCW_ET
 		// Ridah, modified this so we don't keep trying to load an invalid lightmap shader
 /*
 		if ( sh->lightmapIndex == lightmapIndex &&
@@ -2684,32 +3310,36 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 			return sh;
 		}
 */
-		if ( ( ( sh->lightmapIndex == lightmapIndex ) || ( sh->lightmapIndex < 0 && lightmapIndex >= 0 ) ) &&
-			 !Q_stricmp( sh->name, strippedName ) ) {
-			// match found
-			return sh;
-		}
-	}
-#elif defined RTCW_MP
-#if 1
-	for ( sh = hashTable[hash]; sh; sh = sh->next ) {
-		// index by name
-
-		// Ridah, modified this so we don't keep trying to load an invalid lightmap shader
-/*
-		if ( sh->lightmapIndex == lightmapIndex &&
-			!Q_stricmp(sh->name, strippedName)) {
-			// match found
-			return sh;
-		}
-*/
-		if ( ( ( sh->lightmapIndex == lightmapIndex ) || ( sh->lightmapIndex < 0 && lightmapIndex >= 0 ) ) &&
-			 !Q_stricmp( sh->name, strippedName ) ) {
-			// match found
-			return sh;
-		}
-	}
 #else
+		// ydnar: the original way was correct
+		if ( sh->lightmapIndex == lightmapIndex &&
+			 !Q_stricmp( sh->name, strippedName ) ) {
+			// match found
+			return sh;
+		}
+#endif RTCW_XX
+
+#if !defined RTCW_ET
+		if ( ( ( sh->lightmapIndex == lightmapIndex ) || ( sh->lightmapIndex < 0 && lightmapIndex >= 0 ) ) &&
+			 !Q_stricmp( sh->name, strippedName ) ) {
+			// match found
+			return sh;
+		}
+#else
+		// Ridah, modified this so we don't keep trying to load an invalid lightmap shader
+		#if 0
+		if ( ( ( sh->lightmapIndex == lightmapIndex ) || ( sh->lightmapIndex < 0 && lightmapIndex >= 0 ) ) &&
+			 !Q_stricmp( sh->name, strippedName ) ) {
+			// match found
+			return sh;
+		}
+		#endif
+#endif RTCW_XX
+
+	}
+
+#if !defined RTCW_SP
+#if 0
 	for ( sh = hashTable[hash]; sh; sh = sh->next ) {
 		// NOTE: if there was no shader or image available with the name strippedName
 		// then a default shader is created with lightmapIndex == LIGHTMAP_NONE, so we
@@ -2738,9 +3368,20 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 #elif defined RTCW_MP
 	// assignment used as truth value
 	if ( ( sh = R_FindCachedShader( strippedName, lightmapIndex, hash ) ) ) {
+#else
+	// assignment used as truth value
+	// ydnar: don't cache shaders using lightmaps
+	if ( lightmapIndex < 0 ) {
+		sh = R_FindCachedShader( strippedName, lightmapIndex, hash );
+		if ( sh != NULL ) {
 #endif RTCW_XX
 
 		return sh;
+
+#if defined RTCW_ET
+		}
+#endif RTCW_XX
+
 	}
 	// done.
 
@@ -2759,9 +3400,19 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 	shader.needsST2 = qtrue;
 	shader.needsColor = qtrue;
 
+#if !defined RTCW_ET
 	//
 	// attempt to define shader from an explicit parameter file
 	//
+#else
+	// ydnar: default to no implicit mappings
+	implicitMap[ 0 ] = '\0';
+	implicitStateBits = GLS_DEFAULT;
+	implicitCullType = CT_FRONT_SIDED;
+
+	// attempt to define shader from an explicit parameter file
+#endif RTCW_XX
+
 	shaderText = FindShaderInShaderText( strippedName );
 	if ( shaderText ) {
 		// enable this when building a pak file to get a global list
@@ -2773,12 +3424,25 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 		if ( !ParseShader( &shaderText ) ) {
 			// had errors, so use default shader
 			shader.defaultShader = qtrue;
+
+#if !defined RTCW_ET
 		}
+#endif RTCW_XX
+
 		sh = FinishShader();
 		return sh;
 	}
 
+#if defined RTCW_ET
+		// ydnar: allow implicit mappings
+		if ( implicitMap[ 0 ] == '\0' ) {
+			sh = FinishShader();
+			return sh;
+		}
+	}
+#endif RTCW_XX
 
+#if !defined RTCW_ET
 	//
 	// if not defined in the in-memory shader descriptions,
 	// look for a single TGA, BMP, or PCX
@@ -2842,6 +3506,34 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 		stages[1].rgbGen = CGEN_IDENTITY;
 		stages[1].stateBits |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
 	}
+#else
+	// ydnar: allow implicit mapping ('-' = use shader name)
+	if ( implicitMap[ 0 ] == '\0' || implicitMap[ 0 ] == '-' ) {
+		Q_strncpyz( fileName, name, sizeof( fileName ) );
+	} else {
+		Q_strncpyz( fileName, implicitMap, sizeof( fileName ) );
+	}
+	COM_DefaultExtension( fileName, sizeof( fileName ), ".tga" );
+
+	// ydnar: implicit shaders were breaking nopicmip/nomipmaps
+	if ( !mipRawImage ) {
+		shader.noMipMaps = qtrue;
+		shader.noPicMip = qtrue;
+	}
+
+	// if not defined in the in-memory shader descriptions,
+	// look for a single TGA, BMP, or PCX
+	image = R_FindImageFile( fileName, !shader.noMipMaps, !shader.noPicMip, mipRawImage ? GL_REPEAT : GL_CLAMP, qfalse );
+	if ( !image ) {
+		//ri.Printf( PRINT_DEVELOPER, "Couldn't find image for shader %s\n", name );
+		ri.Printf( PRINT_WARNING, "WARNING: Couldn't find image for shader %s\n", name );
+		shader.defaultShader = qtrue;
+		return FinishShader();
+	}
+
+	// ydnar: set default stages (removing redundant code)
+	SetImplicitShaderStages( image );
+#endif RTCW_XX
 
 	return FinishShader();
 }
@@ -2890,6 +3582,7 @@ qhandle_t RE_RegisterShaderFromImage( const char *name, int lightmapIndex, image
 	shader.needsST2 = qtrue;
 	shader.needsColor = qtrue;
 
+#if !defined RTCW_ET
 	//
 	// create the default shading commands
 	//
@@ -2940,6 +3633,12 @@ qhandle_t RE_RegisterShaderFromImage( const char *name, int lightmapIndex, image
 		stages[1].rgbGen = CGEN_IDENTITY;
 		stages[1].stateBits |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
 	}
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	// ydnar: set default stages (removing redundant code)
+	SetImplicitShaderStages( image );
+#endif RTCW_XX
 
 	sh = FinishShader();
 	return sh->index;
@@ -3057,7 +3756,7 @@ shader_t *R_GetShaderByHandle( qhandle_t hShader ) {
 
 #if defined RTCW_SP
 		ri.Printf( PRINT_WARNING, "R_GetShaderByHandle: out of range hShader '%d'\n", hShader ); // bk: FIXME name
-#elif defined RTCW_MP
+#else
 		ri.Printf( PRINT_DEVELOPER, "R_GetShaderByHandle: out of range hShader '%d'\n", hShader ); // bk: FIXME name
 #endif RTCW_XX
 
@@ -3067,7 +3766,7 @@ shader_t *R_GetShaderByHandle( qhandle_t hShader ) {
 
 #if defined RTCW_SP
 		ri.Printf( PRINT_WARNING, "R_GetShaderByHandle: out of range hShader '%d'\n", hShader );
-#elif defined RTCW_MP
+#else
 		ri.Printf( PRINT_DEVELOPER, "R_GetShaderByHandle: out of range hShader '%d'\n", hShader );
 #endif RTCW_XX
 
@@ -3173,10 +3872,17 @@ static void BuildShaderChecksumLookup( void ) {
 		pOld = p;
 
 		token = COM_ParseExt( &p, qtrue );
+
+#if !defined RTCW_ET
 		if ( token[0] == 0 ) {
+#else
+		if ( !*token ) {
+#endif RTCW_XX
+
 			break;
 		}
 
+#if !defined RTCW_ET
 		if ( !Q_stricmp( token, "{" ) ) {
 			// skip braced section
 
@@ -3187,9 +3893,23 @@ static void BuildShaderChecksumLookup( void ) {
 			SkipBracedSection( &p );
 			continue;
 		}
+#else
+		// Gordon: NOTE this is WRONG, need to either unget the {, or as i'm gonna do, assume the shader section follows, if it doesnt, it's b0rked anyway
+/*		if (!Q_stricmp( token, "{" )) {
+			// Gordon: ok, lets try the unget method
+			COM_RestoreParseSession( &p );
+			// skip braced section
+			SkipBracedSection( &p );
+			continue;
+		}*/
+#endif RTCW_XX
 
 		// get it's checksum
 		checksum = generateHashValue( token );
+
+#if defined RTCW_ET
+//		Com_Printf( "Shader Found: %s\n", token );
+#endif RTCW_XX
 
 		// if it's not currently used
 		if ( !shaderChecksumLookup[checksum].pStr ) {
@@ -3207,6 +3927,12 @@ static void BuildShaderChecksumLookup( void ) {
 			newStrPtr->next = shaderChecksumLookup[checksum].next;
 			shaderChecksumLookup[checksum].next = newStrPtr;
 		}
+
+#if defined RTCW_ET
+		// Gordon: skip the actual shader section
+		SkipBracedSection( &p );
+#endif RTCW_XX
+
 	}
 }
 // done.
@@ -3224,6 +3950,11 @@ a single large text block that can be scanned for shader names
 static void ScanAndLoadShaderFiles( void ) {
 	char **shaderFiles;
 	char *buffers[MAX_SHADER_FILES];
+
+#if defined RTCW_ET
+	int buffersize  [MAX_SHADER_FILES];
+#endif RTCW_XX
+
 	char *p;
 	int numShaders;
 	int i;
@@ -3250,11 +3981,20 @@ static void ScanAndLoadShaderFiles( void ) {
 
 #if defined RTCW_SP
 		ri.Printf( PRINT_ALL, "...loading '%s'\n", filename );
-#elif defined RTCW_MP
+#else
 		ri.Printf( PRINT_DEVELOPER, "...loading '%s'\n", filename ); // JPW NERVE was PRINT_ALL
 #endif RTCW_XX
 
+#if defined RTCW_ET
+		buffersize[i] = ri.FS_ReadFile( filename, (void **)&buffers[i] );
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 		sum += ri.FS_ReadFile( filename, (void **)&buffers[i] );
+#else
+		sum += buffersize[i];
+#endif RTCW_XX
+
 		if ( !buffers[i] ) {
 			ri.Error( ERR_DROP, "Couldn't load %s", filename );
 		}
@@ -3263,15 +4003,38 @@ static void ScanAndLoadShaderFiles( void ) {
 	// build single large buffer
 	s_shaderText = ri.Hunk_Alloc( sum + numShaders * 2, h_low );
 
+#if defined RTCW_ET
+	// Gordon: optimised to not use strcat/strlen which can be VERY slow for the large strings we're using here
+	p = s_shaderText;
+#endif RTCW_XX
+
 	// free in reverse order, so the temp files are all dumped
 	for ( i = numShaders - 1; i >= 0 ; i-- ) {
+
+#if !defined RTCW_ET
 		strcat( s_shaderText, "\n" );
 		p = &s_shaderText[strlen( s_shaderText )];
 		strcat( s_shaderText, buffers[i] );
+#else
+		strcpy( p++, "\n" );
+		strcpy( p, buffers[i] );
+#endif RTCW_XX
+
 		ri.FS_FreeFile( buffers[i] );
 		buffers[i] = p;
+
+#if !defined RTCW_ET
 //		COM_Compress(p);
+#else
+		p += buffersize[i];
+#endif RTCW_XX
+
 	}
+
+#if defined RTCW_ET
+	// ydnar: unixify all shaders
+	COM_FixPath( s_shaderText );
+#endif RTCW_XX
 
 	// free up memory
 	ri.FS_FreeFileList( shaderFiles );
@@ -3280,7 +4043,7 @@ static void ScanAndLoadShaderFiles( void ) {
 
 #if defined RTCW_SP
 	BuildShaderChecksumLookup();
-#elif defined RTCW_MP
+#else
 	if ( r_cacheShaders->integer ) {
 		BuildShaderChecksumLookup();
 	}
@@ -3320,7 +4083,7 @@ static void CreateExternalShaders( void ) {
 
 #if defined RTCW_SP
 //	tr.projectionShadowShader = R_FindShader( "projectionShadow", LIGHTMAP_NONE, qtrue );
-#elif defined RTCW_MP
+#else
 	tr.projectionShadowShader = R_FindShader( "projectionShadow", LIGHTMAP_NONE, qtrue );
 #endif RTCW_XX
 
@@ -3346,13 +4109,36 @@ static shader_t *backupHashTable[FILE_HASH_SIZE];
 R_CacheShaderAlloc
 ===============
 */
+
+#if defined RTCW_ET
+//int g_numshaderallocs = 0;
+//void *R_CacheShaderAlloc( int size ) {
+void* R_CacheShaderAllocExt( const char* name, int size, const char* file, int line ) {
+	if ( r_cache->integer && r_cacheShaders->integer ) {
+		void* ptr = ri.Z_Malloc( size );
+
+//		g_numshaderallocs++;
+
+//		if( name ) {
+//			Com_Printf( "Zone Malloc from %s: size %i: pointer %p: %i in use\n", name, size, ptr, g_numshaderallocs );
+//		}
+
+		//return malloc( size );
+		return ptr;
+	} else {
+		return ri.Hunk_Alloc( size, h_low );
+	}
+}
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 void *R_CacheShaderAlloc( int size ) {
 	if ( r_cache->integer && r_cacheShaders->integer ) {
 		//return malloc( size );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		return malloc( size );
-#elif defined RTCW_MP
+#else
 		return ri.Z_Malloc( size );
 #endif RTCW_XX
 
@@ -3360,31 +4146,58 @@ void *R_CacheShaderAlloc( int size ) {
 		return ri.Hunk_Alloc( size, h_low );
 	}
 }
+#endif RTCW_XX
 
 /*
 ===============
 R_CacheShaderFree
 ===============
 */
+
+#if !defined RTCW_ET
 void R_CacheShaderFree( void *ptr ) {
 	if ( r_cache->integer && r_cacheShaders->integer ) {
 		//free( ptr );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		free( ptr );
-#elif defined RTCW_MP
+#else
 		ri.Free( ptr );
 #endif RTCW_XX
 
 	}
 }
+#endif RTCW_XX
+
+#if defined RTCW_ET
+//void R_CacheShaderFree( void *ptr ) {
+void R_CacheShaderFreeExt( const char* name, void *ptr, const char* file, int line ) {
+	if ( r_cache->integer && r_cacheShaders->integer ) {
+//		g_numshaderallocs--;
+
+//		if( name ) {
+//			Com_Printf( "Zone Free from %s: pointer %p: %i in use\n", name, ptr, g_numshaderallocs );
+//		}
+
+		//free( ptr );
+		ri.Free( ptr );
+	}
+}
+#endif RTCW_XX
 
 /*
 ===============
 R_PurgeShaders
 ===============
 */
+
+#if defined RTCW_ET
+qboolean purgeallshaders = qfalse;
+#endif RTCW_XX
+
 void R_PurgeShaders( int count ) {
+
+#if !defined RTCW_ET
 	int i, j, c, b;
 	shader_t **sh;
 	static int lastPurged = 0;
@@ -3422,7 +4235,134 @@ void R_PurgeShaders( int count ) {
 	}
 	lastPurged = 0;
 	numBackupShaders = 0;
+#else
+	/*int i, j, c, b;
+	shader_t **sh;
+	static int lastPurged = 0;
+
+	if (!numBackupShaders) {
+		lastPurged = 0;
+		return;
+	}
+
+	// find the first shader still in memory
+	c = 0;
+	sh = (shader_t **)&backupShaders;
+	for (i = lastPurged; i < numBackupShaders; i++, sh++) {
+		if (*sh) {
+			// free all memory associated with this shader
+			for ( j = 0 ; j < (*sh)->numUnfoggedPasses ; j++ ) {
+				if ( !(*sh)->stages[j] ) {
+					break;
+				}
+				for ( b = 0 ; b < NUM_TEXTURE_BUNDLES ; b++ ) {
+					if ((*sh)->stages[j]->bundle[b].texMods)
+						R_CacheShaderFree( NULL, (*sh)->stages[j]->bundle[b].texMods );
+				}
+				R_CacheShaderFree( NULL, (*sh)->stages[j] );
+			}
+			R_CacheShaderFree( (*sh)->lightmapIndex ? va( "%s lm: %i", (*sh)->name, (*sh)->lightmapIndex) : NULL, *sh );
+			*sh = NULL;
+
+			if (++c >= count) {
+				lastPurged = i;
+				return;
+			}
+		}
+	}
+	lastPurged = 0;
+	numBackupShaders = 0;*/
+
+	if ( !numBackupShaders ) {
+		return;
+	}
+
+	purgeallshaders = qtrue;
+
+	R_PurgeLightmapShaders();
+
+	purgeallshaders = qfalse;
+#endif RTCW_XX
+
 }
+
+#if defined RTCW_ET
+qboolean R_ShaderCanBeCached( shader_t *sh ) {
+	int i,j,b;
+
+	if ( purgeallshaders ) {
+		return qfalse;
+	}
+
+	if ( sh->isSky ) {
+		return qfalse;
+	}
+
+	for ( i = 0; i < sh->numUnfoggedPasses; i++ ) {
+		if ( sh->stages[i] && sh->stages[i]->active ) {
+			for ( b = 0 ; b < NUM_TEXTURE_BUNDLES ; b++ ) {
+				// rain - swapped order of for() comparisons so that
+				// image[16] (out of bounds) isn't dereferenced
+				//for (j=0; sh->stages[i]->bundle[b].image[j] && j < MAX_IMAGE_ANIMATIONS; j++) {
+				for ( j = 0; j < MAX_IMAGE_ANIMATIONS && sh->stages[i]->bundle[b].image[j]; j++ ) {
+					if ( sh->stages[i]->bundle[b].image[j]->imgName[0] == '*' ) {
+						return qfalse;
+					}
+				}
+			}
+		}
+	}
+	return qtrue;
+}
+
+void R_PurgeLightmapShaders( void ) {
+	int j, b, i = 0;
+	shader_t *sh, *shPrev, *next;
+
+	for ( i = 0; i < sizeof( backupHashTable ) / sizeof( backupHashTable[0] ); i++ ) {
+		sh = backupHashTable[i];
+
+		shPrev = NULL;
+		next = NULL;
+
+		while ( sh ) {
+			if ( sh->lightmapIndex >= 0 || !R_ShaderCanBeCached( sh ) ) {
+				next = sh->next;
+
+				if ( !shPrev ) {
+					backupHashTable[i] = sh->next;
+				} else {
+					shPrev->next = sh->next;
+				}
+
+				backupShaders[sh->index] = NULL;    // make sure we don't try and free it
+
+				numBackupShaders--;
+
+				for ( j = 0 ; j < sh->numUnfoggedPasses ; j++ ) {
+					if ( !sh->stages[j] ) {
+						break;
+					}
+					for ( b = 0 ; b < NUM_TEXTURE_BUNDLES ; b++ ) {
+						if ( sh->stages[j]->bundle[b].texMods ) {
+							R_CacheShaderFree( NULL, sh->stages[j]->bundle[b].texMods );
+						}
+					}
+					R_CacheShaderFree( NULL, sh->stages[j] );
+				}
+				R_CacheShaderFree( sh->lightmapIndex < 0 ? va( "%s lm: %i", sh->name, sh->lightmapIndex ) : NULL, sh );
+
+				sh = next;
+
+				continue;
+			}
+
+			shPrev = sh;
+			sh = sh->next;
+		}
+	}
+}
+#endif RTCW_XX
 
 /*
 ===============
@@ -3430,6 +4370,11 @@ R_BackupShaders
 ===============
 */
 void R_BackupShaders( void ) {
+
+#if defined RTCW_ET
+//	int i;
+//	long hash;
+#endif RTCW_XX
 
 	if ( !r_cache->integer ) {
 		return;
@@ -3444,6 +4389,22 @@ void R_BackupShaders( void ) {
 	memcpy( backupHashTable, hashTable, sizeof( hashTable ) );
 
 	numBackupShaders = tr.numShaders;
+
+#if defined RTCW_ET
+	// Gordon: ditch all lightmapped shaders
+	R_PurgeLightmapShaders();
+
+//	Com_Printf( "Backing up %i images\n", numBackupShaders );
+
+//	for( i = 0; i < tr.numShaders; i++ ) {
+//		if( backupShaders[ i ] ) {
+//			Com_Printf( "Shader: %s: lm %i\n", backupShaders[ i ]->name, backupShaders[i]->lightmapIndex );
+//		}
+//	}
+
+//	Com_Printf( "=======================================\n" );
+#endif RTCW_XX
+
 }
 
 /*
@@ -3501,6 +4462,13 @@ shader_t *R_FindCachedShader( const char *name, int lightmapIndex, int hash ) {
 	while ( sh ) {
 		if ( sh->lightmapIndex == lightmapIndex && !Q_stricmp( sh->name, name ) ) {
 
+#if defined RTCW_ET
+			if ( tr.numShaders == MAX_SHADERS ) {
+				ri.Printf( PRINT_WARNING, "WARNING: R_FindCachedShader - MAX_SHADERS hit\n" );
+				return NULL;
+			}
+#endif RTCW_XX
+
 			// make sure the images stay valid
 			if ( !R_RegisterShaderImages( sh ) ) {
 				return NULL;
@@ -3528,7 +4496,17 @@ shader_t *R_FindCachedShader( const char *name, int lightmapIndex, int hash ) {
 
 			tr.numShaders++;
 
+#if defined RTCW_ET
+			numBackupShaders--;
+
+			sh->remappedShader = NULL;  // Arnout: remove any remaps
+#endif RTCW_XX
+
 			SortNewShader();    // make sure it renders in the right order
+
+#if defined RTCW_ET
+//			Com_Printf( "Removing %s from the cache: lm: %i\n", sh->name, sh->lightmapIndex );
+#endif RTCW_XX
 
 			return sh;
 		}
@@ -3571,13 +4549,13 @@ void R_LoadCacheShaders( void ) {
 
 #if defined RTCW_SP
 	pString = (char*)buf;   //DAJ added (char*)
-#elif defined RTCW_MP
+#else
 	pString = buf;
 #endif RTCW_XX
 
 #if defined RTCW_SP
 	while ( ( token = COM_ParseExt( &pString, qtrue ) ) != NULL && token[0] ) {
-#elif defined RTCW_MP
+#else
 	while ( ( token = COM_ParseExt( &pString, qtrue ) ) && token[0] ) {
 #endif RTCW_XX
 

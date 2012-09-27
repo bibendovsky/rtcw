@@ -426,12 +426,23 @@ weightconfig_t *ReadWeightConfig( char *filename ) {
 	  //free the source at the end of a pass
 	FreeSource( source );
 	//if the file was located in a pak file
+
+#if !defined RTCW_ET
 	botimport.Print( PRT_MESSAGE, "loaded %s\n", filename );
 #ifdef DEBUG
 	if ( bot_developer ) {
 		botimport.Print( PRT_MESSAGE, "weights loaded in %d msec\n", Sys_MilliSeconds() - starttime );
 	} //end if
 #endif //DEBUG
+#else
+#ifdef DEBUG
+	botimport.Print( PRT_MESSAGE, "loaded %s\n", filename );
+	if ( bot_developer ) {
+		botimport.Print( PRT_MESSAGE, "weights loaded in %d msec\n", Sys_MilliSeconds() - starttime );
+	} //end if
+#endif //DEBUG
+#endif RTCW_XX
+
 	   //
 	if ( !LibVarGetValue( "bot_reloadcharacters" ) ) {
 		weightFileList[avail] = config;

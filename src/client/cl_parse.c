@@ -39,7 +39,14 @@ char *svc_strings[256] = {
 	"svc_baseline",
 	"svc_serverCommand",
 	"svc_download",
+
+#if !defined RTCW_ET
 	"svc_snapshot"
+#else
+	"svc_snapshot",
+	"svc_EOF"
+#endif RTCW_XX
+
 };
 
 void SHOWNET( msg_t *msg, char *s ) {
@@ -47,7 +54,7 @@ void SHOWNET( msg_t *msg, char *s ) {
 
 #if defined RTCW_SP
 		Com_Printf( "%3i %3i:%s\n", msg->readcount - 1, msg->cursize, s );
-#elif defined RTCW_MP
+#else
 		Com_Printf( "%3i:%s\n", msg->readcount - 1, s );
 #endif RTCW_XX
 
@@ -63,7 +70,7 @@ MESSAGE PARSING
 =========================================================================
 */
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #if 1
 
 int entLastVisible[MAX_CLIENTS];
@@ -198,7 +205,7 @@ void CL_DeltaEntity( msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t 
 		return;     // entity was delta removed
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #if 1
 	// DHM - Nerve :: Only draw clients if visible
 	if ( clc.onlyVisibleClients ) {
@@ -327,7 +334,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 		}
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	if ( cl_shownuments->integer ) {
 		Com_Printf( "Entities in packet: %i\n", newframe->numEntities );
 	}
@@ -384,7 +391,48 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	if ( newSnap.deltaNum <= 0 ) {
 		newSnap.valid = qtrue;      // uncompressed frame
 		old = NULL;
+
+#if !defined RTCW_ET
 		clc.demowaiting = qfalse;   // we can start recording now
+#else
+		if ( clc.demorecording ) {
+			clc.demowaiting = qfalse;   // we can start recording now
+//			if(cl_autorecord->integer) {
+//				Cvar_Set( "g_synchronousClients", "0" );
+//			}
+		} else {
+			if ( cl_autorecord->integer /*&& Cvar_VariableValue( "g_synchronousClients")*/ ) {
+				char name[256];
+				char mapname[MAX_QPATH];
+				char* period;
+				qtime_t time;
+
+				Com_RealTime( &time );
+
+				Q_strncpyz( mapname, cl.mapname, MAX_QPATH );
+				for ( period = mapname; *period; period++ ) {
+					if ( *period == '.' ) {
+						*period = '\0';
+						break;
+					}
+				}
+
+				for ( period = mapname; *period; period++ ) {
+					if ( *period == '/' ) {
+						break;
+					}
+				}
+				if ( *period ) {
+					period++;
+				}
+
+				Com_sprintf( name, sizeof( name ), "demos/%s_%i_%i.dm_%d", period, time.tm_mday, time.tm_mon + 1, PROTOCOL_VERSION );
+
+				CL_Record( name );
+			}
+		}
+#endif RTCW_XX
+
 	} else {
 		old = &cl.snapshots[newSnap.deltaNum & PACKET_MASK];
 		if ( !old->valid ) {
@@ -396,7 +444,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 
 #if defined RTCW_SP
 			Com_Printf( "Delta frame too old.\n" );
-#elif defined RTCW_MP
+#else
 			Com_DPrintf( "Delta frame too old.\n" );
 #endif RTCW_XX
 
@@ -404,7 +452,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 
 #if defined RTCW_SP
 			Com_Printf( "Delta parseEntitiesNum too old.\n" );
-#elif defined RTCW_MP
+#else
 			Com_DPrintf( "Delta parseEntitiesNum too old.\n" );
 #endif RTCW_XX
 
@@ -416,7 +464,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	// read areamask
 	len = MSG_ReadByte( msg );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	if ( len > sizeof( newSnap.areamask ) ) {
 		Com_Error( ERR_DROP,"CL_ParseSnapshot: Invalid size %d for areamask.", len );
 		return;
@@ -492,6 +540,11 @@ new information out of it.  This will happen at every
 gamestate, and possibly during gameplay.
 ==================
 */
+
+#if defined RTCW_ET
+void CL_PurgeCache( void );
+#endif RTCW_XX
+
 void CL_SystemInfoChanged( void ) {
 	char            *systemInfo;
 	const char      *s, *t;
@@ -500,7 +553,7 @@ void CL_SystemInfoChanged( void ) {
 
 	systemInfo = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SYSTEMINFO ];
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// NOTE TTimo:
 	// when the serverId changes, any further messages we send to the server will use this new serverId
 	// show_bug.cgi?id=475
@@ -509,7 +562,7 @@ void CL_SystemInfoChanged( void ) {
 
 	cl.serverId = atoi( Info_ValueForKey( systemInfo, "sv_serverid" ) );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	memset( &entLastVisible, 0, sizeof( entLastVisible ) );
 #endif RTCW_XX
 
@@ -519,6 +572,11 @@ void CL_SystemInfoChanged( void ) {
 	}
 
 	s = Info_ValueForKey( systemInfo, "sv_cheats" );
+
+#if defined RTCW_ET
+	sv_cheats = atoi( s );    //bani
+#endif RTCW_XX
+
 	if ( atoi( s ) == 0 ) {
 		Cvar_SetCheatState();
 	}
@@ -542,7 +600,25 @@ void CL_SystemInfoChanged( void ) {
 
 		Cvar_Set( key, value );
 	}
+
+#if !defined RTCW_ET
 	cl_connectedToPureServer = Cvar_VariableValue( "sv_pure" );
+#else
+	// Arnout: big hack to clear the image cache on a pure change
+	//cl_connectedToPureServer = Cvar_VariableValue( "sv_pure" );
+	if ( Cvar_VariableValue( "sv_pure" ) ) {
+		if ( !cl_connectedToPureServer && cls.state <= CA_CONNECTED ) {
+			CL_PurgeCache();
+		}
+		cl_connectedToPureServer = qtrue;
+	} else {
+		if ( cl_connectedToPureServer && cls.state <= CA_CONNECTED ) {
+			CL_PurgeCache();
+		}
+		cl_connectedToPureServer = qfalse;
+	}
+#endif RTCW_XX
+
 }
 
 /*
@@ -615,13 +691,26 @@ void CL_ParseGamestate( msg_t *msg ) {
 	// parse serverId and other cvars
 	CL_SystemInfoChanged();
 
+#if defined RTCW_ET
+	// Arnout: verify if we have all official pakfiles. As we won't
+	// be downloading them, we should be kicked for not having them.
+	if ( cl_connectedToPureServer && !FS_VerifyOfficialPaks() ) {
+		Com_Error( ERR_DROP, "Couldn't load an official pak file; verify your installation and make sure it has been updated to the latest version." );
+	}
+#endif RTCW_XX
+
 	// reinitialize the filesystem if the game directory has changed
+
+#if !defined RTCW_ET
 	if ( FS_ConditionalRestart( clc.checksumFeed ) ) {
 		// don't set to true because we yet have to start downloading
 		// enabling this can cause double loading of a map when connecting to
 		// a server which has a different game directory set
 		//clc.downloadRestart = qtrue;
 	}
+#else
+	FS_ConditionalRestart( clc.checksumFeed );
+#endif RCTW_XX
 
 	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the
 	// cgame
@@ -646,8 +735,14 @@ void CL_ParseDownload( msg_t *msg ) {
 	unsigned char data[MAX_MSGLEN];
 	int block;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
+
+#if !defined RTCW_ET
 	if ( !*clc.downloadTempName ) {
+#else
+	if ( !*cls.downloadTempName ) {
+#endif RTCW_XX
+
 		Com_Printf( "Server sending download, but no download was requested\n" );
 		CL_AddReliableCommand( "stopdl" );
 		return;
@@ -656,6 +751,65 @@ void CL_ParseDownload( msg_t *msg ) {
 
 	// read the data
 	block = MSG_ReadShort( msg );
+
+#if defined RTCW_ET
+	// TTimo - www dl
+	// if we haven't acked the download redirect yet
+	if ( block == -1 ) {
+		if ( !clc.bWWWDl ) {
+			// server is sending us a www download
+			Q_strncpyz( cls.originalDownloadName, cls.downloadName, sizeof( cls.originalDownloadName ) );
+			Q_strncpyz( cls.downloadName, MSG_ReadString( msg ), sizeof( cls.downloadName ) );
+			clc.downloadSize = MSG_ReadLong( msg );
+			clc.downloadFlags = MSG_ReadLong( msg );
+			if ( clc.downloadFlags & ( 1 << DL_FLAG_URL ) ) {
+				Sys_OpenURL( cls.downloadName, qtrue );
+				Cbuf_ExecuteText( EXEC_APPEND, "quit\n" );
+				CL_AddReliableCommand( "wwwdl bbl8r" ); // not sure if that's the right msg
+				clc.bWWWDlAborting = qtrue;
+				return;
+			}
+			Cvar_SetValue( "cl_downloadSize", clc.downloadSize );
+			Com_DPrintf( "Server redirected download: %s\n", cls.downloadName );
+			clc.bWWWDl = qtrue; // activate wwwdl client loop
+			CL_AddReliableCommand( "wwwdl ack" );
+			// make sure the server is not trying to redirect us again on a bad checksum
+			if ( strstr( clc.badChecksumList, va( "@%s", cls.originalDownloadName ) ) ) {
+				Com_Printf( "refusing redirect to %s by server (bad checksum)\n", cls.downloadName );
+				CL_AddReliableCommand( "wwwdl fail" );
+				clc.bWWWDlAborting = qtrue;
+				return;
+			}
+			// make downloadTempName an OS path
+			Q_strncpyz( cls.downloadTempName, FS_BuildOSPath( Cvar_VariableString( "fs_homepath" ), cls.downloadTempName, "" ), sizeof( cls.downloadTempName ) );
+			cls.downloadTempName[strlen( cls.downloadTempName ) - 1] = '\0';
+			if ( !DL_BeginDownload( cls.downloadTempName, cls.downloadName, com_developer->integer ) ) {
+				// setting bWWWDl to false after sending the wwwdl fail doesn't work
+				// not sure why, but I suspect we have to eat all remaining block -1 that the server has sent us
+				// still leave a flag so that CL_WWWDownload is inactive
+				// we count on server sending us a gamestate to start up clean again
+				CL_AddReliableCommand( "wwwdl fail" );
+				clc.bWWWDlAborting = qtrue;
+				Com_Printf( "Failed to initialize download for '%s'\n", cls.downloadName );
+			}
+			// Check for a disconnected download
+			// we'll let the server disconnect us when it gets the bbl8r message
+			if ( clc.downloadFlags & ( 1 << DL_FLAG_DISCON ) ) {
+				CL_AddReliableCommand( "wwwdl bbl8r" );
+				cls.bWWWDlDisconnected = qtrue;
+			}
+			return;
+		} else
+		{
+			// server keeps sending that message till we ack it, eat and ignore
+			//MSG_ReadLong( msg );
+			MSG_ReadString( msg );
+			MSG_ReadLong( msg );
+			MSG_ReadLong( msg );
+			return;
+		}
+	}
+#endif RTCW_XX
 
 	if ( !block ) {
 		// block zero is special, contains file size
@@ -675,7 +829,7 @@ void CL_ParseDownload( msg_t *msg ) {
 	if ( size > 0 ) {
 		MSG_ReadData( msg, data, size );
 	}
-#elif defined RTCW_MP
+#else
 	if ( size < 0 || size > sizeof( data ) ) {
 		Com_Error( ERR_DROP, "CL_ParseDownload: Invalid size %d for download chunk.", size );
 		return;
@@ -700,10 +854,21 @@ void CL_ParseDownload( msg_t *msg ) {
 		}
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 		clc.download = FS_SV_FOpenFileWrite( clc.downloadTempName );
+#elif defined RTCW_ET
+		clc.download = FS_SV_FOpenFileWrite( cls.downloadTempName );
+#endif RTCW_XX
+
 
 		if ( !clc.download ) {
+
+#if !defined RTCW_ET
 			Com_Printf( "Could not create %s\n", clc.downloadTempName );
+#else
+			Com_Printf( "Could not create %s\n", cls.downloadTempName );
+#endif RTCW_XX
+
 			CL_AddReliableCommand( "stopdl" );
 			CL_NextDownload();
 			return;
@@ -728,9 +893,17 @@ void CL_ParseDownload( msg_t *msg ) {
 			clc.download = 0;
 
 			// rename the file
+
+#if !defined RTCW_ET
 			FS_SV_Rename( clc.downloadTempName, clc.downloadName );
 		}
 		*clc.downloadTempName = *clc.downloadName = 0;
+#else
+			FS_SV_Rename( cls.downloadTempName, cls.downloadName );
+		}
+		*cls.downloadTempName = *cls.downloadName = 0;
+#endif RTCW_XX
+
 		Cvar_Set( "cl_downloadName", "" );
 
 		// send intentions now
@@ -772,6 +945,25 @@ void CL_ParseCommandString( msg_t *msg ) {
 	Q_strncpyz( clc.serverCommands[ index ], s, sizeof( clc.serverCommands[ index ] ) );
 }
 
+#if defined RTCW_ET
+/*
+=====================
+CL_ParseBinaryMessage
+=====================
+*/
+void CL_ParseBinaryMessage( msg_t *msg ) {
+	int size;
+
+	MSG_BeginReadingUncompressed( msg );
+
+	size = msg->cursize - msg->readcount;
+	if ( size <= 0 || size > MAX_BINARY_MESSAGE ) {
+		return;
+	}
+
+	CL_CGameBinaryMessageReceived( &msg->data[msg->readcount], size, cl.snap.serverTime );
+}
+#endif RTCW_XX
 
 /*
 =====================
@@ -829,7 +1021,7 @@ void CL_ParseServerMessage( msg_t *msg ) {
 
 #if defined RTCW_SP
 			Com_Error( ERR_DROP,"CL_ParseServerMessage: Illegible server message\n" );
-#elif defined RTCW_MP
+#else
 			Com_Error( ERR_DROP,"CL_ParseServerMessage: Illegible server message %d\n", cmd );
 #endif RTCW_XX
 
@@ -850,4 +1042,9 @@ void CL_ParseServerMessage( msg_t *msg ) {
 			break;
 		}
 	}
+
+#if defined RTCW_ET
+	CL_ParseBinaryMessage( msg );
+#endif RTCW_XX
+
 }

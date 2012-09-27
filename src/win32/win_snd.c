@@ -299,11 +299,16 @@ void SNDDMA_Shutdown( void ) {
 	if ( pDS ) {
 		Com_DPrintf( "Destroying DS buffers\n" );
 		if ( pDS ) {
-			Com_DPrintf( "...setting NORMAL coop level\n" );
 
-#if defined RTCW_SP
+#if !defined RTCW_ET
+			Com_DPrintf( "...setting NORMAL coop level\n" );
+#else
+			Com_DPrintf( "...setting DSSCL_PRIORITY coop level\n" );
+#endif RTCW_XX
+
+#if !defined RTCW_MP
 			pDS->lpVtbl->SetCooperativeLevel( pDS, g_wv.hWnd, DSSCL_PRIORITY );
-#elif defined RTCW_MP
+#else
 			pDS->lpVtbl->SetCooperativeLevel( pDS, g_wv.hWnd, DSSCL_NORMAL );
 #endif RTCW_XX
 
@@ -341,7 +346,7 @@ void SNDDMA_Shutdown( void ) {
 	dsound_init = qfalse;
 	memset( (void *)&dma, 0, sizeof( dma ) );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	CoUninitialize();
 #endif RTCW_XX
 
@@ -356,7 +361,7 @@ Returns false if failed
 ==================
 */
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 qboolean SNDDMA_Init( void ) {
 
 	memset( (void *)&dma, 0, sizeof( dma ) );
@@ -374,7 +379,7 @@ qboolean SNDDMA_Init( void ) {
 
 	return qtrue;
 }
-#elif defined RTCW_MP
+#else
 int SNDDMA_Init( void ) {
 
 	memset( (void *)&dma, 0, sizeof( dma ) );
@@ -398,7 +403,7 @@ int SNDDMA_Init( void ) {
 }
 #endif RTCW_XX
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 #undef DEFINE_GUID
 
 #define DEFINE_GUID( name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8 ) \
@@ -426,9 +431,9 @@ int SNDDMA_InitDS() {
 	DSBCAPS dsbcaps;
 	WAVEFORMATEX format;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	int use8;
-#elif defined RTCW_MP
+#else
 	int clear;
 
 	if ( s_wavonly->integer ) {
@@ -445,7 +450,7 @@ int SNDDMA_InitDS() {
 
 	Com_Printf( "Initializing DirectSound\n" );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	use8 = 1;
 	// Create IDirectSound using the primary sound device
 	if ( FAILED( hresult = CoCreateInstance( &CLSID_DirectSound8, NULL, CLSCTX_INPROC_SERVER, &IID_IDirectSound8, (void **)&pDS ) ) ) {
@@ -456,7 +461,7 @@ int SNDDMA_InitDS() {
 			return qfalse;
 		}
 	}
-#elif defined RTCW_MP
+#else
 	if ( !hInstDS ) {
 		Com_DPrintf( "...loading dsound.dll: " );
 
@@ -478,9 +483,9 @@ int SNDDMA_InitDS() {
 	}
 #endif RTCW_XX
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	hresult = pDS->lpVtbl->Initialize( pDS, NULL );
-#elif defined RTCW_MP
+#else
 	Com_DPrintf( "...creating DS object: " );
 	pauseTried = qfalse;
 	while ( ( hresult = iDirectSoundCreate( NULL, &pDS, NULL ) ) != DS_OK ) {
@@ -504,11 +509,11 @@ int SNDDMA_InitDS() {
 
 	Com_DPrintf( "ok\n" );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	Com_DPrintf( "...setting DSSCL_PRIORITY coop level: " );
 
 	if ( DS_OK != pDS->lpVtbl->SetCooperativeLevel( pDS, g_wv.hWnd, DSSCL_PRIORITY ) ) {
-#elif defined RTCW_MP
+#else
 	Com_DPrintf( "...setting DSSCL_NORMAL coop level: " );
 
 	if ( DS_OK != pDS->lpVtbl->SetCooperativeLevel( pDS, g_wv.hWnd, DSSCL_NORMAL ) ) {
@@ -522,8 +527,14 @@ int SNDDMA_InitDS() {
 
 
 	// create the secondary buffer we'll actually work with
+
+#if !defined RTCW_ET
 	dma.channels = 2;
 	dma.samplebits = 16;
+#else
+	dma.channels = (int)s_numchannels->value;
+	dma.samplebits = (int)s_bits->value;
+#endif RTCW_XX
 
 	if ( s_khz->integer == 44 ) {
 		dma.speed = 44100;
@@ -532,6 +543,10 @@ int SNDDMA_InitDS() {
 	} else {
 		dma.speed = 11025;
 	}
+
+#if defined RTCW_ET
+//	dma.speed = 22050;
+#endif RTCW_XX
 
 	memset( &format, 0, sizeof( format ) );
 	format.wFormatTag = WAVE_FORMAT_PCM;
@@ -549,7 +564,7 @@ int SNDDMA_InitDS() {
 
 	dsbuf.dwFlags = DSBCAPS_LOCHARDWARE;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( use8 ) {
 		dsbuf.dwFlags |= DSBCAPS_GETCURRENTPOSITION2;
 	}
@@ -568,7 +583,7 @@ int SNDDMA_InitDS() {
 		// Couldn't get hardware, fallback to software.
 		dsbuf.dwFlags = DSBCAPS_LOCSOFTWARE;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		if ( use8 ) {
 			dsbuf.dwFlags |= DSBCAPS_GETCURRENTPOSITION2;
 		}
@@ -605,7 +620,7 @@ int SNDDMA_InitDS() {
 	dma.submission_chunk = 1;
 	dma.buffer = NULL;          // must be locked first
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	sample16 = ( dma.samplebits / 8 ) - 1;
 
 	SNDDMA_BeginPainting();
@@ -613,7 +628,7 @@ int SNDDMA_InitDS() {
 		memset( dma.buffer, 0, dma.samples * dma.samplebits / 8 );
 	}
 	SNDDMA_Submit();
-#elif defined RTCW_MP
+#else
 	// DHM - Nerve :: Clear out the buffer in case it has garbage that would loop while menu loads
 	SNDDMA_BeginPainting();
 	if ( dma.samplebits == 8 ) {
@@ -647,11 +662,11 @@ int SNDDMA_GetDMAPos( void ) {
 	int s;
 	DWORD dwWrite;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( !dsound_init ) {
 		return 0;
 	}
-#elif defined RTCW_MP
+#else
 	if ( wav_init ) {
 		s = snd_sent * WAV_BUFFER_SIZE;
 		s >>= sample16;

@@ -249,7 +249,13 @@ void QDECL ScriptError( script_t *script, char *str, ... ) {
 	}
 
 	va_start( ap, str );
+
+#if !defined RTCW_ET
 	vsprintf( text, str, ap );
+#else
+	Q_vsnprintf( text, sizeof( text ), str, ap );
+#endif RTCW_XX
+
 	va_end( ap );
 #ifdef BOTLIB
 	botimport.Print( PRT_ERROR, "file %s, line %d: %s\n", script->filename, script->line, text );
@@ -276,7 +282,13 @@ void QDECL ScriptWarning( script_t *script, char *str, ... ) {
 	}
 
 	va_start( ap, str );
+
+#if !defined RTCW_ET
 	vsprintf( text, str, ap );
+#else
+	Q_vsnprintf( text, sizeof( text ), str, ap );
+#endif RTCW_XX
+
 	va_end( ap );
 #ifdef BOTLIB
 	botimport.Print( PRT_WARNING, "file %s, line %d: %s\n", script->filename, script->line, text );
@@ -1163,7 +1175,15 @@ char PS_NextWhiteSpaceChar( script_t *script ) {
 //============================================================================
 void StripDoubleQuotes( char *string ) {
 	if ( *string == '\"' ) {
+
+#if !defined RTCW_ET
 		strcpy( string, string + 1 );
+#else
+		//strcpy(string, string+1);
+		// rain - strcpy arguments cannot overlap, memmove string+1 and NUL
+		memmove( string, string + 1, strlen( string + 1 ) + 1 );
+#endif RTCW_XX
+
 	} //end if
 	if ( string[strlen( string ) - 1] == '\"' ) {
 		string[strlen( string ) - 1] = '\0';
@@ -1333,6 +1353,11 @@ int FileLength( FILE *fp ) {
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
+
+#if defined RTCW_ET
+int COM_Compress( char *data_p );
+#endif RTCW_XX
+
 script_t *LoadScriptFile( const char *filename ) {
 #ifdef BOTLIB
 	fileHandle_t fp;
@@ -1395,7 +1420,10 @@ script_t *LoadScriptFile( const char *filename ) {
 	fclose( fp );
 #endif
 	//
+
+#if !defined RTCW_ET
 	script->length = COM_Compress( script->buffer );
+#endif RTCW_XX
 
 	return script;
 } //end of the function LoadScriptFile

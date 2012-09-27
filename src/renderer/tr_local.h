@@ -40,13 +40,14 @@ If you have questions concerning this license or the applicable additional terms
 #define GL_INDEX_TYPE       GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;
 
+#if !defined RTCW_ET
 // fast float to int conversion
 #if id386 && !( ( defined __linux__ || defined __FreeBSD__ ) && ( defined __i386__ ) ) // rb010123
 long myftol( float f );
 #else
 #define myftol( x ) ( (int)( x ) )
 #endif
-
+#endif RTCW_XX
 
 // everything that is needed by the backend needs
 // to be double buffered to allow it to run in
@@ -55,7 +56,7 @@ long myftol( float f );
 
 #if defined RTCW_SP
 #define MAX_SHADERS             2048
-#elif defined RTCW_MP
+#else
 #define MAX_SHADERS             8192
 #endif RTCW_XX
 
@@ -68,6 +69,12 @@ long myftol( float f );
 
 // a trRefEntity_t has all the information passed in by
 // the client game, as well as some locally derived info
+
+#if defined RTCW_ET
+// ydnar: optimizing diffuse lighting calculation with a table lookup
+#define ENTITY_LIGHT_STEPS      16
+#endif RTCW_XX
+
 typedef struct {
 	refEntity_t e;
 
@@ -79,6 +86,11 @@ typedef struct {
 	vec3_t ambientLight;        // color normalized to 0-255
 	int ambientLightInt;            // 32 bit rgba packed
 	vec3_t directedLight;
+
+#if defined RTCW_ET
+	int entityLightInt[ ENTITY_LIGHT_STEPS ];
+#endif RTCW_XX
+
 	float brightness;
 } trRefEntity_t;
 
@@ -292,6 +304,10 @@ typedef struct {
 //#define	MAX_IMAGE_ANIMATIONS	8
 #define MAX_IMAGE_ANIMATIONS    16
 
+#if defined RTCW_ET
+// Arnout: FIXME change the is* qbooleans to a type index
+#endif RTCW_XX
+
 typedef struct {
 	image_t         *image[MAX_IMAGE_ANIMATIONS];
 	int numImageAnimations;
@@ -305,7 +321,11 @@ typedef struct {
 
 	int videoMapHandle;
 	qboolean isLightmap;
+
+#if !defined RTCW_ET
 	qboolean vertexLightmap;
+#endif RTCW_XX
+
 	qboolean isVideoMap;
 } textureBundle_t;
 
@@ -362,6 +382,12 @@ typedef struct {
 typedef struct {
 	vec3_t color;
 	float depthForOpaque;
+
+#if defined RTCW_ET
+	unsigned colorInt;                  // in packed byte format
+	float tcScale;                      // texture coordinate vector scales
+#endif RTCW_XX
+
 } fogParms_t;
 
 
@@ -392,6 +418,10 @@ typedef struct shader_s {
 	fogParms_t fogParms;
 
 	float portalRange;                  // distance to fog out at
+
+#if defined RTCW_ET
+	vec4_t distanceCull;                // ydnar: opaque alpha range for foliage (inner, outer, alpha threshold, 1/(outer-inner))
+#endif RTCW_XX
 
 	int multitextureEnv;                // 0, GL_MODULATE, GL_ADD (FIXME: put in stage)
 
@@ -444,10 +474,11 @@ typedef struct corona_s {
 	vec3_t transformed;         // origin in local coordinate system
 	float scale;                // uses r_flaresize as the baseline (1.0)
 	int id;
+
 #if defined RTCW_SP
 	int flags;                  // '1' is 'visible'
 								// still send the corona request, even if not visible, for proper fading
-#elif defined RTCW_MP
+#else
 	qboolean visible;           // still send the corona request, even if not visible, for proper fading
 #endif RTCW_XX
 
@@ -458,8 +489,16 @@ typedef struct dlight_s {
 	vec3_t color;               // range from 0.0 to 1.0, should be color normalized
 	float radius;
 
+#if defined RTCW_ET
+	float radiusInverseCubed;       // ydnar: attenuation optimization
+	float intensity;                // 1.0 = fullbright, > 1.0 = overbright
+	shader_t    *shader;
+	int flags;
+#endif RTCW_XX
+
 	vec3_t transformed;         // origin in local coordinate system
 
+#if !defined RTCW_ET
 	// Ridah
 	int overdraw;
 	// done.
@@ -468,8 +507,27 @@ typedef struct dlight_s {
 
 	qboolean forced;        //----(SA)	use this dlight when r_dynamiclight is either 1 or 2 (rather than just 1) for "important" gameplay lights (alarm lights, etc)
 	//done
+#endif RTCW_XX
 
 } dlight_t;
+
+#if defined RTCW_ET
+// ydnar: decal projection
+typedef struct decalProjector_s
+{
+	shader_t    *shader;
+	byte color[ 4 ];
+	int fadeStartTime, fadeEndTime;
+	vec3_t mins, maxs;
+	vec3_t center;
+	float radius, radius2;
+	qboolean omnidirectional;
+	int numPlanes;                  // either 5 or 6, for quad or triangle projectors
+	vec4_t planes[ 6 ];
+	vec4_t texMat[ 3 ][ 2 ];
+}
+decalProjector_t;
+#endif RTCW_XX
 
 // trRefdef_t holds everything that comes in refdef_t,
 // as well as the locally generated scene information
@@ -494,14 +552,40 @@ typedef struct {
 	int num_entities;
 	trRefEntity_t   *entities;
 
+#if defined RTCW_ET
+	int dlightBits;                 // ydnar: optimization
+#endif RTCW_XX
+
 	int num_dlights;
+
+#if !defined RTCW_ET
 	struct dlight_s *dlights;
+#else
+	dlight_t    *dlights;
+#endif RTCW_XX
 
 	int num_coronas;
+
+#if !defined RTCW_ET
 	struct corona_s *coronas;
+#else
+	corona_t    *coronas;
+#endif RTCW_XX
 
 	int numPolys;
 	struct srfPoly_s    *polys;
+
+#if defined RTCW_ET
+	int numPolyBuffers;
+	struct srfPolyBuffer_s  *polybuffers;
+
+	int decalBits;                  // ydnar: optimization
+	int numDecalProjectors;
+	decalProjector_t    *decalProjectors;
+
+	int numDecals;
+	struct srfDecal_s   *decals;
+#endif RTCW_XX
 
 	int numDrawSurfs;
 	struct drawSurf_s   *drawSurfs;
@@ -513,6 +597,11 @@ typedef struct {
 // skins allow models to be retextured without modifying the model file
 typedef struct {
 	char name[MAX_QPATH];
+
+#if defined RTCW_ET
+	int hash;
+#endif RTCW_XX
+
 	shader_t    *shader;
 } skinSurface_t;
 
@@ -522,6 +611,11 @@ typedef struct {
 typedef struct {
 	char type[MAX_QPATH];           // md3_lower, md3_lbelt, md3_rbelt, etc.
 	char model[MAX_QPATH];          // lower.md3, belt1.md3, etc.
+
+#if defined RTCW_ET
+	int hash;
+#endif RTCW_XX
+
 } skinModel_t;
 
 typedef struct skin_s {
@@ -530,16 +624,32 @@ typedef struct skin_s {
 	int numModels;
 	skinSurface_t   *surfaces[MD3_MAX_SURFACES];
 	skinModel_t     *models[MAX_PART_MODELS];
+
+#if !defined RTCW_ET
 	vec3_t scale;       //----(SA)	added
+#endif RTCW_XX
+
 } skin_t;
 //----(SA) end
 
 typedef struct {
+
+#if defined RTCW_ET
+	int modelNum;                   // ydnar: bsp model the fog belongs to
+#endif RTCW_XX
+
 	int originalBrushNumber;
 	vec3_t bounds[2];
 
+#if !defined RTCW_ET
 	unsigned colorInt;                  // in packed byte format
 	float tcScale;                      // texture coordinate vector scales
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	shader_t    *shader;            // fog shader to get colorInt and tcScale from
+#endif RTCW_XX
+
 	fogParms_t parms;
 
 	// for clipping distance in fog when outside
@@ -548,7 +658,13 @@ typedef struct {
 } fog_t;
 
 typedef struct {
+
+#if !defined RTCW_ET
 	orientationr_t  or;
+#else
+	orientationr_t orientation;
+#endif RTCW_XX
+
 	orientationr_t world;
 	vec3_t pvsOrigin;               // may be different than or.origin for portals
 	qboolean isPortal;              // true if this view is through a portal
@@ -559,7 +675,13 @@ typedef struct {
 	int viewportX, viewportY, viewportWidth, viewportHeight;
 	float fovX, fovY;
 	float projectionMatrix[16];
+
+#if !defined RTCW_ET
 	cplane_t frustum[4];
+#else
+	cplane_t frustum[5];            // ydnar: added farplane
+#endif RTCW_XX
+
 	vec3_t visBounds[2];
 	float zFar;
 
@@ -581,20 +703,41 @@ SURFACES
 */
 
 // any changes in surfaceType must be mirrored in rb_surfaceTable[]
+
+#if !defined RTCW_ET
 // NOTE: also mirror changes to max2skl.c
+#else
+// NOTE: also mirror changes to max2skl.c - Arnout: not anymore
+#endif RTCW_XX
+
 typedef enum {
 	SF_BAD,
 	SF_SKIP,                // ignore
 	SF_FACE,
 	SF_GRID,
 	SF_TRIANGLES,
+
+#if defined RTCW_ET
+	SF_FOLIAGE,
+#endif RTCW_XX
+
 	SF_POLY,
 	SF_MD3,
 	SF_MDC,
 	SF_MDS,
+
+#if defined RTCW_ET
+	SF_MDM,
+#endif RTCW_XX
+
 	SF_FLARE,
 	SF_ENTITY,              // beams, rails, lightning, etc that can be determined by entity
 	SF_DISPLAY_LIST,
+
+#if defined RTCW_ET
+	SF_POLYBUFFER,
+	SF_DECAL,               // ydnar: decal surfaces
+#endif RTCW_XX
 
 	SF_NUM_SURFACE_TYPES,
 	SF_MAX = 0xffffffff         // ensures that sizeof( surfaceType_t ) == sizeof( int )
@@ -605,10 +748,30 @@ typedef struct drawSurf_s {
 	surfaceType_t       *surface;       // any of surface*_t
 } drawSurf_t;
 
+#if !defined RTCW_ET
 #define MAX_FACE_POINTS     64
+#else
+#define MAX_FACE_POINTS     1024
+#endif RTCW_XX
 
 #define MAX_PATCH_SIZE      32          // max dimensions of a patch mesh in map file
 #define MAX_GRID_SIZE       65          // max dimensions of a grid mesh in memory
+
+#if defined RTCW_ET
+typedef byte color4ub_t[4];
+
+typedef struct color4ubhack_s {
+	color4ub_t v;
+} color4ubhack_t;
+
+typedef struct vec4hack_s {
+	vec4_t v;
+} vec4hack_t;
+
+typedef struct vec2hack_s {
+	vec2_t v;
+} vec2hack_t;
+#endif RTCW_XX
 
 // when cgame directly specifies a polygon, it becomes a srfPoly_t
 // as soon as it is called
@@ -619,6 +782,26 @@ typedef struct srfPoly_s {
 	int numVerts;
 	polyVert_t      *verts;
 } srfPoly_t;
+
+#if defined RTCW_ET
+typedef struct srfPolyBuffer_s {
+	surfaceType_t surfaceType;
+	int fogIndex;
+	polyBuffer_t*   pPolyBuffer;
+} srfPolyBuffer_t;
+
+// ydnar: decals
+#define MAX_DECAL_VERTS         10  // worst case is triangle clipped by 6 planes
+#define MAX_WORLD_DECALS        1024
+#define MAX_ENTITY_DECALS       128
+typedef struct srfDecal_s
+{
+	surfaceType_t surfaceType;
+	int numVerts;
+	polyVert_t verts[ MAX_DECAL_VERTS ];
+}
+srfDecal_t;
+#endif RTCW_XX
 
 typedef struct srfDisplayList_s {
 	surfaceType_t surfaceType;
@@ -633,16 +816,44 @@ typedef struct srfFlare_s {
 	vec3_t color;
 } srfFlare_t;
 
+#if defined RTCW_ET
+// ydnar: normal map drawsurfaces must match this header
+typedef struct srfGeneric_s
+{
+	surfaceType_t surfaceType;
+
+	// culling information
+	vec3_t bounds[ 2 ];
+	vec3_t origin;
+	float radius;
+	cplane_t plane;
+
+	// dynamic lighting information
+	int dlightBits[ SMP_FRAMES ];
+}
+srfGeneric_t;
+#endif RTCW_XX
+
 typedef struct srfGridMesh_s {
 	surfaceType_t surfaceType;
+
+#if defined RTCW_ET
+	// culling information
+	vec3_t bounds[ 2 ];
+	vec3_t origin;
+	float radius;
+	cplane_t plane;
+#endif RTCW_XX
 
 	// dynamic lighting information
 	int dlightBits[SMP_FRAMES];
 
+#if !defined RTCW_ET
 	// culling information
 	vec3_t meshBounds[2];
 	vec3_t localOrigin;
 	float meshRadius;
+#endif RTCW_XX
 
 	// lod information, which may be different
 	// than the culling information to allow for
@@ -662,8 +873,23 @@ typedef struct srfGridMesh_s {
 
 
 #define VERTEXSIZE  8
+
+#if !defined RTCW_ET
 typedef struct {
+#else
+typedef struct srfSurfaceFace_s
+{
+#endif RTCW_XX
+
 	surfaceType_t surfaceType;
+
+#if defined RTCW_ET
+	// culling information
+	vec3_t bounds[ 2 ];
+	vec3_t origin;
+	float radius;
+#endif RTCW_XX
+
 	cplane_t plane;
 
 	// dynamic lighting information
@@ -679,16 +905,40 @@ typedef struct {
 
 
 // misc_models in maps are turned into direct geometry by q3map
+
+#if !defined RTCW_ET
 typedef struct {
+#else
+typedef struct srfTriangles_s
+{
+#endif RTCW_XX
+
 	surfaceType_t surfaceType;
 
+#if !defined RTCW_ET
 	// dynamic lighting information
 	int dlightBits[SMP_FRAMES];
+#endif RTCW_XX
 
 	// culling information (FIXME: use this!)
 	vec3_t bounds[2];
+
+#if !defined RTCW_ET
 	vec3_t localOrigin;
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	vec3_t origin;
+#endif RTCW_XX
+
 	float radius;
+
+#if defined RTCW_ET
+	cplane_t plane;
+
+	// dynamic lighting information
+	int dlightBits[ SMP_FRAMES ];
+#endif RTCW_XX
 
 	// triangle definitions
 	int numIndexes;
@@ -697,6 +947,77 @@ typedef struct {
 	int numVerts;
 	drawVert_t      *verts;
 } srfTriangles_t;
+
+#if defined RTCW_ET
+// Gordon: Test
+typedef struct srfTriangles2_s
+{
+	surfaceType_t surfaceType;
+
+	// culling information
+	vec3_t bounds[ 2 ];
+	vec3_t origin;
+	float radius;
+	cplane_t plane;
+
+	// dynamic lighting information
+	int dlightBits[ SMP_FRAMES ];
+
+	// triangle definitions
+	int numIndexes;
+	int             *indexes;
+
+	int numVerts;
+
+
+	vec4hack_t*     xyz;
+	vec2hack_t*     st;
+	vec2hack_t*     lightmap;
+	vec4hack_t*     normal;
+	color4ubhack_t* color;
+} srfTriangles2_t;
+//
+
+// ydnar: foliage surfaces are autogenerated from models into geometry lists by q3map2
+typedef byte fcolor4ub_t[4];
+
+typedef struct
+{
+	vec3_t origin;
+	fcolor4ub_t color;
+}
+foliageInstance_t;
+
+typedef struct
+{
+	surfaceType_t surfaceType;
+
+	// culling information
+	vec3_t bounds[ 2 ];
+	vec3_t origin;
+	float radius;
+	cplane_t plane;
+
+	// dynamic lighting information
+	int dlightBits[ SMP_FRAMES ];
+
+	// triangle definitions
+	int numIndexes;
+	glIndex_t       *indexes;
+
+	int numVerts;
+	vec4_t          *xyz;
+	vec4_t          *normal;
+	vec2_t          *texCoords;
+	vec2_t          *lmTexCoords;
+
+	// origins
+	int numInstances;
+	foliageInstance_t   *instances;
+}
+srfFoliage_t;
+#endif RTCW_XX
+
 
 
 extern void( *rb_surfaceTable[SF_NUM_SURFACE_TYPES] ) ( void * );
@@ -720,12 +1041,31 @@ BRUSH MODELS
 
 typedef struct msurface_s {
 	int viewCount;                      // if == tr.viewCount, already added
+
+#if !defined RTCW_ET
 	struct shader_s     *shader;
+#else
+	shader_t        *shader;
+#endif RTCW_XX
+
 	int fogIndex;
 
 	surfaceType_t       *data;          // any of srf*_t
 } msurface_t;
 
+#if defined RTCW_ET
+// ydnar: bsp model decal surfaces
+typedef struct decal_s
+{
+	msurface_t      *parent;
+	shader_t        *shader;
+	float fadeStartTime, fadeEndTime;
+	int fogIndex;
+	int numVerts;
+	polyVert_t verts[ MAX_DECAL_VERTS ];
+}
+decal_t;
+#endif RTCW_XX
 
 
 #define CONTENTS_NODE       -1
@@ -734,6 +1074,11 @@ typedef struct mnode_s {
 	int contents;               // -1 for nodes, to differentiate from leafs
 	int visframe;               // node needs to be traversed if current
 	vec3_t mins, maxs;          // for bounding box culling
+
+#if defined RTCW_ET
+	vec3_t surfMins, surfMaxs;      // ydnar: bounding box including surfaces
+#endif RTCW_XX
+
 	struct mnode_s  *parent;
 
 	// node specific
@@ -748,11 +1093,34 @@ typedef struct mnode_s {
 	int nummarksurfaces;
 } mnode_t;
 
+#if !defined RTCW_ET
 typedef struct {
+#else
+typedef struct bmodel_s {
+#endif RTCW_XX
+
 	vec3_t bounds[2];           // for culling
 	msurface_t  *firstSurface;
 	int numSurfaces;
+
+#if defined RTCW_ET
+	// ydnar: decals
+	decal_t         *decals;
+
+	// ydnar: for fog volumes
+	int firstBrush;
+	int numBrushes;
+	orientation_t orientation[ SMP_FRAMES ];
+	qboolean visible[ SMP_FRAMES ];
+	int entityNum[ SMP_FRAMES ];
+#endif RTCW_XX
+
 } bmodel_t;
+
+#if defined RTCW_ET
+// ydnar: optimization
+#define WORLD_MAX_SKY_NODES 32
+#endif RTCW_XX
 
 typedef struct {
 	char name[MAX_QPATH];               // ie: maps/tim_dm2.bsp
@@ -763,6 +1131,10 @@ typedef struct {
 	int numShaders;
 	dshader_t   *shaders;
 
+#if defined RTCW_ET
+	int numBModels;
+#endif RTCW_XX
+
 	bmodel_t    *bmodels;
 
 	int numplanes;
@@ -772,6 +1144,11 @@ typedef struct {
 	int numDecisionNodes;
 	mnode_t     *nodes;
 
+#if defined RTCW_ET
+	int numSkyNodes;
+	mnode_t     **skyNodes;     // ydnar: don't walk the entire bsp when rendering sky
+#endif RTCW_XX
+
 	int numsurfaces;
 	msurface_t  *surfaces;
 
@@ -780,6 +1157,15 @@ typedef struct {
 
 	int numfogs;
 	fog_t       *fogs;
+
+#if defined RTCW_ET
+	int globalFog;                      // Arnout: index of global fog
+	vec4_t globalOriginalFog;           // Arnout: to be able to restore original global fog
+	vec4_t globalTransStartFog;         // Arnout: start fog for switch fog transition
+	vec4_t globalTransEndFog;           // Arnout: end fog for switch fog transition
+	int globalFogTransStartTime;
+	int globalFogTransEndTime;
+#endif RTCW_XX
 
 	vec3_t lightGridOrigin;
 	vec3_t lightGridSize;
@@ -804,8 +1190,27 @@ typedef enum {
 	MOD_BRUSH,
 	MOD_MESH,
 	MOD_MDS,
+
+#if !defined RTCW_ET
 	MOD_MDC // Ridah
+#else
+	MOD_MDC,
+	MOD_MDM,
+	MOD_MDX
+#endif RTCW_XX
+
 } modtype_t;
+
+#if defined RTCW_ET
+typedef union {
+	bmodel_t    *bmodel;            // only if type == MOD_BRUSH
+	md3Header_t *md3[MD3_MAX_LODS]; // only if type == MOD_MESH
+	mdsHeader_t *mds;               // only if type == MOD_MDS
+	mdcHeader_t *mdc[MD3_MAX_LODS]; // only if type == MOD_MDC
+	mdmHeader_t *mdm;               // only if type == MOD_MDM
+	mdxHeader_t *mdx;               // only if type == MOD_MDX
+} model_u;
+#endif RTCW_XX
 
 typedef struct model_s {
 	char name[MAX_QPATH];
@@ -813,16 +1218,29 @@ typedef struct model_s {
 	int index;                      // model = tr.models[model->index]
 
 	int dataSize;                   // just for listing purposes
+
+#if !defined RTCW_ET
 	bmodel_t    *bmodel;            // only if type == MOD_BRUSH
 	md3Header_t *md3[MD3_MAX_LODS]; // only if type == MOD_MESH
 	mdsHeader_t *mds;               // only if type == MOD_MDS
 	mdcHeader_t *mdc[MD3_MAX_LODS]; // only if type == MOD_MDC
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	// show_bug.cgi?id=575
+	model_u model;
+#endif RTCW_XX
 
 	int numLods;
 
 #if defined RTCW_SP
 // GR - model tessellation capability flag
 	int ATI_tess;
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	qhandle_t shadowShader;
+	float shadowParms[ 6 ];         // x, y, width, height, depth, z offset
 #endif RTCW_XX
 
 } model_t;
@@ -844,8 +1262,12 @@ extern refimport_t ri;
 #define MAX_LIGHTMAPS           256
 #define MAX_SKINS               1024
 
-
+#if !defined RTCW_ET
 #define MAX_DRAWSURFS           0x10000
+#else
+#define MAX_DRAWSURFS           0x40000
+#endif RTCW_XX
+
 #define DRAWSURF_MASK           ( MAX_DRAWSURFS - 1 )
 
 #if defined RTCW_SP
@@ -879,7 +1301,7 @@ removed	: used to be clipped flag
 0 - 1	: dlightmap index
 
 */
-#elif defined RTCW_MP
+#else
 /*
 
 the drawsurf sort data is packed into a single 32 bit value so it can be
@@ -921,12 +1343,16 @@ newest: (fixes shader index not having enough bytes)
 #if defined RTCW_SP
 #define QSORT_SHADERNUM_SHIFT   22
 #define QSORT_ENTITYNUM_SHIFT   11
-#elif defined RTCW_MP
+#else
 #define QSORT_SHADERNUM_SHIFT   18
 #define QSORT_ENTITYNUM_SHIFT   7
 #endif RTCW_XX
 
 #define QSORT_FOGNUM_SHIFT      2
+
+#if defined RTCW_ET
+#define QSORT_FRONTFACE_SHIFT   1
+#endif RTCW_XX
 
 #if defined RTCW_SP
 // GR - tessellation flag in bit 8
@@ -942,6 +1368,12 @@ extern int gl_filter_min, gl_filter_max;
 ** performanceCounters_t
 */
 typedef struct {
+
+#if defined RTCW_ET
+	int c_sphere_cull_in, c_sphere_cull_out;
+	int c_plane_cull_in, c_plane_cull_out;
+#endif RTCW_XX
+
 	int c_sphere_cull_patch_in, c_sphere_cull_patch_clip, c_sphere_cull_patch_out;
 	int c_box_cull_patch_in, c_box_cull_patch_clip, c_box_cull_patch_out;
 	int c_sphere_cull_md3_in, c_sphere_cull_md3_clip, c_sphere_cull_md3_out;
@@ -950,13 +1382,24 @@ typedef struct {
 	int c_leafs;
 	int c_dlightSurfaces;
 	int c_dlightSurfacesCulled;
+
+#if defined RTCW_ET
+	int c_decalProjectors, c_decalTestSurfaces, c_decalClipSurfaces, c_decalSurfaces, c_decalSurfacesCreated;
+#endif RTCW_XX
+
 } frontEndCounters_t;
 
 #define FOG_TABLE_SIZE      256
+
+#if !defined RTCW_ET
 #define FUNCTABLE_SIZE      1024
 #define FUNCTABLE_SIZE2     10
-#define FUNCTABLE_MASK      ( FUNCTABLE_SIZE - 1 )
+#else
+#define FUNCTABLE_SIZE      4096    //%	1024
+#define FUNCTABLE_SIZE2     12      //%	10
+#endif RTCW_XX
 
+#define FUNCTABLE_MASK      ( FUNCTABLE_SIZE - 1 )
 
 // the renderer front end should never modify glstate_t
 typedef struct {
@@ -989,7 +1432,13 @@ typedef struct {
 	int smpFrame;
 	trRefdef_t refdef;
 	viewParms_t viewParms;
+
+#if !defined RTCW_ET
 	orientationr_t  or;
+#else
+	orientationr_t orientation;
+#endif RTCW_XX
+
 	backEndCounters_t pc;
 	qboolean isHyperspace;
 	trRefEntity_t   *currentEntity;
@@ -1025,6 +1474,10 @@ typedef struct {
 	qboolean worldMapLoaded;
 	world_t                 *world;
 
+#if defined RTCW_ET
+	char                    *worldDir;      // ydnar: for referencing external lightmaps
+#endif RTCW_XX
+
 	const byte              *externalVisData;   // from RE_SetWorldVisData, shared with CM_Load
 
 	image_t                 *defaultImage;
@@ -1040,7 +1493,7 @@ typedef struct {
 
 #if defined RTCW_SP
 //	shader_t				*projectionShadowShader;
-#elif defined RTCW_MP
+#else
 	shader_t                *projectionShadowShader;
 #endif RTCW_XX
 
@@ -1065,13 +1518,21 @@ typedef struct {
 	int shiftedEntityNum;                       // currentEntityNum << QSORT_ENTITYNUM_SHIFT
 	model_t                 *currentModel;
 
+#if defined RTCW_ET
+	bmodel_t                *currentBModel;     // only valid when rendering brush models
+#endif RTCW_XX
+
 	viewParms_t viewParms;
 
 	float identityLight;                        // 1.0 / ( 1 << overbrightBits )
 	int identityLightByte;                      // identityLight * 255
 	int overbrightBits;                         // r_overbrightBits->integer, but set to 0 if no hw gamma
 
+#if !defined RTCW_ET
 	orientationr_t          or;                 // for current entity
+#else
+	orientationr_t orientation;                 // for current entity
+#endif RTCW_XX
 
 	trRefdef_t refdef;
 
@@ -1184,6 +1645,11 @@ extern cvar_t   *r_dlightBacks;         // dlight non-facing surfaces for contin
 extern cvar_t  *r_norefresh;            // bypasses the ref rendering
 extern cvar_t  *r_drawentities;         // disable/enable entity rendering
 extern cvar_t  *r_drawworld;            // disable/enable world rendering
+
+#if defined RTCW_ET
+extern cvar_t  *r_drawfoliage;          // ydnar: disable/enable foliage rendering
+#endif RTCW_XX
+
 extern cvar_t  *r_speeds;               // various levels of information display
 extern cvar_t  *r_detailTextures;       // enables/disables detail texturing stages
 extern cvar_t  *r_novis;                // disable/enable usage of PVS
@@ -1193,6 +1659,11 @@ extern cvar_t  *r_nocurves;
 extern cvar_t  *r_showcluster;
 
 extern cvar_t   *r_mode;                // video mode
+
+#if defined RTCW_ET
+extern cvar_t   *r_oldMode;             // ydnar: previous "good" video mode
+#endif RTCW_XX
+
 extern cvar_t   *r_fullscreen;
 extern cvar_t   *r_gamma;
 extern cvar_t   *r_displayRefresh;      // optional display refresh option
@@ -1206,7 +1677,7 @@ extern cvar_t   *r_ext_multitexture;
 extern cvar_t   *r_ext_compiled_vertex_array;
 extern cvar_t   *r_ext_texture_env_add;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 extern cvar_t   *r_ext_texture_filter_anisotropic;  //DAJ from EF
 #endif RTCW_XX
 
@@ -1219,6 +1690,14 @@ extern cvar_t   *r_ati_truform_pointmode;   //----(SA)
 extern cvar_t   *r_ati_truform_normalmode;  //----(SA)
 extern cvar_t   *r_ati_fsaa_samples;        //DAJ
 extern cvar_t   *r_ext_texture_filter_anisotropic;
+#endif RTCW_XX
+
+#if defined RTCW_ET
+extern cvar_t   *r_ati_fsaa_samples;                //DAJ
+
+extern cvar_t   *r_clampToEdge;         // ydnar: opengl 1.2 GL_CLAMP_TO_EDGE support
+
+// TTimo
 #endif RTCW_XX
 
 extern cvar_t   *r_ext_NV_fog_dist;
@@ -1265,6 +1744,11 @@ extern cvar_t  *r_glDriver;
 extern cvar_t  *r_glIgnoreWicked3D;
 extern cvar_t  *r_swapInterval;
 extern cvar_t  *r_textureMode;
+
+#if defined RTCW_ET
+extern cvar_t  *r_textureAnisotropy;
+#endif RTCW_XX
+
 extern cvar_t  *r_offsetFactor;
 extern cvar_t  *r_offsetUnits;
 
@@ -1275,13 +1759,28 @@ extern cvar_t  *r_fullbright;                   // avoid lightmap pass
 #endif RTCW_XX
 
 extern cvar_t  *r_lightmap;                     // render lightmaps only
+
+#if !defined RTCW_ET
 extern cvar_t  *r_vertexLight;                  // vertex lighting mode for better performance
+#endif RTCW_XX
+
 extern cvar_t  *r_uiFullScreen;                 // ui is running fullscreen
 
 extern cvar_t  *r_logFile;                      // number of frames to emit GL logs
 extern cvar_t  *r_showtris;                     // enables wireframe rendering of the world
+
+#if defined RTCW_ET
+extern cvar_t  *r_trisColor;                    // enables modifying of the wireframe colour (in 0xRRGGBB[AA] format, alpha defaults to FF)
+#endif RTCW_XX
+
 extern cvar_t  *r_showsky;                      // forces sky in front of all surfaces
 extern cvar_t  *r_shownormals;                  // draws wireframe normals
+
+#if defined RTCW_ET
+extern cvar_t  *r_normallength;                 // length of the normals
+extern cvar_t  *r_showmodelbounds;
+#endif RTCW_XX
+
 extern cvar_t  *r_clear;                        // force screen clear every frame
 
 extern cvar_t  *r_shadows;                      // controls shadows: 0 = none, 1 = blur, 2 = stencil, 3 = black planar projection
@@ -1360,6 +1859,14 @@ void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
 					  int *fogNum, int *dlightMap );
 
 void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, int fogIndex, int dlightMap );
+#else
+void R_AddPolygonBufferSurfaces( void );
+
+
+void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
+					  int *fogNum, int *frontFace, int *dlightMap );
+
+void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, int fogNum, int frontFace, int dlightMap );
 #endif RTCW_XX
 
 
@@ -1372,7 +1879,11 @@ int R_CullLocalBox( vec3_t bounds[2] );
 int R_CullPointAndRadius( vec3_t origin, float radius );
 int R_CullLocalPointAndRadius( vec3_t origin, float radius );
 
+#if !defined RTCW_ET
 void R_RotateForEntity( const trRefEntity_t * ent, const viewParms_t * viewParms, orientationr_t * or );
+#else
+void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *orientation );
+#endif RTCW_XX
 
 /*
 ** GL wrapper/helper functions
@@ -1381,6 +1892,11 @@ void    GL_Bind( image_t *image );
 void    GL_SetDefaultState( void );
 void    GL_SelectTexture( int unit );
 void    GL_TextureMode( const char *string );
+
+#if defined RTCW_ET
+void    GL_TextureAnisotropy( float anisotropy );
+#endif RTCW_XX
+
 void    GL_CheckErrors( void );
 void    GL_State( unsigned long stateVector );
 void    GL_TexEnv( int env );
@@ -1438,6 +1954,10 @@ void        RE_Shutdown( qboolean destroyWindow );
 
 qboolean    R_GetEntityToken( char *buffer, int size );
 
+#if defined RTCW_ET
+float       R_ProcessLightmap( byte **pic, int in_padding, int width, int height, byte **pic_out ); // Arnout
+#endif RTCW_XX
+
 //----(SA)
 qboolean    RE_GetSkinModel( qhandle_t skinid, const char *type, char *name );
 qhandle_t   RE_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightmap );    //----(SA)
@@ -1446,7 +1966,12 @@ qhandle_t   RE_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlight
 model_t     *R_AllocModel( void );
 
 void        R_Init( void );
+
+#if !defined RTCW_ET
 image_t     *R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode );
+#else
+image_t     *R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode, qboolean lightmap );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 image_t     *R_FindImageFileExt( const char *name, qboolean mipmap, qboolean allowPicmip, qboolean characterMip, int glWrapClampMode ); //----(SA)	added
@@ -1480,6 +2005,9 @@ int     R_SumOfUsedImages( void );
 void    R_InitSkins( void );
 skin_t  *R_GetSkinByHandle( qhandle_t hSkin );
 
+#if defined RTCW_ET
+void    R_DebugText( const vec3_t org, float r, float g, float b, const char *text, qboolean neverOcclude );
+#endif RTCW_XX
 
 //
 // tr_shader.c
@@ -1497,6 +2025,17 @@ void        R_InitShaders( void );
 void        R_ShaderList_f( void );
 void    R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
 
+#if defined RTCW_ET
+//bani
+qboolean RE_LoadDynamicShader( const char *shadername, const char *shadertext );
+
+// fretn - renderToTexture
+void RE_RenderToTexture( int textureid, int x, int y, int w, int h );
+// bani
+void RE_Finish( void );
+int R_GetTextureId( const char *name );
+#endif RTCW_XX
+
 /*
 ====================================================================
 
@@ -1504,6 +2043,10 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 
 ====================================================================
 */
+
+#if defined RTCW_ET
+extern int gl_NormalFontBase;
+#endif RTCW_XX
 
 void        GLimp_Init( void );
 void        GLimp_Shutdown( void );
@@ -1528,7 +2071,10 @@ TESSELATOR/SHADER DECLARATIONS
 
 ====================================================================
 */
+
+#if !defined RTCW_ET
 typedef byte color4ub_t[4];
+#endif RTCW_XX
 
 typedef struct stageVars
 {
@@ -1536,18 +2082,42 @@ typedef struct stageVars
 	vec2_t texcoords[NUM_TEXTURE_BUNDLES][SHADER_MAX_VERTEXES];
 } stageVars_t;
 
+#if defined RTCW_ET
+extern vec4hack_t tess_xyz[SHADER_MAX_VERTEXES];
+extern vec4hack_t tess_normal[SHADER_MAX_VERTEXES];
+extern vec2hack_t tess_texCoords0[SHADER_MAX_VERTEXES];
+extern vec2hack_t tess_texCoords1[SHADER_MAX_VERTEXES];
+extern glIndex_t tess_indexes[SHADER_MAX_INDEXES];
+extern color4ubhack_t tess_vertexColors[SHADER_MAX_VERTEXES];
+#endif RTCW_XX
+
 typedef struct shaderCommands_s
 {
+
+#if !defined RTCW_ET
 	glIndex_t indexes[SHADER_MAX_INDEXES];
 	vec4_t xyz[SHADER_MAX_VERTEXES];
 	vec4_t normal[SHADER_MAX_VERTEXES];
 	vec2_t texCoords[SHADER_MAX_VERTEXES][2];
 	color4ub_t vertexColors[SHADER_MAX_VERTEXES];
 	int vertexDlightBits[SHADER_MAX_VERTEXES];
+#else
+	glIndex_t*      indexes;
+	vec4hack_t*     normal;
+	color4ubhack_t* vertexColors;
+	vec4hack_t*     xyz;
+	vec2hack_t*     texCoords0;
+	vec2hack_t*     texCoords1;
+#endif RTCW_XX
 
 	stageVars_t svars;
 
 	color4ub_t constantColor255[SHADER_MAX_VERTEXES];
+
+#if defined RTCW_ET
+	int maxShaderVerts;
+	int maxShaderIndicies;
+#endif RTCW_XX
 
 	shader_t    *shader;
 	float shaderTime;
@@ -1573,7 +2143,12 @@ extern shaderCommands_t tess;
 void RB_BeginSurface( shader_t *shader, int fogNum );
 void RB_EndSurface( void );
 void RB_CheckOverflow( int verts, int indexes );
+
+#if !defined RTCW_ET
 #define RB_CHECKOVERFLOW( v,i ) if ( tess.numVertexes + ( v ) >= SHADER_MAX_VERTEXES || tess.numIndexes + ( i ) >= SHADER_MAX_INDEXES ) {RB_CheckOverflow( v,i );}
+#else
+#define RB_CHECKOVERFLOW( v,i ) if ( tess.numVertexes + ( v ) >= tess.maxShaderVerts || tess.numIndexes + ( i ) >= SHADER_MAX_INDEXES ) {RB_CheckOverflow( v,i );}
+#endif RTCW_XX
 
 void RB_StageIteratorGeneric( void );
 void RB_StageIteratorSky( void );
@@ -1585,6 +2160,10 @@ void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, flo
 void RB_AddQuadStampFadingCornersExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, float s1, float t1, float s2, float t2 );
 
 void RB_ShowImages( void );
+
+#if defined RTCW_ET
+void RB_DrawBounds( vec3_t mins, vec3_t maxs ); // ydnar
+#endif RTCW_XX
 
 
 /*
@@ -1611,7 +2190,7 @@ void R_ClearFlares( void );
 
 #if defined RTCW_SP
 void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float scale, vec3_t normal, int id, int flags ); // TTimo updated prototype
-#elif defined RTCW_MP
+#else
 void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float scale, vec3_t normal, int id, qboolean visible );    //----(SA)	added scale.  added id.  added visible
 #endif RTCW_XX
 
@@ -1626,9 +2205,18 @@ LIGHTS
 ============================================================
 */
 
+#if defined RTCW_ET
+void R_TransformDlights( int count, dlight_t *dl, orientationr_t *orientation );
+void R_CullDlights( void );
+#endif RTCW_XX
+
 void R_DlightBmodel( bmodel_t *bmodel );
 void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent );
+
+#if !defined RTCW_ET
 void R_TransformDlights( int count, dlight_t * dl, orientationr_t * or );
+#endif RTCW_XX
+
 int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
 
 
@@ -1685,6 +2273,30 @@ MARKERS, POLYGON PROJECTION ON WORLD POLYGONS
 int R_MarkFragments( int orientation, const vec3_t *points, const vec3_t projection,
 					 int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
 
+#if defined RTCW_ET
+/*
+============================================================
+
+DECALS - ydnar
+
+============================================================
+*/
+
+void RE_ProjectDecal( qhandle_t hShader, int numPoints, vec3_t *points, vec4_t projection, vec4_t color, int lifeTime, int fadeTime );
+void RE_ClearDecals( void );
+
+void R_AddModelShadow( refEntity_t *ent );
+
+void R_TransformDecalProjector( decalProjector_t * in, vec3_t axis[ 3 ], vec3_t origin, decalProjector_t * out );
+qboolean R_TestDecalBoundingBox( decalProjector_t *dp, vec3_t mins, vec3_t maxs );
+qboolean R_TestDecalBoundingSphere( decalProjector_t *dp, vec3_t center, float radius2 );
+
+void R_ProjectDecalOntoSurface( decalProjector_t *dp, msurface_t *surf, bmodel_t *bmodel );
+
+void R_AddDecalSurface( decal_t *decal );
+void R_AddDecalSurfaces( bmodel_t *bmodel );
+void R_CullDecalProjectors( void );
+#endif RTCW_XX
 
 /*
 ============================================================
@@ -1702,19 +2314,36 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 // Ridah
 void RE_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys );
 // done.
+
+#if defined RTCW_ET
+void RE_AddPolyBufferToScene( polyBuffer_t* pPolyBuffer );
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 // Ridah
 void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int overdraw );
 // done.
+#else
+// ydnar: modified dlight system to support seperate radius & intensity
+// void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int overdraw );
+void RE_AddLightToScene( const vec3_t org, float radius, float intensity, float r, float g, float b, qhandle_t hShader, int flags );
+#endif RTCW_XX
+
 //----(SA)
 
 #if defined RTCW_SP
 void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
-#elif defined RTCW_MP
+#else
 void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible );
 #endif RTCW_XX
 
 //----(SA)
 void RE_RenderScene( const refdef_t *fd );
+
+#if defined RTCW_ET
+void RE_SaveViewParms();
+void RE_RestoreViewParms();
+#endif RTCW_XX
 
 /*
 =============================================================
@@ -1728,6 +2357,16 @@ void R_MakeAnimModel( model_t *model );
 void R_AddAnimSurfaces( trRefEntity_t *ent );
 void RB_SurfaceAnim( mdsSurface_t *surfType );
 int R_GetBoneTag( orientation_t *outTag, mdsHeader_t *mds, int startTagIndex, const refEntity_t *refent, const char *tagName );
+
+#if defined RTCW_ET
+//
+// MDM / MDX
+//
+void R_MDM_MakeAnimModel( model_t *model );
+void R_MDM_AddAnimSurfaces( trRefEntity_t *ent );
+void RB_MDM_SurfaceAnim( mdmSurface_t *surfType );
+int R_MDM_GetBoneTag( orientation_t *outTag, mdmHeader_t *mdm, int startTagIndex, const refEntity_t *refent, const char *tagName );
+#endif RTCW_XX
 
 /*
 =============================================================
@@ -1830,11 +2469,20 @@ typedef struct {
 	byte gradientColor[4];      // color values 0-255
 	int gradientType;       //----(SA)	added
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	float angle;            // NERVE - SMF
 #endif RTCW_XX
 
 } stretchPicCommand_t;
+
+#if defined RTCW_ET
+typedef struct {
+	int commandId;
+	polyVert_t* verts;
+	int numverts;
+	shader_t*   shader;
+} poly2dCommand_t;
+#endif RTCW_XX
 
 typedef struct {
 	int commandId;
@@ -1844,19 +2492,48 @@ typedef struct {
 	int numDrawSurfs;
 } drawSurfsCommand_t;
 
+#if defined RTCW_ET
+//bani
+typedef struct {
+	int commandId;
+	image_t *image;
+	int x;
+	int y;
+	int w;
+	int h;
+} renderToTextureCommand_t;
+
+//bani
+typedef struct {
+	int commandId;
+} renderFinishCommand_t;
+#endif RTCW_XX
+
 typedef enum {
 	RC_END_OF_LIST,
 	RC_SET_COLOR,
 	RC_STRETCH_PIC,
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+	RC_2DPOLYS,
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 	RC_ROTATED_PIC,
 #endif RTCW_XX
 
 	RC_STRETCH_PIC_GRADIENT,    // (SA) added
 	RC_DRAW_SURFS,
 	RC_DRAW_BUFFER,
+
+#if !defined RTCW_ET
 	RC_SWAP_BUFFERS
+#else
+	RC_SWAP_BUFFERS,
+	RC_RENDERTOTEXTURE, //bani
+	RC_FINISH   //bani
+#endif RTCW_XX
+
 } renderCommand_t;
 
 
@@ -1871,6 +2548,17 @@ typedef enum {
 #define MAX_POLYVERTS   8192
 // done.
 
+#if defined RTCW_ET
+// Gordon: testing
+#define MAX_POLYINDICIES 8192
+
+// ydnar: max decal projectors per frame, each can generate lots of polys
+#define MAX_DECAL_PROJECTORS    32  // uses bitmasks, don't increase
+#define DECAL_PROJECTOR_MASK    ( MAX_DECAL_PROJECTORS - 1 )
+#define MAX_DECALS              1024
+#define DECAL_MASK              ( MAX_DECALS - 1 )
+#endif RTCW_XX
+
 // all of the information needed by the back end must be
 // contained in a backEndData_t.  This entire structure is
 // duplicated so the front and back end can run in parallel
@@ -1881,7 +2569,18 @@ typedef struct {
 	corona_t coronas[MAX_CORONAS];          //----(SA)
 	trRefEntity_t entities[MAX_ENTITIES];
 	srfPoly_t polys[MAX_POLYS];
+
+#if defined RTCW_ET
+	srfPolyBuffer_t polybuffers[MAX_POLYS];
+#endif RTCW_XX
+
 	polyVert_t polyVerts[MAX_POLYVERTS];
+
+#if defined RTCW_ET
+	decalProjector_t decalProjectors[ MAX_DECAL_PROJECTORS ];
+	srfDecal_t decals[ MAX_DECALS ];
+#endif RTCW_XX
+
 	renderCommandList_t commands;
 } backEndData_t;
 
@@ -1909,13 +2608,19 @@ void RE_SetColor( const float *rgba );
 void RE_StretchPic( float x, float y, float w, float h,
 					float s1, float t1, float s2, float t2, qhandle_t hShader );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 void RE_RotatedPic( float x, float y, float w, float h,
 					float s1, float t1, float s2, float t2, qhandle_t hShader, float angle );       // NERVE - SMF
 #endif RTCW_XX
 
 void RE_StretchPicGradient( float x, float y, float w, float h,
 							float s1, float t1, float s2, float t2, qhandle_t hShader, const float *gradientColor, int gradientType );
+
+#if defined RTCW_ET
+void RE_2DPolyies( polyVert_t* verts, int numverts, qhandle_t hShader );
+void RE_SetGlobalFog( qboolean restore, int duration, float r, float g, float b, float depthForOpaque );
+#endif RTCW_XX
+
 void RE_BeginFrame( stereoFrame_t stereoFrame );
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
 void SaveJPG( char * filename, int quality, int image_width, int image_height, unsigned char *image_buffer );
@@ -1945,11 +2650,30 @@ void R_LoadCacheImages( void );
 void R_PurgeBackupImages( int purgeCount );
 void R_BackupImages( void );
 
+#if !defined RTCW_ET
 void *R_CacheShaderAlloc( int size );
 void R_CacheShaderFree( void *ptr );
+#else
+//void *R_CacheShaderAlloc( int size );
+//void R_CacheShaderFree( void *ptr );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+void R_CacheShaderFreeExt( const char* name, void *ptr, const char* file, int line );
+void* R_CacheShaderAllocExt( const char* name, int size, const char* file, int line );
+
+#define R_CacheShaderAlloc( name, size ) R_CacheShaderAllocExt( name, size, __FILE__, __LINE__ )
+#define R_CacheShaderFree( name, ptr ) R_CacheShaderFreeExt( name, ptr, __FILE__, __LINE__ )
+#endif RTCW_XX
+
 shader_t *R_FindCachedShader( const char *name, int lightmapIndex, int hash );
 void R_BackupShaders( void );
 void R_PurgeShaders( int count );
+
+#if defined RTCW_ET
+void R_PurgeLightmapShaders( void );
+#endif RTCW_XX
+
 void R_LoadCacheShaders( void );
 // done.
 
@@ -2018,5 +2742,9 @@ extern int drawskyboxportal;
 void *R_Hunk_Begin( void );
 void R_Hunk_End( void );
 void R_FreeImageBuffer( void );
+
+#if defined RTCW_ET
+qboolean R_inPVS( const vec3_t p1, const vec3_t p2 );
+#endif RTCW_XX
 
 #endif //TR_LOCAL_H (THIS MUST BE LAST!!)

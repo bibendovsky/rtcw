@@ -63,6 +63,10 @@ If you have questions concerning this license or the applicable additional terms
 #define MOVERESULT_ONTOPOF_ELEVATOR     128     //bot is ontop of an elevator (func_plat)
 #define MOVERESULT_FUTUREVIEW           256     // RF, if we want to look ahead of time, this is a good direction
 
+#if defined RTCW_ET
+#define MOVERESULT_DIRECTMOVE           512     // direct movement
+#endif RTCW_XX
+
 //
 #define MAX_AVOIDREACH                  1
 //
@@ -82,6 +86,11 @@ typedef struct bot_initmove_s
 	int presencetype;           //presencetype of the bot
 	vec3_t viewangles;          //view angles of the bot
 	int or_moveflags;           //values ored to the movement flags
+
+#if defined RTCW_ET
+	int areanum;
+#endif RTCW_XX
+
 } bot_initmove_t;
 
 //NOTE: the ideal_viewangles are only valid if MFL_MOVEMENTVIEW is set

@@ -298,7 +298,13 @@ quakefile_t *FindQuakeFilesInZip( char *zipfile, char *filter ) {
 
 		ConvertPath( filename_inzip );
 		if ( FileFilter( filter, filename_inzip, false ) ) {
+
+#if !defined RTCW_ET
 			qf = malloc( sizeof( quakefile_t ) );
+#else
+			qf = GetClearedMemory( sizeof( quakefile_t ) );
+#endif RTCW_XX
+
 			if ( !qf ) {
 				Error( "out of memory" );
 			}
@@ -361,20 +367,38 @@ quakefile_t *FindQuakeFilesInPak( char *pakfile, char *filter ) {
 	if ( packheader.ident == IDPAKHEADER ) {
 		//number of dir entries in the pak file
 		numpackdirs = LittleLong( packheader.dirlen ) / sizeof( dpackfile_t );
+
+#if !defined RTCW_ET
 		idpackfiles = (dpackfile_t *) malloc( numpackdirs * sizeof( dpackfile_t ) );
+#else
+		idpackfiles = (dpackfile_t *) GetClearedMemory( numpackdirs * sizeof( dpackfile_t ) );
+#endif RTCW_XX
+
 		if ( !idpackfiles ) {
 			Error( "out of memory" );
 		}
 		//read the dir entry
 		if ( fread( idpackfiles, sizeof( dpackfile_t ), numpackdirs, fp ) != numpackdirs ) {
 			fclose( fp );
+
+#if !defined RTCW_ET
 			free( idpackfiles );
+#else
+			FreeMemory( idpackfiles );
+#endif RTCW_XX
+
 			Warning( "can't read the Quake pak file dir entries from %s", pakfile );
 			return NULL;
 		} //end if
 		fclose( fp );
 		//convert to sin pack files
+
+#if !defined RTCW_ET
 		packfiles = (dsinpackfile_t *) malloc( numpackdirs * sizeof( dsinpackfile_t ) );
+#else
+		packfiles = (dsinpackfile_t *) GetClearedMemory( numpackdirs * sizeof( dsinpackfile_t ) );
+#endif RTCW_XX
+
 		if ( !packfiles ) {
 			Error( "out of memory" );
 		}
@@ -384,20 +408,38 @@ quakefile_t *FindQuakeFilesInPak( char *pakfile, char *filter ) {
 			packfiles[i].filepos = LittleLong( idpackfiles[i].filepos );
 			packfiles[i].filelen = LittleLong( idpackfiles[i].filelen );
 		} //end for
+
+#if !defined RTCW_ET
 		free( idpackfiles );
+#else
+		FreeMemory( idpackfiles );
+#endif RTCW_XX
+
 	} //end if
 	else //its a Sin pack file
 	{
 		//number of dir entries in the pak file
 		numpackdirs = LittleLong( packheader.dirlen ) / sizeof( dsinpackfile_t );
+
+#if !defined RTCW_ET
 		packfiles = (dsinpackfile_t *) malloc( numpackdirs * sizeof( dsinpackfile_t ) );
+#else
+		packfiles = (dsinpackfile_t *) GetClearedMemory( numpackdirs * sizeof( dsinpackfile_t ) );
+#endif RTCW_XX
+
 		if ( !packfiles ) {
 			Error( "out of memory" );
 		}
 		//read the dir entry
 		if ( fread( packfiles, sizeof( dsinpackfile_t ), numpackdirs, fp ) != numpackdirs ) {
 			fclose( fp );
+
+#if !defined RTCW_ET
 			free( packfiles );
+#else
+			FreeMemory( packfiles );
+#endif RTCW_XX
+
 			Warning( "can't read the Sin pak file dir entries from %s", pakfile );
 			return NULL;
 		} //end if
@@ -413,7 +455,13 @@ quakefile_t *FindQuakeFilesInPak( char *pakfile, char *filter ) {
 	{
 		ConvertPath( packfiles[i].name );
 		if ( FileFilter( filter, packfiles[i].name, false ) ) {
+
+#if !defined RTCW_ET
 			qf = malloc( sizeof( quakefile_t ) );
+#else
+			qf = GetClearedMemory( sizeof( quakefile_t ) );
+#endif RTCW_XX
+
 			if ( !qf ) {
 				Error( "out of memory" );
 			}
@@ -433,7 +481,13 @@ quakefile_t *FindQuakeFilesInPak( char *pakfile, char *filter ) {
 			lastqf = qf;
 		} //end if
 	} //end for
+
+#if !defined RTCW_ET
 	free( packfiles );
+#else
+	FreeMemory( packfiles );
+#endif RTCW_XX
+
 	return qfiles;
 } //end of the function FindQuakeFilesInPak
 //===========================================================================
@@ -457,7 +511,7 @@ quakefile_t *FindQuakeFilesWithPakFilter( char *pakfilter, char *filter ) {
 
 #if defined RTCW_SP
 	//int done; //TTimo: unused
-#elif defined RTCW_MP
+#else
 	int done;
 #endif RTCW_XX
 
@@ -544,7 +598,13 @@ quakefile_t *FindQuakeFilesWithPakFilter( char *pakfilter, char *filter ) {
 			strcpy( filename, globbuf.gl_pathv[j] );
 #endif
 			//
+
+#if !defined RTCW_ET
 			qf = malloc( sizeof( quakefile_t ) );
+#else
+			qf = GetClearedMemory( sizeof( quakefile_t ) );
+#endif RTCW_XX
+
 			if ( !qf ) {
 				Error( "out of memory" );
 			}

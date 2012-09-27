@@ -65,6 +65,8 @@ If you have questions concerning this license or the applicable additional terms
 #define BBOX_NORMAL_EPSILON         0.00001
 #elif defined RTCW_MP
 #define BBOX_NORMAL_EPSILON         0.0001
+#else
+#define BBOX_NORMAL_EPSILON         0.0f    //0.00001
 #endif RTCW_XX
 
 //===========================================================================
@@ -152,7 +154,13 @@ void AAS_ExpandMapBrush( mapbrush_t *brush, vec3_t mins, vec3_t maxs ) {
 		} else {
 			dist += BoxOriginDistanceFromPlane( plane->normal, mins, maxs, 0 );
 		}
+
+#if !defined RTCW_ET
 		s->planenum = FindFloatPlane( plane->normal, dist );
+#else
+		s->planenum = FindFloatPlane( plane->normal, dist, 0, NULL );
+#endif RTCW_XX
+
 		//the side isn't a bevel after expanding
 		s->flags &= ~SFL_BEVEL;
 		//don't skip the surface
@@ -184,7 +192,15 @@ void AAS_SetTexinfo( mapbrush_t *brush ) {
 							 | CONTENTS_LAVA
 							 | CONTENTS_SLIME
 							 | CONTENTS_WINDOW
+
+#if !defined RTCW_ET
 							 | CONTENTS_PLAYERCLIP ) ) {
+#else
+							 | CONTENTS_PLAYERCLIP
+							 | CONTENTS_MONSTERCLIP
+							 | CONTENTS_MOVER ) ) {
+#endif RTCW_XX
+
 		//we just set texinfo to 0 because these brush sides MUST be used as
 		//bsp splitters textured or not textured
 		for ( n = 0; n < brush->numsides; n++ )
@@ -320,7 +336,13 @@ void AAS_FixMapBrush( mapbrush_t *brush ) {
 			VectorClear( normal );
 			normal[i] = -1;
 			dist = MAX_MAP_BOUNDS - 10;
+
+#if !defined RTCW_ET
 			planenum = FindFloatPlane( normal, dist );
+#else
+			planenum = FindFloatPlane( normal, dist, 0, NULL );
+#endif RTCW_XX
+
 			//
 			Log_Print( "mins out of range: added extra brush side\n" );
 			AAS_AddMapBrushSide( brush, planenum );
@@ -329,7 +351,13 @@ void AAS_FixMapBrush( mapbrush_t *brush ) {
 			VectorClear( normal );
 			normal[i] = 1;
 			dist = MAX_MAP_BOUNDS - 10;
+
+#if !defined RTCW_ET
 			planenum = FindFloatPlane( normal, dist );
+#else
+			planenum = FindFloatPlane( normal, dist, 0, NULL );
+#endif RTCW_XX
+
 			//
 			Log_Print( "maxs out of range: added extra brush side\n" );
 			AAS_AddMapBrushSide( brush, planenum );
@@ -537,7 +565,13 @@ int AAS_ValidEntity( entity_t *mapent ) {
 		}
 
 		//"dmg" is the damage, for instance: "dmg" "666"
+
+#if !defined RTCW_ET
 		return true;
+#else
+		return false;
+#endif RTCW_XX
+
 	} //end else if
 	else if ( !strcmp( "trigger_push", ValueForKey( mapent, "classname" ) ) ) {
 		return true;
@@ -563,7 +597,10 @@ int AAS_ValidEntity( entity_t *mapent ) {
 	} //end else if
 	else if ( !strcmp( "func_invisible_user", ValueForKey( mapent, "classname" ) ) ) {
 		return true;
+
+#if !defined RTCW_ET
 	}
+
 	/*
 	else if (!strcmp("func_static", ValueForKey(mapent, "classname")))
 	{
@@ -571,6 +608,32 @@ int AAS_ValidEntity( entity_t *mapent ) {
 		return true;
 	} //end else if
 	*/
+#else
+	} else if ( !strcmp( "func_static", ValueForKey( mapent, "classname" ) ) )           {
+		//FIXME: easy/medium/hard/deathmatch specific?
+		return true;
+	} //end else if
+	  // RF, missionpack
+	else if ( !strcmp( "func_constructible", ValueForKey( mapent, "classname" ) ) ) {
+// RF, debugging
+		if ( strcmp( "reardump", ValueForKey( mapent, "targetname" ) ) ) {
+			Log_Print( "\n\n\nTEMP!!!\nTEMP!!!\nIgnoring all func_constructibles except \"reardump\"\nTEMP!!!\nTEMP!!!\n\n\n" );
+			return false;
+		}
+
+		if ( ( atoi( ValueForKey( mapent, "spawnflags" ) ) & 512 ) ) {
+			// ignored by AAS
+			return false;
+		}
+		// constructibles are used now by default
+		return true;
+	} //end else if
+	else if ( !strcmp( "func_explosive", ValueForKey( mapent, "classname" ) ) ) {
+		// explosives are now used as MOVER so they only disable areas inside them
+		return true;
+	} //end else if
+#endif RTCW_XX
+
 	return false;
 } //end of the function AAS_ValidEntity
 //===========================================================================
@@ -588,7 +651,13 @@ int AAS_TransformPlane( int planenum, vec3_t origin, vec3_t angles ) {
 	CreateRotationMatrix( angles, matrix );
 	RotatePoint( normal, matrix );
 	newdist = mapplanes[planenum].dist + DotProduct( normal, origin );
+
+#if !defined RTCW_ET
 	return FindFloatPlane( normal, newdist );
+#else
+	return FindFloatPlane( normal, newdist, 0, NULL );
+#endif RTCW_XX
+
 } //end of the function AAS_TransformPlane
 //===========================================================================
 // this function sets the func_rotating_door in it's final position
@@ -668,11 +737,22 @@ void AAS_PositionBrush( entity_t *mapent, mapbrush_t *brush ) {
 				s = &brush->original_sides[i];
 				newdist = mapplanes[s->planenum].dist +
 						  DotProduct( mapplanes[s->planenum].normal, mapent->origin );
+
+#if !defined RTCW_ET
 				s->planenum = FindFloatPlane( mapplanes[s->planenum].normal, newdist );
+#else
+				s->planenum = FindFloatPlane( mapplanes[s->planenum].normal, newdist, 0, NULL );
+#endif RTCW_XX
+
 			} //end for
 		} //end if
 
-#if defined RTCW_SP
+
+#if defined RTCW_ET
+	}
+#endif RTCW_XX
+
+#if !defined RTCW_MP
 		  // RF, disabled for Wolf, we dont use trigger_hurt for lava
 		  //if it's a trigger hurt
 		  //if (!strcmp("trigger_hurt", ValueForKey(mapent, "classname")))
@@ -681,7 +761,7 @@ void AAS_PositionBrush( entity_t *mapent, mapbrush_t *brush ) {
 		  //	brush->contents |= CONTENTS_LAVA;
 		  //	//Log_Print("found trigger_hurt brush\n");
 		  //} //end if
-#elif defined RTCW_MP
+#else
 		  //if it's a trigger hurt
 		if ( !strcmp( "trigger_hurt", ValueForKey( mapent, "classname" ) ) ) {
 			//set the lava contents
@@ -691,7 +771,13 @@ void AAS_PositionBrush( entity_t *mapent, mapbrush_t *brush ) {
 #endif RTCW_XX
 
 		  //
+
+#if !defined RTCW_ET
 		else if ( !strcmp( "trigger_push", ValueForKey( mapent, "classname" ) ) ) {
+#else
+	if ( !strcmp( "trigger_push", ValueForKey( mapent, "classname" ) ) ) {
+#endif RTCW_XX
+
 			//set the jumppad contents
 			brush->contents = CONTENTS_JUMPPAD;
 			//Log_Print("found trigger_push brush\n");
@@ -708,7 +794,13 @@ void AAS_PositionBrush( entity_t *mapent, mapbrush_t *brush ) {
 			brush->contents = CONTENTS_TELEPORTER;
 			//Log_Print("found trigger_teleport teleporter brush\n");
 		} //end if
+
+#if !defined RTCW_ET
 		else if ( !strcmp( "func_door", ValueForKey( mapent, "classname" ) ) ) {
+#else
+	else if ( !strcmp( "func_door", ValueForKey( mapent, "classname" ) ) || !strcmp( "func_door_rotating", ValueForKey( mapent, "classname" ) ) ) {
+#endif RTCW_XX
+
 			//set mover contents
 			brush->contents = CONTENTS_MOVER;
 			//get the model number
@@ -719,6 +811,34 @@ void AAS_PositionBrush( entity_t *mapent, mapbrush_t *brush ) {
 			//set mover contents
 			brush->contents = CONTENTS_TRIGGER;
 		} //end if
+
+#if defined RTCW_ET
+	  // RF
+	else if ( !strcmp( "func_explosive", ValueForKey( mapent, "classname" ) ) ) {
+		// Gordon: only if the noaasblock flag isnt set
+		if ( !( atoi( ValueForKey( mapent, "spawnflags" ) ) & 16 ) ) {
+			//set mover contents
+			brush->contents = CONTENTS_MOVER;
+			//get the model number
+			model = ValueForKey( mapent, "model" );
+			brush->modelnum = atoi( model + 1 );
+		}
+	} //end if
+	else if ( !strcmp( "func_constructible", ValueForKey( mapent, "classname" ) ) ) {
+		// is it a blocking constructible
+		if ( ( atoi( ValueForKey( mapent, "spawnflags" ) ) & 128 ) ) {
+			// blocking constructible
+			if ( !( atoi( ValueForKey( mapent, "spawnflags" ) ) & 512 ) ) {
+				// not ignored by AAS
+				//set mover contents
+				brush->contents = CONTENTS_MOVER;
+				//get the model number
+				model = ValueForKey( mapent, "model" );
+				brush->modelnum = atoi( model + 1 );
+			}
+		}
+#endif RTCW_XX
+
 
 	} //end else
 } //end of the function AAS_PositionBrush

@@ -47,7 +47,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "aas_cfg.h"
 #include "../game/surfaceflags.h"
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 //#define AW_DEBUG
 //#define L_DEBUG
 #endif RTCW_XX
@@ -671,8 +671,17 @@ void AAS_CreateAreaSettings( void ) {
 // Changes Globals:		-
 //===========================================================================
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //portal_t *globalPortalDebug;
+#endif RTCW_XX
+
+#if defined RTCW_ET
+float VectorDistance( vec3_t v1, vec3_t v2 );
+
+int numGroundOnlyFreed;
+int numTinyFreed;
+
+tmp_area_t *garea;
 #endif RTCW_XX
 
 tmp_node_t *AAS_CreateArea( node_t *node ) {
@@ -685,8 +694,16 @@ tmp_node_t *AAS_CreateArea( node_t *node ) {
 
 #if defined RTCW_SP
 	//vec3_t up = {0, 0, 1}; // TTimo: unused
-#elif defined RTCW_MP
+#else
 	vec3_t up = {0, 0, 1};
+#endif RTCW_XX
+
+#if defined RTCW_ET
+//	vec3_t mins, maxs;
+//	qboolean allowFreeIfSmall = 1;
+
+//	VectorClear( mins );
+//	VectorClear( maxs );
 #endif RTCW_XX
 
 	//create an area from this leaf
@@ -722,7 +739,13 @@ tmp_node_t *AAS_CreateArea( node_t *node ) {
 			AAS_CheckFaceWindingPlane( tmpface );
 #endif //L_DEBUG
 			//if there's solid at the other side of the portal
+
+#if !defined RTCW_ET
 			if ( p->nodes[!pside]->contents & ( CONTENTS_SOLID | CONTENTS_PLAYERCLIP ) ) {
+#else
+			if ( p->nodes[!pside]->contents & ( CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_MONSTERCLIP ) ) {
+#endif RTCW_XX
+
 				tmpface->faceflags |= FACE_SOLID;
 			} //end if
 			  //else there is no solid at the other side and if there
@@ -758,6 +781,24 @@ tmp_node_t *AAS_CreateArea( node_t *node ) {
 			//add the front side of the face to the area
 			AAS_AddFaceSideToArea( tmpface, 0, tmparea );
 		} //end else
+
+#if defined RTCW_ET
+/*
+		// RF, add this face to the bounds
+		if (p->tmpface->faceflags & FACE_GROUND) {
+			WindingBounds( p->winding, mins, maxs );
+		}
+
+		// RF, if this face has a solid at the other side, and it is not a GROUND, then we cannot free if its too small
+		if (allowFreeIfSmall && (p->tmpface->faceflags & FACE_SOLID) && !(p->tmpface->faceflags & FACE_GROUND)) {
+			// make sure it's not a ceiling
+			if (!(DotProduct(cfg.phys_gravitydirection, mapplanes[p->tmpface->planenum].normal) > cfg.phys_maxsteepness)) {
+				allowFreeIfSmall = 0;
+			}
+		}
+*/
+#endif RTCW_XX
+
 	} //end for
 	qprintf( "\r%6d", tmparea->areanum );
 	//presence type in the area
@@ -791,6 +832,23 @@ tmp_node_t *AAS_CreateArea( node_t *node ) {
 	if ( node->contents & CONTENTS_SLIME ) {
 		tmparea->contents |= AREACONTENTS_SLIME;
 	}
+
+#if defined RTCW_ET
+/*
+	// RF, if we are using only ground areas, then ignore areas that arent grounded or attached to ladders, or underwater
+	if (groundonly && !(areafaceflags & (FACE_GROUND|FACE_LADDER)) && !(tmparea->contents & (AREACONTENTS_WATER|AREACONTENTS_SLIME|AREACONTENTS_LAVA))) {
+		numGroundOnlyFreed++;
+		tmparea->invalid = true;
+	}
+*/
+/*
+	// RF, if this is a really small area, and it is surrounded by non-solid portals, then nuke it
+	if (allowFreeIfSmall && !(areafaceflags & (FACE_LADDER)) && VectorDistance( mins, maxs ) < 32) {
+		numTinyFreed++;
+		tmparea->invalid = true;
+	}
+*/
+#endif RTCW_XX
 
 	//store the bsp model that's inside this node
 	tmparea->modelnum = node->modelnum;
@@ -842,8 +900,22 @@ tmp_node_t *AAS_CreateAreas_r( node_t *node ) {
 void AAS_CreateAreas( node_t *node ) {
 	Log_Write( "AAS_CreateAreas\r\n" );
 	qprintf( "%6d areas created", 0 );
+
+#if defined RTCW_ET
+	numGroundOnlyFreed = 0;
+	numTinyFreed = 0;
+#endif RTCW_XX
+
 	tmpaasworld.nodes = AAS_CreateAreas_r( node );
 	qprintf( "\n" );
+
+#if defined RTCW_ET
+//	Log_Print("%6d non-grounded areas freed\n", numGroundOnlyFreed);
+//	Log_Write("%6d non-grounded areas freed\n", numGroundOnlyFreed);
+//	Log_Print("%6d tiny areas freed\n", numTinyFreed);
+//	Log_Write("%6d tiny areas freed\n", numTinyFreed);
+#endif RTCW_XX
+
 	Log_Write( "%6d areas created\r\n", tmpaasworld.numareas );
 } //end of the function AAS_CreateAreas
 //===========================================================================
@@ -1080,6 +1152,133 @@ void AAS_FlipSharedFaces( void ) {
 	qprintf( "\n" );
 	Log_Print( "%6d areas checked for shared face flipping\r\n", i );
 } //end of the function AAS_FlipSharedFaces
+
+#if defined RTCW_ET
+//===========================================================================
+//
+// Parameter:				-
+// Returns:					-
+// Changes Globals:		-
+//===========================================================================
+int AAS_FacesTouching( tmp_face_t *face1, tmp_face_t *face2 ) {
+	int i;
+	winding_t *w2;
+	plane_t *plane1;
+	float dot;
+
+#ifdef DEBUG
+	if ( !face1->winding ) {
+		Error( "face1 %d without winding", face1->num );
+	}
+	if ( !face2->winding ) {
+		Error( "face2 %d without winding", face2->num );
+	}
+#endif //DEBUG
+	w2 = face2->winding;
+	plane1 = &mapplanes[face1->planenum];
+	for ( i = 0; i < w2->numpoints; i++ )
+	{
+		//the point must be on the winding plane
+		dot = DotProduct( w2->p[i], plane1->normal ) - plane1->dist;
+		if ( dot < -CLIP_EPSILON || dot > CLIP_EPSILON ) {
+			return false;
+		}
+		{
+			return 1;
+		} //end if
+	} //end for
+	return 0;
+} //end of the function AAS_MeltFaceWinding
+//===========================================================================
+//
+// Parameter:				-
+// Returns:					-
+// Changes Globals:		-
+//===========================================================================
+void AAS_RemoveTinyAreas( void ) {
+	//RF, disabled, can cause problems, should do checks on minsidelength instead, and also this should be a post-clustering
+	// process, as in "-reachableonly"
+	return;
+#if 0
+	int side, gside, nummerges;
+	tmp_area_t *tmparea;
+	tmp_face_t *face, *gface;
+	vec_t windingArea;
+
+	if ( !mingroundarea ) {
+		return;
+	}
+
+	nummerges = 0;
+	Log_Write( "AAS_RemoveTinyAreas\r\n" );
+	qprintf( "%6d tiny areas removed", 1 );
+	//
+	for ( tmparea = tmpaasworld.areas; tmparea; tmparea = tmparea->l_next )
+	{
+		//if the area is invalid
+		if ( tmparea->invalid ) {
+			continue;
+		} //end if
+		  //
+		  // never remove liquid areas
+		if ( tmparea->contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
+			continue;
+		}
+		//
+		windingArea = 0;
+		//
+		for ( face = tmparea->tmpfaces; face; face = face->next[side] )
+		{
+			side = ( face->frontarea != tmparea );
+			//
+			// never remove ladder areas
+			if ( face->faceflags & FACE_LADDER ) {
+				break;
+			}
+			//
+			//if this face touches a grounded face, and there is no area on the other side, then dont remove it
+			if ( !( face->faceflags & FACE_GROUND ) ) {
+				// does this face share an edge with a ground face?
+				for ( gface = tmparea->tmpfaces; gface; gface = gface->next[gside] ) {
+					gside = ( gface->frontarea != tmparea );
+					//
+					if ( gface == face ) {
+						continue;
+					}
+					if ( !( gface->faceflags & FACE_GROUND ) ) {
+						continue;
+					}
+					//
+					if ( AAS_FacesTouching( face, gface ) ) {
+						break;
+					}
+				}
+
+				// if this face touches a grounded face, and there is no area on the other side, then this area must stay
+				if ( gface && ( !face->frontarea || face->frontarea->invalid || !face->backarea || face->backarea->invalid || ( face->faceflags & FACE_SOLID ) ) ) {
+					break;
+				}
+			}
+			//
+			if ( face->faceflags & FACE_GROUND ) {
+				// get the area of this face
+				windingArea += WindingArea( face->winding );
+			}
+		} //end for
+		  //
+		  // if this area has a windingArea low enough, then remove it
+		if ( !face && windingArea && windingArea < mingroundarea ) {
+			qprintf( "\r%6d", ++nummerges );
+			tmparea->invalid = 1;
+		}
+
+	} //end for
+	qprintf( "\n" );
+	Log_Write( "%6d tiny areas removed\r\n", nummerges );
+#endif
+} //end of the function AAS_MergeAreas
+#endif RTCW_XX
+
 //===========================================================================
 // creates an .AAS file with the given name
 // a MAP should be loaded before calling this
@@ -1104,6 +1303,20 @@ void AAS_Create( char *aasfile ) {
 	entity_num = 0;
 	//the world entity
 	e = &entities[entity_num];
+
+#if defined RTCW_ET
+	//
+	ResetBrushBSP();
+	//
+	if ( writebrushmap ) {
+		char brushMapName[1024];
+		strcpy( brushMapName, aasfile );
+		StripExtension( brushMapName );
+		strcat( brushMapName, "_aas.map" );
+		OpenBSPBrushMap( brushMapName, CONTENTS_SOLID | CONTENTS_MOVER );
+	}
+#endif RTCW_XX
+
 	//process the whole world
 	tree = ProcessWorldBrushes( e->firstbrush, e->firstbrush + e->numbrushes );
 	//if the conversion is cancelled
@@ -1157,6 +1370,12 @@ void AAS_Create( char *aasfile ) {
 	AAS_RemoveAreaFaceColinearPoints();
 	//merge areas if possible
 	AAS_MergeAreas();
+
+#if defined RTCW_ET
+	//remove tiny areas
+	AAS_RemoveTinyAreas();
+#endif RTCW_XX
+
 	//NOTE: prune nodes directly after area merging
 	AAS_PruneNodes();
 	//flip shared faces so they are all facing to the same area

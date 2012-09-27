@@ -143,7 +143,13 @@ void Error( char *error, ... ) {
 	err = GetLastError();
 
 	va_start( argptr, error );
+
+#if !defined RTCW_ET
 	vsprintf( text, error, argptr );
+#else
+	Q_vsnprintf( text, sizeof( text ), error, argptr );
+#endif RTCW_XX
+
 	va_end( argptr );
 
 	sprintf( text2, "%s\nGetLastError() = %i", text, err );
@@ -160,7 +166,13 @@ void Warning( char *szFormat, ... ) {
 	va_list argptr;
 
 	va_start( argptr, szFormat );
+
+#if !defined RTCW_ET
 	vsprintf( szBuffer, szFormat, argptr );
+#else
+	Q_vsnprintf( szBuffer, sizeof( szBuffer ), szFormat, argptr );
+#endif RTCW_XX
+
 	va_end( argptr );
 
 	MessageBox( program_hwnd, szBuffer, "Warning", MB_OK );
@@ -182,7 +194,13 @@ void Error( char *error, ... ) {
 	char text[1024];
 
 	va_start( argptr, error );
+
+#if !defined RTCW_ET
 	vsprintf( text, error, argptr );
+#else
+	Q_vsnprintf( text, sizeof( text ), error, argptr );
+#endif RTCW_XX
+
 	va_end( argptr );
 	printf( "ERROR: %s\n", text );
 
@@ -197,7 +215,13 @@ void Warning( char *warning, ... ) {
 	char text[1024];
 
 	va_start( argptr, warning );
+
+#if !defined RTCW_ET
 	vsprintf( text, warning, argptr );
+#else
+	Q_vsnprintf( text, sizeof( text ), warning, argptr );
+#endif RTCW_XX
+
 	va_end( argptr );
 	printf( "WARNING: %s\n", text );
 
@@ -221,7 +245,13 @@ void qprintf( char *format, ... ) {
 
 	va_start( argptr,format );
 #ifdef WINBSPC
+
+#if !defined RTCW_ET
 	vsprintf( buf, format, argptr );
+#else
+	Q_vsnprintf( buf, sizeof( buf ), format, argptr );
+#endif RTCW_XX
+
 	WinBSPCPrint( buf );
 #else
 	vprintf( format, argptr );
@@ -234,7 +264,13 @@ void Com_Error( int level, char *error, ... ) {
 	char text[1024];
 
 	va_start( argptr, error );
+
+#if !defined RTCW_ET
 	vsprintf( text, error, argptr );
+#else
+	Q_vsnprintf( text, sizeof( text ), error, argptr );
+#endif RTCW_XX
+
 	va_end( argptr );
 	Error( text );
 } //end of the funcion Com_Error
@@ -244,7 +280,13 @@ void Com_Printf( const char *fmt, ... ) {
 	char text[1024];
 
 	va_start( argptr, fmt );
+
+#if !defined RTCW_ET
 	vsprintf( text, fmt, argptr );
+#else
+	Q_vsnprintf( text, sizeof( text ), fmt, argptr );
+#endif RTCW_XX
+
 	va_end( argptr );
 	Log_Print( text );
 } //end of the funcion Com_Printf
@@ -535,6 +577,7 @@ void Q_strncpyz( char *dest, const char *src, int destsize ) {
 	dest[destsize - 1] = 0;
 }
 
+#if !defined RTCW_ET
 char *strupr( char *start ) {
 	char    *in;
 	in = start;
@@ -545,6 +588,7 @@ char *strupr( char *start ) {
 	}
 	return start;
 }
+#endif RTCW_XX
 
 char *strlower( char *start ) {
 	char    *in;
@@ -1077,9 +1121,9 @@ unsigned    LittleUnsigned( unsigned l ) {
 #define CRC_INIT_VALUE  0xffff
 #define CRC_XOR_VALUE   0x0000
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 static unsigned short crctable[256] =
-#elif defined RTCW_MP
+#else
 static unsigned short crctable[257] =
 #endif RTCW_XX
 
@@ -1116,9 +1160,9 @@ static unsigned short crctable[257] =
 	0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
 	0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8,
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
-#elif defined RTCW_MP
+#else
 	0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0,
 	0x0000                                                              // code reaches element 256
 #endif RTCW_XX

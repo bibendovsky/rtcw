@@ -57,6 +57,10 @@ static unsigned char s_gammatable[256];
 int gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int gl_filter_max = GL_LINEAR;
 
+#if defined RTCW_ET
+float gl_anisotropy = 1.0;
+#endif RTCW_XX
+
 #define FILE_HASH_SIZE      4096
 static image_t*        hashTable[FILE_HASH_SIZE];
 
@@ -81,7 +85,7 @@ void *R_GetImageBuffer( int size, bufferMemType_t bufferType ) {
 		imageBufferSize[bufferType] = R_IMAGE_BUFFER_SIZE;
 		imageBufferPtr[bufferType] = malloc( imageBufferSize[bufferType] );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 //DAJ TEST		imageBufferPtr[bufferType] = Z_Malloc( imageBufferSize[bufferType] );
 #endif RTCW_XX
 
@@ -91,14 +95,14 @@ void *R_GetImageBuffer( int size, bufferMemType_t bufferType ) {
 			free( imageBufferPtr[bufferType] );
 		}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 //DAJ TEST		Z_Free( imageBufferPtr[bufferType] );
 #endif RTCW_XX
 
 		imageBufferSize[bufferType] = size;
 		imageBufferPtr[bufferType] = malloc( imageBufferSize[bufferType] );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 //DAJ TEST		imageBufferPtr[bufferType] = Z_Malloc( imageBufferSize[bufferType] );
 #endif RTCW_XX
 
@@ -115,7 +119,7 @@ void R_FreeImageBuffer( void ) {
 		}
 		free( imageBufferPtr[bufferType] );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 //DAJ TEST		Z_Free( imageBufferPtr[bufferType] );
 #endif RTCW_XX
 
@@ -210,13 +214,62 @@ void GL_TextureMode( const char *string ) {
 	// change all the existing mipmap texture objects
 	for ( i = 0 ; i < tr.numImages ; i++ ) {
 		glt = tr.images[ i ];
+
+#if defined RTCW_ET
+		GL_Bind( glt );
+		// ydnar: for allowing lightmap debugging
+#endif RTCW_XX
+
 		if ( glt->mipmap ) {
+
+#if !defined RTCW_ET
 			GL_Bind( glt );
 			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
 			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+#else
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+		} else
+		{
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+#endif RTCW_XX
+
 		}
 	}
 }
+
+#if defined RTCW_ET
+/*
+===============
+GL_TextureAnisotropy
+===============
+*/
+void GL_TextureAnisotropy( float anisotropy ) {
+	int i;
+	image_t *glt;
+
+	if ( r_ext_texture_filter_anisotropic->integer == 1 ) {
+		if ( anisotropy < 1.0 || anisotropy > glConfig.maxAnisotropy ) {
+			ri.Printf( PRINT_ALL, "anisotropy out of range\n" );
+			return;
+		}
+	}
+
+	gl_anisotropy = anisotropy;
+
+	if ( !glConfig.anisotropicAvailable ) {
+		return;
+	}
+
+	// change all the existing texture objects
+	for ( i = 0 ; i < tr.numImages ; i++ ) {
+		glt = tr.images[ i ];
+		GL_Bind( glt );
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, gl_anisotropy );
+	}
+}
+#endif RTCW_XX
 
 /*
 ===============
@@ -228,7 +281,7 @@ int R_SumOfUsedImages( void ) {
 
 #if defined RTCW_SP
 	int i;
-#elif defined RTCW_MP
+#else
 	int i, fc = ( tr.frameCount - 1 );
 #endif RTCW_XX
 
@@ -237,7 +290,7 @@ int R_SumOfUsedImages( void ) {
 
 #if defined RTCW_SP
 		if ( tr.images[i]->frameUsed == tr.frameCount ) {
-#elif defined RTCW_MP
+#else
 		if ( tr.images[i]->frameUsed == fc ) {
 #endif RTCW_XX
 
@@ -261,15 +314,27 @@ void R_ImageList_f( void ) {
 		"no ", "yes"
 	};
 
+#if !defined RTCW_ET
 	ri.Printf( PRINT_ALL, "\n      -w-- -h-- -mm- -TMU- -if-- wrap --name-------\n" );
+#else
+	ri.Printf( PRINT_ALL, "\n      -w-- -h-- -mm- -TMU- GLname -if-- wrap --name-------\n" );
+#endif RTCW_XX
+
 	texels = 0;
 
 	for ( i = 0 ; i < tr.numImages ; i++ ) {
 		image = tr.images[ i ];
 
 		texels += image->uploadWidth * image->uploadHeight;
+
+#if !defined RTCW_ET
 		ri.Printf( PRINT_ALL,  "%4i: %4i %4i  %s   %d   ",
 				   i, image->uploadWidth, image->uploadHeight, yesno[image->mipmap], image->TMU );
+#else
+		ri.Printf( PRINT_ALL,  "%4i: %4i %4i  %s   %d   %5d ",
+				   i, image->uploadWidth, image->uploadHeight, yesno[image->mipmap], image->TMU, image->texnum );
+#endif RTCW_XX
+
 		switch ( image->internalFormat ) {
 		case 1:
 			ri.Printf( PRINT_ALL, "I    " );
@@ -287,8 +352,21 @@ void R_ImageList_f( void ) {
 			ri.Printf( PRINT_ALL, "RGBA8" );
 			break;
 		case GL_RGB8:
+
+#if !defined RTCW_ET
 			ri.Printf( PRINT_ALL, "RGB8" );
+#else
+			ri.Printf( PRINT_ALL, "RGB8 " );
+#endif RTCW_XX
+
 			break;
+
+#if defined RTCW_ET
+		case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+			ri.Printf( PRINT_ALL, "DXT3 " );
+			break;
+#endif RTCW_XX
+
 		case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
 			ri.Printf( PRINT_ALL, "DXT5 " );
 			break;
@@ -347,13 +425,13 @@ static void ResampleTexture( unsigned *in, int inwidth, int inheight, unsigned *
 
 #if defined RTCW_SP
 	unsigned p1[1024], p2[1024];
-#elif defined RTCW_MP
+#else
 	unsigned p1[2048], p2[2048];
 #endif RTCW_XX
 
 	byte        *pix1, *pix2, *pix3, *pix4;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	if ( outwidth > 2048 ) {
 		ri.Error( ERR_DROP, "ResampleTexture: max width" );
 	}
@@ -552,6 +630,8 @@ R_MipMap
 Operates in place, quartering the size of the texture
 ================
 */
+
+#if !defined RTCW_ET
 static float R_RMSE( byte *in, int width, int height ) {
 	int i, j;
 	float out, rmse, rtemp;
@@ -591,7 +671,49 @@ static float R_RMSE( byte *in, int width, int height ) {
 	rmse = sqrt( rmse / ( height * width * 4 ) );
 	return rmse;
 }
+#else
+#if 0 // rain - unused
+static float R_RMSE( byte *in, int width, int height ) {
+	int i, j;
+	float out, rmse, rtemp;
+	int row;
 
+	rmse = 0.0f;
+
+	if ( width <= 32 || height <= 32 ) {
+		return 9999.0f;
+	}
+
+	row = width * 4;
+
+	width >>= 1;
+	height >>= 1;
+
+	for ( i = 0 ; i < height ; i++, in += row ) {
+		for ( j = 0 ; j < width ; j++, out += 4, in += 8 ) {
+			out = ( in[0] + in[4] + in[row + 0] + in[row + 4] ) >> 2;
+			rtemp = ( ( Q_fabs( out - in[0] ) + Q_fabs( out - in[4] ) + Q_fabs( out - in[row + 0] ) + Q_fabs( out - in[row + 4] ) ) );
+			rtemp = rtemp * rtemp;
+			rmse += rtemp;
+			out = ( in[1] + in[5] + in[row + 1] + in[row + 5] ) >> 2;
+			rtemp = ( ( Q_fabs( out - in[1] ) + Q_fabs( out - in[5] ) + Q_fabs( out - in[row + 1] ) + Q_fabs( out - in[row + 5] ) ) );
+			rtemp = rtemp * rtemp;
+			rmse += rtemp;
+			out = ( in[2] + in[6] + in[row + 2] + in[row + 6] ) >> 2;
+			rtemp = ( ( Q_fabs( out - in[2] ) + Q_fabs( out - in[6] ) + Q_fabs( out - in[row + 2] ) + Q_fabs( out - in[row + 6] ) ) );
+			rtemp = rtemp * rtemp;
+			rmse += rtemp;
+			out = ( in[3] + in[7] + in[row + 3] + in[row + 7] ) >> 2;
+			rtemp = ( ( Q_fabs( out - in[3] ) + Q_fabs( out - in[7] ) + Q_fabs( out - in[row + 3] ) + Q_fabs( out - in[row + 7] ) ) );
+			rtemp = rtemp * rtemp;
+			rmse += rtemp;
+		}
+	}
+	rmse = sqrt( rmse / ( height * width * 4 ) );
+	return rmse;
+}
+#endif
+#endif RTCW_XX
 
 /*
 ==================
@@ -663,14 +785,22 @@ static void Upload32(   unsigned *data,
 	int i, c;
 	byte        *scan;
 	GLenum internalFormat = GL_RGB;
+
+#if !defined RTCW_ET
 	float rMax = 0, gMax = 0, bMax = 0;
 	static int rmse_saved = 0;
+#else
+// rain - unused
+//	static		int rmse_saved = 0;
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	float rmse;
 #endif RTCW_XX
 
 	// do the root mean square error stuff first
+
+#if !defined RTCW_ET
 	if ( r_rmse->value ) {
 		while ( R_RMSE( (byte *)data, width, height ) < r_rmse->value ) {
 			rmse_saved += ( height * width * 4 ) - ( ( width >> 1 ) * ( height >> 1 ) * 4 );
@@ -681,6 +811,19 @@ static void Upload32(   unsigned *data,
 			height = height >> 1;
 			ri.Printf( PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, ( rmse_saved / 1024 ) );
 		}
+#else
+/*	if (r_rmse->value) {
+		while (R_RMSE((byte *)data, width, height) < r_rmse->value) {
+			rmse_saved += (height*width*4)-((width>>1)*(height>>1)*4);
+			resampledBuffer = R_GetImageBuffer( (width>>1) * (height>>1) * 4, BUFFER_RESAMPLED );
+			ResampleTexture (data, width, height, resampledBuffer, width>>1, height>>1);
+			data = resampledBuffer;
+			width = width>>1;
+			height = height>>1;
+			ri.Printf (PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, (rmse_saved/1024));
+		}
+	}*/
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	} else {
@@ -696,7 +839,10 @@ static void Upload32(   unsigned *data,
 		}
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	}
+#endif RTCW_XX
+
 	//
 	// convert to exact power of 2 sizes
 	//
@@ -733,7 +879,7 @@ static void Upload32(   unsigned *data,
 			scaled_width >>= r_picmip->integer;
 			scaled_height >>= r_picmip->integer;
 		}
-#elif defined RTCW_MP
+#else
 		scaled_width >>= r_picmip->integer;
 		scaled_height >>= r_picmip->integer;
 	}
@@ -811,6 +957,8 @@ static void Upload32(   unsigned *data,
 	if ( !lightMap ) {
 		for ( i = 0; i < c; i++ )
 		{
+
+#if !defined RTCW_ET
 			if ( scan[i * 4 + 0] > rMax ) {
 				rMax = scan[i * 4 + 0];
 			}
@@ -820,6 +968,8 @@ static void Upload32(   unsigned *data,
 			if ( scan[i * 4 + 2] > bMax ) {
 				bMax = scan[i * 4 + 2];
 			}
+#endif RTCW_XX
+
 			if ( scan[i * 4 + 3] != 255 ) {
 				samples = 4;
 				break;
@@ -829,6 +979,11 @@ static void Upload32(   unsigned *data,
 		if ( samples == 3 ) {
 			if ( !noCompress && glConfig.textureCompression == TC_EXT_COMP_S3TC ) {
 				// TODO: which format is best for which textures?
+
+#if defined RTCW_ET
+				//internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+#endif RTCW_XX
+
 				internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 			} else if ( !noCompress && glConfig.textureCompression == TC_S3TC )   {
 				internalFormat = GL_RGB4_S3TC;
@@ -843,6 +998,11 @@ static void Upload32(   unsigned *data,
 		} else if ( samples == 4 )   {
 			if ( !noCompress && glConfig.textureCompression == TC_EXT_COMP_S3TC ) {
 				// TODO: which format is best for which textures?
+
+#if defined RTCW_ET
+				//internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+#endif RTCW_XX
+
 				internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 			} else if ( r_texturebits->integer == 16 )   {
 				internalFormat = GL_RGBA4;
@@ -924,9 +1084,26 @@ done:
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
 	} else
 	{
+
+#if defined RTCW_ET
+		// ydnar: for allowing lightmap debugging
+#endif RTCW_XX
+
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+
+#if !defined RTCW_ET
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+#else
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+#endif RTCW_XX
+
 	}
+
+#if defined RTCW_ET
+	if ( glConfig.anisotropicAvailable ) {
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, gl_anisotropy );
+	}
+#endif RTCW_XX
 
 	GL_CheckErrors();
 
@@ -951,7 +1128,7 @@ This is the only way any image_t are created
 #if defined RTCW_SP
 image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int height,
 						   qboolean mipmap, qboolean allowPicmip, qboolean characterMip, int glWrapClampMode ) {
-#elif defined RTCW_MP
+#else
 image_t *R_CreateImage( const char *name, const byte *pic, int width, int height,
 						qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
 #endif RTCW_XX
@@ -981,6 +1158,21 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 		noCompress = qtrue;
 	}
 
+#if defined RTCW_ET
+#if __MACOS__
+	// LBO 2/8/05. Work around apparent bug in OSX. Some mipmap textures draw incorrectly when
+	// texture compression is enabled. Examples include brick edging on fueldump level appearing
+	// bluish-green from a distance.
+	else if ( mipmap ) {
+		noCompress = qtrue;
+	}
+#endif
+	// ydnar: don't compress textures smaller or equal to 128x128 pixels
+	else if ( ( width * height ) <= ( 128 * 128 ) ) {
+		noCompress = qtrue;
+	}
+#endif RTCW_XX
+
 	if ( tr.numImages == MAX_DRAWIMAGES ) {
 		ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n" );
 	}
@@ -988,13 +1180,31 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	// Ridah
 	image = tr.images[tr.numImages] = R_CacheImageAlloc( sizeof( image_t ) );
 
+#if !defined RTCW_ET
 	image->texnum = 1024 + tr.numImages;
 
 	// Ridah
 	if ( r_cacheShaders->integer ) {
 		R_FindFreeTexnum( image );
 	}
+#else
+	// ydnar: not exactly sure why this mechanism is here at all, but it's generating
+	// bad texture names (not that the rest of the code is a saint, but hey...)
+	//%	image->texnum = 1024 + tr.numImages;
+
+	// Ridah
+	//%	if (r_cacheShaders->integer) {
+	//%		R_FindFreeTexnum(image);
+	//%	}
+#endif RTCW_XX
+
 	// done.
+
+#if defined RTCW_ET
+	// ydnar: ok, let's try the recommended way
+	qglGenTextures( 1, &image->texnum );
+#endif RTCW_XX
+
 
 	tr.numImages++;
 
@@ -1034,6 +1244,15 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 			  &image->uploadWidth,
 			  &image->uploadHeight,
 			  noCompress );
+
+#if defined RTCW_ET
+	// ydnar: opengl 1.2 GL_CLAMP_TO_EDGE SUPPORT
+	// only 1.1 headers, joy
+	#define GL_CLAMP_TO_EDGE    0x812F
+	if ( r_clampToEdge->integer && glWrapClampMode == GL_CLAMP ) {
+		glWrapClampMode = GL_CLAMP_TO_EDGE;
+	}
+#endif RTCW_XX
 
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode );
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode );
@@ -1254,10 +1473,21 @@ PCX LOADING
 LoadPCX
 ==============
 */
+
+#if defined RTCW_ET
+#define DECODEPCX( b, d, r ) d = *b++; if ( ( d & 0xC0 ) == 0xC0 ) {r = d & 0x3F; d = *b++;} else {r = 1;}
+#endif RTCW_XX
+
 static void LoadPCX( const char *filename, byte **pic, byte **palette, int *width, int *height ) {
 	byte    *raw;
 	pcx_t   *pcx;
+
+#if !defined RTCW_ET
 	int x, y;
+#else
+	int x, y, lsize;
+#endif RTCW_XX
+
 	int len;
 	int dataByte, runLength;
 	byte    *out, *pix;
@@ -1265,6 +1495,10 @@ static void LoadPCX( const char *filename, byte **pic, byte **palette, int *widt
 
 	*pic = NULL;
 	*palette = NULL;
+
+#if defined RTCW_ET
+	runLength = 0;
+#endif RTCW_XX
 
 	//
 	// load the file
@@ -1303,7 +1537,7 @@ static void LoadPCX( const char *filename, byte **pic, byte **palette, int *widt
 
 #if defined RTCW_SP
 		*palette = malloc( 768 );
-#elif defined RTCW_MP
+#else
 		*palette = ri.Z_Malloc( 768 );
 #endif RTCW_XX
 
@@ -1318,6 +1552,7 @@ static void LoadPCX( const char *filename, byte **pic, byte **palette, int *widt
 	}
 // FIXME: use bytes_per_line here?
 
+#if !defined RTCW_ET
 	for ( y = 0 ; y <= ymax ; y++, pix += xmax + 1 )
 	{
 		for ( x = 0 ; x <= xmax ; )
@@ -1336,13 +1571,58 @@ static void LoadPCX( const char *filename, byte **pic, byte **palette, int *widt
 		}
 
 	}
+#else
+	// Arnout: this doesn't work for all pcx files
+	/*for (y=0 ; y<=ymax ; y++, pix += xmax+1)
+	{
+		for (x=0 ; x<=xmax ; )
+		{
+			dataByte = *raw++;
+
+			if((dataByte & 0xC0) == 0xC0)
+			{
+				runLength = dataByte & 0x3F;
+				dataByte = *raw++;
+			}
+			else
+				runLength = 1;
+
+			while(runLength-- > 0)
+				pix[x++] = dataByte;
+		}
+
+	}*/
+
+	lsize = pcx->color_planes * pcx->bytes_per_line;
+
+	// go scanline by scanline
+	for ( y = 0; y <= pcx->ymax; y++, pix += pcx->xmax + 1 )
+	{
+		// do a scanline
+		for ( x = 0; x <= pcx->xmax; )
+		{
+			DECODEPCX( raw, dataByte, runLength );
+			while ( runLength-- > 0 )
+				pix[ x++ ] = dataByte;
+		}
+
+		// discard any other data
+		while ( x < lsize )
+		{
+			DECODEPCX( raw, dataByte, runLength );
+			x++;
+		}
+		while ( runLength-- > 0 )
+			x++;
+	}
+#endif RTCW_XX
 
 	if ( raw - (byte *)pcx > len ) {
 		ri.Printf( PRINT_DEVELOPER, "PCX file %s was malformed", filename );
 
 #if defined RTCW_SP
 		free( *pic );
-#elif defined RTCW_MP
+#else
 		ri.Free( *pic );
 #endif RTCW_XX
 
@@ -1384,7 +1664,7 @@ static void LoadPCX32( const char *filename, byte **pic, int *width, int *height
 #if defined RTCW_SP
 	free( pic8 );
 	free( palette );
-#elif defined RTCW_MP
+#else
 	ri.Free( pic8 );
 	ri.Free( palette );
 #endif RTCW_XX
@@ -2122,12 +2402,18 @@ Returns NULL if it fails, not a default image.
 image_t *R_FindImageFileExt( const char *name, qboolean mipmap, qboolean allowPicmip, qboolean characterMIP, int glWrapClampMode ) {
 #elif defined RTCW_MP
 image_t *R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
+#else
+image_t *R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode, qboolean lightmap ) {
 #endif RTCW_XX
 
 	image_t *image;
 	int width, height;
 	byte    *pic;
 	long hash;
+
+#if defined RTCW_ET
+	qboolean allowCompress = qfalse;
+#endif RTCW_XX
 
 	if ( !name ) {
 		return NULL;
@@ -2140,7 +2426,7 @@ image_t *R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 
 #if defined RTCW_SP
 		ri.Cmd_ExecuteText( EXEC_NOW, va( "cache_usedfile image %s %i %i %i %i\n", name, mipmap, allowPicmip, characterMIP, glWrapClampMode ) );
-#elif defined RTCW_MP
+#else
 		ri.Cmd_ExecuteText( EXEC_NOW, va( "cache_usedfile image %s %i %i %i\n", name, mipmap, allowPicmip, glWrapClampMode ) );
 #endif RTCW_XX
 
@@ -2153,7 +2439,7 @@ image_t *R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 
 #if defined RTCW_SP
 		if ( !Q_stricmp( name, image->imgName ) ) {
-#elif defined RTCW_MP
+#else
 		if ( !strcmp( name, image->imgName ) ) {
 #endif RTCW_XX
 
@@ -2182,10 +2468,21 @@ image_t *R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 
 	// Ridah, check the cache
 	// TTimo: assignment used as truth value
+
+#if !defined RTCW_ET
 	if ( ( image = R_FindCachedImage( name, hash ) ) ) {
 		return image;
 	}
 	// done.
+#else
+	// ydnar: don't do this for lightmaps
+	if ( !lightmap ) {
+		image = R_FindCachedImage( name, hash );
+		if ( image != NULL ) {
+			return image;
+		}
+	}
+#endif RTCW_XX
 
 	//
 	// load the pic from disk
@@ -2223,11 +2520,44 @@ image_t *R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 
 #if defined RTCW_SP
 	image = R_CreateImageExt( ( char * ) name, pic, width, height, mipmap, allowPicmip, characterMIP, glWrapClampMode );
-#elif defined RTCW_MP
+#else
+
+#if defined RTCW_ET
+	// Arnout: apply lightmap colouring
+	if ( lightmap ) {
+		R_ProcessLightmap( &pic, 4, width, height, &pic );
+
+		// ydnar: no texture compression
+		if ( lightmap ) {
+			allowCompress = tr.allowCompress;
+		}
+		tr.allowCompress = -1;
+	}
+
+//#ifdef _DEBUG
+#define CHECKPOWEROF2
+//#endif // _DEBUG
+
+#ifdef CHECKPOWEROF2
+	if ( ( ( width - 1 ) & width ) || ( ( height - 1 ) & height ) ) {
+		Com_Printf( "^1Image not power of 2 scaled: %s\n", name );
+		return NULL;
+	}
+#endif // CHECKPOWEROF2
+#endif RTCW_XX
+
 	image = R_CreateImage( ( char * ) name, pic, width, height, mipmap, allowPicmip, glWrapClampMode );
 #endif RTCW_XX
 
 	//ri.Free( pic );
+
+#if defined RTCW_ET
+	// ydnar: no texture compression
+	if ( lightmap ) {
+		tr.allowCompress = allowCompress;
+	}
+#endif RTCW_XX
+
 	return image;
 }
 
@@ -2290,7 +2620,16 @@ void R_InitFogTable( void ) {
 	for ( i = 0 ; i < FOG_TABLE_SIZE ; i++ ) {
 		d = pow( (float)i / ( FOG_TABLE_SIZE - 1 ), exp );
 
+#if defined RTCW_ET
+		// ydnar: changed to linear fog
+#endif RTCW_XX
+
 		tr.fogTable[i] = d;
+
+#if defined RTCW_ET
+		//%	tr.fogTable[ i ] = (i / 255.0f);
+#endif RTCW_XX
+
 	}
 }
 
@@ -2329,14 +2668,28 @@ float   R_FogFactor( float s, float t ) {
 	return d;
 }
 
+#if defined RTCW_ET
+void SaveTGAAlpha( char *name, byte **pic, int width, int height );
+#endif RTCW_XX
+
 /*
 ================
 R_CreateFogImage
 ================
 */
+
+#if !defined RTCW_ET
 #define FOG_S   256
 #define FOG_T   32
+#else
+#define FOG_S       16
+#define FOG_T       16  // ydnar: used to be 32
+						// arnout: yd changed it to 256, changing to 16
+#endif RTCW_XX
+
 static void R_CreateFogImage( void ) {
+
+#if !defined RTCW_ET
 	int x,y;
 	byte    *data;
 	float g;
@@ -2358,11 +2711,70 @@ static void R_CreateFogImage( void ) {
 			data[( y * FOG_S + x ) * 4 + 3] = 255 * d;
 		}
 	}
+#else
+	int x, y, alpha;
+	byte    *data;
+	//float	d;
+	float borderColor[4];
+
+
+	// allocate table for image
+	data = ri.Hunk_AllocateTempMemory( FOG_S * FOG_T * 4 );
+
+	// ydnar: old fog texture generating algo
+
+	// S is distance, T is depth
+	/*for (x=0 ; x<FOG_S ; x++) {
+		for (y=0 ; y<FOG_T ; y++) {
+			d = R_FogFactor( ( x + 0.5f ) / FOG_S, ( y + 0.5f ) / FOG_T );
+
+			data[(y*FOG_S+x)*4+0] =
+			data[(y*FOG_S+x)*4+1] =
+			data[(y*FOG_S+x)*4+2] = 255;
+			data[(y*FOG_S+x)*4+3] = 255 * d;
+		}
+	}*/
+
+	//%	SaveTGAAlpha( "fog_q3.tga", &data, FOG_S, FOG_T );
+
+	// ydnar: new, linear fog texture generating algo for GL_CLAMP_TO_EDGE (OpenGL 1.2+)
+
+	// S is distance, T is depth
+	for ( x = 0 ; x < FOG_S ; x++ ) {
+		for ( y = 0 ; y < FOG_T ; y++ ) {
+			alpha = 270 * ( (float) x / FOG_S ) * ( (float) y / FOG_T );    // need slop room for fp round to 0
+			if ( alpha < 0 ) {
+				alpha = 0;
+			} else if ( alpha > 255 ) {
+				alpha = 255;
+			}
+
+			// ensure edge/corner cases are fully transparent (at 0,0) or fully opaque (at 1,N where N is 0-1.0)
+			if ( x == 0 ) {
+				alpha = 0;
+			} else if ( x == ( FOG_S - 1 ) ) {
+				alpha = 255;
+			}
+
+			data[( y * FOG_S + x ) * 4 + 0] =
+				data[( y * FOG_S + x ) * 4 + 1] =
+					data[( y * FOG_S + x ) * 4 + 2] = 255;
+			data[( y * FOG_S + x ) * 4 + 3] = alpha;  //%	255*d;
+		}
+	}
+
+	//%	SaveTGAAlpha( "fog_yd.tga", &data, FOG_S, FOG_T );
+#endif RTCW_XX
+
 	// standard openGL clamping doesn't really do what we want -- it includes
 	// the border color at the edges.  OpenGL 1.2 has clamp-to-edge, which does
 	// what we want.
 	tr.fogImage = R_CreateImage( "*fog", (byte *)data, FOG_S, FOG_T, qfalse, qfalse, GL_CLAMP );
 	ri.Hunk_FreeTempMemory( data );
+
+#if defined RTCW_ET
+	// ydnar: the following lines are unecessary for new GL_CLAMP_TO_EDGE fog
+#endif RTCW_XX
 
 	borderColor[0] = 1.0;
 	borderColor[1] = 1.0;
@@ -2379,6 +2791,8 @@ R_CreateDefaultImage
 */
 #define DEFAULT_SIZE    16
 static void R_CreateDefaultImage( void ) {
+
+#if !defined RTCW_ET
 	int x;
 	byte data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 
@@ -2404,6 +2818,36 @@ static void R_CreateDefaultImage( void ) {
 			data[x][DEFAULT_SIZE - 1][1] =
 				data[x][DEFAULT_SIZE - 1][2] = 0; //----(SA) to make the default grid noticable but not blinding
 		data[x][DEFAULT_SIZE - 1][3] = 255;
+#else
+	int x, y;
+	byte data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+
+	// the default image will be a box, to allow you to see the mapping coordinates
+	memset( data, 0, sizeof( data ) );
+	for ( x = 0 ; x < DEFAULT_SIZE ; x++ ) {
+		for ( y = 0 ; y < 2; y++ ) {
+			data[y][x][0] = 255;
+			data[y][x][1] = 128;
+			data[y][x][2] = 0;
+			data[y][x][3] = 255;
+
+			data[x][y][0] = 255;
+			data[x][y][1] = 128;
+			data[x][y][2] = 0;
+			data[x][y][3] = 255;
+
+			data[DEFAULT_SIZE - 1 - y][x][0] = 255;
+			data[DEFAULT_SIZE - 1 - y][x][1] = 128;
+			data[DEFAULT_SIZE - 1 - y][x][2] = 0;
+			data[DEFAULT_SIZE - 1 - y][x][3] = 255;
+
+			data[x][DEFAULT_SIZE - 1 - y][0] = 255;
+			data[x][DEFAULT_SIZE - 1 - y][1] = 128;
+			data[x][DEFAULT_SIZE - 1 - y][2] = 0;
+			data[x][DEFAULT_SIZE - 1 - y][3] = 255;
+		}
+#endif RTCW_XX
+
 	}
 	tr.defaultImage = R_CreateImage( "*default", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qtrue, qfalse, GL_REPEAT );
 }
@@ -2491,6 +2935,12 @@ void R_SetColorMappings( void ) {
 		ri.Cvar_Set( "r_intensity", "1" );
 	}
 
+#if defined RTCW_ET
+#ifdef __linux__
+	if ( r_gamma->value != -1 ) {
+#endif
+#endif RTCW_XX
+
 	if ( r_gamma->value < 0.5f ) {
 		ri.Cvar_Set( "r_gamma", "0.5" );
 	} else if ( r_gamma->value > 3.0f ) {
@@ -2498,6 +2948,14 @@ void R_SetColorMappings( void ) {
 	}
 
 	g = r_gamma->value;
+
+#if defined RTCW_ET
+#ifdef __linux__
+} else {
+	g = 1.0f;
+}
+#endif
+#endif RTCW_XX
 
 	shift = tr.overbrightBits;
 
@@ -2539,7 +2997,13 @@ void    R_InitImages( void ) {
 	memset( hashTable, 0, sizeof( hashTable ) );
 
 	// Ridah, caching system
+
+#if !defined RTCW_ET
 	R_InitTexnumImages( qfalse );
+#else
+	//%	R_InitTexnumImages(qfalse);
+#endif RTCW_XX
+
 	// done.
 
 	// build brightness translation tables
@@ -2566,7 +3030,13 @@ void R_DeleteTextures( void ) {
 	}
 	memset( tr.images, 0, sizeof( tr.images ) );
 	// Ridah
+
+#if !defined RTCW_ET
 	R_InitTexnumImages( qtrue );
+#else
+	//%	R_InitTexnumImages(qtrue);
+#endif RTCW_XX
+
 	// done.
 
 	memset( glState.currenttextures, 0, sizeof( glState.currenttextures ) );
@@ -2697,6 +3167,8 @@ RE_GetSkinModel
 */
 qboolean RE_GetSkinModel( qhandle_t skinid, const char *type, char *name ) {
 	int i;
+
+#if !defined RTCW_ET
 	skin_t      *bar;
 
 	bar = tr.skins[skinid];
@@ -2710,6 +3182,22 @@ qboolean RE_GetSkinModel( qhandle_t skinid, const char *type, char *name ) {
 	{
 		if ( !Q_stricmp( bar->models[i]->type, type ) ) { // (SA) whoops, should've been this way
 			Q_strncpyz( name, bar->models[i]->model, sizeof( bar->models[i]->model ) );
+#else
+	int hash;
+	skin_t  *skin;
+
+	skin = tr.skins[skinid];
+	hash = Com_HashKey( (char *)type, strlen( type ) );
+
+	for ( i = 0; i < skin->numModels; i++ ) {
+		if ( hash != skin->models[i]->hash ) {
+			continue;
+		}
+		if ( !Q_stricmp( skin->models[i]->type, type ) ) {
+			// (SA) whoops, should've been this way
+			Q_strncpyz( name, skin->models[i]->model, sizeof( skin->models[i]->model ) );
+#endif RTCW_XX
+
 			return qtrue;
 		}
 	}
@@ -2739,13 +3227,27 @@ qhandle_t RE_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightma
 	model = R_GetModelByHandle( modelid );  // (SA) should be correct now
 
 	if ( model ) {
+
+#if !defined RTCW_ET
 		bmodel  = model->bmodel;
+#else
+		bmodel  = model->model.bmodel;
+#endif RTCW_XX
+
 		if ( bmodel && bmodel->firstSurface ) {
 			if ( surfnum >= bmodel->numSurfaces ) { // if it's out of range, return the first surface
 				surfnum = 0;
 			}
 
 			surf = bmodel->firstSurface + surfnum;
+
+#if defined RTCW_ET
+			// RF, check for null shader (can happen on func_explosive's with botclips attached)
+			if ( !surf->shader ) {
+				return 0;
+			}
+#endif RTCW_XX
+
 //			if(surf->shader->lightmapIndex != LIGHTMAP_NONE) {
 			if ( surf->shader->lightmapIndex > LIGHTMAP_NONE ) {
 				image_t *image;
@@ -2826,6 +3328,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	// make sure the render thread is stopped
 	R_SyncRenderThread();
 
+#if !defined RTCW_ET
 	// If not a .skin file, load as a single shader
 	if ( strcmp( name + strlen( name ) - 5, ".skin" ) ) {
 		tr.numSkins++;
@@ -2839,6 +3342,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 		skin->surfaces[0]->shader = R_FindShader( name, LIGHTMAP_NONE, qtrue );
 		return hSkin;
 	}
+#endif RTCW_XX
 
 	// load and parse the skin file
 	ri.FS_ReadFile( name, (void **)&text );
@@ -2871,13 +3375,28 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 			text_p++;
 		}
 
+#if !defined RTCW_ET
 		if ( strstr( token, "tag_" ) ) {
+#else
+		if ( !Q_stricmpn( token, "tag_", 4 ) ) {
+#endif RTCW_XX
+
 			continue;
 		}
 
+#if !defined RTCW_ET
 		if ( strstr( token, "md3_" ) ) {  // this is specifying a model
+#else
+		if ( !Q_stricmpn( token, "md3_", 4 ) ) {
+			// this is specifying a model
+#endif RTCW_XX
+
 			model = skin->models[ skin->numModels ] = ri.Hunk_Alloc( sizeof( *skin->models[0] ), h_low );
 			Q_strncpyz( model->type, token, sizeof( model->type ) );
+
+#if defined RTCW_ET
+			model->hash = Com_HashKey( model->type, sizeof( model->type ) );
+#endif RTCW_XX
 
 			// get the model name
 			token = CommaParse( &text_p );
@@ -2888,6 +3407,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 			continue;
 		}
 
+#if !defined RTCW_ET
 //----(SA)	added
 		if ( strstr( token, "playerscale" ) ) {
 			token = CommaParse( &text_p );
@@ -2897,12 +3417,18 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 			continue;
 		}
 //----(SA) end
+#endif RTCW_XX
 
 		// parse the shader name
 		token = CommaParse( &text_p );
 
 		surf = skin->surfaces[ skin->numSurfaces ] = ri.Hunk_Alloc( sizeof( *skin->surfaces[0] ), h_low );
 		Q_strncpyz( surf->name, surfName, sizeof( surf->name ) );
+
+#if defined RTCW_ET
+		surf->hash = Com_HashKey( surf->name, sizeof( surf->name ) );
+#endif RTCW_XX
+
 		surf->shader = R_FindShader( token, LIGHTMAP_NONE, qtrue );
 		skin->numSurfaces++;
 	}
@@ -2912,13 +3438,23 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 
 	// never let a skin have 0 shaders
 
+#if !defined RTCW_ET
 	//----(SA)	allow this for the (current) special case of the loper's upper body
 	//			(it's upper body has no surfaces, only tags)
+#endif RTCW_XX
+
 	if ( skin->numSurfaces == 0 ) {
+
+#if !defined RTCW_ET
 		if ( !( strstr( name, "loper" ) && strstr( name, "upper" ) ) ) {
+#endif RTCW_XX
+
 			return 0;       // use default skin
 		}
+
+#if !defined RTCW_ET
 	}
+#endif RTCW_XX
 
 	return hSkin;
 }
@@ -3096,6 +3632,8 @@ R_CropImage
 #define TWILTB2_HACK
 
 qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *height, int lastBox[2] ) {
+
+#if !defined RTCW_ET
 #ifdef CROPIMAGES_ENABLED
 	int row, col;
 	int rows, cols;
@@ -3371,9 +3909,9 @@ qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *heigh
 #endif  // RESIZE
 #endif  // FUNNEL_HACK
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	temppic = malloc( sizeof( unsigned int ) * diff[0] * diff[1] );
-#elif defined RTCW_MP
+#else
 	temppic = ri.Z_Malloc( sizeof( unsigned int ) * diff[0] * diff[1] );
 #endif RTCW_XX
 
@@ -3407,6 +3945,10 @@ qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *heigh
 #else
 	return qtrue;   // shutup the compiler
 #endif
+#else
+	return qtrue;   // shutup the compiler
+#endif RTCW_XX
+
 }
 
 
@@ -3416,6 +3958,8 @@ R_CropAndNumberImagesInDirectory
 ===============
 */
 void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, int maxHeight, int withAlpha ) {
+
+#if !defined RTCW_ET
 #ifdef CROPIMAGES_ENABLED
 	char    **fileList;
 	int numFiles, j;
@@ -3470,7 +4014,7 @@ void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, in
 
 #if defined RTCW_SP
 				temppic = malloc( sizeof( unsigned int ) * newWidth * newHeight );
-#elif defined RTCW_MP
+#else
 				temppic = ri.Z_Malloc( sizeof( unsigned int ) * newWidth * newHeight );
 #endif RTCW_XX
 
@@ -3488,7 +4032,7 @@ void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, in
 
 #if defined RTCW_SP
 			temppic = malloc( sizeof( unsigned int ) * newWidth * newHeight );
-#elif defined RTCW_MP
+#else
 			temppic = ri.Z_Malloc( sizeof( unsigned int ) * newWidth * newHeight );
 #endif RTCW_XX
 
@@ -3502,18 +4046,18 @@ void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, in
 		newWidth = maxWidth;
 		newHeight = maxHeight;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		temppic = malloc( sizeof( unsigned int ) * newWidth * newHeight );
-#elif defined RTCW_MP
+#else
 		temppic = ri.Z_Malloc( sizeof( unsigned int ) * newWidth * newHeight );
 #endif RTCW_XX
 
 		ResampleTexture( (unsigned int *)pic, width, height, (unsigned int *)temppic, newWidth, newHeight );
 		memcpy( pic, temppic, sizeof( unsigned int ) * newWidth * newHeight );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		free( temppic );
-#elif defined RTCW_MP
+#else
 		ri.Free( temppic );
 #endif RTCW_XX
 
@@ -3544,6 +4088,8 @@ void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, in
 		ri.Printf( PRINT_ALL, "done.\n" );
 	}
 #endif
+#endif RTCW_XX
+
 }
 
 /*
@@ -3552,6 +4098,8 @@ R_CropImages_f
 ==============
 */
 void R_CropImages_f( void ) {
+
+#if !defined RTCW_ET
 #ifdef CROPIMAGES_ENABLED
 	if ( ri.Cmd_Argc() < 5 ) {
 		ri.Printf( PRINT_ALL, "syntax: cropimages <dir> <extension> <maxWidth> <maxHeight> <alpha 0/1>\neg: 'cropimages sprites/fire1 .tga 64 64 0'\n" );
@@ -3561,6 +4109,8 @@ void R_CropImages_f( void ) {
 #else
 	ri.Printf( PRINT_ALL, "This command has been disabled.\n" );
 #endif
+#endif RTCW_XX
+
 }
 // done.
 
@@ -3570,7 +4120,11 @@ void R_CropImages_f( void ) {
 static int numBackupImages = 0;
 static image_t  *backupHashTable[FILE_HASH_SIZE];
 
+#if !defined RTCW_ET
 static image_t  *texnumImages[MAX_DRAWIMAGES * 2];
+#else
+//%	static image_t	*texnumImages[MAX_DRAWIMAGES*2];
+#endif RTCW_XX
 
 /*
 ===============
@@ -3581,11 +4135,18 @@ R_CacheImageAlloc
 */
 void *R_CacheImageAlloc( int size ) {
 	if ( r_cache->integer && r_cacheShaders->integer ) {
+
+#if !defined RTCW_ET
 		return malloc( size );
 
 #if defined RTCW_SP
 		//return ri.Z_Malloc( size );
-#elif defined RTCW_MP
+#else
+//DAJ TEST		return ri.Z_Malloc( size );	//DAJ was CO
+#endif RTCW_XX
+#else
+//		return ri.Z_Malloc( size );
+		return malloc( size );  // ri.Z_Malloc causes load times about twice as long?... Gordon
 //DAJ TEST		return ri.Z_Malloc( size );	//DAJ was CO
 #endif RTCW_XX
 
@@ -3601,11 +4162,16 @@ R_CacheImageFree
 */
 void R_CacheImageFree( void *ptr ) {
 	if ( r_cache->integer && r_cacheShaders->integer ) {
+
+#if defined RTCW_ET
+//		ri.Free( ptr );
+#endif RTCW_XX
+
 		free( ptr );
 
 #if defined RTCW_SP
 		//ri.Free( ptr );
-#elif defined RTCW_MP
+#else
 //DAJ TEST		ri.Free( ptr );	//DAJ was CO
 #endif RTCW_XX
 
@@ -3677,7 +4243,11 @@ R_PurgeImage
 */
 void R_PurgeImage( image_t *image ) {
 
+#if !defined RTCW_ET
 	texnumImages[image->texnum - 1024] = NULL;
+#else
+	//%	texnumImages[image->texnum - 1024] = NULL;
+#endif RTCW_XX
 
 	qglDeleteTextures( 1, &image->texnum );
 
@@ -3811,6 +4381,31 @@ image_t *R_FindCachedImage( const char *name, int hash ) {
 	return NULL;
 }
 
+#if defined RTCW_ET
+//bani
+/*
+R_GetTextureId
+*/
+int R_GetTextureId( const char *name ) {
+	int i;
+
+//	ri.Printf( PRINT_ALL, "R_GetTextureId [%s].\n", name );
+
+	for ( i = 0 ; i < tr.numImages ; i++ ) {
+		if ( !strcmp( name, tr.images[ i ]->imgName ) ) {
+//			ri.Printf( PRINT_ALL, "Found textureid %d\n", i );
+			return i;
+		}
+	}
+
+//	ri.Printf( PRINT_ALL, "Image not found.\n" );
+	return -1;
+}
+
+// ydnar: glGenTextures, sir...
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 /*
 ===============
 R_InitTexnumImages
@@ -3856,6 +4451,7 @@ void R_FindFreeTexnum( image_t *inImage ) {
 		ri.Error( ERR_DROP, "R_FindFreeTexnum: MAX_DRAWIMAGES hit\n" );
 	}
 }
+#endif RTCW_XX
 
 /*
 ===============
@@ -3867,7 +4463,12 @@ void R_LoadCacheImages( void ) {
 	byte *buf;
 	char    *token, *pString;
 	char name[MAX_QPATH];
+
+#if !defined RTCW_ET
 	int parms[3], i;
+#else
+	int parms[4], i;
+#endif RTCW_XX
 
 	if ( numBackupImages ) {
 		return;
@@ -3884,16 +4485,16 @@ void R_LoadCacheImages( void ) {
 
 #if defined RTCW_SP
 	pString = (char*)buf;   //DAJ added (char*)
-#elif defined RTCW_MP
+#else
 	pString = buf;
 #endif RTCW_XX
 
 	while ( ( token = COM_ParseExt( &pString, qtrue ) ) && token[0] ) {
 		Q_strncpyz( name, token, sizeof( name ) );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		for ( i = 0; i < 4; i++ ) {
-#elif defined RTCW_MP
+#else
 		for ( i = 0; i < 3; i++ ) {
 #endif RTCW_XX
 
@@ -3905,6 +4506,8 @@ void R_LoadCacheImages( void ) {
 		R_FindImageFileExt( name, parms[0], parms[1], parms[2], parms[3] );
 #elif defined RTCW_MP
 		R_FindImageFile( name, parms[0], parms[1], parms[2] );
+#else
+		R_FindImageFile( name, parms[0], parms[1], parms[2], parms[3] );
 #endif RTCW_XX
 
 	}

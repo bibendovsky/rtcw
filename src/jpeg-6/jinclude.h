@@ -15,7 +15,7 @@
  */
 
 
-#ifdef _WIN32
+#if (!defined RTCW_ET && defined _WIN32) || (defined RTCW_ET && defined _WIN32 && !defined __GNUC__)
 
 #pragma warning(disable : 4018) // signed/unsigned mismatch
 #pragma warning(disable : 4032)

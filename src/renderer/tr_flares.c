@@ -78,7 +78,7 @@ typedef struct flare_s {
 
 #if defined RTCW_SP
 	int flags;
-#elif defined RTCW_MP
+#else
 	qboolean cgvisible;             // for coronas, the client determines current visibility, but it's still inserted so it will fade out properly
 #endif RTCW_XX
 
@@ -133,7 +133,7 @@ This is called at surface tesselation time
 
 #if defined RTCW_SP
 void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float scale, vec3_t normal, int id, int flags ) {  //----(SA)	added scale. added id.  added visible
-#elif defined RTCW_MP
+#else
 void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float scale, vec3_t normal, int id, qboolean cgvisible ) { //----(SA)	added scale. added id.  added visible
 #endif RTCW_XX
 
@@ -147,8 +147,14 @@ void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float s
 
 	// if the point is off the screen, don't bother adding it
 	// calculate screen coordinates and depth
+
+#if !defined RTCW_ET
 	R_TransformModelToClip( point, backEnd.or.modelMatrix,
 							backEnd.viewParms.projectionMatrix, eye, clip );
+#else
+	R_TransformModelToClip( point, backEnd.orientation.modelMatrix,
+							backEnd.viewParms.projectionMatrix, eye, clip );
+#endif RTCW_XX
 
 	//ri.Printf(PRINT_ALL, "src:  %f  %f  %f  \n", point[0], point[1], point[2]);
 	//ri.Printf(PRINT_ALL, "eye:  %f  %f  %f  %f\n", eye[0], eye[1], eye[2], eye[3]);
@@ -200,7 +206,7 @@ void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float s
 
 #if defined RTCW_SP
 	f->flags = flags;
-#elif defined RTCW_MP
+#else
 	f->cgvisible = cgvisible;
 #endif RTCW_XX
 
@@ -219,7 +225,13 @@ void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float s
 	// fade the intensity of the flare down as the
 	// light surface turns away from the viewer
 	if ( normal ) {
+
+#if !defined RTCW_ET
 		VectorSubtract( backEnd.viewParms.or.origin, point, local );
+#else
+		VectorSubtract( backEnd.viewParms.orientation.origin, point, local );
+#endif RTCW_XX
+
 		VectorNormalizeFast( local );
 		d = DotProduct( local, normal );
 		VectorScale( f->color, d, f->color );
@@ -311,7 +323,7 @@ void RB_AddCoronaFlares( void ) {
 		}
 #if defined RTCW_SP
 		RB_AddFlare( (void *)cor, j, cor->origin, cor->color, cor->scale, NULL, cor->id, cor->flags );
-#elif defined RTCW_MP
+#else
 		RB_AddFlare( (void *)cor, j, cor->origin, cor->color, cor->scale, NULL, cor->id, cor->visible );
 #endif RTCW_XX
 
@@ -360,7 +372,7 @@ void RB_TestFlare( flare_t *f ) {
 
 #if defined RTCW_SP
 	visible = (qboolean)( f->flags & 1 );
-#elif defined RTCW_MP
+#else
 	visible = f->cgvisible;
 #endif RTCW_XX
 
@@ -423,11 +435,13 @@ void RB_RenderFlare( flare_t *f ) {
 	} else {
 		RB_BeginSurface( tr.flareShader, f->fogNum );
 	}
-#elif defined RTCW_MP
+#else
 	RB_BeginSurface( tr.flareShader, f->fogNum );
 #endif RTCW_XX
 
 	// FIXME: use quadstamp?
+
+#if !defined RTCW_ET
 	tess.xyz[tess.numVertexes][0] = f->windowX - size;
 	tess.xyz[tess.numVertexes][1] = f->windowY - size;
 	tess.texCoords[tess.numVertexes][0][0] = 0;
@@ -470,6 +484,51 @@ void RB_RenderFlare( flare_t *f ) {
 	tess.vertexColors[tess.numVertexes][2] = iColor[2];
 	tess.vertexColors[tess.numVertexes][3] = f->drawIntensity * 255;      //----(SA)	mod for alpha blend rather than additive
 //	tess.vertexColors[tess.numVertexes][3] = 255;		//----(SA)	mod for alpha blend rather than additive
+#else
+	tess.xyz[tess.numVertexes].v[0] = f->windowX - size;
+	tess.xyz[tess.numVertexes].v[1] = f->windowY - size;
+	tess.texCoords0[tess.numVertexes].v[0] = 0;
+	tess.texCoords0[tess.numVertexes].v[1] = 0;
+	tess.vertexColors[tess.numVertexes].v[0] = iColor[0];
+	tess.vertexColors[tess.numVertexes].v[1] = iColor[1];
+	tess.vertexColors[tess.numVertexes].v[2] = iColor[2];
+	tess.vertexColors[tess.numVertexes].v[3] = f->drawIntensity * 255;        //----(SA)	mod for alpha blend rather than additive
+//	tess.vertexColors[tess.numVertexes].v[3] = 255;		//----(SA)	mod for alpha blend rather than additive
+	tess.numVertexes++;
+
+	tess.xyz[tess.numVertexes].v[0] = f->windowX - size;
+	tess.xyz[tess.numVertexes].v[1] = f->windowY + size;
+	tess.texCoords0[tess.numVertexes].v[0] = 0;
+	tess.texCoords0[tess.numVertexes].v[1] = 1;
+	tess.vertexColors[tess.numVertexes].v[0] = iColor[0];
+	tess.vertexColors[tess.numVertexes].v[1] = iColor[1];
+	tess.vertexColors[tess.numVertexes].v[2] = iColor[2];
+	tess.vertexColors[tess.numVertexes].v[3] = f->drawIntensity * 255;        //----(SA)	mod for alpha blend rather than additive
+//	tess.vertexColors[tess.numVertexes].v[3] = 255;		//----(SA)	mod for alpha blend rather than additive
+	tess.numVertexes++;
+
+	tess.xyz[tess.numVertexes].v[0] = f->windowX + size;
+	tess.xyz[tess.numVertexes].v[1] = f->windowY + size;
+	tess.texCoords0[tess.numVertexes].v[0] = 1;
+	tess.texCoords0[tess.numVertexes].v[1] = 1;
+	tess.vertexColors[tess.numVertexes].v[0] = iColor[0];
+	tess.vertexColors[tess.numVertexes].v[1] = iColor[1];
+	tess.vertexColors[tess.numVertexes].v[2] = iColor[2];
+	tess.vertexColors[tess.numVertexes].v[3] = f->drawIntensity * 255;        //----(SA)	mod for alpha blend rather than additive
+//	tess.vertexColors[tess.numVertexes].v[3] = 255;		//----(SA)	mod for alpha blend rather than additive
+	tess.numVertexes++;
+
+	tess.xyz[tess.numVertexes].v[0] = f->windowX + size;
+	tess.xyz[tess.numVertexes].v[1] = f->windowY - size;
+	tess.texCoords0[tess.numVertexes].v[0] = 1;
+	tess.texCoords0[tess.numVertexes].v[1] = 0;
+	tess.vertexColors[tess.numVertexes].v[0] = iColor[0];
+	tess.vertexColors[tess.numVertexes].v[1] = iColor[1];
+	tess.vertexColors[tess.numVertexes].v[2] = iColor[2];
+	tess.vertexColors[tess.numVertexes].v[3] = f->drawIntensity * 255;        //----(SA)	mod for alpha blend rather than additive
+//	tess.vertexColors[tess.numVertexes].v[3] = 255;		//----(SA)	mod for alpha blend rather than additive
+#endif RTCW_XX
+
 	tess.numVertexes++;
 
 	tess.indexes[tess.numIndexes++] = 0;

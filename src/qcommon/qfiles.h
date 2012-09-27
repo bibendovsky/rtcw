@@ -40,6 +40,8 @@ If you have questions concerning this license or the applicable additional terms
 #define SHADER_MAX_VERTEXES 4000
 #elif defined RTCW_MP
 #define SHADER_MAX_VERTEXES 1000 // JPW NERVE was 4000, 1000 in q3ta
+#else
+#define SHADER_MAX_VERTEXES 1025 // Arnout: 1024+1 (1 buffer for RB_EndSurface overflow check) // JPW NERVE was 4000, 1000 in q3ta
 #endif RTCW_XX
 
 #define SHADER_MAX_INDEXES  ( 6 * SHADER_MAX_VERTEXES )
@@ -132,6 +134,8 @@ typedef struct _TargaHeader {
 #define MD3_MAX_LODS        3
 #elif defined RTCW_MP
 #define MD3_MAX_LODS        1
+#else
+#define MD3_MAX_LODS        4
 #endif RTCW_XX
 
 #define MD3_MAX_TRIANGLES   8192    // per surface
@@ -226,6 +230,34 @@ typedef struct {
 
 	int ofsEnd;                     // end of file
 } md3Header_t;
+
+#if defined RTCW_ET
+/*
+========================================================================
+
+.tag tag file format
+
+========================================================================
+*/
+
+#define TAG_IDENT           ( ( '1' << 24 ) + ( 'G' << 16 ) + ( 'A' << 8 ) + 'T' )
+#define TAG_VERSION         1
+
+typedef struct {
+	int ident;
+	int version;
+
+	int numTags;
+
+	int ofsEnd;
+} tagHeader_t;
+
+typedef struct {
+	char filename[MAX_QPATH];
+	int start;
+	int count;
+} tagHeaderExt_t;
+#endif RTCW_XX
 
 // Ridah, mesh compression
 /*
@@ -549,6 +581,206 @@ typedef struct {
 	int ofsEnd;                     // end of file
 } mdsHeader_t;
 
+#if defined RTCW_ET
+/*
+==============================================================================
+
+MDM file format (Wolfenstein Skeletal Mesh)
+
+version history:
+	2 - initial version
+	3 - removed all frame data, this format is pure mesh and bone references now
+
+==============================================================================
+*/
+
+#define MDM_IDENT           ( ( 'W' << 24 ) + ( 'M' << 16 ) + ( 'D' << 8 ) + 'M' )
+#define MDM_VERSION         3
+#define MDM_MAX_VERTS       6000
+#define MDM_MAX_TRIANGLES   8192
+#define MDM_MAX_SURFACES    32
+#define MDM_MAX_TAGS        128
+
+#define MDM_TRANSLATION_SCALE   ( 1.0 / 64 )
+
+typedef struct {
+	int boneIndex;              // these are indexes into the boneReferences,
+	float boneWeight;           // not the global per-frame bone list
+	vec3_t offset;
+} mdmWeight_t;
+
+typedef struct {
+	vec3_t normal;
+	vec2_t texCoords;
+	int numWeights;
+	mdmWeight_t weights[1];     // variable sized
+} mdmVertex_t;
+
+typedef struct {
+	int indexes[3];
+} mdmTriangle_t;
+
+typedef struct {
+	int ident;
+
+	char name[MAX_QPATH];           // polyset name
+	char shader[MAX_QPATH];
+	int shaderIndex;                // for in-game use
+
+	int minLod;
+
+	int ofsHeader;                  // this will be a negative number
+
+	int numVerts;
+	int ofsVerts;
+
+	int numTriangles;
+	int ofsTriangles;
+
+	int ofsCollapseMap;           // numVerts * int
+
+	// Bone references are a set of ints representing all the bones
+	// present in any vertex weights for this surface.  This is
+	// needed because a model may have surfaces that need to be
+	// drawn at different sort times, and we don't want to have
+	// to re-interpolate all the bones for each surface.
+	int numBoneReferences;
+	int ofsBoneReferences;
+
+	int ofsEnd;                     // next surface follows
+} mdmSurface_t;
+
+/*typedef struct {
+	vec3_t		bounds[2];			// bounds of all surfaces of all LOD's for this frame
+	vec3_t		localOrigin;		// midpoint of bounds, used for sphere cull
+	float		radius;				// dist from localOrigin to corner
+	vec3_t		parentOffset;		// one bone is an ascendant of all other bones, it starts the hierachy at this position
+} mdmFrame_t;*/
+
+typedef struct {
+	int numSurfaces;
+	int ofsSurfaces;                // first surface, others follow
+	int ofsEnd;                     // next lod follows
+} mdmLOD_t;
+
+/*typedef struct {
+	char		name[MAX_QPATH];	// name of tag
+	float		torsoWeight;
+	int			boneIndex;			// our index in the bones
+
+	int			numBoneReferences;
+	int			ofsBoneReferences;
+
+	int			ofsEnd;				// next tag follows
+} mdmTag_t;*/
+
+// Tags always only have one parent bone
+typedef struct {
+	char name[MAX_QPATH];           // name of tag
+	vec3_t axis[3];
+
+	int boneIndex;
+	vec3_t offset;
+
+	int numBoneReferences;
+	int ofsBoneReferences;
+
+	int ofsEnd;                     // next tag follows
+} mdmTag_t;
+
+typedef struct {
+	int ident;
+	int version;
+
+	char name[MAX_QPATH];           // model name
+/*	char		bonesfile[MAX_QPATH];	// bone file
+
+#ifdef UTILS
+	int			skel;
+#else
+	// dummy in file, set on load to link to MDX
+	qhandle_t	skel;
+#endif // UTILS
+*/
+	float lodScale;
+	float lodBias;
+
+	// frames and bones are shared by all levels of detail
+/*	int			numFrames;
+	int			ofsFrames;			// mdmFrame_t[numFrames]
+*/
+	int numSurfaces;
+	int ofsSurfaces;
+
+	// tag data
+	int numTags;
+	int ofsTags;
+
+	int ofsEnd;                     // end of file
+} mdmHeader_t;
+
+/*
+==============================================================================
+
+MDX file format (Wolfenstein Skeletal Data)
+
+version history:
+	1 - initial version
+	2 - moved parentOffset from the mesh to the skeletal data file
+
+==============================================================================
+*/
+
+#define MDX_IDENT           ( ( 'W' << 24 ) + ( 'X' << 16 ) + ( 'D' << 8 ) + 'M' )
+#define MDX_VERSION         2
+#define MDX_MAX_BONES       128
+
+typedef struct {
+	vec3_t bounds[2];               // bounds of this frame
+	vec3_t localOrigin;             // midpoint of bounds, used for sphere cull
+	float radius;                   // dist from localOrigin to corner
+	vec3_t parentOffset;            // one bone is an ascendant of all other bones, it starts the hierachy at this position
+} mdxFrame_t;
+
+typedef struct {
+	//float		angles[3];
+	//float		ofsAngles[2];
+	short angles[4];                // to be converted to axis at run-time (this is also better for lerping)
+	short ofsAngles[2];             // PITCH/YAW, head in this direction from parent to go to the offset position
+} mdxBoneFrameCompressed_t;
+
+// NOTE: this only used at run-time
+// FIXME: do we really need this?
+typedef struct {
+	float matrix[3][3];             // 3x3 rotation
+	vec3_t translation;             // translation vector
+} mdxBoneFrame_t;
+
+typedef struct {
+	char name[MAX_QPATH];           // name of bone
+	int parent;                     // not sure if this is required, no harm throwing it in
+	float torsoWeight;              // scale torso rotation about torsoParent by this
+	float parentDist;
+	int flags;
+} mdxBoneInfo_t;
+
+typedef struct {
+	int ident;
+	int version;
+
+	char name[MAX_QPATH];           // model name
+
+	// bones are shared by all levels of detail
+	int numFrames;
+	int numBones;
+	int ofsFrames;                  // (mdxFrame_t + mdxBoneFrameCompressed_t[numBones]) * numframes
+	int ofsBones;                   // mdxBoneInfo_t[numBones]
+	int torsoParent;                // index of bone that is the parent of the torso
+
+	int ofsEnd;                     // end of file
+} mdxHeader_t;
+#endif RTCW_XX
+
 /*
 ==============================================================================
 
@@ -568,16 +800,35 @@ typedef struct {
 // expense of more memory allocation in the utilities
 //#define	MAX_MAP_MODELS		0x400
 #define MAX_MAP_MODELS      0x800
+
+#if !defined RTCW_ET
 #define MAX_MAP_BRUSHES     0x8000
 #define MAX_MAP_ENTITIES    0x800
+#else
+#define MAX_MAP_BRUSHES     16384
+#define MAX_MAP_ENTITIES    4096
+#endif RTCW_XX
+
 #define MAX_MAP_ENTSTRING   0x40000
 #define MAX_MAP_SHADERS     0x400
 
 #define MAX_MAP_AREAS       0x100   // MAX_MAP_AREA_BYTES in q_shared must match!
 #define MAX_MAP_FOGS        0x100
+
+#if !defined RTCW_ET
 #define MAX_MAP_PLANES      0x20000
+#else
+#define MAX_MAP_PLANES      0x40000
+#endif RTCW_XX
+
 #define MAX_MAP_NODES       0x20000
+
+#if !defined RTCW_ET
 #define MAX_MAP_BRUSHSIDES  0x20000
+#else
+#define MAX_MAP_BRUSHSIDES  0x100000
+#endif RTCW_XX
+
 #define MAX_MAP_LEAFS       0x20000
 #define MAX_MAP_LEAFFACES   0x20000
 #define MAX_MAP_LEAFBRUSHES 0x40000
@@ -709,7 +960,14 @@ typedef enum {
 	MST_PLANAR,
 	MST_PATCH,
 	MST_TRIANGLE_SOUP,
+
+#if !defined RTCW_ET
 	MST_FLARE
+#else
+	MST_FLARE,
+	MST_FOLIAGE
+#endif RTCW_XX
+
 } mapSurfaceType_t;
 
 typedef struct {

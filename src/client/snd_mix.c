@@ -45,6 +45,7 @@ int     *snd_p;
 int snd_linear_count;
 short   *snd_out;
 
+#if !defined RTCW_ET
 #if !( defined __linux__ && defined __i386__ )
 #if !id386
 
@@ -132,6 +133,92 @@ LClampDone2:
 void S_WriteLinearBlastStereo16( void );
 
 #endif
+#else
+#ifdef __linux__
+
+// snd_mixa.s
+void S_WriteLinearBlastStereo16( void );
+
+#elif id386
+
+__declspec( naked ) void S_WriteLinearBlastStereo16( void ) {
+	__asm {
+
+		push edi
+		push ebx
+		mov ecx,ds : dword ptr[snd_linear_count]
+		mov ebx,ds : dword ptr[snd_p]
+		mov edi,ds : dword ptr[snd_out]
+LWLBLoopTop:
+		mov eax,ds : dword ptr[-8 + ebx + ecx * 4]
+		sar eax,8
+		cmp eax,07FFFh
+		jg LClampHigh
+		cmp eax,0FFFF8000h
+		jnl LClampDone
+		mov eax,0FFFF8000h
+		jmp LClampDone
+LClampHigh:
+		mov eax,07FFFh
+LClampDone:
+		mov edx,ds : dword ptr[-4 + ebx + ecx * 4]
+		sar edx,8
+		cmp edx,07FFFh
+		jg LClampHigh2
+		cmp edx,0FFFF8000h
+		jnl LClampDone2
+		mov edx,0FFFF8000h
+		jmp LClampDone2
+LClampHigh2:
+		mov edx,07FFFh
+LClampDone2:
+		shl edx,16
+		and eax,0FFFFh
+		or edx,eax
+		mov ds : dword ptr[-4 + edi + ecx * 2],edx
+		sub ecx,2
+		jnz LWLBLoopTop
+		pop ebx
+		pop edi
+		ret
+	}
+}
+
+#else
+
+/*
+===================
+S_WriteLinearBlastStereo16
+===================
+*/
+void S_WriteLinearBlastStereo16( void ) {
+	int i;
+	int val;
+
+	for ( i = 0 ; i < snd_linear_count ; i += 2 )
+	{
+		val = snd_p[i] >> 8;
+		if ( val > 0x7fff ) {
+			snd_out[i] = 0x7fff;
+		} else if ( val < (short)0x8000 ) {
+			snd_out[i] = (short)0x8000;
+		} else {
+			snd_out[i] = val;
+		}
+
+		val = snd_p[i + 1] >> 8;
+		if ( val > 0x7fff ) {
+			snd_out[i + 1] = 0x7fff;
+		} else if ( val < (short)0x8000 ) {
+			snd_out[i + 1] = (short)0x8000;
+		} else {
+			snd_out[i + 1] = val;
+		}
+	}
+}
+
+#endif
+#endif RTCW_XX
 
 /*
 ===================
@@ -199,7 +286,7 @@ void S_TransferPaintBuffer( int endtime ) {
 			v = sin( M_PI * 2 * i / 64 );
 			paintbuffer[i].left = paintbuffer[i].right = v * 0x400000;
 		}
-#elif defined RTCW_MP
+#else
 		for ( i = 0 ; i < count ; i++ )
 			paintbuffer[i].left = paintbuffer[i].right = sin( ( s_paintedtime + i ) * 0.1 ) * 20000 * 256;
 #endif RTCW_XX
@@ -487,7 +574,7 @@ int S_GetVoiceAmplitude( int entityNum ) {
 }
 #endif
 
-#if defined RTCW_MP && !defined TALKANIM
+#if (!defined RTCW_SP) && (!defined TALKANIM)
 // NERVE - SMF
 int S_GetVoiceAmplitude( int entityNum ) {
 	return 0;
@@ -740,10 +827,15 @@ void S_PaintChannelFromMuLaw( channel_t *ch, sfx_t *sc, int count, int sampleOff
 	}
 }
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 #define TALK_FUTURE_SEC 0.25        // go this far into the future (seconds)
-#elif defined RTCW_MP
+#else
 #define TALK_FUTURE_SEC 0.2     // go this far into the future (seconds)
+#endif RTCW_XX
+
+#if defined RTCW_ET
+//bani - cl_main.c
+void CL_WriteWaveFilePacket( int endtime );
 #endif RTCW_XX
 
 /*
@@ -760,7 +852,7 @@ void S_PaintChannels( int endtime ) {
 	int sampleOffset;
 	streamingSound_t *ss;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	qboolean firstPass = qtrue;
 #endif RTCW_XX
 
@@ -770,7 +862,7 @@ void S_PaintChannels( int endtime ) {
 		snd_vol = s_volume->value * 256;
 	}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( snd.volCurrent < 1 ) { // only when fading (at map start/end)
 		snd_vol = (int)( (float)snd_vol * snd.volCurrent );
 	}
@@ -785,12 +877,14 @@ void S_PaintChannels( int endtime ) {
 
 #if defined RTCW_SP
 			Com_DPrintf( "endtime exceeds PAINTBUFFER_SIZE %i\n", endtime - s_paintedtime );
+#elif defined RTCW_ET
+			//%	Com_DPrintf("endtime exceeds PAINTBUFFER_SIZE %i\n", endtime - s_paintedtime);
 #endif RTCW_XX
 
 			end = s_paintedtime + PAINTBUFFER_SIZE;
 		}
 
-		// clear pain buffer for the current time
+		// clear paint buffer for the current time
 		Com_Memset( paintbuffer, 0, ( end - s_paintedtime ) * sizeof( portable_samplepair_t ) );
 		// mix all streaming sounds into paint buffer
 		for ( si = 0, ss = streamingSounds; si < MAX_STREAMING_SOUNDS; si++, ss++ ) {
@@ -817,9 +911,9 @@ void S_PaintChannels( int endtime ) {
 
 #ifdef TALKANIM
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 				if ( firstPass && ss->channel == CHAN_VOICE && ss->entnum < MAX_CLIENTS ) {
-#elif defined RTCW_MP
+#else
 				if ( ss->channel == CHAN_VOICE && ss->entnum < MAX_CLIENTS ) {
 #endif RTCW_XX
 
@@ -852,8 +946,18 @@ void S_PaintChannels( int endtime ) {
 					//Com_Printf("sfx_count = %d\n", sfx_count );
 
 					// update the amplitude for this entity
+
+#if !defined RTCW_ET
 					s_entityTalkAmplitude[ss->entnum] = (unsigned char)sfx_count;
 				}
+#else
+					// rain - the announcer is ent -1, so make sure we're >= 0
+					if ( ss->entnum >= 0 ) {
+						s_entityTalkAmplitude[ss->entnum] = (unsigned char)sfx_count;
+					}
+				}
+#endif RTCW_XX
+
 #endif
 			}
 		}
@@ -868,11 +972,11 @@ void S_PaintChannels( int endtime ) {
 			ltime = s_paintedtime;
 			sc = ch->thesfx;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 			// (SA) hmm, why was this commented out?
 			if ( !sc->inMemory ) {
 				S_memoryLoad( sc );
-#elif defined RTCW_MP
+#else
 //			if (!sc->inMemory) {
 //				S_memoryLoad(sc);
 //			}
@@ -901,9 +1005,9 @@ void S_PaintChannels( int endtime ) {
 				// Ridah, talking animations
 				// TODO: check that this entity has talking animations enabled!
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 				if ( firstPass && ch->entchannel == CHAN_VOICE && ch->entnum < MAX_CLIENTS ) {
-#elif defined RTCW_MP
+#else
 				if ( ch->entchannel == CHAN_VOICE && ch->entnum < MAX_CLIENTS ) {
 #endif RTCW_XX
 
@@ -941,12 +1045,21 @@ void S_PaintChannels( int endtime ) {
 		// paint in the looped channels.
 		ch = loop_channels;
 		for ( i = 0; i < numLoopChannels ; i++, ch++ ) {
+
+#if !defined RTCW_ET
 			sc = ch->thesfx;
+#endif RTCW_XX
+
 			if ( !ch->thesfx || ( !ch->leftvol && !ch->rightvol ) ) {
 				continue;
 			}
 
 			ltime = s_paintedtime;
+
+#if defined RTCW_ET
+			sc = ch->thesfx;
+#endif RTCW_XX
+
 
 			if ( sc->soundData == NULL || sc->soundLength == 0 ) {
 				continue;
@@ -955,7 +1068,15 @@ void S_PaintChannels( int endtime ) {
 			// is a looping sound effect and the end of
 			// the sample is hit
 			do {
+
+#if !defined RTCW_ET
 				sampleOffset = ( ltime % sc->soundLength );
+#else
+				//%	sampleOffset = (ltime % sc->soundLength);
+				//%	sampleOffset = (ltime - ch->startSample) % sc->soundLength;	// ydnar
+				sampleOffset = ( ltime /*- ch->startSample*/ ) % sc->soundLength; // ydnar
+#endif RTCW_XX
+
 
 				count = end - ltime;
 				if ( sampleOffset + count > sc->soundLength ) {
@@ -967,9 +1088,9 @@ void S_PaintChannels( int endtime ) {
 					// Ridah, talking animations
 					// TODO: check that this entity has talking animations enabled!
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 					if ( firstPass && ch->entchannel == CHAN_VOICE && ch->entnum < MAX_CLIENTS ) {
-#elif defined RTCW_MP
+#else
 					if ( ch->entchannel == CHAN_VOICE && ch->entnum < MAX_CLIENTS ) {
 #endif RTCW_XX
 
@@ -1008,9 +1129,15 @@ void S_PaintChannels( int endtime ) {
 
 		// transfer out according to DMA format
 		S_TransferPaintBuffer( end );
+
+#if defined RTCW_ET
+		//bani
+		CL_WriteWaveFilePacket( end );
+#endif RTCW_XX
+
 		s_paintedtime = end;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		firstPass = qfalse;
 #endif RTCW_XX
 

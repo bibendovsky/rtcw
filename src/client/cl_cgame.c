@@ -38,19 +38,25 @@ extern qboolean loadCamera( int camNum, const char *name );
 extern void startCamera( int camNum, int time );
 extern qboolean getCameraInfo( int camNum, int time, vec3_t *origin, vec3_t *angles, float *fov );
 
+#if !defined RTCW_ET
 // RF, this is only used when running a local server
 extern void SV_SendMoveSpeedsToGame( int entnum, char *text );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 extern qboolean SV_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo );
-
-
-#elif defined RTCW_MP
+#else
 // NERVE - SMF
 void Key_GetBindingBuf( int keynum, char *buf, int buflen );
 void Key_KeynumToStringBuf( int keynum, char *buf, int buflen );
 // -NERVE - SMF
 #endif RTCW_XX
+
+#if defined RTCW_ET
+// ydnar: can we put this in a header, pls?
+void Key_GetBindingByString( const char* binding, int* key1, int* key2 );
+#endif RTCW_XX
+
 
 /*
 ====================
@@ -194,22 +200,34 @@ CL_SetUserCmdValue
 void CL_SetUserCmdValue( int userCmdValue, int holdableValue, float sensitivityScale, int cld ) {
 #elif defined RTCW_MP
 void CL_SetUserCmdValue( int userCmdValue, int holdableValue, float sensitivityScale, int mpSetup, int mpIdentClient ) {
+#else
+void CL_SetUserCmdValue( int userCmdValue, int flags, float sensitivityScale, int mpIdentClient ) {
 #endif RTCW_XX
 
 	cl.cgameUserCmdValue        = userCmdValue;
+
+#if !defined RTCW_ET
 	cl.cgameUserHoldableValue   = holdableValue;
+#else
+	cl.cgameFlags               = flags;
+#endif RTCW_XX
+
 	cl.cgameSensitivity         = sensitivityScale;
 
 #if defined RTCW_SP
 	cl.cgameCld                 = cld;
 }
-#elif defined RTCW_MP
+#else
+
+#if !defined RTCW_ET
 	cl.cgameMpSetup             = mpSetup;              // NERVE - SMF
+#endif RTCW_XX
+
 	cl.cgameMpIdentClient       = mpIdentClient;        // NERVE - SMF
 }
 #endif RTCW_XX
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 ==================
 CL_SetClientLerpOrigin
@@ -239,6 +257,16 @@ CL_CgameError
 void CL_CgameError( const char *string ) {
 	Com_Error( ERR_DROP, "%s", string );
 }
+
+#if defined RTCW_ET
+qboolean CL_CGameCheckKeyExec( int key ) {
+	if ( cgvm ) {
+		return VM_Call( cgvm, CG_CHECKEXECKEY, key );
+	} else {
+		return qfalse;
+	}
+}
+#endif RTCW_XX
 
 
 /*
@@ -316,7 +344,7 @@ qboolean CL_GetServerCommand( int serverCommandNumber ) {
 	char    *cmd;
 	static char bigConfigString[BIG_INFO_STRING];
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	int argc;
 #endif RTCW_XX
 
@@ -341,7 +369,7 @@ qboolean CL_GetServerCommand( int serverCommandNumber ) {
 
 #if defined RTCW_SP
 	Com_DPrintf( "serverCommand: %i : %s\n", serverCommandNumber, s );
-#elif defined RTCW_MP
+#else
 	if ( cl_showServerCommands->integer ) {         // NERVE - SMF
 		Com_DPrintf( "serverCommand: %i : %s\n", serverCommandNumber, s );
 	}
@@ -351,7 +379,7 @@ rescan:
 	Cmd_TokenizeString( s );
 	cmd = Cmd_Argv( 0 );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	argc = Cmd_Argc();
 #endif RTCW_XX
 
@@ -359,7 +387,7 @@ rescan:
 
 #if defined RTCW_SP
 		Com_Error( ERR_SERVERDISCONNECT,"Server disconnected\n" );
-#elif defined RTCW_MP
+#else
 		// NERVE - SMF - allow server to indicate why they were disconnected
 		if ( argc >= 2 ) {
 			Com_Error( ERR_SERVERDISCONNECT, va( "Server Disconnected - %s", Cmd_Argv( 1 ) ) );
@@ -445,7 +473,7 @@ rescan:
 	return qtrue;
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // DHM - Nerve :: Copied from server to here
 /*
 ====================
@@ -473,6 +501,8 @@ void CL_SetExpectedHunkUsage( const char *mapname ) {
 
 		// now parse the file, filtering out the current map
 		buftrav = buf;
+
+#if !defined RTCW_ET
 		while ( ( token = COM_Parse( &buftrav ) ) && token[0] ) {
 			if ( !Q_strcasecmp( token, (char *)mapname ) ) {
 				// found a match
@@ -480,6 +510,16 @@ void CL_SetExpectedHunkUsage( const char *mapname ) {
 				if ( token && token[0] ) {
 					// this is the usage
 					Cvar_Set( "com_expectedhunkusage", token );
+#else
+		while ( ( token = COM_Parse( &buftrav ) ) != NULL && token[0] ) {
+			if ( !Q_stricmp( token, (char *)mapname ) ) {
+				// found a match
+				token = COM_Parse( &buftrav );  // read the size
+				if ( token && *token ) {
+					// this is the usage
+					com_expectedhunkusage = atoi( token );
+#endif RTCW_XX
+
 					Z_Free( buf );
 					return;
 				}
@@ -489,11 +529,62 @@ void CL_SetExpectedHunkUsage( const char *mapname ) {
 		Z_Free( buf );
 	}
 	// just set it to a negative number,so the cgame knows not to draw the percent bar
+
+#if !defined RTCW_ET
 	Cvar_Set( "com_expectedhunkusage", "-1" );
+#else
+	com_expectedhunkusage = -1;
+#endif RTCW_XX
+
 }
 
 // dhm - nerve
 #endif RTCW_XX
+
+#if defined RTCW_ET
+/*
+====================
+CL_SendBinaryMessage
+====================
+*/
+static void CL_SendBinaryMessage( const char *buf, int buflen ) {
+	if ( buflen < 0 || buflen > MAX_BINARY_MESSAGE ) {
+		Com_Error( ERR_DROP, "CL_SendBinaryMessage: bad length %i", buflen );
+		clc.binaryMessageLength = 0;
+		return;
+	}
+
+	clc.binaryMessageLength = buflen;
+	memcpy( clc.binaryMessage, buf, buflen );
+}
+
+/*
+====================
+CL_BinaryMessageStatus
+====================
+*/
+static int CL_BinaryMessageStatus( void ) {
+	if ( clc.binaryMessageLength == 0 ) {
+		return MESSAGE_EMPTY;
+	}
+
+	if ( clc.binaryMessageOverflowed ) {
+		return MESSAGE_WAITING_OVERFLOW;
+	}
+
+	return MESSAGE_WAITING;
+}
+
+/*
+====================
+CL_CGameBinaryMessageReceived
+====================
+*/
+void CL_CGameBinaryMessageReceived( const char *buf, int buflen, int serverTime ) {
+	VM_Call( cgvm, CG_MESSAGERECEIVED, buf, buflen, serverTime );
+}
+#endif RTCW_XX
+
 
 /*
 ====================
@@ -505,7 +596,7 @@ Just adds default parameters that cgame doesn't need to know about
 void CL_CM_LoadMap( const char *mapname ) {
 	int checksum;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// DHM - Nerve :: If we are not running the server, then set expected usage here
 	if ( !com_sv_running->integer ) {
 		CL_SetExpectedHunkUsage( mapname );
@@ -545,6 +636,10 @@ static int  FloatAsInt( float f ) {
 	return temp;
 }
 
+#if defined RTCW_ET
+//static int numtraces = 0;
+#endif RTCW_XX
+
 /*
 ====================
 CL_CgameSystemCalls
@@ -557,10 +652,22 @@ The cgame module is making a system call
 int CL_CgameSystemCalls( int *args ) {
 	switch ( args[0] ) {
 	case CG_PRINT:
+
+#if !defined RTCW_ET
 		Com_Printf( "%s", VMA( 1 ) );
+#else
+		Com_Printf( "%s", (char *)VMA( 1 ) );
+#endif RTCW_XX
+
 		return 0;
 	case CG_ERROR:
+
+#if !defined RTCW_ET
 		Com_Error( ERR_DROP, "%s", VMA( 1 ) );
+#else
+		Com_Error( ERR_DROP, "%s", (char *)VMA( 1 ) );
+#endif RTCW_XX
+
 		return 0;
 	case CG_MILLISECONDS:
 		return Sys_Milliseconds();
@@ -576,6 +683,13 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_CVAR_VARIABLESTRINGBUFFER:
 		Cvar_VariableStringBuffer( VMA( 1 ), VMA( 2 ), args[3] );
 		return 0;
+
+#if defined RTCW_ET
+	case CG_CVAR_LATCHEDVARIABLESTRINGBUFFER:
+		Cvar_LatchedVariableStringBuffer( VMA( 1 ), VMA( 2 ), args[3] );
+		return 0;
+#endif RTCW_XX
+
 	case CG_ARGC:
 		return Cmd_Argc();
 	case CG_ARGV:
@@ -594,6 +708,14 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_FS_FCLOSEFILE:
 		FS_FCloseFile( args[1] );
 		return 0;
+
+#if defined RTCW_ET
+	case CG_FS_GETFILELIST:
+		return FS_GetFileList( VMA( 1 ), VMA( 2 ), VMA( 3 ), args[4] );
+	case CG_FS_DELETEFILE:
+		return FS_Delete( VMA( 1 ) );
+#endif RTCW_XX
+
 	case CG_SENDCONSOLECOMMAND:
 		Cbuf_AddText( VMA( 1 ) );
 		return 0;
@@ -607,11 +729,15 @@ int CL_CgameSystemCalls( int *args ) {
 		CL_AddReliableCommand( VMA( 1 ) );
 		return 0;
 	case CG_UPDATESCREEN:
+
+#if !defined RTCW_ET
 		// this is used during lengthy level loading, so pump message loop
 //		Com_EventLoop();	// FIXME: if a server restarts here, BAD THINGS HAPPEN!
 // We can't call Com_EventLoop here, a restart will crash and this _does_ happen
 // if there is a map change while we are downloading at pk3.
 // ZOID
+#endif RTCW_XX
+
 		SCR_UpdateScreen();
 		return 0;
 	case CG_CM_LOADMAP:
@@ -630,32 +756,85 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_CM_TRANSFORMEDPOINTCONTENTS:
 		return CM_TransformedPointContents( VMA( 1 ), args[2], VMA( 3 ), VMA( 4 ) );
 	case CG_CM_BOXTRACE:
+
+#if defined RTCW_ET
+//		numtraces++;
+#endif RTCW_XX
+
 		CM_BoxTrace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7], /*int capsule*/ qfalse );
 		return 0;
 	case CG_CM_TRANSFORMEDBOXTRACE:
+
+#if defined RTCW_ET
+//		numtraces++;
+#endif RTCW_XX
+
 		CM_TransformedBoxTrace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7], VMA( 8 ), VMA( 9 ), /*int capsule*/ qfalse );
 		return 0;
 	case CG_CM_CAPSULETRACE:
+
+#if defined RTCW_ET
+//		numtraces++;
+#endif RTCW_XX
+
 		CM_BoxTrace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7], /*int capsule*/ qtrue );
 		return 0;
 	case CG_CM_TRANSFORMEDCAPSULETRACE:
+
+#if defined RTCW_ET
+//		numtraces++;
+#endif RTCW_XX
+
 		CM_TransformedBoxTrace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7], VMA( 8 ), VMA( 9 ), /*int capsule*/ qtrue );
 		return 0;
 	case CG_CM_MARKFRAGMENTS:
 		return re.MarkFragments( args[1], VMA( 2 ), VMA( 3 ), args[4], VMA( 5 ), args[6], VMA( 7 ) );
+
+#if defined RTCW_ET
+	case CG_R_PROJECTDECAL:
+		re.ProjectDecal( args[ 1 ], args[ 2 ], VMA( 3 ), VMA( 4 ), VMA( 5 ), args[ 6 ], args[ 7 ] );
+		return 0;
+	case CG_R_CLEARDECALS:
+		re.ClearDecals();
+		return 0;
+#endif RTCW_XX
+
 	case CG_S_STARTSOUND:
+
+#if !defined RTCW_ET
 		S_StartSound( VMA( 1 ), args[2], args[3], args[4] );
+#else
+		S_StartSound( VMA( 1 ), args[2], args[3], args[4], args[5] );
+#endif RTCW_XX
+
 		return 0;
 //----(SA)	added
 	case CG_S_STARTSOUNDEX:
+
+#if !defined RTCW_ET
 		S_StartSoundEx( VMA( 1 ), args[2], args[3], args[4], args[5] );
+#else
+		S_StartSoundEx( VMA( 1 ), args[2], args[3], args[4], args[5], args[6] );
+#endif RTCW_XX
+
 		return 0;
 //----(SA)	end
 	case CG_S_STARTLOCALSOUND:
+
+#if !defined RTCW_ET
 		S_StartLocalSound( args[1], args[2] );
+#else
+		S_StartLocalSound( args[1], args[2], args[3] );
+#endif RTCW_XX
+
 		return 0;
 	case CG_S_CLEARLOOPINGSOUNDS:
+
+#if !defined RTCW_ET
 		S_ClearLoopingSounds(); // (SA) modified so no_pvs sounds can function
+#else
+		S_ClearLoopingSounds();
+#endif RTCW_XX
 
 #if defined RTCW_SP
 		// RF, if killall, then stop all sounds
@@ -667,12 +846,37 @@ int CL_CgameSystemCalls( int *args ) {
 #endif RTCW_XX
 
 		return 0;
+
+#if defined RTCW_ET
+	case CG_S_CLEARSOUNDS:
+		if ( args[1] == 0 ) {
+			S_ClearSounds( qtrue, qfalse );
+		} else if ( args[1] == 1 ) {
+			S_ClearSounds( qtrue, qtrue );
+		}
+		return 0;
+#endif RTCW_XX
+
 	case CG_S_ADDLOOPINGSOUND:
 		// FIXME MrE: handling of looping sounds changed
+
+#if !defined RTCW_ET
 		S_AddLoopingSound( args[1], VMA( 2 ), VMA( 3 ), args[4], args[5], args[6] );
+#else
+		S_AddLoopingSound( VMA( 1 ), VMA( 2 ), args[3], args[4], args[5], args[6] );
+#endif RTCW_XX
+
 		return 0;
 
-#if defined RTCW_SP
+#if defined RTCW_ET
+	case CG_S_ADDREALLOOPINGSOUND:
+		S_AddRealLoopingSound( VMA( 1 ), VMA( 2 ), args[3], args[4], args[5], args[6] );
+		return 0;
+#endif RTCW_XX
+
+#if !defined RTCW_MP
+
+#if !defined RTCW_ET
 // not in use
 //	case CG_S_ADDREALLOOPINGSOUND:
 //		S_AddLoopingSound( args[1], VMA(2), VMA(3), args[4], args[5], args[6] );
@@ -680,9 +884,11 @@ int CL_CgameSystemCalls( int *args ) {
 //		return 0;
 
 //----(SA)	added
+#endif RTCW_XX
+
 	case CG_S_STOPSTREAMINGSOUND:
 		S_StopEntStreamingSound( args[1] );
-#elif defined RTCW_MP
+#else
 	case CG_S_ADDREALLOOPINGSOUND:
 		S_AddLoopingSound( args[1], VMA( 2 ), VMA( 3 ), args[4], args[5], args[6] );
 		//S_AddRealLoopingSound( args[1], VMA(2), VMA(3), args[4], args[5] );
@@ -694,9 +900,12 @@ int CL_CgameSystemCalls( int *args ) {
 //----(SA)	end
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	case CG_S_STOPLOOPINGSOUND:
 		// RF, not functional anymore, since we reverted to old looping code
 		//S_StopLoopingSound( args[1] );
+#endif RTCW_XX
+
 		return 0;
 	case CG_S_UPDATEENTITYPOSITION:
 		S_UpdateEntityPosition( args[1], VMA( 2 ) );
@@ -705,6 +914,16 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_S_GETVOICEAMPLITUDE:
 		return S_GetVoiceAmplitude( args[1] );
 // done.
+
+#if defined RTCW_ET
+	case CG_S_GETSOUNDLENGTH:
+		return S_GetSoundLength( args[1] );
+
+		// ydnar: for looped sound starts
+	case CG_S_GETCURRENTSOUNDTIME:
+		return S_GetCurrentSoundTime();
+#endif RTCW_XX
+
 	case CG_S_RESPATIALIZE:
 		S_Respatialize( args[1], VMA( 2 ), VMA( 3 ), args[4] );
 		return 0;
@@ -712,25 +931,36 @@ int CL_CgameSystemCalls( int *args ) {
 #ifdef DOOMSOUND    ///// (SA) DOOMSOUND
 		return S_RegisterSound( VMA( 1 ) );
 #else
+
+#if !defined RTCW_ET
 		return S_RegisterSound( VMA( 1 ), qfalse );
+#else
+		return S_RegisterSound( VMA( 1 ), args[2] );
+#endif RTCW_XX
+
 #endif  ///// (SA) DOOMSOUND
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	case CG_S_STARTBACKGROUNDTRACK:
 		S_StartBackgroundTrack( VMA( 1 ), VMA( 2 ), args[3] );  //----(SA)	added fadeup time
 		return 0;
 	case CG_S_FADESTREAMINGSOUND:
 		S_FadeStreamingSound( VMF( 1 ), args[2], args[3] ); //----(SA)	added music/all-streaming options
 		return 0;
-#elif defined RTCW_MP
+#else
 	case CG_S_STARTBACKGROUNDTRACK:
 		S_StartBackgroundTrack( VMA( 1 ), VMA( 2 ) );
 		return 0;
 #endif RTCW_XX
 
 	case CG_S_STARTSTREAMINGSOUND:
+
+#if !defined RTCW_ET
 		S_StartStreamingSound( VMA( 1 ), VMA( 2 ), args[3], args[4], args[5] );
 		return 0;
+#else
+		return S_StartStreamingSound( VMA( 1 ), VMA( 2 ), args[3], args[4], args[5] );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	case CG_S_FADEALLSOUNDS:
@@ -757,6 +987,11 @@ int CL_CgameSystemCalls( int *args ) {
 		return re.RegisterShader( VMA( 1 ) );
 	case CG_R_REGISTERFONT:
 		re.RegisterFont( VMA( 1 ), args[2], VMA( 3 ) );
+
+#if defined RTCW_ET
+		return 0;
+#endif RTCW_XX
+
 	case CG_R_REGISTERSHADERNOMIP:
 		return re.RegisterShaderNoMip( VMA( 1 ) );
 	case CG_R_CLEARSCENE:
@@ -779,11 +1014,25 @@ int CL_CgameSystemCalls( int *args ) {
 		return 0;
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	case CG_R_ADDPOLYBUFFERTOSCENE:
+		re.AddPolyBufferToScene( VMA( 1 ) );
+		break;
+#endif RTCW_XX
+
 		// done.
 //	case CG_R_LIGHTFORPOINT:
 //		return re.LightForPoint( VMA(1), VMA(2), VMA(3), VMA(4) );
 	case CG_R_ADDLIGHTTOSCENE:
+
+#if !defined RTCW_ET
 		re.AddLightToScene( VMA( 1 ), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), args[6] );
+#else
+		// ydnar: new dlight code
+		//%	re.AddLightToScene( VMA(1), VMF(2), VMF(3), VMF(4), VMF(5), args[6] );
+		re.AddLightToScene( VMA( 1 ), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ), args[7], args[8] );
+#endif RTCW_XX
+
 		return 0;
 //	case CG_R_ADDADDITIVELIGHTTOSCENE:
 //		re.AddAdditiveLightToScene( VMA(1), VMF(2), VMF(3), VMF(4), VMF(5) );
@@ -794,9 +1043,26 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_R_SETFOG:
 		re.SetFog( args[1], args[2], args[3], VMF( 4 ), VMF( 5 ), VMF( 6 ), VMF( 7 ) );
 		return 0;
+
+#if defined RTCW_ET
+	case CG_R_SETGLOBALFOG:
+		re.SetGlobalFog( args[1], args[2], VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ) );
+		return 0;
+#endif RTCW_XX
+
 	case CG_R_RENDERSCENE:
 		re.RenderScene( VMA( 1 ) );
 		return 0;
+
+#if defined RTCW_ET
+	case CG_R_SAVEVIEWPARMS:
+		re.SaveViewParms();
+		return 0;
+	case CG_R_RESTOREVIEWPARMS:
+		re.RestoreViewParms();
+		return 0;
+#endif RTCW_XX
+
 	case CG_R_SETCOLOR:
 		re.SetColor( VMA( 1 ) );
 		return 0;
@@ -804,7 +1070,7 @@ int CL_CgameSystemCalls( int *args ) {
 		re.DrawStretchPic( VMF( 1 ), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ), VMF( 7 ), VMF( 8 ), args[9] );
 		return 0;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	case CG_R_DRAWROTATEDPIC:
 		re.DrawRotatedPic( VMF( 1 ), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ), VMF( 7 ), VMF( 8 ), args[9], VMF( 10 ) );
 		return 0;
@@ -813,6 +1079,13 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_R_DRAWSTRETCHPIC_GRADIENT:
 		re.DrawStretchPicGradient( VMF( 1 ), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ), VMF( 7 ), VMF( 8 ), args[9], VMA( 10 ), args[11] );
 		return 0;
+
+#if defined RTCW_ET
+	case CG_R_DRAW2DPOLYS:
+		re.Add2dPolys( VMA( 1 ), args[2], args[3] );
+		return 0;
+#endif RTCW_XX
+
 	case CG_R_MODELBOUNDS:
 		re.ModelBounds( args[1], VMA( 2 ), VMA( 3 ) );
 		return 0;
@@ -841,11 +1114,13 @@ int CL_CgameSystemCalls( int *args ) {
 		CL_SetUserCmdValue( args[1], args[2], VMF( 3 ), args[4] );    //----(SA)	modified	// NERVE - SMF - added fourth arg [cld]
 #elif defined RTCW_MP
 		CL_SetUserCmdValue( args[1], args[2], VMF( 3 ), args[4], args[5] );
+#else
+		CL_SetUserCmdValue( args[1], args[2], VMF( 3 ), args[4] );
 #endif RTCW_XX
 
 		return 0;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	case CG_SETCLIENTLERPORIGIN:
 		CL_SetClientLerpOrigin( VMF( 1 ), VMF( 2 ), VMF( 3 ) );
 #endif RTCW_XX
@@ -862,6 +1137,14 @@ int CL_CgameSystemCalls( int *args ) {
 		return 0;
 	case CG_KEY_GETKEY:
 		return Key_GetKey( VMA( 1 ) );
+
+#if defined RTCW_ET
+	case CG_KEY_GETOVERSTRIKEMODE:
+		return Key_GetOverstrikeMode();
+	case CG_KEY_SETOVERSTRIKEMODE:
+		Key_SetOverstrikeMode( args[1] );
+		return 0;
+#endif RTCW_XX
 
 
 
@@ -897,6 +1180,13 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_PC_SOURCE_FILE_AND_LINE:
 		return botlib_export->PC_SourceFileAndLine( args[1], VMA( 2 ), VMA( 3 ) );
 
+#if defined RTCW_ET
+	case CG_PC_UNREAD_TOKEN:
+		botlib_export->PC_UnreadLastTokenHandle( args[1] );
+		return 0;
+#endif RTCW_XX
+
+
 	case CG_S_STOPBACKGROUNDTRACK:
 		S_StopBackgroundTrack();
 		return 0;
@@ -907,9 +1197,11 @@ int CL_CgameSystemCalls( int *args ) {
 		Sys_SnapVector( VMA( 1 ) );
 		return 0;
 
+#if !defined RTCW_ET
 	case CG_SENDMOVESPEEDSTOGAME:
 		SV_SendMoveSpeedsToGame( args[1], VMA( 2 ) );
 		return 0;
+#endif RTCW_XX
 
 	case CG_CIN_PLAYCINEMATIC:
 		return CIN_PlayCinematic( VMA( 1 ), args[2], args[3], args[4], args[5], args[6] );
@@ -933,10 +1225,22 @@ int CL_CgameSystemCalls( int *args ) {
 		return 0;
 
 	case CG_TESTPRINTINT:
+
+#if !defined RTCW_ET
 		Com_Printf( "%s%i\n", VMA( 1 ), args[2] );
+#else
+		Com_Printf( "%s%i\n", (char *)VMA( 1 ), args[2] );
+#endif RTCW_XX
+
 		return 0;
 	case CG_TESTPRINTFLOAT:
+
+#if !defined RTCW_ET
 		Com_Printf( "%s%f\n", VMA( 1 ), VMF( 2 ) );
+#else
+		Com_Printf( "%s%f\n", (char *)VMA( 1 ), VMF( 2 ) );
+#endif RTCW_XX
+
 		return 0;
 
 	case CG_LOADCAMERA:
@@ -944,9 +1248,15 @@ int CL_CgameSystemCalls( int *args ) {
 
 	case CG_STARTCAMERA:
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		if ( args[1] == 0 ) {  // CAM_PRIMARY
+
+#if !defined RTCW_ET
 			cl.cameraMode = qtrue;  //----(SA)	added
+#else
+			cl.cameraMode = qtrue;
+#endif RTCW_XX
+
 		}
 #endif RTCW_XX
 
@@ -962,6 +1272,12 @@ int CL_CgameSystemCalls( int *args ) {
 //		stopCamera(args[1]);
 		return 0;
 //----(SA)	end
+#elif defined RTCW_ET
+	case CG_STOPCAMERA:
+		if ( args[1] == 0 ) {  // CAM_PRIMARY
+			cl.cameraMode = qfalse;
+		}
+		return 0;
 #endif RTCW_XX
 
 	case CG_GETCAMERAINFO:
@@ -980,6 +1296,8 @@ int CL_CgameSystemCalls( int *args ) {
 #endif RTCW_XX
 
 		if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
+
+#if !defined RTCW_ET
 			// NERVE - SMF
 			if ( VMA( 1 ) && !Q_stricmp( VMA( 1 ), "UIMENU_WM_PICKTEAM" ) ) {
 				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_WM_PICKTEAM );
@@ -1017,11 +1335,19 @@ int CL_CgameSystemCalls( int *args ) {
 
 			} else {
 				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_CLIPBOARD );
+#else
+			if ( uivm ) { // Gordon: can be called as the system is shutting down
+				VM_Call( uivm, UI_SET_ACTIVE_MENU, args[1] );
+#endif RTCW_XX
+
 			}
 		}
 		return 0;
 
+#if !defined RTCW_ET
 		// NERVE - SMF
+#endif RTCW_XX
+
 	case CG_INGAME_CLOSEPOPUP:
 
 #if defined RTCW_SP
@@ -1038,11 +1364,13 @@ int CL_CgameSystemCalls( int *args ) {
 
 		return 0;
 
+#if !defined RTCW_ET
 	case CG_LIMBOCHAT:
 		if ( VMA( 1 ) ) {
 			CL_AddToLimboChat( VMA( 1 ) );
 		}
 		return 0;
+#endif RTCW_XX
 
 #if defined RTCW_SP
 		// - NERVE - SMF
@@ -1050,7 +1378,7 @@ int CL_CgameSystemCalls( int *args ) {
 		return SV_GetModelInfo( args[1], VMA( 2 ), VMA( 3 ) );
 #endif RTCW_XX
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	case CG_KEY_GETBINDINGBUF:
 		Key_GetBindingBuf( args[1], VMA( 2 ), args[3] );
 		return 0;
@@ -1063,10 +1391,59 @@ int CL_CgameSystemCalls( int *args ) {
 		Key_KeynumToStringBuf( args[1], VMA( 2 ), args[3] );
 		return 0;
 
+#if defined RTCW_ET
+	case CG_KEY_BINDINGTOKEYS:
+		Key_GetBindingByString( VMA( 1 ), VMA( 2 ), VMA( 3 ) );
+		return 0;
+#endif RTCW_XX
+
 	case CG_TRANSLATE_STRING:
 		CL_TranslateString( VMA( 1 ), VMA( 2 ) );
 		return 0;
+
+#if !defined RTCW_ET
 		// - NERVE - SMF
+#endif RTCW_XX
+
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	case CG_S_FADEALLSOUNDS:
+		S_FadeAllSounds( VMF( 1 ), args[2], args[3] );
+		return 0;
+
+	case CG_R_INPVS:
+		return re.inPVS( VMA( 1 ), VMA( 2 ) );
+
+	case CG_GETHUNKDATA:
+		Com_GetHunkInfo( VMA( 1 ), VMA( 2 ) );
+		return 0;
+
+	case CG_PUMPEVENTLOOP:
+//		Com_EventLoop();
+//		CL_WritePacket();
+		return 0;
+
+		//zinx - binary channel
+	case CG_SENDMESSAGE:
+		CL_SendBinaryMessage( VMA( 1 ), args[2] );
+		return 0;
+	case CG_MESSAGESTATUS:
+		return CL_BinaryMessageStatus();
+		//bani - dynamic shaders
+	case CG_R_LOADDYNAMICSHADER:
+		return re.LoadDynamicShader( VMA( 1 ), VMA( 2 ) );
+		// fretn - render to texture
+	case CG_R_RENDERTOTEXTURE:
+		re.RenderToTexture( args[1], args[2], args[3], args[4], args[5] );
+		return 0;
+		//bani
+	case CG_R_GETTEXTUREID:
+		return re.GetTextureId( VMA( 1 ) );
+		//bani - flush gl rendering buffers
+	case CG_R_FINISH:
+		re.Finish();
+		return 0;
 #endif RTCW_XX
 
 	default:
@@ -1114,8 +1491,15 @@ void CL_UpdateLevelHunkUsage( void ) {
 		buftrav = buf;
 		outbuftrav = outbuf;
 		outbuftrav[0] = '\0';
+
+#if !defined RTCW_ET
 		while ( ( token = COM_Parse( &buftrav ) ) && token[0] ) {
 			if ( !Q_strcasecmp( token, cl.mapname ) ) {
+#else
+		while ( ( token = COM_Parse( &buftrav ) ) != NULL && token[0] ) {
+			if ( !Q_stricmp( token, cl.mapname ) ) {
+#endif RTCW_XX
+
 				// found a match
 				token = COM_Parse( &buftrav );  // read the size
 				if ( token && token[0] ) {
@@ -1138,6 +1522,7 @@ void CL_UpdateLevelHunkUsage( void ) {
 			}
 		}
 
+#if !defined RTCW_ET
 #ifdef __MACOS__    //DAJ MacOS file typing
 		{
 			extern _MSL_IMP_EXP_C long _fcreator, _ftype;
@@ -1151,6 +1536,8 @@ void CL_UpdateLevelHunkUsage( void ) {
 			_fcreator = 'WlfS';
 		}
 #endif
+#endif RTCW_XX
+
 		handle = FS_FOpenFileWrite( memlistfile );
 		if ( handle < 0 ) {
 			Com_Error( ERR_DROP, "cannot create %s\n", memlistfile );
@@ -1217,7 +1604,7 @@ void CL_InitCGame( void ) {
 	}
 	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, interpret );
 //	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, Cvar_VariableValue( "vm_cgame" ) );
-#elif defined RTCW_MP
+#else
 	// load the dll
 	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, VMI_NATIVE );
 #endif RTCW_XX
@@ -1230,7 +1617,13 @@ void CL_InitCGame( void ) {
 	// init for this gamestate
 	// use the lastExecutedServerCommand instead of the serverCommandSequence
 	// otherwise server commands sent just before a gamestate are dropped
+
+#if !defined RTCW_ET
 	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
+#else
+	//bani - added clc.demoplaying, since some mods need this at init time, and drawactiveframe is too late for them
+	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum, clc.demoplaying );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 //	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.serverCommandSequence );
@@ -1258,6 +1651,13 @@ void CL_InitCGame( void ) {
 
 	// Ridah, update the memory usage file
 	CL_UpdateLevelHunkUsage();
+
+#if defined RTCW_ET
+//	if( cl_autorecord->integer ) {
+//		Cvar_Set( "g_synchronousClients", "1" );
+//	}
+#endif RTCW_XX
+
 }
 
 
@@ -1284,6 +1684,16 @@ CL_CGameRendering
 =====================
 */
 void CL_CGameRendering( stereoFrame_t stereo ) {
+
+#if defined RTCW_ET
+/*	static int x = 0;
+	if(!((++x) % 20)) {
+		Com_Printf( "numtraces: %i\n", numtraces / 20 );
+		numtraces = 0;
+	} else {
+	}*/
+#endif RTCW_XX
+
 	VM_Call( cgvm, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying );
 	VM_Debug( 0 );
 }
@@ -1393,6 +1803,11 @@ void CL_FirstSnapshot( void ) {
 	// after loading
 	if ( cl_activeAction->string[0] ) {
 		Cbuf_AddText( cl_activeAction->string );
+
+#if defined RTCW_ET
+		Cbuf_AddText( "\n" );
+#endif RTCW_XX
+
 		Cvar_Set( "activeAction", "" );
 	}
 
@@ -1517,6 +1932,11 @@ void CL_SetCGameTime( void ) {
 		// the contents of cl.snap
 		CL_ReadDemoMessage();
 		if ( cls.state != CA_ACTIVE ) {
+
+#if defined RTCW_ET
+			Cvar_Set( "timescale", "1" );
+#endif RTCW_XX
+
 			return;     // end of demo
 		}
 	}

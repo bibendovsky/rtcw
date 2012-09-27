@@ -44,14 +44,26 @@ If you have questions concerning this license or the applicable additional terms
 #define AAS_MAX_FACEINDEXSIZE               512000
 #define AAS_MAX_AREAS                       65536
 #define AAS_MAX_AREASETTINGS                65536
+
+#if !defined RTCW_ET
 #define AAS_MAX_REACHABILITYSIZE            65536
+#else
+#define AAS_MAX_REACHABILITYSIZE            128000
+#endif RTCW_XX
+
 #define AAS_MAX_NODES                       256000
 #define AAS_MAX_PORTALS                     65536
 #define AAS_MAX_PORTALINDEXSIZE             65536
 #define AAS_MAX_CLUSTERS                    65536
 
 #define BSPCINCLUDE
+
+#if !defined RTCW_ET
 #include "../botlib/be_aas.h"
+#else
+#include "../game/be_aas.h"
+#endif RTCW_XX
+
 #include "../botlib/be_aas_def.h"
 
 /*

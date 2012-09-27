@@ -106,5 +106,9 @@ typedef struct {
 #define PLANE_TRI_EPSILON   0.1
 #define WRAP_POINT_EPSILON  0.1
 
-
+#if !defined RTCW_ET
 struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t *points );
+#else
+struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t *points, qboolean addBevels );
+#endif RTCW_XX
+

@@ -46,6 +46,21 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/surfaceflags.h"
 
 #define NODESTACKSIZE       1024
+
+#if defined RTCW_ET
+int nodestack[NODESTACKSIZE];
+int *nodestackptr;
+int nodestacksize = 0;
+int brushmodelnumbers[MAX_MAPFILE_BRUSHES];
+int dbrushleafnums[MAX_MAPFILE_BRUSHES];
+int dplanes2mapplanes[MAX_MAPFILE_PLANES];
+
+#endif //ME
+
+int numtexinfo;
+texinfo_t texinfo[MAX_MAP_TEXINFO];
+#endif RTCW_XX
+
 //===========================================================================
 //
 // Parameter:			-
@@ -91,7 +106,13 @@ int Q3_BrushContents( mapbrush_t *b ) {
 	  //PrintContents(contents);
 	  //Log_Write("\r\n");
 	  //remove ladder and fog contents
+
+#if !defined RTCW_ET
 	contents &= ~( CONTENTS_LADDER | CONTENTS_FOG );
+#else
+	contents &= ~( /*CONTENTS_LADDER|*/ CONTENTS_FOG );
+#endif RTCW_XX
+
 	//
 	if ( mixed ) {
 		Log_Write( "Entity %i, Brush %i: mixed face contents "
@@ -152,7 +173,13 @@ void Q3_DPlanes2MapPlanes( void ) {
 
 	for ( i = 0; i < q3_numplanes; i++ )
 	{
+
+#if !defined RTCW_ET
 		dplanes2mapplanes[i] = FindFloatPlane( q3_dplanes[i].normal, q3_dplanes[i].dist );
+#else
+		dplanes2mapplanes[i] = FindFloatPlane( q3_dplanes[i].normal, q3_dplanes[i].dist, 0, NULL );
+#endif RTCW_XX
+
 	} //end for
 } //end of the function Q3_DPlanes2MapPlanes
 //===========================================================================
@@ -164,11 +191,21 @@ void Q3_DPlanes2MapPlanes( void ) {
 void Q3_BSPBrushToMapBrush( q3_dbrush_t *bspbrush, entity_t *mapent ) {
 	mapbrush_t *b;
 	int i, k, n;
+
+#if !defined RTCW_ET
 	side_t *side, *s2;
 	int planenum;
+#else
+	side_t *side /*, *s2*/;
+#endif RTCW_XX
+
 	q3_dbrushside_t *bspbrushside;
 	q3_dplane_t *bspplane;
 	int contentFlags = 0;
+
+#if defined RTCW_ET
+	const char* classname;
+#endif RTCW_XX
 
 	if ( nummapbrushes >= MAX_MAPFILE_BRUSHES ) {
 		Error( "nummapbrushes >= MAX_MAPFILE_BRUSHES" );
@@ -180,10 +217,33 @@ void Q3_BSPBrushToMapBrush( q3_dbrush_t *bspbrush, entity_t *mapent ) {
 	b->brushnum = nummapbrushes - mapent->firstbrush;
 	b->leafnum = dbrushleafnums[bspbrush - q3_dbrushes];
 
+#if defined RTCW_ET
+	classname = ValueForKey( &entities[b->entitynum], "classname" );
+
+	if ( !strcmp( "func_invisible_user", classname ) || !strcmp( "script_mover", classname ) || !strcmp( "trigger_objective_info", classname ) ) {
+		Log_Print( "Ignoring %s brush..\n", classname );
+		b->numsides = 0;
+		b->contents = 0;
+		return;
+	}
+#endif RTCW_XX
+
 	for ( n = 0; n < bspbrush->numSides; n++ )
 	{
 		//pointer to the bsp brush side
 		bspbrushside = &q3_dbrushsides[bspbrush->firstSide + n];
+
+#if defined RTCW_ET
+		for ( k = n + 1; k < bspbrush->numSides; k++ ) {
+			if ( q3_dbrushsides[bspbrush->firstSide + k].planeNum == bspbrushside->planeNum ) {
+				break;
+			}
+		}
+		if ( k != bspbrush->numSides ) {
+			Log_Print( "\nEntity %i, Brush %i: duplicate plane\n", b->entitynum, b->brushnum );
+			continue;       // duplicated
+		}
+#endif RTCW_XX
 
 		if ( nummapbrushsides >= MAX_MAPFILE_BRUSHSIDES ) {
 			Error( "MAX_MAPFILE_BRUSHSIDES" );
@@ -206,10 +266,17 @@ void Q3_BSPBrushToMapBrush( q3_dbrush_t *bspbrush, entity_t *mapent ) {
 			side->contents = q3_dshaders[bspbrushside->shaderNum].contentFlags;
 			side->surf = q3_dshaders[bspbrushside->shaderNum].surfaceFlags;
 
+#if !defined RTCW_ET
 			if ( strstr( q3_dshaders[bspbrushside->shaderNum].shader, "common/hint" ) ) {
 				//Log_Print("found hint side\n");
 				side->surf |= SURF_HINT;
 			} //end if
+#else
+/*			if (strstr(q3_dshaders[bspbrushside->shaderNum].shader, "common/hint")) {
+				//Log_Print("found hint side\n");
+				side->surf |= SURF_HINT;
+			} //end if*/
+#endif RTCW_XX
 
 			// Ridah, mark ladder brushes
 
@@ -217,6 +284,8 @@ void Q3_BSPBrushToMapBrush( q3_dbrush_t *bspbrush, entity_t *mapent ) {
 			if ( cfg.rs_allowladders && strstr( q3_dshaders[bspbrushside->shaderNum].shader, "common/ladder" ) ) {
 #elif defined RTCW_MP
 			if ( strstr( q3_dshaders[bspbrushside->shaderNum].shader, "common/ladder" ) ) {
+#else
+			if ( ( q3_dshaders[bspbrushside->shaderNum].surfaceFlags & SURF_LADDER ) ) {
 #endif RTCW_XX
 
 				//Log_Print("found ladder side\n");
@@ -228,22 +297,35 @@ void Q3_BSPBrushToMapBrush( q3_dbrush_t *bspbrush, entity_t *mapent ) {
 		} //end else
 		  //
 
+#if !defined RTCW_ET
 		if ( !( strstr( q3_dshaders[bspbrushside->shaderNum].shader, "common/slip" ) ) ) {
 			side->flags |= SFL_VISIBLE;
 		} else if ( side->surf & SURF_NODRAW )     {
 			side->flags |= SFL_TEXTURED | SFL_VISIBLE;
 		} //end if
+#else
+/*		if (!(strstr(q3_dshaders[bspbrushside->shaderNum].shader, "common/slip"))) {
+			side->flags |= SFL_VISIBLE;
+		} else if (side->surf & SURF_NODRAW) {
+			side->flags |= SFL_TEXTURED | SFL_VISIBLE;
+		}*/
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 		  /*
 		  if (side->contents & (CONTENTS_TRANSLUCENT|CONTENTS_STRUCTURAL))
 		  {
 			  side->flags |= SFL_TEXTURED|SFL_VISIBLE;
 		  } //end if*/
+#endif RTCW_XX
 
 		// hints and skips are never detail, and have no content
 		if ( side->surf & ( SURF_HINT | SURF_SKIP ) ) {
 			side->contents = 0;
 			//Log_Print("found hint brush side\n");
 		}
+
+#if !defined RTCW_ET
 		/*
 		if ((side->surf & SURF_NODRAW) && (side->surf & SURF_NOIMPACT))
 		{
@@ -251,6 +333,7 @@ void Q3_BSPBrushToMapBrush( q3_dbrush_t *bspbrush, entity_t *mapent ) {
 			side->surf &= ~CONTENTS_DETAIL;
 			Log_Print("probably found hint brush in a BSP without hints being used\n");
 		} //end if*/
+#endif RTCW_XX
 
 #if defined RTCW_SP
 /*
@@ -267,7 +350,17 @@ void Q3_BSPBrushToMapBrush( q3_dbrush_t *bspbrush, entity_t *mapent ) {
 
 		//ME: get a plane for this side
 		bspplane = &q3_dplanes[bspbrushside->planeNum];
+
+#if !defined RTCW_ET
 		planenum = FindFloatPlane( bspplane->normal, bspplane->dist );
+#else
+		if ( side->winding ) {
+			side->planenum = FindFloatPlane( bspplane->normal, bspplane->dist, side->winding->numpoints, side->winding->p );
+		} else {
+			side->planenum = FindFloatPlane( bspplane->normal, bspplane->dist, 0, NULL );
+		}
+#endif RTCW_XX
+
 		//
 		// see if the plane has been used already
 		//
@@ -275,6 +368,8 @@ void Q3_BSPBrushToMapBrush( q3_dbrush_t *bspbrush, entity_t *mapent ) {
 		//ME: otherwise the bsp file is corrupted??
 		//ME: still it seems to happen, maybe Johny Boy's
 		//ME: brush bevel adding is crappy ?
+
+#if !defined RTCW_ET
 		for ( k = 0; k < b->numsides; k++ )
 		{
 			s2 = b->original_sides + k;
@@ -296,9 +391,29 @@ void Q3_BSPBrushToMapBrush( q3_dbrush_t *bspbrush, entity_t *mapent ) {
 			continue;       // duplicated
 
 		}
+#else
+/*		for (k = 0; k < b->numsides; k++) {
+			s2 = b->original_sides + k;
+
+			if (s2->planenum == side->planenum) {
+				Log_Print("Entity %i, Brush %i: duplicate plane\n", b->entitynum, b->brushnum);
+				break;
+			}
+			if ( s2->planenum == (side->planenum^1) ) {
+				Log_Print("Entity %i, Brush %i: mirrored plane\n", b->entitynum, b->brushnum);
+				break;
+			}
+		}
+
+		if (k != b->numsides)
+			continue;		// duplicated*/
+#endif RTCW_XX
+
 		//
 		// keep this side
 		//
+
+#if !defined RTCW_ET
 		//ME: reset pointer to side, why? hell I dunno (pointer is set above already)
 		side = b->original_sides + b->numsides;
 		//ME: store the plane number
@@ -313,6 +428,7 @@ void Q3_BSPBrushToMapBrush( q3_dbrush_t *bspbrush, entity_t *mapent ) {
 		// ME: don't need to recalculate because it's already done
 		//     (for non-world entities) in the BSP file
 //		side_brushtextures[nummapbrushsides] = td;
+#endif RTCW_XX
 
 		nummapbrushsides++;
 		b->numsides++;
@@ -324,12 +440,19 @@ void Q3_BSPBrushToMapBrush( q3_dbrush_t *bspbrush, entity_t *mapent ) {
 	// Ridah, Wolf has ladders (if we call Q3_BrushContents(), we'll get the solid area bug
 	b->contents &= ~( /*CONTENTS_LADDER|*/ CONTENTS_FOG | CONTENTS_STRUCTURAL );
 	//b->contents = Q3_BrushContents(b);
+
+#if defined RTCW_ET
+	// RF, only allow known contents
+	b->contents &= ( CONTENTS_SOLID | CONTENTS_LADDER | CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER | CONTENTS_AREAPORTAL | CONTENTS_PLAYERCLIP | CONTENTS_MONSTERCLIP | CONTENTS_DETAIL | CONTENTS_CLUSTERPORTAL );
+#endif RTCW_XX
+
 	//
 	// Ridah, CONTENTS_MOSTERCLIP should prevent AAS from being created, but not clip players/AI in the game
 	if ( b->contents & CONTENTS_MONSTERCLIP ) {
 		b->contents |= CONTENTS_PLAYERCLIP;
 	}
 
+#if !defined RTCW_ET
 	// func_explosive's not solid
 	if ( !strcmp( "func_explosive", ValueForKey( &entities[b->entitynum], "classname" ) ) ||
 		 !strcmp( "func_invisible_user", ValueForKey( &entities[b->entitynum], "classname" ) ) ||
@@ -350,10 +473,27 @@ void Q3_BSPBrushToMapBrush( q3_dbrush_t *bspbrush, entity_t *mapent ) {
 		b->numsides = 0;
 		return;
 	} //end if
+#else
+	// RF, optimization, if the brush is one of the following kind, make it standard solid
+	//if (b->contents & (CONTENTS_MONSTERCLIP|CONTENTS_PLAYERCLIP)) b->contents = CONTENTS_SOLID;
+
+/*	if (BrushExists(b))
+	{
+		c_squattbrushes++;
+		b->numsides = 0;
+		return;
+	} //end if*/
+#endif RTCW_XX
 
 	//if we're creating AAS
 	if ( create_aas ) {
+
+#if !defined RTCW_ET
 		//create the AAS brushes from this brush, don't add brush bevels
+#else
+		// create the AAS brushes from this brush, don't add brush bevels because the .bsp brush already has them
+#endif RTCW_XX
+
 		AAS_CreateMapBrushes( b, mapent, false );
 		return;
 	} //end if
@@ -385,6 +525,7 @@ void Q3_BSPBrushToMapBrush( q3_dbrush_t *bspbrush, entity_t *mapent ) {
 			b->original_sides[i].texinfo = TEXINFO_NODE;
 	} //end for
 
+#if !defined RTCW_ET
 	//
 	// origin brushes are removed, but they set
 	// the rotation origin for the rest of the brushes
@@ -424,6 +565,7 @@ void Q3_BSPBrushToMapBrush( q3_dbrush_t *bspbrush, entity_t *mapent ) {
 	//    add them again (especially since Johny Boy's bevel adding might
 	//    be crappy)
 //	AddBrushBevels(b);
+#endif RTCW_XX
 
 	nummapbrushes++;
 	mapent->numbrushes++;
@@ -446,8 +588,18 @@ void Q3_ParseBSPBrushes( entity_t *mapent ) {
 		} //end if
 	} //end for
 	*/
+
+#if defined RTCW_ET
+	qprintf( "Parsing Entity: %5d\n", mapent - entities );
+#endif RTCW_XX
+
 	for ( i = 0; i < q3_dmodels[mapent->modelnum].numBrushes; i++ )
 	{
+
+#if defined RTCW_ET
+		qprintf( "\rBrush: %5d/%5d", i, q3_dmodels[mapent->modelnum].numBrushes );
+#endif RTCW_XX
+
 		Q3_BSPBrushToMapBrush( &q3_dbrushes[q3_dmodels[mapent->modelnum].firstBrush + i], mapent );
 	} //end for
 } //end of the function Q3_ParseBSPBrushes
@@ -457,6 +609,15 @@ qboolean Q3_ParseBSPEntity( int entnum ) {
 	entity_t *mapent;
 	char *model;
 	int startbrush, startsides;
+
+#if defined RTCW_ET
+// RF, just for debugging
+	char target[1024];
+	if ( !strcmp( "func_constructible", ValueForKey( &entities[entnum], "classname" ) ) ) {
+		strcpy( target, ValueForKey( &entities[entnum], "targetname" ) );
+		model = model;
+	}
+#endif RTCW_XX
 
 	startbrush = nummapbrushes;
 	startsides = nummapbrushsides;
@@ -506,7 +667,12 @@ qboolean Q3_ParseBSPEntity( int entnum ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if !defined RTCW_ET
 #define MAX_PATCH_VERTS     1024
+#else
+#define MAX_PATCH_VERTS     2048
+#endif RTCW_XX
 
 void AAS_CreateCurveBrushes( void ) {
 	int i, j, n, planenum, numcurvebrushes = 0;
@@ -526,6 +692,14 @@ void AAS_CreateCurveBrushes( void ) {
 	for ( i = 0; i < q3_numDrawSurfaces; i++ )
 	{
 		surface = &q3_drawSurfaces[i];
+
+#if defined RTCW_ET
+		// Gordon: only on patches, other surface types use this for other stuff (foliage for example)
+		if ( surface->surfaceType != MST_PATCH ) {
+			continue;
+		}
+#endif RTCW_XX
+
 		if ( !surface->patchWidth ) {
 			continue;
 		}
@@ -550,7 +724,13 @@ void AAS_CreateCurveBrushes( void ) {
 			points[j][2] = dv_p->xyz[2];
 		} //end for
 		  // create the internal facet structure
+
+#if !defined RTCW_ET
 		pc = CM_GeneratePatchCollide( width, height, points );
+#else
+		pc = CM_GeneratePatchCollide( width, height, points, false );
+#endif RTCW_XX
+
 		//
 		for ( j = 0; j < pc->numFacets; j++ )
 		{
@@ -568,6 +748,12 @@ void AAS_CreateCurveBrushes( void ) {
 			//qprintf("\r%6d curve brushes", nummapbrushsides);//++numcurvebrushes);
 			qprintf( "\r%6d curve brushes", ++numcurvebrushes );
 			//
+
+#if !defined RTCW_ET
+#else
+			planenum = FindFloatPlane( pc->planes[facet->surfacePlane].plane, pc->planes[facet->surfacePlane].plane[3], 0, NULL );
+#endif RTCW_XX
+
 			planenum = FindFloatPlane( pc->planes[facet->surfacePlane].plane, pc->planes[facet->surfacePlane].plane[3] );
 			//
 			side = &brush->original_sides[0];
@@ -584,7 +770,13 @@ void AAS_CreateCurveBrushes( void ) {
 			} //end if
 			else
 			{
+
+#if !defined RTCW_ET
 				side->planenum = FindFloatPlane( mapplanes[planenum ^ 1].normal, mapplanes[planenum ^ 1].dist + 1 );
+#else
+				side->planenum = FindFloatPlane( mapplanes[planenum ^ 1].normal, mapplanes[planenum ^ 1].dist + 1, 0, NULL );
+#endif RTCW_XX
+
 				side->flags |= SFL_TEXTURED | SFL_VISIBLE;
 			} //end else
 			side->contents = CONTENTS_SOLID;
@@ -600,7 +792,13 @@ void AAS_CreateCurveBrushes( void ) {
 				}
 				//
 				side = &brush->original_sides[2 + n];
+
+#if !defined RTCW_ET
 				side->planenum = FindFloatPlane( pc->planes[facet->borderPlanes[n]].plane, pc->planes[facet->borderPlanes[n]].plane[3] );
+#else
+				side->planenum = FindFloatPlane( pc->planes[facet->borderPlanes[n]].plane, pc->planes[facet->borderPlanes[n]].plane[3], 0, NULL );
+#endif RTCW_XX
+
 				if ( facet->borderInward[n] ) {
 					side->planenum ^= 1;
 				}
@@ -638,8 +836,15 @@ void AAS_CreateCurveBrushes( void ) {
 				} //end if
 			} //end for
 			if ( create_aas ) {
+
+#if !defined RTCW_ET
 				//NOTE: brush bevels now already added
 				//AddBrushBevels(brush);
+#else
+				// add bevels here because we told CM_GeneratePatchCollide not to add them
+				AddBrushBevels( brush );
+				// create the AAS brushes from this brush, don't add bevels
+#endif RTCW_XX
 				AAS_CreateMapBrushes( brush, mapent, false );
 			} //end if
 			else
@@ -668,7 +873,7 @@ void Q3_LoadMapFromBSP( struct quakefile_s *qf ) {
 
 #if defined RTCW_SP
 	//vec3_t mins = {-1,-1,-1}, maxs = {1, 1, 1}; // TTimo: unused
-#elif defined RTCW_MP
+#else
 	vec3_t mins = {-1,-1,-1}, maxs = {1, 1, 1};
 #endif RTCW_XX
 
@@ -696,7 +901,16 @@ void Q3_LoadMapFromBSP( struct quakefile_s *qf ) {
 		Q3_ParseBSPEntity( i );
 	} //end for
 
+
+#if defined RTCW_ET
+	if ( !noPatches ) {
+#endif RTCW_XX
 	AAS_CreateCurveBrushes();
+
+#if defined RTCW_ET
+	}
+#endif RTCW_XX
+
 	//get the map mins and maxs from the world model
 	ClearBounds( map_mins, map_maxs );
 	for ( i = 0; i < entities[0].numbrushes; i++ )
@@ -705,10 +919,10 @@ void Q3_LoadMapFromBSP( struct quakefile_s *qf ) {
 			continue;
 		}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		//if (mapbrushes[i].mins[0] > 4096)
 		//	continue;	//no valid points
-#elif defined RTCW_MP
+#else
 		if ( mapbrushes[i].mins[0] > 4096 ) {
 			continue;   //no valid points
 		}
@@ -717,6 +931,8 @@ void Q3_LoadMapFromBSP( struct quakefile_s *qf ) {
 		AddPointToBounds( mapbrushes[i].mins, map_mins, map_maxs );
 		AddPointToBounds( mapbrushes[i].maxs, map_mins, map_maxs );
 	} //end for
+
+#if !defined RTCW_ET
 	  /*/
 	  for (i = 0; i < nummapbrushes; i++)
 	  {
@@ -735,8 +951,9 @@ void Q3_LoadMapFromBSP( struct quakefile_s *qf ) {
 		  PrintContents(mapbrushes[i].contents);
 		  Log_Print("\n");
 	  } //end for*/
+#endif RTCW_XX
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( writeaasmap ) {
 		char name[MAX_QPATH];
 		strncpy( name, qf->filename, sizeof( name ) );

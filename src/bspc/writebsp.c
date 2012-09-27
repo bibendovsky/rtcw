@@ -483,7 +483,13 @@ void EmitBrushes( void ) {
 				} else {
 					dist = b->maxs[x];
 				}
+
+#if !defined RTCW_ET
 				planenum = FindFloatPlane( normal, dist );
+#else
+				planenum = FindFloatPlane( normal, dist, 0, NULL );
+#endif RTCW_XX
+
 				for ( i = 0 ; i < b->numsides ; i++ )
 					if ( b->original_sides[i].planenum == planenum ) {
 						break;

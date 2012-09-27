@@ -29,9 +29,18 @@ If you have questions concerning this license or the applicable additional terms
 /* GLOBAL.H - RSAREF types and constants */
 
 #include <string.h>
+
+#if !defined RTCW_ET
 #if defined( _WIN32 )
 #pragma warning(disable : 4711) // selected for automatic inline expansion
 #endif
+#else
+#ifdef WIN32
+#ifndef __GNUC__
+#pragma warning(disable : 4711) // selected for automatic inline expansion
+#endif
+#endif
+#endif RTCW_XX
 
 /* POINTER defines a generic pointer type */
 typedef unsigned char *POINTER;

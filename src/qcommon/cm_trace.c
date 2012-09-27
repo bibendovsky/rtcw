@@ -28,11 +28,15 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "cm_local.h"
 
+#if defined RTCW_ET
+#include "cm_patch.h"
+#endif RTCW_XX
+
 // always use bbox vs. bbox collision and never capsule vs. bbox or vice versa
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 #define ALWAYS_BBOX_VS_BBOX
-#elif defined RTCW_MP
+#else
 //#define ALWAYS_BBOX_VS_BBOX
 #endif RTCW_XX
 
@@ -55,11 +59,11 @@ RotatePoint
 ================
 */
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 // TTimo: const vec_t ** would require explicit casts for ANSI C conformance
 // see unix/const-arg.c in Wolf MP source
 void RotatePoint( vec3_t point, /*const*/ vec3_t matrix[3] ) {
-#elif defined RTCW_MP
+#else
 void RotatePoint( vec3_t point, const vec3_t matrix[3] ) {
 #endif RTCW_XX
 
@@ -77,11 +81,11 @@ TransposeMatrix
 ================
 */
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 // TTimo: const vec_t ** would require explicit casts for ANSI C conformance
 // see unix/const-arg.c in Wolf MP source
 void TransposeMatrix( /*const*/ vec3_t matrix[3], vec3_t transpose[3] ) {
-#elif defined RTCW_MP
+#else
 void TransposeMatrix( const vec3_t matrix[3], vec3_t transpose[3] ) {
 #endif RTCW_XX
 
@@ -99,8 +103,40 @@ CreateRotationMatrix
 ================
 */
 void CreateRotationMatrix( const vec3_t angles, vec3_t matrix[3] ) {
+
+#if !defined RTCW_ET
 	AngleVectors( angles, matrix[0], matrix[1], matrix[2] );
 	VectorInverse( matrix[1] );
+#else
+	float angle;
+	static float sr, sp, sy, cr, cp, cy;
+	// static to help MS compiler fp bugs
+
+	angle = angles[YAW] * ( M_PI * 2 / 360 );
+	sy = sin( angle );
+	cy = cos( angle );
+
+	angle = angles[PITCH] * ( M_PI * 2 / 360 );
+	sp = sin( angle );
+	cp = cos( angle );
+
+	angle = angles[ROLL] * ( M_PI * 2 / 360 );
+	sr = sin( angle );
+	cr = cos( angle );
+
+	matrix[0][0] = cp * cy;
+	matrix[0][1] = cp * sy;
+	matrix[0][2] = -sp;
+
+	matrix[1][0] = ( sr * sp * cy + cr * -sy );
+	matrix[1][1] = ( sr * sp * sy + cr * cy );
+	matrix[1][2] = sr * cp;
+
+	matrix[2][0] = ( cr * sp * cy + - sr * -sy );
+	matrix[2][1] = ( cr * sp * sy + - sr * cy );
+	matrix[2][2] = cr * cp;
+#endif RTCW_XX
+
 }
 
 /*
@@ -132,7 +168,13 @@ float CM_DistanceFromLineSquared( vec3_t p, vec3_t lp1, vec3_t lp2, vec3_t dir )
 			break;
 		}
 	if ( j < 3 ) {
+
+#if !defined RTCW_ET
 		if ( fabs( proj[j] - lp1[j] ) < fabs( proj[j] - lp2[j] ) ) {
+#else
+		if ( Q_fabs( proj[j] - lp1[j] ) < Q_fabs( proj[j] - lp2[j] ) ) {
+#endif RTCW_XX
+
 			VectorSubtract( p, lp1, t );
 		} else {
 			VectorSubtract( p, lp2, t );
@@ -488,7 +530,12 @@ CM_TraceThroughPatch
 ================
 */
 
+#if !defined RTCW_ET
 void CM_TraceThroughPatch( traceWork_t *tw, cPatch_t *patch ) {
+#else
+static void CM_TraceThroughPatch( traceWork_t *tw, cPatch_t *patch ) {
+#endif RTCW_XX
+
 	float oldFrac;
 
 	c_patch_traces++;
@@ -503,12 +550,118 @@ void CM_TraceThroughPatch( traceWork_t *tw, cPatch_t *patch ) {
 	}
 }
 
+#if defined RTCW_ET
+#ifdef MRE_OPTIMIZE
+
+/*
+================
+CM_CalcTraceBounds
+================
+*/
+static void CM_CalcTraceBounds( traceWork_t *tw, qboolean expand ) {
+	int i;
+
+	if ( tw->sphere.use ) {
+		for ( i = 0; i < 3; i++ ) {
+			if ( tw->start[i] < tw->end[i] ) {
+				tw->bounds[0][i] = tw->start[i] - Q_fabs( tw->sphere.offset[i] ) - tw->sphere.radius;
+				tw->bounds[1][i] = tw->start[i] + tw->trace.fraction * tw->dir[i] + Q_fabs( tw->sphere.offset[i] ) + tw->sphere.radius;
+			} else {
+				tw->bounds[0][i] = tw->start[i] + tw->trace.fraction * tw->dir[i] - Q_fabs( tw->sphere.offset[i] ) - tw->sphere.radius;
+				tw->bounds[1][i] = tw->start[i] + Q_fabs( tw->sphere.offset[i] ) + tw->sphere.radius;
+			}
+		}
+	} else {
+		for ( i = 0; i < 3; i++ ) {
+			if ( tw->start[i] < tw->end[i] ) {
+				tw->bounds[0][i] = tw->start[i] + tw->size[0][i];
+				tw->bounds[1][i] = tw->start[i] + tw->trace.fraction * tw->dir[i] + tw->size[1][i];
+			} else {
+				tw->bounds[0][i] = tw->start[i] + tw->trace.fraction * tw->dir[i] + tw->size[0][i];
+				tw->bounds[1][i] = tw->start[i] + tw->size[1][i];
+			}
+		}
+	}
+
+	if ( expand ) {
+		// expand for epsilon
+		for ( i = 0; i < 3; i++ ) {
+			tw->bounds[0][i] -= 1.0f;
+			tw->bounds[1][i] += 1.0f;
+		}
+	}
+}
+
+/*
+================
+CM_BoxDistanceFromPlane
+================
+*/
+static float CM_BoxDistanceFromPlane( vec3_t center, vec3_t extents, cplane_t *plane ) {
+	float d1, d2;
+
+	d1 = DotProduct( center, plane->normal ) - plane->dist;
+	d2 = Q_fabs( extents[0] * plane->normal[0] ) +
+		 Q_fabs( extents[1] * plane->normal[1] ) +
+		 Q_fabs( extents[2] * plane->normal[2] );
+
+	if ( d1 - d2 > 0.0f ) {
+		return d1 - d2;
+	}
+	if ( d1 + d2 < 0.0f ) {
+		return d1 + d2;
+	}
+	return 0.0f;
+}
+
+/*
+================
+CM_BoxDistanceFromPlane
+================
+*/
+static int CM_TraceThroughBounds( traceWork_t *tw, vec3_t mins, vec3_t maxs ) {
+	int i;
+	vec3_t center, extents;
+
+	for ( i = 0; i < 3; i++ ) {
+		if ( mins[i] > tw->bounds[1][i] ) {
+			return qfalse;
+		}
+		if ( maxs[i] < tw->bounds[0][i] ) {
+			return qfalse;
+		}
+	}
+
+	VectorAdd( mins, maxs, center );
+	VectorScale( center, 0.5f, center );
+	VectorSubtract( maxs, center, extents );
+
+	if ( Q_fabs( CM_BoxDistanceFromPlane( center, extents, &tw->tracePlane1 ) ) > tw->traceDist1 ) {
+		return qfalse;
+	}
+	if ( Q_fabs( CM_BoxDistanceFromPlane( center, extents, &tw->tracePlane2 ) ) > tw->traceDist2 ) {
+		return qfalse;
+	}
+
+	// trace might go through the bounds
+	return qtrue;
+}
+
+#endif
+#endif RTCW_XX
+
 /*
 ================
 CM_TraceThroughBrush
 ================
 */
+
+#if !defined RTCW_ET
 void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
+#else
+static void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
+#endif RTCW_XX
+
 	int i;
 	cplane_t    *plane, *clipplane;
 	float dist;
@@ -688,6 +841,8 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 CM_TraceThroughLeaf
 ================
 */
+
+#if !defined RTCW_ET
 void CM_TraceThroughLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
 	int k;
 	int brushnum;
@@ -741,6 +896,105 @@ void CM_TraceThroughLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
 		}
 	}
 }
+#else
+static void CM_TraceThroughLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
+	int k;
+	int brushnum;
+	cbrush_t    *brush;
+	cPatch_t    *patch;
+
+#ifdef MRE_OPTIMIZE
+	float fraction;
+#endif
+
+	// trace line against all brushes in the leaf
+	for ( k = 0 ; k < leaf->numLeafBrushes ; k++ ) {
+		brushnum = cm.leafbrushes[leaf->firstLeafBrush + k];
+
+		brush = &cm.brushes[brushnum];
+		if ( brush->checkcount == cm.checkcount ) {
+			continue;   // already checked this brush in another leaf
+		}
+		brush->checkcount = cm.checkcount;
+
+		if ( !( brush->contents & tw->contents ) ) {
+			continue;
+		}
+
+#ifdef MRE_OPTIMIZE
+#ifndef BSPC
+		if ( cm_optimize->integer )
+#endif
+		{
+			if ( !CM_TraceThroughBounds( tw, brush->bounds[0], brush->bounds[1] ) ) {
+				continue;
+			}
+		}
+
+		fraction = tw->trace.fraction;
+#endif
+
+		CM_TraceThroughBrush( tw, brush );
+
+		if ( !tw->trace.fraction ) {
+			return;
+		}
+
+#ifdef MRE_OPTIMIZE
+		if ( tw->trace.fraction < fraction ) {
+			CM_CalcTraceBounds( tw, qtrue );
+		}
+#endif
+	}
+
+	// trace line against all patches in the leaf
+#ifdef BSPC
+	if ( 1 ) {
+#else
+	if ( !cm_noCurves->integer ) {
+#endif
+		for ( k = 0 ; k < leaf->numLeafSurfaces ; k++ ) {
+			patch = cm.surfaces[ cm.leafsurfaces[ leaf->firstLeafSurface + k ] ];
+			if ( !patch ) {
+				continue;
+			}
+			if ( patch->checkcount == cm.checkcount ) {
+				continue;   // already checked this patch in another leaf
+			}
+			patch->checkcount = cm.checkcount;
+
+			if ( !( patch->contents & tw->contents ) ) {
+				continue;
+			}
+
+#ifdef MRE_OPTIMIZE
+#ifndef BSPC
+			if ( cm_optimize->integer )
+#endif
+			{
+				if ( !CM_TraceThroughBounds( tw, patch->pc->bounds[0], patch->pc->bounds[1] ) ) {
+					continue;
+				}
+			}
+
+			fraction = tw->trace.fraction;
+#endif
+
+			CM_TraceThroughPatch( tw, patch );
+
+			if ( !tw->trace.fraction ) {
+				return;
+			}
+
+#ifdef MRE_OPTIMIZE
+			if ( tw->trace.fraction < fraction ) {
+				CM_CalcTraceBounds( tw, qtrue );
+			}
+#endif
+		}
+	}
+}
+#endif RTCW_XX
 
 #define RADIUS_EPSILON      1.0f
 
@@ -751,7 +1005,13 @@ CM_TraceThroughSphere
 get the first intersection of the ray with the sphere
 ================
 */
+
+#if !defined RTCW_ET
 void CM_TraceThroughSphere( traceWork_t *tw, vec3_t origin, float radius, vec3_t start, vec3_t end ) {
+#else
+static void CM_TraceThroughSphere( traceWork_t *tw, vec3_t origin, float radius, vec3_t start, vec3_t end ) {
+#endif RTCW_XX
+
 	float l1, l2, length, scale, fraction;
 	float a, b, c, d, sqrtd;
 	vec3_t v1, dir, intersection;
@@ -837,7 +1097,13 @@ get the first intersection of the ray with the cylinder
 the cylinder extends halfheight above and below the origin
 ================
 */
+
+#if !defined RTCW_ET
 void CM_TraceThroughVerticalCylinder( traceWork_t *tw, vec3_t origin, float radius, float halfheight, vec3_t start, vec3_t end ) {
+#else
+static void CM_TraceThroughVerticalCylinder( traceWork_t *tw, vec3_t origin, float radius, float halfheight, vec3_t start, vec3_t end ) {
+#endif RTCW_XX
+
 	float length, scale, fraction, l1, l2;
 	float a, b, c, d, sqrtd;
 	vec3_t v1, dir, start2d, end2d, org2d, intersection;
@@ -938,7 +1204,13 @@ CM_TraceCapsuleThroughCapsule
 capsule vs. capsule collision (not rotated)
 ================
 */
+
+#if !defined RTCW_ET
 void CM_TraceCapsuleThroughCapsule( traceWork_t *tw, clipHandle_t model ) {
+#else
+static void CM_TraceCapsuleThroughCapsule( traceWork_t *tw, clipHandle_t model ) {
+#endif RTCW_XX
+
 	int i;
 	vec3_t mins, maxs;
 	vec3_t top, bottom, starttop, startbottom, endtop, endbottom;
@@ -1000,7 +1272,13 @@ CM_TraceBoundingBoxThroughCapsule
 bounding box vs. capsule collision
 ================
 */
+
+#if !defined RTCW_ET
 void CM_TraceBoundingBoxThroughCapsule( traceWork_t *tw, clipHandle_t model ) {
+#else
+static void CM_TraceBoundingBoxThroughCapsule( traceWork_t *tw, clipHandle_t model ) {
+#endif RTCW_XX
+
 	vec3_t mins, maxs, offset, size[2];
 	clipHandle_t h;
 	cmodel_t *cmod;
@@ -1043,7 +1321,13 @@ trace volumes it is possible to hit something in a later leaf with
 a smaller intercept fraction.
 ==================
 */
+
+#if !defined RTCW_ET
 void CM_TraceThroughTree( traceWork_t *tw, int num, float p1f, float p2f, vec3_t p1, vec3_t p2 ) {
+#else
+static void CM_TraceThroughTree( traceWork_t *tw, int num, float p1f, float p2f, vec3_t p1, vec3_t p2 ) {
+#endif RTCW_XX
+
 	cNode_t     *node;
 	cplane_t    *plane;
 	float t1, t2, offset;
@@ -1085,15 +1369,28 @@ void CM_TraceThroughTree( traceWork_t *tw, int num, float p1f, float p2f, vec3_t
 			// an axial brush right behind a slanted bsp plane
 			// will poke through when expanded, so adjust
 			// by sqrt(3)
+
+#if !defined RTCW_ET
 			offset = fabs(tw->extents[0]*plane->normal[0]) +
 				fabs(tw->extents[1]*plane->normal[1]) +
 				fabs(tw->extents[2]*plane->normal[2]);
+#else
+			offset = Q_fabs(tw->extents[0]*plane->normal[0]) +
+				Q_fabs(tw->extents[1]*plane->normal[1]) +
+				Q_fabs(tw->extents[2]*plane->normal[2]);
+#endif RTCW_XX
 
 			offset *= 2;
 			offset = tw->maxOffset;
 			*/
+
+#if (defined RTCW_ET) && (defined MRE_OPTIMIZE)
+			offset = tw->maxOffset;
+#else
 			// this is silly
 			offset = 2048;
+#endif RTCW_XX
+
 		}
 	}
 
@@ -1175,6 +1472,15 @@ void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end,
 	vec3_t offset;
 	cmodel_t    *cmod;
 
+#if defined RTCW_ET
+	qboolean positionTest;
+
+#ifdef MRE_OPTIMIZE
+	vec3_t dir;
+	float dist;
+#endif
+#endif RTCW_XX
+
 	cmod = CM_ClipHandleToModel( model );
 
 	cm.checkcount++;        // for multi-check avoidance
@@ -1185,11 +1491,16 @@ void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end,
 
 #if defined RTCW_SP
 	Com_Memset( &tw, 0, sizeof( tw ) );
-#elif defined RTCW_MP
+#else
 	memset( &tw, 0, sizeof( tw ) );
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	tw.trace.fraction = 1;  // assume it goes the entire distance until shown otherwise
+#else
+	tw.trace.fraction = 1.0f;   // assume it goes the entire distance until shown otherwise
+#endif RTCW_XX
+
 	VectorCopy( origin, tw.modelOrigin );
 
 	if ( !cm.numNodes ) {
@@ -1230,6 +1541,10 @@ void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end,
 		VectorSet( tw.sphere.offset, 0, 0, tw.size[1][2] - tw.sphere.radius );
 	}
 
+#if defined RTCW_ET
+	positionTest = ( start[0] == end[0] && start[1] == end[1] && start[2] == end[2] );
+#endif RTCW_XX
+
 	tw.maxOffset = tw.size[1][0] + tw.size[1][1] + tw.size[1][2];
 
 	// tw.offsets[signbits] = vector to apropriate corner from origin
@@ -1265,6 +1580,7 @@ void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end,
 	tw.offsets[7][1] = tw.size[1][1];
 	tw.offsets[7][2] = tw.size[1][2];
 
+#if !defined RTCW_ET
 	//
 	// calculate bounds
 	//
@@ -1290,10 +1606,89 @@ void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end,
 		}
 	}
 
+#else
+	// check for point special case
+	if ( tw.size[0][0] == 0.0f && tw.size[0][1] == 0.0f && tw.size[0][2] == 0.0f ) {
+		tw.isPoint = qtrue;
+		VectorClear( tw.extents );
+	} else {
+		tw.isPoint = qfalse;
+		tw.extents[0] = tw.size[1][0];
+		tw.extents[1] = tw.size[1][1];
+		tw.extents[2] = tw.size[1][2];
+	}
+
+#ifdef MRE_OPTIMIZE
+
+	if ( positionTest ) {
+		CM_CalcTraceBounds( &tw, qfalse );
+	} else {
+		VectorSubtract( tw.end, tw.start, dir );
+		VectorCopy( dir, tw.dir );
+		VectorNormalize( dir );
+		MakeNormalVectors( dir, tw.tracePlane1.normal, tw.tracePlane2.normal );
+		tw.tracePlane1.dist = DotProduct( tw.tracePlane1.normal, tw.start );
+		tw.tracePlane2.dist = DotProduct( tw.tracePlane2.normal, tw.start );
+		if ( tw.isPoint ) {
+			tw.traceDist1 = tw.traceDist2 = 1.0f;
+		} else {
+			tw.traceDist1 = tw.traceDist2 = 0.0f;
+			for ( i = 0; i < 8; i++ ) {
+				dist = Q_fabs( DotProduct( tw.tracePlane1.normal, tw.offsets[i] ) - tw.tracePlane1.dist );
+				if ( dist > tw.traceDist1 ) {
+					tw.traceDist1 = dist;
+				}
+				dist = Q_fabs( DotProduct( tw.tracePlane2.normal, tw.offsets[i] ) - tw.tracePlane2.dist );
+				if ( dist > tw.traceDist2 ) {
+					tw.traceDist2 = dist;
+				}
+			}
+			// expand for epsilon
+			tw.traceDist1 += 1.0f;
+			tw.traceDist2 += 1.0f;
+		}
+
+		CM_CalcTraceBounds( &tw, qtrue );
+	}
+
+#else
+
+	// calculate bounds
+	if ( tw.sphere.use ) {
+		for ( i = 0; i < 3; i++ ) {
+			if ( tw.start[i] < tw.end[i] ) {
+				tw.bounds[0][i] = tw.start[i] - Q_fabs( tw.sphere.offset[i] ) - tw.sphere.radius;
+				tw.bounds[1][i] = tw.end[i] + Q_fabs( tw.sphere.offset[i] ) + tw.sphere.radius;
+			} else {
+				tw.bounds[0][i] = tw.end[i] - Q_fabs( tw.sphere.offset[i] ) - tw.sphere.radius;
+				tw.bounds[1][i] = tw.start[i] + Q_fabs( tw.sphere.offset[i] ) + tw.sphere.radius;
+			}
+		}
+	} else {
+		for ( i = 0 ; i < 3 ; i++ ) {
+			if ( tw.start[i] < tw.end[i] ) {
+				tw.bounds[0][i] = tw.start[i] + tw.size[0][i];
+				tw.bounds[1][i] = tw.end[i] + tw.size[1][i];
+			} else {
+				tw.bounds[0][i] = tw.end[i] + tw.size[0][i];
+				tw.bounds[1][i] = tw.start[i] + tw.size[1][i];
+			}
+		}
+	}
+
+#endif
+#endif RTCW_XX
+
 	//
 	// check for position test special case
 	//
+
+#if !defined RTCW_ET
 	if ( start[0] == end[0] && start[1] == end[1] && start[2] == end[2] ) {
+#else
+	if ( positionTest ) {
+#endif RTCW_XX
+
 		if ( model ) {
 #ifdef ALWAYS_BBOX_VS_BBOX
 			if ( model == BOX_MODEL_HANDLE || model == CAPSULE_MODEL_HANDLE ) {
@@ -1318,23 +1713,34 @@ void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end,
 
 #endif
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 			if ( model == CAPSULE_MODEL_HANDLE ) {
 				if ( tw.sphere.use ) {
 					CM_TestCapsuleInCapsule( &tw, model );
 				} else {
 					CM_TestBoundingBoxInCapsule( &tw, model );
 				}
+
+#if !defined RTCW_ET
 			} else
+#else
+			} else {
 #endif RTCW_XX
 
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 			{
+#endif RTCW_XX
+
 				CM_TestInLeaf( &tw, &cmod->leaf );
 			}
 		} else {
 			CM_PositionTest( &tw );
 		}
 	} else {
+
+#if !defined RTCW_ET
 		//
 		// check for point special case
 		//
@@ -1347,6 +1753,7 @@ void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end,
 			tw.extents[1] = tw.size[1][1];
 			tw.extents[2] = tw.size[1][2];
 		}
+#endif RTCW_XX
 
 		//
 		// general sweeping through world
@@ -1375,17 +1782,26 @@ void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end,
 
 #endif
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 			if ( model == CAPSULE_MODEL_HANDLE ) {
 				if ( tw.sphere.use ) {
 					CM_TraceCapsuleThroughCapsule( &tw, model );
 				} else {
 					CM_TraceBoundingBoxThroughCapsule( &tw, model );
 				}
+
+#if !defined RTCW_ET
 			} else
+#else
+			} else {
 #endif RTCW_XX
 
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 			{
+#endif RTCW_XX
+
 				CM_TraceThroughLeaf( &tw, &cmod->leaf );
 			}
 		} else {
@@ -1487,10 +1903,10 @@ void CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t 
 		//		 However this is correct for capsules since a capsule itself is rotated too.
 		CreateRotationMatrix( angles, matrix );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		RotatePoint( start_l, matrix );
 		RotatePoint( end_l, matrix );
-#elif defined RTCW_MP
+#else
 		// NOTE TTimo gcc doesn't like the vec3_t m[3] to const vec3_t m[3] casting
 		RotatePoint( start_l, (const vec3_t *)matrix );
 		RotatePoint( end_l, (const vec3_t *)matrix );
@@ -1511,10 +1927,10 @@ void CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t 
 	if ( rotated && trace.fraction != 1.0 ) {
 		// rotation of bmodel collision plane
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		TransposeMatrix( matrix, transpose );
 		RotatePoint( trace.plane.normal, transpose );
-#elif defined RTCW_MP
+#else
 		TransposeMatrix( (const vec3_t *)matrix, transpose );
 		RotatePoint( trace.plane.normal, (const vec3_t *)transpose );
 #endif RTCW_XX

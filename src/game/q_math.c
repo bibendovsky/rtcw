@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 
 Return to Castle Wolfenstein single player GPL Source Code
@@ -44,6 +44,11 @@ vec4_t colorRed    = {1, 0, 0, 1};
 vec4_t colorGreen  = {0, 1, 0, 1};
 vec4_t colorBlue   = {0, 0, 1, 1};
 vec4_t colorYellow = {1, 1, 0, 1};
+
+#if defined RTCW_ET
+vec4_t colorOrange     =   {1, 0.5, 0, 1};
+#endif RTCW_XX
+
 vec4_t colorMagenta = {1, 0, 1, 1};
 vec4_t colorCyan   = {0, 1, 1, 1};
 vec4_t colorWhite  = {1, 1, 1, 1};
@@ -51,6 +56,28 @@ vec4_t colorLtGrey = {0.75, 0.75, 0.75, 1};
 vec4_t colorMdGrey = {0.5, 0.5, 0.5, 1};
 vec4_t colorDkGrey = {0.25, 0.25, 0.25, 1};
 
+#if defined RTCW_ET
+vec4_t colorMdRed      =   {0.5, 0, 0, 1};
+vec4_t colorMdGreen    =   {0, 0.5, 0, 1};
+vec4_t colorDkGreen    =   {0, 0.20, 0, 1};
+vec4_t colorMdCyan     =   {0, 0.5, 0.5, 1};
+vec4_t colorMdYellow   =   {0.5, 0.5, 0, 1};
+vec4_t colorMdOrange   =   {0.5, 0.25, 0, 1};
+vec4_t colorMdBlue     =   {0, 0, 0.5, 1};
+
+vec4_t clrBrown =          {0.68f,         0.68f,          0.56f,          1.f};
+vec4_t clrBrownDk =        {0.58f * 0.75f, 0.58f * 0.75f,  0.46f * 0.75f,  1.f};
+vec4_t clrBrownLine =      {0.0525f,       0.05f,          0.025f,         0.2f};
+vec4_t clrBrownLineFull =  {0.0525f,       0.05f,          0.025f,         1.f};
+
+vec4_t clrBrownTextLt2 =   {108 * 1.8 / 255.f,     88 * 1.8 / 255.f,   62 * 1.8 / 255.f,   1.f};
+vec4_t clrBrownTextLt =    {108 * 1.3 / 255.f,     88 * 1.3 / 255.f,   62 * 1.3 / 255.f,   1.f};
+vec4_t clrBrownText =      {108 / 255.f,         88 / 255.f,       62 / 255.f,       1.f};
+vec4_t clrBrownTextDk =    {20 / 255.f,          2 / 255.f,        0 / 255.f,        1.f};
+vec4_t clrBrownTextDk2 =   {108 * 0.75 / 255.f,    88 * 0.75 / 255.f,  62 * 0.75 / 255.f,  1.f};
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 vec4_t g_color_table[8] =
 {
 	{0.0, 0.0, 0.0, 1.0},
@@ -62,7 +89,43 @@ vec4_t g_color_table[8] =
 	{1.0, 0.0, 1.0, 1.0},
 	{1.0, 1.0, 1.0, 1.0},
 };
-
+#else
+vec4_t g_color_table[32] =
+{
+	{ 0.0,  0.0,    0.0,    1.0 },      // 0 - black		0
+	{ 1.0,  0.0,    0.0,    1.0 },      // 1 - red			1
+	{ 0.0,  1.0,    0.0,    1.0 },      // 2 - green		2
+	{ 1.0,  1.0,    0.0,    1.0 },      // 3 - yellow		3
+	{ 0.0,  0.0,    1.0,    1.0 },      // 4 - blue			4
+	{ 0.0,  1.0,    1.0,    1.0 },      // 5 - cyan			5
+	{ 1.0,  0.0,    1.0,    1.0 },      // 6 - purple		6
+	{ 1.0,  1.0,    1.0,    1.0 },      // 7 - white		7
+	{ 1.0,  0.5,    0.0,    1.0 },      // 8 - orange		8
+	{ 0.5,  0.5,    0.5,    1.0 },      // 9 - md.grey		9
+	{ 0.75, 0.75,   0.75,   1.0 },      // : - lt.grey		10		// lt grey for names
+	{ 0.75, 0.75,   0.75,   1.0 },      // ; - lt.grey		11
+	{ 0.0,  0.5,    0.0,    1.0 },      // < - md.green		12
+	{ 0.5,  0.5,    0.0,    1.0 },      // = - md.yellow	13
+	{ 0.0,  0.0,    0.5,    1.0 },      // > - md.blue		14
+	{ 0.5,  0.0,    0.0,    1.0 },      // ? - md.red		15
+	{ 0.5,  0.25,   0.0,    1.0 },      // @ - md.orange	16
+	{ 1.0,  0.6f,   0.1f,   1.0 },      // A - lt.orange	17
+	{ 0.0,  0.5,    0.5,    1.0 },      // B - md.cyan		18
+	{ 0.5,  0.0,    0.5,    1.0 },      // C - md.purple	19
+	{ 0.0,  0.5,    1.0,    1.0 },      // D				20
+	{ 0.5,  0.0,    1.0,    1.0 },      // E				21
+	{ 0.2f, 0.6f,   0.8f,   1.0 },      // F				22
+	{ 0.8f, 1.0,    0.8f,   1.0 },      // G				23
+	{ 0.0,  0.4,    0.2f,   1.0 },      // H				24
+	{ 1.0,  0.0,    0.2f,   1.0 },      // I				25
+	{ 0.7f, 0.1f,   0.1f,   1.0 },      // J				26
+	{ 0.6f, 0.2f,   0.0,    1.0 },      // K				27
+	{ 0.8f, 0.6f,   0.2f,   1.0 },      // L				28
+	{ 0.6f, 0.6f,   0.2f,   1.0 },      // M				29
+	{ 1.0,  1.0,    0.75,   1.0 },      // N				30
+	{ 1.0,  1.0,    0.5,    1.0 },      // O				31
+};
+#endif RTCW_XX
 
 vec3_t bytedirs[NUMVERTEXNORMALS] =
 {
@@ -348,6 +411,48 @@ void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point,
 	}
 }
 
+#if defined RTCW_ET
+/*
+===============
+RotatePointArountVertex
+
+Rotate a point around a vertex
+===============
+*/
+void RotatePointAroundVertex( vec3_t pnt, float rot_x, float rot_y, float rot_z, const vec3_t origin ) {
+	float tmp[11];
+	//float rad_x, rad_y, rad_z;
+
+	/*rad_x = DEG2RAD( rot_x );
+	rad_y = DEG2RAD( rot_y );
+	rad_z = DEG2RAD( rot_z );*/
+
+	// move pnt to rel{0,0,0}
+	VectorSubtract( pnt, origin, pnt );
+
+	// init temp values
+	tmp[0] = sin( rot_x );
+	tmp[1] = cos( rot_x );
+	tmp[2] = sin( rot_y );
+	tmp[3] = cos( rot_y );
+	tmp[4] = sin( rot_z );
+	tmp[5] = cos( rot_z );
+	tmp[6] = pnt[1] * tmp[5];
+	tmp[7] = pnt[0] * tmp[4];
+	tmp[8] = pnt[0] * tmp[5];
+	tmp[9] = pnt[1] * tmp[4];
+	tmp[10] = pnt[2] * tmp[3];
+
+	// rotate point
+	pnt[0] = ( tmp[3] * ( tmp[8] - tmp[9] ) + pnt[3] * tmp[2] );
+	pnt[1] = ( tmp[0] * ( tmp[2] * tmp[8] - tmp[2] * tmp[9] - tmp[10] ) + tmp[1] * ( tmp[7] + tmp[6] ) );
+	pnt[2] = ( tmp[1] * ( -tmp[2] * tmp[8] + tmp[2] * tmp[9] + tmp[10] ) + tmp[0] * ( tmp[7] + tmp[6] ) );
+
+	// move pnt back
+	VectorAdd( pnt, origin, pnt );
+}
+#endif RTCW_XX
+
 /*
 ===============
 RotateAroundDirection
@@ -509,10 +614,28 @@ float Q_rsqrt( float number ) {
 }
 
 float Q_fabs( float f ) {
+
+#if !defined RTCW_ET
 	int tmp = *( int * ) &f;
 	tmp &= 0x7FFFFFFF;
 	return *( float * ) &tmp;
+#else
+	int tmp = ( *(int*)&f ) & 0x7FFFFFFF;
+	return *(float*)&tmp;
+#endif RTCW_XX
+
 }
+
+#if defined RTCW_ET
+#if id386 && !( ( defined __linux__ || defined __FreeBSD__ || defined __GNUC__ ) && ( defined __i386__ ) ) // rb010123
+long myftol( float f ) {
+	static int tmp;
+	__asm fld f
+	__asm fistp tmp
+	__asm mov eax, tmp
+}
+#endif
+#endif RTCW_XX
 
 //============================================================
 
@@ -523,7 +646,10 @@ LerpAngle
 ===============
 */
 float LerpAngle( float from, float to, float frac ) {
+
+#if !defined RTCW_ET
 	float a;
+#endif RTCW_XX
 
 	if ( to - from > 180 ) {
 		to -= 360;
@@ -531,12 +657,18 @@ float LerpAngle( float from, float to, float frac ) {
 	if ( to - from < -180 ) {
 		to += 360;
 	}
+
+#if !defined RTCW_ET
 	a = from + frac * ( to - from );
 
 	return a;
+#else
+	return( from + frac * ( to - from ) );
+#endif RTCW_XX
+
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 =================
 LerpPosition
@@ -560,9 +692,15 @@ Always returns a value from -180 to 180
 =================
 */
 float   AngleSubtract( float a1, float a2 ) {
+
+#if !defined RTCW_ET
 	float a;
 
 	a = a1 - a2;
+#else
+	float a = a1 - a2;
+#endif RTCW_XX
+
 	while ( a > 180 ) {
 		a -= 360;
 	}
@@ -581,10 +719,28 @@ void AnglesSubtract( vec3_t v1, vec3_t v2, vec3_t v3 ) {
 
 
 float   AngleMod( float a ) {
+
+#if !defined RTCW_ET
 	a = ( 360.0 / 65536 ) * ( (int)( a * ( 65536 / 360.0 ) ) & 65535 );
 	return a;
+#else
+	return( ( 360.0 / 65536 ) * ( (int)( a * ( 65536 / 360.0 ) ) & 65535 ) );
+#endif RTCW_XX
+
 }
 
+#if defined RTCW_ET
+/*
+=================
+AngleNormalize2Pi
+
+returns angle normalized to the range [0 <= angle < 2*M_PI]
+=================
+*/
+float AngleNormalize2Pi( float angle ) {
+	return DEG2RAD( AngleNormalize360( RAD2DEG( angle ) ) );
+}
+#endif RTCW_XX
 
 /*
 =================
@@ -759,7 +915,12 @@ int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, struct cplane_s *p ) {
 #else
 #pragma warning( disable: 4035 )
 
+#if !defined RTCW_ET
 __declspec( naked ) int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, struct cplane_s *p ) {
+#else
+__inline __declspec( naked ) int BoxOnPlaneSide_fast( vec3_t emins, vec3_t emaxs, struct cplane_s *p ) {
+#endif RTCW_XX
+
 	static int bops_initialized;
 	static int Ljmptab[8];
 
@@ -987,6 +1148,25 @@ initialized:
 												int 3
 	}
 }
+
+#if defined RTCW_ET
+int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, struct cplane_s *p ) {
+	// fast axial cases
+
+	if ( p->type < 3 ) {
+		if ( p->dist <= emins[p->type] ) {
+			return 1;
+		}
+		if ( p->dist >= emaxs[p->type] ) {
+			return 2;
+		}
+		return 3;
+	}
+
+	return BoxOnPlaneSide_fast( emins, emaxs, p );
+}
+#endif RTCW_XX
+
 #pragma warning( default: 4035 )
 
 #endif
@@ -1003,8 +1183,15 @@ float RadiusFromBounds( const vec3_t mins, const vec3_t maxs ) {
 	float a, b;
 
 	for ( i = 0 ; i < 3 ; i++ ) {
+
+#if !defined RTCW_ET
 		a = fabs( mins[i] );
 		b = fabs( maxs[i] );
+#else
+		a = Q_fabs( mins[i] );
+		b = Q_fabs( maxs[i] );
+#endif RTCW_XX
+
 		corner[i] = a > b ? a : b;
 	}
 
@@ -1040,6 +1227,32 @@ void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs ) {
 	}
 }
 
+#if defined RTCW_ET
+qboolean PointInBounds( const vec3_t v, const vec3_t mins, const vec3_t maxs ) {
+	if ( v[0] < mins[0] ) {
+		return qfalse;
+	}
+	if ( v[0] > maxs[0] ) {
+		return qfalse;
+	}
+
+	if ( v[1] < mins[1] ) {
+		return qfalse;
+	}
+	if ( v[1] > maxs[1] ) {
+		return qfalse;
+	}
+
+	if ( v[2] < mins[2] ) {
+		return qfalse;
+	}
+	if ( v[2] > maxs[2] ) {
+		return qfalse;
+	}
+
+	return qtrue;
+}
+#endif RTCW_XX
 
 int VectorCompare( const vec3_t v1, const vec3_t v2 ) {
 	if ( v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2] ) {
@@ -1214,6 +1427,8 @@ MatrixMultiply
 ================
 */
 void MatrixMultiply( float in1[3][3], float in2[3][3], float out[3][3] ) {
+
+#if !defined RTCW_ET
 	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] +
 				in1[0][2] * in2[2][0];
 	out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] +
@@ -1232,6 +1447,18 @@ void MatrixMultiply( float in1[3][3], float in2[3][3], float out[3][3] ) {
 				in1[2][2] * in2[2][1];
 	out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] +
 				in1[2][2] * in2[2][2];
+#else
+	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] + in1[0][2] * in2[2][0];
+	out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] + in1[0][2] * in2[2][1];
+	out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] + in1[0][2] * in2[2][2];
+	out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] + in1[1][2] * in2[2][0];
+	out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] + in1[1][2] * in2[2][1];
+	out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] + in1[1][2] * in2[2][2];
+	out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] + in1[2][2] * in2[2][0];
+	out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] + in1[2][2] * in2[2][1];
+	out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] + in1[2][2] * in2[2][2];
+#endif RTCW_XX
+
 }
 
 
@@ -1281,9 +1508,21 @@ void PerpendicularVector( vec3_t dst, const vec3_t src ) {
 	*/
 	for ( pos = 0, i = 0; i < 3; i++ )
 	{
+
+#if !defined RTCW_ET
 		if ( fabs( src[i] ) < minelem ) {
+#else
+		if ( Q_fabs( src[i] ) < minelem ) {
+#endif RTCW_XX
+
 			pos = i;
+
+#if !defined RTCW_ET
 			minelem = fabs( src[i] );
+#else
+			minelem = Q_fabs( src[i] );
+#endif RTCW_XX
+
 		}
 	}
 	tempvec[0] = tempvec[1] = tempvec[2] = 0.0F;
@@ -1335,6 +1574,77 @@ void ProjectPointOntoVector( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vP
 	// project onto the directional vector for this segment
 	VectorMA( vStart, DotProduct( pVec, vec ), vec, vProj );
 }
+
+#if defined RTCW_ET
+/*
+================
+ProjectPointOntoVectorBounded
+================
+*/
+void ProjectPointOntoVectorBounded( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj ) {
+	vec3_t pVec, vec;
+	int j;
+
+	VectorSubtract( point, vStart, pVec );
+	VectorSubtract( vEnd, vStart, vec );
+	VectorNormalize( vec );
+	// project onto the directional vector for this segment
+	VectorMA( vStart, DotProduct( pVec, vec ), vec, vProj );
+	// check bounds
+	for ( j = 0; j < 3; j++ )
+		if ( ( vProj[j] > vStart[j] && vProj[j] > vEnd[j] ) ||
+			 ( vProj[j] < vStart[j] && vProj[j] < vEnd[j] ) ) {
+			break;
+		}
+	if ( j < 3 ) {
+		if ( Q_fabs( vProj[j] - vStart[j] ) < Q_fabs( vProj[j] - vEnd[j] ) ) {
+			VectorCopy( vStart, vProj );
+		} else {
+			VectorCopy( vEnd, vProj );
+		}
+	}
+}
+
+/*
+================
+DistanceFromLineSquared
+================
+*/
+float DistanceFromLineSquared( vec3_t p, vec3_t lp1, vec3_t lp2 ) {
+	vec3_t proj, t;
+	int j;
+
+	ProjectPointOntoVector( p, lp1, lp2, proj );
+	for ( j = 0; j < 3; j++ )
+		if ( ( proj[j] > lp1[j] && proj[j] > lp2[j] ) ||
+			 ( proj[j] < lp1[j] && proj[j] < lp2[j] ) ) {
+			break;
+		}
+	if ( j < 3 ) {
+		if ( Q_fabs( proj[j] - lp1[j] ) < Q_fabs( proj[j] - lp2[j] ) ) {
+			VectorSubtract( p, lp1, t );
+		} else {
+			VectorSubtract( p, lp2, t );
+		}
+		return VectorLengthSquared( t );
+	}
+	VectorSubtract( p, proj, t );
+	return VectorLengthSquared( t );
+}
+
+/*
+================
+DistanceFromVectorSquared
+================
+*/
+float DistanceFromVectorSquared( vec3_t p, vec3_t lp1, vec3_t lp2 ) {
+	vec3_t proj, t;
+
+	ProjectPointOntoVector( p, lp1, lp2, proj );
+	VectorSubtract( p, proj, t );
+	return VectorLengthSquared( t );
+}
+#endif RTCW_XX
 
 float vectoyaw( const vec3_t vec ) {
 	float yaw;
@@ -1399,4 +1709,14 @@ float VectorDistance( vec3_t v1, vec3_t v2 ) {
 	VectorSubtract( v2, v1, dir );
 	return VectorLength( dir );
 }
+
+#if defined RTCW_ET
+float VectorDistanceSquared( vec3_t v1, vec3_t v2 ) {
+	vec3_t dir;
+
+	VectorSubtract( v2, v1, dir );
+	return VectorLengthSquared( dir );
+}
+#endif RTCW_XX
+
 // done.

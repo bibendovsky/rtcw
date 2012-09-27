@@ -45,8 +45,16 @@ If you have questions concerning this license or the applicable additional terms
 #include "../mssdk/include/dinput.h"
 #include "../mssdk/include/dsound.h"
 #else
+
+#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
 #include <dinput.h>
 #include <dsound.h>
+#endif RTCW_XX
+
+#if defined RTCW_ET && defined __GNUC__
+#include <directx.h>
+#endif RTCW_XX
+
 #endif  ///// (SA) DOOMSOUND
 
 #include <winsock.h>
@@ -119,4 +127,23 @@ extern WinVars_t g_wv;
 }
 #endif
 #endif  ///// (SA) DOOMSOUND
+
+#if defined RTCW_ET
+// ydnar: mousewheel stuff
+#ifndef WM_MOUSEWHEEL
+#define WM_MOUSEWHEEL       ( WM_MOUSELAST + 1 )  // message that will be supported by the OS
+#endif
+
+#ifndef WM_XBUTTONDOWN
+#define WM_XBUTTONDOWN      ( WM_MOUSELAST + 2 )
+#define WM_XBUTTONUP        ( WM_MOUSELAST + 3 )
+#define MK_XBUTTON1         0x0020
+#define MK_XBUTTON2         0x0040
+#endif
+
+// Gordon: exception handling
+void WinSetExceptionWnd( HWND wnd );
+void WinSetExceptionVersion( const char* version );
+void Com_FrameExt( void );
+#endif RTCW_XX
 

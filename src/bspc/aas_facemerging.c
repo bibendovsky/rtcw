@@ -243,7 +243,7 @@ int AAS_CanMergePlaneFaces( tmp_area_t *tmparea, int planenum ) {
 
 #if defined RTCW_SP
 	int side1, merge, faceflags = 0; // TTimo: init
-#elif defined RTCW_MP
+#else
 	int side1, merge, faceflags;
 #endif RTCW_XX
 

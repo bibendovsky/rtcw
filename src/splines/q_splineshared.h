@@ -36,14 +36,17 @@ If you have questions concerning this license or the applicable additional terms
 
 // A user mod should never modify this file
 
+#if !defined RTCW_ET
 #define Q3_VERSION      "DOOM 0.01"
+#else
+#define Q3_VERSION      "ET"
+#endif RTCW_XX
 
 // alignment macros for SIMD
 #define ALIGN_ON
 #define ALIGN_OFF
 
-#ifdef _WIN32
-
+#if (!defined RTCW_ET && defined _WIN32) || (defined RTCW_ET && defined _WIN32 && !defined __GNUC__)
 #pragma warning(disable : 4018) // signed/unsigned mismatch
 #pragma warning(disable : 4032)
 #pragma warning(disable : 4051)
@@ -61,8 +64,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma warning(disable : 4514)
 #pragma warning(disable : 4711) // selected for automatic inline expansion
 #pragma warning(disable : 4220) // varargs matches remaining parameters
-
-#endif
+#endif RTCW_XX
 
 #include <assert.h>
 #include <math.h>
@@ -82,8 +84,13 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 
+#if !defined RTCW_ET
 // this is the define for determining if we have an asm version of a C function
-#if ( defined _M_IX86 || defined __i386__ ) && !defined __sun__  && !defined __LCC__
+#else
+// use MSVC inline asm version of C functions
+#endif RTCW_XX
+
+#if (!defined RTCW_ET && ((defined _M_IX86 || defined __i386__) && !defined __sun__  && !defined __LCC__)) || (defined RTCW_ET && defined _M_IX86)
 #define id386   1
 #else
 #define id386   0
@@ -122,6 +129,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #endif
 
+#if !defined RTCW_ET
 //======================= MAC OS X SERVER DEFINES =====================
 
 #if defined( __MACH__ ) && defined( __APPLE__ )
@@ -160,6 +168,7 @@ void osxFreeMemory( void *pointer );
 #endif
 
 #endif
+#endif RTCW_XX
 
 //======================= MAC DEFINES =================================
 
@@ -266,7 +275,13 @@ typedef enum {
 #define MAX_QPATH           64      // max length of a quake game pathname
 #define MAX_OSPATH          128     // max length of a filesystem pathname
 
+#if !defined RTCW_ET
 #define MAX_NAME_LENGTH     32      // max length of a client name
+#else
+// rain - increased to 36 to match MAX_NETNAME, fixes #13 - UI stuff breaks
+// with very long names
+#define MAX_NAME_LENGTH     36      // max length of a client name
+#endif RTCW_XX
 
 // paramters for command buffer stuffing
 typedef enum {
@@ -316,6 +331,10 @@ typedef enum {
 #define UI_INVERSE      0x00002000
 #define UI_PULSE        0x00004000
 
+#if defined RTCW_ET
+#define Q_COLOR_ESCAPE  '^'
+#define Q_IsColorString( p )  ( p && *( p ) == Q_COLOR_ESCAPE && *( ( p ) + 1 ) && *( ( p ) + 1 ) != Q_COLOR_ESCAPE )
+#endif RTCW_XX
 
 /*
 ==============================================================
@@ -386,8 +405,10 @@ extern idVec4 colorLtGrey;
 extern idVec4 colorMdGrey;
 extern idVec4 colorDkGrey;
 
+#if !defined RTCW_ET
 #define Q_COLOR_ESCAPE  '^'
 #define Q_IsColorString( p )  ( p && *( p ) == Q_COLOR_ESCAPE && *( ( p ) + 1 ) && *( ( p ) + 1 ) != Q_COLOR_ESCAPE )
+#endif RTCW_XX
 
 #define COLOR_BLACK     '0'
 #define COLOR_RED       '1'
@@ -426,7 +447,7 @@ extern mat3_t axisDefault;
 
 #define IS_NAN( x ) ( ( ( *(int *)&x ) & nanmask ) == nanmask )
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 // TTimo
 // handy stuff when tracking isnan problems
 #ifndef NDEBUG
@@ -650,8 +671,19 @@ int Q_PrintStrlen( const char *string );
 // removes color sequences from string
 char *Q_CleanStr( char *string );
 
+#if defined RTCW_ET
+#define _vsnprintf use_Q_vsnprintf
+#define vsnprintf use_Q_vsnprintf
+extern int Q_vsnprintf( char *dest, int size, const char *fmt, va_list argptr );
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 int         Com_Filter( const char *filter, const char *name, int casesensitive );
 const char *Com_StringContains( const char *str1, const char *str2, int casesensitive );
+#else
+//int			Com_Filter( const char *filter, const char *name, int casesensitive );
+//const char *Com_StringContains( const char *str1, const char *str2, int casesensitive );
+#endif RTCW_XX
 
 
 //=============================================
@@ -775,7 +807,7 @@ void QDECL Com_DPrintf( const char *msg, ... );
 }
 #endif
 
-
+#if !defined RTCW_ET
 typedef struct {
 	qboolean frameMemory;
 	int currentElements;
@@ -789,7 +821,7 @@ void        Com_InitGrowList( growList_t *list, int maxElements );
 int         Com_AddToGrowList( growList_t *list, void *data );
 void        *Com_GrowListElement( const growList_t *list, int index );
 int         Com_IndexForGrowListElement( const growList_t *list, const void *element );
-
+#endif RTCW_XX
 
 //
 // key / value info strings

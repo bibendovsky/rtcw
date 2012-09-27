@@ -472,7 +472,7 @@ int CM_WriteAreaBits( byte *buffer, int area ) {
 
 #if defined RTCW_SP
 		Com_Memset( buffer, 255, bytes );
-#elif defined RTCW_MP
+#else
 		memset( buffer, 255, bytes );
 #endif RTCW_XX
 

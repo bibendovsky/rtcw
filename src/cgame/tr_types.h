@@ -39,6 +39,8 @@ If you have questions concerning this license or the applicable additional terms
 #define RF_THIRD_PERSON     2       // don't draw through eyes, only mirrors (player bodies, chat sprites)
 #define RF_FIRST_PERSON     4       // only draw through eyes (view weapon, damage blood blob)
 #define RF_DEPTHHACK        8       // for view weapon Z crunching
+
+#if !defined RTCW_ET
 #define RF_NOSHADOW         64      // don't add stencil shadows
 
 #define RF_LIGHTING_ORIGIN  128     // use refEntity->lightingOrigin instead of refEntity->origin
@@ -51,6 +53,23 @@ If you have questions concerning this license or the applicable additional terms
 
 #define RF_HILIGHT          ( 1 << 8 )  // more than RF_MINLIGHT.  For when an object is "Highlighted" (looked at/training identification/etc)
 #define RF_BLINK            ( 1 << 9 )  // eyes in 'blink' state
+#else
+#define RF_NOSHADOW         0x000010        // don't add stencil shadows
+
+#define RF_LIGHTING_ORIGIN  0x000020        // use refEntity->lightingOrigin instead of refEntity->origin
+											// for lighting.  This allows entities to sink into the floor
+											// with their origin going solid, and allows all parts of a
+											// player to get the same lighting
+#define RF_SHADOW_PLANE     0x000040        // use refEntity->shadowPlane
+#define RF_WRAP_FRAMES      0x000080        // mod the model frames by the maxframes to allow continuous
+											// animation without needing to know the frame count
+#define RF_HILIGHT          0x000100        // more than RF_MINLIGHT.  For when an object is "Highlighted" (looked at/training identification/etc)
+#define RF_BLINK            0x000200        // eyes in 'blink' state
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#define RF_FORCENOLOD       0x000400
+#endif RTCW_XX
 
 // refdef flags
 #define RDF_NOWORLDMODEL    1       // used for player configuration screen
@@ -129,7 +148,16 @@ typedef struct {
 	qboolean nonNormalizedAxes;     // axis are not normalized, i.e. they have scale
 	float origin[3];                // also used as MODEL_BEAM's "from"
 	int frame;                      // also used as MODEL_BEAM's diameter
+
+#if defined RTCW_ET
+	qhandle_t frameModel;
+#endif RTCW_XX
+
 	int torsoFrame;                 // skeletal torso can have frame independant of legs frame
+
+#if defined RTCW_ET
+	qhandle_t torsoFrameModel;
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	vec3_t scale;       //----(SA)	added
@@ -138,7 +166,17 @@ typedef struct {
 	// previous data for frame interpolation
 	float oldorigin[3];             // also used as MODEL_BEAM's "to"
 	int oldframe;
+
+#if defined RTCW_ET
+	qhandle_t oldframeModel;
+#endif RTCW_XX
+
 	int oldTorsoFrame;
+
+#if defined RTCW_ET
+	qhandle_t oldTorsoFrameModel;
+#endif RTCW_XX
+
 	float backlerp;                 // 0.0 = current, 1.0 = old
 	float torsoBacklerp;
 
@@ -298,7 +336,7 @@ typedef struct {
 #if defined RTCW_SP
 	char extensions_string[4 * MAX_STRING_CHARS];                       // this is actually too short for many current cards/drivers  // (SA) doubled from 2x to 4x MAX_STRING_CHARS
 
-#elif defined RTCW_MP
+#else
 	char extensions_string[MAX_STRING_CHARS * 4];                  // TTimo - bumping, some cards have a big extension string
 #endif RTCW_XX
 
@@ -319,11 +357,7 @@ typedef struct {
 	// vendor-specific support
 	// NVidia
 
-#if defined RTCW_SP
 	qboolean NVFogAvailable;                    //----(SA)	added
-#elif defined RTCW_MP
-	qboolean NVFogAvailable;                        //----(SA)	added
-#endif RTCW_XX
 
 	int NVFogMode;                                  //----(SA)	added
 	// ATI
@@ -346,7 +380,10 @@ typedef struct {
 	qboolean stereoEnabled;
 	qboolean smpActive;                     // dual processor
 
+#if !defined RTCW_ET
 	qboolean textureFilterAnisotropicAvailable;                 //DAJ
+#endif RTCW_XX
+
 } glconfig_t;
 
 
@@ -369,5 +406,25 @@ typedef struct {
 
 #endif  // !defined _WIN32
 
+
+#if defined RTCW_ET
+// =========================================
+// Gordon, these MUST NOT exceed the values for SHADER_MAX_VERTEXES/SHADER_MAX_INDEXES
+#define MAX_PB_VERTS    1025
+#define MAX_PB_INDICIES ( MAX_PB_VERTS * 6 )
+
+typedef struct polyBuffer_s {
+	vec4_t xyz[MAX_PB_VERTS];
+	vec2_t st[MAX_PB_VERTS];
+	byte color[MAX_PB_VERTS][4];
+	int numVerts;
+
+	int indicies[MAX_PB_INDICIES];
+	int numIndicies;
+
+	qhandle_t shader;
+} polyBuffer_t;
+// =========================================
+#endif RTCW_XX
 
 #endif  // __TR_TYPES_H

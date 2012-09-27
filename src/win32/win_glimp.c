@@ -77,7 +77,12 @@ typedef enum {
 #define TRY_PFD_FAIL_SOFT   1
 #define TRY_PFD_FAIL_HARD   2
 
+#if !defined RTCW_ET
 #define WINDOW_CLASS_NAME   "Wolfenstein"
+#else
+//#define	WINDOW_CLASS_NAME	"Wolfenstein"
+#define WINDOW_CLASS_NAME   "Enemy Territory"
+#endif RTCW_XX
 
 static void     GLW_InitExtensions( void );
 static rserr_t  GLW_SetMode( const char *drivername,
@@ -102,7 +107,42 @@ glwstate_t glw_state;
 cvar_t  *r_allowSoftwareGL;     // don't abort out if the pixelformat claims software
 cvar_t  *r_maskMinidriver;      // allow a different dll name to be treated as if it were opengl32.dll
 
+#if defined RTCW_ET
+int gl_NormalFontBase = 0;
+static qboolean fontbase_init = qfalse;
 
+/*
+* Find the first occurrence of find in s.
+*/
+// bk001130 - from cvs1.17 (mkv), const
+// bk001130 - made first argument const
+// fretn - comes from linux_glimp.c msvc really needs this (well ... mine does \o/ )
+static const char *Q_stristr( const char *s, const char *find ) {
+	register char c, sc;
+	register size_t len;
+
+	if ( ( c = *find++ ) != 0 ) {
+		if ( c >= 'a' && c <= 'z' ) {
+			c -= ( 'a' - 'A' );
+		}
+		len = strlen( find );
+		do
+		{
+			do
+			{
+				if ( ( sc = *s++ ) == 0 ) {
+					return NULL;
+				}
+				if ( sc >= 'a' && sc <= 'z' ) {
+					sc -= ( 'a' - 'A' );
+				}
+			} while ( sc != c );
+		} while ( Q_stricmpn( s, find, len ) != 0 );
+		s--;
+	}
+	return s;
+}
+#endif RTCW_XX
 
 /*
 ** GLW_StartDriverAndSetMode
@@ -561,7 +601,13 @@ static qboolean GLW_CreateWindow( const char *drivername, int width, int height,
 		wc.lpszClassName = WINDOW_CLASS_NAME;
 
 		if ( !RegisterClass( &wc ) ) {
+
+#if !defined RTCW_ET
 			ri.Error( ERR_FATAL, "GLW_CreateWindow: could not register window class" );
+#else
+			ri.Error( ERR_VID_FATAL, "GLW_CreateWindow: could not register window class" );
+#endif RTCW_XX
+
 		}
 		s_classRegistered = qtrue;
 		ri.Printf( PRINT_ALL, "...registered window class\n" );
@@ -625,7 +671,14 @@ static qboolean GLW_CreateWindow( const char *drivername, int width, int height,
 		g_wv.hWnd = CreateWindowEx(
 			exstyle,
 			WINDOW_CLASS_NAME,
+
+#if !defined RTCW_ET
 			"Wolfenstein",
+#else
+			//"Wolfenstein",
+			"Enemy Territory",
+#endif RTCW_XX
+
 			stylebits,
 			x, y, w, h,
 			NULL,
@@ -634,7 +687,13 @@ static qboolean GLW_CreateWindow( const char *drivername, int width, int height,
 			NULL );
 
 		if ( !g_wv.hWnd ) {
+
+#if !defined RTCW_ET
 			ri.Error( ERR_FATAL, "GLW_CreateWindow() - Couldn't create window" );
+#else
+			ri.Error( ERR_VID_FATAL, "GLW_CreateWindow() - Couldn't create window" );
+#endif RTCW_XX
+
 		}
 
 		ShowWindow( g_wv.hWnd, SW_SHOW );
@@ -752,6 +811,17 @@ static rserr_t GLW_SetMode( const char *drivername,
 		if ( r_displayRefresh->integer != 0 ) {
 			dm.dmDisplayFrequency = r_displayRefresh->integer;
 			dm.dmFields |= DM_DISPLAYFREQUENCY;
+
+#if defined RTCW_ET
+		} else {
+			DEVMODE dmode;
+
+			if ( EnumDisplaySettings( NULL, ENUM_CURRENT_SETTINGS, &dmode ) ) {
+				dm.dmDisplayFrequency = dmode.dmDisplayFrequency;
+				dm.dmFields |= DM_DISPLAYFREQUENCY;
+			}
+#endif RTCW_XX
+
 		}
 
 		// try to change color depth if possible
@@ -914,7 +984,7 @@ static void GLW_InitExtensions( void ) {
 
 	// GL_S3_s3tc
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	glConfig.textureCompression = TC_NONE;
 #endif RTCW_XX
 
@@ -951,7 +1021,7 @@ static void GLW_InitExtensions( void ) {
 
 	// GL_EXT_texture_env_add
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	glConfig.textureEnvAddAvailable = qfalse;
 #endif RTCW_XX
 
@@ -981,7 +1051,7 @@ static void GLW_InitExtensions( void ) {
 
 	// GL_ARB_multitexture
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	qglMultiTexCoord2fARB = NULL;
 	qglActiveTextureARB = NULL;
 	qglClientActiveTextureARB = NULL;
@@ -1017,7 +1087,7 @@ static void GLW_InitExtensions( void ) {
 
 	// GL_EXT_compiled_vertex_array
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	qglLockArraysEXT = NULL;
 	qglUnlockArraysEXT = NULL;
 #endif RTCW_XX
@@ -1028,7 +1098,13 @@ static void GLW_InitExtensions( void ) {
 			qglLockArraysEXT = ( void ( APIENTRY * )( int, int ) )qwglGetProcAddress( "glLockArraysEXT" );
 			qglUnlockArraysEXT = ( void ( APIENTRY * )( void ) )qwglGetProcAddress( "glUnlockArraysEXT" );
 			if ( !qglLockArraysEXT || !qglUnlockArraysEXT ) {
+
+#if !defined RTCW_ET
 				ri.Error( ERR_FATAL, "bad getprocaddress" );
+#else
+				ri.Error( ERR_VID_FATAL, "bad getprocaddress" );
+#endif RTCW_XX
+
 			}
 		} else
 		{
@@ -1041,7 +1117,7 @@ static void GLW_InitExtensions( void ) {
 
 	// WGL_3DFX_gamma_control
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	qwglGetDeviceGammaRamp3DFX = NULL;
 	qwglSetDeviceGammaRamp3DFX = NULL;
 #endif RTCW_XX
@@ -1139,7 +1215,86 @@ static void GLW_InitExtensions( void ) {
 //	ARB_multisample
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	// GL_EXT_texture_filter_anisotropic
+	if ( Q_stristr( glConfig.extensions_string, "GL_EXT_texture_filter_anisotropic" ) ) {
+		if ( r_ext_texture_filter_anisotropic->integer ) {
+			glConfig.anisotropicAvailable = qtrue;
+			ri.Printf( PRINT_ALL, "...using GL_EXT_texture_filter_anisotropic\n" );
+		} else {
+			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_filter_anisotropic\n" );
+			ri.Cvar_Set( "r_ext_texture_filter_anisotropic", "0" );
+		}
+	} else {
+		ri.Printf( PRINT_ALL, "... GL_EXT_texture_filter_anisotropic not found\n" );
+		ri.Cvar_Set( "r_ext_texture_filter_anisotropic", "0" );
+	}
+#endif RTCW_XX
 }
+
+#if defined RTCW_ET
+/*
+** GLW_GenDefaultLists
+*/
+static void GLW_GenDefaultLists( void ) {
+	HFONT hfont, oldhfont;
+
+	// keep going, we'll probably just leak some stuff
+	if ( fontbase_init ) {
+		Com_DPrintf( "ERROR: GLW_GenDefaultLists: font base is already marked initialized\n" );
+	}
+
+	// create font display lists
+	gl_NormalFontBase = qglGenLists( 256 );
+
+	if ( gl_NormalFontBase == 0 ) {
+		Com_Printf( "ERROR: couldn't create font (glGenLists)\n" );
+		return;
+	}
+
+	hfont = CreateFont(
+		12, // logical height of font
+		6,  // logical average character width
+		0,  // angle of escapement
+		0,  // base-line orientation angle
+		0,  // font weight
+		0,  // italic attribute flag
+		0,  // underline attribute flag
+		0,  // strikeout attribute flag
+		0,  // character set identifier
+		0,  // output precision
+		0,  // clipping precision
+		0,  // output quality
+		0,  // pitch and family
+		"" ); // pointer to typeface name string
+
+	if ( !hfont ) {
+		Com_Printf( "ERROR: couldn't create font (CreateFont)\n" );
+		return;
+	}
+
+	oldhfont = SelectObject( glw_state.hDC, hfont );
+	qwglUseFontBitmaps( glw_state.hDC, 0, 255, gl_NormalFontBase );
+
+	SelectObject( glw_state.hDC, oldhfont );
+	DeleteObject( hfont );
+
+	fontbase_init = qtrue;
+}
+
+/*
+** GLW_DeleteDefaultLists
+*/
+static void GLW_DeleteDefaultLists( void ) {
+	if ( !fontbase_init ) {
+		Com_DPrintf( "ERROR: GLW_DeleteDefaultLists: no font list initialized\n" );
+		return;
+	}
+
+	qglDeleteLists( gl_NormalFontBase, 256 );
+	fontbase_init = qfalse;
+}
+#endif RTCW_XX
 
 /*
 ** GLW_CheckOSVersion
@@ -1273,7 +1428,13 @@ void GLimp_EndFrame( void ) {
 	if ( Q_stricmp( r_drawBuffer->string, "GL_FRONT" ) != 0 ) {
 		if ( glConfig.driverType > GLDRV_ICD ) {
 			if ( !qwglSwapBuffers( glw_state.hDC ) ) {
+
+#if !defined RTCW_ET
 				ri.Error( ERR_FATAL, "GLimp_EndFrame() - SwapBuffers() failed!\n" );
+#else
+				ri.Error( ERR_VID_FATAL, "GLimp_EndFrame() - SwapBuffers() failed!\n" );
+#endif RTCW_XX
+
 			}
 		} else
 		{
@@ -1331,13 +1492,25 @@ static void GLW_StartOpenGL( void ) {
 			{
 				if ( !attemptedOpenGL32 ) {
 					if ( !GLW_LoadOpenGL( OPENGL_DRIVER_NAME ) ) {
+
+#if !defined RTCW_ET
 						ri.Error( ERR_FATAL, "GLW_StartOpenGL() - could not load OpenGL subsystem\n" );
+#else
+						ri.Error( ERR_VID_FATAL, "GLW_StartOpenGL() - could not load OpenGL subsystem\n" );
+#endif RTCW_XX
+
 					}
 					ri.Cvar_Set( "r_glDriver", OPENGL_DRIVER_NAME );
 					r_glDriver->modified = qfalse;
 				} else
 				{
+
+#if !defined RTCW_ET
 					ri.Error( ERR_FATAL, "GLW_StartOpenGL() - could not load OpenGL subsystem\n" );
+#else
+					ri.Error( ERR_VID_FATAL, "GLW_StartOpenGL() - could not load OpenGL subsystem\n" );
+#endif RTCW_XX
+
 				}
 			}
 		} else if ( !attemptedOpenGL32 )   {
@@ -1347,7 +1520,13 @@ static void GLW_StartOpenGL( void ) {
 				r_glDriver->modified = qfalse;
 			} else
 			{
+
+#if !defined RTCW_ET
 				ri.Error( ERR_FATAL, "GLW_StartOpenGL() - could not load OpenGL subsystem\n" );
+#else
+				ri.Error( ERR_VID_FATAL, "GLW_StartOpenGL() - could not load OpenGL subsystem\n" );
+#endif RTCW_XX
+
 			}
 		}
 	}
@@ -1374,7 +1553,13 @@ void GLimp_Init( void ) {
 	// check OS version to see if we can do fullscreen display changes
 	//
 	if ( !GLW_CheckOSVersion() ) {
+
+#if !defined RTCW_ET
 		ri.Error( ERR_FATAL, "GLimp_Init() - incorrect operating system\n" );
+#else
+		ri.Error( ERR_VID_FATAL, "GLimp_Init() - incorrect operating system\n" );
+#endif RTCW_XX
+
 	}
 
 	// save off hInstance and wndproc
@@ -1396,7 +1581,7 @@ void GLimp_Init( void ) {
 	Q_strncpyz( glConfig.version_string, qglGetString( GL_VERSION ), sizeof( glConfig.version_string ) );
 	Q_strncpyz( glConfig.extensions_string, qglGetString( GL_EXTENSIONS ), sizeof( glConfig.extensions_string ) );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// TTimo - safe check
 	if ( strlen( qglGetString( GL_EXTENSIONS ) ) >= sizeof( glConfig.extensions_string ) ) {
 		Com_Printf( S_COLOR_YELLOW "WARNNING: GL extensions string too long (%d), truncated to %d\n", strlen( qglGetString( GL_EXTENSIONS ) ), sizeof( glConfig.extensions_string ) );
@@ -1428,7 +1613,7 @@ void GLimp_Init( void ) {
 		} else if ( strstr( buf, "matrox" ) ) {
 			ri.Cvar_Set( "r_allowExtensions", "0" );
 		} else {
-#elif defined RTCW_MP
+#else
 		} else
 		{
 
@@ -1457,23 +1642,59 @@ void GLimp_Init( void ) {
 	// VOODOO GRAPHICS w/ 2MB
 	else if ( strstr( buf, "voodoo graphics/1 tmu/2 mb" ) ) {
 	} else if ( strstr( buf, "glzicd" ) )    {
+
+#if !defined RTCW_ET
 	} else if ( strstr( buf, "rage pro" ) || strstr( buf, "Rage Pro" ) || strstr( buf, "ragepro" ) )       {
+#else
+	} else if ( strstr( buf, "rage pro" ) /*|| strstr( buf, "Rage Pro")*/ || strstr( buf, "ragepro" ) )     {
+#endif RTCW_XX
+
 		glConfig.hardwareType = GLHW_RAGEPRO;
+
+#if defined RTCW_ET
+		ri.Printf( PRINT_WARNING, "WARNING: Rage Pro hardware is unsupported. Rendering errors may occur.\n" );
+#endif RTCW_XX
+
 	} else if ( strstr( buf, "rage 128" ) )    {
 	} else if ( strstr( buf, "permedia2" ) )    {
 		glConfig.hardwareType = GLHW_PERMEDIA2;
+
+#if defined RTCW_ET
+		ri.Printf( PRINT_WARNING, "WARNING: Permedia hardware is unsupported. Rendering errors may occur.\n" );
+#endif RTCW_XX
+
 	} else if ( strstr( buf, "riva 128" ) )    {
 		glConfig.hardwareType = GLHW_RIVA128;
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+		ri.Printf( PRINT_WARNING, "WARNING: Riva 128 hardware is unsupported. Rendering errors may occur.\n" );
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 	} else if ( strstr( buf, "matrox" ) )     {
 #endif RTCW_XX
 
 	} else if ( strstr( buf, "riva tnt " ) )    {
 	}
 
+#if !defined RTCW_ET
 	if ( strstr( buf, "geforce" ) || strstr( buf, "ge-force" ) || strstr( buf, "radeon" ) || strstr( buf, "nv20" ) || strstr( buf, "nv30" )
 		 || strstr( buf, "quadro" ) ) {
+#else
+	if ( strstr( buf, "geforce3" ) ||
+		 strstr( buf, "geforce4 ti" ) ||
+		 strstr( buf, "geforce fx 5600" ) ||
+		 strstr( buf, "geforce fx 5800" ) ||
+		 strstr( buf, "radeon 8500" ) ||
+		 strstr( buf, "radeon 9000" ) ||
+		 strstr( buf, "radeon 9500" ) ||
+		 strstr( buf, "radeon 9600" ) ||
+		 strstr( buf, "radeon 9700" ) ||
+		 strstr( buf, "radeon 9800" ) ||
+		 strstr( buf, "nv20" ) ||
+		 strstr( buf, "nv30" ) ) {
+#endif RTCW_XX
+
 		ri.Cvar_Set( "r_highQualityVideo", "1" );
 	} else {
 		ri.Cvar_Set( "r_highQualityVideo", "0" );
@@ -1484,6 +1705,12 @@ void GLimp_Init( void ) {
 
 	GLW_InitExtensions();
 	WG_CheckHardwareGamma();
+
+#if defined RTCW_ET
+	// initialise default lists
+	GLW_GenDefaultLists();
+#endif RTCW_XX
+
 }
 
 /*
@@ -1506,6 +1733,11 @@ void GLimp_Shutdown( void ) {
 
 	// restore gamma.  We do this first because 3Dfx's extension needs a valid OGL subsystem
 	WG_RestoreGamma();
+
+#if defined RTCW_ET
+	// delete display lists
+	GLW_DeleteDefaultLists();
+#endif RTCW_XX
 
 	// set current context to NULL
 	if ( qwglMakeCurrent ) {

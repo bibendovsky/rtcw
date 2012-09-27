@@ -40,6 +40,10 @@ If you have questions concerning this license or the applicable additional terms
 #define BOX_MODEL_HANDLE        511
 #define CAPSULE_MODEL_HANDLE    510
 
+#if defined RTCW_ET
+// enable to make the collision detection a bunch faster
+#define MRE_OPTIMIZE
+#endif RTCW_XX
 
 typedef struct {
 	cplane_t    *plane;
@@ -152,6 +156,10 @@ extern cvar_t      *cm_noAreas;
 extern cvar_t      *cm_noCurves;
 extern cvar_t      *cm_playerCurveClip;
 
+#if defined RTCW_ET
+extern cvar_t      *cm_optimize;
+#endif RTCW_XX
+
 // cm_test.c
 
 // Used for oriented capsule collision detection
@@ -176,6 +184,17 @@ typedef struct {
 	qboolean isPoint;       // optimized case
 	trace_t trace;          // returned from trace call
 	sphere_t sphere;        // sphere for oriendted capsule collision
+
+#if defined RTCW_ET
+#ifdef MRE_OPTIMIZE
+	cplane_t tracePlane1;
+	cplane_t tracePlane2;
+	float traceDist1;
+	float traceDist2;
+	vec3_t dir;
+#endif
+#endif RTCW_XX
+
 } traceWork_t;
 
 typedef struct leafList_s {
@@ -200,7 +219,12 @@ cmodel_t    *CM_ClipHandleToModel( clipHandle_t handle );
 
 // cm_patch.c
 
+#if !defined RTCW_ET
 struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t *points );
+#else
+struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t *points, qboolean addBevels );
+#endif RTCW_XX
+
 void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
 qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
 void CM_ClearLevelPatches( void );

@@ -33,6 +33,15 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/g_public.h"
 #include "../game/bg_public.h"
 
+#if defined RTCW_ET
+//bani
+#ifdef __GNUC__
+#define _attribute( x ) __attribute__( x )
+#else
+#define _attribute( x )
+#endif
+#endif RTCW_XX
+
 //=============================================================================
 
 #define PERS_SCORE              0       // !!! MUST NOT CHANGE, SERVER AND
@@ -40,7 +49,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #define MAX_ENT_CLUSTERS    16
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #define MAX_BPS_WINDOW      20          // NERVE - SMF - net debugging
 #endif RTCW_XX
 
@@ -54,6 +63,11 @@ typedef struct svEntity_s {
 	int lastCluster;                // if all the clusters don't fit in clusternums
 	int areanum, areanum2;
 	int snapshotCounter;            // used to prevent double adding from portal views
+
+#if defined RTCW_ET
+	int originCluster;              // Gordon: calced upon linking, for origin only bmodel vis checks
+#endif RTCW_XX
+
 } svEntity_t;
 
 typedef enum {
@@ -70,7 +84,7 @@ typedef struct {
 
 #if defined RTCW_SP
 	int checksumFeed;                   //
-#elif defined RTCW_MP
+#else
 	int checksumFeed;                   // the feed key that we use to compute the pure checksum strings
 	// show_bug.cgi?id=475
 	// the serverId associated with the current checksumFeed (always <= serverId)
@@ -82,6 +96,11 @@ typedef struct {
 	int nextFrameTime;                  // when time > nextFrameTime, process world
 	struct cmodel_s *models[MAX_MODELS];
 	char            *configstrings[MAX_CONFIGSTRINGS];
+
+#if defined RTCW_ET
+	qboolean configstringsmodified[MAX_CONFIGSTRINGS];
+#endif RTCW_XX
+
 	svEntity_t svEntities[MAX_GENTITIES];
 
 	char            *entityParsePoint;  // used during game VM init
@@ -96,7 +115,7 @@ typedef struct {
 
 	int restartTime;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// NERVE - SMF - net debugging
 	int bpsWindow[MAX_BPS_WINDOW];
 	int bpsWindowSteps;
@@ -110,6 +129,14 @@ typedef struct {
 	float ucompAve;
 	int ucompNum;
 	// -NERVE - SMF
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	md3Tag_t tags[MAX_SERVER_TAGS];
+	tagHeaderExt_t tagHeadersExt[MAX_TAG_FILES];
+
+	int num_tagheaders;
+	int num_tags;
 #endif RTCW_XX
 
 } server_t;
@@ -155,10 +182,15 @@ typedef struct {
 	//
 	char    *rover;
 } reliableCommands_t;
-#elif defined RTCW_MP
+#else
 typedef struct netchan_buffer_s {
 	msg_t msg;
 	byte msgBuffer[MAX_MSGLEN];
+
+#if defined RTCW_ET
+	char lastClientCommandString[MAX_STRING_CHARS];
+#endif RTCW_XX
+
 	struct netchan_buffer_s *next;
 } netchan_buffer_t;
 #endif RTCW_XX
@@ -170,7 +202,7 @@ typedef struct client_s {
 #if defined RTCW_SP
 	//char			reliableCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
 	reliableCommands_t reliableCommands;
-#elif defined RTCW_MP
+#else
 	char reliableCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
 #endif RTCW_XX
 
@@ -178,6 +210,12 @@ typedef struct client_s {
 	int reliableAcknowledge;                // last acknowledged reliable message
 	int reliableSent;                       // last sent reliable message, not necesarily acknowledged yet
 	int messageAcknowledge;
+
+#if defined RTCW_ET
+	int binaryMessageLength;
+	char binaryMessage[MAX_BINARY_MESSAGE];
+	qboolean binaryMessageOverflowed;
+#endif RTCW_XX
 
 	int gamestateMessageNum;                // netchan->outgoingSequence of gamestate
 	int challenge;
@@ -202,6 +240,16 @@ typedef struct client_s {
 	qboolean downloadEOF;               // We have sent the EOF block
 	int downloadSendTime;               // time we last got an ack from the client
 
+#if defined RTCW_ET
+	// www downloading
+	qboolean bDlOK;    // passed from cl_wwwDownload CVAR_USERINFO, wether this client supports www dl
+	char downloadURL[MAX_OSPATH];            // the URL we redirected the client to
+	qboolean bWWWDl;    // we have a www download going
+	qboolean bWWWing;    // the client is doing an ftp/http download
+	qboolean bFallback;    // last www download attempt failed, fallback to regular download
+	// note: this is one-shot, multiple downloads would cause a www download to be attempted again
+#endif RTCW_XX
+
 	int deltaMessage;                   // frame last client usercmd message
 	int nextReliableTime;               // svs.time when another reliable command will be allowed
 	int lastPacketTime;                 // svs.time when packet was last received
@@ -215,19 +263,31 @@ typedef struct client_s {
 	int snapshotMsec;                   // requests a snapshot every snapshotMsec unless rate choked
 	int pureAuthentic;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	qboolean gotCP;  // TTimo - additional flag to distinguish between a bad pure checksum, and no cp command at all
 #endif RTCW_XX
 
 	netchan_t netchan;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// TTimo
 	// queuing outgoing fragmented messages to send them properly, without udp packet bursts
 	// in case large fragmented messages are stacking up
 	// buffer them into this queue, and hand them out to netchan as needed
 	netchan_buffer_t *netchan_start_queue;
+
+#if !defined RTCW_ET
 	netchan_buffer_t **netchan_end_queue;
+#else
+	//%	netchan_buffer_t **netchan_end_queue;
+	netchan_buffer_t *netchan_end_queue;
+#endif RTCW_XX
+
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	//bani
+	int downloadnotify;
 #endif RTCW_XX
 
 } client_t;
@@ -249,16 +309,28 @@ typedef struct {
 	int pingTime;                   // time the challenge response was sent to client
 	int firstTime;                  // time the adr was first used, for authorize timeout checks
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	int firstPing;                  // Used for min and max ping checks
 	qboolean connected;
 #endif RTCW_XX
 
 } challenge_t;
 
+#if defined RTCW_ET
+typedef struct tempBan_s {
+	netadr_t adr;
+	int endtime;
+} tempBan_t;
+#endif RTCW_XX
 
 #define MAX_MASTERS 8               // max recipients for heartbeat packets
 
+#if defined RTCW_ET
+#define MAX_TEMPBAN_ADDRESSES               MAX_CLIENTS
+
+#define SERVER_PERFORMANCECOUNTER_FRAMES    600
+#define SERVER_PERFORMANCECOUNTER_SAMPLES   6
+#endif RTCW_XX
 
 // this structure will be cleared only when the game dll changes
 typedef struct {
@@ -276,7 +348,22 @@ typedef struct {
 	challenge_t challenges[MAX_CHALLENGES]; // to prevent invalid IPs from connecting
 	netadr_t redirectAddress;               // for rcon return messages
 
+#if defined RTCW_ET
+	tempBan_t tempBanAddresses[MAX_TEMPBAN_ADDRESSES];
+#endif RTCW_XX
+
+#if !defined RTCW_ET || (defined RTCW_ET && defined AUTHORIZE_SUPPORT)
 	netadr_t authorizeAddress;              // for rcon return messages
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	int sampleTimes[SERVER_PERFORMANCECOUNTER_SAMPLES];
+	int currentSampleIndex;
+	int totalFrameTime;
+	int currentFrameIndex;
+	int serverLoad;
+#endif RTCW_XX
+
 } serverStatic_t;
 
 #if defined RTCW_MP
@@ -316,18 +403,31 @@ extern cvar_t  *sv_rconPassword;
 extern cvar_t  *sv_privatePassword;
 extern cvar_t  *sv_allowDownload;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 extern cvar_t  *sv_friendlyFire;        // NERVE - SMF
 extern cvar_t  *sv_maxlives;            // NERVE - SMF
+
+#if !defined RTCW_ET
 extern cvar_t  *sv_tourney;             // NERVE - SMF
 #endif RTCW_XX
 
+#endif RTCW_XX
+
 extern cvar_t  *sv_maxclients;
+
+#if defined RTCW_ET
+extern cvar_t  *sv_needpass;
+#endif RTCW_XX
 
 extern cvar_t  *sv_privateClients;
 extern cvar_t  *sv_hostname;
 extern cvar_t  *sv_master[MAX_MASTER_SERVERS];
 extern cvar_t  *sv_reconnectlimit;
+
+#if defined RTCW_ET
+extern cvar_t  *sv_tempbanmessage;
+#endif RTCW_XX
+
 extern cvar_t  *sv_showloss;
 extern cvar_t  *sv_padPackets;
 extern cvar_t  *sv_killserver;
@@ -337,27 +437,63 @@ extern cvar_t  *sv_serverid;
 extern cvar_t  *sv_maxRate;
 extern cvar_t  *sv_minPing;
 extern cvar_t  *sv_maxPing;
+
+#if !defined RTCW_ET
 extern cvar_t  *sv_gametype;
+#else
+//extern	cvar_t	*sv_gametype;
+#endif RTCW_XX
+
 extern cvar_t  *sv_pure;
 extern cvar_t  *sv_floodProtect;
 extern cvar_t  *sv_allowAnonymous;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 extern cvar_t  *sv_lanForceRate;
 extern cvar_t  *sv_onlyVisibleClients;
 
 extern cvar_t  *sv_showAverageBPS;          // NERVE - SMF - net debugging
 #endif RTCW_XX
 
+#if defined RTCW_ET
+extern cvar_t* g_gameType;
+#endif RTCW_XX
+
 // Rafael gameskill
+
+#if !defined RTCW_ET
 extern cvar_t  *sv_gameskill;
+#else
+//extern	cvar_t	*sv_gameskill;
+#endif RTCW_XX
+
 // done
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 extern cvar_t  *sv_reloading;   //----(SA)	added
-#elif defined RTCW_MP
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 // TTimo - autodl
 extern cvar_t *sv_dl_maxRate;
+#endif RTCW_XX
+
+#if defined RTCW_ET
+// TTimo
+extern cvar_t *sv_wwwDownload; // general flag to enable/disable www download redirects
+extern cvar_t *sv_wwwBaseURL; // the base URL of all the files
+// tell clients to perform their downloads while disconnected from the server
+// this gets you a better throughput, but you loose the ability to control the download usage
+extern cvar_t *sv_wwwDlDisconnected;
+extern cvar_t *sv_wwwFallbackURL;
+
+//bani
+extern cvar_t *sv_cheats;
+extern cvar_t *sv_packetloss;
+extern cvar_t *sv_packetdelay;
+
+//fretn
+extern cvar_t *sv_fullmsg;
 #endif RTCW_XX
 
 //===========================================================
@@ -365,7 +501,15 @@ extern cvar_t *sv_dl_maxRate;
 //
 // sv_main.c
 //
+
+#if !defined RTCW_ET
 void SV_FinalMessage( char *message );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+void SV_FinalCommand( char *cmd, qboolean disconnect ); // ydnar: added disconnect flag so map changes can use this function as well
+#endif RTCW_XX
+
 void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ... );
 
 
@@ -375,26 +519,45 @@ void SV_RemoveOperatorCommands( void );
 
 #if defined RTCW_SP
 void SV_MasterHeartbeat( void );
-#elif defined RTCW_MP
+#else
 void SV_MasterHeartbeat( const char *hbname );
 #endif RTCW_XX
 
 void SV_MasterShutdown( void );
 
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 void SV_MasterGameCompleteStatus();     // NERVE - SMF
+#endif RTCW_XX
+
+#if defined RTCW_ET
+//bani - bugtraq 12534
+qboolean SV_VerifyChallenge( char *challenge );
 #endif RTCW_XX
 
 
 //
 // sv_init.c
 //
+
+#if defined RTCW_ET
+void SV_SetConfigstringNoUpdate( int index, const char *val );
+#endif RTCW_XX
+
 void SV_SetConfigstring( int index, const char *val );
+
+#if defined RTCW_ET
+void SV_UpdateConfigStrings( void );
+#endif RTCW_XX
+
 void SV_GetConfigstring( int index, char *buffer, int bufferSize );
 
 void SV_SetUserinfo( int index, const char *val );
 void SV_GetUserinfo( int index, char *buffer, int bufferSize );
+
+#if defined RTCW_ET
+void SV_CreateBaseline( void );
+#endif RTCW_XX
 
 void SV_ChangeMaxClients( void );
 void SV_SpawnServer( char *server, qboolean killBots );
@@ -421,9 +584,20 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg );
 void SV_UserinfoChanged( client_t *cl );
 
 void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd );
+
+#if defined RTCW_ET
+void SV_FreeClientNetChan( client_t* client );
+#endif RTCW_XX
+
 void SV_DropClient( client_t *drop, const char *reason );
 
+
+#if !defined RTCW_ET
 void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK );
+#else
+void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK, qboolean premaprestart );
+#endif RTCW_XX
+
 void SV_ClientThink( client_t *cl, usercmd_t *cmd );
 
 void SV_WriteDownloadToClient( client_t *cl, msg_t *msg );
@@ -432,6 +606,11 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg );
 // sv_ccmds.c
 //
 void SV_Heartbeat_f( void );
+
+#if defined RTCW_ET
+qboolean SV_TempBanIsBanned( netadr_t address );
+void SV_TempBanNetAddress( netadr_t address, int length );
+#endif RTCW_XX
 
 //
 // sv_snapshot.c
@@ -443,10 +622,22 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client );
 void SV_SendClientMessages( void );
 void SV_SendClientSnapshot( client_t *client );
 
+#if defined RTCW_ET
+//bani
+void SV_SendClientIdle( client_t *client );
+#endif RTCW_XX
+
+
 //
 // sv_game.c
 //
 int SV_NumForGentity( sharedEntity_t *ent );
+
+#if defined RTCW_ET
+//#define SV_GentityNum( num ) ((sharedEntity_t *)((byte *)sv.gentities + sv.gentitySize*(num)))
+//#define SV_GameClientNum( num ) ((playerState_t *)((byte *)sv.gameClients + sv.gameClientSize*(num)))
+#endif RTCW_XX
+
 sharedEntity_t *SV_GentityNum( int num );
 playerState_t *SV_GameClientNum( int num );
 svEntity_t  *SV_SvEntityForGentity( sharedEntity_t *gEnt );
@@ -455,13 +646,31 @@ void        SV_InitGameProgs( void );
 void        SV_ShutdownGameProgs( void );
 void        SV_RestartGameProgs( void );
 qboolean    SV_inPVS( const vec3_t p1, const vec3_t p2 );
+
+#if !defined RTCW_ET
 qboolean SV_GetTag( int clientNum, char *tagname, orientation_t * or );
+#else
+qboolean SV_GetTag( int clientNum, int tagFileNumber, char *tagname, orientation_t * or );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+int SV_LoadTag( const char* mod_name );
+qboolean    SV_GameIsSinglePlayer( void );
+qboolean    SV_GameIsCoop( void );
+void        SV_GameBinaryMessageReceived( int cno, const char *buf, int buflen, int commandTime );
+#endif RTCW_XX
 
 //
 // sv_bot.c
 //
 void        SV_BotFrame( int time );
+
+#if !defined RTCW_ET
 int         SV_BotAllocateClient( void );
+#else
+int         SV_BotAllocateClient( int clientNum );
+#endif RTCW_XX
+
 void        SV_BotFreeClient( int clientNum );
 
 void        SV_BotInitCvars( void );
@@ -533,10 +742,17 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 #if defined RTCW_SP
 void SV_Netchan_Transmit( client_t *client, msg_t *msg );    //int length, const byte *data );
 void SV_Netchan_TransmitNextFragment( netchan_t *chan );
-#elif defined RTCW_MP
+#else
 void SV_Netchan_Transmit( client_t *client, msg_t *msg );
 void SV_Netchan_TransmitNextFragment( client_t *client );
 #endif RTCW_XX
 
 qboolean SV_Netchan_Process( client_t *client, msg_t *msg );
+
+#if defined RTCW_ET
+//bani - cl->downloadnotify
+#define DLNOTIFY_REDIRECT   0x00000001  // "Redirecting client ..."
+#define DLNOTIFY_BEGIN      0x00000002  // "clientDownload: 4 : beginning ..."
+#define DLNOTIFY_ALL        ( DLNOTIFY_REDIRECT | DLNOTIFY_BEGIN )
+#endif RTCW_XX
 

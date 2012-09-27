@@ -131,8 +131,14 @@ winding_t *AAS_SplitWinding( tmp_area_t *tmparea, int planenum ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if !defined RTCW_ET
 int AAS_TestSplitPlane( tmp_area_t *tmparea, vec3_t normal, float dist,
 						int *facesplits, int *groundsplits, int *epsilonfaces ) {
+#else
+int AAS_TestSplitPlane( tmp_area_t *tmparea, vec3_t normal, float dist, int *facesplits, int *groundsplits, int *epsilonfaces, vec3_t* points ) {
+#endif RTCW_XX
+
 	int j, side, front, back, planenum;
 	float d, d_front, d_back;
 	tmp_face_t *face;
@@ -140,7 +146,12 @@ int AAS_TestSplitPlane( tmp_area_t *tmparea, vec3_t normal, float dist,
 
 	*facesplits = *groundsplits = *epsilonfaces = 0;
 
+
+#if !defined RTCW_ET
 	planenum = FindFloatPlane( normal, dist );
+#else
+	planenum = FindFloatPlane( normal, dist, 4, points );
+#endif RTCW_XX
 
 	w = AAS_SplitWinding( tmparea, planenum );
 	if ( !w ) {
@@ -356,6 +367,10 @@ int AAS_FindBestAreaSplitPlane( tmp_area_t *tmparea, vec3_t normal, float *dist 
 	vec3_t tmpnormal, invgravity;
 	float tmpdist;
 
+#if defined RTCW_ET
+	vec3_t points[4];
+#endif RTCW_XX
+
 	//get inverse of gravity direction
 	VectorCopy( cfg.phys_gravitydirection, invgravity );
 	VectorInverse( invgravity );
@@ -400,8 +415,14 @@ int AAS_FindBestAreaSplitPlane( tmp_area_t *tmparea, vec3_t normal, float *dist 
 				continue;
 			}
 			//find a plane seperating the windings of the faces
+
+#if !defined RTCW_ET
 			if ( !FindPlaneSeperatingWindings( face1->winding, face2->winding, invgravity,
 											   tmpnormal, &tmpdist ) ) {
+#else
+			if ( !FindPlaneSeperatingWindings( face1->winding, face2->winding, invgravity, tmpnormal, &tmpdist, points ) ) {
+#endif RTCW_XX
+
 				continue;
 			}
 #ifdef AW_DEBUG
@@ -409,8 +430,14 @@ int AAS_FindBestAreaSplitPlane( tmp_area_t *tmparea, vec3_t normal, float *dist 
 					   tmpnormal[0], tmpnormal[1], tmpnormal[2], tmpdist );
 #endif //AW_DEBUG
 			//get metrics for this vertical plane
+
+#if !defined RTCW_ET
 			if ( !AAS_TestSplitPlane( tmparea, tmpnormal, tmpdist,
 									  &facesplits, &groundsplits, &epsilonfaces ) ) {
+#else
+			if ( !AAS_TestSplitPlane( tmparea, tmpnormal, tmpdist, &facesplits, &groundsplits, &epsilonfaces, points ) ) {
+#endif RTCW_XX
+
 				continue;
 			} //end if
 #ifdef AW_DEBUG
@@ -451,12 +478,24 @@ tmp_node_t *AAS_SubdivideArea_r( tmp_node_t *tmpnode ) {
 	if ( AAS_FindBestAreaSplitPlane( tmpnode->tmparea, normal, &dist ) ) {
 		qprintf( "\r%6d", ++numgravitationalsubdivisions );
 		//
+
+#if !defined RTCW_ET
 		planenum = FindFloatPlane( normal, dist );
+#else
+		planenum = FindFloatPlane( normal, dist, 0, NULL );
+#endif RTCW_XX
+
 		//split the area
 		AAS_SplitArea( tmpnode->tmparea, planenum, &frontarea, &backarea );
 		//
 		tmpnode->tmparea = NULL;
+
+#if !defined RTCW_ET
 		tmpnode->planenum = FindFloatPlane( normal, dist );
+#else
+		tmpnode->planenum = FindFloatPlane( normal, dist, 0, NULL );
+#endif RTCW_XX
+
 		//
 		tmpnode1 = AAS_AllocTmpNode();
 		tmpnode1->planenum = 0;
@@ -619,7 +658,13 @@ tmp_node_t *AAS_LadderSubdivideArea_r( tmp_node_t *tmpnode ) {
 	} //end for
 	  //
 	dist = DotProduct( normal, lowestpoint );
+
+#if !defined RTCW_ET
 	planenum = FindFloatPlane( normal, dist );
+#else
+	planenum = FindFloatPlane( normal, dist, 1, (vec3_t*)&lowestpoint );
+#endif RTCW_XX
+
 	//
 	w = AAS_SplitWinding( tmparea, planenum );
 	if ( !w ) {

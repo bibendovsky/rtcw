@@ -77,7 +77,7 @@ void AAS_SwapAASData( void ) {
 #if defined RTCW_SP
 			( *aasworld ).bboxes[i].mins[j] = LittleFloat( ( *aasworld ).bboxes[i].mins[j] );
 			( *aasworld ).bboxes[i].maxs[j] = LittleFloat( ( *aasworld ).bboxes[i].maxs[j] );
-#elif defined RTCW_MP
+#else
 			( *aasworld ).bboxes[i].mins[j] = LittleLong( ( *aasworld ).bboxes[i].mins[j] );
 			( *aasworld ).bboxes[i].maxs[j] = LittleLong( ( *aasworld ).bboxes[i].maxs[j] );
 #endif RTCW_XX
@@ -147,7 +147,13 @@ void AAS_SwapAASData( void ) {
 		( *aasworld ).areasettings[i].clusterareanum = LittleLong( ( *aasworld ).areasettings[i].clusterareanum );
 		( *aasworld ).areasettings[i].numreachableareas = LittleLong( ( *aasworld ).areasettings[i].numreachableareas );
 		( *aasworld ).areasettings[i].firstreachablearea = LittleLong( ( *aasworld ).areasettings[i].firstreachablearea );
+
+#if !defined RTCW_ET
 		( *aasworld ).areasettings[i].groundsteepness = LittleLong( ( *aasworld ).areasettings[i].groundsteepness );
+#else
+		( *aasworld ).areasettings[i].groundsteepness = LittleFloat( ( *aasworld ).areasettings[i].groundsteepness );
+#endif RTCW_XX
+
 	} //end for
 	  //area reachability
 	for ( i = 0; i < ( *aasworld ).reachabilitysize; i++ )
@@ -386,6 +392,10 @@ int AAS_LoadAASFile( char *filename ) {
 	aas_header_t header;
 	int offset, length, lastoffset;
 
+#if defined RTCW_ET
+	int nocrc;
+#endif RTCW_XX
+
 	botimport.Print( PRT_MESSAGE, "trying to load %s\n", filename );
 	//dump current loaded aas file
 	AAS_DumpAASData();
@@ -414,12 +424,28 @@ int AAS_LoadAASFile( char *filename ) {
 		return BLERR_WRONGAASFILEVERSION;
 	} //end if
 	  //
+
+#if defined RTCW_ET
+	  //RF, checksum of -1 always passes, hack to fix commercial maps without having to distribute new bsps
+	nocrc = 0;
+	if ( LittleLong( header.bspchecksum ) == -1 ) {
+		nocrc = 1;
+	}
+	//
+#endif RTCW_XX
+
 	if ( header.version == AASVERSION ) {
 		AAS_DData( (unsigned char *) &header + 8, sizeof( aas_header_t ) - 8 );
 	} //end if
 	  //
 	( *aasworld ).bspchecksum = atoi( LibVarGetString( "sv_mapChecksum" ) );
+
+#if !defined RTCW_ET
 	if ( LittleLong( header.bspchecksum ) != ( *aasworld ).bspchecksum ) {
+#else
+	if ( !nocrc && LittleLong( header.bspchecksum ) != ( *aasworld ).bspchecksum ) {
+#endif RTCW_XX
+
 		AAS_Error( "aas file %s is out of date\n", filename );
 		botimport.FS_FCloseFile( fp );
 		return BLERR_WRONGAASFILEVERSION;
@@ -548,6 +574,20 @@ int AAS_LoadAASFile( char *filename ) {
 	AAS_FileInfo();
 #endif //AASFILEDEBUG
 	   //
+
+#if defined RTCW_ET
+	{
+		int j = 0;
+		int i;
+		for ( i = 1; i < aasworld->numareas; i++ ) {
+			j += aasworld->areasettings[i].numreachableareas;
+		}
+		if ( j > aasworld->reachabilitysize ) {
+			Com_Error( ERR_DROP, "aas reachabilitysize incorrect\n" );
+		}
+	}
+#endif RTCW_XX
+
 	return BLERR_NOERROR;
 } //end of the function AAS_LoadAASFile
 //===========================================================================

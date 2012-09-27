@@ -126,8 +126,15 @@ int PointOnWinding( winding_t *w, vec3_t normal, float dist, vec3_t point, int *
 //the seperating plane normal and distance area stored in 'normal' and 'dist'
 //this plane will contain both the piece of common edge of the two windings
 //and the vector 'dir'
+
+#if !defined RTCW_ET
 int FindPlaneSeperatingWindings( winding_t *w1, winding_t *w2, vec3_t dir,
 								 vec3_t normal, float *dist );
+#else
+// Gordon: points returns the 4 points from the two matching edges
+int FindPlaneSeperatingWindings( winding_t *w1, winding_t *w2, vec3_t dir, vec3_t normal, float *dist, vec3_t* points );
+#endif RTCW_XX
+
 //
 int WindingsNonConvex( winding_t *w1, winding_t *w2,
 					   vec3_t normal1, vec3_t normal2,

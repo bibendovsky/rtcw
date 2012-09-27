@@ -58,6 +58,41 @@ void R_TransformDlights( int count, dlight_t *dl, orientationr_t *or ) {
 	}
 }
 
+#if defined RTCW_ET
+/*
+R_CullDlights()
+frustum culls dynamic lights
+*/
+
+void R_CullDlights( void ) {
+	int i, numDlights, dlightBits;
+	dlight_t    *dl;
+
+
+	/* limit */
+	if ( tr.refdef.num_dlights > MAX_DLIGHTS ) {
+		tr.refdef.num_dlights = MAX_DLIGHTS;
+	}
+
+	/* walk dlight list */
+	numDlights = 0;
+	dlightBits = 0;
+	for ( i = 0, dl = tr.refdef.dlights; i < tr.refdef.num_dlights; i++, dl++ )
+	{
+		if ( ( dl->flags & REF_DIRECTED_DLIGHT ) || R_CullPointAndRadius( dl->origin, dl->radius ) != CULL_OUT ) {
+			numDlights = i + 1;
+			dlightBits |= ( 1 << i );
+		}
+	}
+
+	/* reset count */
+	tr.refdef.num_dlights = numDlights;
+
+	/* set bits */
+	tr.refdef.dlightBits = dlightBits;
+}
+#endif RTCW_XX
+
 /*
 =============
 R_DlightBmodel
@@ -72,11 +107,21 @@ void R_DlightBmodel( bmodel_t *bmodel ) {
 	msurface_t  *surf;
 
 	// transform all the lights
+
+#if !defined RTCW_ET
 	R_TransformDlights( tr.refdef.num_dlights, tr.refdef.dlights, &tr.or );
+#else
+	R_TransformDlights( tr.refdef.num_dlights, tr.refdef.dlights, &tr.orientation );
+#endif RTCW_XX
 
 	mask = 0;
 	for ( i = 0 ; i < tr.refdef.num_dlights ; i++ ) {
 		dl = &tr.refdef.dlights[i];
+
+#if defined RTCW_ET
+		// ydnar: parallel dlights affect all entities
+		if ( !( dl->flags & REF_DIRECTED_DLIGHT ) ) {
+#endif RTCW_XX
 
 		// see if the point is close enough to the bounds to matter
 		for ( j = 0 ; j < 3 ; j++ ) {
@@ -90,6 +135,10 @@ void R_DlightBmodel( bmodel_t *bmodel ) {
 		if ( j < 3 ) {
 			continue;
 		}
+
+#if defined RTCW_ET
+		}
+#endif RTCW_XX
 
 		// we need to check this light
 		mask |= 1 << i;
@@ -114,7 +163,19 @@ void R_DlightBmodel( bmodel_t *bmodel ) {
 		} else if ( *surf->data == SF_GRID ) {
 			( (srfGridMesh_t *)surf->data )->dlightBits[ tr.smpFrame ] = mask;
 		} else if ( *surf->data == SF_TRIANGLES ) {
+
+#if !defined RTCW_ET
 			( (srfTriangles_t *)surf->data )->dlightBits[ tr.smpFrame ] = mask;
+#else
+//			((srfTriangles_t *)surf->data)->dlightBits[ tr.smpFrame ] = mask;
+			( (srfTriangles2_t *)surf->data )->dlightBits[ tr.smpFrame ] = mask;
+#endif RTCW_XX
+
+#if defined RTCW_ET
+		} else if ( *surf->data == SF_FOLIAGE ) {   // ydnar
+			( (srfFoliage_t *)surf->data )->dlightBits[ tr.smpFrame ] = mask;
+#endif RTCW_XX
+
 		}
 	}
 }
@@ -229,6 +290,14 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 		normal[2] = tr.sinTable[( lng + ( FUNCTABLE_SIZE / 4 ) ) & FUNCTABLE_MASK];
 
 		VectorMA( direction, factor, normal, direction );
+
+#if defined RTCW_ET
+		// ydnar: test code
+		//%	if( strstr( tr.models[ ent->e.hModel ]->name, ".mdm" ) && i == 0 )
+		//%		ri.Printf( PRINT_ALL, "lat: %3d lng: %3d dir: %2.3f %2.3f %2.3f\n",
+		//%			data[ 7 ], data[ 8 ], normal[ 0 ], normal[ 1 ], normal[ 2 ] );
+#endif RTCW_XX
+
 	}
 
 	if ( totalFactor > 0 && totalFactor < 0.99 ) {
@@ -251,6 +320,12 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 //----(SA)	end
 
 	VectorNormalize2( direction, ent->lightDir );
+
+#if defined RTCW_ET
+	// ydnar: debug hack
+	//%	VectorSubtract( vec3_origin, direction, ent->lightDir );
+#endif RTCW_XX
+
 }
 
 
@@ -294,12 +369,31 @@ by the Calc_* functions
 void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	int i;
 	dlight_t        *dl;
+
+#if !defined RTCW_ET
 	float power;
+#endif RTCW_XX
+
 	vec3_t dir;
+
+#if !defined RTCW_ET
 	float d;
+#else
+	float d, modulate;
+#endif RTCW_XX
+
 	vec3_t lightDir;
 	vec3_t lightOrigin;
+
+#if !defined RTCW_ET
 //	qboolean		highlighted = qfalse; // TTimo: unused
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	vec3_t lightValue;
+	byte            *entityLight;
+#endif RTCW_XX
+
 
 	// lighting calculations
 	if ( ent->lightingCalculated ) {
@@ -320,6 +414,8 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	}
 
 	// if NOWORLDMODEL, only use dynamic lights (menu system, etc)
+
+#if !defined RTCW_ET
 	if ( !( refdef->rdflags & RDF_NOWORLDMODEL )
 		 && tr.world->lightGridData ) {
 		R_SetupEntityLightingGrid( ent );
@@ -329,6 +425,26 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 		ent->directedLight[0] = ent->directedLight[1] =
 									ent->directedLight[2] = tr.identityLight * 150;
 		VectorCopy( tr.sunDirection, ent->lightDir );
+#else
+	if ( tr.world && tr.world->lightGridData &&
+		 ( !( refdef->rdflags & RDF_NOWORLDMODEL ) ||
+		   ( ( refdef->rdflags & RDF_NOWORLDMODEL ) && ( ent->e.renderfx & RF_LIGHTING_ORIGIN ) ) ) ) {
+		R_SetupEntityLightingGrid( ent );
+	} else
+	{
+		//%	ent->ambientLight[0] = ent->ambientLight[1] = ent->ambientLight[2] = tr.identityLight * 150;
+		//%	ent->directedLight[0] = ent->directedLight[1] = ent->directedLight[2] = tr.identityLight * 150;
+		//%	VectorCopy( tr.sunDirection, ent->lightDir );
+		ent->ambientLight[ 0 ] = tr.identityLight * 64;
+		ent->ambientLight[ 1 ] = tr.identityLight * 64;
+		ent->ambientLight[ 2 ] = tr.identityLight * 96;
+		ent->directedLight[ 0 ] = tr.identityLight * 255;
+		ent->directedLight[ 1 ] = tr.identityLight * 232;
+		ent->directedLight[ 2 ] = tr.identityLight * 224;
+		VectorSet( ent->lightDir, -1, 1, 1.25 );
+		VectorNormalize( ent->lightDir );
+#endif RTCW_XX
+
 	}
 
 	if ( ent->e.hilightIntensity ) {
@@ -358,10 +474,16 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	for ( i = 0 ; i < refdef->num_dlights ; i++ ) {
 		dl = &refdef->dlights[i];
 
+#if !defined RTCW_ET
 		if ( dl->dlshader ) {  //----(SA)	if the dlight has a diff shader specified, you don't know what it does, so don't let it affect entities lighting
+#else
+		if ( dl->shader ) { //----(SA)	if the dlight has a diff shader specified, you don't know what it does, so don't let it affect entities lighting
+#endif RTCW_XX
+
 			continue;
 		}
 
+#if !defined RTCW_ET
 		VectorSubtract( dl->origin, lightOrigin, dir );
 		d = VectorNormalize( dir );
 
@@ -374,6 +496,39 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 
 		VectorMA( ent->directedLight, d, dl->color, ent->directedLight );
 		VectorMA( lightDir, d, dir, lightDir );
+#else
+		#if 0
+		VectorSubtract( dl->origin, lightOrigin, dir );
+		d = VectorNormalize( dir );
+		modulate = DLIGHT_AT_RADIUS * ( dl->radius * dl->radius );
+		if ( d < DLIGHT_MINIMUM_RADIUS ) {
+			d = DLIGHT_MINIMUM_RADIUS;
+		}
+
+		modulate = modulate / ( d * d );
+		#else
+		// directional dlight, origin is a directional normal
+		if ( dl->flags & REF_DIRECTED_DLIGHT ) {
+			modulate = dl->intensity * 255.0;
+			VectorCopy( dl->origin, dir );
+		}
+		// ball dlight
+		else
+		{
+			VectorSubtract( dl->origin, lightOrigin, dir );
+			d = dl->radius - VectorNormalize( dir );
+			if ( d <= 0.0 ) {
+				modulate = 0;
+			} else {
+				modulate = dl->intensity * d;
+			}
+		}
+		#endif
+
+		VectorMA( ent->directedLight, modulate, dl->color, ent->directedLight );
+		VectorMA( lightDir, modulate, dir, lightDir );
+#endif RTCW_XX
+
 	}
 
 	// clamp ambient
@@ -387,17 +542,57 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 		LogLight( ent );
 	}
 
+#if defined RTCW_ET
+	// ydnar: test code
+	//%	VectorClear( ent->ambientLight );
+#endif RTCW_XX
+
 	// save out the byte packet version
 	( (byte *)&ent->ambientLightInt )[0] = myftol( ent->ambientLight[0] );
 	( (byte *)&ent->ambientLightInt )[1] = myftol( ent->ambientLight[1] );
 	( (byte *)&ent->ambientLightInt )[2] = myftol( ent->ambientLight[2] );
 	( (byte *)&ent->ambientLightInt )[3] = 0xff;
 
+#if defined RTCW_ET
+	// ydnar: save out the light table
+	d = 0.0f;
+	entityLight = (byte*) ent->entityLightInt;
+	modulate = 1.0f / ( ENTITY_LIGHT_STEPS - 1 );
+	for ( i = 0; i < ENTITY_LIGHT_STEPS; i++ )
+	{
+		VectorMA( ent->ambientLight, d, ent->directedLight, lightValue );
+		entityLight[ 0 ] = lightValue[ 0 ] > 255.0f ? 255 : myftol( lightValue[ 0 ] );
+		entityLight[ 1 ] = lightValue[ 1 ] > 255.0f ? 255 : myftol( lightValue[ 1 ] );
+		entityLight[ 2 ] = lightValue[ 2 ] > 255.0f ? 255 : myftol( lightValue[ 2 ] );
+		entityLight[ 3 ] = 0xFF;
+
+		d += modulate;
+		entityLight += 4;
+	}
+
+	// ydnar: test code
+	//%	VectorSet( lightDir, 0, 0, 1 );
+#endif RTCW_XX
+
 	// transform the direction to local space
 	VectorNormalize( lightDir );
 	ent->lightDir[0] = DotProduct( lightDir, ent->e.axis[0] );
 	ent->lightDir[1] = DotProduct( lightDir, ent->e.axis[1] );
 	ent->lightDir[2] = DotProduct( lightDir, ent->e.axis[2] );
+
+#if defined RTCW_ET
+	// ydnar: renormalize if necessary
+	if ( ent->e.nonNormalizedAxes ) {
+		VectorNormalize( ent->lightDir );
+	}
+
+	// ydnar: test code
+	//%	if( strstr( tr.models[ ent->e.hModel ]->name, ".mdm" ) )
+	//%		ri.Printf( PRINT_ALL, "vec: %f %f %f   localvec: %f %f %f\n",
+	//%			lightDir[ 0 ], lightDir[ 1 ], lightDir[ 2 ],
+	//%			ent->lightDir[ 0 ], ent->lightDir[ 1 ], ent->lightDir[ 2 ] );
+#endif RTCW_XX
+
 }
 
 /*

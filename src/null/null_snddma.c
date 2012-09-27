@@ -59,13 +59,14 @@ void S_StartLocalSound( sfxHandle_t sfxHandle, int channelNum ) {
 }
 #elif defined RTCW_ET
 void S_StartLocalSound( sfxHandle_t sfxHandle, int channelNum, int volume ) {
+}
 #endif
 
 #if defined RTCW_MP
 void S_ClearSoundBuffer( void ) {
 }
 #elif defined RTCW_ET
-void SNDDMA_Activate( void ) {
+void S_ClearSoundBuffer( qboolean killStreaming ) {
 }
 #endif
 

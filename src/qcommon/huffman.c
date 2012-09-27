@@ -36,38 +36,101 @@ If you have questions concerning this license or the applicable additional terms
 
 static int bloc = 0;
 
+#if defined RTCW_ET
+//bani - optimized version
+//clears data along the way so we dont have to memset() it ahead of time
+#endif RTCW_XX
+
 void    Huff_putBit( int bit, byte *fout, int *offset ) {
+
+#if defined RTCW_ET
+	int x, y;
+#endif RTCW_XX
+
 	bloc = *offset;
+
+#if !defined RTCW_ET
 	if ( ( bloc & 7 ) == 0 ) {
 		fout[( bloc >> 3 )] = 0;
 	}
 	fout[( bloc >> 3 )] |= bit << ( bloc & 7 );
+#else
+	x = bloc >> 3;
+	y = bloc & 7;
+	if ( !y ) {
+		fout[ x ] = 0;
+	}
+	fout[ x ] |= bit << y;
+#endif RTCW_XX
+
 	bloc++;
 	*offset = bloc;
 }
 
+#if defined RTCW_ET
+//bani - optimized version
+//optimization works on gcc 3.x, but not 2.95 ? most curious.
+#endif RTCW_XX
+
 int     Huff_getBit( byte *fin, int *offset ) {
 	int t;
 	bloc = *offset;
+
+#if !defined RTCW_ET
 	t = ( fin[( bloc >> 3 )] >> ( bloc & 7 ) ) & 0x1;
+#else
+	t = fin[ bloc >> 3 ] >> ( bloc & 7 ) & 0x1;
+#endif RTCW_XX
+
 	bloc++;
 	*offset = bloc;
 	return t;
 }
 
+#if !defined RTCW_ET
 /* Add a bit to the output file (buffered) */
+#else
+//bani - optimized version
+//clears data along the way so we dont have to memset() it ahead of time
+#endif RTCW_XX
+
 static void add_bit( char bit, byte *fout ) {
+
+#if !defined RTCW_ET
 	if ( ( bloc & 7 ) == 0 ) {
 		fout[( bloc >> 3 )] = 0;
 	}
 	fout[( bloc >> 3 )] |= bit << ( bloc & 7 );
 	bloc++;
+#else
+	int x, y;
+
+	y = bloc >> 3;
+	x = bloc++ & 7;
+	if ( !x ) {
+		fout[ y ] = 0;
+	}
+	fout[ y ] |= bit << x;
+#endif RTCW_XX
+
 }
 
+#if !defined RTCW_ET
 /* Receive one bit from the input file (buffered) */
+#else
+//bani - optimized version
+//optimization works on gcc 3.x, but not 2.95 ? most curious.
+#endif RTCW_XX
+
 static int get_bit( byte *fin ) {
 	int t;
+
+#if !defined RTCW_ET
 	t = ( fin[( bloc >> 3 )] >> ( bloc & 7 ) ) & 0x1;
+#else
+	t = fin[ bloc >> 3 ] >> ( bloc & 7 ) & 0x1;
+#endif RTCW_XX
+
 	bloc++;
 	return t;
 }
@@ -272,7 +335,7 @@ int Huff_Receive( node_t *node, int *ch, byte *fin ) {
 
 #if defined RTCW_SP
 		Com_Error( ERR_DROP, "Illegal tree!\n" );
-#elif defined RTCW_MP
+#else
 		return 0;
 //		Com_Error(ERR_DROP, "Illegal tree!\n");
 #endif RTCW_XX
@@ -295,7 +358,7 @@ void Huff_offsetReceive( node_t *node, int *ch, byte *fin, int *offset ) {
 
 #if defined RTCW_SP
 		Com_Error( ERR_DROP, "Illegal tree!\n" );
-#elif defined RTCW_MP
+#else
 		*ch = 0;
 		return;
 //		Com_Error(ERR_DROP, "Illegal tree!\n");
@@ -355,7 +418,7 @@ void Huff_Decompress( msg_t *mbuf, int offset ) {
 
 #if defined RTCW_SP
 	buffer = mbuf->data + + offset;
-#elif defined RTCW_MP
+#else
 	buffer = mbuf->data + offset;
 #endif RTCW_XX
 
@@ -373,7 +436,7 @@ void Huff_Decompress( msg_t *mbuf, int offset ) {
 
 	cch = buffer[0] * 256 + buffer[1];
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// don't overflow with bad messages
 	if ( cch > mbuf->maxsize - offset ) {
 		cch = mbuf->maxsize - offset;
@@ -384,7 +447,7 @@ void Huff_Decompress( msg_t *mbuf, int offset ) {
 
 	for ( j = 0; j < cch; j++ ) {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		ch = 0;
 		// don't overflow reading from the messages
 		// FIXME: would it be better to have a overflow check in get_bit ?

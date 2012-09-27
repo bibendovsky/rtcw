@@ -118,7 +118,7 @@ void R_Fog( glfog_t *curfog ) {
 	} else {
 		qglFogf( GL_FOG_START, curfog->start );
 	}
-#elif defined RTCW_MP
+#else
 	qglFogf( GL_FOG_START, curfog->start );
 #endif RTCW_XX
 
@@ -141,7 +141,7 @@ void R_Fog( glfog_t *curfog ) {
 		else {
 			qglFogf( GL_FOG_END, curfog->end );
 		}
-#elif defined RTCW_MP
+#else
 		qglFogf( GL_FOG_END, curfog->end );
 #endif RTCW_XX
 
@@ -151,7 +151,7 @@ void R_Fog( glfog_t *curfog ) {
 
 #if defined RTCW_SP
 //----(SA)	added
-#elif defined RTCW_MP
+#else
 // TTimo - from SP NV fog code
 #endif RTCW_XX
 
@@ -162,7 +162,7 @@ void R_Fog( glfog_t *curfog ) {
 
 #if defined RTCW_SP
 //----(SA)	end
-#elif defined RTCW_MP
+#else
 // end
 #endif RTCW_XX
 
@@ -187,20 +187,25 @@ void R_FogOn( void ) {
 		return;
 	}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //	if(r_uiFullScreen->integer) {	// don't fog in the menu
 //		R_FogOff();
 //		return;
 //	}
 
+#if !defined RTCW_ET
 	if ( backEnd.projection2D ) {  // no fog in 2d
-#elif defined RTCW_MP
+#endif RTCW_XX
+
+#else
 	if ( r_uiFullScreen->integer ) {   // don't fog in the menu
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 		R_FogOff();
 		return;
 	}
+#endif RTCW_XX
 
 	if ( !r_wolffog->integer ) {
 		return;
@@ -253,16 +258,23 @@ void R_SetFog( int fogvar, int var1, int var2, float r, float g, float b, float 
 			return;
 		}
 
+#if !defined RTCW_ET
 		glfogsettings[fogvar].color[0]      = r;
 		glfogsettings[fogvar].color[1]      = g;
 		glfogsettings[fogvar].color[2]      = b;
+#else
+		glfogsettings[fogvar].color[0]      = r * tr.identityLight;
+		glfogsettings[fogvar].color[1]      = g * tr.identityLight;
+		glfogsettings[fogvar].color[2]      = b * tr.identityLight;
+#endif RTCW_XX
+
 		glfogsettings[fogvar].color[3]      = 1;
 		glfogsettings[fogvar].start         = var1;
 		glfogsettings[fogvar].end           = var2;
 
 #if defined RTCW_SP
 		if ( density >= 1 ) {
-#elif defined RTCW_MP
+#else
 		if ( density > 1 ) {
 #endif RTCW_XX
 
@@ -324,7 +336,7 @@ void R_SetFog( int fogvar, int var1, int var2, float r, float g, float b, float 
 #if defined RTCW_SP
 //		memcpy(&glfogsettings[FOG_LAST], &glfogsettings[FOG_MAP], sizeof(glfog_t));
 		memcpy( &glfogsettings[FOG_LAST], &glfogsettings[glfogNum], sizeof( glfog_t ) );
-#elif defined RTCW_MP
+#else
 		memcpy( &glfogsettings[FOG_LAST], &glfogsettings[FOG_MAP], sizeof( glfog_t ) );
 #endif RTCW_XX
 
@@ -343,7 +355,7 @@ void R_SetFog( int fogvar, int var1, int var2, float r, float g, float b, float 
 		glfogsettings[FOG_TARGET].startTime = tr.refdef.time;
 		glfogsettings[FOG_TARGET].finishTime = tr.refdef.time + var2;
 	}
-#elif defined RTCW_MP
+#else
 	// setup transition times
 	glfogsettings[FOG_TARGET].startTime = tr.refdef.time;
 	glfogsettings[FOG_TARGET].finishTime = tr.refdef.time + var2;
@@ -379,15 +391,29 @@ int R_CullLocalBox( vec3_t bounds[2] ) {
 		v[1] = bounds[( i >> 1 ) & 1][1];
 		v[2] = bounds[( i >> 2 ) & 1][2];
 
+#if !defined RTCW_ET
 		VectorCopy( tr.or.origin, transformed[i] );
 		VectorMA( transformed[i], v[0], tr.or.axis[0], transformed[i] );
 		VectorMA( transformed[i], v[1], tr.or.axis[1], transformed[i] );
 		VectorMA( transformed[i], v[2], tr.or.axis[2], transformed[i] );
+#else
+		VectorCopy( tr.orientation.origin, transformed[i] );
+		VectorMA( transformed[i], v[0], tr.orientation.axis[0], transformed[i] );
+		VectorMA( transformed[i], v[1], tr.orientation.axis[1], transformed[i] );
+		VectorMA( transformed[i], v[2], tr.orientation.axis[2], transformed[i] );
+#endif RTCW_XX
+
 	}
 
 	// check against frustum planes
 	anyBack = 0;
+
+#if !defined RTCW_ET
 	for ( i = 0 ; i < 4 ; i++ ) {
+#else
+	for ( i = 0 ; i < 5 ; i++ ) {
+#endif RTCW_XX
+
 		frust = &tr.viewParms.frustum[i];
 
 		front = back = 0;
@@ -441,7 +467,13 @@ int R_CullPointAndRadius( vec3_t pt, float radius ) {
 	}
 
 	// check against frustum planes
+
+#if !defined RTCW_ET
 	for ( i = 0 ; i < 4 ; i++ )
+#else
+	for ( i = 0 ; i < 5 ; i++ )
+#endif RTCW_XX
+
 	{
 		frust = &tr.viewParms.frustum[i];
 
@@ -468,9 +500,17 @@ R_LocalNormalToWorld
 =================
 */
 void R_LocalNormalToWorld( vec3_t local, vec3_t world ) {
+
+#if !defined RTCW_ET
 	world[0] = local[0] * tr.or.axis[0][0] + local[1] * tr.or.axis[1][0] + local[2] * tr.or.axis[2][0];
 	world[1] = local[0] * tr.or.axis[0][1] + local[1] * tr.or.axis[1][1] + local[2] * tr.or.axis[2][1];
 	world[2] = local[0] * tr.or.axis[0][2] + local[1] * tr.or.axis[1][2] + local[2] * tr.or.axis[2][2];
+#else
+	world[0] = local[0] * tr.orientation.axis[0][0] + local[1] * tr.orientation.axis[1][0] + local[2] * tr.orientation.axis[2][0];
+	world[1] = local[0] * tr.orientation.axis[0][1] + local[1] * tr.orientation.axis[1][1] + local[2] * tr.orientation.axis[2][1];
+	world[2] = local[0] * tr.orientation.axis[0][2] + local[1] * tr.orientation.axis[1][2] + local[2] * tr.orientation.axis[2][2];
+#endif RTCW_XX
+
 }
 
 /*
@@ -480,9 +520,17 @@ R_LocalPointToWorld
 =================
 */
 void R_LocalPointToWorld( vec3_t local, vec3_t world ) {
+
+#if !defined RTCW_ET
 	world[0] = local[0] * tr.or.axis[0][0] + local[1] * tr.or.axis[1][0] + local[2] * tr.or.axis[2][0] + tr.or.origin[0];
 	world[1] = local[0] * tr.or.axis[0][1] + local[1] * tr.or.axis[1][1] + local[2] * tr.or.axis[2][1] + tr.or.origin[1];
 	world[2] = local[0] * tr.or.axis[0][2] + local[1] * tr.or.axis[1][2] + local[2] * tr.or.axis[2][2] + tr.or.origin[2];
+#else
+	world[0] = local[0] * tr.orientation.axis[0][0] + local[1] * tr.orientation.axis[1][0] + local[2] * tr.orientation.axis[2][0] + tr.orientation.origin[0];
+	world[1] = local[0] * tr.orientation.axis[0][1] + local[1] * tr.orientation.axis[1][1] + local[2] * tr.orientation.axis[2][1] + tr.orientation.origin[1];
+	world[2] = local[0] * tr.orientation.axis[0][2] + local[1] * tr.orientation.axis[1][2] + local[2] * tr.orientation.axis[2][2] + tr.orientation.origin[2];
+#endif RTCW_XX
+
 }
 
 /*
@@ -492,9 +540,17 @@ R_WorldToLocal
 =================
 */
 void R_WorldToLocal( vec3_t world, vec3_t local ) {
+
+#if !defined RTCW_ET
 	local[0] = DotProduct( world, tr.or.axis[0] );
 	local[1] = DotProduct( world, tr.or.axis[1] );
 	local[2] = DotProduct( world, tr.or.axis[2] );
+#else
+	local[0] = DotProduct( world, tr.orientation.axis[0] );
+	local[1] = DotProduct( world, tr.orientation.axis[1] );
+	local[2] = DotProduct( world, tr.orientation.axis[2] );
+#endif RTCW_XX
+
 }
 
 /*
@@ -614,7 +670,12 @@ void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms,
 
 	// calculate the viewer origin in the model's space
 	// needed for fog, specular, and environment mapping
+
+#if !defined RTCW_ET
 	VectorSubtract( viewParms->or.origin, or->origin, delta );
+#else
+	VectorSubtract( viewParms->orientation.origin, or->origin, delta );
+#endif RTCW_XX
 
 	// compensate for scale in the axes if necessary
 	if ( ent->e.nonNormalizedAxes ) {
@@ -644,6 +705,7 @@ void R_RotateForViewer( void ) {
 	float viewerMatrix[16];
 	vec3_t origin;
 
+#if !defined RTCW_ET
 	memset( &tr.or, 0, sizeof( tr.or ) );
 	tr.or.axis[0][0] = 1;
 	tr.or.axis[1][1] = 1;
@@ -666,6 +728,31 @@ void R_RotateForViewer( void ) {
 	viewerMatrix[2] = tr.viewParms.or.axis[2][0];
 	viewerMatrix[6] = tr.viewParms.or.axis[2][1];
 	viewerMatrix[10] = tr.viewParms.or.axis[2][2];
+#else
+	memset( &tr.orientation, 0, sizeof( tr.orientation ) );
+	tr.orientation.axis[0][0] = 1;
+	tr.orientation.axis[1][1] = 1;
+	tr.orientation.axis[2][2] = 1;
+	VectorCopy( tr.viewParms.orientation.origin, tr.orientation.viewOrigin );
+
+	// transform by the camera placement
+	VectorCopy( tr.viewParms.orientation.origin, origin );
+
+	viewerMatrix[0] = tr.viewParms.orientation.axis[0][0];
+	viewerMatrix[4] = tr.viewParms.orientation.axis[0][1];
+	viewerMatrix[8] = tr.viewParms.orientation.axis[0][2];
+	viewerMatrix[12] = -origin[0] * viewerMatrix[0] + - origin[1] * viewerMatrix[4] + - origin[2] * viewerMatrix[8];
+
+	viewerMatrix[1] = tr.viewParms.orientation.axis[1][0];
+	viewerMatrix[5] = tr.viewParms.orientation.axis[1][1];
+	viewerMatrix[9] = tr.viewParms.orientation.axis[1][2];
+	viewerMatrix[13] = -origin[0] * viewerMatrix[1] + - origin[1] * viewerMatrix[5] + - origin[2] * viewerMatrix[9];
+
+	viewerMatrix[2] = tr.viewParms.orientation.axis[2][0];
+	viewerMatrix[6] = tr.viewParms.orientation.axis[2][1];
+	viewerMatrix[10] = tr.viewParms.orientation.axis[2][2];
+#endif RTCW_XX
+
 	viewerMatrix[14] = -origin[0] * viewerMatrix[2] + - origin[1] * viewerMatrix[6] + - origin[2] * viewerMatrix[10];
 
 	viewerMatrix[3] = 0;
@@ -675,9 +762,16 @@ void R_RotateForViewer( void ) {
 
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
+
+#if !defined RTCW_ET
 	myGlMultMatrix( viewerMatrix, s_flipMatrix, tr.or.modelMatrix );
 
 	tr.viewParms.world = tr.or;
+#else
+	myGlMultMatrix( viewerMatrix, s_flipMatrix, tr.orientation.modelMatrix );
+
+	tr.viewParms.world = tr.orientation;
+#endif RTCW_XX
 
 }
 
@@ -690,6 +784,43 @@ R_SetFrameFog
 */
 void R_SetFrameFog( void ) {
 
+#if defined RTCW_ET
+	// Arnout: new style global fog transitions
+	if ( tr.world->globalFogTransEndTime ) {
+		if ( tr.world->globalFogTransEndTime >= tr.refdef.time ) {
+			float lerpPos;
+			int fadeTime;
+
+			fadeTime = tr.world->globalFogTransEndTime - tr.world->globalFogTransStartTime;
+			lerpPos = (float)( tr.refdef.time - tr.world->globalFogTransStartTime ) / (float)fadeTime;
+			if ( lerpPos > 1 ) {
+				lerpPos = 1;
+			}
+
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.color[ 0 ] = tr.world->globalTransStartFog[ 0 ] + ( ( tr.world->globalTransEndFog[ 0 ] - tr.world->globalTransStartFog[ 0 ] ) * lerpPos );
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.color[ 1 ] = tr.world->globalTransStartFog[ 1 ] + ( ( tr.world->globalTransEndFog[ 1 ] - tr.world->globalTransStartFog[ 1 ] ) * lerpPos );
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.color[ 2 ] = tr.world->globalTransStartFog[ 2 ] + ( ( tr.world->globalTransEndFog[ 2 ] - tr.world->globalTransStartFog[ 2 ] ) * lerpPos );
+
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.colorInt = ColorBytes4( tr.world->fogs[tr.world->globalFog].shader->fogParms.color[ 0 ] * tr.identityLight,
+																						 tr.world->fogs[tr.world->globalFog].shader->fogParms.color[ 1 ] * tr.identityLight,
+																						 tr.world->fogs[tr.world->globalFog].shader->fogParms.color[ 2 ] * tr.identityLight, 1.0 );
+
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque = tr.world->globalTransStartFog[ 3 ] + ( ( tr.world->globalTransEndFog[ 3 ] - tr.world->globalTransStartFog[ 3 ] ) * lerpPos );
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.tcScale = 1.0f / ( tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque * 8 );
+		} else {
+			// transition complete
+			VectorCopy( tr.world->globalTransEndFog, tr.world->fogs[tr.world->globalFog].shader->fogParms.color );
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.colorInt = ColorBytes4( tr.world->globalTransEndFog[ 0 ] * tr.identityLight,
+																						 tr.world->globalTransEndFog[ 1 ] * tr.identityLight,
+																						 tr.world->globalTransEndFog[ 2 ] * tr.identityLight, 1.0 );
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque = tr.world->globalTransEndFog[ 3 ];
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.tcScale = 1.0f / ( tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque * 8 );
+
+			tr.world->globalFogTransEndTime = 0;
+		}
+	}
+#endif RTCW_XX
+
 	if ( r_speeds->integer == 5 ) {
 		if ( !glfogsettings[FOG_TARGET].registered ) {
 			ri.Printf( PRINT_ALL, "no fog - calc zFar: %0.1f\n", tr.viewParms.zFar );
@@ -697,7 +828,7 @@ void R_SetFrameFog( void ) {
 		}
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// DHM - Nerve :: If fog is not valid, don't use it
 	if ( !glfogsettings[FOG_TARGET].registered ) {
 		return;
@@ -757,7 +888,7 @@ void R_SetFrameFog( void ) {
 
 	} else {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		// probably usually not necessary to copy the whole thing.
 #endif RTCW_XX
 
@@ -803,7 +934,7 @@ void R_SetFrameFog( void ) {
 
 #if defined RTCW_SP
 			ri.Printf( PRINT_ALL, "density fog - den: %0.6f  calc zFar: %0.1f  fog zFar: %0.1f\n", glfogsettings[FOG_CURRENT].density, tr.viewParms.zFar, glfogsettings[FOG_CURRENT].end );
-#elif defined RTCW_MP
+#else
 			ri.Printf( PRINT_ALL, "density fog - den: %0.4f  calc zFar: %0.1f  fog zFar: %0.1f\n", glfogsettings[FOG_CURRENT].density, tr.viewParms.zFar, glfogsettings[FOG_CURRENT].end );
 #endif RTCW_XX
 
@@ -873,7 +1004,11 @@ static void SetFarClip( void ) {
 			v[2] = tr.viewParms.visBounds[1][2];
 		}
 
+#if !defined RTCW_ET
 		VectorSubtract( v, tr.viewParms.or.origin, vecTo );
+#else
+		VectorSubtract( v, tr.viewParms.orientation.origin, vecTo );
+#endif RTCW_XX
 
 		distance = vecTo[0] * vecTo[0] + vecTo[1] * vecTo[1] + vecTo[2] * vecTo[2];
 
@@ -883,8 +1018,66 @@ static void SetFarClip( void ) {
 	}
 
 	tr.viewParms.zFar = sqrt( farthestCornerDistance );
+
+#if defined RTCW_ET
+	// ydnar: add global q3 fog
+	if ( tr.world != NULL && tr.world->globalFog >= 0 && tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque < tr.viewParms.zFar ) {
+		tr.viewParms.zFar = tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque;
+	}
+#endif RTCW_XX
+
 	R_SetFrameFog();
+
 }
+
+#if defined RTCW_ET
+/*
+=================
+R_SetupFrustum
+
+Setup that culling frustum planes for the current view
+=================
+*/
+void R_SetupFrustum( void ) {
+	int i;
+	float xs, xc;
+	float ang;
+
+	ang = tr.viewParms.fovX / 180 * M_PI * 0.5f;
+	xs = sin( ang );
+	xc = cos( ang );
+
+	VectorScale( tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustum[0].normal );
+	VectorMA( tr.viewParms.frustum[0].normal, xc, tr.viewParms.orientation.axis[1], tr.viewParms.frustum[0].normal );
+
+	VectorScale( tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustum[1].normal );
+	VectorMA( tr.viewParms.frustum[1].normal, -xc, tr.viewParms.orientation.axis[1], tr.viewParms.frustum[1].normal );
+
+	ang = tr.viewParms.fovY / 180 * M_PI * 0.5f;
+	xs = sin( ang );
+	xc = cos( ang );
+
+	VectorScale( tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustum[2].normal );
+	VectorMA( tr.viewParms.frustum[2].normal, xc, tr.viewParms.orientation.axis[2], tr.viewParms.frustum[2].normal );
+
+	VectorScale( tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustum[3].normal );
+	VectorMA( tr.viewParms.frustum[3].normal, -xc, tr.viewParms.orientation.axis[2], tr.viewParms.frustum[3].normal );
+
+	for ( i = 0; i < 4; i++ )
+	{
+		tr.viewParms.frustum[i].type = PLANE_NON_AXIAL;
+		tr.viewParms.frustum[i].dist = DotProduct( tr.viewParms.orientation.origin, tr.viewParms.frustum[i].normal );
+		SetPlaneSignbits( &tr.viewParms.frustum[i] );
+	}
+
+	// ydnar: farplane (testing! use farplane for real)
+	VectorScale( tr.viewParms.orientation.axis[ 0 ], -1, tr.viewParms.frustum[ 4 ].normal );
+	tr.viewParms.frustum[ 4 ].dist = DotProduct( tr.viewParms.orientation.origin, tr.viewParms.frustum[ 4 ].normal ) - tr.viewParms.zFar;
+	tr.viewParms.frustum[ 4 ].type = PLANE_NON_AXIAL;
+	SetPlaneSignbits( &tr.viewParms.frustum[ 4 ] );
+}
+#endif RTCW_XX
+
 
 
 /*
@@ -900,10 +1093,26 @@ void R_SetupProjection( void ) {
 	// dynamically compute far clip plane distance
 	SetFarClip();
 
+#if defined RTCW_ET
+	// ydnar: set frustum planes (this happens here because of zfar manipulation)
+	R_SetupFrustum();
+#endif RTCW_XX
+
 	//
 	// set up projection matrix
 	//
 	zNear   = r_znear->value;
+
+#if defined RTCW_ET
+	// ydnar: high fov values let players see through walls
+	// solution is to move z near plane inward, which decreases zbuffer precision
+	// but if a player wants to play with fov 160, then they can deal with z-fighting
+	// assume fov 90 = scale 1, fov 180 = scale 1/16th
+	if ( tr.refdef.fov_x > 90.0f ) {
+		zNear /= ( ( tr.refdef.fov_x - 90.0f ) * 0.09f + 1.0f );
+	}
+#endif RTCW_XX
+
 	if ( r_zfar->value ) {
 		zFar = r_zfar->value;   // (SA) allow override for helping level designers test fog distances
 	} else {
@@ -941,6 +1150,7 @@ void R_SetupProjection( void ) {
 	tr.viewParms.projectionMatrix[15] = 0;
 }
 
+#if !defined RTCW_ET
 /*
 =================
 R_SetupFrustum
@@ -979,7 +1189,7 @@ void R_SetupFrustum( void ) {
 		SetPlaneSignbits( &tr.viewParms.frustum[i] );
 	}
 }
-
+#endif RTCW_XX
 
 /*
 =================
@@ -1085,15 +1295,31 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 		tr.currentEntity = &tr.refdef.entities[entityNum];
 
 		// get the orientation of the entity
+
+#if !defined RTCW_ET
 		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.or );
+#else
+		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.orientation );
+#endif RTCW_XX
 
 		// rotate the plane, but keep the non-rotated version for matching
 		// against the portalSurface entities
 		R_LocalNormalToWorld( originalPlane.normal, plane.normal );
+
+#if !defined RTCW_ET
 		plane.dist = originalPlane.dist + DotProduct( plane.normal, tr.or.origin );
+#else
+		plane.dist = originalPlane.dist + DotProduct( plane.normal, tr.orientation.origin );
+#endif RTCW_XX
 
 		// translate the original plane
+
+#if !defined RTCW_ET
 		originalPlane.dist = originalPlane.dist + DotProduct( originalPlane.normal, tr.or.origin );
+#else
+		originalPlane.dist = originalPlane.dist + DotProduct( originalPlane.normal, tr.orientation.origin );
+#endif RTCW_XX
+
 	} else {
 		plane = originalPlane;
 	}
@@ -1200,15 +1426,31 @@ static qboolean IsMirror( const drawSurf_t *drawSurf, int entityNum ) {
 		tr.currentEntity = &tr.refdef.entities[entityNum];
 
 		// get the orientation of the entity
+
+#if !defined RTCW_ET
 		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.or );
+#else
+		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.orientation );
+#endif RTCW_XX
 
 		// rotate the plane, but keep the non-rotated version for matching
 		// against the portalSurface entities
 		R_LocalNormalToWorld( originalPlane.normal, plane.normal );
+
+#if !defined RTCW_ET
 		plane.dist = originalPlane.dist + DotProduct( plane.normal, tr.or.origin );
+#else
+		plane.dist = originalPlane.dist + DotProduct( plane.normal, tr.orientation.origin );
+#endif RTCW_XX
 
 		// translate the original plane
+
+#if !defined RTCW_ET
 		originalPlane.dist = originalPlane.dist + DotProduct( originalPlane.normal, tr.or.origin );
+#else
+		originalPlane.dist = originalPlane.dist + DotProduct( originalPlane.normal, tr.orientation.origin );
+#endif RTCW_XX
+
 	} else
 	{
 		plane = originalPlane;
@@ -1252,6 +1494,11 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 	int numTriangles;
 	shader_t *shader;
 	int fogNum;
+
+#if defined RTCW_ET
+	int frontFace;
+#endif RTCW_XX
+
 	int dlighted;
 
 #if defined RTCW_SP
@@ -1275,6 +1522,8 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 	R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted, &atiTess );
 #elif defined RTCW_MP
 	R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted );
+#else
+	R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &frontFace, &dlighted );
 #endif RTCW_XX
 
 	RB_BeginSurface( shader, fogNum );
@@ -1287,7 +1536,11 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 		int j;
 		unsigned int pointFlags = 0;
 
+#if !defined RTCW_ET
 		R_TransformModelToClip( tess.xyz[i], tr.or.modelMatrix, tr.viewParms.projectionMatrix, eye, clip );
+#else
+		R_TransformModelToClip( tess.xyz[i].v, tr.orientation.modelMatrix, tr.viewParms.projectionMatrix, eye, clip );
+#endif RTCW_XX
 
 		for ( j = 0; j < 3; j++ )
 		{
@@ -1319,14 +1572,23 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 		float dot;
 		float len;
 
+#if !defined RTCW_ET
 		VectorSubtract( tess.xyz[tess.indexes[i]], tr.viewParms.or.origin, normal );
+#else
+		VectorSubtract( tess.xyz[tess.indexes[i]].v, tr.viewParms.orientation.origin, normal );
+#endif RTCW_XX
 
 		len = VectorLengthSquared( normal );            // lose the sqrt
 		if ( len < shortest ) {
 			shortest = len;
 		}
 
+#if !defined RTCW_ET
 		if ( ( dot = DotProduct( normal, tess.normal[tess.indexes[i]] ) ) >= 0 ) {
+#else
+		if ( ( dot = DotProduct( normal, tess.normal[tess.indexes[i]].v ) ) >= 0 ) {
+#endif RTCW_XX
+
 			numTriangles--;
 		}
 	}
@@ -1386,14 +1648,24 @@ qboolean R_MirrorViewBySurface( drawSurf_t *drawSurf, int entityNum ) {
 		return qfalse;      // bad portal, no portalentity
 	}
 
+#if !defined RTCW_ET
 	R_MirrorPoint( oldParms.or.origin, &surface, &camera, newParms.or.origin );
+#else
+	R_MirrorPoint( oldParms.orientation.origin, &surface, &camera, newParms.orientation.origin );
+#endif RTCW_XX
 
 	VectorSubtract( vec3_origin, camera.axis[0], newParms.portalPlane.normal );
 	newParms.portalPlane.dist = DotProduct( camera.origin, newParms.portalPlane.normal );
 
+#if !defined RTCW_ET
 	R_MirrorVector( oldParms.or.axis[0], &surface, &camera, newParms.or.axis[0] );
 	R_MirrorVector( oldParms.or.axis[1], &surface, &camera, newParms.or.axis[1] );
 	R_MirrorVector( oldParms.or.axis[2], &surface, &camera, newParms.or.axis[2] );
+#else
+	R_MirrorVector( oldParms.orientation.axis[0], &surface, &camera, newParms.orientation.axis[0] );
+	R_MirrorVector( oldParms.orientation.axis[1], &surface, &camera, newParms.orientation.axis[1] );
+	R_MirrorVector( oldParms.orientation.axis[2], &surface, &camera, newParms.orientation.axis[2] );
+#endif RTCW_XX
 
 	// OPTIMIZE: restrict the viewport on the mirrored view
 
@@ -1652,13 +1924,28 @@ void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
 #elif defined RTCW_MP
 void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
 					int fogIndex, int dlightMap ) {
+#else
+void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, int fogNum, int frontFace, int dlightMap ) {
 #endif RTCW_XX
 
 	int index;
 
+#if defined RTCW_ET
+	// we can't just wrap around here, because the surface count will be
+	// off.  Check for overflow, and drop new surfaces on overflow.
+	if ( tr.refdef.numDrawSurfs >= MAX_DRAWSURFS ) {
+		return;
+	}
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 	// instead of checking for overflow, we just mask the index
 	// so it wraps around
 	index = tr.refdef.numDrawSurfs & DRAWSURF_MASK;
+#else
+	index = tr.refdef.numDrawSurfs;
+#endif RTCW_XX
+
 	// the sort data is packed into a single 32 bit value so it can be
 	// compared quickly during the qsorting process
 
@@ -1672,7 +1959,12 @@ void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
 									  | ( atiTess << QSORT_ATI_TESS_SHIFT )
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 									  | tr.shiftedEntityNum | ( fogIndex << QSORT_FOGNUM_SHIFT ) | (int)dlightMap;
+#else
+									  | tr.shiftedEntityNum | ( fogNum << QSORT_FOGNUM_SHIFT ) | ( frontFace << QSORT_FRONTFACE_SHIFT ) | dlightMap;
+#endif RTCW_XX
+
 	tr.refdef.drawSurfs[index].surface = surface;
 	tr.refdef.numDrawSurfs++;
 }
@@ -1690,13 +1982,24 @@ void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
 #elif defined RTCW_MP
 void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
 					  int *fogNum, int *dlightMap ) {
+#else
+void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader, int *fogNum, int *frontFace, int *dlightMap ) {
 #endif RTCW_XX
 
 	*fogNum = ( sort >> QSORT_FOGNUM_SHIFT ) & 31;
 	*shader = tr.sortedShaders[ ( sort >> QSORT_SHADERNUM_SHIFT ) & ( MAX_SHADERS - 1 ) ];
 //	*entityNum = ( sort >> QSORT_ENTITYNUM_SHIFT ) & 1023;
 	*entityNum = ( sort >> QSORT_ENTITYNUM_SHIFT ) & ( MAX_GENTITIES - 1 );   // (SA) uppded entity count for Wolf to 11 bits
+
+#if defined RTCW_ET
+	*frontFace = ( sort >> QSORT_FRONTFACE_SHIFT ) & 1;
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 	*dlightMap = sort & 3;
+#else
+	*dlightMap = sort & 1;
+#endif RTCW_XX
 
 #if defined RTCW_SP
 //GR - extract tessellation flag
@@ -1714,6 +2017,11 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	shader_t        *shader;
 	int fogNum;
 	int entityNum;
+
+#if defined RTCW_ET
+	int frontFace;
+#endif RTCW_XX
+
 	int dlighted;
 	int i;
 
@@ -1748,6 +2056,8 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		R_DecomposeSort( ( drawSurfs + i )->sort, &entityNum, &shader, &fogNum, &dlighted, &atiTess );
 #elif defined RTCW_MP
 		R_DecomposeSort( ( drawSurfs + i )->sort, &entityNum, &shader, &fogNum, &dlighted );
+#else
+		R_DecomposeSort( ( drawSurfs + i )->sort, &entityNum, &shader, &fogNum, &frontFace, &dlighted );
 #endif RTCW_XX
 
 		if ( shader->sort > SS_PORTAL ) {
@@ -1828,13 +2138,20 @@ void R_AddEntitySurfaces( void ) {
 			R_AddDrawSurf( &entitySurface, shader, R_SpriteFogNum( ent ), 0, ATI_TESS_NONE );
 #elif defined RTCW_MP
 			R_AddDrawSurf( &entitySurface, shader, R_SpriteFogNum( ent ), 0 );
+#else
+			R_AddDrawSurf( &entitySurface, shader, R_SpriteFogNum( ent ), 0, 0 );
 #endif RTCW_XX
 
 			break;
 
 		case RT_MODEL:
 			// we must set up parts of tr.or for model culling
+
+#if !defined RTCW_ET
 			R_RotateForEntity( ent, &tr.viewParms, &tr.or );
+#else
+			R_RotateForEntity( ent, &tr.viewParms, &tr.orientation );
+#endif RTCW_XX
 
 			tr.currentModel = R_GetModelByHandle( ent->e.hModel );
 			if ( !tr.currentModel ) {
@@ -1844,6 +2161,8 @@ void R_AddEntitySurfaces( void ) {
 				R_AddDrawSurf( &entitySurface, tr.defaultShader, 0, 0, ATI_TESS_NONE );
 #elif defined RTCW_MP
 				R_AddDrawSurf( &entitySurface, tr.defaultShader, 0, 0 );
+#else
+				R_AddDrawSurf( &entitySurface, tr.defaultShader, 0, 0, 0 );
 #endif RTCW_XX
 
 			} else {
@@ -1859,6 +2178,13 @@ void R_AddEntitySurfaces( void ) {
 				case MOD_MDS:
 					R_AddAnimSurfaces( ent );
 					break;
+
+#if defined RTCW_ET
+				case MOD_MDM:
+					R_MDM_AddAnimSurfaces( ent );
+					break;
+#endif RTCW_XX
+
 				case MOD_BRUSH:
 					R_AddBrushModelSurfaces( ent );
 					break;
@@ -1873,6 +2199,8 @@ void R_AddEntitySurfaces( void ) {
 					R_AddDrawSurf( &entitySurface, tr.defaultShader, 0, 0, ATI_TESS_NONE );
 #elif defined RTCW_MP
 					R_AddDrawSurf( &entitySurface, tr.defaultShader, 0, 0 );
+#else
+					R_AddDrawSurf( &entitySurface, tr.defaultShader, 0, 0, 0 );
 #endif RTCW_XX
 
 					break;
@@ -1896,9 +2224,32 @@ R_GenerateDrawSurfs
 ====================
 */
 void R_GenerateDrawSurfs( void ) {
+
+#if defined RTCW_ET
+	// set the projection matrix (and view frustum) here
+	// first with max or fog distance so we can have proper
+	// arbitrary frustum farplane culling optimization
+	if ( tr.refdef.rdflags & RDF_NOWORLDMODEL || tr.world == NULL ) {
+		VectorSet( tr.viewParms.visBounds[ 0 ], MIN_WORLD_COORD, MIN_WORLD_COORD, MIN_WORLD_COORD );
+		VectorSet( tr.viewParms.visBounds[ 1 ], MAX_WORLD_COORD, MAX_WORLD_COORD, MAX_WORLD_COORD );
+	} else
+	{
+		VectorCopy( tr.world->nodes->mins, tr.viewParms.visBounds[ 0 ] );
+		VectorCopy( tr.world->nodes->maxs, tr.viewParms.visBounds[ 1 ] );
+	}
+
+
+	R_SetupProjection();
+
+	R_CullDecalProjectors();
+	R_CullDlights();
+#endif RTCW_XX
+
 	R_AddWorldSurfaces();
 
+#if !defined RTCW_ET
 	R_AddPolygonSurfaces();
+#endif RTCW_XX
 
 	// set the projection matrix with the minimum zfar
 	// now that we have the world bounded
@@ -1908,6 +2259,13 @@ void R_GenerateDrawSurfs( void ) {
 	R_SetupProjection();
 
 	R_AddEntitySurfaces();
+
+#if defined RTCW_ET
+	R_AddPolygonSurfaces();
+
+	R_AddPolygonBufferSurfaces();
+#endif RTCW_XX
+
 }
 
 /*
@@ -1940,6 +2298,32 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 	qglEnd();
 	qglDepthRange( 0, 1 );
 }
+
+#if defined RTCW_ET
+/*
+================
+R_DebugText
+================
+*/
+void R_DebugText( const vec3_t org, float r, float g, float b, const char *text, qboolean neverOcclude ) {
+
+	if ( neverOcclude ) {
+		qglDepthRange( 0, 0 );  // never occluded
+
+	}
+	qglColor3f( r, g, b );
+	qglRasterPos3fv( org );
+	qglPushAttrib( GL_LIST_BIT );
+	qglListBase( gl_NormalFontBase );
+	qglCallLists( strlen( text ), GL_UNSIGNED_BYTE, text );
+	qglListBase( 0 );
+	qglPopAttrib();
+
+	if ( neverOcclude ) {
+		qglDepthRange( 0, 1 );
+	}
+}
+#endif RTCW_XX
 
 /*
 ====================
@@ -2007,7 +2391,13 @@ void R_RenderView( viewParms_t *parms ) {
 	// set viewParms.world
 	R_RotateForViewer();
 
+#if !defined RTCW_ET
 	R_SetupFrustum();
+#else
+	// ydnar: removed this because we do a full frustum/projection setup
+	// based on world bounds zfar or fog bounds
+	// R_SetupFrustum ();
+#endif RTCW_XX
 
 	R_GenerateDrawSurfs();
 

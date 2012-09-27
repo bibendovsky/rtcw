@@ -96,18 +96,24 @@ typedef enum {qfalse, qtrue}    qboolean;
 
 #if defined RTCW_SP
 #define Q_stricmp   strcasecmp
-#elif defined RTCW_MP
+#else
 #define Q_stricmp   stricmp
 #endif RTCW_XX
 
 #define MAX_TOKENLENGTH     1024
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 typedef struct pc_token_s
 {
 	int type;
 	int subtype;
 	int intvalue;
+
+#if defined RTCW_ET
+	int line;
+	int linescrossed;
+#endif RTCW_XX
+
 	float floatvalue;
 	char string[MAX_TOKENLENGTH];
 } pc_token_t;
@@ -157,7 +163,13 @@ void QDECL SourceError( source_t *source, char *str, ... ) {
 	va_list ap;
 
 	va_start( ap, str );
+
+#if !defined RTCW_ET
 	vsprintf( text, str, ap );
+#else
+	Q_vsnprintf( text, sizeof( text ), str, ap );
+#endif RTCW_XX
+
 	va_end( ap );
 #ifdef BOTLIB
 	botimport.Print( PRT_ERROR, "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text );
@@ -180,7 +192,13 @@ void QDECL SourceWarning( source_t *source, char *str, ... ) {
 	va_list ap;
 
 	va_start( ap, str );
+
+#if !defined RTCW_ET
 	vsprintf( text, str, ap );
+#else
+	Q_vsnprintf( text, sizeof( text ), str, ap );
+#endif RTCW_XX
+
 	va_end( ap );
 #ifdef BOTLIB
 	botimport.Print( PRT_WARNING, "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text );
@@ -286,9 +304,17 @@ void PC_InitTokenHeap( void ) {
 token_t *PC_CopyToken( token_t *token ) {
 	token_t *t;
 
+
+#if !defined RTCW_ET
 //	t = (token_t *) malloc(sizeof(token_t));
+#endif RTCW_XX
+
 	t = (token_t *) GetMemory( sizeof( token_t ) );
+
+#if !defined RTCW_ET
 //	t = freetokens;
+#endif RTCW_XX
+
 	if ( !t ) {
 #ifdef BSPC
 		Error( "out of token space\n" );
@@ -310,10 +336,18 @@ token_t *PC_CopyToken( token_t *token ) {
 // Changes Globals:		-
 //============================================================================
 void PC_FreeToken( token_t *token ) {
+
+#if !defined RTCW_ET
 	//free(token);
+#endif RTCW_XX
+
 	FreeMemory( token );
+
+#if !defined RTCW_ET
 //	token->next = freetokens;
 //	freetokens = token;
+#endif RTCW_XX
+
 	numtokens--;
 } //end of the function PC_FreeToken
 //============================================================================
@@ -381,9 +415,20 @@ int PC_UnreadSourceToken( source_t *source, token_t *token ) {
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
+
+#if defined RTCW_ET
+define_t *PC_FindHashedDefine( define_t **definehash, char *name );
+int PC_ExpandDefineIntoSource( source_t *source, token_t *deftoken, define_t *define );
+#endif RTCW_XX
+
 int PC_ReadDefineParms( source_t *source, define_t *define, token_t **parms, int maxparms ) {
 	token_t token, *t, *last;
 	int i, done, lastcomma, numparms, indent;
+
+#if defined RTCW_ET
+	define_t *newdefine;
+#endif RTCW_XX
+
 
 	if ( !PC_ReadSourceToken( source, &token ) ) {
 		SourceError( source, "define %s missing parms", define->name );
@@ -403,7 +448,13 @@ int PC_ReadDefineParms( source_t *source, define_t *define, token_t **parms, int
 		return qfalse;
 	} //end if
 	  //read the define parameters
+
+#if !defined RTCW_ET
 	for ( done = 0, numparms = 0, indent = 0; !done; )
+#else
+	for ( done = 0, numparms = 0, indent = 1; !done; )
+#endif RTCW_XX
+
 	{
 		if ( numparms >= maxparms ) {
 			SourceError( source, "define %s with too many parms", define->name );
@@ -425,7 +476,13 @@ int PC_ReadDefineParms( source_t *source, define_t *define, token_t **parms, int
 			} //end if
 			  //
 			if ( !strcmp( token.string, "," ) ) {
+
+#if !defined RTCW_ET
 				if ( indent <= 0 ) {
+#else
+				if ( indent <= 1 ) {
+#endif RTCW_XX
+
 					if ( lastcomma ) {
 						SourceWarning( source, "too many comma's" );
 					}
@@ -437,7 +494,11 @@ int PC_ReadDefineParms( source_t *source, define_t *define, token_t **parms, int
 			//
 			if ( !strcmp( token.string, "(" ) ) {
 				indent++;
+
+#if !defined RTCW_ET
 				continue;
+#endif RTCW_XX
+
 			} //end if
 			else if ( !strcmp( token.string, ")" ) ) {
 				if ( --indent <= 0 ) {
@@ -446,8 +507,24 @@ int PC_ReadDefineParms( source_t *source, define_t *define, token_t **parms, int
 					} //end if
 					done = 1;
 					break;
+
+#if !defined RTCW_ET
 				} //end if
 			} //end if
+#else
+				} // end if
+			} //end if
+			else if ( token.type == TT_NAME ) {
+				newdefine = PC_FindHashedDefine( source->definehash, token.string );
+				if ( newdefine ) {
+					if ( !PC_ExpandDefineIntoSource( source, &token, newdefine ) ) {
+						return qfalse;
+					}
+					continue;
+				}
+			} // end if
+#endif RTCW_XX
+
 			  //
 			if ( numparms < define->numparms ) {
 				//
@@ -679,7 +756,13 @@ void PC_AddBuiltinDefines( source_t *source ) {
 		{ "__FILE__",    BUILTIN_FILE },
 		{ "__DATE__",    BUILTIN_DATE },
 		{ "__TIME__",    BUILTIN_TIME },
+
+#if !defined RTCW_ET
 //		"__STDC__", BUILTIN_STDC,
+#else
+//	{	"__STDC__", BUILTIN_STDC },
+#endif RTCW_XX
+
 		{ NULL, 0 }
 	};
 
@@ -745,7 +828,13 @@ int PC_ExpandBuiltinDefine( source_t *source, token_t *deftoken, define_t *defin
 		strncat( token->string, curtime + 4, 7 );
 		strncat( token->string + 7, curtime + 20, 4 );
 		strcat( token->string, "\"" );
+
+#if !defined RTCW_ET
 		free( curtime );
+#else
+//			free(curtime);
+#endif RTCW_XX
+
 		token->type = TT_NAME;
 		token->subtype = strlen( token->string );
 		*firsttoken = token;
@@ -759,7 +848,13 @@ int PC_ExpandBuiltinDefine( source_t *source, token_t *deftoken, define_t *defin
 		strcpy( token->string, "\"" );
 		strncat( token->string, curtime + 11, 8 );
 		strcat( token->string, "\"" );
+
+#if !defined RTCW_ET
 		free( curtime );
+#else
+//			free(curtime);
+#endif RTCW_XX
+
 		token->type = TT_NAME;
 		token->subtype = strlen( token->string );
 		*firsttoken = token;
@@ -1426,6 +1521,11 @@ void PC_RemoveAllGlobalDefines( void ) {
 		globaldefines = globaldefines->next;
 		PC_FreeDefine( define );
 	} //end for
+
+#if defined RTCW_ET
+	globaldefines = NULL;
+#endif RTCW_XX
+
 } //end of the function PC_RemoveAllGlobalDefines
 //============================================================================
 //
@@ -2477,7 +2577,13 @@ int PC_Directive_evalfloat( source_t *source ) {
 	token.whitespace_p = source->scriptstack->script_p;
 	token.endwhitespace_p = source->scriptstack->script_p;
 	token.linescrossed = 0;
+
+#if !defined RTCW_ET
 	sprintf( token.string, "%1.2f", fabs( value ) );
+#else
+	sprintf( token.string, "%1.2f", Q_fabs( value ) );
+#endif RTCW_XX
+
 	token.type = TT_NUMBER;
 	token.subtype = TT_FLOAT | TT_LONG | TT_DECIMAL;
 	PC_UnreadSourceToken( source, &token );
@@ -2587,7 +2693,13 @@ int PC_DollarDirective_evalfloat( source_t *source ) {
 	token.whitespace_p = source->scriptstack->script_p;
 	token.endwhitespace_p = source->scriptstack->script_p;
 	token.linescrossed = 0;
+
+#if !defined RTCW_ET
 	sprintf( token.string, "%1.2f", fabs( value ) );
+#else
+	sprintf( token.string, "%1.2f", Q_fabs( value ) );
+#endif RTCW_XX
+
 	token.type = TT_NUMBER;
 	token.subtype = TT_FLOAT | TT_LONG | TT_DECIMAL;
 #ifdef NUMBERVALUE
@@ -2734,7 +2846,17 @@ int PC_ReadToken( source_t *source, token_t *token ) {
 				continue;
 			} //end if
 		} //end if
+
+#if !defined RTCW_ET
 		  // recursively concatenate strings that are behind each other still resolving defines
+#else
+		  //if skipping source because of conditional compilation
+		if ( source->skip ) {
+			continue;
+		}
+		// recursively concatenate strings that are behind each other
+#endif RTCW_XX
+
 		if ( token->type == TT_STRING ) {
 			token_t newtoken;
 			if ( PC_ReadToken( source, &newtoken ) ) {
@@ -2751,10 +2873,14 @@ int PC_ReadToken( source_t *source, token_t *token ) {
 				}
 			}
 		} //end if
+
+#if !defined RTCW_ET
 		  //if skipping source because of conditional compilation
 		if ( source->skip ) {
 			continue;
 		}
+#endif RTCW_XX
+
 		//if the token is a name
 		if ( token->type == TT_NAME ) {
 			//check if the name is a define macro
@@ -3191,11 +3317,37 @@ int PC_ReadTokenHandle( int handle, pc_token_t *pc_token ) {
 	pc_token->subtype = token.subtype;
 	pc_token->intvalue = token.intvalue;
 	pc_token->floatvalue = token.floatvalue;
+
+#if defined RTCW_ET
+	pc_token->line = token.line;
+	pc_token->linescrossed = token.linescrossed;
+#endif RTCW_XX
+
 	if ( pc_token->type == TT_STRING ) {
 		StripDoubleQuotes( pc_token->string );
 	}
 	return ret;
 } //end of the function PC_ReadTokenHandle
+
+#if defined RTCW_ET
+//============================================================================
+//
+// Parameter:				-
+// Returns:					-
+// Changes Globals:		-
+//============================================================================
+void PC_UnreadLastTokenHandle( int handle ) {
+	if ( handle < 1 || handle >= MAX_SOURCEFILES ) {
+		return;
+	}
+	if ( !sourceFiles[handle] ) {
+		return;
+	}
+
+	PC_UnreadSourceToken( sourceFiles[handle], &sourceFiles[handle]->token );
+} //end of the function PC_UnreadLastTokenHandle
+#endif RTCW_XX
+
 //============================================================================
 //
 // Parameter:			-

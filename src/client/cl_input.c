@@ -55,6 +55,20 @@ at the same time.
 
 static kbutton_t kb[NUM_BUTTONS];
 
+#if defined RTCW_ET
+// Arnout: doubleTap button mapping
+static kbuttons_t dtmapping[] = {
+	-1,                 // DT_NONE
+	KB_MOVELEFT,        // DT_MOVELEFT
+	KB_MOVERIGHT,       // DT_MOVERIGHT
+	KB_FORWARD,         // DT_FORWARD
+	KB_BACK,            // DT_BACK
+	KB_WBUTTONS4,       // DT_LEANLEFT
+	KB_WBUTTONS5,       // DT_LEANRIGHT
+	KB_UP               // DT_UP
+};
+#endif RTCW_XX
+
 void IN_MLookDown( void ) {
 	kb[KB_MLOOK].active = qtrue;
 }
@@ -62,7 +76,13 @@ void IN_MLookDown( void ) {
 void IN_MLookUp( void ) {
 	kb[KB_MLOOK].active = qfalse;
 	if ( !cl_freelook->integer ) {
+
+#if !defined RTCW_ET
 		IN_CenterView();
+#else
+//		IN_CenterView ();
+#endif RTCW_XX
+
 	}
 }
 
@@ -234,10 +254,12 @@ void IN_ActivateDown( void ) {IN_KeyDown( &kb[KB_BUTTONS6] );}
 void IN_ActivateUp( void ) {IN_KeyUp( &kb[KB_BUTTONS6] );}
 // done.
 
+#if !defined RTCW_ET
 // Rafael Kick
 void IN_KickDown( void ) {IN_KeyDown( &kb[KB_KICK] );}
 void IN_KickUp( void ) {IN_KeyUp( &kb[KB_KICK] );}
 // done.
+#endif RTCW_XX
 
 void IN_SprintDown( void ) {IN_KeyDown( &kb[KB_BUTTONS5] );}
 void IN_SprintUp( void ) {IN_KeyUp( &kb[KB_BUTTONS5] );}
@@ -248,8 +270,12 @@ void IN_Wbutton0Down( void )  { IN_KeyDown( &kb[KB_WBUTTONS0] );    }   //----(S
 void IN_Wbutton0Up( void )    { IN_KeyUp( &kb[KB_WBUTTONS0] );  }
 void IN_ZoomDown( void )      { IN_KeyDown( &kb[KB_WBUTTONS1] );    }   //----(SA)	zoom key
 void IN_ZoomUp( void )        { IN_KeyUp( &kb[KB_WBUTTONS1] );  }
+
+#if !defined RTCW_ET
 void IN_QuickGrenDown( void ) { IN_KeyDown( &kb[KB_WBUTTONS2] );    }   //----(SA)	"Quickgrenade"
 void IN_QuickGrenUp( void )   { IN_KeyUp( &kb[KB_WBUTTONS2] );  }
+#endif RTCW_XX
+
 void IN_ReloadDown( void )    { IN_KeyDown( &kb[KB_WBUTTONS3] );    }   //----(SA)	manual weapon re-load
 void IN_ReloadUp( void )      { IN_KeyUp( &kb[KB_WBUTTONS3] );  }
 void IN_LeanLeftDown( void )  { IN_KeyDown( &kb[KB_WBUTTONS4] );    }   //----(SA)	lean left
@@ -271,10 +297,17 @@ void IN_Wbutton6Down( void )  { IN_KeyDown( &kb[KB_WBUTTONS6] );    }
 void IN_Wbutton6Up( void )    { IN_KeyUp( &kb[KB_WBUTTONS6] );  }
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 void IN_Wbutton7Down( void )  { IN_KeyDown( &kb[KB_WBUTTONS7] );    }
 void IN_Wbutton7Up( void )    { IN_KeyUp( &kb[KB_WBUTTONS7] );  }
+#endif RTCW_XX
 
-
+#if defined RTCW_ET
+// Rafael Kick
+// Arnout: now wbutton prone
+void IN_ProneDown( void ) {IN_KeyDown( &kb[KB_WBUTTONS7] );}
+void IN_ProneUp( void ) {IN_KeyUp( &kb[KB_WBUTTONS7] );}
+#endif RTCW_XX
 
 
 void IN_ButtonDown( void ) {
@@ -284,6 +317,7 @@ void IN_ButtonUp( void ) {
 	IN_KeyUp( &kb[KB_BUTTONS1] );
 }
 
+#if !defined RTCW_ET
 void IN_CenterView( void ) {
 
 #if defined RTCW_SP
@@ -299,6 +333,13 @@ void IN_CenterView( void ) {
 #endif RTCW_XX
 
 }
+#else
+/*
+void IN_CenterView (void) {
+	cl.viewangles[PITCH] = -SHORT2ANGLE(cl.snap.ps.delta_angles[PITCH]);
+}
+*/
+#endif RTCW_XX
 
 void IN_Notebook( void ) {
 
@@ -307,7 +348,7 @@ void IN_Notebook( void ) {
 		Cvar_Set( "cg_youGotMail", "0" ); // clear icon	//----(SA)	added
 		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NOTEBOOK );    // startup notebook
 	}
-#elif defined RTCW_MP
+#else
 	//if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
 	//VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NOTEBOOK);	// startup notebook
 	//}
@@ -337,8 +378,12 @@ cvar_t  *cl_anglespeedkey;
 
 cvar_t  *cl_recoilPitch;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 cvar_t  *cl_bypassMouseInput;       // NERVE - SMF
+#endif RTCW_XX
+
+#if defined RTCW_ET
+cvar_t  *cl_doubletapdelay;
 #endif RTCW_XX
 
 /*
@@ -376,9 +421,12 @@ Sets the usercmd_t based on key states
 void CL_KeyMove( usercmd_t *cmd ) {
 	int movespeed;
 	int forward, side, up;
+
+#if !defined RTCW_ET
 	// Rafael Kick
 	int kick;
 	// done
+#endif RTCW_XX
 
 	//
 	// adjust for speed key / running
@@ -422,6 +470,7 @@ void CL_KeyMove( usercmd_t *cmd ) {
 	forward += movespeed * CL_KeyState( &kb[KB_FORWARD] );
 	forward -= movespeed * CL_KeyState( &kb[KB_BACK] );
 
+#if !defined RTCW_ET
 	// Rafael Kick
 	kick = CL_KeyState( &kb[KB_KICK] );
 	// done
@@ -434,6 +483,42 @@ void CL_KeyMove( usercmd_t *cmd ) {
 		// Rafael - Kick
 		cmd->wolfkick = ClampChar( kick );
 		// done
+#else
+	// fretn - moved this to bg_pmove.c
+	//if (!(cl.snap.ps.persistant[PERS_HWEAPON_USE]))
+	//{
+	cmd->forwardmove = ClampChar( forward );
+	cmd->rightmove = ClampChar( side );
+	cmd->upmove = ClampChar( up );
+	//}
+
+	// Arnout: double tap
+	cmd->doubleTap = DT_NONE; // reset
+	if ( com_frameTime - cl.doubleTap.lastdoubleTap > cl_doubletapdelay->integer + 150 + cls.frametime ) {   // double tap only once every 500 msecs (add
+																											 // frametime for low(-ish) fps situations)
+		int i;
+		qboolean key_down;
+
+		for ( i = 1; i < DT_NUM; i++ ) {
+			key_down = kb[dtmapping[i]].active || kb[dtmapping[i]].wasPressed;
+
+			if ( key_down && !cl.doubleTap.pressedTime[i] ) {
+				cl.doubleTap.pressedTime[i] = com_frameTime;
+			} else if ( !key_down && !cl.doubleTap.releasedTime[i]
+						&& ( com_frameTime - cl.doubleTap.pressedTime[i] ) < ( cl_doubletapdelay->integer + cls.frametime ) ) {
+				cl.doubleTap.releasedTime[i] = com_frameTime;
+			} else if ( key_down && ( com_frameTime - cl.doubleTap.pressedTime[i] ) < ( cl_doubletapdelay->integer + cls.frametime )
+						&& ( com_frameTime - cl.doubleTap.releasedTime[i] ) < ( cl_doubletapdelay->integer + cls.frametime ) ) {
+				cl.doubleTap.pressedTime[i] = cl.doubleTap.releasedTime[i] = 0;
+				cmd->doubleTap = i;
+				cl.doubleTap.lastdoubleTap = com_frameTime;
+			} else if ( !key_down && ( cl.doubleTap.pressedTime[i] || cl.doubleTap.releasedTime[i] ) ) {
+				if ( com_frameTime - cl.doubleTap.pressedTime[i] >= ( cl_doubletapdelay->integer + cls.frametime ) ) {
+					cl.doubleTap.pressedTime[i] = cl.doubleTap.releasedTime[i] = 0;
+				}
+			}
+		}
+#endif RTCW_XX
 
 	}
 }
@@ -448,7 +533,7 @@ void CL_MouseEvent( int dx, int dy, int time ) {
 
 #if defined RTCW_SP
 		VM_Call( uivm, UI_MOUSE_EVENT, dx, dy );
-#elif defined RTCW_MP
+#else
 		// NERVE - SMF - if we just want to pass it along to game
 		if ( cl_bypassMouseInput->integer == 1 ) {
 			cl.mouseDx[cl.mouseIndex] += dx;
@@ -459,7 +544,18 @@ void CL_MouseEvent( int dx, int dy, int time ) {
 #endif RTCW_XX
 
 	} else if ( cls.keyCatchers & KEYCATCH_CGAME ) {
+
+#if !defined RTCW_ET
 		VM_Call( cgvm, CG_MOUSE_EVENT, dx, dy );
+#else
+		if ( cl_bypassMouseInput->integer == 1 ) {
+			cl.mouseDx[cl.mouseIndex] += dx;
+			cl.mouseDy[cl.mouseIndex] += dy;
+		} else {
+			VM_Call( cgvm, CG_MOUSE_EVENT, dx, dy );
+		}
+#endif RTCW_XX
+
 	} else {
 		cl.mouseDx[cl.mouseIndex] += dx;
 		cl.mouseDy[cl.mouseIndex] += dy;
@@ -613,7 +709,12 @@ void CL_CmdButtons( usercmd_t *cmd ) {
 		kb[KB_BUTTONS0 + i].wasPressed = qfalse;
 	}
 
+#if !defined RTCW_ET
 	for ( i = 0 ; i < 7 ; i++ ) {
+#else
+	for ( i = 0 ; i < 8 ; i++ ) {     // Arnout: this was i < 7, but there are 8 wbuttons
+#endif RTCW_XX
+
 		if ( kb[KB_WBUTTONS0 + i].active || kb[KB_WBUTTONS0 + i].wasPressed ) {
 			cmd->wbuttons |= 1 << i;
 		}
@@ -622,7 +723,7 @@ void CL_CmdButtons( usercmd_t *cmd ) {
 
 #if defined RTCW_SP
 	if ( cls.keyCatchers ) {
-#elif defined RTCW_MP
+#else
 	if ( cls.keyCatchers && !cl_bypassMouseInput->integer ) {
 #endif RTCW_XX
 
@@ -634,12 +735,20 @@ void CL_CmdButtons( usercmd_t *cmd ) {
 
 #if defined RTCW_SP
 	if ( anykeydown && !cls.keyCatchers ) {
-#elif defined RTCW_MP
+#else
 	if ( anykeydown && ( !cls.keyCatchers || cl_bypassMouseInput->integer ) ) {
 #endif RTCW_XX
 
 		cmd->buttons |= BUTTON_ANY;
 	}
+
+#if defined RTCW_ET
+	// Arnout: clear 'waspressed' from double tap buttons
+	for ( i = 1; i < DT_NUM; i++ ) {
+		kb[dtmapping[i]].wasPressed = qfalse;
+	}
+#endif RTCW_XX
+
 }
 
 
@@ -654,12 +763,21 @@ void CL_FinishMove( usercmd_t *cmd ) {
 	// copy the state that the cgame is currently sending
 	cmd->weapon = cl.cgameUserCmdValue;
 
+#if !defined RTCW_ET
 	cmd->holdable = cl.cgameUserHoldableValue;  //----(SA)	modified
+#endif RTCW_XX
 
 #if defined RTCW_MP
 	cmd->mpSetup = cl.cgameMpSetup;             // NERVE - SMF
 	cmd->identClient = cl.cgameMpIdentClient;   // NERVE - SMF
-#endif
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	cmd->flags = cl.cgameFlags;
+
+	cmd->identClient = cl.cgameMpIdentClient;   // NERVE - SMF
+#endif RTCW_XX
+
 	// send the current server time so the amount of movement
 	// can be determined without allowing cheating
 	cmd->serverTime = cl.serverTime;
@@ -707,7 +825,13 @@ usercmd_t CL_CreateCmd( void ) {
 
 	// RF, set the kickAngles so aiming is effected
 	recoilAdd = cl_recoilPitch->value;
+
+#if !defined RTCW_ET
 	if ( fabs( cl.viewangles[PITCH] + recoilAdd ) < 40 ) {
+#else
+	if ( Q_fabs( cl.viewangles[PITCH] + recoilAdd ) < 40 ) {
+#endif RTCW_XX
+
 		cl.viewangles[PITCH] += recoilAdd;
 	}
 	// the recoilPitch has been used, so clear it out
@@ -788,7 +912,13 @@ qboolean CL_ReadyToSendPacket( void ) {
 	}
 
 	// If we are downloading, we send no less than 50ms between packets
+
+#if !defined RTCW_ET
 	if ( *clc.downloadTempName &&
+#else
+	if ( *cls.downloadTempName &&
+#endif RTCW_XX
+
 		 cls.realtime - clc.lastPacketSentTime < 50 ) {
 		return qfalse;
 	}
@@ -797,7 +927,13 @@ qboolean CL_ReadyToSendPacket( void ) {
 	// one packet a second
 	if ( cls.state != CA_ACTIVE &&
 		 cls.state != CA_PRIMED &&
+
+#if !defined RTCW_ET
 		 !*clc.downloadTempName &&
+#else
+		 !*cls.downloadTempName &&
+#endif RTCW_XX
+
 		 cls.realtime - clc.lastPacketSentTime < 1000 ) {
 		return qfalse;
 	}
@@ -884,7 +1020,7 @@ void CL_WritePacket( void ) {
 
 	// write any unacknowledged clientCommands
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// NOTE TTimo: if you verbose this, you will see that there are quite a few duplicates
 	// typically several unacknowledged cp or userinfo commands stacked up
 #endif RTCW_XX
@@ -964,14 +1100,14 @@ void CL_WritePacket( void ) {
 	// to fragment, but in case they do, fire them all off
 	// at once
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// TTimo: this causes a packet burst, which is bad karma for winsock
 	// added a WARNING message, we'll see if there are legit situations where this happens
 #endif RTCW_XX
 
 	while ( clc.netchan.unsentFragments ) {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		if ( cl_showSend->integer ) {
 			Com_Printf( "WARNING: unsent fragments (not supposed to happen!)\n" );
 		}
@@ -1019,7 +1155,12 @@ CL_InitInput
 ============
 */
 void CL_InitInput( void ) {
+
+#if !defined RTCW_ET
 	Cmd_AddCommand( "centerview",IN_CenterView );
+#else
+//	Cmd_AddCommand ("centerview",IN_CenterView);	// this is an exploit nowadays
+#endif RTCW_XX
 
 	Cmd_AddCommand( "+moveup",IN_UpDown );
 	Cmd_AddCommand( "-moveup",IN_UpUp );
@@ -1076,8 +1217,16 @@ void CL_InitInput( void ) {
 	// done.
 
 	// Rafael Kick
+
+#if !defined RTCW_ET
 	Cmd_AddCommand( "+kick", IN_KickDown );
 	Cmd_AddCommand( "-kick", IN_KickUp );
+#else
+	// Arnout: now prone
+	Cmd_AddCommand( "+prone", IN_ProneDown );
+	Cmd_AddCommand( "-prone", IN_ProneUp );
+#endif RTCW_XX
+
 	// done
 
 	Cmd_AddCommand( "+sprint", IN_SprintDown );
@@ -1089,8 +1238,12 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand( "-attack2",      IN_Wbutton0Up );
 	Cmd_AddCommand( "+zoom",     IN_ZoomDown );       //
 	Cmd_AddCommand( "-zoom",     IN_ZoomUp );
+
+#if !defined RTCW_ET
 	Cmd_AddCommand( "+quickgren",    IN_QuickGrenDown );  //
 	Cmd_AddCommand( "-quickgren",    IN_QuickGrenUp );
+#endif RTCW_XX
+
 	Cmd_AddCommand( "+reload",       IN_ReloadDown );     //
 	Cmd_AddCommand( "-reload",       IN_ReloadUp );
 	Cmd_AddCommand( "+leanleft", IN_LeanLeftDown );
@@ -1108,10 +1261,11 @@ void CL_InitInput( void ) {
 // jpw
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	Cmd_AddCommand( "+wbutton7", IN_Wbutton7Down );   //
 	Cmd_AddCommand( "-wbutton7", IN_Wbutton7Up );
 //----(SA) end
-
+#endif RTCW_XX
 
 	Cmd_AddCommand( "+mlook", IN_MLookDown );
 	Cmd_AddCommand( "-mlook", IN_MLookUp );
@@ -1119,7 +1273,7 @@ void CL_InitInput( void ) {
 #if defined RTCW_SP
 	Cmd_AddCommand( "notebook",IN_Notebook );
 //	Cmd_AddCommand ("help",IN_Help);
-#elif defined RTCW_MP
+#else
 	//Cmd_AddCommand ("notebook",IN_Notebook);
 	Cmd_AddCommand( "help",IN_Help );
 #endif RTCW_XX

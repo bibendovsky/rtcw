@@ -26,6 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#if !defined RTCW_ET
 //===========================================================================
 //
 // Name:			chars.h
@@ -34,7 +35,23 @@ If you have questions concerning this license or the applicable additional terms
 // Last update:		1999-09-08
 // Tab Size:		4 (real tabs)
 //===========================================================================
+#else
+//===========================================================================
+//
+// Name:			chars.h
+// Function:		bot characteristics
+// Programmer:		digibob
+// Last update:		2003-03-27
+// Tab Size:		4 (real tabs)
+//===========================================================================
+#endif RTCW_XX
 
+#if defined RTCW_ET
+//unless specified, the higher the number, the better the characteristic, or
+//the greater the likelyhood of the characteristic occuring.
+//also, if any characteristic is ommited, the default value will be used from
+//the file in /bots/default_c.c
+#endif RTCW_XX
 
 //========================================================
 //========================================================
@@ -64,9 +81,21 @@ If you have questions concerning this license or the applicable additional terms
 #define CHARACTERISTIC_AIM_ACCURACY_SHOTGUN         9   //float [0, 1]
 #define CHARACTERISTIC_AIM_ACCURACY_ROCKETLAUNCHER  10  //float [0, 1]
 #define CHARACTERISTIC_AIM_ACCURACY_GRENADELAUNCHER 11  //float [0, 1]
+
+#if !defined RTCW_ET
 #define CHARACTERISTIC_AIM_ACCURACY_LIGHTNING       12
+#else
+#define CHARACTERISTIC_AIM_ACCURACY_FLAMETHROWER    12
+#endif RTCW_XX
+
 #define CHARACTERISTIC_AIM_ACCURACY_SP5             13  //float [0, 1]
+
+#if !defined RTCW_ET
 #define CHARACTERISTIC_AIM_ACCURACY_RAILGUN         14
+#else
+#define CHARACTERISTIC_AIM_ACCURACY_SNIPERRIFLE     14
+#endif RTCW_XX
+
 #define CHARACTERISTIC_AIM_ACCURACY_BFG10K          15  //float [0, 1]
 //skill when aiming
 // >  0.0 && <  0.9 = aim is affected by enemy movement
@@ -79,7 +108,14 @@ If you have questions concerning this license or the applicable additional terms
 #define CHARACTERISTIC_AIM_SKILL_ROCKETLAUNCHER     17  //float [0, 1]
 #define CHARACTERISTIC_AIM_SKILL_GRENADELAUNCHER    18  //float [0, 1]
 #define CHARACTERISTIC_AIM_SKILL_SP5                19  //float [0, 1]
+
+#if !defined RTCW_ET
 #define CHARACTERISTIC_AIM_SKILL_BFG10K             20  //float [0, 1]
+#else
+//#define CHARACTERISTIC_AIM_SKILL_BFG10K				20	//float [0, 1]
+#define CHARACTERISTIC_AIM_SKILL_SNIPERRIFLE        20
+#endif RTCW_XX
+
 //========================================================
 //chat
 //========================================================
@@ -148,3 +184,9 @@ If you have questions concerning this license or the applicable additional terms
 //how much the bot fires it's weapon
 #define CHARACTERISTIC_FIRETHROTTLE                 47  //float [0, 1]
 
+#if defined RTCW_ET
+//========================================================
+//========================================================
+// Gordon: adding new aim accuracies... this file needs cleaned up...
+#define CHARACTERISTIC_AIM_ACCURACY_PRONEMG42       49  //float [0, 1]
+#endif RTCW_XX

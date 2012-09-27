@@ -44,8 +44,15 @@ If you have questions concerning this license or the applicable additional terms
 // 16 bit short limits
 #define SIN_MAX_MAP_MODELS      1024
 #define SIN_MAX_MAP_BRUSHES     8192
+
+#if !defined RTCW_ET
 #define SIN_MAX_MAP_ENTITIES    2048
 #define SIN_MAX_MAP_ENTSTRING   0x40000
+#else
+#define SIN_MAX_MAP_ENTITIES    4096
+#define SIN_MAX_MAP_ENTSTRING   ( 128 * SIN_MAX_MAP_ENTITIES )
+#endif RTCW_XX
+
 #define SIN_MAX_MAP_TEXINFO     8192
 
 #define SIN_MAX_MAP_AREAS       256

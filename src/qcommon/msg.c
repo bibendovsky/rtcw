@@ -32,8 +32,15 @@ If you have questions concerning this license or the applicable additional terms
 static huffman_t msgHuff;
 static qboolean msgInit = qfalse;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 int pcount[256];
+#endif RTCW_XX
+
+#if defined RTCW_ET
+int wastedbits = 0;
+
+static int oldsize = 0;
+// static int overflows = 0;
 #endif RTCW_XX
 
 /*
@@ -45,7 +52,9 @@ Handles byte ordering and avoids alignment errors
 ==============================================================================
 */
 
+#if !defined RTCW_ET
 int oldsize = 0;
+#endif RTCW_XX
 
 void MSG_initHuffman();
 
@@ -54,6 +63,12 @@ void MSG_Init( msg_t *buf, byte *data, int length ) {
 		MSG_initHuffman();
 	}
 	memset( buf, 0, sizeof( *buf ) );
+
+#if defined RTCW_ET
+//bani - optimization
+//	memset (data, 0, length);
+#endif RTCW_XX
+
 	buf->data = data;
 	buf->maxsize = length;
 }
@@ -63,6 +78,12 @@ void MSG_InitOOB( msg_t *buf, byte *data, int length ) {
 		MSG_initHuffman();
 	}
 	memset( buf, 0, sizeof( *buf ) );
+
+#if defined RTCW_ET
+//bani - optimization
+//	memset (data, 0, length);
+#endif RTCW_XX
+
 	buf->data = data;
 	buf->maxsize = length;
 	buf->oob = qtrue;
@@ -79,6 +100,14 @@ void MSG_Bitstream( msg_t *buf ) {
 	buf->oob = qfalse;
 }
 
+#if defined RTCW_ET
+void MSG_Uncompressed( msg_t *buf ) {
+	// align to byte-boundary
+	buf->bit = ( buf->bit + 7 ) & ~7;
+	buf->oob = qtrue;
+}
+#endif RTCW_XX
+
 void MSG_BeginReading( msg_t *msg ) {
 	msg->readcount = 0;
 	msg->bit = 0;
@@ -91,10 +120,24 @@ void MSG_BeginReadingOOB( msg_t *msg ) {
 	msg->oob = qtrue;
 }
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+void MSG_BeginReadingUncompressed( msg_t *buf ) {
+	// align to byte-boundary
+	buf->bit = ( buf->bit + 7 ) & ~7;
+	buf->oob = qtrue;
+}
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 void MSG_Copy( msg_t *buf, byte *data, int length, msg_t *src ) {
 	if ( length < src->cursize ) {
+
+#if !defined RTCW_ET
 		Com_Error( ERR_DROP, "MSG_Copy: can't copy into a smaller msg_t buffer" );
+#else
+		Com_Error( ERR_DROP, "MSG_Copy: can't copy %d into a smaller %d msg_t buffer", src->cursize, length );
+#endif RTCW_XX
+
 	}
 	Com_Memcpy( buf, src, sizeof( msg_t ) );
 	buf->data = data;
@@ -110,7 +153,9 @@ bit functions
 =============================================================================
 */
 
+#if !defined RTCW_ET
 int overflows;
+#endif RTCW_XX
 
 // negative bit values include signs
 void MSG_WriteBits( msg_t *msg, int value, int bits ) {
@@ -119,12 +164,18 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 
 	oldsize += bits;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	msg->uncompsize += bits;            // NERVE - SMF - net debugging
 #endif RTCW_XX
 
 	// this isn't an exact overflow check, but close enough
+
+#if !defined RTCW_ET
 	if ( msg->maxsize - msg->cursize < 4 ) {
+#else
+	if ( msg->maxsize - msg->cursize < 32 ) {
+#endif RTCW_XX
+
 		msg->overflowed = qtrue;
 		return;
 	}
@@ -133,6 +184,12 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 		Com_Error( ERR_DROP, "MSG_WriteBits: bad bits %i", bits );
 	}
 
+
+#if defined RTCW_ET
+	// TTimo - the overflow count is not used anywhere atm
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 	// check for overflows
 	if ( bits != 32 ) {
 		if ( bits > 0 ) {
@@ -149,6 +206,8 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 			}
 		}
 	}
+#endif RTCW_XX
+
 	if ( bits < 0 ) {
 		bits = -bits;
 	}
@@ -672,13 +731,23 @@ void MSG_WriteDeltaUsercmd( msg_t *msg, usercmd_t *from, usercmd_t *to ) {
 	MSG_WriteDelta( msg, from->buttons, to->buttons, 8 );
 	MSG_WriteDelta( msg, from->wbuttons, to->wbuttons, 8 );
 	MSG_WriteDelta( msg, from->weapon, to->weapon, 8 );
+
+#if !defined RTCW_ET
 	MSG_WriteDelta( msg, from->holdable, to->holdable, 8 );         //----(SA)	modified
 	MSG_WriteDelta( msg, from->wolfkick, to->wolfkick, 8 );
+#else
+	MSG_WriteDelta( msg, from->flags, to->flags, 8 );
+	MSG_WriteDelta( msg, from->doubleTap, to->doubleTap, 3 );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	MSG_WriteDelta( msg, from->cld, to->cld, 16 );          // NERVE - SMF
-#elif defined RTCW_MP
+#else
+
+#if !defined RTCW_ET
 	MSG_WriteDelta( msg, from->mpSetup, to->mpSetup, 8 );                   // NERVE - SMF
+#endif RTCW_XX
+
 	MSG_WriteDelta( msg, from->identClient, to->identClient, 8 );           // NERVE - SMF
 #endif RTCW_XX
 
@@ -705,13 +774,23 @@ void MSG_ReadDeltaUsercmd( msg_t *msg, usercmd_t *from, usercmd_t *to ) {
 	to->buttons = MSG_ReadDelta( msg, from->buttons, 8 );
 	to->wbuttons = MSG_ReadDelta( msg, from->wbuttons, 8 );
 	to->weapon = MSG_ReadDelta( msg, from->weapon, 8 );
+
+#if !defined RTCW_ET
 	to->holdable = MSG_ReadDelta( msg, from->holdable, 8 );  //----(SA)	modified
 	to->wolfkick = MSG_ReadDelta( msg, from->wolfkick, 8 );
+#else
+	to->flags = MSG_ReadDelta( msg, from->flags, 8 );
+	to->doubleTap = MSG_ReadDelta( msg, from->doubleTap, 3 ) & 0x7;
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	to->cld = MSG_ReadDelta( msg, from->cld, 16 );       // NERVE - SMF
-#elif defined RTCW_MP
+#else
+
+#if !defined RTCW_ET
 	to->mpSetup = MSG_ReadDelta( msg, from->mpSetup, 8 );            // NERVE - SMF
+#endif RTCW_XX
+
 	to->identClient = MSG_ReadDelta( msg, from->identClient, 8 );    // NERVE - SMF
 #endif RTCW_XX
 
@@ -739,13 +818,23 @@ void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *
 		 from->buttons == to->buttons &&
 		 from->wbuttons == to->wbuttons &&
 		 from->weapon == to->weapon &&
+
+#if !defined RTCW_ET
 		 from->holdable == to->holdable &&
 		 from->wolfkick == to->wolfkick &&
+#else
+		 from->flags == to->flags &&
+		 from->doubleTap == to->doubleTap &&
+#endif RTCW_XX
 
 #if defined RTCW_SP
 		 from->cld == to->cld ) {                   // NERVE - SMF
-#elif defined RTCW_MP
+#else
+
+#if !defined RTCW_ET
 		 from->mpSetup == to->mpSetup &&            // NERVE - SMF
+#endif RTCW_XX
+
 		 from->identClient == to->identClient ) {   // NERVE - SMF
 #endif RTCW_XX
 
@@ -764,13 +853,23 @@ void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *
 	MSG_WriteDeltaKey( msg, key, from->buttons, to->buttons, 8 );
 	MSG_WriteDeltaKey( msg, key, from->wbuttons, to->wbuttons, 8 );
 	MSG_WriteDeltaKey( msg, key, from->weapon, to->weapon, 8 );
+
+#if !defined RTCW_ET
 	MSG_WriteDeltaKey( msg, key, from->holdable, to->holdable, 8 );
 	MSG_WriteDeltaKey( msg, key, from->wolfkick, to->wolfkick, 8 );
+#else
+	MSG_WriteDeltaKey( msg, key, from->flags, to->flags, 8 );
+	MSG_WriteDeltaKey( msg, key, from->doubleTap, to->doubleTap, 3 );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	MSG_WriteDeltaKey( msg, key, from->cld, to->cld, 16 );      // NERVE - SMF - for multiplayer clientDamage
-#elif defined RTCW_MP
+#else
+
+#if !defined RTCW_ET
 	MSG_WriteDeltaKey( msg, key, from->mpSetup, to->mpSetup, 8 );               // NERVE - SMF
+#endif RTCW_XX
+
 	MSG_WriteDeltaKey( msg, key, from->identClient, to->identClient, 8 );       // NERVE - SMF
 #endif RTCW_XX
 
@@ -799,13 +898,23 @@ void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *t
 		to->buttons = MSG_ReadDeltaKey( msg, key, from->buttons, 8 );
 		to->wbuttons = MSG_ReadDeltaKey( msg, key, from->wbuttons, 8 );
 		to->weapon = MSG_ReadDeltaKey( msg, key, from->weapon, 8 );
+
+#if !defined RTCW_ET
 		to->holdable = MSG_ReadDeltaKey( msg, key, from->holdable, 8 );
 		to->wolfkick = MSG_ReadDeltaKey( msg, key, from->wolfkick, 8 );
+#else
+		to->flags = MSG_ReadDeltaKey( msg, key, from->flags, 8 );
+		to->doubleTap = MSG_ReadDeltaKey( msg, key, from->doubleTap, 3 ) & 0x7;
+#endif RTCW_XX
 
 #if defined RTCW_SP
 		to->cld = MSG_ReadDeltaKey( msg, key, from->cld, 16 );           // NERVE - SMF - for multiplayer clientDamage
-#elif defined RTCW_MP
+#else
+
+#if !defined RTCW_ET
 		to->mpSetup = MSG_ReadDeltaKey( msg, key, from->mpSetup, 8 );                    // NERVE - SMF
+#endif RTCW_XX
+
 		to->identClient = MSG_ReadDeltaKey( msg, key, from->identClient, 8 );            // NERVE - SMF
 #endif RTCW_XX
 
@@ -819,13 +928,23 @@ void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *t
 		to->buttons = from->buttons;
 		to->wbuttons = from->wbuttons;
 		to->weapon = from->weapon;
+
+#if !defined RTCW_ET
 		to->holdable = from->holdable;
 		to->wolfkick = from->wolfkick;
+#else
+		to->flags = from->flags;
+		to->doubleTap = from->doubleTap;
+#endif RTCW_XX
 
 #if defined RTCW_SP
 		to->cld = from->cld;                    // NERVE - SMF
-#elif defined RTCW_MP
+#else
+
+#if !defined RTCW_ET
 		to->mpSetup = from->mpSetup;                    // NERVE - SMF
+#endif RTCW_XX
+
 		to->identClient = from->identClient;            // NERVE - SMF
 #endif RTCW_XX
 
@@ -995,7 +1114,7 @@ void MSG_ReportChangeVectors_f( void ) {
 
 	Com_Printf( "%i%% of vectors compressed\n", 100 * total / c_uncompressedVectors );
 #endif
-#elif defined RTCW_MP
+#else
 	int i;
 	for ( i = 0; i < 256; i++ ) {
 		if ( pcount[i] ) {
@@ -1010,6 +1129,11 @@ typedef struct {
 	char    *name;
 	int offset;
 	int bits;           // 0 = float
+
+#if defined RTCW_ET
+	int used;
+#endif RTCW_XX
+
 } netField_t;
 
 // using the stringizing operator to save typing...
@@ -1021,7 +1145,7 @@ netField_t entityStateFields[] =
 
 #if defined RTCW_SP
 	{ NETF( eFlags ), 32 },
-#elif defined RTCW_MP
+#else
 	{ NETF( eFlags ), 24 },
 #endif RTCW_XX
 
@@ -1087,21 +1211,69 @@ netField_t entityStateFields[] =
 	{ NETF( dmgFlags ), 32 },   //----(SA)	additional info flags for damage
 	{ NETF( onFireStart ), 32},
 	{ NETF( onFireEnd ), 32},
+
+#if !defined RTCW_ET
 	{ NETF( aiChar ), 8},
+#else
+	{ NETF( nextWeapon ), 8},
+#endif RTCW_XX
+
 	{ NETF( teamNum ), 8},
 	{ NETF( effect1Time ), 32},
 	{ NETF( effect2Time ), 32},
 	{ NETF( effect3Time ), 32},
+
+#if !defined RTCW_ET
 	{ NETF( aiState ), 2},
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	{ NETF( animMovetype ), 6},
-#elif defined RTCW_MP
+#else
 	{ NETF( animMovetype ), 4},
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	{ NETF( aiState ), 2},
 #endif RTCW_XX
 
 };
 
+#if defined RTCW_ET
+static int QDECL qsort_entitystatefields( const void *a, const void *b ) {
+	int aa, bb;
+
+	aa = *( (int*)a );
+	bb = *( (int*)b );
+
+	if ( entityStateFields[aa].used > entityStateFields[bb].used ) {
+		return -1;
+	}
+	if ( entityStateFields[bb].used > entityStateFields[aa].used ) {
+		return 1;
+	}
+	return 0;
+}
+
+void MSG_PrioritiseEntitystateFields( void ) {
+	int fieldorders[ sizeof( entityStateFields ) / sizeof( entityStateFields[0] ) ];
+	int numfields = sizeof( entityStateFields ) / sizeof( entityStateFields[0] );
+	int i;
+
+	for ( i = 0; i < numfields; i++ ) {
+		fieldorders[ i ] = i;
+	}
+
+	qsort( fieldorders, numfields, sizeof( int ), qsort_entitystatefields );
+
+	Com_Printf( "Entitystate fields in order of priority\n" );
+	Com_Printf( "netField_t entityStateFields[] = {\n" );
+	for ( i = 0; i < numfields; i++ ) {
+		Com_Printf( "{ NETF (%s), %i },\n", entityStateFields[ fieldorders[ i ] ].name, entityStateFields[ fieldorders[ i ] ].bits );
+	}
+	Com_Printf( "};\n" );
+}
+#endif RTCW_XX
 
 // if (int)f == f and (int)f + ( 1<<(FLOAT_INT_BITS-1) ) < ( 1 << FLOAT_INT_BITS )
 // the float will be sent with FLOAT_INT_BITS, otherwise all 32 bits will be sent
@@ -1125,7 +1297,7 @@ If force is not set, then nothing at all will be generated if the entity is
 identical, under the assumption that the in-order delta code will catch it.
 ==================
 */
-#elif defined RTCW_MP
+#else
 /*
 ==================
 MSG_WriteDeltaEntity
@@ -1144,7 +1316,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 
 #if defined RTCW_SP
 	int i, c;
-#elif defined RTCW_MP
+#else
 	int i, lc;
 #endif RTCW_XX
 
@@ -1206,7 +1378,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 		changeVector[i] = 0;
 	}
 	changed = qfalse;
-#elif defined RTCW_MP
+#else
 	lc = 0;
 #endif RTCW_XX
 
@@ -1219,8 +1391,12 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 #if defined RTCW_SP
 			changeVector[ i >> 3 ] |= 1 << ( i & 7 );
 			changed = qtrue;
-#elif defined RTCW_MP
+#else
 			lc = i + 1;
+#endif RTCW_XX
+
+#if defined RTCW_ET
+			field->used++;
 #endif RTCW_XX
 
 		}
@@ -1228,7 +1404,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 
 #if defined RTCW_SP
 	if ( !changed ) {
-#elif defined RTCW_MP
+#else
 	if ( lc == 0 ) {
 #endif RTCW_XX
 
@@ -1285,10 +1461,14 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 	}
 
 	for ( i = 0, field = entityStateFields ; i < numFields ; i++, field++ ) {
-#elif defined RTCW_MP
+#else
 	MSG_WriteByte( msg, lc );   // # of changes
 
 	oldsize += numFields;
+
+#if defined RTCW_ET
+//	Com_Printf( "Delta for ent %i: ", to->number );
+#endif RTCW_XX
 
 	for ( i = 0, field = entityStateFields ; i < lc ; i++, field++ ) {
 #endif RTCW_XX
@@ -1298,14 +1478,18 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 
 		if ( *fromF == *toF ) {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 			MSG_WriteBits( msg, 0, 1 ); // no change
+#endif RTCW_XX
+
+#if defined RTCW_ET
+			wastedbits++;
 #endif RTCW_XX
 
 			continue;
 		}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		MSG_WriteBits( msg, 1, 1 ); // changed
 #endif RTCW_XX
 
@@ -1333,6 +1517,10 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 /*					if ( print ) {
 						Com_Printf( "%s:%i ", field->name, trunc );
 					}*/
+#else
+//					if ( print ) {
+//						Com_Printf( "%s:%i ", field->name, trunc );
+//					}
 #endif RTCW_XX
 
 				} else {
@@ -1348,6 +1536,10 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 /*					if ( print ) {
 						Com_Printf( "%s:%f ", field->name, *(float *)toF );
 					}*/
+#else
+//					if ( print ) {
+//						Com_Printf( "%s:%f ", field->name, *(float *)toF );
+//					}
 #endif RTCW_XX
 
 				}
@@ -1368,11 +1560,19 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 /*				if ( print ) {
 					Com_Printf( "%s:%i ", field->name, *toF );
 				}*/
+#else
+//				if ( print ) {
+//					Com_Printf( "%s:%i ", field->name, *toF );
+//				}
 #endif RTCW_XX
 
 			}
 		}
 	}
+
+#if defined RTCW_ET
+//	Com_Printf( "\n" );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	c = msg->cursize - c;
@@ -1385,7 +1585,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 		}
 		Com_Printf( " (%i bits)\n", endBit - startBit  );
 	}
-#elif defined RTCW_MP
+#else
 /*
 	c = msg->cursize - c;
 
@@ -1421,7 +1621,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 
 #if defined RTCW_SP
 	int i;
-#elif defined RTCW_MP
+#else
 	int i, lc;
 #endif RTCW_XX
 
@@ -1467,7 +1667,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 
 	numFields = sizeof( entityStateFields ) / sizeof( entityStateFields[0] );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	lc = MSG_ReadByte( msg );
 
 	if ( lc > numFields ) { //DAJ FIXME have gotten lc = 76 which is bigger than numFields!
@@ -1515,7 +1715,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 
 #if defined RTCW_SP
 	for ( i = 0, field = entityStateFields ; i < numFields ; i++, field++ ) {
-#elif defined RTCW_MP
+#else
 	for ( i = 0, field = entityStateFields ; i < lc ; i++, field++ ) {
 #endif RTCW_XX
 
@@ -1524,7 +1724,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 
 #if defined RTCW_SP
 		if ( !( changeVector[ i >> 3 ] & ( 1 << ( i & 7 ) ) ) ) {   // MSG_ReadBits( msg, 1 ) == 0 ) {
-#elif defined RTCW_MP
+#else
 		if ( !MSG_ReadBits( msg, 1 ) ) {
 #endif RTCW_XX
 
@@ -1565,14 +1765,14 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 				}
 			}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 //			pcount[i]++;
 #endif RTCW_XX
 
 		}
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	for ( i = lc, field = &entityStateFields[lc] ; i < numFields ; i++, field++ ) {
 		fromF = ( int * )( (byte *)from + field->offset );
 		toF = ( int * )( (byte *)to + field->offset );
@@ -1634,7 +1834,7 @@ netField_t playerStateFields[] =
 
 #if defined RTCW_SP
 	{ PSF( eFlags ), 16 },
-#elif defined RTCW_MP
+#else
 	{ PSF( eFlags ), 24 },
 #endif RTCW_XX
 
@@ -1653,7 +1853,7 @@ netField_t playerStateFields[] =
 	{ PSF( weapon ), 7 }, // (SA) yup, even more
 	{ PSF( weaponstate ), 4 },
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	{ PSF( weapAnim ), 10 },
 #endif RTCW_XX
 
@@ -1681,14 +1881,34 @@ netField_t playerStateFields[] =
 	{ PSF( friction ), 0 },
 	{ PSF( viewlocked ), 8 },
 	{ PSF( viewlocked_entNum ), 16 },
+
+#if !defined RTCW_ET
 	{ PSF( aiChar ), 8 },
+#else
+	{ PSF( nextWeapon ), 8 },
+#endif RTCW_XX
+
 	{ PSF( teamNum ), 8 },
+
+#if !defined RTCW_ET
 	{ PSF( gunfx ), 8},
+#else
+//{ PSF(gunfx), 8},
+#endif RTCW_XX
+
 	{ PSF( onFireStart ), 32},
 	{ PSF( curWeapHeat ), 8 },
+
+#if !defined RTCW_ET
 	{ PSF( sprintTime ), 16}, // FIXME: to be removed
+#endif RTCW_XX
+
 	{ PSF( aimSpreadScale ), 8},
+
+#if !defined RTCW_ET
 	{ PSF( aiState ), 2},
+#endif RTCW_XX
+
 	{ PSF( serverCursorHint ), 8}, //----(SA)	added
 	{ PSF( serverCursorHintVal ), 8}, //----(SA)	added
 
@@ -1696,11 +1916,53 @@ netField_t playerStateFields[] =
 // RF not needed anymore
 //{ PSF(classWeaponTime), 32}, // JPW NERVE
 	{ PSF( footstepCount ), 0},
-#elif defined RTCW_MP
+#else
 	{ PSF( classWeaponTime ), 32}, // JPW NERVE
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	{ PSF( identifyClient ), 8 },
+	{ PSF( identifyClientHealth ), 8 },
+	{ PSF( aiState ), 2},
+#endif RTCW_XX
+
 };
+
+#if defined RTCW_ET
+static int QDECL qsort_playerstatefields( const void *a, const void *b ) {
+	int aa, bb;
+
+	aa = *( (int*)a );
+	bb = *( (int*)b );
+
+	if ( playerStateFields[aa].used > playerStateFields[bb].used ) {
+		return -1;
+	}
+	if ( playerStateFields[bb].used > playerStateFields[aa].used ) {
+		return 1;
+	}
+	return 0;
+}
+
+void MSG_PrioritisePlayerStateFields( void ) {
+	int fieldorders[ sizeof( playerStateFields ) / sizeof( playerStateFields[0] ) ];
+	int numfields = sizeof( playerStateFields ) / sizeof( playerStateFields[0] );
+	int i;
+
+	for ( i = 0; i < numfields; i++ ) {
+		fieldorders[ i ] = i;
+	}
+
+	qsort( fieldorders, numfields, sizeof( int ), qsort_playerstatefields );
+
+	Com_Printf( "Playerstate fields in order of priority\n" );
+	Com_Printf( "netField_t playerStateFields[] = {\n" );
+	for ( i = 0; i < numfields; i++ ) {
+		Com_Printf( "{ PSF(%s), %i },\n", playerStateFields[ fieldorders[ i ] ].name, playerStateFields[ fieldorders[ i ] ].bits );
+	}
+	Com_Printf( "};\n" );
+}
+#endif RTCW_XX
 
 /*
 =============
@@ -1712,7 +1974,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 
 #if defined RTCW_SP
 	int i, j;
-#elif defined RTCW_MP
+#else
 	int i, j, lc;
 #endif RTCW_XX
 
@@ -1724,7 +1986,14 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	int powerupbits;
 	int holdablebits;
 	int numFields;
+
+#if !defined RTCW_ET
 	int c;
+#else
+//bani - appears to have been debugging left in
+//	int				c;
+#endif RTCW_XX
+
 	netField_t      *field;
 	int             *fromF, *toF;
 	float fullFloat;
@@ -1752,11 +2021,16 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		print = 0;
 	}
 
+#if !defined RTCW_ET
 	c = msg->cursize;
+#else
+//bani - appears to have been debugging left in
+//	c = msg->cursize;
+#endif RTCW_XX
 
 	numFields = sizeof( playerStateFields ) / sizeof( playerStateFields[0] );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	lc = 0;
 #endif RTCW_XX
 
@@ -1764,9 +2038,14 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		fromF = ( int * )( (byte *)from + field->offset );
 		toF = ( int * )( (byte *)to + field->offset );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		if ( *fromF != *toF ) {
 			lc = i + 1;
+
+#if defined RTCW_ET
+			field->used++;
+#endif RTCW_XX
+
 		}
 	}
 
@@ -1780,13 +2059,18 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 #endif RTCW_XX
 
 		if ( *fromF == *toF ) {
+
+#if defined RTCW_ET
+			wastedbits++;
+#endif RTCW_XX
+
 			MSG_WriteBits( msg, 0, 1 ); // no change
 			continue;
 		}
 
 		MSG_WriteBits( msg, 1, 1 ); // changed
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 //		pcount[i]++;
 #endif RTCW_XX
 
@@ -1800,27 +2084,53 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 				// send as small integer
 				MSG_WriteBits( msg, 0, 1 );
 				MSG_WriteBits( msg, trunc + FLOAT_INT_BIAS, FLOAT_INT_BITS );
+
+#if !defined RTCW_ET
 				if ( print ) {
 					Com_Printf( "%s:%i ", field->name, trunc );
 				}
+#else
+//				if ( print ) {
+//					Com_Printf( "%s:%i ", field->name, trunc );
+//				}
+#endif RTCW_XX
+
 			} else {
 				// send as full floating point value
 				MSG_WriteBits( msg, 1, 1 );
 				MSG_WriteBits( msg, *toF, 32 );
+
+#if !defined RTCW_ET
 				if ( print ) {
 					Com_Printf( "%s:%f ", field->name, *(float *)toF );
 				}
+#else
+//				if ( print ) {
+//					Com_Printf( "%s:%f ", field->name, *(float *)toF );
+//				}
+#endif RTCW_XX
+
 			}
 		} else {
 			// integer
 			MSG_WriteBits( msg, *toF, field->bits );
+
+#if !defined RTCW_ET
 			if ( print ) {
 				Com_Printf( "%s:%i ", field->name, *toF );
 			}
 		}
 	}
 	c = msg->cursize - c;
-
+#else
+//			if ( print ) {
+//				Com_Printf( "%s:%i ", field->name, *toF );
+//			}
+		}
+	}
+//bani - appears to have been debugging left in
+//	c = msg->cursize - c;
+#endif RTCW_XX
 
 	//
 	// send the arrays
@@ -1906,7 +2216,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	} else {
 		MSG_WriteBits( msg, 0, 1 ); // no change to any
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		oldsize += 4;
 #endif RTCW_XX
 
@@ -2072,7 +2382,7 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *t
 
 #if defined RTCW_SP
 	int i, j;
-#elif defined RTCW_MP
+#else
 	int i, j, lc;
 #endif RTCW_XX
 
@@ -2110,7 +2420,7 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *t
 
 #if defined RTCW_SP
 	for ( i = 0, field = playerStateFields ; i < numFields ; i++, field++ ) {
-#elif defined RTCW_MP
+#else
 	lc = MSG_ReadByte( msg );
 
 	for ( i = 0, field = playerStateFields ; i < lc ; i++, field++ ) {
@@ -2151,7 +2461,7 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *t
 		}
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	for ( i = lc,field = &playerStateFields[lc]; i < numFields; i++, field++ ) {
 		fromF = ( int * )( (byte *)from + field->offset );
 		toF = ( int * )( (byte *)to + field->offset );

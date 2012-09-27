@@ -3,9 +3,9 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <OutDir>$(SolutionDir)..\..\..\bin\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)..\bin\$(Configuration)\</OutDir>
     <LinkIncremental>true</LinkIncremental>
-    <IntDir>$(SolutionDir)..\..\..\obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)..\obj\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -19,6 +19,10 @@
       <AdditionalOptions>/Y- %(AdditionalOptions)</AdditionalOptions>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
     </ClCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>

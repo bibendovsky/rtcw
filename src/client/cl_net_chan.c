@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../qcommon/qcommon.h"
 #include "client.h"
 
-#if (defined RTCW_SP && DO_NET_ENCODE) || defined RTCW_MP
+#if (!defined RTCW_SP) || ((defined RTCW_SP) && (defined DO_NET_ENCODE))
 /*
 ==============
 CL_Netchan_Encode
@@ -148,6 +148,33 @@ void CL_Netchan_TransmitNextFragment( netchan_t *chan ) {
 //byte chksum[65536];
 #endif RTCW_XX
 
+#if defined RTCW_ET
+extern qboolean SV_GameIsSinglePlayer( void );
+
+/*
+================
+CL_WriteBinaryMessage
+================
+*/
+static void CL_WriteBinaryMessage( msg_t *msg ) {
+	if ( !clc.binaryMessageLength ) {
+		return;
+	}
+
+	MSG_Uncompressed( msg );
+
+	if ( ( msg->cursize + clc.binaryMessageLength ) >= msg->maxsize ) {
+		clc.binaryMessageOverflowed = qtrue;
+		return;
+	}
+
+	MSG_WriteData( msg, clc.binaryMessage, clc.binaryMessageLength );
+	clc.binaryMessageLength = 0;
+	clc.binaryMessageOverflowed = qfalse;
+}
+#endif RTCW_XX
+
+
 /*
 ================
 CL_Netchan_Transmit
@@ -170,6 +197,14 @@ void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg ) {
 #elif defined RTCW_MP
 	MSG_WriteByte( msg, clc_EOF );
 	CL_Netchan_Encode( msg );
+	Netchan_Transmit( chan, msg->cursize, msg->data );
+#else
+	MSG_WriteByte( msg, clc_EOF );
+	CL_WriteBinaryMessage( msg );
+
+	if ( !SV_GameIsSinglePlayer() ) {
+		CL_Netchan_Encode( msg );
+	}
 	Netchan_Transmit( chan, msg->cursize, msg->data );
 #endif RTCW_XX
 
@@ -198,6 +233,10 @@ qboolean CL_Netchan_Process( netchan_t *chan, msg_t *msg ) {
 
 #if (defined RTCW_SP && DO_NET_ENCODE) || defined RTCW_MP
 	CL_Netchan_Decode( msg );
+#elif defined RTCW_ET
+	if ( !SV_GameIsSinglePlayer() ) {
+		CL_Netchan_Decode( msg );
+	}
 #endif
 
 #if defined RTCW_SP

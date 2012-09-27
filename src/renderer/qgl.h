@@ -39,12 +39,15 @@ If you have questions concerning this license or the applicable additional terms
 
 #elif defined( _WIN32 )
 
+#if (!defined RTCW_ET) || ((defined RTCW_ET) && (!defined __GNUC__))
 #pragma warning (disable: 4201)
 #pragma warning (disable: 4214)
 #pragma warning (disable: 4514)
 #pragma warning (disable: 4032)
 #pragma warning (disable: 4201)
 #pragma warning (disable: 4214)
+#endif RTCW_XX
+
 #include <windows.h>
 #include <gl/gl.h>
 
@@ -52,14 +55,36 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "macosx_glimp.h"
 
+#elif defined( __MACOS__ )
+
+#include <OpenGL/gl.h>
+
 #elif defined( __linux__ )
+
+#if defined RTCW_ET
+// using our local glext.h
+// http://oss.sgi.com/projects/ogl-sample/ABI/
+#define GL_GLEXT_LEGACY
+#define GLX_GLXEXT_LEGACY
+// some GL headers define that, but only partially
+// define and undefine so GL doesn't attempt anything
+#define GL_ARB_multitexture
+#endif RTCW_XX
 
 #include <GL/gl.h>
 #include <GL/glx.h>
+
+#if !defined RTCW_ET
 // bk001129 - from cvs1.17 (mkv)
 #if defined( __FX__ )
 #include <GL/fxmesa.h>
 #endif
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#undef GL_ARB_multitexture
+#include "glext.h"
+#endif RTCW_XX
 
 #elif defined( __FreeBSD__ ) // rb010123
 
@@ -147,6 +172,15 @@ typedef void ( APIENTRY * PFNGLCLIENTACTIVETEXTUREARBPROC )( GLenum target );
 
 #if defined RTCW_SP
 // GR - update enumerants
+#define GL_PN_TRIANGLES_ATI                         0x87F0
+#define GL_MAX_PN_TRIANGLES_TESSELATION_LEVEL_ATI   0x87F1
+#define GL_PN_TRIANGLES_POINT_MODE_ATI              0x87F2
+#define GL_PN_TRIANGLES_NORMAL_MODE_ATI             0x87F3
+#define GL_PN_TRIANGLES_TESSELATION_LEVEL_ATI       0x87F4
+#define GL_PN_TRIANGLES_POINT_MODE_LINEAR_ATI       0x87F5
+#define GL_PN_TRIANGLES_POINT_MODE_CUBIC_ATI        0x87F6
+#define GL_PN_TRIANGLES_NORMAL_MODE_LINEAR_ATI      0x87F7
+#define GL_PN_TRIANGLES_NORMAL_MODE_QUADRATIC_ATI   0x87F8
 #endif RTCW_XX
 
 #if defined RTCW_MP
@@ -160,8 +194,7 @@ typedef void ( APIENTRY * PFNGLCLIENTACTIVETEXTUREARBPROC )( GLenum target );
 #define GL_PN_TRIANGLES_POINT_MODE_CUBIC_ATI        0x6096
 #define GL_PN_TRIANGLES_NORMAL_MODE_LINEAR_ATI      0x6097
 #define GL_PN_TRIANGLES_NORMAL_MODE_QUADRATIC_ATI   0x6098
-#endif __MACOS__
-#elif defined RTCW_SP
+#else
 #define GL_PN_TRIANGLES_ATI                         0x87F0
 #define GL_MAX_PN_TRIANGLES_TESSELATION_LEVEL_ATI   0x87F1
 #define GL_PN_TRIANGLES_POINT_MODE_ATI              0x87F2
@@ -171,6 +204,19 @@ typedef void ( APIENTRY * PFNGLCLIENTACTIVETEXTUREARBPROC )( GLenum target );
 #define GL_PN_TRIANGLES_POINT_MODE_CUBIC_ATI        0x87F6
 #define GL_PN_TRIANGLES_NORMAL_MODE_LINEAR_ATI      0x87F7
 #define GL_PN_TRIANGLES_NORMAL_MODE_QUADRATIC_ATI   0x87F8
+#endif
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#define GL_PN_TRIANGLES_ATI                         0x6090
+#define GL_MAX_PN_TRIANGLES_TESSELATION_LEVEL_ATI   0x6091
+#define GL_PN_TRIANGLES_POINT_MODE_ATI              0x6092
+#define GL_PN_TRIANGLES_NORMAL_MODE_ATI             0x6093
+#define GL_PN_TRIANGLES_TESSELATION_LEVEL_ATI       0x6094
+#define GL_PN_TRIANGLES_POINT_MODE_LINEAR_ATI       0x6095
+#define GL_PN_TRIANGLES_POINT_MODE_CUBIC_ATI        0x6096
+#define GL_PN_TRIANGLES_NORMAL_MODE_LINEAR_ATI      0x6097
+#define GL_PN_TRIANGLES_NORMAL_MODE_QUADRATIC_ATI   0x6098
 #endif RTCW_XX
 
 typedef void ( APIENTRY * PFNGLPNTRIANGLESIATIPROC )( GLenum pname, GLint param );
@@ -200,6 +246,14 @@ typedef void ( APIENTRY * PFNGLPNTRIANGLESFATIPROC )( GLenum pname, GLfloat para
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT     0x84FE
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
 #endif
+
+#if defined RTCW_ET
+// GL_SGIS_generate_mipmap
+#ifndef GL_SGIS_generate_mipmap
+#define GL_GENERATE_MIPMAP_SGIS           0x8191
+#define GL_GENERATE_MIPMAP_HINT_SGIS      0x8192
+#endif
+#endif RTCW_XX
 
 // extensions will be function pointers on all platforms
 
@@ -625,6 +679,14 @@ extern void ( *qglXDestroyContext )( Display *dpy, GLXContext ctx );
 extern Bool ( *qglXMakeCurrent )( Display *dpy, GLXDrawable drawable, GLXContext ctx );
 extern void ( *qglXCopyContext )( Display *dpy, GLXContext src, GLXContext dst, GLuint mask );
 extern void ( *qglXSwapBuffers )( Display *dpy, GLXDrawable drawable );
+
+#if defined RTCW_ET
+extern void ( *qglXUseXFont )( Font font, int first, int count, int list );
+extern int ( *qglXSwapIntervalSGI )( int interval );
+extern int ( *qglXGetVideoSyncSGI )( unsigned int *count );
+extern int ( *qglXWaitVideoSyncSGI )( int divisor, int remainder, unsigned int *count );
+extern const char * ( *qglXQueryExtensionsString )( Display * dpy, int screen );
+#endif RTCW_XX
 
 #endif // __linux__ || __FreeBSD__ // rb010123
 

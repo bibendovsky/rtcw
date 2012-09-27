@@ -29,6 +29,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OptimizeReferences>false</OptimizeReferences>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
+      <AdditionalLibraryDirectories>..\..\..\..\lib\win32\vc2010</AdditionalLibraryDirectories>
     </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;RTCW_SP;%(PreprocessorDefinitions)</PreprocessorDefinitions>

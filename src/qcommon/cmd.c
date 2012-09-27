@@ -31,7 +31,12 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/q_shared.h"
 #include "qcommon.h"
 
+#if !defined RTCW_ET
 #define MAX_CMD_BUFFER  16384
+#else
+#define MAX_CMD_BUFFER  131072
+#endif RTCW_XX
+
 #define MAX_CMD_LINE    1024
 
 typedef struct {
@@ -40,7 +45,7 @@ typedef struct {
 
 #if defined RTCW_SP
 	int cmdsize;        //DAJ renamed from cursize
-#elif defined RTCW_MP
+#else
 	int cursize;
 #endif RTCW_XX
 
@@ -90,7 +95,7 @@ void Cbuf_Init( void ) {
 
 #if defined RTCW_SP
 	cmd_text.cmdsize = 0;
-#elif defined RTCW_MP
+#else
 	cmd_text.cursize = 0;
 #endif RTCW_XX
 
@@ -110,7 +115,7 @@ void Cbuf_AddText( const char *text ) {
 
 #if defined RTCW_SP
 	if ( cmd_text.cmdsize + l >= cmd_text.maxsize ) {
-#elif defined RTCW_MP
+#else
 	if ( cmd_text.cursize + l >= cmd_text.maxsize ) {
 #endif RTCW_XX
 
@@ -121,7 +126,7 @@ void Cbuf_AddText( const char *text ) {
 #if defined RTCW_SP
 	memcpy( &cmd_text.data[cmd_text.cmdsize], text, l );
 	cmd_text.cmdsize += l;
-#elif defined RTCW_MP
+#else
 	memcpy( &cmd_text.data[cmd_text.cursize], text, l );
 	cmd_text.cursize += l;
 #endif RTCW_XX
@@ -145,7 +150,7 @@ void Cbuf_InsertText( const char *text ) {
 
 #if defined RTCW_SP
 	if ( len + cmd_text.cmdsize > cmd_text.maxsize ) {
-#elif defined RTCW_MP
+#else
 	if ( len + cmd_text.cursize > cmd_text.maxsize ) {
 #endif RTCW_XX
 
@@ -157,7 +162,7 @@ void Cbuf_InsertText( const char *text ) {
 
 #if defined RTCW_SP
 	for ( i = cmd_text.cmdsize - 1 ; i >= 0 ; i-- ) {
-#elif defined RTCW_MP
+#else
 	for ( i = cmd_text.cursize - 1 ; i >= 0 ; i-- ) {
 #endif RTCW_XX
 
@@ -172,7 +177,7 @@ void Cbuf_InsertText( const char *text ) {
 
 #if defined RTCW_SP
 	cmd_text.cmdsize += len;
-#elif defined RTCW_MP
+#else
 	cmd_text.cursize += len;
 #endif RTCW_XX
 
@@ -218,7 +223,7 @@ void Cbuf_Execute( void ) {
 
 #if defined RTCW_SP
 	while ( cmd_text.cmdsize )
-#elif defined RTCW_MP
+#else
 	while ( cmd_text.cursize )
 #endif RTCW_XX
 
@@ -237,7 +242,7 @@ void Cbuf_Execute( void ) {
 
 #if defined RTCW_SP
 		for ( i = 0 ; i < cmd_text.cmdsize ; i++ )
-#elif defined RTCW_MP
+#else
 		for ( i = 0 ; i < cmd_text.cursize ; i++ )
 #endif RTCW_XX
 
@@ -267,7 +272,7 @@ void Cbuf_Execute( void ) {
 #if defined RTCW_SP
 		if ( i == cmd_text.cmdsize ) {
 			cmd_text.cmdsize = 0;
-#elif defined RTCW_MP
+#else
 		if ( i == cmd_text.cursize ) {
 			cmd_text.cursize = 0;
 #endif RTCW_XX
@@ -279,7 +284,7 @@ void Cbuf_Execute( void ) {
 #if defined RTCW_SP
 			cmd_text.cmdsize -= i;
 			memmove( text, text + i, cmd_text.cmdsize );
-#elif defined RTCW_MP
+#else
 			cmd_text.cursize -= i;
 			memmove( text, text + i, cmd_text.cursize );
 #endif RTCW_XX
@@ -362,9 +367,18 @@ Just prints the rest of the line to the console
 void Cmd_Echo_f( void ) {
 	int i;
 
+#if !defined RTCW_ET
 	for ( i = 1 ; i < Cmd_Argc() ; i++ )
 		Com_Printf( "%s ",Cmd_Argv( i ) );
 	Com_Printf( "\n" );
+#else
+	Cbuf_AddText( "cpm \"" );
+	for ( i = 1; i < Cmd_Argc(); i++ ) {
+		Cbuf_AddText( va( "%s ", Cmd_Argv( i ) ) );
+	}
+	Cbuf_AddText( "\"\n" );
+#endif RTCW_XX
+
 }
 
 
@@ -388,7 +402,7 @@ static int cmd_argc;
 static char        *cmd_argv[MAX_STRING_TOKENS];        // points into cmd_tokenized
 static char cmd_tokenized[BIG_INFO_STRING + MAX_STRING_TOKENS];         // will have 0 bytes inserted
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 static char cmd_cmd[BIG_INFO_STRING];         // the original command we received (no token processing)
 #endif RTCW_XX
 
@@ -487,7 +501,7 @@ void    Cmd_ArgsBuffer( char *buffer, int bufferLength ) {
 	Q_strncpyz( buffer, Cmd_Args(), bufferLength );
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 ============
 Cmd_Cmd
@@ -523,7 +537,7 @@ void Cmd_TokenizeString( const char *text_in ) {
 		return;
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	Q_strncpyz( cmd_cmd, text_in, sizeof( cmd_cmd ) );
 #endif RTCW_XX
 
@@ -546,7 +560,16 @@ void Cmd_TokenizeString( const char *text_in ) {
 
 			// skip // comments
 			if ( text[0] == '/' && text[1] == '/' ) {
+
+#if !defined RTCW_ET
 				return;         // all tokens parsed
+#else
+				//bani - lets us put 'http://' in commandlines
+				if ( text == text_in || ( text > text_in && text[-1] != ':' ) ) {
+					return;         // all tokens parsed
+				}
+#endif RTCW_XX
+
 			}
 
 			// skip /* */ comments
@@ -590,7 +613,16 @@ void Cmd_TokenizeString( const char *text_in ) {
 			}
 
 			if ( text[0] == '/' && text[1] == '/' ) {
+
+#if !defined RTCW_ET
 				break;
+#else
+				//bani - lets us put 'http://' in commandlines
+				if ( text == text_in || ( text > text_in && text[-1] != ':' ) ) {
+					break;
+				}
+#endif RTCW_XX
+
 			}
 
 			// skip /* */ comments
@@ -634,7 +666,7 @@ void    Cmd_AddCommand( const char *cmd_name, xcommand_t function ) {
 
 #if defined RTCW_SP
 	cmd = Z_Malloc( sizeof( cmd_function_t ) );
-#elif defined RTCW_MP
+#else
 	cmd = S_Malloc( sizeof( cmd_function_t ) );
 #endif RTCW_XX
 

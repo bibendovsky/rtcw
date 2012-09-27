@@ -213,7 +213,17 @@ bot_character_t *BotLoadCharacterFromFile( char *charfile, int skill ) {
 
 	foundcharacter = qfalse;
 	//a bot character is parsed in two phases
+
+#if defined RTCW_ET
+	PS_SetBaseFolder( "botfiles" );
+#endif RTCW_XX
+
 	source = LoadSourceFile( charfile );
+
+#if defined RTCW_ET
+	PS_SetBaseFolder( "" );
+#endif RTCW_XX
+
 	if ( !source ) {
 		botimport.Print( PRT_ERROR, "counldn't load %s\n", charfile );
 		return NULL;
@@ -388,7 +398,13 @@ int BotLoadCachedCharacter( char *charfile, int skill, int reload ) {
 	if ( !reload ) {
 		cachedhandle = BotFindCachedCharacter( charfile, skill );
 		if ( cachedhandle ) {
+
+#if !defined RTCW_ET
 			botimport.Print( PRT_MESSAGE, "loaded cached skill %d from %s\n", skill, charfile );
+#else
+			//botimport.Print(PRT_MESSAGE, "loaded cached skill %d from %s\n", skill, charfile);
+#endif RTCW_XX
+
 			return cachedhandle;
 		} //end if
 	} //end else
@@ -397,7 +413,13 @@ int BotLoadCachedCharacter( char *charfile, int skill, int reload ) {
 	if ( ch ) {
 		botcharacters[handle] = ch;
 		//
+
+#if !defined RTCW_ET
 		botimport.Print( PRT_MESSAGE, "loaded skill %d from %s\n", skill, charfile );
+#else
+		//botimport.Print(PRT_MESSAGE, "loaded skill %d from %s\n", skill, charfile);
+#endif RTCW_XX
+
 #ifdef DEBUG
 		if ( bot_developer ) {
 			botimport.Print( PRT_MESSAGE, "skill %d loaded in %d msec from %s\n", skill, Sys_MilliSeconds() - starttime, charfile );
@@ -420,7 +442,13 @@ int BotLoadCachedCharacter( char *charfile, int skill, int reload ) {
 	ch = BotLoadCharacterFromFile( DEFAULT_CHARACTER, skill );
 	if ( ch ) {
 		botcharacters[handle] = ch;
+
+#if !defined RTCW_ET
 		botimport.Print( PRT_MESSAGE, "loaded default skill %d from %s\n", skill, charfile );
+#else
+		//botimport.Print(PRT_MESSAGE, "loaded default skill %d from %s\n", skill, charfile);
+#endif RTCW_XX
+
 		return handle;
 	} //end if
 	  //
@@ -428,7 +456,13 @@ int BotLoadCachedCharacter( char *charfile, int skill, int reload ) {
 		//try to load a cached character with any skill
 		cachedhandle = BotFindCachedCharacter( charfile, -1 );
 		if ( cachedhandle ) {
+
+#if !defined RTCW_ET
 			botimport.Print( PRT_MESSAGE, "loaded cached skill %d from %s\n", botcharacters[cachedhandle]->skill, charfile );
+#else
+			//botimport.Print(PRT_MESSAGE, "loaded cached skill %d from %s\n", botcharacters[cachedhandle]->skill, charfile);
+#endif RTCW_XX
+
 			return cachedhandle;
 		} //end if
 	} //end if
@@ -436,7 +470,13 @@ int BotLoadCachedCharacter( char *charfile, int skill, int reload ) {
 	ch = BotLoadCharacterFromFile( charfile, -1 );
 	if ( ch ) {
 		botcharacters[handle] = ch;
+
+#if !defined RTCW_ET
 		botimport.Print( PRT_MESSAGE, "loaded skill %d from %s\n", ch->skill, charfile );
+#else
+		//botimport.Print(PRT_MESSAGE, "loaded skill %d from %s\n", ch->skill, charfile);
+#endif RTCW_XX
+
 		return handle;
 	} //end if
 	  //
@@ -553,7 +593,13 @@ int BotLoadCharacter( char *charfile, int skill ) {
 	  //check if there's a cached skill 2 or 3
 	handle = BotFindCachedCharacter( charfile, skill );
 	if ( handle ) {
+
+#if !defined RTCW_ET
 		botimport.Print( PRT_MESSAGE, "loaded cached skill %d from %s\n", skill, charfile );
+#else
+		//botimport.Print(PRT_MESSAGE, "loaded cached skill %d from %s\n", skill, charfile);
+#endif RTCW_XX
+
 		return handle;
 	} //end if
 	  //load skill 1 and 4

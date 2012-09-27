@@ -43,6 +43,28 @@ If you have questions concerning this license or the applicable additional terms
 #define GFL_ROAM                2
 #define GFL_NOSLOWAPPROACH      4
 
+#if defined RTCW_ET
+#define GFL_DEFEND_CLOSE        8
+#define GFL_LEADER              16
+#define GFL_DEBUGPATH           32
+
+// Rafael gameskill
+/*typedef enum {
+	GSKILL_EASY = 1,
+	GSKILL_MEDIUM,
+	GSKILL_MEDIUMHARD, // normal default level
+	GSKILL_HARD,
+	GSKILL_VERYHARD,
+	GSKILL_MAX		// must always be last
+} gameskill_t;*/
+
+// bot goal urgency
+#define BGU_LOW                 0
+#define BGU_MEDIUM              1
+#define BGU_HIGH                2
+#define BGU_MAXIMUM             3
+#endif RTCW_XX
+
 //a bot goal
 typedef struct bot_goal_s
 {
@@ -53,6 +75,12 @@ typedef struct bot_goal_s
 	int number;                 //goal number
 	int flags;                  //goal flags
 	int iteminfo;               //item information
+
+#if defined RTCW_ET
+	int urgency;                //how urgent is the goal? should we be allowed to exit autonomy range to reach the goal?
+	int goalEndTime;            // When is the shortest time this can end?
+#endif RTCW_XX
+
 } bot_goal_t;
 
 //reset the whole goal state, but keep the item weights
@@ -112,6 +140,15 @@ int BotAllocGoalState( int client );
 //free the given goal state
 void BotFreeGoalState( int handle );
 //setup the goal AI
+
+#if !defined RTCW_ET
 int BotSetupGoalAI( void );
+#else
+// START	Arnout changes, 28-08-2002.
+// single player
+int BotSetupGoalAI( qboolean singleplayer );
+// END	Arnout changes, 28-08-2002.
+#endif RTCW_XX
+
 //shut down the goal AI
 void BotShutdownGoalAI( void );

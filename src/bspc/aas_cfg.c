@@ -117,7 +117,7 @@ fielddef_t cfg_fields[] =
 	{"rs_falldamage10", CFG_OFS( rs_falldamage10 ), FT_FLOAT},
 	{"rs_maxjumpfallheight", CFG_OFS( rs_maxjumpfallheight ), FT_FLOAT},
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	{"rs_allowladders", CFG_OFS( rs_allowladders ), FT_INT},
 #endif RTCW_XX
 

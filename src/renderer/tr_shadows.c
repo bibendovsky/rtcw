@@ -86,6 +86,8 @@ void R_RenderShadowEdges( void ) {
 		i3 = tess.indexes[ i * 3 + 2 ];
 
 		qglBegin( GL_TRIANGLE_STRIP );
+
+#if !defined RTCW_ET
 		qglVertex3fv( tess.xyz[ i1 ] );
 		qglVertex3fv( tess.xyz[ i1 + tess.numVertexes ] );
 		qglVertex3fv( tess.xyz[ i2 ] );
@@ -94,6 +96,17 @@ void R_RenderShadowEdges( void ) {
 		qglVertex3fv( tess.xyz[ i3 + tess.numVertexes ] );
 		qglVertex3fv( tess.xyz[ i1 ] );
 		qglVertex3fv( tess.xyz[ i1 + tess.numVertexes ] );
+#else
+		qglVertex3fv( tess.xyz[ i1 ].v );
+		qglVertex3fv( tess.xyz[ i1 + tess.numVertexes ].v );
+		qglVertex3fv( tess.xyz[ i2 ].v );
+		qglVertex3fv( tess.xyz[ i2 + tess.numVertexes ].v );
+		qglVertex3fv( tess.xyz[ i3 ].v );
+		qglVertex3fv( tess.xyz[ i3 + tess.numVertexes ].v );
+		qglVertex3fv( tess.xyz[ i1 ].v );
+		qglVertex3fv( tess.xyz[ i1 + tess.numVertexes ].v );
+#endif RTCW_XX
+
 		qglEnd();
 	}
 #else
@@ -132,10 +145,19 @@ void R_RenderShadowEdges( void ) {
 			// triangle, it is a sil edge
 			if ( hit[ 1 ] == 0 ) {
 				qglBegin( GL_TRIANGLE_STRIP );
+
+#if !defined RTCW_ET
 				qglVertex3fv( tess.xyz[ i ] );
 				qglVertex3fv( tess.xyz[ i + tess.numVertexes ] );
 				qglVertex3fv( tess.xyz[ i2 ] );
 				qglVertex3fv( tess.xyz[ i2 + tess.numVertexes ] );
+#else
+				qglVertex3fv( tess.xyz[ i ].v );
+				qglVertex3fv( tess.xyz[ i + tess.numVertexes ].v );
+				qglVertex3fv( tess.xyz[ i2 ].v );
+				qglVertex3fv( tess.xyz[ i2 + tess.numVertexes ].v );
+#endif RTCW_XX
+
 				qglEnd();
 				c_edges++;
 			} else {
@@ -164,7 +186,13 @@ void RB_ShadowTessEnd( void ) {
 	vec3_t lightDir;
 
 	// we can only do this if we have enough space in the vertex buffers
+
+#if !defined RTCW_ET
 	if ( tess.numVertexes >= SHADER_MAX_VERTEXES / 2 ) {
+#else
+	if ( tess.numVertexes >= tess.maxShaderVerts / 2 ) {
+#endif RTCW_XX
+
 		return;
 	}
 
@@ -176,7 +204,13 @@ void RB_ShadowTessEnd( void ) {
 
 	// project vertexes away from light direction
 	for ( i = 0 ; i < tess.numVertexes ; i++ ) {
+
+#if !defined RTCW_ET
 		VectorMA( tess.xyz[i], -512, lightDir, tess.xyz[i + tess.numVertexes] );
+#else
+		VectorMA( tess.xyz[i].v, -512, lightDir, tess.xyz[i + tess.numVertexes].v );
+#endif RTCW_XX
+
 	}
 
 	// decide which triangles face the light
@@ -193,9 +227,15 @@ void RB_ShadowTessEnd( void ) {
 		i2 = tess.indexes[ i * 3 + 1 ];
 		i3 = tess.indexes[ i * 3 + 2 ];
 
+#if !defined RTCW_ET
 		v1 = tess.xyz[ i1 ];
 		v2 = tess.xyz[ i2 ];
 		v3 = tess.xyz[ i3 ];
+#else
+		v1 = tess.xyz[ i1 ].v;
+		v2 = tess.xyz[ i2 ].v;
+		v3 = tess.xyz[ i3 ].v;
+#endif RTCW_XX
 
 		VectorSubtract( v2, v1, d1 );
 		VectorSubtract( v3, v1, d2 );
@@ -319,11 +359,19 @@ void RB_ProjectionShadowDeform( void ) {
 
 	xyz = ( float * ) tess.xyz;
 
+#if !defined RTCW_ET
 	ground[0] = backEnd.or.axis[0][2];
 	ground[1] = backEnd.or.axis[1][2];
 	ground[2] = backEnd.or.axis[2][2];
 
 	groundDist = backEnd.or.origin[2] - backEnd.currentEntity->e.shadowPlane;
+#else
+	ground[0] = backEnd.orientation.axis[0][2];
+	ground[1] = backEnd.orientation.axis[1][2];
+	ground[2] = backEnd.orientation.axis[2][2];
+
+	groundDist = backEnd.orientation.origin[2] - backEnd.currentEntity->e.shadowPlane;
+#endif RTCW_XX
 
 	VectorCopy( backEnd.currentEntity->lightDir, lightDir );
 	d = DotProduct( lightDir, ground );

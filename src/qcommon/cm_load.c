@@ -50,6 +50,11 @@ void SetPlaneSignbits( cplane_t *out ) {
 
 // to allow boxes to be treated as brush models, we allocate
 // some extra indexes along with those needed by the map
+
+#if defined RTCW_ET
+#define BOX_LEAF_BRUSHES    1   // ydnar
+#endif RTCW_XX
+
 #define BOX_BRUSHES     1
 #define BOX_SIDES       6
 #define BOX_LEAFS       2
@@ -69,6 +74,11 @@ byte        *cmod_base;
 cvar_t      *cm_noAreas;
 cvar_t      *cm_noCurves;
 cvar_t      *cm_playerCurveClip;
+
+#if defined RTCW_ET
+cvar_t      *cm_optimize;
+#endif RTCW_XX
+
 #endif
 
 cmodel_t box_model;
@@ -112,7 +122,7 @@ void CMod_LoadShaders( lump_t *l ) {
 
 #if defined RTCW_SP
 	Com_Memcpy( cm.shaders, in, count * sizeof( *cm.shaders ) );
-#elif defined RTCW_MP
+#else
 	memcpy( cm.shaders, in, count * sizeof( *cm.shaders ) );
 #endif RTCW_XX
 
@@ -384,7 +394,13 @@ void CMod_LoadLeafBrushes( lump_t *l ) {
 	}
 	count = l->filelen / sizeof( *in );
 
+#if !defined RTCW_ET
 	cm.leafbrushes = Hunk_Alloc( count * sizeof( *cm.leafbrushes ), h_high );
+#else
+	// ydnar: more than <count> brushes are stored in leafbrushes...
+	cm.leafbrushes = Hunk_Alloc( ( BOX_LEAF_BRUSHES + count ) * sizeof( *cm.leafbrushes ), h_high );
+#endif RTCW_XX
+
 	cm.numLeafBrushes = count;
 
 	out = cm.leafbrushes;
@@ -467,7 +483,7 @@ void CMod_LoadEntityString( lump_t *l ) {
 
 #if defined RTCW_SP
 	Com_Memcpy( cm.entityString, cmod_base + l->fileofs, l->filelen );
-#elif defined RTCW_MP
+#else
 	memcpy( cm.entityString, cmod_base + l->fileofs, l->filelen );
 #endif RTCW_XX
 
@@ -490,7 +506,7 @@ void CMod_LoadVisibility( lump_t *l ) {
 
 #if defined RTCW_SP
 		Com_Memset( cm.visibility, 255, cm.clusterBytes );
-#elif defined RTCW_MP
+#else
 		memset( cm.visibility, 255, cm.clusterBytes );
 #endif RTCW_XX
 
@@ -505,7 +521,7 @@ void CMod_LoadVisibility( lump_t *l ) {
 
 #if defined RTCW_SP
 	Com_Memcpy( cm.visibility, buf + VIS_HEADER, len - VIS_HEADER );
-#elif defined RTCW_MP
+#else
 	memcpy( cm.visibility, buf + VIS_HEADER, len - VIS_HEADER );
 #endif RTCW_XX
 
@@ -573,7 +589,13 @@ void CMod_LoadPatches( lump_t *surfs, lump_t *verts ) {
 		patch->surfaceFlags = cm.shaders[shaderNum].surfaceFlags;
 
 		// create the internal facet structure
+
+#if !defined RTCW_ET
 		patch->pc = CM_GeneratePatchCollide( width, height, points );
+#else
+		patch->pc = CM_GeneratePatchCollide( width, height, points, qtrue );
+#endif RTCW_XX
+
 	}
 }
 
@@ -592,7 +614,7 @@ void CM_FreeMap( void ) {
 
 #if defined RTCW_SP
 	Com_Memset( &cm, 0, sizeof( cm ) );
-#elif defined RTCW_MP
+#else
 	memset( &cm, 0, sizeof( cm ) );
 #endif RTCW_XX
 
@@ -644,6 +666,11 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	cm_noAreas = Cvar_Get( "cm_noAreas", "0", CVAR_CHEAT );
 	cm_noCurves = Cvar_Get( "cm_noCurves", "0", CVAR_CHEAT );
 	cm_playerCurveClip = Cvar_Get( "cm_playerCurveClip", "1", CVAR_ARCHIVE | CVAR_CHEAT );
+
+#if defined RTCW_ET
+	cm_optimize = Cvar_Get( "cm_optimize", "1", CVAR_CHEAT );
+#endif RTCW_XX
+
 #endif
 	Com_DPrintf( "CM_LoadMap( %s, %i )\n", name, clientload );
 
@@ -656,7 +683,7 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 
 #if defined RTCW_SP
 	Com_Memset( &cm, 0, sizeof( cm ) );
-#elif defined RTCW_MP
+#else
 	memset( &cm, 0, sizeof( cm ) );
 #endif RTCW_XX
 
@@ -692,7 +719,7 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 		( (int *)&header )[i] = LittleLong( ( (int *)&header )[i] );
 	}
 
-#if !defined _SKIP_BSP_CHECK || defined RTCW_MP
+#if !defined _SKIP_BSP_CHECK || !defined RTCW_SP
 	if ( header.version != BSP_VERSION ) {
 		Com_Error( ERR_DROP, "CM_LoadMap: %s has wrong version number (%i should be %i)"
 				   , name, header.version, BSP_VERSION );
@@ -728,7 +755,7 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	}
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 ==================
 CM_ClearMap
@@ -872,7 +899,7 @@ clipHandle_t CM_TempBoxModel( const vec3_t mins, const vec3_t maxs, int capsule 
 	VectorCopy( mins, box_model.mins );
 	VectorCopy( maxs, box_model.maxs );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	if ( capsule ) {
 		return CAPSULE_MODEL_HANDLE;
 	}
@@ -903,7 +930,7 @@ clipHandle_t CM_TempBoxModel( const vec3_t mins, const vec3_t maxs, int capsule 
 	return BOX_MODEL_HANDLE;
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // DHM - Nerve
 void CM_SetTempBoxModelContents( int contents ) {
 

@@ -234,7 +234,7 @@ void VM_LoadSymbols( vm_t *vm ) {
 
 #if defined RTCW_SP
 	COM_StripExtension( vm->name, name );
-#elif defined RTCW_MP
+#else
 	COM_StripExtension2( vm->name, name, sizeof( name ) );
 #endif RTCW_XX
 
@@ -386,7 +386,13 @@ vm_t *VM_Restart( vm_t *vm ) {
 	}
 
 	// load the image
+
+#if !defined RTCW_ET
 	Com_Printf( "VM_Restart()\n", filename );
+#else
+	Com_Printf( "VM_Restart()\n" );
+#endif RTCW_XX
+
 	Com_sprintf( filename, sizeof( filename ), "vm/%s.qvm", vm->name );
 	Com_Printf( "Loading vm file %s.\n", filename );
 	length = FS_ReadFile( filename, (void **)&header );
@@ -505,7 +511,7 @@ vm_t *VM_Create( const char *module, int ( *systemCalls )(int *),
 
 #if defined RTCW_SP
 		vm->dllHandle = Sys_LoadDll( module, &vm->entryPoint, VM_DllSyscall );
-#elif defined RTCW_MP
+#else
 		vm->dllHandle = Sys_LoadDll( module, vm->fqpath, &vm->entryPoint, VM_DllSyscall );
 #endif RTCW_XX
 
@@ -513,8 +519,13 @@ vm_t *VM_Create( const char *module, int ( *systemCalls )(int *),
 			return vm;
 		}
 
+#if !defined RTCW_ET
 		Com_Printf( "Failed to load dll, looking for qvm.\n" );
 		interpret = VMI_COMPILED;
+#else
+		return NULL;
+#endif RTCW_XX
+
 	}
 
 	// load the image

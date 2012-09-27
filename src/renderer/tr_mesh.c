@@ -39,15 +39,26 @@ static float ProjectRadius( float r, vec3_t location ) {
 	vec3_t p;
 	float projected[4];
 
+#if !defined RTCW_ET
 	c = DotProduct( tr.viewParms.or.axis[0], tr.viewParms.or.origin );
 	dist = DotProduct( tr.viewParms.or.axis[0], location ) - c;
+#else
+	c = DotProduct( tr.viewParms.orientation.axis[0], tr.viewParms.orientation.origin );
+	dist = DotProduct( tr.viewParms.orientation.axis[0], location ) - c;
+#endif RTCW_XX
 
 	if ( dist <= 0 ) {
 		return 0;
 	}
 
 	p[0] = 0;
+
+#if !defined RTCW_ET
 	p[1] = fabs( r );
+#else
+	p[1] = Q_fabs( r );
+#endif RTCW_XX
+
 	p[2] = -dist;
 
 	projected[0] = p[0] * tr.viewParms.projectionMatrix[0] +
@@ -117,7 +128,7 @@ static int R_CullModel( md3Header_t *header, trRefEntity_t *ent ) {
 	if ( cullSphere ) {
 		if ( ent->e.frame == ent->e.oldframe ) {
 			switch ( R_CullLocalPointAndRadius( newFrame->localOrigin, newFrame->radius * radScale ) )
-#elif defined RTCW_MP
+#else
 	// cull bounding sphere ONLY if this is not an upscaled entity
 	if ( !ent->e.nonNormalizedAxes ) {
 		if ( ent->e.frame == ent->e.oldframe ) {
@@ -143,7 +154,7 @@ static int R_CullModel( md3Header_t *header, trRefEntity_t *ent ) {
 
 #if defined RTCW_SP
 			sphereCull  = R_CullLocalPointAndRadius( newFrame->localOrigin, newFrame->radius * radScale );
-#elif defined RTCW_MP
+#else
 			sphereCull  = R_CullLocalPointAndRadius( newFrame->localOrigin, newFrame->radius );
 #endif RTCW_XX
 
@@ -153,7 +164,7 @@ static int R_CullModel( md3Header_t *header, trRefEntity_t *ent ) {
 
 #if defined RTCW_SP
 				sphereCullB = R_CullLocalPointAndRadius( oldFrame->localOrigin, oldFrame->radius * radScale );
-#elif defined RTCW_MP
+#else
 				sphereCullB = R_CullLocalPointAndRadius( oldFrame->localOrigin, oldFrame->radius );
 #endif RTCW_XX
 
@@ -228,7 +239,11 @@ int R_ComputeLOD( trRefEntity_t *ent ) {
 			return ( tr.currentModel->numLods - 1 );
 		}
 
+#if !defined RTCW_ET
 		frame = ( md3Frame_t * )( ( ( unsigned char * ) tr.currentModel->md3[0] ) + tr.currentModel->md3[0]->ofsFrames );
+#else
+		frame = ( md3Frame_t * )( ( ( unsigned char * ) tr.currentModel->model.md3[0] ) + tr.currentModel->model.md3[0]->ofsFrames );
+#endif RTCW_XX
 
 		frame += ent->e.frame;
 
@@ -335,9 +350,26 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 	personalModel = ( ent->e.renderfx & RF_THIRD_PERSON ) && !tr.viewParms.isPortal;
 
 	if ( ent->e.renderfx & RF_WRAP_FRAMES ) {
+
+#if !defined RTCW_ET
 		ent->e.frame %= tr.currentModel->md3[0]->numFrames;
 		ent->e.oldframe %= tr.currentModel->md3[0]->numFrames;
+#else
+		ent->e.frame %= tr.currentModel->model.md3[0]->numFrames;
+		ent->e.oldframe %= tr.currentModel->model.md3[0]->numFrames;
+#endif RTCW_XX
 	}
+
+#if defined RTCW_ET
+	//
+	// compute LOD
+	//
+	if ( ent->e.renderfx & RF_FORCENOLOD ) {
+		lod = 0;
+	} else {
+		lod = R_ComputeLOD( ent );
+	}
+#endif RTCW_XX
 
 	//
 	// Validate the frames so there is no chance of a crash.
@@ -345,6 +377,8 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 	// when the surfaces are rendered, they don't need to be
 	// range checked again.
 	//
+
+#if !defined RTCW_ET
 	if ( ( ent->e.frame >= tr.currentModel->md3[0]->numFrames )
 		 || ( ent->e.frame < 0 )
 		 || ( ent->e.oldframe >= tr.currentModel->md3[0]->numFrames )
@@ -352,16 +386,33 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 		ri.Printf( PRINT_DEVELOPER, "R_AddMD3Surfaces: no such frame %d to %d for '%s'\n",
 				   ent->e.oldframe, ent->e.frame,
 				   tr.currentModel->name );
+#else
+	if ( ( ent->e.frame >= tr.currentModel->model.md3[lod]->numFrames )
+		 || ( ent->e.frame < 0 )
+		 || ( ent->e.oldframe >= tr.currentModel->model.md3[lod]->numFrames )
+		 || ( ent->e.oldframe < 0 ) ) {
+		ri.Printf( PRINT_DEVELOPER, "R_AddMD3Surfaces: no such frame %d to %d for '%s' (%d)\n",
+				   ent->e.oldframe, ent->e.frame,
+				   tr.currentModel->name,
+				   tr.currentModel->model.md3[ lod ]->numFrames );
+#endif RTCW_XX
+
 		ent->e.frame = 0;
 		ent->e.oldframe = 0;
 	}
 
+#if !defined RTCW_ET
 	//
 	// compute LOD
 	//
 	lod = R_ComputeLOD( ent );
+#endif RTCW_XX
 
+#if !defined RTCW_ET
 	header = tr.currentModel->md3[lod];
+#else
+	header = tr.currentModel->model.md3[lod];
+#endif RTCW_XX
 
 	//
 	// cull the entire model if merged bounding box of both frames
@@ -411,7 +462,11 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 		} else if ( ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins ) {
 			skin_t *skin;
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+			int hash;
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 			int j;
 #endif RTCW_XX
 
@@ -428,11 +483,28 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 					break;
 				}
 			}
-#elif defined RTCW_MP
+#else
 //----(SA)	added blink
 			if ( ent->e.renderfx & RF_BLINK ) {
+
+#if !defined RTCW_ET
 				const char *s = va( "%s_b", surface->name );   // append '_b' for 'blink'
+#else
+				char *s = va( "%s_b", surface->name ); // append '_b' for 'blink'
+#endif RTCW_XX
+
+#if defined RTCW_ET
+				hash = Com_HashKey( s, strlen( s ) );
+#endif RTCW_XX
+
 				for ( j = 0 ; j < skin->numSurfaces ; j++ ) {
+
+#if defined RTCW_ET
+					if ( hash != skin->surfaces[j]->hash ) {
+						continue;
+					}
+#endif RTCW_XX
+
 					if ( !strcmp( skin->surfaces[j]->name, s ) ) {
 						shader = skin->surfaces[j]->shader;
 						break;
@@ -441,8 +513,19 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 			}
 
 			if ( shader == tr.defaultShader ) {    // blink reference in skin was not found
+
+#if defined RTCW_ET
+				hash = Com_HashKey( surface->name, sizeof( surface->name ) );
+#endif RTCW_XX
+
 				for ( j = 0 ; j < skin->numSurfaces ; j++ ) {
 					// the names have both been lowercased
+
+#if defined RTCW_ET
+					if ( hash != skin->surfaces[j]->hash ) {
+						continue;
+					}
+#endif RTCW_XX
 
 					if ( !strcmp( skin->surfaces[j]->name, surface->name ) ) {
 						shader = skin->surfaces[j]->shader;
@@ -481,6 +564,8 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 			R_AddDrawSurf( (void *)surface, tr.shadowShader, 0, qfalse, tr.currentModel->ATI_tess );
 #elif defined RTCW_MP
 			R_AddDrawSurf( (void *)surface, tr.shadowShader, 0, qfalse );
+#else
+			R_AddDrawSurf( (void *)surface, tr.shadowShader, 0, 0, 0 );
 #endif RTCW_XX
 
 		}
@@ -494,25 +579,38 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 //			&& shader->sort == SS_OPAQUE ) {
 //			R_AddDrawSurf( (void *)surface, tr.projectionShadowShader, 0, qfalse );
 //		}
-
-#elif defined RTCW_MP
+#else
 		if ( r_shadows->integer == 3
 			 && fogNum == 0
 			 && ( ent->e.renderfx & RF_SHADOW_PLANE )
 			 && shader->sort == SS_OPAQUE ) {
+
+#if !defined RTCW_ET
 			R_AddDrawSurf( (void *)surface, tr.projectionShadowShader, 0, qfalse );
+#else
+			R_AddDrawSurf( (void *)surface, tr.projectionShadowShader, 0, 0, 0 );
+#endif RTCW_XX
+
 		}
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 		// for testing polygon shadows (on /all/ models)
+#endif RTCW_XX
 
 #if defined RTCW_SP
 //		if ( r_shadows->integer == 4)
 //			R_AddDrawSurf( (void *)surface, tr.projectionShadowShader, 0, qfalse );
-#elif defined RTCW_MP
+#else
 		// for testing polygon shadows (on /all/ models)
 		if ( r_shadows->integer == 4 ) {
+
+#if !defined RTCW_ET
 			R_AddDrawSurf( (void *)surface, tr.projectionShadowShader, 0, qfalse );
+#else
+			R_AddDrawSurf( (void *)surface, tr.projectionShadowShader, 0, 0, 0 );
+#endif RTCW_XX
+
 		}
 #endif RTCW_XX
 
@@ -525,6 +623,8 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 			R_AddDrawSurf( (void *)surface, shader, fogNum, qfalse, tr.currentModel->ATI_tess );
 #elif defined RTCW_MP
 			R_AddDrawSurf( (void *)surface, shader, fogNum, qfalse );
+#else
+			R_AddDrawSurf( (void *)surface, shader, fogNum, 0, 0 );
 #endif RTCW_XX
 
 		}

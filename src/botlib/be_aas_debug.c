@@ -49,13 +49,20 @@ If you have questions concerning this license or the applicable additional terms
 #include "be_aas_def.h"
 
 #define MAX_DEBUGLINES              1024
+
+#if !defined RTCW_ET
 #define MAX_DEBUGPOLYGONS           128
+#endif RTCW_XX
 
 int debuglines[MAX_DEBUGLINES];
 int debuglinevisible[MAX_DEBUGLINES];
 int numdebuglines;
 
+#if !defined RTCW_ET
 static int debugpolygons[MAX_DEBUGPOLYGONS];
+#else
+static bot_debugpoly_t* debugpolygons[MAX_DEBUGPOLYS];
+#endif RTCW_XX
 
 //===========================================================================
 //
@@ -65,6 +72,8 @@ static int debugpolygons[MAX_DEBUGPOLYGONS];
 //===========================================================================
 void AAS_ClearShownPolygons( void ) {
 	int i;
+
+#if !defined RTCW_ET
 //*
 	for ( i = 0; i < MAX_DEBUGPOLYGONS; i++ )
 	{
@@ -81,6 +90,15 @@ void AAS_ClearShownPolygons( void ) {
 		debugpolygons[i] = 0;
 	} //end for
 */
+#else
+	for ( i = 0; i < MAX_DEBUGPOLYS; i++ ) {
+		if ( debugpolygons[i] ) {
+			botimport.DebugPolygonDeletePointer( debugpolygons[i] );
+		}
+		debugpolygons[i] = NULL;
+	}
+#endif RTCW_XX
+
 } //end of the function AAS_ClearShownPolygons
 //===========================================================================
 //
@@ -88,6 +106,8 @@ void AAS_ClearShownPolygons( void ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if !defined RTCW_ET
 void AAS_ShowPolygon( int color, int numpoints, vec3_t *points ) {
 	int i;
 
@@ -99,6 +119,24 @@ void AAS_ShowPolygon( int color, int numpoints, vec3_t *points ) {
 		} //end if
 	} //end for
 } //end of the function AAS_ShowPolygon
+#endif RTCW_XX
+
+#if defined RTCW_ET
+bot_debugpoly_t* AAS_GetDebugPolygon( void ) {
+	int i;
+
+	for ( i = 0; i < MAX_DEBUGPOLYS; i++ ) {
+		if ( !debugpolygons[i] ) {
+			debugpolygons[i] = botimport.DebugPolygonGetFree();
+
+			return debugpolygons[i];
+		}
+	}
+
+	return NULL;
+} //end of the function AAS_GetDebugPolygon
+#endif RTCW_XX
+
 //===========================================================================
 //
 // Parameter:				-
@@ -339,6 +377,8 @@ void AAS_ShowFace( int facenum ) {
 // Changes Globals:		-
 //===========================================================================
 void AAS_ShowFacePolygon( int facenum, int color, int flip ) {
+
+#if !defined RTCW_ET
 	int i, edgenum, numpoints;
 	vec3_t points[128];
 	aas_edge_t *edge;
@@ -373,6 +413,45 @@ void AAS_ShowFacePolygon( int facenum, int color, int flip ) {
 		} //end for
 	} //end else
 	AAS_ShowPolygon( color, numpoints, points );
+#else
+	int i, edgenum;
+	aas_edge_t *edge;
+	aas_face_t *face;
+
+	vec3_t points[128];
+	int numpoints = 0;
+
+	//check if face number is in range
+	if ( facenum >= aasworld->numfaces ) {
+		botimport.Print( PRT_ERROR, "facenum %d out of range\n", facenum );
+	}
+
+	//walk through the edges of the face
+	face = &( aasworld->faces[facenum] );
+
+	if ( flip ) {
+		for ( i = face->numedges - 1; i >= 0; i-- ) {
+			edgenum = aasworld->edgeindex[face->firstedge + i];
+			edge = &( aasworld->edges[abs( edgenum )] );
+
+			VectorCopy( aasworld->vertexes[edge->v[edgenum < 0]], points[numpoints] );
+
+			numpoints++;
+		} //end for
+	} else {
+		for ( i = 0; i < face->numedges; i++ ) {
+			edgenum = aasworld->edgeindex[face->firstedge + i];
+			edge = &( aasworld->edges[abs( edgenum )] );
+
+			VectorCopy( aasworld->vertexes[edge->v[edgenum < 0]], points[numpoints] );
+
+			numpoints++;
+		}
+	}
+
+	botimport.BotDrawPolygon( color, numpoints, (float*) points );
+#endif RTCW_XX
+
 } //end of the function AAS_ShowFacePolygon
 //===========================================================================
 //
@@ -478,6 +557,7 @@ void AAS_ShowAreaPolygons( int areanum, int color, int groundfacesonly ) {
 	aas_area_t *area;
 	aas_face_t *face;
 
+#if !defined RTCW_ET
 	//
 	if ( areanum < 0 || areanum >= ( *aasworld ).numareas ) {
 		botimport.Print( PRT_ERROR, "area %d out of range [0, %d]\n",
@@ -503,6 +583,37 @@ void AAS_ShowAreaPolygons( int areanum, int color, int groundfacesonly ) {
 		} //end if
 		AAS_ShowFacePolygon( facenum, color, face->frontarea != areanum );
 	} //end for
+#else
+	if ( areanum < 0 || areanum >= aasworld->numareas ) {
+		botimport.Print( PRT_ERROR, "area %d out of range [0, %d]\n", areanum, aasworld->numareas );
+		return;
+	}
+
+	//pointer to the convex area
+	area = &( aasworld->areas[areanum] );
+
+	//walk through the faces of the area
+	for ( i = 0; i < area->numfaces; i++ ) {
+		facenum = abs( aasworld->faceindex[area->firstface + i] );
+
+		//check if face number is in range
+		if ( facenum >= aasworld->numfaces ) {
+			botimport.Print( PRT_ERROR, "facenum %d out of range\n", facenum );
+		}
+
+		face = &( aasworld->faces[facenum] );
+
+		//ground faces only
+		if ( groundfacesonly ) {
+			if ( !( face->faceflags & ( FACE_GROUND | FACE_LADDER ) ) ) {
+				continue;
+			}
+		}
+
+		AAS_ShowFacePolygon( facenum, color, face->frontarea != areanum );
+	}
+#endif RTCW_XX
+
 } //end of the function AAS_ShowAreaPolygons
 //===========================================================================
 //

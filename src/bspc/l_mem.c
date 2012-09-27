@@ -216,7 +216,12 @@ void *GetMemory( unsigned long size )
 	void *ptr;
 	memoryblock_t *block;
 
+#if !defined RTCW_ET
 	ptr = malloc( size + sizeof( memoryblock_t ) );
+#else /* FIXME WTF?!?! */
+	ptr = new char[size + sizeof( memoryblock_t )];
+#endif RTCW_XX
+
 	block = (memoryblock_t *) ptr;
 	block->id = MEM_ID;
 	block->ptr = (char *) ptr + sizeof( memoryblock_t );
@@ -314,7 +319,13 @@ void FreeMemory( void *ptr ) {
 	totalmemorysize -= block->size;
 	numblocks--;
 	//
+
+#if !defined RTCW_ET
 	free( block );
+#else
+	delete[] block;
+#endif RTCW_XX
+
 } //end of the function FreeMemory
 //===========================================================================
 //

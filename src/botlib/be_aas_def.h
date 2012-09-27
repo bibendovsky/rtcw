@@ -38,6 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 //debugging on
 #define AAS_DEBUG
 
+#if !defined RTCW_ET
 //#define MAX_CLIENTS			128
 //#define	MAX_MODELS			256		// these are sent over the net as 8 bits
 //#define	MAX_SOUNDS			256		// so they cannot be blindly increased
@@ -47,6 +48,7 @@ If you have questions concerning this license or the applicable additional terms
 //#define	CS_SCORES			32
 //#define	CS_MODELS			(CS_SCORES+MAX_CLIENTS)
 //#define	CS_SOUNDS			(CS_MODELS+MAX_MODELS)
+#endif RTCW_XX
 
 #define DF_AASENTNUMBER( x )      ( x - ( *aasworlds ).entities )
 #define DF_NUMBERAASENT( x )      ( &( *aasworlds ).entities[x] )
@@ -123,7 +125,7 @@ typedef struct aas_settings_s
 	float sv_maxbarrier;
 	float sv_jumpvel;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	qboolean sv_allowladders;
 #endif RTCW_XX
 
@@ -265,6 +267,18 @@ typedef struct aas_s
 	aas_rt_t    *routetable;
 	//hide travel times
 	unsigned short int *hidetraveltimes;
+
+#if defined RTCW_ET
+	// Distance from Dangerous areas
+	unsigned short int *distanceFromDanger;
+
+	// Priority Queue Implementation
+	unsigned short int *PQ_accumulator;
+
+	// How many items are in the PQ
+	int PQ_size;
+#endif RTCW_XX
+
 	//vis data
 	byte *decompressedvis;
 	int decompressedvisarea;
@@ -274,6 +288,18 @@ typedef struct aas_s
 	vec3_t *areawaypoints;
 	// Ridah, so we can cache the areas that have already been tested for visibility/attackability
 	byte *visCache;
+
+#if defined RTCW_ET
+	// RF, cluster team flags (-1 means not calculated)
+	int *clusterTeamTravelFlags;
+	// RF, last time a death influenced this area. Seperate lists for axis/allies
+	int *teamDeathTime;
+	// RF, number of deaths accumulated before the time expired
+	byte    *teamDeathCount;
+	// RF, areas that are influenced by a death count
+	byte    *teamDeathAvoid;
+#endif RTCW_XX
+
 } aas_t;
 
 #define AASINTERN

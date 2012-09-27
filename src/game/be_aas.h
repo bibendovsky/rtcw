@@ -35,7 +35,13 @@ If you have questions concerning this license or the applicable additional terms
  *
  *****************************************************************************/
 
+#if !defined RTCW_ET || (defined RTCW_ET && !defined MAX_AAS_WORLDS)
+
+#if !defined RTCW_ET
 #define MAX_AAS_WORLDS      2   // one for each bounding box type
+#else
+#define MAX_AAS_WORLDS      1   // one for each bounding box type
+#endif RTCW_XX
 
 #ifndef MAX_STRINGFIELD
 #define MAX_STRINGFIELD             80
@@ -68,6 +74,15 @@ If you have questions concerning this license or the applicable additional terms
 #define TFL_FUNCBOB             0x1000000   //func bobbing
 #define TFL_DONOTENTER_LARGE    0x2000000   //travel through donotenter area
 
+#if defined RTCW_ET
+#define TFL_TEAM_AXIS           0x4000000   //travel through axis-only areas
+#define TFL_TEAM_ALLIES         0x8000000   //travel through allies-only areas
+#define TFL_TEAM_AXIS_DISGUISED 0x10000000  //travel through axis+DISGUISED areas
+#define TFL_TEAM_ALLIES_DISGUISED   0x2000000   //travel through allies+DISGUISED areas
+
+#define TFL_TEAM_FLAGS      ( TFL_TEAM_AXIS | TFL_TEAM_ALLIES | TFL_TEAM_AXIS_DISGUISED | TFL_TEAM_ALLIES_DISGUISED )
+#endif RTCW_XX
+
 //default travel flags
 
 //----(SA)	modified since slime is no longer deadly
@@ -81,7 +96,7 @@ If you have questions concerning this license or the applicable additional terms
 						TFL_JUMPPAD | TFL_FUNCBOB )	\
 					  & ~( TFL_JUMPPAD | TFL_ROCKETJUMP | TFL_BFGJUMP | TFL_GRAPPLEHOOK | TFL_DOUBLEJUMP | TFL_RAMPJUMP | TFL_STRAFEJUMP | TFL_LAVA ) )
 // RF, added that bottom line so it's the same as AICAST_TFL_DEFAULT
-#elif defined RTCW_MP
+#else
 #define TFL_DEFAULT ( TFL_WALK | TFL_CROUCH | TFL_BARRIERJUMP |	\
 					  TFL_JUMP | TFL_LADDER | \
 					  TFL_WALKOFFLEDGE | TFL_SWIM | TFL_WATERJUMP |	\
@@ -182,11 +197,64 @@ typedef struct aas_entityinfo_s
 #define SE_ENTERAREA            512     // the given stoparea is entered
 #define SE_HITGROUNDAREA        1024    // a ground face in the area is hit
 
+#if defined RTCW_ET
+#define SE_HITENT               2048    // hit specified entity
+#define SE_STUCK                4096
+
+#ifndef BSPTRACE
+
+//bsp_trace_t hit surface
+typedef struct bsp_surface_s
+{
+	char name[16];
+	int flags;
+	int value;
+} bsp_surface_t;
+
+#ifndef CPLANE
+// plane_t structure
+// !!! if this is changed, it must be changed in asm code too !!!
+typedef struct {
+	vec3_t normal;
+	float dist;
+	byte type;              // for fast side tests: 0,1,2 = axial, 3 = nonaxial
+	byte signbits;          // signx + (signy<<1) + (signz<<2), used as lookup during collision
+	byte pad[2];
+} cplane_t;
+#define CPLANE
+#endif
+
+//remove the bsp_trace_s structure definition l8r on
+//a trace is returned when a box is swept through the world
+typedef struct bsp_trace_s
+{
+	qboolean allsolid;          // if true, plane is not valid
+	qboolean startsolid;        // if true, the initial point was in a solid area
+	float fraction;             // time completed, 1.0 = didn't hit anything
+	vec3_t endpos;              // final position
+	cplane_t plane;             // surface normal at impact
+	float exp_dist;             // expanded plane distance
+	int sidenum;                // number of the brush side hit
+	bsp_surface_t surface;      // the hit point surface
+	int contents;               // contents on other side of surface hit
+	int ent;                    // number of entity hit
+} bsp_trace_t;
+
+#define BSPTRACE
+#endif  // BSPTRACE
+#endif RTCW_XX
+
 typedef struct aas_clientmove_s
 {
 	vec3_t endpos;          //position at the end of movement prediction
 	vec3_t velocity;        //velocity at the end of movement prediction
+
+#if !defined RTCW_ET
 	aas_trace_t trace;      //last trace
+#else
+	struct bsp_trace_s trace;       //last trace
+#endif RTCW_XX
+
 	int presencetype;       //presence type at end of movement prediction
 	int stopevent;          //event that made the prediction stop
 	float endcontents;      //contents at the end of movement prediction
@@ -202,3 +270,6 @@ typedef struct aas_altroutegoal_s
 	unsigned short goaltraveltime;
 	unsigned short extratraveltime;
 } aas_altroutegoal_t;
+
+#endif RTCW_XX
+

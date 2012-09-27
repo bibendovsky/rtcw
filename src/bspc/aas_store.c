@@ -49,14 +49,14 @@ If you have questions concerning this license or the applicable additional terms
 
 #define VERTEX_EPSILON          0.1         //NOTE: changed from 0.5
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 // MrE: use same epsilons as q3map!
 
 //NOTE: changed from 0.0001
 #define NORMAL_EPSILON          0.00001
 //NOTE: changed from 0.05
 #define DIST_EPSILON            0.01
-#elif defined RTCW_MP
+#ese
 //NOTE: changed from 0.9
 #define DIST_EPSILON            0.05
 //NOTE: changed from 0.005
@@ -155,7 +155,13 @@ void AAS_InitMaxAAS( void ) {
 	} //end for
 	max_aas.max_bboxes = AAS_MAX_BBOXES;
 	max_aas.max_vertexes = numpoints + 1;
+
+#if !defined RTCW_ET
 	max_aas.max_planes = nummapplanes;
+#else
+	max_aas.max_planes = nummapplanes + 1024;
+#endif RTCW_XX
+
 	max_aas.max_edges = numpoints + 1;
 	max_aas.max_edgeindexsize = ( numpoints + 1 ) * 3;
 	max_aas.max_faces = numfaces + 10;
@@ -642,8 +648,12 @@ void AAS_AddPlaneToHash( int planenum ) {
 
 	plane = &( *aasworld ).planes[planenum];
 
+#if !defined RTCW_ET
 	hash = (int)fabs( plane->dist ) / 8;
 	hash &= ( PLANE_HASH_SIZE - 1 );
+#else
+	hash = ( PLANE_HASH_SIZE - 1 ) & (int) fabs( plane->dist );
+#endif RTCW_XX
 
 	aas_planechain[planenum] = aas_hashplanes[hash];
 	aas_hashplanes[hash] = planenum;
@@ -701,8 +711,12 @@ qboolean AAS_FindHashedPlane( vec3_t normal, float dist, int *planenum ) {
 	aas_plane_t *plane;
 	int hash, h;
 
+#if !defined RTCW_ET
 	hash = (int)fabs( dist ) / 8;
 	hash &= ( PLANE_HASH_SIZE - 1 );
+#else
+	hash = ( PLANE_HASH_SIZE - 1 ) & (int)fabs( dist );
+#endif RTCW_XX
 
 	//search the border bins as well
 	for ( i = -1; i <= 1; i++ )
@@ -950,7 +964,7 @@ int AAS_StoreArea( tmp_area_t *tmparea ) {
 
 #if defined RTCW_SP
 	winding_t *w = NULL; // TTimo: init
-#elif defined RTCW_MP
+#else
 	winding_t *w;
 #endif RTCW_XX
 
@@ -960,7 +974,15 @@ int AAS_StoreArea( tmp_area_t *tmparea ) {
 	while ( tmparea->mergedarea ) tmparea = tmparea->mergedarea;
 	//
 	if ( tmparea->invalid ) {
+
+#if !defined RTCW_ET
 		Error( "AAS_StoreArea: tried to store invalid area" );
+#else
+		// RF, might be a removed non-grounded area
+		return 0;
+		//Error("AAS_StoreArea: tried to store invalid area");
+#endif RTCW_XX
+
 	}
 	//if there is an aas area already stored for this tmp area
 	if ( tmparea->aasareanum ) {

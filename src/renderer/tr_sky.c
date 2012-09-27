@@ -89,9 +89,17 @@ static void AddSkyPolygon( int nump, vec3_t vecs ) {
 	{
 		VectorAdd( vp, v, v );
 	}
+
+#if !defined RTCW_ET
 	av[0] = fabs( v[0] );
 	av[1] = fabs( v[1] );
 	av[2] = fabs( v[2] );
+#else
+	av[0] = Q_fabs( v[0] );
+	av[1] = Q_fabs( v[1] );
+	av[2] = Q_fabs( v[2] );
+#endif RTCW_XX
+
 	if ( av[0] > av[1] && av[0] > av[2] ) {
 		if ( v[0] < 0 ) {
 			axis = 1;
@@ -276,9 +284,17 @@ void RB_ClipSkyPolygons( shaderCommands_t *input ) {
 	{
 		for ( j = 0 ; j < 3 ; j++ )
 		{
+
+#if !defined RTCW_ET
 			VectorSubtract( input->xyz[input->indexes[i + j]],
 							backEnd.viewParms.or.origin,
 							p[j] );
+#else
+			VectorSubtract( input->xyz[input->indexes[i + j]].v,
+							backEnd.viewParms.orientation.origin,
+							p[j] );
+#endif RTCW_XX
+
 		}
 		ClipSkyPolygon( 3, p[0], 0 );
 	}
@@ -315,7 +331,7 @@ static void MakeSkyVec( float s, float t, int axis, float outSt[2], vec3_t outXY
 	int j, k;
 	float boxSize;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // JPW NERVE swiped from Sherman SP fix
 #endif RTCW_XX
 
@@ -325,7 +341,7 @@ static void MakeSkyVec( float s, float t, int axis, float outSt[2], vec3_t outXY
 //		boxSize = glfogsettings[FOG_CURRENT].end / 1.75;
 		boxSize = glfogsettings[FOG_SKY].end;       // (SA) trying this...
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // jpw
 #endif RTCW_XX
 
@@ -334,7 +350,7 @@ static void MakeSkyVec( float s, float t, int axis, float outSt[2], vec3_t outXY
 
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // JPW NERVE swiped from Sherman
 #endif RTCW_XX
 
@@ -343,7 +359,7 @@ static void MakeSkyVec( float s, float t, int axis, float outSt[2], vec3_t outXY
 		boxSize = r_znear->value * 2.0;
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // jpw
 #endif RTCW_XX
 
@@ -591,18 +607,36 @@ static void FillCloudySkySide( const int mins[2], const int maxs[2], qboolean ad
 	tHeight = maxs[1] - mins[1] + 1;
 	sWidth = maxs[0] - mins[0] + 1;
 
+#if defined RTCW_ET
+	// ydnar: overflow check
+	RB_CHECKOVERFLOW( ( maxs[ 0 ] - mins[ 0 ] ) * ( maxs[ 1 ] - mins[ 1 ] ), ( sWidth - 1 ) * ( tHeight - 1 ) * 6 );
+#endif RTCW_XX
+
 	for ( t = mins[1] + HALF_SKY_SUBDIVISIONS; t <= maxs[1] + HALF_SKY_SUBDIVISIONS; t++ )
 	{
 		for ( s = mins[0] + HALF_SKY_SUBDIVISIONS; s <= maxs[0] + HALF_SKY_SUBDIVISIONS; s++ )
 		{
+
+#if !defined RTCW_ET
 			VectorAdd( s_skyPoints[t][s], backEnd.viewParms.or.origin, tess.xyz[tess.numVertexes] );
 			tess.texCoords[tess.numVertexes][0][0] = s_skyTexCoords[t][s][0];
 			tess.texCoords[tess.numVertexes][0][1] = s_skyTexCoords[t][s][1];
+#else
+			VectorAdd( s_skyPoints[t][s], backEnd.viewParms.orientation.origin, tess.xyz[tess.numVertexes].v );
+			tess.texCoords0[tess.numVertexes].v[0] = s_skyTexCoords[t][s][0];
+			tess.texCoords0[tess.numVertexes].v[1] = s_skyTexCoords[t][s][1];
+#endif RTCW_XX
 
 			tess.numVertexes++;
 
+#if !defined RTCW_ET
 			if ( tess.numVertexes >= SHADER_MAX_VERTEXES ) {
 				ri.Error( ERR_DROP, "SHADER_MAX_VERTEXES hit in FillCloudySkySide()\n" );
+#else
+			if ( tess.numVertexes >= tess.maxShaderVerts ) {
+				ri.Error( ERR_DROP, "tess.maxShaderVerts(%i) hit in FillCloudySkySide()\n", tess.maxShaderVerts );
+#endif RTCW_XX
+
 			}
 		}
 	}
@@ -731,7 +765,13 @@ static void FillCloudBox( const shader_t *shader, int stage ) {
 ** R_BuildCloudData
 */
 void R_BuildCloudData( shaderCommands_t *input ) {
+
+#if !defined RTCW_ET
 	int i;
+#else
+	// int			i;
+#endif RTCW_XX
+
 	shader_t    *shader;
 
 	shader = input->shader;
@@ -746,6 +786,14 @@ void R_BuildCloudData( shaderCommands_t *input ) {
 	tess.numVertexes = 0;
 
 	if ( input->shader->sky.cloudHeight ) {
+
+#if defined RTCW_ET
+		// ok, this is really wierd. it's iterating through shader stages here,
+		// which is unecessary for a multi-stage sky shader, as far as i can tell
+		// nuking this
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 		for ( i = 0; i < MAX_SHADER_STAGES; i++ )
 		{
 			if ( !tess.xstages[i] ) {
@@ -753,6 +801,10 @@ void R_BuildCloudData( shaderCommands_t *input ) {
 			}
 			FillCloudBox( input->shader, i );
 		}
+#else
+		FillCloudBox( input->shader, 0 );
+#endif RTCW_XX
+
 	}
 }
 
@@ -760,7 +812,11 @@ void R_BuildCloudData( shaderCommands_t *input ) {
 ** R_InitSkyTexCoords
 ** Called when a sky shader is parsed
 */
+
+#if !defined RTCW_ET
 #define SQR( a ) ( ( a ) * ( a ) )
+#endif RTCW_XX
+
 void R_InitSkyTexCoords( float heightCloud ) {
 	int i, s, t;
 	float radiusWorld = 4096;
@@ -787,6 +843,8 @@ void R_InitSkyTexCoords( float heightCloud ) {
 							skyVec );
 
 				// compute parametric value 'p' that intersects with cloud layer
+
+#if !defined RTCW_ET
 				p = ( 1.0f / ( 2 * DotProduct( skyVec, skyVec ) ) ) *
 					( -2 * skyVec[2] * radiusWorld +
 					  2 * sqrt( SQR( skyVec[2] ) * SQR( radiusWorld ) +
@@ -796,6 +854,17 @@ void R_InitSkyTexCoords( float heightCloud ) {
 								SQR( skyVec[1] ) * SQR( heightCloud ) +
 								2 * SQR( skyVec[2] ) * radiusWorld * heightCloud +
 								SQR( skyVec[2] ) * SQR( heightCloud ) ) );
+#else
+				p = ( 1.0f / ( 2 * DotProduct( skyVec, skyVec ) ) ) *
+					( -2 * skyVec[2] * radiusWorld +
+					  2 * sqrt( Square( skyVec[2] ) * Square( radiusWorld ) +
+								2 * Square( skyVec[0] ) * radiusWorld * heightCloud +
+								Square( skyVec[0] ) * Square( heightCloud ) +
+								2 * Square( skyVec[1] ) * radiusWorld * heightCloud +
+								Square( skyVec[1] ) * Square( heightCloud ) +
+								2 * Square( skyVec[2] ) * radiusWorld * heightCloud +
+								Square( skyVec[2] ) * Square( heightCloud ) ) );
+#endif RTCW_XX
 
 				s_cloudTexP[i][t][s] = p;
 
@@ -841,8 +910,18 @@ void RB_DrawSun( void ) {
 	if ( !r_drawSun->integer ) {
 		return;
 	}
+
+#if defined RTCW_ET
+	qglPushMatrix();
+#endif RTCW_XX
+
 	qglLoadMatrixf( backEnd.viewParms.world.modelMatrix );
+
+#if !defined RTCW_ET
 	qglTranslatef( backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2] );
+#else
+	qglTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
+#endif RTCW_XX
 
 	dist =  backEnd.viewParms.zFar / 1.75;      // div sqrt(3)
 
@@ -865,6 +944,8 @@ void RB_DrawSun( void ) {
 	RB_BeginSurface( tr.sunShader, tess.fogNum );
 
 	RB_AddQuadStamp( origin, vec1, vec2, color );
+
+#if !defined RTCW_ET
 /*
 		VectorCopy( origin, temp );
 		VectorSubtract( temp, vec1, temp );
@@ -917,6 +998,61 @@ void RB_DrawSun( void ) {
 		tess.indexes[tess.numIndexes++] = 2;
 		tess.indexes[tess.numIndexes++] = 3;
 */
+#else
+/*
+		VectorCopy( origin, temp );
+		VectorSubtract( temp, vec1, temp );
+		VectorSubtract( temp, vec2, temp );
+		VectorCopy( temp, tess.xyz[tess.numVertexes].v );
+		tess.texCoords0[tess.numVertexes].v[0] = 0;
+		tess.texCoords0[tess.numVertexes].v[1] = 0;
+		tess.vertexColors[tess.numVertexes].v[0] = 255;
+		tess.vertexColors[tess.numVertexes].v[1] = 255;
+		tess.vertexColors[tess.numVertexes].v[2] = 255;
+		tess.numVertexes++;
+
+		VectorCopy( origin, temp );
+		VectorAdd( temp, vec1, temp );
+		VectorSubtract( temp, vec2, temp );
+		VectorCopy( temp, tess.xyz[tess.numVertexes].v );
+		tess.texCoords0[tess.numVertexes].v[0] = 0;
+		tess.texCoords0[tess.numVertexes].v[1] = 1;
+		tess.vertexColors[tess.numVertexes].v[0] = 255;
+		tess.vertexColors[tess.numVertexes].v[1] = 255;
+		tess.vertexColors[tess.numVertexes].v[2] = 255;
+		tess.numVertexes++;
+
+		VectorCopy( origin, temp );
+		VectorAdd( temp, vec1, temp );
+		VectorAdd( temp, vec2, temp );
+		VectorCopy( temp, tess.xyz[tess.numVertexes].v );
+		tess.texCoords0[tess.numVertexes].v[0] = 1;
+		tess.texCoords0[tess.numVertexes].v[1] = 1;
+		tess.vertexColors[tess.numVertexes].v[0] = 255;
+		tess.vertexColors[tess.numVertexes].v[1] = 255;
+		tess.vertexColors[tess.numVertexes].v[2] = 255;
+		tess.numVertexes++;
+
+		VectorCopy( origin, temp );
+		VectorSubtract( temp, vec1, temp );
+		VectorAdd( temp, vec2, temp );
+		VectorCopy( temp, tess.xyz[tess.numVertexes].v );
+		tess.texCoords0[tess.numVertexes].v[0] = 1;
+		tess.texCoords0[tess.numVertexes].v[1] = 0;
+		tess.vertexColors[tess.numVertexes].v[0] = 255;
+		tess.vertexColors[tess.numVertexes].v[1] = 255;
+		tess.vertexColors[tess.numVertexes].v[2] = 255;
+		tess.numVertexes++;
+
+		tess.indexes[tess.numIndexes++] = 0;
+		tess.indexes[tess.numIndexes++] = 1;
+		tess.indexes[tess.numIndexes++] = 2;
+		tess.indexes[tess.numIndexes++] = 0;
+		tess.indexes[tess.numIndexes++] = 2;
+		tess.indexes[tess.numIndexes++] = 3;
+*/
+#endif RTCW_XX
+
 	RB_EndSurface();
 
 
@@ -933,7 +1069,13 @@ void RB_DrawSun( void ) {
 		VectorScale( vec2, 0.5f, vec2 );
 
 		// add the vectors to give an 'off angle' result
+
+#if !defined RTCW_ET
 		VectorAdd( tr.sunDirection, backEnd.viewParms.or.axis[0], temp );
+#else
+		VectorAdd( tr.sunDirection, backEnd.viewParms.orientation.axis[0], temp );
+#endif RTCW_XX
+
 		VectorNormalize( temp );
 
 		// amplify the result
@@ -951,6 +1093,11 @@ void RB_DrawSun( void ) {
 
 	// back to normal depth range
 	qglDepthRange( 0.0, 1.0 );
+
+#if defined RTCW_ET
+	qglPopMatrix();
+#endif RTCW_XX
+
 }
 
 
@@ -1011,7 +1158,12 @@ void RB_StageIteratorSky( void ) {
 
 		qglPushMatrix();
 		GL_State( 0 );
+
+#if !defined RTCW_ET
 		qglTranslatef( backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2] );
+#else
+		qglTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
+#endif RTCW_XX
 
 		DrawSkyBox( tess.shader );
 
@@ -1031,7 +1183,12 @@ void RB_StageIteratorSky( void ) {
 
 		qglPushMatrix();
 		GL_State( 0 );
+
+#if !defined RTCW_ET
 		qglTranslatef( backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2] );
+#else
+		qglTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
+#endif RTCW_XX
 
 		DrawSkyBoxInner( tess.shader );
 

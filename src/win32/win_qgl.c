@@ -2891,7 +2891,10 @@ qboolean GlideIsValid( void ) {
 	return qfalse;
 }
 
+#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
 #   pragma warning (disable : 4113 4133 4047 )
+#endif RTCW_XX
+
 #   define GPA( a ) GetProcAddress( glw_state.hinstOpenGL, a )
 
 /*
@@ -4036,7 +4039,10 @@ void QGL_EnableLogging( qboolean enable ) {
 	}
 }
 
+#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
 #pragma warning (default : 4113 4133 4047 )
+#endif RTCW_XX
+
 
 
 

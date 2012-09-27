@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 
 Return to Castle Wolfenstein single player GPL Source Code
@@ -47,6 +47,33 @@ If you have questions concerning this license or the applicable additional terms
 // 1.3-MP : final for release
 // 1.1b - TTimo SP linux release (+ MP updates)
 // 1.1b5 - Mac update merge in
+#else
+//#define PRE_RELEASE_DEMO
+
+#ifndef PRE_RELEASE_DEMO
+#define Q3_VERSION      "ET 2.60d"
+#else
+#define Q3_VERSION      "ET 2.32"
+#endif // PRE_RELEASE_DEMO
+// 2.60d: Mac OSX universal binaries
+// 2.60c: Mac OSX universal binaries
+// 2.60b: CVE-2006-2082 fix
+// 2.6x: Enemy Territory - ETPro team maintenance release
+// 2.5x: Enemy Territory FINAL
+// 2.4x: Enemy Territory RC's
+// 2.3x: Enemy Territory TEST
+// 2.2+: post SP removal
+// 2.1+: post Enemy Territory moved standalone
+// 2.x: post Enemy Territory
+// 1.x: pre Enemy Territory
+////
+// 1.3-MP : final for release
+// 1.1b - TTimo SP linux release (+ MP updates)
+// 1.1b5 - Mac update merge in
+
+#define CONFIG_NAME     "etconfig.cfg"
+
+//#define LOCALIZATION_SUPPORT
 #endif RTCW_XX
 
 #define NEW_ANIMS
@@ -57,7 +84,7 @@ If you have questions concerning this license or the applicable additional terms
 //#define PRE_RELEASE_DEMO
 #endif RTCW_XX
 
-#ifdef _WIN32
+#if (!defined RTCW_ET && defined _WIN32) || (defined RTCW_ET && defined _WIN32 && !defined __GNUC__)
 
 #pragma warning(disable : 4018) // signed/unsigned mismatch
 #pragma warning(disable : 4032)
@@ -118,17 +145,22 @@ If you have questions concerning this license or the applicable additional terms
 #include <ctype.h>
 #include <limits.h>
 
+#if defined RTCW_ET
+#include <sys/stat.h> // rain
+#include <float.h>
+#endif RTCW_XX
+
 #endif
 
-#ifdef _WIN32
+#if !defined RTCW_ET && defined _WIN32
 
 //#pragma intrinsic( memset, memcpy )
 
-#endif
+#endif RTCW_XX
 
 
 // this is the define for determining if we have an asm version of a C function
-#if ( defined _M_IX86 || defined __i386__ ) && !defined __sun__  && !defined __LCC__
+#if (!defined RTCW_ET && ((defined _M_IX86 || defined __i386__) && !defined __sun__  && !defined __LCC__)) || (defined RTCW_ET && defined _M_IX86)
 #define id386   1
 #else
 #define id386   0
@@ -137,6 +169,16 @@ If you have questions concerning this license or the applicable additional terms
 // for windows fastcall option
 
 #define QDECL
+
+#if defined RTCW_ET
+//bani
+//======================= GNUC DEFINES ==================================
+#ifdef __GNUC__
+#define _attribute( x ) __attribute__( x )
+#else
+#define _attribute( x )
+#endif
+#endif RTCW_XX
 
 //======================= WIN32 DEFINES =================================
 
@@ -190,8 +232,12 @@ If you have questions concerning this license or the applicable additional terms
 #define BOTLIB_HARD_LINKED
 
 #endif
-#elif defined RTCW_MP
+#else
 #if defined( MACOS_X )
+
+#if defined RTCW_ET
+#error WTF
+#endif RTCW_XX
 
 #define MAC_STATIC
 
@@ -212,7 +258,13 @@ static inline float idSqrt( float x ) {
 	float B, y0, y1;
 
 	// This'll NaN if it hits frsqrte. Handle both +0.0 and -0.0
+
+#if !defined RTCW_ET
 	if ( fabs( x ) == 0.0 ) {
+#else
+	if ( Q_fabs( x ) == 0.0 ) {
+#endif RTCW_XX
+
 		return x;
 	}
 	B = x;
@@ -304,6 +356,18 @@ static inline float idSqrt( float x ) {
 #define sqrt idSqrt
 
 #endif
+#else
+#ifdef __MACOS__
+
+#define MAC_STATIC
+
+#define CPUSTRING   "OSX-universal"
+
+#define PATH_SEP '/'
+
+void Sys_PumpEvents( void );
+
+#endif
 #endif RTCW_XX
 
 //======================= LINUX DEFINES =================================
@@ -361,6 +425,9 @@ typedef int clipHandle_t;
 #define     SND_CUTOFF_ALL      0x008   // Cut off all sounds on this channel
 #define     SND_NOCUT           0x010   // Don't cut off.  Always let finish (overridden by SND_CUTOFF_ALL)
 
+#if defined RTCW_ET
+#define     SND_NO_ATTENUATION  0x020   // don't attenuate (even though the sound is in voice channel, for example)
+#endif RTCW_XX
 
 #ifndef NULL
 #define NULL ( (void *)0 )
@@ -369,7 +436,7 @@ typedef int clipHandle_t;
 #define MAX_QINT            0x7fffffff
 #define MIN_QINT            ( -MAX_QINT - 1 )
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // TTimo gcc: was missing, added from Q3 source
 #endif RTCW_XX
 
@@ -403,9 +470,25 @@ typedef int clipHandle_t;
 #define MAX_QPATH           64      // max length of a quake game pathname
 #define MAX_OSPATH          256     // max length of a filesystem pathname
 
+#if !defined RTCW_ET
 #define MAX_NAME_LENGTH     32      // max length of a client name
+#else
+// rain - increased to 36 to match MAX_NETNAME, fixes #13 - UI stuff breaks
+// with very long names
+#define MAX_NAME_LENGTH     36      // max length of a client name
+#endif RTCW_XX
 
 #define MAX_SAY_TEXT        150
+
+#if defined RTCW_ET
+#define MAX_BINARY_MESSAGE  32768   // max length of binary message
+
+typedef enum {
+	MESSAGE_EMPTY = 0,
+	MESSAGE_WAITING,        // rate/packet limited
+	MESSAGE_WAITING_OVERFLOW,   // packet too large with message
+} messageStatus_t;
+#endif RTCW_XX
 
 // paramters for command buffer stuffing
 typedef enum {
@@ -437,6 +520,11 @@ typedef enum {
 // parameters to the main Error routine
 typedef enum {
 	ERR_FATAL,                  // exit the entire game with a popup window
+
+#if defined RTCW_ET
+	ERR_VID_FATAL,              // exit the entire game with a popup window and doesn't delete profile.pid
+#endif RTCW_XX
+
 	ERR_DROP,                   // print to console and disconnect from game
 	ERR_SERVERDISCONNECT,       // don't kill server
 	ERR_DISCONNECT,             // client disconnected from the server
@@ -446,6 +534,9 @@ typedef enum {
 	ERR_ENDGAME                 // not an error.  just clean up properly, exit to the menu, and start up the "endgame" menu  //----(SA)	added
 #elif defined RTCW_MP
 	ERR_NEED_CD                 // pop up the need-cd dialog
+#else
+	ERR_NEED_CD,                // pop up the need-cd dialog
+	ERR_AUTOUPDATE
 #endif RTCW_XX
 
 } errorParm_t;
@@ -498,7 +589,7 @@ void *Hunk_AllocDebug( int size, ha_pref preference, char *label, char *file, in
 void *Hunk_Alloc( int size, ha_pref preference );
 #endif
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #ifdef __linux__
 // show_bug.cgi?id=371
 // custom Snd_Memset implementation for glibc memset bug workaround
@@ -518,7 +609,7 @@ void Com_Memcpy( void* dest, const void* src, const size_t count );
 #define CIN_silent      0x08
 #define CIN_shader      0x10
 #define CIN_letterBox   0x20
-#elif defined RTCW_MP
+#elif !defined RTCW_SP
 #define CIN_system  1
 #define CIN_loop    2
 #define CIN_hold    4
@@ -558,7 +649,17 @@ extern vec3_t bytedirs[NUMVERTEXNORMALS];
 #define SCREEN_HEIGHT       480
 
 #define TINYCHAR_WIDTH      ( SMALLCHAR_WIDTH )
+
+#if !defined RTCW_ET
 #define TINYCHAR_HEIGHT     ( SMALLCHAR_HEIGHT / 2 )
+#else
+#define TINYCHAR_HEIGHT     ( SMALLCHAR_HEIGHT )
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#define MINICHAR_WIDTH      8
+#define MINICHAR_HEIGHT     12
+#endif RTCW_XX
 
 #define SMALLCHAR_WIDTH     8
 #define SMALLCHAR_HEIGHT    16
@@ -574,12 +675,41 @@ extern vec4_t colorRed;
 extern vec4_t colorGreen;
 extern vec4_t colorBlue;
 extern vec4_t colorYellow;
+
+#if defined RTCW_ET
+extern vec4_t colorOrange;
+#endif RTCW_XX
+
 extern vec4_t colorMagenta;
 extern vec4_t colorCyan;
 extern vec4_t colorWhite;
 extern vec4_t colorLtGrey;
 extern vec4_t colorMdGrey;
 extern vec4_t colorDkGrey;
+
+#if defined RTCW_ET
+extern vec4_t colorMdRed;
+extern vec4_t colorMdGreen;
+extern vec4_t colorDkGreen;
+extern vec4_t colorMdCyan;
+extern vec4_t colorMdYellow;
+extern vec4_t colorMdOrange;
+extern vec4_t colorMdBlue;
+
+extern vec4_t clrBrown;
+extern vec4_t clrBrownDk;
+extern vec4_t clrBrownLine;
+extern vec4_t clrBrownText;
+extern vec4_t clrBrownTextDk;
+extern vec4_t clrBrownTextDk2;
+extern vec4_t clrBrownTextLt;
+extern vec4_t clrBrownTextLt2;
+extern vec4_t clrBrownLineFull;
+
+#define GAME_INIT_FRAMES    6
+#define FRAMETIME           100                 // msec
+#endif RTCW_XX
+
 
 #define Q_COLOR_ESCAPE  '^'
 #define Q_IsColorString( p )  ( p && *( p ) == Q_COLOR_ESCAPE && *( ( p ) + 1 ) && *( ( p ) + 1 ) != Q_COLOR_ESCAPE )
@@ -592,7 +722,29 @@ extern vec4_t colorDkGrey;
 #define COLOR_CYAN      '5'
 #define COLOR_MAGENTA   '6'
 #define COLOR_WHITE     '7'
+
+#if !defined RTCW_ET
 #define ColorIndex( c )   ( ( ( c ) - '0' ) & 7 )
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#define COLOR_ORANGE    '8'
+#define COLOR_MDGREY    '9'
+#define COLOR_LTGREY    ':'
+//#define COLOR_LTGREY	';'
+#define COLOR_MDGREEN   '<'
+#define COLOR_MDYELLOW  '='
+#define COLOR_MDBLUE    '>'
+#define COLOR_MDRED     '?'
+#define COLOR_LTORANGE  'A'
+#define COLOR_MDCYAN    'B'
+#define COLOR_MDPURPLE  'C'
+#define COLOR_NULL      '*'
+
+
+#define COLOR_BITS  31
+#define ColorIndex( c )   ( ( ( c ) - '0' ) & COLOR_BITS )
+#endif RTCW_XX
 
 #define S_COLOR_BLACK   "^0"
 #define S_COLOR_RED     "^1"
@@ -603,10 +755,38 @@ extern vec4_t colorDkGrey;
 #define S_COLOR_MAGENTA "^6"
 #define S_COLOR_WHITE   "^7"
 
+#if defined RTCW_ET
+#define S_COLOR_ORANGE      "^8"
+#define S_COLOR_MDGREY      "^9"
+#define S_COLOR_LTGREY      "^:"
+//#define S_COLOR_LTGREY		"^;"
+#define S_COLOR_MDGREEN     "^<"
+#define S_COLOR_MDYELLOW    "^="
+#define S_COLOR_MDBLUE      "^>"
+#define S_COLOR_MDRED       "^?"
+#define S_COLOR_LTORANGE    "^A"
+#define S_COLOR_MDCYAN      "^B"
+#define S_COLOR_MDPURPLE    "^C"
+#define S_COLOR_NULL        "^*"
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 extern vec4_t g_color_table[8];
+#else
+extern vec4_t g_color_table[32];
+#endif RTCW_XX
 
 #define MAKERGB( v, r, g, b ) v[0] = r; v[1] = g; v[2] = b
 #define MAKERGBA( v, r, g, b, a ) v[0] = r; v[1] = g; v[2] = b; v[3] = a
+
+#if defined RTCW_ET
+// Hex Color string support
+#define gethex( ch ) ( ( ch ) > '9' ? ( ( ch ) >= 'a' ? ( ( ch ) - 'a' + 10 ) : ( ( ch ) - '7' ) ) : ( ( ch ) - '0' ) )
+#define ishex( ch )  ( ( ch ) && ( ( ( ch ) >= '0' && ( ch ) <= '9' ) || ( ( ch ) >= 'A' && ( ch ) <= 'F' ) || ( ( ch ) >= 'a' && ( ch ) <= 'f' ) ) )
+// check if it's format rrggbb r,g,b e {0..9} U {A...F}
+#define Q_IsHexColorString( p ) ( ishex( *( p ) ) && ishex( *( ( p ) + 1 ) ) && ishex( *( ( p ) + 2 ) ) && ishex( *( ( p ) + 3 ) ) && ishex( *( ( p ) + 4 ) ) && ishex( *( ( p ) + 5 ) ) )
+#define Q_HexColorStringHasAlpha( p ) ( ishex( *( ( p ) + 6 ) ) && ishex( *( ( p ) + 7 ) ) )
+#endif RTCW_XX
 
 #define DEG2RAD( a ) ( ( ( a ) * M_PI ) / 180.0F )
 #define RAD2DEG( a ) ( ( ( a ) * 180.0f ) / M_PI )
@@ -618,11 +798,8 @@ extern vec3_t axisDefault[3];
 
 #define nanmask ( 255 << 23 )
 
-#if defined RTCW_SP
 #define IS_NAN( x ) ( ( ( *(int *)&x ) & nanmask ) == nanmask )
-#elif defined RTCW_MP
-#define IS_NAN( x ) ( ( ( *(int *)&x ) & nanmask ) == nanmask )
-#endif RTCW_XX
+
 
 #if defined RTCW_SP
 // TTimo
@@ -640,6 +817,18 @@ float Q_fabs( float f );
 float Q_rsqrt( float f );       // reciprocal square root
 
 #define SQRTFAST( x ) ( 1.0f / Q_rsqrt( x ) )
+
+#if defined RTCW_ET
+// fast float to int conversion
+#if id386 && !( ( defined __linux__ || defined __FreeBSD__ || defined __GNUC__ ) && ( defined __i386__ ) ) // rb010123
+long myftol( float f );
+#elif defined( __MACOS__ )
+#define myftol( x ) (long)( x )
+#else
+extern long int lrintf( float x );
+#define myftol( x ) lrintf( x )
+#endif
+#endif RTCW_XX
 
 signed char ClampChar( int i );
 signed short ClampShort( int i );
@@ -688,6 +877,12 @@ typedef struct {
 #define VectorNegate( a,b )           ( ( b )[0] = -( a )[0],( b )[1] = -( a )[1],( b )[2] = -( a )[2] )
 #define VectorSet( v, x, y, z )       ( ( v )[0] = ( x ), ( v )[1] = ( y ), ( v )[2] = ( z ) )
 
+#if defined RTCW_ET
+#define Vector2Set( v, x, y )         ( ( v )[0] = ( x ),( v )[1] = ( y ) )
+#define Vector2Copy( a,b )            ( ( b )[0] = ( a )[0],( b )[1] = ( a )[1] )
+#define Vector2Subtract( a,b,c )      ( ( c )[0] = ( a )[0] - ( b )[0],( c )[1] = ( a )[1] - ( b )[1] )
+#endif RTCW_XX
+
 #define Vector4Set( v, x, y, z, n )   ( ( v )[0] = ( x ),( v )[1] = ( y ),( v )[2] = ( z ),( v )[3] = ( n ) )
 #define Vector4Copy( a,b )            ( ( b )[0] = ( a )[0],( b )[1] = ( a )[1],( b )[2] = ( a )[2],( b )[3] = ( a )[3] )
 #define Vector4MA( v, s, b, o )       ( ( o )[0] = ( v )[0] + ( b )[0] * ( s ),( o )[1] = ( v )[1] + ( b )[1] * ( s ),( o )[2] = ( v )[2] + ( b )[2] * ( s ),( o )[3] = ( v )[3] + ( b )[3] * ( s ) )
@@ -711,6 +906,11 @@ float NormalizeColor( const vec3_t in, vec3_t out );
 float RadiusFromBounds( const vec3_t mins, const vec3_t maxs );
 void ClearBounds( vec3_t mins, vec3_t maxs );
 void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs );
+
+#if defined RTCW_ET
+qboolean PointInBounds( const vec3_t v, const vec3_t mins, const vec3_t maxs );
+#endif RTCW_XX
+
 int VectorCompare( const vec3_t v1, const vec3_t v2 );
 vec_t VectorLength( const vec3_t v );
 vec_t VectorLengthSquared( const vec3_t v );
@@ -742,6 +942,10 @@ void AnglesToAxis( const vec3_t angles, vec3_t axis[3] );
 void AxisToAngles( /*const*/ vec3_t axis[3], vec3_t angles );
 float VectorDistance( vec3_t v1, vec3_t v2 );
 
+#if defined RTCW_ET
+float VectorDistanceSquared( vec3_t v1, vec3_t v2 );
+#endif RTCW_XX
+
 void AxisClear( vec3_t axis[3] );
 void AxisCopy( vec3_t in[3], vec3_t out[3] );
 
@@ -751,12 +955,16 @@ int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, struct cplane_s *plane );
 float   AngleMod( float a );
 float   LerpAngle( float from, float to, float frac );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 void    LerpPosition( vec3_t start, vec3_t end, float frac, vec3_t out );
 #endif RTCW_XX
 
 float   AngleSubtract( float a1, float a2 );
 void    AnglesSubtract( vec3_t v1, vec3_t v2, vec3_t v3 );
+
+#if defined RTCW_ET
+float AngleNormalize2Pi( float angle );
+#endif RTCW_XX
 
 float AngleNormalize360( float angle );
 float AngleNormalize180( float angle );
@@ -765,6 +973,11 @@ float AngleDelta( float angle1, float angle2 );
 qboolean PlaneFromPoints( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c );
 void ProjectPointOnPlane( vec3_t dst, const vec3_t p, const vec3_t normal );
 void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, float degrees );
+
+#if defined RTCW_ET
+void RotatePointAroundVertex( vec3_t pnt, float rot_x, float rot_y, float rot_z, const vec3_t origin );
+#endif RTCW_XX
+
 void RotateAroundDirection( vec3_t axis[3], float yaw );
 void MakeNormalVectors( const vec3_t forward, vec3_t right, vec3_t up );
 // perpendicular vector could be replaced by this
@@ -778,6 +991,13 @@ void PerpendicularVector( vec3_t dst, const vec3_t src );
 // Ridah
 void GetPerpendicularViewVector( const vec3_t point, const vec3_t p1, const vec3_t p2, vec3_t up );
 void ProjectPointOntoVector( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj );
+
+#if defined RTCW_ET
+void ProjectPointOntoVectorBounded( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj );
+float DistanceFromLineSquared( vec3_t p, vec3_t lp1, vec3_t lp2 );
+float DistanceFromVectorSquared( vec3_t p, vec3_t lp1, vec3_t lp2 );
+#endif RTCW_XX
+
 // done.
 
 //=============================================
@@ -785,9 +1005,14 @@ void ProjectPointOntoVector( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vP
 float Com_Clamp( float min, float max, float value );
 
 char    *COM_SkipPath( char *pathname );
+
+#if defined RTCW_ET
+void    COM_FixPath( char *pathname );
+#endif RTCW_XX
+
 void    COM_StripExtension( const char *in, char *out );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 void    COM_StripExtension2( const char *in, char *out, int destsize );
 #endif RTCW_XX
 
@@ -801,8 +1026,18 @@ int     COM_GetCurrentParseLine( void );
 char    *COM_Parse( char **data_p );
 char    *COM_ParseExt( char **data_p, qboolean allowLineBreak );
 int     COM_Compress( char *data_p );
+
+#if !defined RTCW_ET
 void    COM_ParseError( char *format, ... );
 void    COM_ParseWarning( char *format, ... );
+#else
+void    COM_ParseError( char *format, ... ) _attribute( ( format( printf,1,2 ) ) );
+void    COM_ParseWarning( char *format, ... ) _attribute( ( format( printf,1,2 ) ) );
+#endif RTCW_XX
+
+#if !defined RTCW_ET
+int Com_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 // TTimo
@@ -832,6 +1067,12 @@ typedef struct pc_token_s
 	int intvalue;
 	float floatvalue;
 	char string[MAX_TOKENLENGTH];
+
+#if defined RTCW_ET
+	int line;
+	int linescrossed;
+#endif RTCW_XX
+
 } pc_token_t;
 
 // data is an in/out parm, returns a parsed out token
@@ -840,7 +1081,7 @@ void    COM_MatchToken( char**buf_p, char *match );
 
 void SkipBracedSection( char **program );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 void SkipBracedSection_Depth( char **program, int depth ); // start at given depth if already matching stuff
 #endif RTCW_XX
 
@@ -850,8 +1091,11 @@ void Parse1DMatrix( char **buf_p, int x, float *m );
 void Parse2DMatrix( char **buf_p, int y, int x, float *m );
 void Parse3DMatrix( char **buf_p, int z, int y, int x, float *m );
 
+#if !defined RTCW_ET
 void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... );
-
+#else
+void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... ) _attribute( ( format( printf,3,4 ) ) );
+#endif RTCW_XX
 
 // mode parm for FS_FOpenFile
 typedef enum {
@@ -874,7 +1118,7 @@ int Q_islower( int c );
 int Q_isupper( int c );
 int Q_isalpha( int c );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 int Q_isnumeric( int c );       //----(SA)	added
 int Q_isalphanumeric( int c );  //----(SA)	added
 int Q_isforfilename( int c );       //----(SA)	added
@@ -902,10 +1146,18 @@ void    Q_strcat( char *dest, int size, const char *src );
 int Q_PrintStrlen( const char *string );
 // removes color sequences from string
 char *Q_CleanStr( char *string );
+
+#if !defined RTCW_ET
 // Ridah
 int Q_strncasecmp( char *s1, char *s2, int n );
 int Q_strcasecmp( char *s1, char *s2 );
 // done.
+#endif RTCW_XX
+
+#if defined RTCW_ET
+// removes whitespaces and other bad directory characters
+char *Q_CleanDirName( char *dirname );
+#endif RTCW_XX
 
 #if defined RTCW_MP
 // TTimo
@@ -917,6 +1169,10 @@ int Q_strcasecmp( char *s1, char *s2 );
 // TODO: Mac define?
 #define Q_vsnprintf vsnprintf
 #endif
+#elif defined RTCW_ET
+#define _vsnprintf use_Q_vsnprintf
+#define vsnprintf use_Q_vsnprintf
+int Q_vsnprintf( char *dest, int size, const char *fmt, va_list argptr );
 #endif RTCW_XX
 
 //=============================================
@@ -937,17 +1193,45 @@ typedef struct
 
 //=============================================
 
+#if !defined RTCW_ET
 short   BigShort( short l );
+#endif RTCW_XX
+
 short   LittleShort( short l );
+
+#if !defined RTCW_ET
 int     BigLong( int l );
+#endif RTCW_XX
+
 int     LittleLong( int l );
+
+#if !defined RTCW_ET
 qint64  BigLong64( qint64 l );
+#endif RTCW_XX
+
 qint64  LittleLong64( qint64 l );
+
+#if !defined RTCW_ET
 float   BigFloat( float l );
+#endif RTCW_XX
+
 float   LittleFloat( float l );
 
+#if defined RTCW_ET
+short   BigShort( short l );
+int BigLong( int l );
+qint64  BigLong64( qint64 l );
+float   BigFloat( float l );
+#endif RTCW_XX
+
 void    Swap_Init( void );
+
+#if !defined RTCW_ET
 char    * QDECL va( char *format, ... );
+#else
+char    * QDECL va( char *format, ... ) _attribute( ( format( printf,1,2 ) ) );
+#endif RTCW_XX
+
 float   *tv( float x, float y, float z );
 
 //=============================================
@@ -964,11 +1248,18 @@ qboolean Info_Validate( const char *s );
 void Info_NextPair( const char **s, char *key, char *value );
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
+
+#if !defined RTCW_ET
 void QDECL Com_Error( int level, const char *error, ... );
 void QDECL Com_Printf( const char *msg, ... );
+#else
+void QDECL Com_Error( int level, const char *error, ... ) _attribute( ( format( printf,2,3 ) ) );
+void QDECL Com_Printf( const char *msg, ... ) _attribute( ( format( printf,1,2 ) ) );
+#endif RTCW_XX
 
+#if !defined RTCW_MP
 
-#if defined RTCW_SP
+#if !defined RTCW_ET
 /*
 ==============================================================
 
@@ -988,8 +1279,7 @@ SAVE
 
 #define SAVE_VERSION    18
 #define SAVE_INFOSTRING_LENGTH  256
-
-
+#endif RTCW_XX
 
 /*
 ==========================================================
@@ -1036,8 +1326,13 @@ default values.
 #define CVAR_CHEAT          512 // can not be changed if cheats are disabled
 #define CVAR_NORESTART      1024    // do not clear when a cvar_restart is issued
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #define CVAR_WOLFINFO       2048    // DHM - NERVE :: Like userinfo, but for wolf multiplayer info
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#define CVAR_UNSAFE         4096    // ydnar: unsafe system cvars (renderer, sound settings, anything that might cause a crash)
+#define CVAR_SERVERINFO_NOUPDATE        8192    // gordon: WONT automatically send this to clients, but server browsers will see it
 #endif RTCW_XX
 
 // nothing outside the Cvar_*() functions should modify these fields!
@@ -1086,6 +1381,9 @@ COLLISION DETECTION
 #define PLANE_Z         2
 #define PLANE_NON_AXIAL 3
 
+#if defined RTCW_ET
+#define PLANE_NON_PLANAR    4
+#endif RTCW_XX
 
 /*
 =================
@@ -1093,7 +1391,12 @@ PlaneTypeForNormal
 =================
 */
 
+#if !defined RTCW_ET
 #define PlaneTypeForNormal( x ) ( x[0] == 1.0 ? PLANE_X : ( x[1] == 1.0 ? PLANE_Y : ( x[2] == 1.0 ? PLANE_Z : PLANE_NON_AXIAL ) ) )
+#else
+//#define PlaneTypeForNormal(x) (x[0] == 1.0 ? PLANE_X : (x[1] == 1.0 ? PLANE_Y : (x[2] == 1.0 ? PLANE_Z : PLANE_NON_AXIAL) ) )
+#define PlaneTypeForNormal( x ) ( x[0] == 1.0 ? PLANE_X : ( x[1] == 1.0 ? PLANE_Y : ( x[2] == 1.0 ? PLANE_Z : ( x[0] == 0.f && x[1] == 0.f && x[2] == 0.f ? PLANE_NON_PLANAR : PLANE_NON_AXIAL ) ) ) )
+#endif RTCW_XX
 
 // plane_t structure
 // !!! if this is changed, it must be changed in asm code too !!!
@@ -1105,6 +1408,9 @@ typedef struct cplane_s {
 	byte pad[2];
 } cplane_t;
 
+#if defined RTCW_ET
+#define CPLANE
+#endif RTCW_XX
 
 // a trace is returned when a box is swept through the world
 typedef struct {
@@ -1157,7 +1463,17 @@ typedef enum {
 	CHAN_ITEM,
 	CHAN_BODY,
 	CHAN_LOCAL_SOUND,   // chat messages, etc
+
+#if !defined RTCW_ET
 	CHAN_ANNOUNCER      // announcer voices, etc
+#else
+	CHAN_ANNOUNCER,     // announcer voices, etc
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	CHAN_VOICE_BG,  // xkan - background sound for voice (radio static, etc.)
+#endif RTCW_XX
+
 } soundChannel_t;
 
 
@@ -1183,19 +1499,24 @@ typedef enum {
 
 #if defined RTCW_SP
 #define MAX_CLIENTS         128     // absolute limit
-#elif defined RTCW_MP
+#else
 #define MAX_CLIENTS         64 // JPW NERVE back to q3ta default was 128		// absolute limit
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 #define MAX_LOCATIONS       64
+#endif RTCW_XX
 
 #if defined RTCW_SP
 #define GENTITYNUM_BITS     10      // don't need to send any more
-#elif defined RTCW_MP
+#else
 #define GENTITYNUM_BITS     10  // JPW NERVE put q3ta default back for testing	// don't need to send any more
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 //#define	GENTITYNUM_BITS		11		// don't need to send any more		(SA) upped 4/21/2001 adjusted: tr_local.h (802-822), tr_main.c (1501), sv_snapshot (206)
+#endif RTCW_XX
+
 #define MAX_GENTITIES       ( 1 << GENTITYNUM_BITS )
 
 // entitynums are communicated with GENTITY_BITS, so any reserved
@@ -1209,17 +1530,39 @@ typedef enum {
 #define MAX_MODELS          256     // these are sent over the net as 8 bits
 #define MAX_SOUNDS          256     // so they cannot be blindly increased
 
-
+#if !defined RTCW_ET
 #define MAX_PARTICLES_AREAS     128
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#define MAX_CS_SKINS        64
+#define MAX_CSSTRINGS       32
+
+#define MAX_CS_SHADERS      32
+#define MAX_SERVER_TAGS     256
+#define MAX_TAG_FILES       64
+#endif RTCW_XX
 
 #define MAX_MULTI_SPAWNTARGETS  16 // JPW NERVE
 
+#if !defined RTCW_ET
 //#define	MAX_CONFIGSTRINGS	1024
+#else
+#define MAX_CONFIGSTRINGS   1024
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 #define MAX_CONFIGSTRINGS   2048
 
 #define MAX_DLIGHT_CONFIGSTRINGS    128
 #define MAX_CLIPBOARD_CONFIGSTRINGS 64
 #define MAX_SPLINE_CONFIGSTRINGS    64
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#define MAX_DLIGHT_CONFIGSTRINGS    16
+#define MAX_SPLINE_CONFIGSTRINGS    8
+#endif RTCW_XX
 
 #define PARTICLE_SNOW128    1
 #define PARTICLE_SNOW64     2
@@ -1245,12 +1588,19 @@ typedef struct {
 	int dataCount;
 } gameState_t;
 
+#if !defined RTCW_ET
 #define REF_FORCE_DLIGHT    ( 1 << 31 ) // RF, passed in through overdraw parameter, force this dlight under all conditions
 #define REF_JUNIOR_DLIGHT   ( 1 << 30 ) // (SA) this dlight does not light surfaces.  it only affects dynamic light grid
 
 //=========================================================
 // shared by AI and animation scripting
 //
+#endif RTCW_XX
+
+#if defined RTCW_ET
+// xkan, 1/10/2003 - adapted from original SP
+#endif RTCW_XX
+
 typedef enum
 {
 
@@ -1267,6 +1617,7 @@ typedef enum
 	MAX_AISTATES
 } aistateEnum_t;
 
+#if !defined RTCW_ET
 //=========================================================
 
 
@@ -1277,10 +1628,16 @@ typedef enum
 #define MAX_WEAPS_IN_BANK_MP    8
 #define MAX_WEAP_BANKS_MP   7
 // jpw
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#define REF_FORCE_DLIGHT    ( 1 << 31 ) // RF, passed in through overdraw parameter, force this dlight under all conditions
+#define REF_JUNIOR_DLIGHT   ( 1 << 30 ) // (SA) this dlight does not light surfaces.  it only affects dynamic light grid
+#define REF_DIRECTED_DLIGHT ( 1 << 29 ) // ydnar: global directional light, origin should be interpreted as a normal vector
+#endif RTCW_XX
 
 #if defined RTCW_SP
 #define MAX_WEAP_ALTS       WP_DYNAMITE
-
 #elif defined RTCW_MP
 #define MAX_WEAP_ALTS       WP_DYNAMITE2
 #endif RTCW_XX
@@ -1310,6 +1667,10 @@ typedef enum
 // will occur
 
 // you can't add anything to this without modifying the code in msg.c
+
+#if defined RTCW_ET
+// (Gordon: unless it doesnt need transmitted over the network, in which case it should prolly go in the new pmext struct anyway)
+#endif RTCW_XX
 
 // playerState_t is a full superset of entityState_t as it is used by players,
 // so if a playerState_t is transmitted, the entityState_t can be fully derived
@@ -1392,7 +1753,7 @@ typedef struct playerState_s {
 
 #if defined RTCW_SP
 	int holdable[MAX_HOLDABLE];
-#elif defined RTCW_MP
+#else
 	int holdable[16];
 #endif RTCW_XX
 
@@ -1411,16 +1772,31 @@ typedef struct playerState_s {
 	int viewlocked;
 	int viewlocked_entNum;
 
+#if !defined RTCW_ET
 	// Ridah, need this to fix friction problems with slow zombie's whereby
 	// the friction prevents them from accelerating to their full potential
+#endif RTCW_XX
+
 	float friction;
 
+#if !defined RTCW_ET
 	// Ridah, AI character id is used for weapon association
 	int aiChar;
 	int teamNum;
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	int nextWeapon;
+	int teamNum;                        // Arnout: doesn't seem to be communicated over the net
+#endif RTCW_XX
 
 	// Rafael
+
+#if !defined RTCW_ET
 	int gunfx;
+#else
+	//int			gunfx;
+#endif RTCW_XX
 
 	// RF, burning effect is required for view blending effect
 	int onFireStart;
@@ -1431,20 +1807,31 @@ typedef struct playerState_s {
 	trace_t serverCursorHintTrace;      // not communicated over net, but used to store the current server-side cursorhint trace
 
 	// ----------------------------------------------------------------------
+
+#if !defined RTCW_ET
 	// not communicated over the net at all
 	// FIXME: this doesn't get saved between predicted frames on the clients-side (cg.predictedPlayerState)
+#endif RTCW_XX
+
 	// So to use persistent variables here, which don't need to come from the server,
 	// we could use a marker variable, and use that to store everything after it
 	// before we read in the new values for the predictedPlayerState, then restore them
 	// after copying the structure recieved from the server.
 
+#if !defined RTCW_ET
 	// (SA) yeah.  this is causing me a little bit of trouble too.  can we go ahead with the above suggestion or find an alternative?
+#else
+	// Arnout: use the pmoveExt_t structure in bg_public.h to store this kind of data now (presistant on client, not network transmitted)
+#endif RTCW_XX
 
 	int ping;                   // server to game info for scoreboard
 	int pmove_framecount;           // FIXME: don't transmit over the network
 	int entityEventSequence;
 
+#if !defined RTCW_ET
 	int sprintTime;
+#endif RTCW_XX
+
 	int sprintExertTime;
 
 	// JPW NERVE -- value for all multiplayer classes with regenerating "class weapons" -- ie LT artillery, medic medpack, engineer build points, etc
@@ -1456,11 +1843,14 @@ typedef struct playerState_s {
 
 	int weapAnimTimer;              // don't change low priority animations until this runs out
 	int weapAnim;               // mask off ANIM_TOGGLEBIT
-#elif defined RTCW_MP
+#else
 	int jumpTime;         // used in MP to prevent jump accel
 	// jpw
 
+#if !defined RTCW_ET
 	int weapAnimTimer;              // don't change low priority animations until this runs out		//----(SA)	added
+#endif RTCW_XX
+
 	int weapAnim;               // mask off ANIM_TOGGLEBIT										//----(SA)	added
 #endif RTCW_XX
 
@@ -1475,7 +1865,7 @@ typedef struct playerState_s {
 
 	int leanStopDebounceTime;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 //----(SA)	added
 
 	// seems like heat and aimspread could be tied together somehow, however, they (appear to) change at different rates and
@@ -1485,7 +1875,9 @@ typedef struct playerState_s {
 	int weapHeat[MAX_WEAPONS];          // some weapons can overheat.  this tracks (server-side) how hot each weapon currently is.
 	int curWeapHeat;                    // value for the currently selected weapon (for transmission to client)
 
+#if !defined RTCW_ET
 	int venomTime;
+#endif RTCW_XX
 
 #if defined RTCW_SP
 //----(SA)	added
@@ -1495,12 +1887,20 @@ typedef struct playerState_s {
 
 //----(SA)	end
 
+#if !defined RTCW_ET
 	aistateEnum_t aiState;
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	float footstepCount;
-#elif defined RTCW_MP
+#else
 	int identifyClient;                 // NERVE - SMF
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	int identifyClientHealth;
+
+	aistateEnum_t aiState;          // xkan, 1/10/2003
 #endif RTCW_XX
 
 } playerState_t;
@@ -1515,7 +1915,13 @@ typedef struct playerState_s {
 //
 #define BUTTON_ATTACK       1
 #define BUTTON_TALK         2           // displays talk balloon and disables actions
+
+#if !defined RTCW_ET
 #define BUTTON_USE_HOLDABLE 4
+#else
+//#define	BUTTON_USE_HOLDABLE	4
+#endif RTCW_XX
+
 #define BUTTON_GESTURE      8
 #define BUTTON_WALKING      16          // walking can't just be infered from MOVE_RUN
 										// because a key pressed late in the frame will
@@ -1535,13 +1941,21 @@ typedef struct playerState_s {
 //----(SA) wolf buttons
 #define WBUTTON_ATTACK2     1
 #define WBUTTON_ZOOM        2
+
+#if !defined RTCW_ET
 #define WBUTTON_QUICKGREN   4
+#endif RTCW_XX
+
 #define WBUTTON_RELOAD      8
 #define WBUTTON_LEANLEFT    16
 #define WBUTTON_LEANRIGHT   32
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #define WBUTTON_DROP        64 // JPW NERVE
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#define WBUTTON_PRONE       128 // Arnout: wbutton now
 #endif RTCW_XX
 
 // unused
@@ -1550,7 +1964,10 @@ typedef struct playerState_s {
 #define WBUTTON_EXTRA6      64
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 #define WBUTTON_EXTRA7      128
+#endif RTCW_XX
+
 //----(SA) end
 
 #define MOVE_RUN            120         // if forwardmove or rightmove are >= MOVE_RUN,
@@ -1570,23 +1987,57 @@ typedef struct playerState_s {
 #define MP_WEAPON_MASK      0x0F
 #endif RTCW_XX
 
+#if defined RTCW_ET
+// Arnout: doubleTap buttons - DT_NUM can be max 8
+typedef enum {
+	DT_NONE,
+	DT_MOVELEFT,
+	DT_MOVERIGHT,
+	DT_FORWARD,
+	DT_BACK,
+	DT_LEANLEFT,
+	DT_LEANRIGHT,
+	DT_UP,
+	DT_NUM
+} dtType_t;
+#endif RTCW_XX
+
 // usercmd_t is sent to the server each client frame
 typedef struct usercmd_s {
 	int serverTime;
 	byte buttons;
 	byte wbuttons;
 	byte weapon;
+
+#if !defined RTCW_ET
 	byte holdable;          //----(SA)	added
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	byte flags;
+#endif RTCW_XX
+
 	int angles[3];
 
 	signed char forwardmove, rightmove, upmove;
+
+#if !defined RTCW_ET
 	signed char wolfkick;       // RF, we should move this over to a wbutton, this is a huge waste of bandwidth
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	byte doubleTap;             // Arnout: only 3 bits used
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	unsigned short cld;         // NERVE - SMF - send client damage in usercmd instead of as a server command
 #elif defined RTCW_MP
 	char mpSetup;               // NERVE - SMF
 	char identClient;           // NERVE - SMF
+#else
+	// rain - in ET, this can be any entity, and it's used as an array
+	// index, so make sure it's unsigned
+	byte identClient;           // NERVE - SMF
 #endif RTCW_XX
 
 } usercmd_t;
@@ -1609,7 +2060,16 @@ typedef enum {
 	TR_GRAVITY_FLOAT,           // super low grav with no gravity acceleration (floating feathers/fabric/leaves/...)
 	TR_GRAVITY_PAUSED,          //----(SA)	has stopped, but will still do a short trace to see if it should be switched back to TR_GRAVITY
 	TR_ACCELERATE,
+
+#if !defined RTCW_ET
 	TR_DECCELERATE
+#else
+	TR_DECCELERATE,
+	// Gordon
+	TR_SPLINE,
+	TR_LINEAR_PATH
+#endif RTCW_XX
+
 } trType_t;
 
 typedef struct {
@@ -1622,9 +2082,11 @@ typedef struct {
 //----(SA)	removed
 } trajectory_t;
 
+#if !defined RTCW_ET
 // RF, put this here so we have a central means of defining a Zombie (kind of a hack, but this is to minimize bandwidth usage)
 #define SET_FLAMING_ZOMBIE( x,y ) ( x.frame = y )
 #define IS_FLAMING_ZOMBIE( x )    ( x.frame == 1 )
+#endif RTCW_XX
 
 // entityState_t is the information conveyed from the server
 // in an update message about entities that the client will
@@ -1635,9 +2097,107 @@ typedef struct {
 //
 // NOTE: all fields in here must be 32 bits (or those within sub-structures)
 
+#if defined RTCW_ET
+typedef enum {
+	ET_GENERAL,
+	ET_PLAYER,
+	ET_ITEM,
+	ET_MISSILE,
+	ET_MOVER,
+	ET_BEAM,
+	ET_PORTAL,
+	ET_SPEAKER,
+	ET_PUSH_TRIGGER,
+	ET_TELEPORT_TRIGGER,
+	ET_INVISIBLE,
+	ET_CONCUSSIVE_TRIGGER,  // JPW NERVE trigger for concussive dust particles
+	ET_OID_TRIGGER,         // DHM - Nerve :: Objective Info Display
+	ET_EXPLOSIVE_INDICATOR, // NERVE - SMF
+
+	//---- (SA) Wolf
+	ET_EXPLOSIVE,           // brush that will break into smaller bits when damaged
+	ET_EF_SPOTLIGHT,
+	ET_ALARMBOX,
+	ET_CORONA,
+	ET_TRAP,
+
+	ET_GAMEMODEL,           // misc_gamemodel.  similar to misc_model, but it's a dynamic model so we have LOD
+	ET_FOOTLOCKER,  //----(SA)	added
+	//---- end
+
+	ET_FLAMEBARREL,
+	ET_FP_PARTS,
+
+	// FIRE PROPS
+	ET_FIRE_COLUMN,
+	ET_FIRE_COLUMN_SMOKE,
+	ET_RAMJET,
+
+	ET_FLAMETHROWER_CHUNK,      // DHM - NERVE :: Used in server side collision detection for flamethrower
+
+	ET_EXPLO_PART,
+
+	ET_PROP,
+
+	ET_AI_EFFECT,
+
+	ET_CAMERA,
+	ET_MOVERSCALED,
+
+	ET_CONSTRUCTIBLE_INDICATOR,
+	ET_CONSTRUCTIBLE,
+	ET_CONSTRUCTIBLE_MARKER,
+	ET_BOMB,
+	ET_WAYPOINT,
+	ET_BEAM_2,
+	ET_TANK_INDICATOR,
+	ET_TANK_INDICATOR_DEAD,
+	// Start - TAT - 8/29/2002
+	// An indicator object created by the bot code to show where the bots are moving to
+	ET_BOTGOAL_INDICATOR,
+	// End - TA - 8/29/2002
+	ET_CORPSE,              // Arnout: dead player
+	ET_SMOKER,              // Arnout: target_smoke entity
+
+	ET_TEMPHEAD,            // Gordon: temporary head for clients for bullet traces
+	ET_MG42_BARREL,         // Arnout: MG42 barrel
+	ET_TEMPLEGS,            // Arnout: temporary leg for clients for bullet traces
+	ET_TRIGGER_MULTIPLE,
+	ET_TRIGGER_FLAGONLY,
+	ET_TRIGGER_FLAGONLY_MULTIPLE,
+	ET_GAMEMANAGER,
+	ET_AAGUN,
+	ET_CABINET_H,
+	ET_CABINET_A,
+	ET_HEALER,
+	ET_SUPPLIER,
+
+	ET_LANDMINE_HINT,       // Gordon: landmine hint for botsetgoalstate filter
+	ET_ATTRACTOR_HINT,      // Gordon: attractor hint for botsetgoalstate filter
+	ET_SNIPER_HINT,         // Gordon: sniper hint for botsetgoalstate filter
+	ET_LANDMINESPOT_HINT,   // Gordon: landminespot hint for botsetgoalstate filter
+
+	ET_COMMANDMAP_MARKER,
+
+	ET_WOLF_OBJECTIVE,
+
+	ET_EVENTS               // any of the EV_* events can be added freestanding
+							// by setting eType to ET_EVENTS + eventNum
+							// this avoids having to set eFlags and eventNum
+} entityType_t;
+#endif RTCW_XX
+
 typedef struct entityState_s {
 	int number;             // entity index
+
+#if !defined RTCW_ET
 	int eType;              // entityType_t
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	entityType_t eType;             // entityType_t
+#endif RTCW_XX
+
 	int eFlags;
 
 	trajectory_t pos;       // for calculating position
@@ -1677,7 +2237,13 @@ typedef struct entityState_s {
 	int eventParms[MAX_EVENTS];
 
 	// for players
+
+#if !defined RTCW_ET
 	int powerups;           // bit flags
+#else
+	int powerups;           // bit flags	// Arnout: used to store entState_t for non-player entities (so we know to draw them translucent clientsided)
+#endif RTCW_XX
+
 	int weapon;             // determines weapon and flash model, etc
 	int legsAnim;           // mask off ANIM_TOGGLEBIT
 	int torsoAnim;          // mask off ANIM_TOGGLEBIT
@@ -1690,14 +2256,22 @@ typedef struct entityState_s {
 	// Ridah
 	int onFireStart, onFireEnd;
 
+#if !defined RTCW_ET
 	int aiChar, teamNum;
+#else
+	int nextWeapon;
+	int teamNum;
+#endif RTCW_XX
 
 	int effect1Time, effect2Time, effect3Time;
 
+#if !defined RTCW_ET
 	aistateEnum_t aiState;
+#else
+	aistateEnum_t aiState;      // xkan, 1/10/2003
+#endif RTCW_XX
 
 	int animMovetype;       // clients can't derive movetype of other clients for anim scripting system
-
 
 } entityState_t;
 
@@ -1769,12 +2343,15 @@ typedef struct qtime_s {
 #define AS_MPLAYER      1
 #define AS_GLOBAL           2
 #define AS_FAVORITES    3
-
-#elif defined RTCW_MP
+#else
 #define AS_LOCAL        0
 #define AS_GLOBAL       1           // NERVE - SMF - modified
 #define AS_FAVORITES    2
+
+#if !defined RTCW_ET
 #define AS_MPLAYER      3
+#endif RTCW_XX
+
 #endif RTCW_XX
 
 // cinematic states
@@ -1797,15 +2374,21 @@ typedef enum _flag_status {
 } flagStatus_t;
 
 
-
+#if !defined RTCW_ET
 #define MAX_GLOBAL_SERVERS          2048
+#else
+#define MAX_GLOBAL_SERVERS          4096
+#endif RTCW_XX
+
 #define MAX_OTHER_SERVERS           128
 #define MAX_PINGREQUESTS            16
 #define MAX_SERVERSTATUSREQUESTS    16
 
+#if !defined RTCW_ET
 #define SAY_ALL     0
 #define SAY_TEAM    1
 #define SAY_TELL    2
+#endif RTCW_XX
 
 #define CDKEY_LEN 16
 #define CDCHKSUM_LEN 2
@@ -1813,7 +2396,7 @@ typedef enum _flag_status {
 // NERVE - SMF - localization
 typedef enum {
 
-#if defined RTCW_SP || (defined RTCW_MP && !defined __MACOS__)
+#if defined RTCW_SP || (!defined RTCW_SP && !defined __MACOS__)
 	LANGUAGE_FRENCH = 0,
 	LANGUAGE_GERMAN,
 	LANGUAGE_ITALIAN,
@@ -1823,7 +2406,7 @@ typedef enum {
 	MAX_LANGUAGES
 } languages_t;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // NERVE - SMF - wolf server/game states
 typedef enum {
 	GS_INITIALIZE = -1,
@@ -1835,6 +2418,7 @@ typedef enum {
 	GS_RESET
 } gamestate_t;
 
+#if !defined RTCW_ET
 // TTimo - voting config flags
 #define VOTEFLAGS_RESTART           ( 1 << 0 )
 #define VOTEFLAGS_RESETMATCH    ( 1 << 1 )
@@ -1844,6 +2428,12 @@ typedef enum {
 #define VOTEFLAGS_TYPE              ( 1 << 5 )
 #define VOTEFLAGS_KICK              ( 1 << 6 )
 #define VOTEFLAGS_MAP                   ( 1 << 7 )
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#define SQR( a ) ( ( a ) * ( a ) )
+#endif RTCW_XX
+
 #endif RTCW_XX
 
 #endif  // __Q_SHARED_H

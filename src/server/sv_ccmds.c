@@ -66,7 +66,13 @@ static client_t *SV_GetPlayerByName( void ) {
 
 	// check for a name match
 	for ( i = 0, cl = svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
+
+#if !defined RTCW_ET
 		if ( !cl->state ) {
+#else
+		if ( cl->state <= CS_ZOMBIE ) {
+#endif RTCW_XX
+
 			continue;
 		}
 		if ( !Q_stricmp( cl->name, s ) ) {
@@ -92,6 +98,7 @@ SV_GetPlayerByNum
 Returns the player with idnum from Cmd_Argv(1)
 ==================
 */
+#if !defined RTCW_ET
 static client_t *SV_GetPlayerByNum( void ) {
 	client_t    *cl;
 	int i;
@@ -131,6 +138,50 @@ static client_t *SV_GetPlayerByNum( void ) {
 
 	return NULL;
 }
+#else
+// fretn unused
+#if 0
+static client_t *SV_GetPlayerByNum( void ) {
+	client_t    *cl;
+	int i;
+	int idnum;
+	char        *s;
+
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		return NULL;
+	}
+
+	if ( Cmd_Argc() < 2 ) {
+		Com_Printf( "No player specified.\n" );
+		return NULL;
+	}
+
+	s = Cmd_Argv( 1 );
+
+	for ( i = 0; s[i]; i++ ) {
+		if ( s[i] < '0' || s[i] > '9' ) {
+			Com_Printf( "Bad slot number: %s\n", s );
+			return NULL;
+		}
+	}
+	idnum = atoi( s );
+	if ( idnum < 0 || idnum >= sv_maxclients->integer ) {
+		Com_Printf( "Bad client slot: %i\n", idnum );
+		return NULL;
+	}
+
+	cl = &svs.clients[idnum];
+	if ( cl->state <= CS_ZOMBIE ) {
+		Com_Printf( "Client %i is not active\n", idnum );
+		return NULL;
+	}
+	return cl;
+
+	return NULL;
+}
+#endif
+#endif RTCW_XX
 
 //=========================================================
 
@@ -146,25 +197,29 @@ static void SV_Map_f( void ) {
 	char        *cmd;
 	char        *map;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	char smapname[MAX_QPATH];
 #endif RTCW_XX
 
 	char mapname[MAX_QPATH];
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	qboolean killBots, cheat, buildScript;
-#elif defined RTCW_MP
+#else
 	qboolean killBots, cheat;
 #endif RTCW_XX
 
 	char expanded[MAX_QPATH];
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	int savegameTime = -1;
-#elif defined RTCW_MP
+#else
 	// TTimo: unused
 //	int			savegameTime = -1;
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	char        *cl_profileStr = Cvar_VariableString( "cl_profile" );
 #endif RTCW_XX
 
 	map = Cmd_Argv( 1 );
@@ -172,22 +227,58 @@ static void SV_Map_f( void ) {
 		return;
 	}
 
-#if defined RTCW_SP
+#if defined RTCW_ET
+	if ( !com_gameInfo.spEnabled ) {
+		if ( !Q_stricmp( Cmd_Argv( 0 ), "spdevmap" ) || !Q_stricmp( Cmd_Argv( 0 ), "spmap" ) ) {
+			Com_Printf( "Single Player is not enabled.\n" );
+			return;
+		}
+	}
+#endif RTCW_XX
+
+#if !defined RTCW_MP
 	buildScript = Cvar_VariableIntegerValue( "com_buildScript" );
+
+#if defined RTCW_ET
+	if ( SV_GameIsSinglePlayer() ) {
+#endif RTCW_XX
 
 	if ( !buildScript && sv_reloading->integer && sv_reloading->integer != RELOAD_NEXTMAP ) {  // game is in 'reload' mode, don't allow starting new maps yet.
 		return;
 	}
 
+#if !defined RTCW_ET
 	// Ridah: trap a savegame load
 	if ( strstr( map, ".svg" ) ) {
+#else
+		// Trap a savegame load
+		if ( strstr( map, ".sav" ) ) {
+#endif RTCW_XX
+
 		// open the savegame, read the mapname, and copy it to the map string
 		char savemap[MAX_QPATH];
+
+#if defined RTCW_ET
+			char savedir[MAX_QPATH];
+#endif RTCW_XX
+
 		byte *buffer;
 		int size, csize;
 
+#if !defined RTCW_ET
 		if ( !( strstr( map, "save/" ) == map ) ) {
 			Com_sprintf( savemap, sizeof( savemap ), "save/%s", map );
+#else
+			if ( com_gameInfo.usesProfiles && cl_profileStr[0] ) {
+				Com_sprintf( savedir, sizeof( savedir ), "profiles/%s/save/", cl_profileStr );
+			} else {
+				Q_strncpyz( savedir, "save/", sizeof( savedir ) );
+			}
+
+			if ( !( strstr( map, savedir ) == map ) ) {
+				Com_sprintf( savemap, sizeof( savemap ), "%s%s", savedir, map );
+#endif RTCW_XX
+
 		} else {
 			strcpy( savemap, map );
 		}
@@ -201,14 +292,37 @@ static void SV_Map_f( void ) {
 		//buffer = Hunk_AllocateTempMemory(size);
 		FS_ReadFile( savemap, (void **)&buffer );
 
+#if !defined RTCW_ET
 		if ( Q_stricmp( savemap, "save/current.svg" ) != 0 ) {
+#else
+			if ( Q_stricmp( savemap, va( "%scurrent.sav", savedir ) ) != 0 ) {
+#endif RTCW_XX
+
 			// copy it to the current savegame file
+
+#if !defined RTCW_ET
 			FS_WriteFile( "save/current.svg", buffer, size );
+#else
+				FS_WriteFile( va( "%scurrent.sav", savedir ), buffer, size );
+#endif RTCW_XX
+
 			// make sure it is the correct size
+
+#if !defined RTCW_ET
 			csize = FS_ReadFile( "save/current.svg", NULL );
+#else
+				csize = FS_ReadFile( va( "%scurrent.sav", savedir ), NULL );
+#endif RTCW_XX
+
 			if ( csize != size ) {
 				Hunk_FreeTempMemory( buffer );
+
+#if !defined RTCW_ET
 				FS_Delete( "save/current.svg" );
+#else
+					FS_Delete( va( "%scurrent.sav", savedir ) );
+#endif RTCW_XX
+
 // TTimo
 #ifdef __linux__
 				Com_Error( ERR_DROP, "Unable to save game.\n\nPlease check that you have at least 5mb free of disk space in your home directory." );
@@ -241,6 +355,15 @@ static void SV_Map_f( void ) {
 		// set the filename
 		Cvar_Set( "savegame_filename", "" );
 	}
+
+#if defined RTCW_ET
+	} else {
+		Cvar_Set( "savegame_loading", "0" );  // make sure it's turned off
+		// set the filename
+		Cvar_Set( "savegame_filename", "" );
+	}
+#endif RTCW_XX
+
 	// done.
 #endif RTCW_XX
 
@@ -265,27 +388,53 @@ static void SV_Map_f( void ) {
 	// done
 
 	Cvar_SetValue( "g_episode", 0 ); //----(SA) added
-#elif defined RTCW_MP
+#else
 	Cvar_Set( "gamestate", va( "%i", GS_INITIALIZE ) );       // NERVE - SMF - reset gamestate on map/devmap
+
+#if !defined RTCW_ET
 	Cvar_Set( "savegame_loading", "0" );  // make sure it's turned off
+#endif RTCW_XX
 
 	Cvar_Set( "g_currentRound", "0" );            // NERVE - SMF - reset the current round
 	Cvar_Set( "g_nextTimeLimit", "0" );           // NERVE - SMF - reset the next time limit
 
+#if !defined RTCW_ET
 	// force latched values to get set
 	// DHM - Nerve :: default to GT_WOLF
 	Cvar_Get( "g_gametype", "5", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	// START	Mad Doctor I changes, 8/14/2002.  Need a way to force load a single player map as single player
+	if ( !Q_stricmp( Cmd_Argv( 0 ), "spdevmap" ) || !Q_stricmp( Cmd_Argv( 0 ), "spmap" ) ) {
+		// This is explicitly asking for a single player load of this map
+		Cvar_Set( "g_gametype", va( "%i", com_gameInfo.defaultSPGameType ) );
+		// force latched values to get set
+		Cvar_Get( "g_gametype", va( "%i", com_gameInfo.defaultSPGameType ), CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH );
+		// enable bot support for AI
+		Cvar_Set( "bot_enable", "1" );
+	}
+#endif RTCW_XX
 
 	// Rafael gameskill
+
+#if !defined RTCW_ET
 	Cvar_Get( "g_gameskill", "3", CVAR_SERVERINFO | CVAR_LATCH );
+#else
+//	Cvar_Get ("g_gameskill", "3", CVAR_SERVERINFO | CVAR_LATCH);
+#endif RTCW_XX
+
 	// done
 #endif RTCW_XX
 
 	cmd = Cmd_Argv( 0 );
+
+#if !defined RTCW_ET
 	if ( Q_stricmpn( cmd, "sp", 2 ) == 0 ) {
 		Cvar_SetValue( "g_gametype", GT_SINGLE_PLAYER );
 		Cvar_SetValue( "g_doWarmup", 0 );
 		// may not set sv_maxclients directly, always set latched
+#endif RTCW_XX
 
 #if defined RTCW_SP
 		Cvar_SetLatched( "sv_maxclients", "32" ); // Ridah, modified this
@@ -297,6 +446,7 @@ static void SV_Map_f( void ) {
 #endif
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 		cmd += 2;
 		killBots = qtrue;
 		if ( !Q_stricmp( cmd, "devmap" ) ) {
@@ -305,17 +455,36 @@ static void SV_Map_f( void ) {
 			cheat = qfalse;
 		}
 	} else {
+#endif RTCW_XX
+
 		if ( !Q_stricmp( cmd, "devmap" ) ) {
 			cheat = qtrue;
 			killBots = qtrue;
+
+#if !defined RTCW_ET
 		} else {
+#else
+	} else
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	if ( !Q_stricmp( Cmd_Argv( 0 ), "spdevmap" ) ) {
+		cheat = qtrue;
+		killBots = qtrue;
+	} else
+	{
+#endif RTCW_XX
+
 			cheat = qfalse;
 			killBots = qfalse;
 		}
+
+#if !defined RTCW_ET
 		if ( sv_gametype->integer == GT_SINGLE_PLAYER ) {
 			Cvar_SetValue( "g_gametype", GT_FFA );
 		}
 	}
+#endif RTCW_XX
 
 
 	// save the map name here cause on a map restart we reload the q3config.cfg
@@ -337,7 +506,7 @@ static void SV_Map_f( void ) {
 
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 ================
 SV_CheckTransitionGameState
@@ -379,10 +548,20 @@ NERVE - SMF
 ================
 */
 static qboolean SV_TransitionGameState( gamestate_t new_gs, gamestate_t old_gs, int delay ) {
+
+#if defined RTCW_ET
+	if ( !SV_GameIsSinglePlayer() && !SV_GameIsCoop() ) {
+#endif RTCW_XX
+
 	// we always do a warmup before starting match
 	if ( old_gs == GS_INTERMISSION && new_gs == GS_PLAYING ) {
 		new_gs = GS_WARMUP;
 	}
+
+#if defined RTCW_ET
+	}
+#endif RTCW_XX
+
 
 	// check if its a valid state transition
 	if ( !SV_CheckTransitionGameState( new_gs, old_gs ) ) {
@@ -390,16 +569,34 @@ static qboolean SV_TransitionGameState( gamestate_t new_gs, gamestate_t old_gs, 
 	}
 
 	if ( new_gs == GS_RESET ) {
+
+#if !defined RTCW_ET
 		if ( atoi( Cvar_VariableString( "g_noTeamSwitching" ) ) ) {
 			new_gs = GS_WAITING_FOR_PLAYERS;
 		} else {
+#endif RTCW_XX
+
 			new_gs = GS_WARMUP;
+
+#if !defined RTCW_ET
 		}
+#endif RTCW_XX
+
 	}
 
 	Cvar_Set( "gamestate", va( "%i", new_gs ) );
 
 	return qtrue;
+}
+#endif RTCW_XX
+
+#if defined RTCW_ET
+void MSG_PrioritiseEntitystateFields( void );
+void MSG_PrioritisePlayerStateFields( void );
+
+static void SV_FieldInfo_f( void ) {
+	MSG_PrioritiseEntitystateFields();
+	MSG_PrioritisePlayerStateFields();
 }
 #endif RTCW_XX
 
@@ -419,12 +616,16 @@ static void SV_MapRestart_f( void ) {
 
 #if defined RTCW_SP
 	int delay;
-#elif defined RTCW_MP
+#else
 	int delay = 0;
 	gamestate_t new_gs, old_gs;     // NERVE - SMF
+
+#if !defined RTCW_ET
 	int worldspawnflags;            // DHM - Nerve
 	int nextgt;                     // DHM - Nerve
 	sharedEntity_t  *world;
+#endif RTCW_XX
+
 #endif RTCW_XX
 
 	// make sure we aren't restarting twice in the same frame
@@ -438,9 +639,16 @@ static void SV_MapRestart_f( void ) {
 		return;
 	}
 
+#if !defined RTCW_ET
 	if ( sv.restartTime ) {
 		return;
 	}
+#else
+	// ydnar: allow multiple delayed server restarts [atvi bug 3813]
+	//%	if ( sv.restartTime ) {
+	//%		return;
+	//%	}
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	if ( Cmd_Argc() > 1 ) {
@@ -457,7 +665,9 @@ static void SV_MapRestart_f( void ) {
 		SV_SetConfigstring( CS_WARMUP, va( "%i", sv.restartTime ) );
 		return;
 	}
-#elif defined RTCW_MP
+#else
+
+#if !defined RTCW_ET
 	// DHM - Nerve :: Check for invalid gametype
 	sv_gametype = Cvar_Get( "g_gametype", "5", CVAR_SERVERINFO | CVAR_LATCH );
 	nextgt = sv_gametype->integer;
@@ -479,6 +689,7 @@ static void SV_MapRestart_f( void ) {
 		sv_gametype = Cvar_Get( "g_gametype", "5", CVAR_SERVERINFO | CVAR_LATCH );
 	}
 	// dhm
+#endif RTCW_XX
 
 	if ( Cmd_Argc() > 1 ) {
 		delay = atoi( Cmd_Argv( 1 ) );
@@ -493,11 +704,21 @@ static void SV_MapRestart_f( void ) {
 	// NERVE - SMF - read in gamestate or just default to GS_PLAYING
 	old_gs = atoi( Cvar_VariableString( "gamestate" ) );
 
+#if defined RTCW_ET
+	if ( SV_GameIsSinglePlayer() || SV_GameIsCoop() ) {
+		new_gs = GS_PLAYING;
+	} else {
+#endif RTCW_XX
+
 	if ( Cmd_Argc() > 2 ) {
 		new_gs = atoi( Cmd_Argv( 2 ) );
 	} else {
 		new_gs = GS_PLAYING;
 	}
+
+#if defined RTCW_ET
+	}
+#endif RTCW_XX
 
 	if ( !SV_TransitionGameState( new_gs, old_gs, delay ) ) {
 		return;
@@ -509,7 +730,7 @@ static void SV_MapRestart_f( void ) {
 
 #if defined RTCW_SP
 	if ( sv_maxclients->modified || sv_gametype->modified ) {
-#elif defined RTCW_MP
+#else
 	if ( sv_maxclients->modified ) {
 #endif RTCW_XX
 
@@ -517,7 +738,7 @@ static void SV_MapRestart_f( void ) {
 
 #if defined RTCW_SP
 		Com_Printf( "variable change -- restarting.\n" );
-#elif defined RTCW_MP
+#else
 		Com_Printf( "sv_maxclients variable change -- restarting.\n" );
 #endif RTCW_XX
 
@@ -528,13 +749,36 @@ static void SV_MapRestart_f( void ) {
 		return;
 	}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
+
+#if !defined RTCW_ET
 	// Ridah, check for loading a saved game
+#else
+	// Check for loading a saved game
+#endif RTCW_XX
+
 	if ( Cvar_VariableIntegerValue( "savegame_loading" ) ) {
 		// open the current savegame, and find out what the time is, everything else we can ignore
+
+#if !defined RTCW_ET
 		char *savemap = "save/current.svg";
+#else
+		char savemap[MAX_QPATH];
+#endif RTCW_XX
+
 		byte *buffer;
 		int size, savegameTime;
+
+#if defined RTCW_ET
+		char *cl_profileStr = Cvar_VariableString( "cl_profile" );
+
+		if ( com_gameInfo.usesProfiles ) {
+			Com_sprintf( savemap, sizeof( savemap ), "profiles/%s/save/current.sav", cl_profileStr );
+		} else {
+			Q_strncpyz( savemap, "save/current.sav", sizeof( savemap ) );
+		}
+#endif RTCW_XX
+
 
 		size = FS_ReadFile( savemap, NULL );
 		if ( size < 0 ) {
@@ -565,7 +809,7 @@ static void SV_MapRestart_f( void ) {
 
 #if defined RTCW_SP
 	sv.restartedServerId = sv.serverId;
-#elif defined RTCW_MP
+#else
 	// TTimo - don't update restartedserverId there, otherwise we won't deal correctly with multiple map_restart
 #endif RTCW_XX
 
@@ -578,17 +822,31 @@ static void SV_MapRestart_f( void ) {
 	sv.state = SS_LOADING;
 	sv.restarting = qtrue;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	Cvar_Set( "sv_serverRestarting", "1" );
 #endif RTCW_XX
 
 	SV_RestartGameProgs();
 
 	// run a few frames to allow everything to settle
+
+#if !defined RTCW_ET
 	for ( i = 0 ; i < 3 ; i++ ) {
 		VM_Call( gvm, GAME_RUN_FRAME, svs.time );
 		svs.time += 100;
 	}
+#else
+	for ( i = 0; i < GAME_INIT_FRAMES; i++ ) {
+		VM_Call( gvm, GAME_RUN_FRAME, svs.time );
+		svs.time += FRAMETIME;
+	}
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	// create a baseline for more efficient communications
+	// Gordon: meh, this wont work here as the client doesn't know it has happened
+//	SV_CreateBaseline ();
+#endif RTCW_XX
 
 	sv.state = SS_GAME;
 	sv.restarting = qfalse;
@@ -603,6 +861,13 @@ static void SV_MapRestart_f( void ) {
 		}
 
 		if ( client->netchan.remoteAddress.type == NA_BOT ) {
+
+#if defined RTCW_ET
+			if ( SV_GameIsSinglePlayer() || SV_GameIsCoop() ) {
+				continue;   // dont carry across bots in single player
+			}
+#endif RTCW_XX
+
 			isBot = qtrue;
 		} else {
 			isBot = qfalse;
@@ -617,7 +882,17 @@ static void SV_MapRestart_f( void ) {
 			// this generally shouldn't happen, because the client
 			// was connected before the level change
 			SV_DropClient( client, denied );
+
+#if defined RTCW_ET
+			if ( ( !SV_GameIsSinglePlayer() ) || ( !isBot ) ) {
+#endif RTCW_XX
+
 			Com_Printf( "SV_MapRestart_f(%d): dropped client %i - denied!\n", delay, i ); // bk010125
+
+#if defined RTCW_ET
+			}
+#endif RTCW_XX
+
 			continue;
 		}
 
@@ -628,9 +903,14 @@ static void SV_MapRestart_f( void ) {
 
 	// run another frame to allow things to look at all the players
 	VM_Call( gvm, GAME_RUN_FRAME, svs.time );
-	svs.time += 100;
 
-#if defined RTCW_MP
+#if !defined RTCW_ET
+	svs.time += 100;
+#else
+	svs.time += FRAMETIME;
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 	Cvar_Set( "sv_serverRestarting", "0" );
 #endif RTCW_XX
 
@@ -642,11 +922,21 @@ SV_LoadGame_f
 =================
 */
 void    SV_LoadGame_f( void ) {
+
+#if !defined RTCW_ET
 	char filename[MAX_QPATH], mapname[MAX_QPATH];
+#else
+	char filename[MAX_QPATH], mapname[MAX_QPATH], savedir[MAX_QPATH];
+#endif RTCW_XX
+
 	byte *buffer;
 	int size;
 
-#if defined RTCW_SP
+#if defined RTCW_ET
+	char *cl_profileStr = Cvar_VariableString( "cl_profile" );
+#endif RTCW_XX
+
+#if !defined RTCW_MP
 	// dont allow command if another loadgame is pending
 	if ( Cvar_VariableIntegerValue( "savegame_loading" ) ) {
 		return;
@@ -663,9 +953,31 @@ void    SV_LoadGame_f( void ) {
 		Com_Printf( "You must specify a savegame to load\n" );
 		return;
 	}
+
+#if !defined RTCW_ET
 	if ( Q_strncmp( filename, "save/", 5 ) && Q_strncmp( filename, "save\\", 5 ) ) {
 		Q_strncpyz( filename, va( "save/%s", filename ), sizeof( filename ) );
 	}
+#else
+	if ( com_gameInfo.usesProfiles && cl_profileStr[0] ) {
+		Com_sprintf( savedir, sizeof( savedir ), "profiles/%s/save/", cl_profileStr );
+	} else {
+		Q_strncpyz( savedir, "save/", sizeof( savedir ) );
+	}
+
+	/*if ( Q_strncmp( filename, "save/", 5 ) && Q_strncmp( filename, "save\\", 5 ) ) {
+		Q_strncpyz( filename, va("save/%s", filename), sizeof( filename ) );
+	}*/
+
+	// go through a va to avoid vsnprintf call with same source and target
+	Q_strncpyz( filename, va( "%s%s", savedir, filename ), sizeof( filename ) );
+
+	// enforce .sav extension
+	if ( !strstr( filename, "." ) || Q_strncmp( strstr( filename, "." ) + 1, "sav", 3 ) ) {
+		Q_strcat( filename, sizeof( filename ), ".sav" );
+	}
+	// use '/' instead of '\\' for directories
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	// enforce .svg extension
@@ -674,11 +986,13 @@ void    SV_LoadGame_f( void ) {
 	if ( !strstr( filename, ".svg" ) ) {
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 		Q_strcat( filename, sizeof( filename ), ".svg" );
 	}
+#endif RTCW_XX
 
-#if defined RTCW_SP
-	// use '/' instead of '\' for directories
+#if !defined RTCW_MP
+	// FIXME use '/' instead of '\' for directories
 	while ( strstr( filename, "\\" ) ) {
 		*(char *)strstr( filename, "\\" ) = '/';
 	}
@@ -690,9 +1004,9 @@ void    SV_LoadGame_f( void ) {
 		return;
 	}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	//buffer = Hunk_AllocateTempMemory(size);
-#elif defined RTCW_MP
+#else
 	buffer = Hunk_AllocateTempMemory( size );
 #endif RTCW_XX
 
@@ -700,9 +1014,9 @@ void    SV_LoadGame_f( void ) {
 
 	// read the mapname, if it is the same as the current map, then do a fast load
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	Com_sprintf( mapname, sizeof( mapname ), (const char*)( buffer + sizeof( int ) ) );
-#elif defined RTCW_MP
+#else
 	Com_sprintf( mapname, sizeof( mapname ), buffer + sizeof( int ) );
 #endif RTCW_XX
 
@@ -710,16 +1024,27 @@ void    SV_LoadGame_f( void ) {
 		// check mapname
 		if ( !Q_stricmp( mapname, sv_mapname->string ) ) {    // same
 
+#if !defined RTCW_ET
 			if ( Q_stricmp( filename, "save/current.svg" ) != 0 ) {
+#else
+			if ( Q_stricmp( filename, va( "%scurrent.sav",savedir ) ) != 0 ) {
+#endif RTCW_XX
+
 				// copy it to the current savegame file
+
+#if !defined RTCW_ET
 				FS_WriteFile( "save/current.svg", buffer, size );
+#else
+				FS_WriteFile( va( "%scurrent.sav",savedir ), buffer, size );
+#endif RTCW_XX
+
 			}
 
 			Hunk_FreeTempMemory( buffer );
 
 			Cvar_Set( "savegame_loading", "2" );  // 2 means it's a restart, so stop rendering until we are loaded
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 			// set the filename
 			Cvar_Set( "savegame_filename", filename );
 			// quick-restart the server
@@ -743,6 +1068,7 @@ void    SV_LoadGame_f( void ) {
 
 //===============================================================
 
+#if !defined RTCW_ET
 /*
 ==================
 SV_Kick_f
@@ -812,7 +1138,86 @@ static void SV_Kick_f( void ) {
 
 	cl->lastPacketTime = svs.time;  // in case there is a funny zombie
 }
+#else
+/*
+==================
+SV_Kick_f
 
+Kick a user off of the server  FIXME: move to game
+// fretn: done
+==================
+*/
+/*
+static void SV_Kick_f( void ) {
+	client_t	*cl;
+	int			i;
+	int			timeout = -1;
+
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+
+	if ( Cmd_Argc() < 2 || Cmd_Argc() > 3 ) {
+		Com_Printf ("Usage: kick <player name> [timeout]\n");
+		return;
+	}
+
+	if( Cmd_Argc() == 3 ) {
+		timeout = atoi( Cmd_Argv( 2 ) );
+	} else {
+		timeout = 300;
+	}
+
+	cl = SV_GetPlayerByName();
+	if ( !cl ) {
+		if ( !Q_stricmp(Cmd_Argv(1), "all") ) {
+			for( i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++ ) {
+				if ( !cl->state ) {
+					continue;
+				}
+				if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
+					continue;
+				}
+				SV_DropClient( cl, "player kicked" ); // JPW NERVE to match front menu message
+				if( timeout != -1 ) {
+					SV_TempBanNetAddress( cl->netchan.remoteAddress, timeout );
+				}
+				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+			}
+		} else if ( !Q_stricmp(Cmd_Argv(1), "allbots") ) {
+			for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
+				if ( !cl->state ) {
+					continue;
+				}
+				if( cl->netchan.remoteAddress.type != NA_BOT ) {
+					continue;
+				}
+				SV_DropClient( cl, "was kicked" );
+				if( timeout != -1 ) {
+					SV_TempBanNetAddress( cl->netchan.remoteAddress, timeout );
+				}
+				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+			}
+		}
+		return;
+	}
+	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
+		SV_SendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
+		return;
+	}
+
+	SV_DropClient( cl, "player kicked" ); // JPW NERVE to match front menu message
+	if( timeout != -1 ) {
+		SV_TempBanNetAddress( cl->netchan.remoteAddress, timeout );
+	}
+	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+}
+*/
+#endif RTCW_XX
+
+#if !defined RTCW_ET || (defined RTCW_ET && defined AUTHORIZE_SUPPORT)
 /*
 ==================
 SV_Ban_f
@@ -922,7 +1327,53 @@ static void SV_BanNum_f( void ) {
 		Com_Printf( "%s was banned from coming back\n", cl->name );
 	}
 }
+#endif RTCW_XX
 
+#if defined RTCW_ET
+/*
+==================
+==================
+*/
+void SV_TempBanNetAddress( netadr_t address, int length ) {
+	int i;
+	int oldesttime = 0;
+	int oldest = -1;
+
+	for ( i = 0; i < MAX_TEMPBAN_ADDRESSES; i++ ) {
+		if ( !svs.tempBanAddresses[ i ].endtime || svs.tempBanAddresses[ i ].endtime < svs.time ) {
+			// found a free slot
+			svs.tempBanAddresses[ i ].adr       = address;
+			svs.tempBanAddresses[ i ].endtime   = svs.time + ( length * 1000 );
+
+			return;
+		} else {
+			if ( oldest == -1 || oldesttime > svs.tempBanAddresses[ i ].endtime ) {
+				oldesttime  = svs.tempBanAddresses[ i ].endtime;
+				oldest      = i;
+			}
+		}
+	}
+
+	svs.tempBanAddresses[ oldest ].adr      = address;
+	svs.tempBanAddresses[ oldest ].endtime  = svs.time + length;
+}
+
+qboolean SV_TempBanIsBanned( netadr_t address ) {
+	int i;
+
+	for ( i = 0; i < MAX_TEMPBAN_ADDRESSES; i++ ) {
+		if ( svs.tempBanAddresses[ i ].endtime && svs.tempBanAddresses[ i ].endtime > svs.time ) {
+			if ( NET_CompareAdr( address, svs.tempBanAddresses[ i ].adr ) ) {
+				return qtrue;
+			}
+		}
+	}
+
+	return qfalse;
+}
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 /*
 ==================
 SV_KickNum_f
@@ -961,6 +1412,54 @@ static void SV_KickNum_f( void ) {
 
 	cl->lastPacketTime = svs.time;  // in case there is a funny zombie
 }
+#else
+/*
+==================
+SV_KickNum_f
+
+Kick a user off of the server  FIXME: move to game
+*DONE*
+==================
+*/
+/*
+static void SV_KickNum_f( void ) {
+	client_t	*cl;
+	int timeout = -1;
+
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+
+	if ( Cmd_Argc() < 2 || Cmd_Argc() > 3 ) {
+		Com_Printf ("Usage: kicknum <client number> [timeout]\n");
+		return;
+	}
+
+	if( Cmd_Argc() == 3 ) {
+		timeout = atoi( Cmd_Argv( 2 ) );
+	} else {
+		timeout = 300;
+	}
+
+	cl = SV_GetPlayerByNum();
+	if ( !cl ) {
+		return;
+	}
+	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
+		SV_SendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
+		return;
+	}
+
+	SV_DropClient( cl, "player kicked" );
+	if( timeout != -1 ) {
+		SV_TempBanNetAddress( cl->netchan.remoteAddress, timeout );
+	}
+	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+}
+*/
+#endif RTCW_XX
 
 /*
 ================
@@ -1054,7 +1553,12 @@ static void SV_ConSay_f( void ) {
 
 	strcat( text, p );
 
+#if !defined RTCW_ET
 	SV_SendServerCommand( NULL, "chat \"%s\n\"", text );
+#else
+	SV_SendServerCommand( NULL, "chat \"%s\"", text );
+#endif RTCW_XX
+
 }
 
 
@@ -1079,7 +1583,13 @@ Examine the serverinfo string
 */
 static void SV_Serverinfo_f( void ) {
 	Com_Printf( "Server info settings:\n" );
+
+#if !defined RTCW_ET
 	Info_Print( Cvar_InfoString( CVAR_SERVERINFO ) );
+#else
+	Info_Print( Cvar_InfoString( CVAR_SERVERINFO | CVAR_SERVERINFO_NOUPDATE ) );
+#endif RTCW_XX
+
 }
 
 
@@ -1092,7 +1602,13 @@ Examine or change the serverinfo string
 */
 static void SV_Systeminfo_f( void ) {
 	Com_Printf( "System info settings:\n" );
+
+#if !defined RTCW_ET
 	Info_Print( Cvar_InfoString( CVAR_SYSTEMINFO ) );
+#else
+	Info_Print( Cvar_InfoString( CVAR_SERVERINFO | CVAR_SERVERINFO_NOUPDATE ) );
+#endif RTCW_XX
+
 }
 
 
@@ -1137,7 +1653,7 @@ static void SV_KillServer_f( void ) {
 	SV_Shutdown( "killserver" );
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 =================
 SV_GameCompleteStatus_f
@@ -1166,15 +1682,39 @@ void SV_AddOperatorCommands( void ) {
 	initialized = qtrue;
 
 	Cmd_AddCommand( "heartbeat", SV_Heartbeat_f );
+
+#if !defined RTCW_ET
 	Cmd_AddCommand( "kick", SV_Kick_f );
+#else
+// fretn - moved to qagame
+	/*Cmd_AddCommand ("kick", SV_Kick_f);
+	Cmd_AddCommand ("clientkick", SV_KickNum_f);*/
+#endif RTCW_XX
+
+#if !defined RTCW_ET || (defined RTCW_ET && defined AUTHORIZE_SUPPORT)
+
+#if defined RTCW_ET
+	// Arnout: banning requires auth server
+#endif RTCW_XX
+
 	Cmd_AddCommand( "banUser", SV_Ban_f );
 	Cmd_AddCommand( "banClient", SV_BanNum_f );
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 	Cmd_AddCommand( "clientkick", SV_KickNum_f );
+#endif RTCW_XX
+
 	Cmd_AddCommand( "status", SV_Status_f );
 	Cmd_AddCommand( "serverinfo", SV_Serverinfo_f );
 	Cmd_AddCommand( "systeminfo", SV_Systeminfo_f );
 	Cmd_AddCommand( "dumpuser", SV_DumpUser_f );
 	Cmd_AddCommand( "map_restart", SV_MapRestart_f );
+
+#if defined RTCW_ET
+	Cmd_AddCommand( "fieldinfo", SV_FieldInfo_f );
+#endif RTCW_XX
+
 	Cmd_AddCommand( "sectorlist", SV_SectorList_f );
 
 #if defined RTCW_SP
@@ -1184,14 +1724,16 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand( "devmap", SV_Map_f );
 	Cmd_AddCommand( "spdevmap", SV_Map_f );
 #endif
-#elif defined RTCW_MP
+#else
 	Cmd_AddCommand( "map", SV_Map_f );
 	Cmd_AddCommand( "gameCompleteStatus", SV_GameCompleteStatus_f );      // NERVE - SMF
-#ifndef PRE_RELEASE_DEMO
+
+#if (!defined RTCW_ET && !defined PRE_RELEASE_DEMO) || (defined RTCW_ET && !defined PRE_RELEASE_DEMO_NODEVMAP)
 	Cmd_AddCommand( "devmap", SV_Map_f );
 	Cmd_AddCommand( "spmap", SV_Map_f );
 	Cmd_AddCommand( "spdevmap", SV_Map_f );
-#endif
+#endif RTCW_XX
+
 #endif RTCW_XX
 
 	Cmd_AddCommand( "loadgame", SV_LoadGame_f );

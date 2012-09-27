@@ -43,10 +43,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "l_log.h"
 #include "l_mem.h"
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //#define	BOGUS_RANGE	8192
 #define BOGUS_RANGE ( 128 * 1024 )
-#elif defined RTCW_MP
+#else
 #define BOGUS_RANGE 8192
 #endif RTCW_XX
 
@@ -1147,8 +1147,19 @@ int PointOnWinding( winding_t *w, vec3_t normal, float dist, vec3_t point, int *
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if defined RTCW_ET
+#define NORMAL_EPSILON  0.0001
+#define DIST_EPSILON    0.02
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 int FindPlaneSeperatingWindings( winding_t *w1, winding_t *w2, vec3_t dir,
 								 vec3_t normal, float *dist ) {
+#else
+int FindPlaneSeperatingWindings( winding_t *w1, winding_t *w2, vec3_t dir, vec3_t normal, float *dist, vec3_t* points ) {
+#endif RTCW_XX
+
 	int i, i2, j, j2, n;
 	int sides1[3], sides2[3];
 	float dist1, dist2, dot, diff;
@@ -1182,19 +1193,37 @@ int FindPlaneSeperatingWindings( winding_t *w1, winding_t *w2, vec3_t dir,
 			dist2 = DotProduct( normal2, w2->p[j] );
 			//
 			diff = dist1 - dist2;
+
+#if !defined RTCW_ET
 			if ( diff < -0.1 || diff > 0.1 ) {
+#else
+			if ( fabs( diff ) > DIST_EPSILON ) {
+#endif RTCW_XX
+
 				dist2 = -dist2;
 				VectorNegate( normal2, normal2 );
 				diff = dist1 - dist2;
+
+#if !defined RTCW_ET
 				if ( diff < -0.1 || diff > 0.1 ) {
+#else
+				if ( fabs( diff ) > DIST_EPSILON ) {
+#endif RTCW_XX
+
 					continue;
 				}
 			} //end if
 			  //check if the normal vectors are equal
 			for ( n = 0; n < 3; n++ )
 			{
+
+#if !defined RTCW_ET
 				diff = normal1[n] - normal2[n];
 				if ( diff < -0.0001 || diff > 0.0001 ) {
+#else
+				if ( fabs( normal1[n] - normal2[n] ) > NORMAL_EPSILON ) {
+#endif RTCW_XX
+
 					break;
 				}
 			} //end for
@@ -1207,9 +1236,17 @@ int FindPlaneSeperatingWindings( winding_t *w1, winding_t *w2, vec3_t dir,
 			for ( n = 0; n < w1->numpoints; n++ )
 			{
 				dot = DotProduct( w1->p[n], normal1 ) - dist1;
+
+#if !defined RTCW_ET
 				if ( dot > 0.1 ) {
 					sides1[0]++;
 				} else if ( dot < -0.1 ) {
+#else
+				if ( dot > DIST_EPSILON ) {
+					sides1[0]++;
+				} else if ( dot < -DIST_EPSILON ) {
+#endif RTCW_XX
+
 					sides1[1]++;
 				} else { sides1[2]++;}
 			} //end for
@@ -1220,9 +1257,17 @@ int FindPlaneSeperatingWindings( winding_t *w1, winding_t *w2, vec3_t dir,
 			{
 				//used normal1 and dist1 (they are equal to normal2 and dist2)
 				dot = DotProduct( w2->p[n], normal1 ) - dist1;
+
+#if !defined RTCW_ET
 				if ( dot > 0.1 ) {
 					sides2[0]++;
 				} else if ( dot < -0.1 ) {
+#else
+				if ( dot > DIST_EPSILON ) {
+					sides2[0]++;
+				} else if ( dot < -DIST_EPSILON ) {
+#endif RTCW_XX
+
 					sides2[1]++;
 				} else { sides2[2]++;}
 			} //end for
@@ -1245,6 +1290,16 @@ int FindPlaneSeperatingWindings( winding_t *w1, winding_t *w2, vec3_t dir,
 			if ( ( !sides1[0] && !sides2[1] ) || ( !sides1[1] && !sides2[0] ) ) {
 				VectorCopy( normal1, normal );
 				*dist = dist1;
+
+#if defined RTCW_ET
+				if ( points ) {
+					VectorCopy( w1->p[i],   points[0] );
+					VectorCopy( w1->p[i2],  points[1] );
+					VectorCopy( w2->p[j],   points[2] );
+					VectorCopy( w2->p[j2],  points[3] );
+				}
+#endif RTCW_XX
+
 				return true;
 			} //end if
 		} //end for

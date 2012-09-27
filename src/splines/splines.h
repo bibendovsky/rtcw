@@ -372,7 +372,7 @@ struct idVelocity {
 class idCameraPosition : public idPointListInterface {
 public:
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 virtual void clearVelocities() {
 	// TTimo: MSVCism
 	int i;
@@ -384,12 +384,12 @@ virtual void clearVelocities() {
 }
 #endif RTCW_XX
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 virtual void clear() {
 	editMode = false;
 	clearVelocities();
 }
-#elif defined RTCW_MP
+#else
 virtual void clear() {
 	editMode = false;
 	for ( int i = 0; i < velocities.Num(); i++ ) {
@@ -677,7 +677,7 @@ virtual void start( long t ) {
 	calcVelocity( target.totalDistance() );
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 //virtual const idVec3 *getPosition(long t) {
 //	return target.getPosition(t);
 //}
@@ -685,7 +685,7 @@ virtual void start( long t ) {
 
 virtual const idVec3 *getPosition( long t );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 //virtual const idVec3 *getPosition(long t) const {
 #endif RTCW_XX
 
@@ -803,16 +803,16 @@ float length;
 
 class idCameraEvent {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 public:                     // parameters
-#elif defined RTCW_MP
+#else
 public:
 #endif RTCW_XX
 
 enum eventType {
 	EVENT_NA = 0x00,
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	EVENT_WAIT,             //
 	EVENT_TARGETWAIT,       //
 	EVENT_SPEED,            //
@@ -825,7 +825,7 @@ enum eventType {
 	EVENT_CAMERA,           //
 	EVENT_FADEOUT,          // int(time)
 	EVENT_FADEIN,           // int(time)
-#elif defined RTCW_MP
+#else
 	EVENT_WAIT,
 	EVENT_TARGETWAIT,
 	EVENT_SPEED,
@@ -840,7 +840,7 @@ enum eventType {
 	EVENT_FADEIN,
 #endif RTCW_XX
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	EVENT_FEATHER,          //
 #endif RTCW_XX
 
@@ -969,7 +969,7 @@ void save( const char *filename );
 
 void buildCamera();
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 //idSplineList *getcameraPosition() {
 //	return &cameraPosition;
 //}
@@ -1075,7 +1075,7 @@ void draw( bool editMode ) {
 	}
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 	int numSegments() {
 		if (cameraEdit) {

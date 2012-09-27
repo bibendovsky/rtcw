@@ -39,13 +39,19 @@ If you have questions concerning this license or the applicable additional terms
 cvar_t  *cl_wavefilerecord;
 #endif RTCW_XX
 
+#if defined RTCW_ET
+#include "snd_local.h" // fretn
+
+cvar_t  *cl_wavefilerecord;
+#endif RTCW_XX
+
 cvar_t  *cl_nodelta;
 cvar_t  *cl_debugMove;
 
 cvar_t  *cl_noprint;
 cvar_t  *cl_motd;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 cvar_t  *cl_autoupdate;         // DHM - Nerve
 #endif RTCW_XX
 
@@ -61,14 +67,14 @@ cvar_t  *cl_freezeDemo;
 
 cvar_t  *cl_shownet = NULL;     // NERVE - SMF - This is referenced in msg.c and we need to make sure it is NULL
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 cvar_t  *cl_shownuments;        // DHM - Nerve
 cvar_t  *cl_visibleClients;     // DHM - Nerve
 #endif RTCW_XX
 
 cvar_t  *cl_showSend;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 cvar_t  *cl_showServerCommands; // NERVE - SMF
 #endif RTCW_XX
 
@@ -90,9 +96,18 @@ cvar_t  *m_filter;
 
 cvar_t  *cl_activeAction;
 
+#if defined RTCW_ET
+cvar_t  *cl_autorecord;
+#endif RTCW_XX
+
 cvar_t  *cl_motdString;
 
 cvar_t  *cl_allowDownload;
+
+#if defined RTCW_ET
+cvar_t  *cl_wwwDownload;
+#endif RTCW_XX
+
 cvar_t  *cl_conXOffset;
 cvar_t  *cl_inGameVideo;
 
@@ -108,12 +123,30 @@ cvar_t  *cl_debugTranslation;
 
 #if defined RTCW_SP
 char cl_cdkey[34] = "                                ";
-#elif defined RTCW_MP
+#else
 // DHM - Nerve :: Auto-Update
 cvar_t  *cl_updateavailable;
 cvar_t  *cl_updatefiles;
 // DHM - Nerve
 #endif RTCW_XX
+
+#if defined RTCW_ET
+cvar_t  *cl_profile;
+cvar_t  *cl_defaultProfile;
+
+cvar_t  *cl_demorecording; // fretn
+cvar_t  *cl_demofilename; // bani
+cvar_t  *cl_demooffset; // bani
+
+cvar_t  *cl_waverecording; //bani
+cvar_t  *cl_wavefilename; //bani
+cvar_t  *cl_waveoffset; //bani
+
+cvar_t  *cl_packetloss; //bani
+cvar_t  *cl_packetdelay;    //bani
+extern qboolean sv_cheats;  //bani
+#endif RTCW_XX
+
 
 clientActive_t cl;
 clientConnection_t clc;
@@ -142,7 +175,7 @@ int serverStatusCount;
 #if 0 // MrE defined __USEA3D && defined __A3D_GEOM
 void hA3Dg_ExportRenderGeom( refexport_t *incoming_re );
 #endif
-#elif defined RTCW_MP
+#else
 // DHM - Nerve :: Have we heard from the auto-update server this session?
 qboolean autoupdateChecked;
 qboolean autoupdateStarted;
@@ -159,7 +192,7 @@ void CL_ShowIP_f( void );
 void CL_ServerStatus_f( void );
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 void CL_SaveTranslations_f( void );
 void CL_LoadTranslations_f( void );
 #endif RTCW_XX
@@ -177,6 +210,12 @@ void CL_EndgameMenu( void ) {
 }
 #endif RTCW_XX
 
+#if defined RTCW_ET
+// fretn
+void CL_WriteWaveClose( void );
+void CL_WavStopRecord_f( void );
+#endif RTCW_XX
+
 /*
 ===============
 CL_CDDialog
@@ -188,6 +227,33 @@ void CL_CDDialog( void ) {
 	cls.cddialog = qtrue;   // start it next frame
 }
 
+#if defined RTCW_ET
+void CL_PurgeCache( void ) {
+	cls.doCachePurge = qtrue;
+}
+
+void CL_DoPurgeCache( void ) {
+	if ( !cls.doCachePurge ) {
+		return;
+	}
+
+	cls.doCachePurge = qfalse;
+
+	if ( !com_cl_running ) {
+		return;
+	}
+
+	if ( !com_cl_running->integer ) {
+		return;
+	}
+
+	if ( !cls.rendererStarted ) {
+		return;
+	}
+
+	re.purgeCache();
+}
+#endif RTCW_XX
 
 /*
 =======================================================================
@@ -232,7 +298,7 @@ CL_ChangeReliableCommand
 void CL_ChangeReliableCommand( void ) {
 	int r, index, l;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// NOTE TTimo: what is the randomize for?
 #endif RTCW_XX
 
@@ -299,6 +365,13 @@ void CL_StopRecord_f( void ) {
 	FS_FCloseFile( clc.demofile );
 	clc.demofile = 0;
 	clc.demorecording = qfalse;
+
+#if defined RTCW_ET
+	Cvar_Set( "cl_demorecording", "0" ); // fretn
+	Cvar_Set( "cl_demofilename", "" ); // bani
+	Cvar_Set( "cl_demooffset", "0" ); // bani
+#endif RTCW_XX
+
 	Com_Printf( "Stopped demo.\n" );
 }
 
@@ -308,6 +381,8 @@ CL_DemoFilename
 ==================
 */
 void CL_DemoFilename( int number, char *fileName ) {
+
+#if !defined RTCW_ET
 	int a,b,c,d;
 
 	if ( number < 0 || number > 9999 ) {
@@ -325,6 +400,15 @@ void CL_DemoFilename( int number, char *fileName ) {
 
 	Com_sprintf( fileName, MAX_OSPATH, "demo%i%i%i%i"
 				 , a, b, c, d );
+#else
+	if ( number < 0 || number > 9999 ) {
+		Com_sprintf( fileName, MAX_OSPATH, "demo9999" ); // fretn - removed .tga
+		return;
+	}
+
+	Com_sprintf( fileName, MAX_OSPATH, "demo%04i", number );
+#endif RTCW_XX
+
 }
 
 /*
@@ -339,12 +423,20 @@ Begins recording a demo from the current position
 static char demoName[MAX_QPATH];        // compiler bug workaround
 void CL_Record_f( void ) {
 	char name[MAX_OSPATH];
+
+#if !defined RTCW_ET
 	byte bufData[MAX_MSGLEN];
 	msg_t buf;
 	int i;
+#endif RTCW_XX
+
 	int len;
+
+#if !defined RTCW_ET
 	entityState_t   *ent;
 	entityState_t nullstate;
+#endif RTCW_XX
+
 	char        *s;
 
 	if ( Cmd_Argc() > 2 ) {
@@ -362,11 +454,19 @@ void CL_Record_f( void ) {
 		return;
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// ATVI Wolfenstein Misc #479 - changing this to a warning
 	// sync 0 doesn't prevent recording, so not forcing it off .. everyone does g_sync 1 ; record ; g_sync 0 ..
+
+#if defined RTCW_ET
+	//if ( !Cvar_VariableValue( "g_synchronousClients" ) ) {
+	//	Com_Printf (S_COLOR_YELLOW "WARNING: You should set 'g_synchronousClients 1' for smoother demo recording\n");
+	//}
 #endif RTCW_XX
 
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 	if ( !Cvar_VariableValue( "g_synchronousClients" ) ) {
 
 #if defined RTCW_SP
@@ -377,6 +477,7 @@ void CL_Record_f( void ) {
 #endif RTCW_XX
 
 	}
+#endif RTCW_XX
 
 	if ( Cmd_Argc() == 2 ) {
 		s = Cmd_Argv( 1 );
@@ -397,6 +498,7 @@ void CL_Record_f( void ) {
 		}
 	}
 
+#if !defined RTCW_ET
 	// open the demo file
 
 #ifdef __MACOS__    //DAJ MacOS file typing
@@ -477,7 +579,95 @@ void CL_Record_f( void ) {
 	FS_Write( buf.data, buf.cursize, clc.demofile );
 
 	// the rest of the demo file will be copied from net messages
+#else
+	CL_Record( name );
+#endif RTCW_XX
+
 }
+
+#if defined RTCW_ET
+void CL_Record( const char* name ) {
+	int i;
+	msg_t buf;
+	byte bufData[MAX_MSGLEN];
+	entityState_t   *ent;
+	entityState_t nullstate;
+	char        *s;
+	int len;
+
+	// open the demo file
+
+	Com_Printf( "recording to %s.\n", name );
+	clc.demofile = FS_FOpenFileWrite( name );
+	if ( !clc.demofile ) {
+		Com_Printf( "ERROR: couldn't open.\n" );
+		return;
+	}
+
+	clc.demorecording = qtrue;
+	Cvar_Set( "cl_demorecording", "1" ); // fretn
+	Q_strncpyz( clc.demoName, demoName, sizeof( clc.demoName ) );
+	Cvar_Set( "cl_demofilename", clc.demoName ); // bani
+	Cvar_Set( "cl_demooffset", "0" ); // bani
+
+	// don't start saving messages until a non-delta compressed message is received
+	clc.demowaiting = qtrue;
+
+	// write out the gamestate message
+	MSG_Init( &buf, bufData, sizeof( bufData ) );
+	MSG_Bitstream( &buf );
+
+	// NOTE, MRE: all server->client messages now acknowledge
+	MSG_WriteLong( &buf, clc.reliableSequence );
+
+	MSG_WriteByte( &buf, svc_gamestate );
+	MSG_WriteLong( &buf, clc.serverCommandSequence );
+
+	// configstrings
+	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
+		if ( !cl.gameState.stringOffsets[i] ) {
+			continue;
+		}
+		s = cl.gameState.stringData + cl.gameState.stringOffsets[i];
+		MSG_WriteByte( &buf, svc_configstring );
+		MSG_WriteShort( &buf, i );
+		MSG_WriteBigString( &buf, s );
+	}
+
+	// baselines
+	memset( &nullstate, 0, sizeof( nullstate ) );
+	for ( i = 0; i < MAX_GENTITIES ; i++ ) {
+		ent = &cl.entityBaselines[i];
+		if ( !ent->number ) {
+			continue;
+		}
+		MSG_WriteByte( &buf, svc_baseline );
+		MSG_WriteDeltaEntity( &buf, &nullstate, ent, qtrue );
+	}
+
+	MSG_WriteByte( &buf, svc_EOF );
+
+	// finished writing the gamestate stuff
+
+	// write the client num
+	MSG_WriteLong( &buf, clc.clientNum );
+	// write the checksum feed
+	MSG_WriteLong( &buf, clc.checksumFeed );
+
+	// finished writing the client packet
+	MSG_WriteByte( &buf, svc_EOF );
+
+	// write it to the demo file
+	len = LittleLong( clc.serverMessageSequence - 1 );
+	FS_Write( &len, 4, clc.demofile );
+
+	len = LittleLong( buf.cursize );
+	FS_Write( &len, 4, clc.demofile );
+	FS_Write( buf.data, buf.cursize, clc.demofile );
+
+	// the rest of the demo file will be copied from net messages
+}
+#endif RTCW_XX
 
 /*
 =======================================================================
@@ -502,6 +692,14 @@ void CL_DemoCompleted( void ) {
 						time / 1000.0, clc.timeDemoFrames * 1000.0 / time );
 		}
 	}
+
+#if defined RTCW_ET
+	// fretn
+	if ( clc.waverecording ) {
+		CL_WriteWaveClose();
+		clc.waverecording = qfalse;
+	}
+#endif RTCW_XX
 
 	CL_Disconnect( qtrue );
 	CL_NextDemo();
@@ -560,7 +758,9 @@ void CL_ReadDemoMessage( void ) {
 	CL_ParseServerMessage( &buf );
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
+
+#if !defined RTCW_MP
 /*
 ====================
 
@@ -568,21 +768,186 @@ void CL_ReadDemoMessage( void ) {
 
 ====================
 */
+#else
+/*
+====================
+
+  Wave file saving functions
+
+  FIXME: make this actually work
+
+====================
+*/
+#endif RTCW_XX
+
+#if defined RTCW_ET
+/*
+==================
+CL_DemoFilename
+==================
+*/
+void CL_WavFilename( int number, char *fileName ) {
+	if ( number < 0 || number > 9999 ) {
+		Com_sprintf( fileName, MAX_OSPATH, "wav9999" ); // fretn - removed .tga
+		return;
+	}
+
+	Com_sprintf( fileName, MAX_OSPATH, "wav%04i", number );
+}
+
+typedef struct wav_hdr_s {
+	unsigned int ChunkID;       // big endian
+	unsigned int ChunkSize;     // little endian
+	unsigned int Format;        // big endian
+
+	unsigned int Subchunk1ID;   // big endian
+	unsigned int Subchunk1Size; // little endian
+	unsigned short AudioFormat; // little endian
+	unsigned short NumChannels; // little endian
+	unsigned int SampleRate;    // little endian
+	unsigned int ByteRate;      // little endian
+	unsigned short BlockAlign;  // little endian
+	unsigned short BitsPerSample;   // little endian
+
+	unsigned int Subchunk2ID;   // big endian
+	unsigned int Subchunk2Size;     // little indian ;)
+
+	unsigned int NumSamples;
+} wav_hdr_t;
+
+wav_hdr_t hdr;
+
+static void CL_WriteWaveHeader( void ) {
+	memset( &hdr, 0, sizeof( hdr ) );
+
+	hdr.ChunkID = 0x46464952;       // "RIFF"
+	hdr.ChunkSize = 0;          // total filesize - 8 bytes
+	hdr.Format = 0x45564157;        // "WAVE"
+
+	hdr.Subchunk1ID = 0x20746d66;       // "fmt "
+	hdr.Subchunk1Size = 16;         // 16 = pcm
+	hdr.AudioFormat = 1;            // 1 = linear quantization
+	hdr.NumChannels = 2;            // 2 = stereo
+
+	hdr.SampleRate = dma.speed;
+
+	hdr.BitsPerSample = 16;         // 16bits
+
+	// SampleRate * NumChannels * BitsPerSample/8
+	hdr.ByteRate = hdr.SampleRate * hdr.NumChannels * ( hdr.BitsPerSample / 8 );
+
+	// NumChannels * BitsPerSample/8
+	hdr.BlockAlign = hdr.NumChannels * ( hdr.BitsPerSample / 8 );
+
+	hdr.Subchunk2ID = 0x61746164;       // "data"
+
+	hdr.Subchunk2Size = 0;          // NumSamples * NumChannels * BitsPerSample/8
+
+	// ...
+	FS_Write( &hdr.ChunkID, 44, clc.wavefile );
+}
+
+static char wavName[MAX_QPATH];     // compiler bug workaround
+#endif RTCW_XX
 
 void CL_WriteWaveOpen() {
 	// we will just save it as a 16bit stereo 22050kz pcm file
+
+#if !defined RTCW_ET
 	clc.wavefile = FS_FOpenFileWrite( "demodata.pcm" );
 	clc.wavetime = -1;
+#else
+	char name[MAX_OSPATH];
+	int len;
+	char        *s;
+
+	if ( Cmd_Argc() > 2 ) {
+		Com_Printf( "wav_record <wavname>\n" );
+		return;
+	}
+
+	if ( clc.waverecording ) {
+		Com_Printf( "Already recording a wav file\n" );
+		return;
+	}
+
+	// yes ... no ? leave it up to them imo
+	//if (cl_avidemo.integer)
+	//	return;
+
+	if ( Cmd_Argc() == 2 ) {
+		s = Cmd_Argv( 1 );
+		Q_strncpyz( wavName, s, sizeof( wavName ) );
+		Com_sprintf( name, sizeof( name ), "wav/%s.wav", wavName );
+	} else {
+		int number;
+
+		// I STOLE THIS
+		for ( number = 0 ; number <= 9999 ; number++ ) {
+			CL_WavFilename( number, wavName );
+			Com_sprintf( name, sizeof( name ), "wav/%s.wav", wavName );
+
+			len = FS_FileExists( name );
+			if ( len <= 0 ) {
+				break;  // file doesn't exist
+			}
+		}
+	}
+
+	Com_Printf( "recording to %s.\n", name );
+	clc.wavefile = FS_FOpenFileWrite( name );
+
+	if ( !clc.wavefile ) {
+		Com_Printf( "ERROR: couldn't open %s for writing.\n", name );
+		return;
+	}
+
+	CL_WriteWaveHeader();
+	clc.wavetime = -1;
+
+	clc.waverecording = qtrue;
+
+	Cvar_Set( "cl_waverecording", "1" );
+	Cvar_Set( "cl_wavefilename", wavName );
+	Cvar_Set( "cl_waveoffset", "0" );
+#endif RTCW_XX
+
 }
 
 void CL_WriteWaveClose() {
+
+#if defined RTCW_ET
+	Com_Printf( "Stopped recording\n" );
+
+	hdr.Subchunk2Size = hdr.NumSamples * hdr.NumChannels * ( hdr.BitsPerSample / 8 );
+	hdr.ChunkSize = 36 + hdr.Subchunk2Size;
+
+	FS_Seek( clc.wavefile, 4, FS_SEEK_SET );
+	FS_Write( &hdr.ChunkSize, 4, clc.wavefile );
+	FS_Seek( clc.wavefile, 40, FS_SEEK_SET );
+	FS_Write( &hdr.Subchunk2Size, 4, clc.wavefile );
+#endif RTCW_XX
+
 	// and we're outta here
 	FS_FCloseFile( clc.wavefile );
+
+#if defined RTCW_ET
+	clc.wavefile = 0;
+#endif RTCW_XX
+
 }
 
 extern int s_soundtime;
-extern portable_samplepair_t *paintbuffer;
 
+#if !defined RTCW_ET
+extern portable_samplepair_t *paintbuffer;
+#else
+extern int s_paintedtime;
+extern portable_samplepair_t paintbuffer[PAINTBUFFER_SIZE];
+portable_samplepair_t wavbuffer[PAINTBUFFER_SIZE];
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 void CL_WriteWaveFilePacket() {
 	int total, i;
 	if ( clc.wavetime == -1 ) {
@@ -616,6 +981,64 @@ void CL_WriteWaveFilePacket() {
 		FS_Write( &out, 2, clc.wavefile );
 	}
 }
+#else
+void CL_WriteWaveFilePacket( int endtime ) {
+	int total, i;
+
+	if ( !clc.waverecording || !clc.wavefile ) {
+		return;
+	}
+
+	if ( clc.wavetime == -1 ) {
+		clc.wavetime = s_soundtime;
+
+		memcpy( wavbuffer, paintbuffer, sizeof( wavbuffer ) );
+		return;
+	}
+
+	if ( s_soundtime <= clc.wavetime ) {
+		return;
+	}
+
+	total = s_soundtime - clc.wavetime;
+
+	if ( total < 1 ) {
+		return;
+	}
+
+	clc.wavetime = s_soundtime;
+
+	for ( i = 0; i < total; i++ ) {
+		int parm;
+		short out;
+
+		parm = ( wavbuffer[i].left ) >> 8;
+		if ( parm > 32767 ) {
+			parm = 32767;
+		}
+		if ( parm < -32768 ) {
+			parm = -32768;
+		}
+		out = parm;
+		FS_Write( &out, 2, clc.wavefile );
+
+		parm = ( wavbuffer[i].right ) >> 8;
+		if ( parm > 32767 ) {
+			parm = 32767;
+		}
+		if ( parm < -32768 ) {
+			parm = -32768;
+		}
+		out = parm;
+		FS_Write( &out, 2, clc.wavefile );
+		hdr.NumSamples++;
+	}
+	memcpy( wavbuffer, paintbuffer, sizeof( wavbuffer ) );
+
+	Cvar_Set( "cl_waveoffset", va( "%d", FS_FTell( clc.wavefile ) ) );
+}
+#endif RTCW_XX
+
 #endif RTCW_XX
 
 /*
@@ -629,6 +1052,11 @@ demo <demoname>
 void CL_PlayDemo_f( void ) {
 	char name[MAX_OSPATH], extension[32];
 	char        *arg;
+
+#if defined RTCW_ET
+	int prot_ver;
+#endif RTCW_XX
+
 
 	if ( Cmd_Argc() != 2 ) {
 		Com_Printf( "playdemo <demoname>\n" );
@@ -646,6 +1074,8 @@ void CL_PlayDemo_f( void ) {
 
 	// open the demo file
 	arg = Cmd_Argv( 1 );
+
+#if !defined RTCW_ET
 	Com_sprintf( extension, sizeof( extension ), ".dm_%d", PROTOCOL_VERSION );
 	if ( !Q_stricmp( arg + strlen( arg ) - strlen( extension ), extension ) ) {
 		Com_sprintf( name, sizeof( name ), "demos/%s", arg );
@@ -654,6 +1084,20 @@ void CL_PlayDemo_f( void ) {
 	}
 
 	FS_FOpenFileRead( name, &clc.demofile, qtrue );
+#else
+	prot_ver = PROTOCOL_VERSION - 1;
+	while ( prot_ver <= PROTOCOL_VERSION && !clc.demofile ) {
+		Com_sprintf( extension, sizeof( extension ), ".dm_%d", prot_ver );
+		if ( !Q_stricmp( arg + strlen( arg ) - strlen( extension ), extension ) ) {
+			Com_sprintf( name, sizeof( name ), "demos/%s", arg );
+		} else {
+			Com_sprintf( name, sizeof( name ), "demos/%s.dm_%d", arg, prot_ver );
+		}
+		FS_FOpenFileRead( name, &clc.demofile, qtrue );
+		prot_ver++;
+	}
+#endif RTCW_XX
+
 	if ( !clc.demofile ) {
 		Com_Error( ERR_DROP, "couldn't open %s", name );
 		return;
@@ -665,10 +1109,14 @@ void CL_PlayDemo_f( void ) {
 	cls.state = CA_CONNECTED;
 	clc.demoplaying = qtrue;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	if ( Cvar_VariableValue( "cl_wavefilerecord" ) ) {
 		CL_WriteWaveOpen();
+
+#if !defined RTCW_ET
 		clc.waverecording = qtrue;
+#endif RTCW_XX
+
 	}
 #endif RTCW_XX
 
@@ -694,11 +1142,17 @@ void CL_PlayDemo_f( void ) {
 		CL_WriteWaveClose();
 		clc.waverecording = qfalse;
 	}
+#elif defined RTCW_ET
+//	if (clc.waverecording) {
+//		CL_WriteWaveClose();
+//		clc.waverecording = qfalse;
+//	}
 #endif RTCW_XX
 
 }
 
 
+#if !defined RTCW_ET
 /*
 ====================
 CL_StartDemoLoop
@@ -711,6 +1165,7 @@ void CL_StartDemoLoop( void ) {
 	Cbuf_AddText( "d1\n" );
 	cls.keyCatchers = 0;
 }
+#endif RTCW_XX
 
 /*
 ==================
@@ -748,6 +1203,12 @@ void CL_ShutdownAll( void ) {
 
 	// clear sounds
 	S_DisableSounds();
+
+#if defined RTCW_ET
+	// download subsystem
+	DL_Shutdown();
+#endif RTCW_XX
+
 	// shutdown CGame
 	CL_ShutdownCGame();
 	// shutdown UI
@@ -758,10 +1219,28 @@ void CL_ShutdownAll( void ) {
 		re.Shutdown( qfalse );      // don't destroy window or context
 	}
 
+#if defined RTCW_ET
+	if ( re.purgeCache ) {
+		CL_DoPurgeCache();
+	}
+#endif RTCW_XX
+
 	cls.uiStarted = qfalse;
 	cls.cgameStarted = qfalse;
 	cls.rendererStarted = qfalse;
 	cls.soundRegistered = qfalse;
+
+#if defined RTCW_ET
+	// Gordon: stop recording on map change etc, demos aren't valid over map changes anyway
+	if ( clc.demorecording ) {
+		CL_StopRecord_f();
+	}
+
+	if ( clc.waverecording ) {
+		CL_WavStopRecord_f();
+	}
+#endif RTCW_XX
+
 }
 
 /*
@@ -786,7 +1265,7 @@ void CL_FlushMemory( void ) {
 #if defined RTCW_SP
 //		// clear collision map data
 //		CM_ClearMap();
-#elif defined RTCW_MP
+#else
 		// clear collision map data
 		CM_ClearMap();
 #endif RTCW_XX
@@ -866,8 +1345,29 @@ void CL_ClearState( void ) {
 //	S_StopAllSounds();
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	memset( &cl, 0, sizeof( cl ) );
+#else
+	Com_Memset( &cl, 0, sizeof( cl ) );
+#endif RTCW_XX
+
 }
+
+#if defined RTCW_ET
+/*
+=====================
+CL_ClearStaticDownload
+Clear download information that we keep in cls (disconnected download support)
+=====================
+*/
+void CL_ClearStaticDownload( void ) {
+	assert( !cls.bWWWDlDisconnected ); // reset before calling
+	cls.downloadRestart = qfalse;
+	cls.downloadTempName[0] = '\0';
+	cls.downloadName[0] = '\0';
+	cls.originalDownloadName[0] = '\0';
+}
+#endif RTCW_XX
 
 
 /*
@@ -892,6 +1392,7 @@ void CL_Disconnect( qboolean showMainMenu ) {
 		CL_StopRecord_f();
 	}
 
+#if !defined RTCW_ET
 	if ( clc.download ) {
 		FS_FCloseFile( clc.download );
 		clc.download = 0;
@@ -902,6 +1403,20 @@ void CL_Disconnect( qboolean showMainMenu ) {
 #if defined RTCW_MP
 	autoupdateStarted = qfalse;
 	autoupdateFilename[0] = '\0';
+#endif RTCW_XX
+
+#else
+	if ( !cls.bWWWDlDisconnected ) {
+		if ( clc.download ) {
+			FS_FCloseFile( clc.download );
+			clc.download = 0;
+		}
+		*cls.downloadTempName = *cls.downloadName = 0;
+		Cvar_Set( "cl_downloadName", "" );
+
+		autoupdateStarted = qfalse;
+		autoupdateFilename[0] = '\0';
+	}
 #endif RTCW_XX
 
 	if ( clc.demofile ) {
@@ -915,9 +1430,9 @@ void CL_Disconnect( qboolean showMainMenu ) {
 
 	SCR_StopCinematic();
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	S_ClearSoundBuffer( qtrue );  //----(SA)	modified
-#elif defined RTCW_MP
+#else
 	S_ClearSoundBuffer();
 #endif RTCW_XX
 
@@ -933,9 +1448,19 @@ void CL_Disconnect( qboolean showMainMenu ) {
 	CL_ClearState();
 
 	// wipe the client connection
+
+#if !defined RTCW_ET
 	memset( &clc, 0, sizeof( clc ) );
 
 	cls.state = CA_DISCONNECTED;
+#else
+	Com_Memset( &clc, 0, sizeof( clc ) );
+
+	if ( !cls.bWWWDlDisconnected ) {
+		CL_ClearStaticDownload();
+	}
+#endif RTCW_XX
+
 
 	// allow cheats locally
 
@@ -944,12 +1469,30 @@ void CL_Disconnect( qboolean showMainMenu ) {
 	// except for demo
 	Cvar_Set( "sv_cheats", "1" );
 #endif
-#elif defined RTCW_MP
+#else
 	Cvar_Set( "sv_cheats", "1" );
 #endif RTCW_XX
 
 	// not connected to a pure server anymore
 	cl_connectedToPureServer = qfalse;
+
+#if defined RTCW_ET
+	// show_bug.cgi?id=589
+	// don't try a restart if uivm is NULL, as we might be in the middle of a restart already
+	if ( uivm && cls.state > CA_DISCONNECTED ) {
+		// restart the UI
+		cls.state = CA_DISCONNECTED;
+
+		// shutdown the UI
+		CL_ShutdownUI();
+
+		// init the UI
+		CL_InitUI();
+	} else {
+		cls.state = CA_DISCONNECTED;
+	}
+#endif RTCW_XX
+
 }
 
 
@@ -996,13 +1539,27 @@ void CL_RequestMotd( void ) {
 	if ( !cl_motd->integer ) {
 		return;
 	}
+
+#if !defined RTCW_ET
 	Com_Printf( "Resolving %s\n", UPDATE_SERVER_NAME );
 	if ( !NET_StringToAdr( UPDATE_SERVER_NAME, &cls.updateServer  ) ) {
+#else
+	Com_Printf( "Resolving %s\n", MOTD_SERVER_NAME );
+	if ( !NET_StringToAdr( MOTD_SERVER_NAME, &cls.updateServer  ) ) {
+#endif RTCW_XX
+
 		Com_Printf( "Couldn't resolve address\n" );
 		return;
 	}
+
+#if !defined RTCW_ET
 	cls.updateServer.port = BigShort( PORT_UPDATE );
 	Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", UPDATE_SERVER_NAME,
+#else
+	cls.updateServer.port = BigShort( PORT_MOTD );
+	Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", MOTD_SERVER_NAME,
+#endif RTCW_XX
+
 				cls.updateServer.ip[0], cls.updateServer.ip[1],
 				cls.updateServer.ip[2], cls.updateServer.ip[3],
 				BigShort( cls.updateServer.port ) );
@@ -1017,6 +1574,7 @@ void CL_RequestMotd( void ) {
 	NET_OutOfBandPrint( NS_CLIENT, cls.updateServer, "getmotd \"%s\"\n", info );
 }
 
+#if (!defined RTCW_ET) || (defined RTCW_ET && defined AUTHORIZE_SUPPORT)
 
 /*
 ===================
@@ -1079,7 +1637,13 @@ void CL_RequestAuthorization( void ) {
 	}
 
 	if ( Cvar_VariableValue( "fs_restrict" ) ) {
+
+#if !defined RTCW_ET
 		Q_strncpyz( nums, "demo", sizeof( nums ) );
+#else
+		Q_strncpyz( nums, "ettest", sizeof( nums ) );
+#endif RTCW_XX
+
 	} else {
 		// only grab the alphanumeric values from the cdkey, to avoid any dashes or spaces
 		j = 0;
@@ -1102,6 +1666,7 @@ void CL_RequestAuthorization( void ) {
 	fs = Cvar_Get( "cl_anonymous", "0", CVAR_INIT | CVAR_SYSTEMINFO );
 	NET_OutOfBandPrint( NS_CLIENT, cls.authorizeServer, va( "getKeyAuthorize %i %s", fs->integer, nums ) );
 }
+#endif RTCW_XX
 
 /*
 ======================================================================
@@ -1150,9 +1715,9 @@ void CL_Setenv_f( void ) {
 			strcat( buffer, " " );
 		}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		Q_putenv( buffer );
-#elif defined RTCW_MP
+#else
 #ifdef _WIN32
 		_putenv( buffer );
 #else
@@ -1166,7 +1731,13 @@ void CL_Setenv_f( void ) {
 		if ( env ) {
 			Com_Printf( "%s=%s\n", Cmd_Argv( 1 ), env );
 		} else {
+
+#if !defined RTCW_ET
 			Com_Printf( "%s undefined\n", Cmd_Argv( 1 ), env );
+#else
+			Com_Printf( "%s undefined\n", Cmd_Argv( 1 ) );
+#endif RTCW_XX
+
 		}
 	}
 }
@@ -1180,8 +1751,12 @@ CL_Disconnect_f
 void CL_Disconnect_f( void ) {
 	SCR_StopCinematic();
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
+
+#if !defined RTCW_ET
 	// RF, make sure loading variables are turned off
+#endif RTCW_XX
+
 	Cvar_Set( "savegame_loading", "0" );
 	Cvar_Set( "g_reloading", "0" );
 #endif RTCW_XX
@@ -1215,17 +1790,26 @@ CL_Connect_f
 void CL_Connect_f( void ) {
 	char    *server;
 
+#if defined RTCW_ET
+	char ip_port[MAX_STRING_CHARS];
+#endif RTCW_XX
+
+
 	if ( Cmd_Argc() != 2 ) {
 		Com_Printf( "usage: connect [server]\n" );
 		return;
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	S_StopAllSounds();      // NERVE - SMF
 #endif RTCW_XX
 
 	// starting to load a map so we get out of full screen ui mode
 	Cvar_Set( "r_uiFullScreen", "0" );
+
+#if defined RTCW_ET
+	Cvar_Set( "ui_connecting", "1" );
+#endif RTCW_XX
 
 	// fire a message off to the motd server
 	CL_RequestMotd();
@@ -1256,15 +1840,26 @@ void CL_Connect_f( void ) {
 	if ( !NET_StringToAdr( cls.servername, &clc.serverAddress ) ) {
 		Com_Printf( "Bad server address\n" );
 		cls.state = CA_DISCONNECTED;
+
+#if defined RTCW_ET
+		Cvar_Set( "ui_connecting", "0" );
+#endif RTCW_XX
+
 		return;
 	}
 	if ( clc.serverAddress.port == 0 ) {
 		clc.serverAddress.port = BigShort( PORT_SERVER );
 	}
+
+#if !defined RTCW_ET
 	Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", cls.servername,
 				clc.serverAddress.ip[0], clc.serverAddress.ip[1],
 				clc.serverAddress.ip[2], clc.serverAddress.ip[3],
 				BigShort( clc.serverAddress.port ) );
+#else
+	Q_strncpyz( ip_port, NET_AdrToString( clc.serverAddress ), sizeof( ip_port ) );
+	Com_Printf( "%s resolved to %s\n", cls.servername, ip_port );
+#endif RTCW_XX
 
 	// if we aren't playing on a lan, we need to authenticate
 	// with the cd key
@@ -1274,7 +1869,12 @@ void CL_Connect_f( void ) {
 		cls.state = CA_CONNECTING;
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
+
+#if defined RTCW_ET
+	Cvar_Set( "cl_avidemo", "0" );
+#endif RTCW_XX
+
 	// show_bug.cgi?id=507
 	// prepare to catch a connection process that would turn bad
 	Cvar_Set( "com_errorDiagnoseIP", NET_AdrToString( clc.serverAddress ) );
@@ -1290,7 +1890,14 @@ void CL_Connect_f( void ) {
 	// server connection string
 	Cvar_Set( "cl_currentServerAddress", server );
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+	Cvar_Set( "cl_currentServerIP", ip_port );
+
+	// Gordon: um, couldnt this be handled
+#endif RTCW_XX
+
+
+#if !defined RTCW_SP
 	// NERVE - SMF - reset some cvars
 	Cvar_Set( "mp_playerType", "0" );
 	Cvar_Set( "mp_currentPlayerType", "0" );
@@ -1330,6 +1937,8 @@ void CL_Rcon_f( void ) {
 		Com_Printf( "You must set 'rcon_password' before\n"
 #elif defined RTCW_MP
 		Com_Printf( "You must set 'rconpassword' before\n"
+#else
+		Com_Printf( "You must set 'rconPassword' before\n"
 #endif RTCW_XX
 
 					"issuing an rcon command.\n" );
@@ -1352,7 +1961,7 @@ void CL_Rcon_f( void ) {
 		strcat( message, Cmd_Argv( i ) );
 		strcat( message, " " );
 	}
-#elif defined RTCW_MP
+#else
 	// ATVI Wolfenstein Misc #284
 	strcat( message, Cmd_Cmd() + 5 );
 #endif RTCW_XX
@@ -1394,7 +2003,7 @@ void CL_SendPureChecksums( void ) {
 #if defined RTCW_SP
 	// "Yf"
 	Com_sprintf( cMsg, sizeof( cMsg ), "Yf " );
-#elif defined RTCW_MP
+#else
 	Com_sprintf( cMsg, sizeof( cMsg ), "Va " );
 	Q_strcat( cMsg, sizeof( cMsg ), va( "%d ", cl.serverId ) );
 #endif RTCW_XX
@@ -1404,7 +2013,7 @@ void CL_SendPureChecksums( void ) {
 
 #if defined RTCW_SP
 		cMsg[i] += 10;
-#elif defined RTCW_MP
+#else
 		cMsg[i] += 13 + ( i * 2 );
 #endif RTCW_XX
 
@@ -1431,6 +2040,13 @@ we also have to reload the UI and CGame because the renderer
 doesn't know what graphics to reload
 =================
 */
+
+#if defined RTCW_ET
+#ifdef _WIN32
+extern void Sys_In_Restart_f( void ); // fretn
+#endif
+#endif RTCW_XX
+
 void CL_Vid_Restart_f( void ) {
 
 #if defined RTCW_SP
@@ -1438,7 +2054,12 @@ void CL_Vid_Restart_f( void ) {
 #endif RTCW_XX
 
 	// RF, don't show percent bar, since the memory usage will just sit at the same level anyway
+
+#if !defined RTCW_ET
 	Cvar_Set( "com_expectedhunkusage", "-1" );
+#else
+	com_expectedhunkusage = -1;
+#endif RTCW_XX
 
 	// don't let them loop during the restart
 	S_StopAllSounds();
@@ -1462,7 +2083,7 @@ void CL_Vid_Restart_f( void ) {
 	cls.cgameStarted = qfalse;
 	cls.soundRegistered = qfalse;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	autoupdateChecked = qfalse;
 #endif RTCW_XX
 
@@ -1483,6 +2104,12 @@ void CL_Vid_Restart_f( void ) {
 
 	// startup all the client stuff
 	CL_StartHunkUsers();
+
+#if defined RTCW_ET
+#ifdef _WIN32
+	Sys_In_Restart_f(); // fretn
+#endif
+#endif RTCW_XX
 
 	// start the cgame if connected
 	if ( cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC ) {
@@ -1506,7 +2133,7 @@ void CL_Vid_Restart_f( void ) {
 
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 =================
 CL_UI_Restart_f
@@ -1524,6 +2151,20 @@ void CL_UI_Restart_f( void ) {          // NERVE - SMF
 	CL_InitUI();
 }
 #endif RTCW_XX
+
+#if defined RTCW_ET
+/*
+=================
+CL_Snd_Reload_f
+
+Reloads sounddata from disk, retains soundhandles.
+=================
+*/
+void CL_Snd_Reload_f( void ) {
+	S_Reload();
+}
+#endif RTCW_XX
+
 
 /*
 =================
@@ -1597,6 +2238,52 @@ void CL_Clientinfo_f( void ) {
 	Com_Printf( "--------------------------------------\n" );
 }
 
+#if defined RTCW_ET
+/*
+==============
+CL_EatMe_f
+
+Eat misc console commands to prevent exploits
+==============
+*/
+void CL_EatMe_f( void ) {
+	//do nothing kthxbye
+}
+
+/*
+==============
+CL_WavRecord_f
+==============
+*/
+
+void CL_WavRecord_f( void ) {
+	if ( clc.wavefile ) {
+		Com_Printf( "Already recording a wav file\n" );
+		return;
+	}
+
+	CL_WriteWaveOpen();
+}
+
+/*
+==============
+CL_WavStopRecord_f
+==============
+*/
+
+void CL_WavStopRecord_f( void ) {
+	if ( !clc.wavefile ) {
+		Com_Printf( "Not recording a wav file\n" );
+		return;
+	}
+
+	CL_WriteWaveClose();
+	Cvar_Set( "cl_waverecording", "0" );
+	Cvar_Set( "cl_wavefilename", "" );
+	Cvar_Set( "cl_waveoffset", "0" );
+	clc.waverecording = qfalse;
+}
+#endif RTCW_XX
 
 //====================================================================
 
@@ -1608,6 +2295,8 @@ Called when all downloading has been completed
 =================
 */
 void CL_DownloadsComplete( void ) {
+
+#if !defined RTCW_ET
 
 #if defined RTCW_MP
 #ifndef _WIN32
@@ -1664,6 +2353,77 @@ void CL_DownloadsComplete( void ) {
 //----(SA)	removed some loading stuff
 #endif RTCW_XX
 
+#else
+#ifndef _WIN32
+	char    *fs_write_path;
+#endif
+	char    *fn;
+
+	// DHM - Nerve :: Auto-update (not finished yet)
+	if ( autoupdateStarted ) {
+
+		if ( autoupdateFilename && ( strlen( autoupdateFilename ) > 4 ) ) {
+#ifdef _WIN32
+			// win32's Sys_StartProcess prepends the current dir
+			fn = va( "%s/%s", FS_ShiftStr( AUTOUPDATE_DIR, AUTOUPDATE_DIR_SHIFT ), autoupdateFilename );
+#else
+			fs_write_path = Cvar_VariableString( "fs_homepath" );
+			fn = FS_BuildOSPath( fs_write_path, FS_ShiftStr( AUTOUPDATE_DIR, AUTOUPDATE_DIR_SHIFT ), autoupdateFilename );
+#ifndef __MACOS__
+			Sys_Chmod( fn, S_IXUSR );
+#endif
+#endif
+			// will either exit with a successful process spawn, or will Com_Error ERR_DROP
+			// so we need to clear the disconnected download data if needed
+			if ( cls.bWWWDlDisconnected ) {
+				cls.bWWWDlDisconnected = qfalse;
+				CL_ClearStaticDownload();
+			}
+			Sys_StartProcess( fn, qtrue );
+		}
+
+		// NOTE - TTimo: that code is never supposed to be reached?
+
+		autoupdateStarted = qfalse;
+
+		if ( !cls.bWWWDlDisconnected ) {
+			CL_Disconnect( qtrue );
+		}
+		// we can reset that now
+		cls.bWWWDlDisconnected = qfalse;
+		CL_ClearStaticDownload();
+
+		return;
+	}
+
+	// if we downloaded files we need to restart the file system
+	if ( cls.downloadRestart ) {
+		cls.downloadRestart = qfalse;
+
+		FS_Restart( clc.checksumFeed ); // We possibly downloaded a pak, restart the file system to load it
+
+		if ( !cls.bWWWDlDisconnected ) {
+			// inform the server so we get new gamestate info
+			CL_AddReliableCommand( "donedl" );
+		}
+		// we can reset that now
+		cls.bWWWDlDisconnected = qfalse;
+		CL_ClearStaticDownload();
+
+		// by sending the donedl command we request a new gamestate
+		// so we don't want to load stuff yet
+		return;
+	}
+
+	// TTimo: I wonder if that happens - it should not but I suspect it could happen if a download fails in the middle or is aborted
+	assert( !cls.bWWWDlDisconnected );
+
+	// let the client game init and load data
+	cls.state = CA_LOADING;
+
+	// Pump the loop, this may change gamestate!
+#endif RTCW_XX
+
 	Com_EventLoop();
 
 	// if the gamestate was changed by calling Com_EventLoop
@@ -1708,8 +2468,13 @@ void CL_BeginDownload( const char *localName, const char *remoteName ) {
 				 "Remotename: %s\n"
 				 "****************************\n", localName, remoteName );
 
+#if !defined RTCW_ET
 	Q_strncpyz( clc.downloadName, localName, sizeof( clc.downloadName ) );
 	Com_sprintf( clc.downloadTempName, sizeof( clc.downloadTempName ), "%s.tmp", localName );
+#else
+	Q_strncpyz( cls.downloadName, localName, sizeof( cls.downloadName ) );
+	Com_sprintf( cls.downloadTempName, sizeof( cls.downloadTempName ), "%s.tmp", localName );
+#endif RTCW_XX
 
 	// Set so UI gets access to it
 	Cvar_Set( "cl_downloadName", remoteName );
@@ -1761,7 +2526,11 @@ void CL_NextDownload( void ) {
 		}
 		CL_BeginDownload( localName, remoteName );
 
+#if !defined RTCW_ET
 		clc.downloadRestart = qtrue;
+#else
+		cls.downloadRestart = qtrue;
+#endif RTCW_XX
 
 		// move over the rest
 		memmove( clc.downloadList, s, strlen( s ) + 1 );
@@ -1795,10 +2564,19 @@ void CL_InitDownloads( void ) {
 
 	}
 
-#elif defined RTCW_MP
+#else
 #ifndef PRE_RELEASE_DEMO
 	char missingfiles[1024];
 	char *dir = FS_ShiftStr( AUTOUPDATE_DIR, AUTOUPDATE_DIR_SHIFT );
+
+#if defined RTCW_ET
+	// TTimo
+	// init some of the www dl data
+	clc.bWWWDl = qfalse;
+	clc.bWWWDlAborting = qfalse;
+	cls.bWWWDlDisconnected = qfalse;
+	CL_ClearStaticDownload();
+#endif RTCW_XX
 
 	if ( autoupdateStarted && NET_CompareAdr( cls.autoupdateServer, clc.serverAddress ) ) {
 		if ( strlen( cl_updatefiles->string ) > 4 ) {
@@ -1816,6 +2594,11 @@ void CL_InitDownloads( void ) {
 		} else {
 			Cvar_Set( "com_missingFiles", "" );
 		}
+
+#if defined RTCW_ET
+		// reset the redirect checksum tracking
+		clc.redirectedList[0] = '\0';
+#endif RTCW_XX
 
 		if ( cl_allowDownload->integer && FS_ComparePaks( clc.downloadList, sizeof( clc.downloadList ), qtrue ) ) {
 			// this gets printed to UI, i18n
@@ -1847,15 +2630,21 @@ void CL_CheckForResend( void ) {
 
 #if defined RTCW_SP
 	int port;
-#elif defined RTCW_MP
+#else
 	int port, i;
 #endif RTCW_XX
 
 	char info[MAX_INFO_STRING];
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	char data[MAX_INFO_STRING];
 #endif RTCW_XX
+
+#if defined RTCW_ET
+	char pkt[1024 + 1] ;    // EVEN BALANCE - T.RAY
+	int pktlen ;            // EVEN BALANCE - T.RAY
+#endif RTCW_XX
+
 
 	// don't send anything if playing back a demo
 	if ( clc.demoplaying ) {
@@ -1878,10 +2667,22 @@ void CL_CheckForResend( void ) {
 	switch ( cls.state ) {
 	case CA_CONNECTING:
 		// requesting a challenge
+
+#if (!defined RTCW_ET) || (defined RTCW_ET && defined AUTHORIZE_SUPPORT)
 		if ( !Sys_IsLANAddress( clc.serverAddress ) ) {
 			CL_RequestAuthorization();
 		}
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 		NET_OutOfBandPrint( NS_CLIENT, clc.serverAddress, "getchallenge" );
+#else
+		// EVEN BALANCE - T.RAY
+		strcpy( pkt, "getchallenge" ) ;
+		pktlen = strlen( pkt ) ;
+		NET_OutOfBandPrint( NS_CLIENT, clc.serverAddress, pkt );
+#endif RTCW_XX
+
 		break;
 
 	case CA_CHALLENGING:
@@ -1895,7 +2696,7 @@ void CL_CheckForResend( void ) {
 
 #if defined RTCW_SP
 		NET_OutOfBandPrint( NS_CLIENT, clc.serverAddress, "connect \"%s\"", info );
-#elif defined RTCW_MP
+#else
 		strcpy( data, "connect " );
 
 		data[8] = '\"';           // NERVE - SMF - spaces in name bugfix
@@ -1906,7 +2707,16 @@ void CL_CheckForResend( void ) {
 		data[9 + i] = '\"';     // NERVE - SMF - spaces in name bugfix
 		data[10 + i] = 0;
 
+#if !defined RTCW_ET
 		NET_OutOfBandData( NS_CLIENT, clc.serverAddress, &data[0], i + 10 );
+#else
+		// EVEN BALANCE - T.RAY
+		pktlen = i + 10 ;
+		memcpy( pkt, &data[0], pktlen ) ;
+
+		NET_OutOfBandData( NS_CLIENT, clc.serverAddress, pkt, pktlen );
+#endif RTCW_XX
+
 #endif RTCW_XX
 
 		// the most current userinfo has been sent, so watch for any
@@ -1918,7 +2728,7 @@ void CL_CheckForResend( void ) {
 
 #if defined RTCW_SP
 		Com_Error( ERR_FATAL, "CL_CHeckForResend: bad cls.state" );
-#elif defined RTCW_MP
+#else
 		Com_Error( ERR_FATAL, "CL_CheckForResend: bad cls.state" );
 #endif RTCW_XX
 
@@ -1937,7 +2747,7 @@ to the client so it doesn't have to wait for the full timeout period.
 */
 void CL_DisconnectPacket( netadr_t from ) {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	const char* message;
 #endif RTCW_XX
 
@@ -1953,7 +2763,7 @@ void CL_DisconnectPacket( netadr_t from ) {
 #if defined RTCW_SP
 	// if we have received packets within three seconds, ignore it
 	// (it might be a malicious spoof)
-#elif defined RTCW_MP
+#else
 	// if we have received packets within three seconds, ignore (it might be a malicious spoof)
 	// NOTE TTimo:
 	// there used to be a  clc.lastPacketTime = cls.realtime; line in CL_PacketEvent before calling CL_ConnectionLessPacket
@@ -1974,9 +2784,25 @@ void CL_DisconnectPacket( netadr_t from ) {
 	message = CL_TranslateStringBuf( "Server disconnected for unknown reason\n" );
 	Com_Printf( message );
 	Cvar_Set( "com_errorMessage", message );
+#else
+	// if we are doing a disconnected download, leave the 'connecting' screen on with the progress information
+	if ( !cls.bWWWDlDisconnected ) {
+		// drop the connection
+		message = "Server disconnected for unknown reason";
+		Com_Printf( message );
+		Cvar_Set( "com_errorMessage", message );
 #endif RTCW_XX
 
 	CL_Disconnect( qtrue );
+
+#if defined RTCW_ET
+	} else {
+		CL_Disconnect( qfalse );
+		Cvar_Set( "ui_connecting", "1" );
+		Cvar_Set( "ui_dl_running", "1" );
+	}
+#endif RTCW_XX
+
 }
 
 
@@ -2009,7 +2835,7 @@ void CL_MotdPacket( netadr_t from ) {
 	Cvar_Set( "cl_motdString", challenge );
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 ===================
 CL_PrintPackets
@@ -2028,10 +2854,28 @@ void CL_PrintPacket( netadr_t from, msg_t *msg ) {
 	s = MSG_ReadBigString( msg );
 	if ( !Q_stricmpn( s, "[err_dialog]", 12 ) ) {
 		Q_strncpyz( clc.serverMessage, s + 12, sizeof( clc.serverMessage ) );
+
+#if !defined RTCW_ET
 		Cvar_Set( "com_errorMessage", clc.serverMessage );
 	} else if ( !Q_stricmpn( s, "[err_prot]", 10 ) )    {
 		Q_strncpyz( clc.serverMessage, s + 10, sizeof( clc.serverMessage ) );
 		Cvar_Set( "com_errorMessage", CL_TranslateStringBuf( PROTOCOL_MISMATCH_ERROR_LONG ) );
+#else
+		// Cvar_Set("com_errorMessage", clc.serverMessage );
+		Com_Error( ERR_DROP, clc.serverMessage );
+	} else if ( !Q_stricmpn( s, "[err_prot]", 10 ) )       {
+		Q_strncpyz( clc.serverMessage, s + 10, sizeof( clc.serverMessage ) );
+		// Cvar_Set("com_errorMessage", CL_TranslateStringBuf( PROTOCOL_MISMATCH_ERROR_LONG ) );
+		Com_Error( ERR_DROP, CL_TranslateStringBuf( PROTOCOL_MISMATCH_ERROR_LONG ) );
+	} else if ( !Q_stricmpn( s, "[err_update]", 12 ) )       {
+		Q_strncpyz( clc.serverMessage, s + 12, sizeof( clc.serverMessage ) );
+		Com_Error( ERR_AUTOUPDATE, clc.serverMessage );
+	} else if ( !Q_stricmpn( s, "ET://", 5 ) )       { // fretn
+		Q_strncpyz( clc.serverMessage, s, sizeof( clc.serverMessage ) );
+		Cvar_Set( "com_errorMessage", clc.serverMessage );
+		Com_Error( ERR_DROP, clc.serverMessage );
+#endif RTCW_XX
+
 	} else {
 		Q_strncpyz( clc.serverMessage, s, sizeof( clc.serverMessage ) );
 	}
@@ -2086,9 +2930,11 @@ void CL_ServersResponsePacket( netadr_t from, msg_t *msg ) {
 		cls.numGlobalServerAddresses = 0;
 	}
 
+#if !defined RTCW_ET
 	if ( cls.nummplayerservers == -1 ) {
 		cls.nummplayerservers = 0;
 	}
+#endif RTCW_XX
 
 	// parse through server response string
 	numservers = 0;
@@ -2103,7 +2949,7 @@ void CL_ServersResponsePacket( netadr_t from, msg_t *msg ) {
 		}
 		while ( buffptr < buffend );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		if ( buffptr >= buffend - 6 ) {
 			break;
 		}
@@ -2147,19 +2993,34 @@ void CL_ServersResponsePacket( netadr_t from, msg_t *msg ) {
 		count = cls.numglobalservers;
 		max = MAX_GLOBAL_SERVERS;
 	} else {
+
+#if !defined RTCW_ET
 		count = cls.nummplayerservers;
 		max = MAX_OTHER_SERVERS;
+#else
+		// shut up compiler
+		count = 0;
+		max = 1;
+#endif RTCW_XX
+
 	}
 
 	for ( i = 0; i < numservers && count < max; i++ ) {
 		// build net address
+
+#if !defined RTCW_ET
 		serverInfo_t *server = ( cls.masterNum == 0 ) ? &cls.globalServers[count] : &cls.mplayerServers[count];
+#else
+		//serverInfo_t *server = (cls.masterNum == 0) ? &cls.globalServers[count] : &cls.mplayerServers[count];
+		serverInfo_t *server = &cls.globalServers[count];
+#endif RTCW_XX
 
 		CL_InitServerInfo( server, &addresses[i] );
 		// advance to next slot
 		count++;
 	}
 
+#if !defined RTCW_ET
 	// if getting the global list
 	if ( cls.masterNum == 0 ) {
 		if ( cls.numGlobalServerAddresses < MAX_GLOBAL_SERVERS ) {
@@ -2176,13 +3037,34 @@ void CL_ServersResponsePacket( netadr_t from, msg_t *msg ) {
 			}
 		}
 	}
+#else
+	// if getting the global list and there are too many servers
+	if ( cls.masterNum == 0 && count >= max ) {
+		for (; i < numservers && cls.numGlobalServerAddresses < MAX_GLOBAL_SERVERS; i++ ) {
+			serverAddress_t *addr;
+			// just store the addresses in an additional list
+			addr = &cls.globalServerAddresses[cls.numGlobalServerAddresses++];
+			addr->ip[0] = addresses[i].ip[0];
+			addr->ip[1] = addresses[i].ip[1];
+			addr->ip[2] = addresses[i].ip[2];
+			addr->ip[3] = addresses[i].ip[3];
+			addr->port  = addresses[i].port;
+		}
+	}
+#endif RTCW_XX
 
 	if ( cls.masterNum == 0 ) {
 		cls.numglobalservers = count;
 		total = count + cls.numGlobalServerAddresses;
 	} else {
+
+#if !defined RTCW_ET
 		cls.nummplayerservers = count;
 		total = count;
+#else
+		total = cls.numglobalservers = 0;
+#endif RTCW_XX
+
 	}
 
 	Com_Printf( "%d servers parsed (total %d)\n", numservers, total );
@@ -2218,7 +3100,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 			// start sending challenge repsonse instead of challenge request packets
 			clc.challenge = atoi( Cmd_Argv( 1 ) );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 			if ( Cmd_Argc() > 2 ) {
 				clc.onlyVisibleClients = atoi( Cmd_Argv( 2 ) );         // DHM - Nerve
 			} else {
@@ -2234,7 +3116,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 			// a server proxy to hand off connections to multiple servers
 			clc.serverAddress = from;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 			Com_DPrintf( "challenge: %d\n", clc.challenge );
 #endif RTCW_XX
 
@@ -2259,7 +3141,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 			return;
 		}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		// DHM - Nerve :: If we have completed a connection to the Auto-Update server...
 		if ( autoupdateChecked && NET_CompareAdr( cls.autoupdateServer, clc.serverAddress ) ) {
 			// Mark the client as being in the process of getting an update
@@ -2324,7 +3206,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
 	// echo request from server
 	if ( !Q_stricmp( c, "getserversResponse\\" ) ) {
-#elif defined RTCW_MP
+#else
 		CL_PrintPacket( from, msg );
 		return;
 	}
@@ -2368,7 +3250,7 @@ void CL_PacketEvent( netadr_t from, msg_t *msg ) {
 		return;
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	clc.lastPacketTime = cls.realtime;
 #endif RTCW_XX
 
@@ -2434,6 +3316,8 @@ void CL_CheckTimeout( void ) {
 			Com_Printf( "\nServer connection timed out.\n" );
 #elif defined RTCW_MP
 			Cvar_Set( "com_errorMessage", CL_TranslateStringBuf( "Server connection timed out." ) );
+#else
+			Cvar_Set( "com_errorMessage", "Server connection timed out." );
 #endif RTCW_XX
 
 			CL_Disconnect( qtrue );
@@ -2469,6 +3353,114 @@ void CL_CheckUserinfo( void ) {
 	}
 }
 
+#if defined RTCW_ET
+/*
+==================
+CL_WWWDownload
+==================
+*/
+void CL_WWWDownload( void ) {
+	char *to_ospath;
+	dlStatus_t ret;
+	static qboolean bAbort = qfalse;
+
+	if ( clc.bWWWDlAborting ) {
+		if ( !bAbort ) {
+			Com_DPrintf( "CL_WWWDownload: WWWDlAborting\n" );
+			bAbort = qtrue;
+		}
+		return;
+	}
+	if ( bAbort ) {
+		Com_DPrintf( "CL_WWWDownload: WWWDlAborting done\n" );
+		bAbort = qfalse;
+	}
+
+	ret = DL_DownloadLoop();
+
+	if ( ret == DL_CONTINUE ) {
+		return;
+	}
+
+	if ( ret == DL_DONE ) {
+		// taken from CL_ParseDownload
+		// we work with OS paths
+		clc.download = 0;
+		to_ospath = FS_BuildOSPath( Cvar_VariableString( "fs_homepath" ), cls.originalDownloadName, "" );
+		to_ospath[strlen( to_ospath ) - 1] = '\0';
+		if ( rename( cls.downloadTempName, to_ospath ) ) {
+			FS_CopyFile( cls.downloadTempName, to_ospath );
+			remove( cls.downloadTempName );
+		}
+		*cls.downloadTempName = *cls.downloadName = 0;
+		Cvar_Set( "cl_downloadName", "" );
+		if ( cls.bWWWDlDisconnected ) {
+			// for an auto-update in disconnected mode, we'll be spawning the setup in CL_DownloadsComplete
+			if ( !autoupdateStarted ) {
+				// reconnect to the server, which might send us to a new disconnected download
+				Cbuf_ExecuteText( EXEC_APPEND, "reconnect\n" );
+			}
+		} else {
+			CL_AddReliableCommand( "wwwdl done" );
+			// tracking potential web redirects leading us to wrong checksum - only works in connected mode
+			if ( strlen( clc.redirectedList ) + strlen( cls.originalDownloadName ) + 1 >= sizeof( clc.redirectedList ) ) {
+				// just to be safe
+				Com_Printf( "ERROR: redirectedList overflow (%s)\n", clc.redirectedList );
+			} else {
+				strcat( clc.redirectedList, "@" );
+				strcat( clc.redirectedList, cls.originalDownloadName );
+			}
+		}
+	} else
+	{
+		if ( cls.bWWWDlDisconnected ) {
+			// in a connected download, we'd tell the server about failure and wait for a reply
+			// but in this case we can't get anything from server
+			// if we just reconnect it's likely we'll get the same disconnected download message, and error out again
+			// this may happen for a regular dl or an auto update
+			const char *error = va( "Download failure while getting '%s'\n", cls.downloadName ); // get the msg before clearing structs
+			cls.bWWWDlDisconnected = qfalse; // need clearing structs before ERR_DROP, or it goes into endless reload
+			CL_ClearStaticDownload();
+			Com_Error( ERR_DROP, error );
+		} else {
+			// see CL_ParseDownload, same abort strategy
+			Com_Printf( "Download failure while getting '%s'\n", cls.downloadName );
+			CL_AddReliableCommand( "wwwdl fail" );
+			clc.bWWWDlAborting = qtrue;
+		}
+		return;
+	}
+
+	clc.bWWWDl = qfalse;
+	CL_NextDownload();
+}
+
+/*
+==================
+CL_WWWBadChecksum
+
+FS code calls this when doing FS_ComparePaks
+we can detect files that we got from a www dl redirect with a wrong checksum
+this indicates that the redirect setup is broken, and next dl attempt should NOT redirect
+==================
+*/
+qboolean CL_WWWBadChecksum( const char *pakname ) {
+	if ( strstr( clc.redirectedList, va( "@%s", pakname ) ) ) {
+		Com_Printf( "WARNING: file %s obtained through download redirect has wrong checksum\n", pakname );
+		Com_Printf( "         this likely means the server configuration is broken\n" );
+		if ( strlen( clc.badChecksumList ) + strlen( pakname ) + 1 >= sizeof( clc.badChecksumList ) ) {
+			Com_Printf( "ERROR: badChecksumList overflowed (%s)\n", clc.badChecksumList );
+			return qfalse;
+		}
+		strcat( clc.badChecksumList, "@" );
+		strcat( clc.badChecksumList, pakname );
+		Com_DPrintf( "bad checksums: %s\n", clc.badChecksumList );
+		return qtrue;
+	}
+	return qfalse;
+}
+#endif RTCW_XX
+
 /*
 ==================
 CL_Frame
@@ -2494,7 +3486,7 @@ void CL_Frame( int msec ) {
 	} else if ( cls.endgamemenu ) {
 		cls.endgamemenu = qfalse;
 		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_ENDGAME );
-#elif defined RTCW_MP
+#else
 		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NEED_CD );
 #endif RTCW_XX
 
@@ -2537,6 +3529,13 @@ void CL_Frame( int msec ) {
 	// drop the connection
 	CL_CheckTimeout();
 
+#if defined RTCW_ET
+	// wwwdl download may survive a server disconnect
+	if ( ( cls.state == CA_CONNECTED && clc.bWWWDl ) || cls.bWWWDlDisconnected ) {
+		CL_WWWDownload();
+	}
+#endif RTCW_XX
+
 	// send intentions now
 	CL_SendCmd();
 
@@ -2560,7 +3559,7 @@ void CL_Frame( int msec ) {
 	S_Update();
 //		}
 //	}
-#elif defined RTCW_MP
+#else
 	// update the sound
 	S_Update();
 #endif RTCW_XX
@@ -2754,7 +3753,7 @@ void CL_SetRecommended_f( void ) {
 	} else {
 		Com_SetRecommended( qfalse );
 	}
-#elif defined RTCW_MP
+#else
 	Com_SetRecommended();
 #endif RTCW_XX
 
@@ -2782,7 +3781,7 @@ void QDECL CL_RefPrintf( int print_level, const char *fmt, ... ) {
 
 #if defined RTCW_SP
 	vsprintf( msg,fmt,argptr );
-#elif defined RTCW_MP
+#else
 	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
 #endif RTCW_XX
 
@@ -2828,8 +3827,14 @@ void CL_InitRenderer( void ) {
 	cls.whiteShader = re.RegisterShader( "white" );
 	cls.consoleShader = re.RegisterShader( "console" );
 	cls.consoleShader2 = re.RegisterShader( "console2" );
-#elif defined RTCW_MP
+#else
+
+#if !defined RTCW_ET
 	cls.charSetShader = re.RegisterShader( "gfx/2d/hudchars" );
+#else
+	cls.charSetShader = re.RegisterShader( "gfx/2d/consolechars" );
+#endif RTCW_XX
+
 	cls.whiteShader = re.RegisterShader( "white" );
 
 // JPW NERVE
@@ -2880,9 +3885,11 @@ void CL_StartHunkUsers( void ) {
 	}
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // DHM - Nerve
 void CL_CheckAutoUpdate( void ) {
+
+#if !defined RTCW_ET
 	int validServerNum = 0;
 	int i = 0, rnd = 0;
 	netadr_t temp;
@@ -2936,7 +3943,103 @@ void CL_CheckAutoUpdate( void ) {
 	CL_RequestMotd();
 
 	autoupdateChecked = qtrue;
+#else
+#ifndef PRE_RELEASE_DEMO
+
+	if ( !cl_autoupdate->integer ) {
+		return;
+	}
+
+	// Only check once per session
+	if ( autoupdateChecked ) {
+		return;
+	}
+
+	srand( Com_Milliseconds() );
+
+	// Resolve update server
+	if ( !NET_StringToAdr( cls.autoupdateServerNames[0], &cls.autoupdateServer  ) ) {
+		Com_DPrintf( "Failed to resolve any Auto-update servers.\n" );
+
+		cls.autoUpdateServerChecked[0] = qtrue;
+
+		autoupdateChecked = qtrue;
+		return;
+	}
+
+	cls.autoupdatServerIndex = 0;
+
+	cls.autoupdatServerFirstIndex = cls.autoupdatServerIndex;
+
+	cls.autoUpdateServerChecked[cls.autoupdatServerIndex] = qtrue;
+
+	cls.autoupdateServer.port = BigShort( PORT_SERVER );
+	Com_DPrintf( "autoupdate server at: %i.%i.%i.%i:%i\n", cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
+				 cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
+				 BigShort( cls.autoupdateServer.port ) );
+
+	NET_OutOfBandPrint( NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", Q3_VERSION, CPUSTRING );
+
+#endif // !PRE_RELEASE_DEMO
+
+	CL_RequestMotd();
+
+	autoupdateChecked = qtrue;
+#endif RTCW_XX
+
 }
+
+#if defined RTCW_ET
+qboolean CL_NextUpdateServer( void ) {
+	char        *servername;
+
+#ifdef PRE_RELEASE_DEMO
+	return qfalse;
+#endif // PRE_RELEASE_DEMO
+
+	if ( !cl_autoupdate->integer ) {
+		return qfalse;
+	}
+
+#ifdef _DEBUG
+	Com_Printf( S_COLOR_MAGENTA "Autoupdate hardcoded OFF in debug build\n" );
+	return qfalse;
+#endif
+
+	while ( cls.autoUpdateServerChecked[cls.autoupdatServerFirstIndex] ) {
+		cls.autoupdatServerIndex++;
+
+		if ( cls.autoupdatServerIndex > MAX_AUTOUPDATE_SERVERS ) {
+			cls.autoupdatServerIndex = 0;
+		}
+
+		if ( cls.autoupdatServerIndex == cls.autoupdatServerFirstIndex ) {
+			// went through all of them already
+			return qfalse;
+		}
+	}
+
+	servername = cls.autoupdateServerNames[cls.autoupdatServerIndex];
+
+	Com_DPrintf( "Resolving AutoUpdate Server... " );
+	if ( !NET_StringToAdr( servername, &cls.autoupdateServer  ) ) {
+		Com_DPrintf( "Couldn't resolve address, trying next one..." );
+
+		cls.autoUpdateServerChecked[cls.autoupdatServerIndex] = qtrue;
+
+		return CL_NextUpdateServer();
+	}
+
+	cls.autoUpdateServerChecked[cls.autoupdatServerIndex] = qtrue;
+
+	cls.autoupdateServer.port = BigShort( PORT_SERVER );
+	Com_DPrintf( "%i.%i.%i.%i:%i\n", cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
+				 cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
+				 BigShort( cls.autoupdateServer.port ) );
+
+	return qtrue;
+}
+#endif RTCW_XX
 
 void CL_GetAutoUpdate( void ) {
 
@@ -2956,6 +4059,12 @@ void CL_GetAutoUpdate( void ) {
 
 	// starting to load a map so we get out of full screen ui mode
 	Cvar_Set( "r_uiFullScreen", "0" );
+
+#if defined RTCW_ET
+	// toggle on all the download related cvars
+	Cvar_Set( "cl_allowDownload", "1" ); // general flag
+	Cvar_Set( "cl_wwwDownload", "1" ); // ftp/http support
+#endif RTCW_XX
 
 	// clear any previous "server full" type messages
 	clc.serverMessage[0] = 0;
@@ -2977,6 +4086,11 @@ void CL_GetAutoUpdate( void ) {
 	if ( cls.autoupdateServer.type == NA_BAD ) {
 		Com_Printf( "Bad server address\n" );
 		cls.state = CA_DISCONNECTED;
+
+#if defined RTCW_ET
+		Cvar_Set( "ui_connecting", "0" );
+#endif RTCW_XX
+
 		return;
 	}
 
@@ -3050,7 +4164,7 @@ void CL_InitRef( void ) {
 	ri.Error = Com_Error;
 	ri.Milliseconds = CL_ScaledMilliseconds;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #ifdef ZONE_DEBUG
 	ri.Z_MallocDebug = CL_RefMallocDebug;
 #else
@@ -3087,9 +4201,11 @@ void CL_InitRef( void ) {
 
 	ret = GetRefAPI( REF_API_VERSION, &ri );
 
+#if !defined RTCW_ET
 #if 0 // MrE defined __USEA3D && defined __A3D_GEOM
 	hA3Dg_ExportRenderGeom( ret );
 #endif
+#endif RTCW_XX
 
 	Com_Printf( "-------------------------------\n" );
 
@@ -3156,7 +4272,9 @@ void CL_ShellExecute_URL_f( void ) {
 	Sys_OpenURL( Cmd_Argv( 2 ),doexit );
 }
 //----(SA) end
-#elif defined RTCW_MP
+#else
+
+#if !defined RTCW_ET
 void CL_startSingleplayer_f( void ) {
 #if defined( __linux__ )
 	Sys_StartProcess( "./wolfsp.x86", qtrue );
@@ -3164,8 +4282,18 @@ void CL_startSingleplayer_f( void ) {
 	Sys_StartProcess( "WolfSP.exe", qtrue );
 #endif
 }
+#else
+/*void CL_startSingleplayer_f( void ) {
+#if defined(__linux__)
+	Sys_StartProcess( "./wolfsp.x86", qtrue );
+#else
+	Sys_StartProcess( "WolfSP.exe", qtrue );
+#endif
+}*/
+#endif RTCW_XX
 
 // NERVE - SMF
+#if !defined RTCW_ET
 void CL_buyNow_f( void ) {
 	Sys_OpenURL( "http://www.activision.com/games/wolfenstein/purchase.html", qtrue );
 }
@@ -3174,6 +4302,19 @@ void CL_buyNow_f( void ) {
 void CL_singlePlayLink_f( void ) {
 	Sys_OpenURL( "http://www.activision.com/games/wolfenstein/home.html", qtrue );
 }
+#else
+// fretn unused
+#if 0
+void CL_buyNow_f( void ) {
+	Sys_OpenURL( "http://www.activision.com/games/wolfenstein/purchase.html", qtrue );
+}
+
+// NERVE - SMF
+void CL_singlePlayLink_f( void ) {
+	Sys_OpenURL( "http://www.activision.com/games/wolfenstein/home.html", qtrue );
+}
+#endif
+#endif RTCW_XX
 
 #if !defined( __MACOS__ )
 void CL_SaveTranslations_f( void ) {
@@ -3226,20 +4367,20 @@ void CL_Init( void ) {
 	cl_noprint = Cvar_Get( "cl_noprint", "0", 0 );
 	cl_motd = Cvar_Get( "cl_motd", "1", 0 );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	cl_autoupdate = Cvar_Get( "cl_autoupdate", "1", CVAR_ARCHIVE );
 #endif RTCW_XX
 
 	cl_timeout = Cvar_Get( "cl_timeout", "200", 0 );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	cl_wavefilerecord = Cvar_Get( "cl_wavefilerecord", "0", CVAR_TEMP );
 #endif RTCW_XX
 
 	cl_timeNudge = Cvar_Get( "cl_timeNudge", "0", CVAR_TEMP );
 	cl_shownet = Cvar_Get( "cl_shownet", "0", CVAR_TEMP );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	cl_shownuments = Cvar_Get( "cl_shownuments", "0", CVAR_TEMP );
 	cl_visibleClients = Cvar_Get( "cl_visibleClients", "0", CVAR_TEMP );
 	cl_showServerCommands = Cvar_Get( "cl_showServerCommands", "0", 0 );
@@ -3250,6 +4391,10 @@ void CL_Init( void ) {
 	cl_freezeDemo = Cvar_Get( "cl_freezeDemo", "0", CVAR_TEMP );
 	rcon_client_password = Cvar_Get( "rconPassword", "", CVAR_TEMP );
 	cl_activeAction = Cvar_Get( "activeAction", "", CVAR_TEMP );
+
+#if defined RTCW_ET
+	cl_autorecord = Cvar_Get( "cl_autorecord", "0", CVAR_TEMP );
+#endif RTCW_XX
 
 	cl_timedemo = Cvar_Get( "timedemo", "0", 0 );
 	cl_avidemo = Cvar_Get( "cl_avidemo", "0", 0 );
@@ -3271,14 +4416,25 @@ void CL_Init( void ) {
 
 	cl_showMouseRate = Cvar_Get( "cl_showmouserate", "0", 0 );
 
+#if !defined RTCW_ET
 	cl_allowDownload = Cvar_Get( "cl_allowDownload", "0", CVAR_ARCHIVE );
+#else
+	cl_allowDownload = Cvar_Get( "cl_allowDownload", "1", CVAR_ARCHIVE );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	cl_wwwDownload = Cvar_Get( "cl_wwwDownload", "1", CVAR_USERINFO | CVAR_ARCHIVE );
+
+	cl_profile = Cvar_Get( "cl_profile", "", CVAR_ROM );
+	cl_defaultProfile = Cvar_Get( "cl_defaultProfile", "", CVAR_ROM );
+#endif RTCW_XX
 
 	// init autoswitch so the ui will have it correctly even
 	// if the cgame hasn't been started
 
 #if defined RTCW_SP
 	Cvar_Get( "cg_autoswitch", "2", CVAR_ARCHIVE );
-#elif defined RTCW_MP
+#else
 	// -NERVE - SMF - disabled autoswitch by default
 	Cvar_Get( "cg_autoswitch", "0", CVAR_ARCHIVE );
 #endif RTCW_XX
@@ -3295,8 +4451,12 @@ void CL_Init( void ) {
 	// RF
 	cl_recoilPitch = Cvar_Get( "cg_recoilPitch", "0", CVAR_ROM );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	cl_bypassMouseInput = Cvar_Get( "cl_bypassMouseInput", "0", 0 ); //CVAR_ROM );			// NERVE - SMF
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	cl_doubletapdelay = Cvar_Get( "cl_doubletapdelay", "350", CVAR_ARCHIVE ); // Arnout: double tap
 #endif RTCW_XX
 
 	m_pitch = Cvar_Get( "m_pitch", "0.022", CVAR_ARCHIVE );
@@ -3307,9 +4467,23 @@ void CL_Init( void ) {
 
 	cl_motdString = Cvar_Get( "cl_motdString", "", CVAR_ROM );
 
+#if defined RTCW_ET
+	//bani - make these cvars visible to cgame
+	cl_demorecording = Cvar_Get( "cl_demorecording", "0", CVAR_ROM );
+	cl_demofilename = Cvar_Get( "cl_demofilename", "", CVAR_ROM );
+	cl_demooffset = Cvar_Get( "cl_demooffset", "0", CVAR_ROM );
+	cl_waverecording = Cvar_Get( "cl_waverecording", "0", CVAR_ROM );
+	cl_wavefilename = Cvar_Get( "cl_wavefilename", "", CVAR_ROM );
+	cl_waveoffset = Cvar_Get( "cl_waveoffset", "0", CVAR_ROM );
+
+	//bani
+	cl_packetloss = Cvar_Get( "cl_packetloss", "0", CVAR_CHEAT );
+	cl_packetdelay = Cvar_Get( "cl_packetdelay", "0", CVAR_CHEAT );
+#endif RTCW_XX
+
 	Cvar_Get( "cl_maxPing", "800", CVAR_ARCHIVE );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// NERVE - SMF
 	Cvar_Get( "cg_drawCompass", "1", CVAR_ARCHIVE );
 	Cvar_Get( "cg_drawNotifyText", "1", CVAR_ARCHIVE );
@@ -3317,28 +4491,52 @@ void CL_Init( void ) {
 	Cvar_Get( "cg_popupLimboMenu", "1", CVAR_ARCHIVE );
 	Cvar_Get( "cg_descriptiveText", "1", CVAR_ARCHIVE );
 	Cvar_Get( "cg_drawTeamOverlay", "2", CVAR_ARCHIVE );
+
+#if !defined RTCW_ET
 	Cvar_Get( "cg_uselessNostalgia", "0", CVAR_ARCHIVE ); // JPW NERVE
+#else
+//	Cvar_Get( "cg_uselessNostalgia", "0", CVAR_ARCHIVE ); // JPW NERVE
+#endif RTCW_XX
+
 	Cvar_Get( "cg_drawGun", "1", CVAR_ARCHIVE );
 	Cvar_Get( "cg_cursorHints", "1", CVAR_ARCHIVE );
 	Cvar_Get( "cg_voiceSpriteTime", "6000", CVAR_ARCHIVE );
+
+#if !defined RTCW_ET
 	Cvar_Get( "cg_teamChatsOnly", "0", CVAR_ARCHIVE );
 	Cvar_Get( "cg_noVoiceChats", "0", CVAR_ARCHIVE );
 	Cvar_Get( "cg_noVoiceText", "0", CVAR_ARCHIVE );
+#else
+//	Cvar_Get( "cg_teamChatsOnly", "0", CVAR_ARCHIVE );
+//	Cvar_Get( "cg_noVoiceChats", "0", CVAR_ARCHIVE );
+//	Cvar_Get( "cg_noVoiceText", "0", CVAR_ARCHIVE );
+#endif RTCW_XX
+
 	Cvar_Get( "cg_crosshairSize", "48", CVAR_ARCHIVE );
 	Cvar_Get( "cg_drawCrosshair", "1", CVAR_ARCHIVE );
 	Cvar_Get( "cg_zoomDefaultSniper", "20", CVAR_ARCHIVE );
 	Cvar_Get( "cg_zoomstepsniper", "2", CVAR_ARCHIVE );
 
+#if !defined RTCW_ET
 	Cvar_Get( "mp_playerType", "0", 0 );
 	Cvar_Get( "mp_currentPlayerType", "0", 0 );
 	Cvar_Get( "mp_weapon", "0", 0 );
 	Cvar_Get( "mp_team", "0", 0 );
 	Cvar_Get( "mp_currentTeam", "0", 0 );
+#else
+//	Cvar_Get( "mp_playerType", "0", 0 );
+//	Cvar_Get( "mp_currentPlayerType", "0", 0 );
+//	Cvar_Get( "mp_weapon", "0", 0 );
+//	Cvar_Get( "mp_team", "0", 0 );
+//	Cvar_Get( "mp_currentTeam", "0", 0 );
+#endif RTCW_XX
+
 	// -NERVE - SMF
 #endif RTCW_XX
 
 	// userinfo
 
+#if !defined RTCW_ET
 #if defined RTCW_SP
 	Cvar_Get( "name", "Player", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get( "rate", "3000", CVAR_USERINFO | CVAR_ARCHIVE );
@@ -3367,6 +4565,24 @@ void CL_Init( void ) {
 #if defined RTCW_SP
 	Cvar_Get( "cg_emptyswitch", "0", CVAR_USERINFO | CVAR_ARCHIVE );
 #endif RTCW_XX
+#else
+	Cvar_Get( "name", "ETPlayer", CVAR_USERINFO | CVAR_ARCHIVE );
+	Cvar_Get( "rate", "5000", CVAR_USERINFO | CVAR_ARCHIVE );     // NERVE - SMF - changed from 3000
+	Cvar_Get( "snaps", "20", CVAR_USERINFO | CVAR_ARCHIVE );
+//	Cvar_Get ("model", "american", CVAR_USERINFO | CVAR_ARCHIVE );	// temp until we have an skeletal american model
+//	Arnout - no need // Cvar_Get ("model", "multi", CVAR_USERINFO | CVAR_ARCHIVE );
+//	Arnout - no need // Cvar_Get ("head", "default", CVAR_USERINFO | CVAR_ARCHIVE );
+//	Arnout - no need // Cvar_Get ("color", "4", CVAR_USERINFO | CVAR_ARCHIVE );
+//	Arnout - no need // Cvar_Get ("handicap", "0", CVAR_USERINFO | CVAR_ARCHIVE );
+//	Cvar_Get ("sex", "male", CVAR_USERINFO | CVAR_ARCHIVE );
+	Cvar_Get( "cl_anonymous", "0", CVAR_USERINFO | CVAR_ARCHIVE );
+
+	Cvar_Get( "password", "", CVAR_USERINFO );
+	Cvar_Get( "cg_predictItems", "1", CVAR_ARCHIVE );
+
+//----(SA) added
+	Cvar_Get( "cg_autoactivate", "1", CVAR_ARCHIVE );
+#endif RTCW_XX
 
 //----(SA) end
 
@@ -3375,6 +4591,8 @@ void CL_Init( void ) {
 
 #if defined RTCW_MP
 	Cvar_Get( "cg_autoReload", "1", CVAR_ARCHIVE | CVAR_USERINFO );
+#elif defined RTCW_ET
+	Cvar_Get( "cg_autoReload", "1", CVAR_ARCHIVE );
 #endif RTCW_XX
 
 	cl_missionStats = Cvar_Get( "g_missionStats", "0", CVAR_ROM );
@@ -3385,7 +4603,7 @@ void CL_Init( void ) {
 	cl_debugTranslation = Cvar_Get( "cl_debugTranslation", "0", 0 );
 	// -NERVE - SMF
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// DHM - Nerve :: Auto-update
 	cl_updateavailable = Cvar_Get( "cl_updateavailable", "0", CVAR_ROM );
 	cl_updatefiles = Cvar_Get( "cl_updatefiles", "", CVAR_ROM );
@@ -3403,10 +4621,15 @@ void CL_Init( void ) {
 	Cmd_AddCommand( "cmd", CL_ForwardToServer_f );
 	Cmd_AddCommand( "configstrings", CL_Configstrings_f );
 	Cmd_AddCommand( "clientinfo", CL_Clientinfo_f );
+
+#if defined RTCW_ET
+	Cmd_AddCommand( "snd_reload", CL_Snd_Reload_f );
+#endif RTCW_XX
+
 	Cmd_AddCommand( "snd_restart", CL_Snd_Restart_f );
 	Cmd_AddCommand( "vid_restart", CL_Vid_Restart_f );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	Cmd_AddCommand( "ui_restart", CL_UI_Restart_f );          // NERVE - SMF
 #endif RTCW_XX
 
@@ -3451,7 +4674,7 @@ void CL_Init( void ) {
 
 	// RF, prevent users from issuing a map_restart manually
 	Cmd_AddCommand( "map_restart", CL_MapRestart_f );
-#elif defined RTCW_MP
+#else
 #ifndef __MACOS__  //DAJ USA
 	Cmd_AddCommand( "SaveTranslations", CL_SaveTranslations_f );     // NERVE - SMF - localization
 	Cmd_AddCommand( "SaveNewTranslations", CL_SaveNewTranslations_f );   // NERVE - SMF - localization
@@ -3461,12 +4684,28 @@ void CL_Init( void ) {
 	// RF, add this command so clients can't bind a key to send client damage commands to the server
 //	Cmd_AddCommand ("cld", CL_ClientDamageCommand );
 
+#if !defined RTCW_ET
 	Cmd_AddCommand( "startSingleplayer", CL_startSingleplayer_f );      // NERVE - SMF
 	Cmd_AddCommand( "buyNow", CL_buyNow_f );                            // NERVE - SMF
 	Cmd_AddCommand( "singlePlayLink", CL_singlePlayLink_f );            // NERVE - SMF
+#else
+//	Cmd_AddCommand ( "startSingleplayer", CL_startSingleplayer_f );		// NERVE - SMF
+//	fretn - unused
+//	Cmd_AddCommand ( "buyNow", CL_buyNow_f );							// NERVE - SMF
+//	Cmd_AddCommand ( "singlePlayLink", CL_singlePlayLink_f );			// NERVE - SMF
+#endif RTCW_XX
+
 #endif RTCW_XX
 
 	Cmd_AddCommand( "setRecommended", CL_SetRecommended_f );
+
+#if defined RTCW_ET
+	//bani - we eat these commands to prevent exploits
+	Cmd_AddCommand( "userinfo", CL_EatMe_f );
+
+	Cmd_AddCommand( "wav_record", CL_WavRecord_f );
+	Cmd_AddCommand( "wav_stoprecord", CL_WavStopRecord_f );
+#endif RTCW_XX
 
 	CL_InitRef();
 
@@ -3476,7 +4715,7 @@ void CL_Init( void ) {
 
 	Cvar_Set( "cl_running", "1" );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// DHM - Nerve
 	autoupdateChecked = qfalse;
 	autoupdateStarted = qfalse;
@@ -3507,9 +4746,20 @@ void CL_Shutdown( void ) {
 	}
 	recursive = qtrue;
 
+#if defined RTCW_ET
+	if ( clc.waverecording ) { // fretn - write wav header when we quit
+		CL_WavStopRecord_f();
+	}
+#endif RTCW_XX
+
 	CL_Disconnect( qtrue );
 
 	S_Shutdown();
+
+#if defined RTCW_ET
+	DL_Shutdown();
+#endif RTCW_XX
+
 	CL_ShutdownRef();
 
 	CL_ShutdownUI();
@@ -3517,6 +4767,11 @@ void CL_Shutdown( void ) {
 	Cmd_RemoveCommand( "cmd" );
 	Cmd_RemoveCommand( "configstrings" );
 	Cmd_RemoveCommand( "userinfo" );
+
+#if defined RTCW_ET
+	Cmd_RemoveCommand( "snd_reload" );
+#endif RTCW_XX
+
 	Cmd_RemoveCommand( "snd_restart" );
 	Cmd_RemoveCommand( "vid_restart" );
 	Cmd_RemoveCommand( "disconnect" );
@@ -3542,6 +4797,12 @@ void CL_Shutdown( void ) {
 	Cmd_RemoveCommand( "cache_endgather" );
 
 	Cmd_RemoveCommand( "updatehunkusage" );
+
+#if defined RTCW_ET
+	Cmd_RemoveCommand( "wav_record" );
+	Cmd_RemoveCommand( "wav_stoprecord" );
+#endif RTCW_XX
+
 	// done.
 
 	Cvar_Set( "cl_running", "0" );
@@ -3559,6 +4820,11 @@ static void CL_SetServerInfo( serverInfo_t *server, const char *info, int ping )
 		if ( info ) {
 			server->clients = atoi( Info_ValueForKey( info, "clients" ) );
 			Q_strncpyz( server->hostName,Info_ValueForKey( info, "hostname" ), MAX_NAME_LENGTH );
+
+#if defined RTCW_ET
+			server->load = atoi( Info_ValueForKey( info, "serverload" ) );
+#endif RTCW_XX
+
 			Q_strncpyz( server->mapName, Info_ValueForKey( info, "mapname" ), MAX_NAME_LENGTH );
 			server->maxClients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
 			Q_strncpyz( server->game,Info_ValueForKey( info, "game" ), MAX_NAME_LENGTH );
@@ -3568,13 +4834,24 @@ static void CL_SetServerInfo( serverInfo_t *server, const char *info, int ping )
 			server->maxPing = atoi( Info_ValueForKey( info, "maxping" ) );
 			server->allowAnonymous = atoi( Info_ValueForKey( info, "sv_allowAnonymous" ) );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 			server->friendlyFire = atoi( Info_ValueForKey( info, "friendlyFire" ) );         // NERVE - SMF
 			server->maxlives = atoi( Info_ValueForKey( info, "maxlives" ) );                 // NERVE - SMF
+
+#if !defined RTCW_ET
 			server->tourney = atoi( Info_ValueForKey( info, "tourney" ) );                       // NERVE - SMF
+#else
+			server->needpass = atoi( Info_ValueForKey( info, "needpass" ) );                 // NERVE - SMF
+#endif RTCW_XX
+
 			server->punkbuster = atoi( Info_ValueForKey( info, "punkbuster" ) );             // DHM - Nerve
 			Q_strncpyz( server->gameName, Info_ValueForKey( info, "gamename" ), MAX_NAME_LENGTH );   // Arnout
 			server->antilag = atoi( Info_ValueForKey( info, "g_antilag" ) );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+			server->weaprestrict = atoi( Info_ValueForKey( info, "weaprestrict" ) );
+			server->balancedteams = atoi( Info_ValueForKey( info, "balancedteams" ) );
 #endif RTCW_XX
 
 		}
@@ -3591,11 +4868,13 @@ static void CL_SetServerInfoByAddress( netadr_t from, const char *info, int ping
 		}
 	}
 
+#if !defined RTCW_ET
 	for ( i = 0; i < MAX_OTHER_SERVERS; i++ ) {
 		if ( NET_CompareAdr( from, cls.mplayerServers[i].adr ) ) {
 			CL_SetServerInfo( &cls.mplayerServers[i], info, ping );
 		}
 	}
+#endif RTCW_XX
 
 	for ( i = 0; i < MAX_GLOBAL_SERVERS; i++ ) {
 		if ( NET_CompareAdr( from, cls.globalServers[i].adr ) ) {
@@ -3623,13 +4902,32 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	char    *infoString;
 	int prot;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	char    *gameName;
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	int debug_protocol;
+	int protocol = PROTOCOL_VERSION;
+
+	debug_protocol = Cvar_VariableIntegerValue( "debug_protocol" );
+	if ( debug_protocol ) {
+		protocol = debug_protocol;
+	}
 #endif RTCW_XX
 
 	infoString = MSG_ReadString( msg );
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+	// if this isn't the correct protocol version, ignore it
+	prot = atoi( Info_ValueForKey( infoString, "protocol" ) );
+	if ( prot != protocol ) {
+		Com_DPrintf( "Different protocol info packet: %s\n", infoString );
+		return;
+	}
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 	// Arnout: if this isn't the correct game, ignore it
 	gameName = Info_ValueForKey( infoString, "gamename" );
 	if ( !gameName[0] || Q_stricmp( gameName, GAMENAME_STRING ) ) {
@@ -3638,10 +4936,12 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	}
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	// if this isn't the correct protocol version, ignore it
 	prot = atoi( Info_ValueForKey( infoString, "protocol" ) );
 	if ( prot != PROTOCOL_VERSION ) {
 		Com_DPrintf( "Different protocol info packet: %s\n", infoString );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 //		return;
@@ -3649,7 +4949,9 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 		return;
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	}
+#endif RTCW_XX
 
 	// iterate servers waiting for ping response
 	for ( i = 0; i < MAX_PINGREQUESTS; i++ )
@@ -3717,6 +5019,11 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	cls.localServers[i].adr = from;
 	cls.localServers[i].clients = 0;
 	cls.localServers[i].hostName[0] = '\0';
+
+#if defined RTCW_ET
+	cls.localServers[i].load = -1;
+#endif RTCW_XX
+
 	cls.localServers[i].mapName[0] = '\0';
 	cls.localServers[i].maxClients = 0;
 	cls.localServers[i].maxPing = 0;
@@ -3735,6 +5042,16 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	cls.localServers[i].gameName[0] = '\0';           // Arnout
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	cls.localServers[i].friendlyFire = 0;           // NERVE - SMF
+	cls.localServers[i].maxlives = 0;               // NERVE - SMF
+	cls.localServers[i].needpass = 0;
+	cls.localServers[i].punkbuster = 0;             // DHM - Nerve
+	cls.localServers[i].antilag = 0;
+	cls.localServers[i].weaprestrict = 0;
+	cls.localServers[i].balancedteams = 0;
+	cls.localServers[i].gameName[0] = '\0';           // Arnout
+#endif RTCW_XX
 
 	Q_strncpyz( info, MSG_ReadString( msg ), MAX_INFO_STRING );
 	if ( strlen( info ) ) {
@@ -3745,7 +5062,7 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	}
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 ===================
 CL_UpdateInfoPacket
@@ -4043,11 +5360,16 @@ void CL_GlobalServers_f( void ) {
 	// reset the list, waiting for response
 	// -1 is used to distinguish a "no response"
 
+#if !defined RTCW_ET
 	if ( cls.masterNum == 1 ) {
 		NET_StringToAdr( "master.quake3world.com", &to );
 		cls.nummplayerservers = -1;
 		cls.pingUpdateSource = AS_MPLAYER;
 	} else {
+#else
+	if ( cls.masterNum == 0 ) {
+#endif RTCW_XX
+
 		NET_StringToAdr( MASTER_SERVER_NAME, &to );
 		cls.numglobalservers = -1;
 		cls.pingUpdateSource = AS_GLOBAL;
@@ -4082,7 +5404,12 @@ void CL_GetPing( int n, char *buf, int buflen, int *pingtime ) {
 	int time;
 	int maxPing;
 
+#if !defined RTCW_ET
 	if ( !cl_pinglist[n].adr.port ) {
+#else
+	if ( n < 0 || n >= MAX_PINGREQUESTS || !cl_pinglist[n].adr.port ) {
+#endif RTCW_XX
+
 		// empty slot
 		buf[0]    = '\0';
 		*pingtime = 0;
@@ -4117,7 +5444,13 @@ CL_UpdateServerInfo
 ==================
 */
 void CL_UpdateServerInfo( int n ) {
+
+#if !defined RTCW_ET
 	if ( !cl_pinglist[n].adr.port ) {
+#else
+	if ( n < 0 || n >= MAX_PINGREQUESTS || !cl_pinglist[n].adr.port ) {
+#endif RTCW_XX
+
 		return;
 	}
 
@@ -4130,7 +5463,13 @@ CL_GetPingInfo
 ==================
 */
 void CL_GetPingInfo( int n, char *buf, int buflen ) {
+
+#if !defined RTCW_ET
 	if ( !cl_pinglist[n].adr.port ) {
+#else
+	if ( n < 0 || n >= MAX_PINGREQUESTS || !cl_pinglist[n].adr.port ) {
+#endif RTCW_XX
+
 		// empty slot
 		if ( buflen ) {
 			buf[0] = '\0';
@@ -4288,10 +5627,14 @@ qboolean CL_UpdateVisiblePings_f( int source ) {
 			server = &cls.localServers[0];
 			max = cls.numlocalservers;
 			break;
+
+#if !defined RTCW_ET
 		case AS_MPLAYER:
 			server = &cls.mplayerServers[0];
 			max = cls.nummplayerservers;
 			break;
+#endif RTCW_XX
+
 		case AS_GLOBAL:
 			server = &cls.globalServers[0];
 			max = cls.numglobalservers;
@@ -4458,7 +5801,7 @@ qboolean CL_CDKeyValidate( const char *key, const char *checksum ) {
 
 #if defined RTCW_SP
 			sum += ch;
-#elif defined RTCW_MP
+#else
 			sum = ( sum << 1 ) ^ ch;
 #endif RTCW_XX
 
@@ -4570,7 +5913,7 @@ qboolean CL_GetLimboString( int index, char *buf ) {
 }
 // -NERVE - SMF
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // NERVE - SMF - Localization code
 #define FILE_HASH_SIZE      1024
 #define MAX_VA_STRING       32000
@@ -4756,7 +6099,12 @@ void CL_SaveTransTable( const char *fileName, qboolean newOnly ) {
 				len = strlen( buf );
 				FS_Write( buf, len, f );
 
+#if !defined RTCW_ET
 				buf = va( "}\n", t->original );
+#else
+				buf = "}\n";
+#endif RTCW_XX
+
 				len = strlen( buf );
 				FS_Write( buf, len, f );
 			}
@@ -4858,6 +6206,10 @@ void CL_LoadTransTable( const char *fileName ) {
 	if ( len <= 0 ) {
 		return;
 	}
+
+#if defined RTCW_ET
+	// Gordon: shouldn't this be a z_malloc or something?
+#endif RTCW_XX
 
 	text = malloc( len + 1 );
 	if ( !text ) {
@@ -5080,7 +6432,13 @@ void CL_TranslateString( const char *string, char *dest_buffer ) {
 	if ( !string ) {
 		strcpy( buf, "(null)" );
 		return;
+
+#if !defined RTCW_ET
 	} else if ( currentLanguage == -1 || currentLanguage >= MAX_LANGUAGES || !strlen( string ) )   {
+#else
+	} else if ( currentLanguage < 0 || currentLanguage >= MAX_LANGUAGES || !strlen( string ) )   {
+#endif RTCW_XX
+
 		strcpy( buf, string );
 		return;
 	}
@@ -5172,7 +6530,13 @@ const char* CL_TranslateStringBuf( const char *string ) {
 	int i,l;
 	static char buf[MAX_VA_STRING];
 	CL_TranslateString( string, buf );
+
+#if !defined RTCW_ET
 	while ( ( p = strstr( buf, "\\n" ) ) )
+#else
+	while ( ( p = strstr( buf, "\\n" ) ) != NULL )
+#endif RTCW_XX
+
 	{
 		*p = '\n';
 		p++;
@@ -5198,6 +6562,18 @@ void CL_OpenURL( const char *url ) {
 		return;
 	}
 	Sys_OpenURL( url, qtrue );
+}
+#endif RTCW_XX
+
+#if defined RTCW_ET
+// Gordon: TEST TEST TEST
+/*
+==================
+BotImport_DrawPolygon
+==================
+*/
+void BotImport_DrawPolygon( int color, int numpoints, float* points ) {
+	re.DrawDebugPolygon( color, numpoints, points );
 }
 #endif RTCW_XX
 

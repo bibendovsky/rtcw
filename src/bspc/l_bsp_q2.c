@@ -473,9 +473,18 @@ int Q2_HintSkipBrush( dbrush_t *brush ) {
 	{
 		brushside = &dbrushsides[brush->firstside + j];
 		if ( brushside->texinfo > 0 ) {
+
+#if !defined RTCW_ET
 			if ( texinfo[brushside->texinfo].flags & ( SURF_SKIP | SURF_HINT ) ) {
 				return true;
 			} //end if
+#else
+//			if (texinfo[brushside->texinfo].flags & (SURF_SKIP|SURF_HINT))
+//			{
+//				return true;
+//			} //end if
+#endif RTCW_XX
+
 		} //end if
 	} //end for
 	return false;

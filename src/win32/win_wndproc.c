@@ -32,9 +32,11 @@ If you have questions concerning this license or the applicable additional terms
 
 WinVars_t g_wv;
 
+#if !defined RTCW_ET
 #ifndef WM_MOUSEWHEEL
 #define WM_MOUSEWHEEL ( WM_MOUSELAST + 1 )  // message that will be supported by the OS
 #endif
+#endif RTCW_XX
 
 #if defined RTCW_SP
 extern cvar_t       *k_language;
@@ -314,13 +316,27 @@ MainWndProc
 main window procedure
 ====================
 */
+
+#if defined RTCW_ET
+#ifndef DEDICATED
+extern qboolean directInput;         // fretn
+#else
+qboolean directInput = qfalse;
+#endif
+#endif RTCW_XX
+
 LONG WINAPI MainWndProc(
 	HWND hWnd,
 	UINT uMsg,
 	WPARAM wParam,
 	LPARAM lParam ) {
 
+#if !defined RTCW_ET
 	if ( uMsg == MSH_MOUSEWHEEL ) {
+#else
+	if ( uMsg == MSH_MOUSEWHEEL  && !directInput ) { // fretn
+#endif RTCW_XX
+
 		if ( ( ( int ) wParam ) > 0 ) {
 			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MWHEELUP, qtrue, 0, NULL );
 			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MWHEELUP, qfalse, 0, NULL );
@@ -340,6 +356,13 @@ LONG WINAPI MainWndProc(
 		// this chunk of code theoretically only works under NT4 and Win98
 		// since this message doesn't exist under Win95
 		//
+
+#if defined RTCW_ET
+		if ( directInput && r_fullscreen->integer ) { // fretn
+			break;
+		}
+#endif RTCW_XX
+
 		if ( ( short ) HIWORD( wParam ) > 0 ) {
 			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MWHEELUP, qtrue, 0, NULL );
 			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MWHEELUP, qfalse, 0, NULL );
@@ -353,6 +376,12 @@ LONG WINAPI MainWndProc(
 	case WM_CREATE:
 
 		g_wv.hWnd = hWnd;
+
+#if defined RTCW_ET
+#ifdef EXCEPTION_HANDLER
+		WinSetExceptionWnd( hWnd );
+#endif
+#endif RTCW_XX
 
 		vid_xpos = Cvar_Get( "vid_xpos", "3", CVAR_ARCHIVE );
 		vid_ypos = Cvar_Get( "vid_ypos", "22", CVAR_ARCHIVE );
@@ -383,6 +412,13 @@ LONG WINAPI MainWndProc(
 #endif
 	case WM_DESTROY:
 		// let sound and input know about this?
+
+#if defined RTCW_ET
+#ifdef EXCEPTION_HANDLER
+		WinSetExceptionWnd( NULL );
+#endif
+#endif RTCW_XX
+
 		g_wv.hWnd = NULL;
 		if ( r_fullscreen->integer ) {
 			WIN_EnableAltTab();
@@ -444,6 +480,12 @@ LONG WINAPI MainWndProc(
 	case WM_RBUTTONUP:
 	case WM_MBUTTONDOWN:
 	case WM_MBUTTONUP:
+
+#if defined RTCW_ET
+	case WM_XBUTTONDOWN:
+	case WM_XBUTTONUP:
+#endif RTCW_XX
+
 	case WM_MOUSEMOVE:
 	{
 		int temp;
@@ -461,6 +503,17 @@ LONG WINAPI MainWndProc(
 		if ( wParam & MK_MBUTTON ) {
 			temp |= 4;
 		}
+
+
+#if defined RTCW_ET
+		if ( wParam & MK_XBUTTON1 ) {
+			temp |= 8;
+		}
+
+		if ( wParam & MK_XBUTTON2 ) {
+			temp |= 16;
+		}
+#endif RTCW_XX
 
 		IN_MouseEvent( temp );
 	}

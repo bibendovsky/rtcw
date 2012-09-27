@@ -43,10 +43,16 @@ int historyLine;            // the line being displayed from history buffer
 field_t g_consoleField;
 field_t chatField;
 qboolean chat_team;
+
+#if !defined RTCW_ET
 qboolean chat_limbo;            // NERVE - SMF
 
 int chat_playerNum;
+#endif RTCW_XX
 
+#if defined RTCW_ET
+qboolean chat_buddy;
+#endif RTCW_XX
 
 qboolean key_overstrikeMode;
 
@@ -60,6 +66,10 @@ typedef struct {
 } keyname_t;
 
 qboolean UI_checkKeyExec( int key );        // NERVE - SMF
+
+#if defined RTCW_ET
+qboolean CL_CGameCheckKeyExec( int key );
+#endif RTCW_XX
 
 // names not in this list can either be lowercase ascii, or '0xnn' hex sequences
 keyname_t keynames[] =
@@ -205,7 +215,7 @@ keyname_t keynames_d[] =    //deutsch
 
 #if defined RTCW_SP
 	{"UMSCHALT", K_SHIFT},   // (SA) removed one 'L' for laird 11/15/01
-#elif defined RTCW_MP
+#else
 	{"UMSCHALLT", K_SHIFT},
 #endif RTCW_XX
 
@@ -438,7 +448,12 @@ keyname_t keynames_f[] =    //french
 	{NULL,0}
 };  //end french
 
+#if !defined RTCW_ET
 keyname_t keynames_s[] =  //Spanish - Updated 11/5
+#else
+keyname_t keynames_s[] =  //Spanish
+#endif RTCW_XX
+
 {
 	{"TABULADOR", K_TAB},
 	{"INTRO", K_ENTER},
@@ -816,7 +831,12 @@ void Field_Paste( field_t *edit ) {
 		Field_CharEvent( edit, cbd[i] );
 	}
 
+#if !defined RTCW_ET
 	free( cbd );
+#else
+	Z_Free( cbd );
+#endif RTCW_XX
+
 }
 
 /*
@@ -840,7 +860,12 @@ void Field_KeyDownEvent( field_t *edit, int key ) {
 
 	len = strlen( edit->buffer );
 
+#if !defined RTCW_ET
 	if ( key == K_DEL ) {
+#else
+	if ( key == K_DEL || key == K_KP_DEL ) {
+#endif RTCW_XX
+
 		if ( edit->cursor < len ) {
 			memmove( edit->buffer + edit->cursor,
 					 edit->buffer + edit->cursor + 1, len - edit->cursor );
@@ -848,7 +873,12 @@ void Field_KeyDownEvent( field_t *edit, int key ) {
 		return;
 	}
 
+#if !defined RTCW_ET
 	if ( key == K_RIGHTARROW ) {
+#else
+	if ( key == K_RIGHTARROW || key == K_KP_RIGHTARROW ) {
+#endif RTCW_XX
+
 		if ( edit->cursor < len ) {
 			edit->cursor++;
 		}
@@ -859,7 +889,12 @@ void Field_KeyDownEvent( field_t *edit, int key ) {
 		return;
 	}
 
+#if !defined RTCW_ET
 	if ( key == K_LEFTARROW ) {
+#else
+	if ( key == K_LEFTARROW || key == K_KP_LEFTARROW ) {
+#endif RTCW_XX
+
 		if ( edit->cursor > 0 ) {
 			edit->cursor--;
 		}
@@ -869,17 +904,32 @@ void Field_KeyDownEvent( field_t *edit, int key ) {
 		return;
 	}
 
+#if !defined RTCW_ET
 	if ( key == K_HOME || ( tolower( key ) == 'a' && keys[K_CTRL].down ) ) {
+#else
+	if ( key == K_HOME || key == K_KP_HOME || ( tolower( key ) == 'a' && keys[K_CTRL].down ) ) {
+#endif RTCW_XX
+
 		edit->cursor = 0;
 		return;
 	}
 
+#if !defined RTCW_ET
 	if ( key == K_END || ( tolower( key ) == 'e' && keys[K_CTRL].down ) ) {
+#else
+	if ( key == K_END || key == K_KP_END || ( tolower( key ) == 'e' && keys[K_CTRL].down ) ) {
+#endif RTCW_XX
+
 		edit->cursor = len;
 		return;
 	}
 
+#if !defined RTCW_ET
 	if ( key == K_INS ) {
+#else
+	if ( key == K_INS || key == K_KP_INS ) {
+#endif RTCW_XX
+
 		key_overstrikeMode = !key_overstrikeMode;
 		return;
 	}
@@ -970,9 +1020,16 @@ CONSOLE LINE EDITING
 ==============================================================================
 */
 
+#if !defined RTCW_ET
 static const char *completionString;
 static char shortestMatch[MAX_TOKEN_CHARS];
 static int matchCount;
+#else
+static char completionString[MAX_TOKEN_CHARS];
+static char currentMatch[MAX_TOKEN_CHARS];
+static int matchCount;
+static int matchIndex;
+#endif RTCW_XX
 
 /*
 ===============
@@ -988,6 +1045,8 @@ static void FindMatches( const char *s ) {
 	}
 	matchCount++;
 	if ( matchCount == 1 ) {
+
+#if !defined RTCW_ET
 		Q_strncpyz( shortestMatch, s, sizeof( shortestMatch ) );
 		return;
 	}
@@ -998,7 +1057,43 @@ static void FindMatches( const char *s ) {
 			shortestMatch[i] = 0;
 		}
 	}
+#else
+		Q_strncpyz( currentMatch, s, sizeof( currentMatch ) );
+		return;
+	}
+
+	// cut currentMatch to the amount common with s
+	for ( i = 0 ; s[i] ; i++ ) {
+		if ( tolower( currentMatch[i] ) != tolower( s[i] ) ) {
+			currentMatch[i] = 0;
+		}
+	}
+	currentMatch[i] = 0;
+#endif RTCW_XX
+
 }
+
+#if defined RTCW_ET
+/*
+===============
+FindIndexMatch
+
+===============
+*/
+static int findMatchIndex;
+static void FindIndexMatch( const char *s ) {
+
+	if ( Q_stricmpn( s, completionString, strlen( completionString ) ) ) {
+		return;
+	}
+
+	if ( findMatchIndex == matchIndex ) {
+		Q_strncpyz( currentMatch, s, sizeof( currentMatch ) );
+	}
+
+	findMatchIndex++;
+}
+#endif RTCW_XX
 
 /*
 ===============
@@ -1007,10 +1102,26 @@ PrintMatches
 ===============
 */
 static void PrintMatches( const char *s ) {
+
+#if !defined RTCW_ET
 	if ( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) ) {
 		Com_Printf( "    %s\n", s );
+#else
+	if ( !Q_stricmpn( s, currentMatch, strlen( currentMatch ) ) ) {
+		Com_Printf( "  ^9%s^0\n", s );
+#endif RTCW_XX
+
 	}
 }
+
+#if defined RTCW_ET
+// ydnar: to display cvar values
+static void PrintCvarMatches( const char *s ) {
+	if ( !Q_stricmpn( s, currentMatch, strlen( currentMatch ) ) ) {
+		Com_Printf( "  ^9%s = ^5%s^0\n", s, Cvar_VariableString( s ) );
+	}
+}
+#endif RTCW_XX
 
 static void keyConcatArgs( void ) {
 	int i;
@@ -1060,6 +1171,7 @@ static void CompleteCommand( void ) {
 
 	edit = &g_consoleField;
 
+#if !defined RTCW_ET
 	// only look at the first token for completion purposes
 	Cmd_TokenizeString( edit->buffer );
 
@@ -1105,6 +1217,81 @@ static void CompleteCommand( void ) {
 	// run through again, printing matches
 	Cmd_CommandCompletion( PrintMatches );
 	Cvar_CommandCompletion( PrintMatches );
+#else
+	if ( !con.acLength ) {
+		// only look at the first token for completion purposes
+		Cmd_TokenizeString( edit->buffer );
+
+		Q_strncpyz( completionString, Cmd_Argv( 0 ), sizeof( completionString ) );
+		if ( completionString[0] == '\\' || completionString[0] == '/' ) {
+			// rain - in strcpy, src and dest cannot overlap
+			//Q_strncpyz( completionString, completionString+1, sizeof(completionString) );
+			memmove( completionString, completionString + 1, sizeof( completionString ) - 1 );
+		}
+
+		matchCount = 0;
+		matchIndex = 0;
+		currentMatch[0] = 0;
+
+		if ( strlen( completionString ) == 0 ) {
+			return;
+		}
+
+		Cmd_CommandCompletion( FindMatches );
+		Cvar_CommandCompletion( FindMatches );
+
+		if ( matchCount == 0 ) {
+			return; // no matches
+		}
+
+		Com_Memcpy( &temp, edit, sizeof( field_t ) );
+
+		if ( matchCount == 1 ) {
+			Com_sprintf( edit->buffer, sizeof( edit->buffer ), "\\%s", currentMatch );
+			if ( Cmd_Argc() == 1 ) {
+				Q_strcat( g_consoleField.buffer, sizeof( g_consoleField.buffer ), " " );
+			} else {
+				ConcatRemaining( temp.buffer, completionString );
+			}
+			edit->cursor = strlen( edit->buffer );
+			return;
+		}
+
+		// multiple matches, complete to shortest
+		Com_sprintf( edit->buffer, sizeof( edit->buffer ), "\\%s", currentMatch );
+		con.acLength = edit->cursor = strlen( edit->buffer );
+		ConcatRemaining( temp.buffer, completionString );
+
+		Com_Printf( "]%s\n", edit->buffer );
+
+		// run through again, printing matches
+		Cmd_CommandCompletion( PrintMatches );
+		Cvar_CommandCompletion( PrintCvarMatches );
+	} else {
+		if ( matchCount != 1 ) {
+			// get the next match and show instead
+			char lastMatch[MAX_TOKEN_CHARS];
+
+			Q_strncpyz( lastMatch, currentMatch, sizeof( lastMatch ) );
+
+			matchIndex++;
+			if ( matchIndex == matchCount ) {
+				matchIndex = 0;
+			}
+			findMatchIndex = 0;
+			Cmd_CommandCompletion( FindIndexMatch );
+			Cvar_CommandCompletion( FindIndexMatch );
+
+			Com_Memcpy( &temp, edit, sizeof( field_t ) );
+
+			// and print it
+			Com_sprintf( edit->buffer, sizeof( edit->buffer ), "\\%s", currentMatch );
+			edit->cursor = strlen( edit->buffer );
+			ConcatRemaining( temp.buffer, lastMatch );
+		}
+	}
+#endif RTCW_XX
+
 }
 
 
@@ -1124,6 +1311,11 @@ void Console_Key( int key ) {
 
 	// enter finishes the line
 	if ( key == K_ENTER || key == K_KP_ENTER ) {
+
+#if defined RTCW_ET
+		con.acLength = 0;
+#endif RTCW_XX
+
 		// if not in the game explicitly prepent a slash if needed
 		if ( cls.state != CA_ACTIVE && g_consoleField.buffer[0] != '\\'
 			 && g_consoleField.buffer[0] != '/' ) {
@@ -1173,6 +1365,15 @@ void Console_Key( int key ) {
 		return;
 	}
 
+#if defined RTCW_ET
+	// clear autocompletion buffer on normal key input
+	if ( ( key >= K_SPACE && key <= K_BACKSPACE ) || ( key == K_LEFTARROW ) || ( key == K_RIGHTARROW ) ||
+		 ( key >= K_KP_LEFTARROW && key <= K_KP_RIGHTARROW ) ||
+		 ( key >= K_KP_SLASH && key <= K_KP_PLUS ) || ( key >= K_KP_STAR && key <= K_KP_EQUALS ) ) {
+		con.acLength = 0;
+	}
+#endif RTCW_XX
+
 	// command history (ctrl-p ctrl-n for unix style)
 
 	//----(SA)	added some mousewheel functionality to the console
@@ -1183,6 +1384,11 @@ void Console_Key( int key ) {
 			historyLine--;
 		}
 		g_consoleField = historyEditLines[ historyLine % COMMAND_HISTORY ];
+
+#if defined RTCW_ET
+		con.acLength = 0;
+#endif RTCW_XX
+
 		return;
 	}
 
@@ -1194,16 +1400,31 @@ void Console_Key( int key ) {
 		}
 		historyLine++;
 		g_consoleField = historyEditLines[ historyLine % COMMAND_HISTORY ];
+#if defined RTCW_ET
+		con.acLength = 0;
+#endif RTCW_XX
+
 		return;
 	}
 
 	// console scrolling
+
+#if !defined RTCW_ET
 	if ( key == K_PGUP ) {
+#else
+	if ( key == K_PGUP || key == K_KP_PGUP ) {
+#endif RTCW_XX
+
 		Con_PageUp();
 		return;
 	}
 
+#if !defined RTCW_ET
 	if ( key == K_PGDN ) {
+#else
+	if ( key == K_PGDN || key == K_KP_PGDN ) {
+#endif RTCW_XX
+
 		Con_PageDown();
 		return;
 	}
@@ -1227,13 +1448,25 @@ void Console_Key( int key ) {
 	}
 
 	// ctrl-home = top of console
+
+#if !defined RTCW_ET
 	if ( key == K_HOME && keys[K_CTRL].down ) {
+#else
+	if ( ( key == K_HOME || key == K_KP_HOME ) && keys[K_CTRL].down ) {
+#endif RTCW_XX
+
 		Con_Top();
 		return;
 	}
 
 	// ctrl-end = bottom of console
+
+#if !defined RTCW_ET
 	if ( key == K_END && keys[K_CTRL].down ) {
+#else
+	if ( ( key == K_END || key == K_KP_END ) && keys[K_CTRL].down ) {
+#endif RTCW_XX
+
 		Con_Bottom();
 		return;
 	}
@@ -1265,6 +1498,8 @@ void Message_Key( int key ) {
 
 	if ( key == K_ENTER || key == K_KP_ENTER ) {
 		if ( chatField.buffer[0] && cls.state == CA_ACTIVE ) {
+
+#if !defined RTCW_ET
 			if ( chat_playerNum != -1 ) {
 
 				Com_sprintf( buffer, sizeof( buffer ), "tell %i \"%s\"\n", chat_playerNum, chatField.buffer );
@@ -1279,6 +1514,14 @@ void Message_Key( int key ) {
 			}
 			// -NERVE - SMF
 			else {
+#else
+			if ( chat_team ) {
+				Com_sprintf( buffer, sizeof( buffer ), "say_team \"%s\"\n", chatField.buffer );
+			} else if ( chat_buddy ) {
+				Com_sprintf( buffer, sizeof( buffer ), "say_buddy \"%s\"\n", chatField.buffer );
+			} else {
+#endif RTCW_XX
+
 				Com_sprintf( buffer, sizeof( buffer ), "say \"%s\"\n", chatField.buffer );
 			}
 
@@ -1341,6 +1584,12 @@ int Key_StringToKeynum( char *str ) {
 		return -1;
 	}
 	if ( !str[1] ) {
+
+#if defined RTCW_ET
+		// Always lowercase
+		Q_strlwr( str );
+#endif RTCW_XX
+
 		return str[0];
 	}
 
@@ -1352,7 +1601,7 @@ int Key_StringToKeynum( char *str ) {
 
 #if defined RTCW_SP
 		if ( Q_isnumeric( n1 ) ) {
-#elif defined RTCW_MP
+#else
 		if ( n1 >= '0' && n1 <= '9' ) {
 #endif RTCW_XX
 
@@ -1367,7 +1616,7 @@ int Key_StringToKeynum( char *str ) {
 
 #if defined RTCW_SP
 		if ( Q_isnumeric( n2 ) ) {
-#elif defined RTCW_MP
+#else
 		if ( n2 >= '0' && n2 <= '9' ) {
 #endif RTCW_XX
 
@@ -1438,7 +1687,7 @@ char *Key_KeynumToString( int keynum, qboolean bTranslate ) {
 			kn = keynames_s;  //use spanish
 		}
 	}
-#elif defined RTCW_MP
+#else
 #ifndef __MACOS__   //DAJ USA
 
 	if ( bTranslate ) {
@@ -1475,6 +1724,27 @@ char *Key_KeynumToString( int keynum, qboolean bTranslate ) {
 	return tinystr;
 }
 
+#if defined RTCW_ET
+#define BIND_HASH_SIZE 1024
+
+static long generateHashValue( const char *fname ) {
+	int i;
+	long hash;
+
+	if ( !fname ) {
+		return 0;
+	}
+
+	hash = 0;
+	i = 0;
+	while ( fname[i] != '\0' ) {
+		hash += (long)( fname[i] ) * ( i + 119 );
+		i++;
+	}
+	hash &= ( BIND_HASH_SIZE - 1 );
+	return hash;
+}
+#endif RTCW_XX
 
 /*
 ===================
@@ -1482,6 +1752,13 @@ Key_SetBinding
 ===================
 */
 void Key_SetBinding( int keynum, const char *binding ) {
+
+#if defined RTCW_ET
+	char *lcbinding;    // fretn - make a copy of our binding lowercase
+						// so name toggle scripts work again: bind x name BzZIfretn?
+						// resulted into bzzifretn?
+#endif RTCW_XX
+
 	if ( keynum == -1 ) {
 		return;
 	}
@@ -1493,6 +1770,14 @@ void Key_SetBinding( int keynum, const char *binding ) {
 
 	// allocate memory for new binding
 	keys[keynum].binding = CopyString( binding );
+
+#if defined RTCW_ET
+	lcbinding = CopyString( binding );
+	Q_strlwr( lcbinding ); // saves doing it on all the generateHashValues in Key_GetBindingByString
+
+	keys[keynum].hash = generateHashValue( lcbinding );
+#endif RTCW_XX
+
 
 	// consider this like modifying an archived cvar, so the
 	// file write will be triggered at the next oportunity
@@ -1512,6 +1797,28 @@ char *Key_GetBinding( int keynum ) {
 
 	return keys[ keynum ].binding;
 }
+
+#if defined RTCW_ET
+// binding MUST be lower case
+void Key_GetBindingByString( const char* binding, int* key1, int* key2 ) {
+	int i;
+	int hash = generateHashValue( binding );
+
+	*key1 = -1;
+	*key2 = -1;
+
+	for ( i = 0; i < MAX_KEYS; i++ ) {
+		if ( keys[i].hash == hash && !Q_stricmp( binding, keys[i].binding ) ) {
+			if ( *key1 == -1 ) {
+				*key1 = i;
+			} else if ( *key2 == -1 ) {
+				*key2 = i;
+				return;
+			}
+		}
+	}
+}
+#endif RTCW_XX
 
 /*
 ===================
@@ -1674,8 +1981,12 @@ Called by the system for both key up and key down events
 
 #if defined RTCW_SP
 //static int consoleCount = 0; // TTimo: unused
-#elif defined RTCW_MP
+#else
 //static consoleCount = 0;
+#endif RTCW_XX
+
+#if defined RTCW_ET
+qboolean consoleButtonWasPressed = qfalse;
 #endif RTCW_XX
 
 void CL_KeyEvent( int key, qboolean down, unsigned time ) {
@@ -1684,9 +1995,37 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 
 #if defined RTCW_SP
 	int activeMenu = 0;
-#elif defined RTCW_MP
+#else
 	qboolean bypassMenu = qfalse;       // NERVE - SMF
 #endif RTCW_XX
+
+#if defined RTCW_ET
+	qboolean onlybinds = qfalse;
+
+	if ( !key ) {
+		return;
+	}
+
+	switch ( key ) {
+	case K_KP_PGUP:
+	case K_KP_EQUALS:
+	case K_KP_5:
+	case K_KP_LEFTARROW:
+	case K_KP_UPARROW:
+	case K_KP_RIGHTARROW:
+	case K_KP_DOWNARROW:
+	case K_KP_END:
+	case K_KP_PGDN:
+	case K_KP_INS:
+	case K_KP_DEL:
+	case K_KP_HOME:
+		if ( Sys_IsNumLockDown() ) {
+			onlybinds = qtrue;
+		}
+		break;
+	}
+#endif RTCW_XX
+
 
 	// update auto-repeat status and BUTTON_ANY status
 	keys[key].down = down;
@@ -1767,10 +2106,22 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 
 		}
 		Con_ToggleConsole_f();
+
+#if defined RTCW_ET
+		// the console key should never be used as a char
+		consoleButtonWasPressed = qtrue;
+#endif RTCW_XX
+
 		return;
+
+#if defined RTCW_ET
+	} else {
+		consoleButtonWasPressed = qfalse;
+#endif RTCW_XX
+
 	}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //----(SA)	added
 	if ( cl.cameraMode ) {
 		if ( !( cls.keyCatchers & ( KEYCATCH_UI | KEYCATCH_CONSOLE ) ) ) {    // let menu/console handle keys if necessary
@@ -1779,9 +2130,15 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 			if ( (  key == K_ESCAPE ||
 					key == K_SPACE ||
 					key == K_ENTER ) && down ) {
+
+#if !defined RTCW_ET
 				if ( down ) {
 					CL_AddReliableCommand( "cameraInterrupt" );
 				}
+#else
+				CL_AddReliableCommand( "cameraInterrupt" );
+#endif RTCW_XX
+
 				return;
 			}
 
@@ -1834,7 +2191,18 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 
 		if ( !( cls.keyCatchers & KEYCATCH_UI ) ) {
 			if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
+
+#if !defined RTCW_ET
 				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_INGAME );
+#else
+				// Arnout: on request
+				if ( cls.keyCatchers & KEYCATCH_CONSOLE ) {  // get rid of the console
+					Con_ToggleConsole_f();
+				} else {
+					VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_INGAME );
+				}
+#endif RTCW_XX
+
 			} else {
 				CL_Disconnect_f();
 				S_StopAllSounds();
@@ -1869,10 +2237,23 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 		}
 
 		if ( cls.keyCatchers & KEYCATCH_UI && uivm ) {
+
+#if !defined RTCW_ET
 			VM_Call( uivm, UI_KEY_EVENT, key, down );
 		} else if ( cls.keyCatchers & KEYCATCH_CGAME && cgvm ) {
 			VM_Call( cgvm, CG_KEY_EVENT, key, down );
 		}
+#else
+			if ( !onlybinds || VM_Call( uivm, UI_WANTSBINDKEYS ) ) {
+				VM_Call( uivm, UI_KEY_EVENT, key, down );
+			}
+		} else if ( cls.keyCatchers & KEYCATCH_CGAME && cgvm ) {
+			if ( !onlybinds || VM_Call( cgvm, CG_WANTSBINDKEYS ) ) {
+				VM_Call( cgvm, CG_KEY_EVENT, key, down );
+			}
+		}
+#endif RTCW_XX
+
 
 		return;
 	}
@@ -1888,10 +2269,23 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 			bypassMenu = qtrue;
 		}
 	}
+#elif defined RTCW_ET
+	// NERVE - SMF - if we just want to pass it along to game
+	if ( cl_bypassMouseInput && cl_bypassMouseInput->integer ) {
+		if ( ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3 || key == K_MOUSE4 || key == K_MOUSE5 ) ) {
+			if ( cl_bypassMouseInput->integer == 1 ) {
+				bypassMenu = qtrue;
+			}
+		} else if ( ( cls.keyCatchers & KEYCATCH_UI && !UI_checkKeyExec( key ) ) || ( cls.keyCatchers & KEYCATCH_CGAME && !CL_CGameCheckKeyExec( key ) ) ) {
+			bypassMenu = qtrue;
+		}
+	}
 #endif RTCW_XX
 
 	// distribute the key down event to the apropriate handler
 	if ( cls.keyCatchers & KEYCATCH_CONSOLE ) {
+
+#if !defined RTCW_ET
 		Console_Key( key );
 
 #if defined RTCW_SP
@@ -1962,6 +2356,31 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 	} else if ( cls.state == CA_DISCONNECTED ) {
 
 		Console_Key( key );
+#else
+		if ( !onlybinds ) {
+			Console_Key( key );
+		}
+	} else if ( cls.keyCatchers & KEYCATCH_UI && !bypassMenu ) {
+		if ( !onlybinds || VM_Call( uivm, UI_WANTSBINDKEYS ) ) {
+			VM_Call( uivm, UI_KEY_EVENT, key, down );
+		}
+	} else if ( cls.keyCatchers & KEYCATCH_CGAME && !bypassMenu ) {
+		if ( cgvm ) {
+			if ( !onlybinds || VM_Call( cgvm, CG_WANTSBINDKEYS ) ) {
+				VM_Call( cgvm, CG_KEY_EVENT, key, down );
+			}
+		}
+	} else if ( cls.keyCatchers & KEYCATCH_MESSAGE ) {
+		if ( !onlybinds ) {
+			Message_Key( key );
+		}
+	} else if ( cls.state == CA_DISCONNECTED ) {
+
+		if ( !onlybinds ) {
+			Console_Key( key );
+		}
+
+#endif RTCW_XX
 
 	} else {
 		// send the bound action
@@ -1994,7 +2413,19 @@ Normal keyboard characters, already shifted / capslocked / etc
 */
 void CL_CharEvent( int key ) {
 	// the console key should never be used as a char
+
+#if !defined RTCW_ET
 	if ( key == '`' || key == '~' ) {
+#else
+	// ydnar: added uk equivalent of shift+`
+	// the RIGHT way to do this would be to have certain keys disable the equivalent SE_CHAR event
+
+	// fretn - this should be fixed in Com_EventLoop
+	// but I can't be arsed to leave this as is
+
+	if ( key == (unsigned char) '`' || key == (unsigned char) '~' || key == (unsigned char) '¬' ) {
+#endif RTCW_XX
+
 		return;
 	}
 
@@ -2003,6 +2434,12 @@ void CL_CharEvent( int key ) {
 		Field_CharEvent( &g_consoleField, key );
 	} else if ( cls.keyCatchers & KEYCATCH_UI )   {
 		VM_Call( uivm, UI_KEY_EVENT, key | K_CHAR_FLAG, qtrue );
+
+#if defined RTCW_ET
+	} else if ( cls.keyCatchers & KEYCATCH_CGAME )   {
+		VM_Call( cgvm, CG_KEY_EVENT, key | K_CHAR_FLAG, qtrue );
+#endif RTCW_XX
+
 	} else if ( cls.keyCatchers & KEYCATCH_MESSAGE )   {
 		Field_CharEvent( &chatField, key );
 	} else if ( cls.state == CA_DISCONNECTED )   {

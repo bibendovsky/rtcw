@@ -72,7 +72,7 @@ winding_t   *AllocWinding( int points ) {
 
 #if defined RTCW_SP
 	Com_Memset( w, 0, s );
-#elif defined RTCW_MP
+#else
 	memset( w, 0, s );
 #endif RTCW_XX
 
@@ -126,7 +126,7 @@ void    RemoveColinearPoints( winding_t *w ) {
 
 #if defined RTCW_SP
 	Com_Memcpy( w->p, p, nump * sizeof( p[0] ) );
-#elif defined RTCW_MP
+#else
 	memcpy( w->p, p, nump * sizeof( p[0] ) );
 #endif RTCW_XX
 
@@ -178,10 +178,10 @@ void    WindingBounds( winding_t *w, vec3_t mins, vec3_t maxs ) {
 	vec_t v;
 	int i,j;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	mins[0] = mins[1] = mins[2] = MAX_MAP_BOUNDS;
 	maxs[0] = maxs[1] = maxs[2] = -MAX_MAP_BOUNDS;
-#elif defined RTCW_MP
+#else
 	mins[0] = mins[1] = mins[2] = 99999;
 	maxs[0] = maxs[1] = maxs[2] = -99999;
 #endif RTCW_XX
@@ -231,16 +231,22 @@ winding_t *BaseWindingForPlane( vec3_t normal, vec_t dist ) {
 
 // find the major axis
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	max = -MAX_MAP_BOUNDS;
-#elif defined RTCW_MP
+#else
 	max = -BOGUS_RANGE;
 #endif RTCW_XX
 
 	x = -1;
 	for ( i = 0 ; i < 3; i++ )
 	{
+
+#if !defined RTCW_ET
 		v = fabs( normal[i] );
+#else
+		v = Q_fabs( normal[i] );
+#endif RTCW_XX
+
 		if ( v > max ) {
 			x = i;
 			max = v;
@@ -270,10 +276,10 @@ winding_t *BaseWindingForPlane( vec3_t normal, vec_t dist ) {
 
 	CrossProduct( vup, normal, vright );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	VectorScale( vup, MAX_MAP_BOUNDS, vup );
 	VectorScale( vright, MAX_MAP_BOUNDS, vright );
-#elif defined RTCW_MP
+#else
 	VectorScale( vup, 8192, vup );
 	VectorScale( vright, 8192, vright );
 #endif RTCW_XX
@@ -312,7 +318,7 @@ winding_t   *CopyWinding( winding_t *w ) {
 
 #if defined RTCW_SP
 	Com_Memcpy( c, w, size );
-#elif defined RTCW_MP
+#else
 	memcpy( c, w, size );
 #endif RTCW_XX
 
@@ -602,13 +608,18 @@ void CheckWinding( winding_t *w ) {
 
 		for ( j = 0 ; j < 3 ; j++ )
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 			if ( p1[j] > MAX_MAP_BOUNDS || p1[j] < -MAX_MAP_BOUNDS ) {
-#elif defined RTCW_MP
+#else
 			if ( p1[j] > BOGUS_RANGE || p1[j] < -BOGUS_RANGE ) {
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 				Com_Error( ERR_DROP, "CheckFace: BUGUS_RANGE: %f",p1[j] );
+#else
+				Com_Error( ERR_DROP, "CheckFace: MAX_MAP_BOUNDS: %f",p1[j] );
+#endif RTCW_XX
+
 			}
 
 		j = i + 1 == w->numpoints ? 0 : i + 1;
@@ -717,7 +728,7 @@ void    AddWindingToConvexHull( winding_t *w, winding_t **hull, vec3_t normal ) 
 
 #if defined RTCW_SP
 	Com_Memcpy( hullPoints, ( *hull )->p, numHullPoints * sizeof( vec3_t ) );
-#elif defined RTCW_MP
+#else
 	memcpy( hullPoints, ( *hull )->p, numHullPoints * sizeof( vec3_t ) );
 #endif RTCW_XX
 
@@ -781,7 +792,7 @@ void    AddWindingToConvexHull( winding_t *w, winding_t **hull, vec3_t normal ) 
 
 #if defined RTCW_SP
 		Com_Memcpy( hullPoints, newHullPoints, numHullPoints * sizeof( vec3_t ) );
-#elif defined RTCW_MP
+#else
 		memcpy( hullPoints, newHullPoints, numHullPoints * sizeof( vec3_t ) );
 #endif RTCW_XX
 
@@ -794,7 +805,7 @@ void    AddWindingToConvexHull( winding_t *w, winding_t **hull, vec3_t normal ) 
 
 #if defined RTCW_SP
 	Com_Memcpy( w->p, hullPoints, numHullPoints * sizeof( vec3_t ) );
-#elif defined RTCW_MP
+#else
 	memcpy( w->p, hullPoints, numHullPoints * sizeof( vec3_t ) );
 #endif RTCW_XX
 

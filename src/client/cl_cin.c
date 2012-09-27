@@ -48,7 +48,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #if defined RTCW_SP
 //#include "snd_local.h"
-#elif defined RTCW_MP
+#else
 #include "snd_local.h"
 #endif RTCW_XX
 
@@ -83,6 +83,8 @@ extern int s_soundtime;
 extern int s_rawend[];          //DAJ added [] to match definition
 
 #define CIN_STREAM 0    //DAJ const for the sound stream used for cinematics
+#elif defined RTCW_ET
+extern int s_soundtime;
 #endif RTCW_XX
 
 static void RoQ_init( void );
@@ -126,7 +128,7 @@ typedef struct {
 
 #if defined RTCW_SP
 	qboolean looping, holdAtEnd, dirty, alterGameState, silent, shader, letterBox, sound;
-#elif defined RTCW_MP
+#else
 	qboolean looping, holdAtEnd, dirty, alterGameState, silent, shader;
 #endif RTCW_XX
 
@@ -234,7 +236,7 @@ long RllDecodeMonoToMono( unsigned char *from,short *to,unsigned int size,char s
 
 #if defined RTCW_SP
 	short prev; //DAJ was int
-#elif defined RTCW_MP
+#else
 	int prev;
 #endif RTCW_XX
 
@@ -270,7 +272,7 @@ long RllDecodeMonoToStereo( unsigned char *from,short *to,unsigned int size,char
 
 #if defined RTCW_SP
 	short prev; //DAJ was int
-#elif defined RTCW_MP
+#else
 	int prev;
 #endif RTCW_XX
 
@@ -308,7 +310,7 @@ long RllDecodeStereoToStereo( unsigned char *from,short *to,unsigned int size,ch
 
 #if defined RTCW_SP
 	short prevL, prevR;     //DAJ was int
-#elif defined RTCW_MP
+#else
 	int prevL, prevR;
 #endif RTCW_XX
 
@@ -349,7 +351,7 @@ long RllDecodeStereoToMono( unsigned char *from,short *to,unsigned int size,char
 
 #if defined RTCW_SP
 	short prevL, prevR;     //DAJ was int
-#elif defined RTCW_MP
+#else
 	int prevL,prevR;
 #endif RTCW_XX
 
@@ -763,7 +765,7 @@ static unsigned int yuv_to_rgb24( long y, long u, long v ) {
 	return LittleLong( ( r ) | ( g << 8 ) | ( b << 16 ) | ( 255 << 24 ) );
 }
 #endif
-#elif defined RTCW_MP
+#else
 #if defined( MACOS_X )
 
 static inline unsigned int yuv_to_rgb24( long y, long u, long v ) {
@@ -1230,7 +1232,7 @@ static void readQuadInfo( byte *qData ) {
 	cinTable[currentHandle].drawX = 256;
 	cinTable[currentHandle].drawX = 256;
 #endif
-#elif defined RTCW_MP
+#else
 //#ifdef __MACOS__
 //	cinTable[currentHandle].drawX = 256;
 //	cinTable[currentHandle].drawX = 256;
@@ -1398,7 +1400,7 @@ redump:
 #if defined RTCW_SP
 			S_RawSamples( ssize, 22050, 2, 1, (byte *)sbuf, 1.0f, 1.0f, CIN_STREAM );
 			cinTable[currentHandle].sound = 1;
-#elif defined RTCW_MP
+#else
 			S_RawSamples( ssize, 22050, 2, 1, (byte *)sbuf, 1.0f, 1.0f, 0 );
 #endif RTCW_XX
 
@@ -1413,6 +1415,11 @@ redump:
 				Com_DPrintf( "S_Update: Setting rawend to %i\n", s_soundtime );
 				s_rawend[CIN_STREAM] = s_soundtime;         //DAJ added [CIN_STREAM]
 			}
+#elif defined RTCW_ET
+			if ( cinTable[currentHandle].numQuads == -1 ) {
+				S_Update();
+				s_rawend[0] = s_soundtime;
+			}
 #endif RTCW_XX
 
 			ssize = RllDecodeStereoToStereo( framedata, sbuf, cinTable[currentHandle].RoQFrameSize, 0, (unsigned short)cinTable[currentHandle].roq_flags );
@@ -1421,7 +1428,7 @@ redump:
 //			Com_Printf("%i\n", ssize+s_rawend[CIN_STREAM]- s_soundtime );
 			S_RawSamples( ssize, 22050, 2, 2, (byte *)sbuf, 1.0f, 1.0f, CIN_STREAM );
 			cinTable[currentHandle].sound = 1;
-#elif defined RTCW_MP
+#else
 			S_RawSamples( ssize, 22050, 2, 2, (byte *)sbuf, 1.0f, 1.0f, 0 );
 #endif RTCW_XX
 
@@ -1570,7 +1577,20 @@ static void RoQShutdown( void ) {
 		s = Cvar_VariableString( "nextmap" );
 		if ( s[0] ) {
 			Cbuf_ExecuteText( EXEC_APPEND, va( "%s\n", s ) );
+
+#if defined RTCW_ET
+			/*if( com_logosPlaying->integer && !Q_stricmp( s, "cinematic avlogo.roq" ) ) {
+				Cvar_Set( "nextmap", "cinematic sdlogo.roq" );	// FIXME: sd logo
+				Cvar_Set( "com_logosPlaying", "0" );
+			} else {*/
+#endif RTCW_XX
+
 			Cvar_Set( "nextmap", "" );
+
+#if defined RTCW_ET
+			//}
+#endif RTCW_XX
+
 		}
 		CL_handle = -1;
 	}
@@ -1692,7 +1712,7 @@ e_status CIN_RunCinematic( int handle ) {
 
 
 //----(SA)	end
-#elif defined RTCW_MP
+#else
 	thisTime = CL_ScaledMilliseconds() * com_timescale->value;
 	if ( cinTable[currentHandle].shader && ( abs( thisTime - cinTable[currentHandle].lastTime ) ) > 100 ) {
 		cinTable[currentHandle].startTime += thisTime - cinTable[currentHandle].lastTime;
@@ -1757,7 +1777,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 
 #if defined RTCW_SP
 			if ( !Q_stricmp( cinTable[i].fileName, name ) ) {
-#elif defined RTCW_MP
+#else
 			if ( !strcmp( cinTable[i].fileName, name ) ) {
 #endif RTCW_XX
 
@@ -1832,8 +1852,12 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 #if defined RTCW_SP
 		Com_DPrintf( "Setting rawend to %i\n", s_soundtime );
 		s_rawend[CIN_STREAM] = s_soundtime;
-#elif defined RTCW_MP
+#else
 //		s_rawend = s_soundtime;
+#endif RTCW_XX
+
+#if defined RTCW_ET
+		s_rawend[0] = s_soundtime;
 #endif RTCW_XX
 
 		return currentHandle;
@@ -1873,7 +1897,7 @@ void CIN_DrawCinematic( int handle ) {
 #if defined RTCW_SP
 	float x, y, w, h;  //, barheight;
 	byte    *buf;
-#elif defined RTCW_MP
+#else
 	float x, y, w, h;
 	byte    *buf;
 #endif RTCW_XX
@@ -1969,15 +1993,25 @@ void CIN_DrawCinematic( int handle ) {
 	cinTable[handle].dirty = qfalse;
 }
 
+#if !defined RTCW_ET
 /*
 ==============
 CL_PlayCinematic_f
 ==============
 */
+#endif RTCW_XX
+
 void CL_PlayCinematic_f( void ) {
 	char    *arg, *s;
 	qboolean holdatend;
 	int bits = CIN_system;
+
+#if defined RTCW_ET
+	// Arnout: don't allow this while on server
+	if ( cls.state > CA_DISCONNECTED && cls.state <= CA_ACTIVE ) {
+		return;
+	}
+#endif RTCW_XX
 
 	Com_DPrintf( "CL_PlayCinematic_f\n" );
 	if ( cls.state == CA_CINEMATIC ) {
@@ -2009,7 +2043,7 @@ void CL_PlayCinematic_f( void ) {
 	} else {
 		CL_handle = CIN_PlayCinematic( arg, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, bits );
 	}
-#elif defined RTCW_MP
+#else
 	S_StopAllSounds();
 	CL_handle = CIN_PlayCinematic( arg, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, bits );
 #endif RTCW_XX

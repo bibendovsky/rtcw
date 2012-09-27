@@ -96,7 +96,12 @@ If you have questions concerning this license or the applicable additional terms
 FT_Library ftLibrary = NULL;
 #endif
 
+#if !defined RTCW_ET
 #define MAX_FONTS 6
+#else
+#define MAX_FONTS 10
+#endif RTCW_XX
+
 static int registeredFontCount = 0;
 static fontInfo_t registeredFont[MAX_FONTS];
 
@@ -364,7 +369,12 @@ void RE_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font ) {
 		return;
 	}
 
+#if !defined RTCW_ET
 	Com_sprintf( name, sizeof( name ), "fonts/fontImage_%i.dat",pointSize );
+#else
+	Com_sprintf( name, sizeof( name ), "fonts/%s_%i.dat", fontName, pointSize );
+#endif RTCW_XX
+
 	for ( i = 0; i < registeredFontCount; i++ ) {
 		if ( Q_stricmp( name, registeredFont[i].name ) == 0 ) {
 			memcpy( font, &registeredFont[i], sizeof( fontInfo_t ) );
@@ -409,7 +419,7 @@ void RE_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font ) {
 
 #if defined RTCW_SP
 	ri.Printf( PRINT_ALL, "RE_RegisterFont: FreeType code not available\n" );
-#elif defined RTCW_MP
+#else
 	ri.Printf( PRINT_DEVELOPER, "RE_RegisterFont: FreeType code not available\n" ); // JPW NERVE was PRINT_ALL
 #endif RTCW_XX
 
@@ -418,7 +428,7 @@ void RE_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font ) {
 
 #if defined RTCW_SP
 		ri.Printf( PRINT_ALL, "RE_RegisterFont: FreeType not initialized.\n" );
-#elif defined RTCW_MP
+#else
 		ri.Printf( PRINT_DEVELOPER, "RE_RegisterFont: FreeType not initialized.\n" ); // JPW NERVE was PRINT_ALL
 #endif RTCW_XX
 

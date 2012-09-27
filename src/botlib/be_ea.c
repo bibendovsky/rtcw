@@ -378,6 +378,23 @@ void EA_View( int client, vec3_t viewangles ) {
 
 	VectorCopy( viewangles, bi->viewangles );
 } //end of the function EA_View
+
+#if defined RTCW_ET
+//===========================================================================
+//
+// Parameter:			-
+// Returns:				-
+// Changes Globals:		-
+//===========================================================================
+void EA_Prone( int client ) {
+	bot_input_t *bi;
+
+	bi = &botinputs[client];
+
+	bi->actionflags |= ACTION_PRONE;
+} //end of the function EA_Prone
+#endif RTCW_XX
+
 //===========================================================================
 //
 // Parameter:			-

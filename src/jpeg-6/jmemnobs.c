@@ -32,7 +32,7 @@ jpeg_get_small( j_common_ptr cinfo, size_t sizeofobject ) {
 
 #if defined RTCW_SP
 	return Z_Malloc( sizeofobject );
-#elif defined RTCW_MP
+#else
 	return (void *) ri.Z_Malloc( sizeofobject );
 #endif RTCW_XX
 
@@ -43,7 +43,7 @@ jpeg_free_small( j_common_ptr cinfo, void * object, size_t sizeofobject ) {
 
 #if defined RTCW_SP
 	free( object );
-#elif defined RTCW_MP
+#else
 	ri.Free( object );
 #endif RTCW_XX
 
@@ -62,7 +62,7 @@ jpeg_get_large( j_common_ptr cinfo, size_t sizeofobject ) {
 
 #if defined RTCW_SP
 	return Z_Malloc( sizeofobject );
-#elif defined RTCW_MP
+#else
 	return (void FAR *) ri.Z_Malloc( sizeofobject );
 #endif RTCW_XX
 
@@ -73,7 +73,7 @@ jpeg_free_large( j_common_ptr cinfo, void FAR * object, size_t sizeofobject ) {
 
 #if defined RTCW_SP
 	free( object );
-#elif defined RTCW_MP
+#else
 	ri.Free( object );
 #endif RTCW_XX
 

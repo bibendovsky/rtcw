@@ -43,8 +43,15 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botlib/l_precomp.h"
 #include "../botlib/l_struct.h"
 #include "../botlib/aasfile.h"
+
+#if !defined RTCW_ET
 #include "../botlib/botlib.h"
 #include "../botlib/be_aas.h"
+#else
+#include "../game/botlib.h"
+#include "../game/be_aas.h"
+#endif RTCW_XX
+
 #include "../botlib/be_aas_def.h"
 #include "../qcommon/cm_public.h"
 
@@ -71,7 +78,13 @@ void AAS_Error( char *fmt, ... ) {
 	char text[1024];
 
 	va_start( argptr, fmt );
+
+#if !defined RTCW_ET
 	vsprintf( text, fmt, argptr );
+#else
+	Q_vsnprintf( text, sizeof( text ), fmt, argptr );
+#endif RTCW_XX
+
 	va_end( argptr );
 
 	Error( text );
@@ -164,7 +177,13 @@ void BotImport_Print( int type, char *fmt, ... ) {
 	char buf[1024];
 
 	va_start( argptr, fmt );
+
+#if !defined RTCW_ET
 	vsprintf( buf, fmt, argptr );
+#else
+	Q_vsnprintf( buf, sizeof( buf ), fmt, argptr );
+#endif RTCW_XX
+
 	printf( buf );
 	if ( buf[0] != '\r' ) {
 		Log_Write( buf );
@@ -216,7 +235,13 @@ void Com_DPrintf( char *fmt, ... ) {
 	char buf[1024];
 
 	va_start( argptr, fmt );
+
+#if !defined RTCW_ET
 	vsprintf( buf, fmt, argptr );
+#else
+	Q_vsnprintf( buf, sizeof( buf ), fmt, argptr );
+#endif RTCW_XX
+
 	printf( buf );
 	if ( buf[0] != '\r' ) {
 		Log_Write( buf );
@@ -271,6 +296,10 @@ void AAS_InitBotImport( void ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if defined RTCW_ET
+void AAS_SetViewPortalsAsClusterPortals( void );
+#endif RTCW_XX
 
 void AAS_CalcReachAndClusters( struct quakefile_s *qf ) {
 	float time;

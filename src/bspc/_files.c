@@ -63,7 +63,7 @@ textures.c					//Quake2 BSP textures							(*)
 
 l_bsp_ent.c					//BSP entity parsing
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 l_bsp_hl.c					//Half-Life BSP loading and writing
 #endif RTCW_XX
 

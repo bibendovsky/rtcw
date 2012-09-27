@@ -36,6 +36,21 @@ If you have questions concerning this license or the applicable additional terms
 #define MAXPRINTMSG 4096
 #endif RTCW_XX
 
+#if defined RTCW_ET
+// htons
+#ifdef __linux__
+#include <netinet/in.h>
+// getpid
+#include <unistd.h>
+#elif __MACOS__
+// getpid
+#include <unistd.h>
+#else
+#include <winsock.h>
+#endif
+#endif RTCW_XX
+
+
 #define MAX_NUM_ARGVS   50
 
 #define MIN_DEDICATED_COMHUNKMEGS 1
@@ -44,10 +59,16 @@ If you have questions concerning this license or the applicable additional terms
 #define MIN_COMHUNKMEGS 54      // RF, optimizing
 #define DEF_COMHUNKMEGS "72"
 #define DEF_COMZONEMEGS "30"
-#elif defined RTCW_MP
+#else
 #define MIN_COMHUNKMEGS 42 // JPW NERVE changed this to 42 for MP, was 56 for team arena and 75 for wolfSP
 #define DEF_COMHUNKMEGS "56" // RF, increased this, some maps are exceeding 56mb // JPW NERVE changed this for multiplayer back to 42, 56 for depot/mp_cpdepot, 42 for everything else
+
+#if !defined RTCW_ET
 #define DEF_COMZONEMEGS "16" // JPW NERVE cut this back too was 30
+#else
+#define DEF_COMZONEMEGS "24" // RF, increased this from 16, to account for botlib/AAS
+#endif RTCW_XX
+
 #endif RTCW_XX
 
 int com_argc;
@@ -65,6 +86,14 @@ static fileHandle_t logfile;
 fileHandle_t com_journalFile;               // events are written here
 fileHandle_t com_journalDataFile;           // config files are written here
 
+#if defined RTCW_ET
+cvar_t  *com_crashed = NULL;        // ydnar: set in case of a crash, prevents CVAR_UNSAFE variables from being set from a cfg
+//bani - explicit NULL to make win32 teh happy
+
+cvar_t  *com_ignorecrash = NULL;    // bani - let experienced users ignore crashes, explicit NULL to make win32 teh happy
+cvar_t  *com_pid;       // bani - process id
+#endif RTCW_XX
+
 cvar_t  *com_viewlog;
 cvar_t  *com_speeds;
 cvar_t  *com_developer;
@@ -80,9 +109,25 @@ cvar_t  *com_cl_running;
 cvar_t  *com_logfile;       // 1 = buffer log, 2 = flush after each print
 cvar_t  *com_showtrace;
 cvar_t  *com_version;
+
+#if !defined RTCW_ET
 cvar_t  *com_blood;
+#else
+//cvar_t	*com_blood;
+#endif RTCW_XX
+
 cvar_t  *com_buildScript;   // for automated data building scripts
+
+#if defined RTCW_ET
+cvar_t  *con_drawnotify;
+#endif RTCW_XX
+
 cvar_t  *com_introPlayed;
+
+#if defined RTCW_ET
+cvar_t  *com_logosPlaying;
+#endif RTCW_XX
+
 cvar_t  *cl_paused;
 cvar_t  *sv_paused;
 cvar_t  *com_cameraMode;
@@ -90,6 +135,11 @@ cvar_t  *com_cameraMode;
 cvar_t  *com_noErrorInterrupt;
 #endif
 cvar_t  *com_recommendedSet;
+
+#if defined RTCW_ET
+cvar_t  *com_watchdog;
+cvar_t  *com_watchdog_cmd;
+#endif RTCW_XX
 
 // Rafael Notebook
 cvar_t  *cl_notebook;
@@ -104,6 +154,11 @@ int time_backend;           // renderer backend time
 int com_frameTime;
 int com_frameMsec;
 int com_frameNumber;
+
+#if defined RTCW_ET
+int com_expectedhunkusage;
+int com_hunkusedvalue;
+#endif RTCW_XX
 
 qboolean com_errorEntered;
 qboolean com_fullyInitialized;
@@ -150,20 +205,37 @@ to the apropriate place.
 A raw string should NEVER be passed as fmt, because of "%f" type crashers.
 =============
 */
+#if !defined RTCW_ET
 void QDECL Com_Printf( const char *fmt, ... ) {
 	va_list argptr;
+#else
+int QDECL Com_VPrintf( const char *fmt, va_list argptr ) {
+#endif RTCW_XX
+
 	char msg[MAXPRINTMSG];
 	static qboolean opening_qconsole = qfalse;
 
+#if !defined RTCW_ET
 	va_start( argptr,fmt );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	// FIXME TTimo
+	// switched vsprintf -> vsnprintf
+	// rcon could cause buffer overflow
+	//
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	vsprintf( msg,fmt,argptr );
-#elif defined RTCW_MP
+#else
 	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
 #endif RTCW_XX
 
+
+#if !defined RTCW_ET
 	va_end( argptr );
+#endif RTCW_XX
 
 	if ( rd_buffer ) {
 		if ( ( strlen( msg ) + strlen( rd_buffer ) ) > ( rd_buffersize - 1 ) ) {
@@ -175,7 +247,13 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 		// only flush the rcon buffer when it's necessary, avoid fragmenting
 		//rd_flush(rd_buffer);
 		//*rd_buffer = 0;
+
+#if !defined RTCW_ET
 		return;
+#else
+		return strlen( msg );
+#endif RTCW_XX
+
 	}
 
 	// echo to console if we're not a dedicated server
@@ -199,6 +277,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 			time( &aclock );
 			newtime = localtime( &aclock );
 
+#if !defined RTCW_ET
 #ifdef __MACOS__    //DAJ MacOS file typing
 			{
 				extern _MSL_IMP_EXP_C long _fcreator, _ftype;
@@ -206,11 +285,14 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 				_fcreator = 'R*ch';
 			}
 #endif
+#endif RTCW_XX
 
 #if defined RTCW_SP
 			logfile = FS_FOpenFileWrite( "rtcwconsole.log" );    //----(SA)	changed name for Wolf
 #elif defined RTCW_MP
 			logfile = FS_FOpenFileWrite( "rtcwconsole.log" );
+#else
+			logfile = FS_FOpenFileWrite( "etconsole.log" );
 #endif RTCW_XX
 
 			Com_Printf( "logfile opened on %s\n", asctime( newtime ) );
@@ -226,7 +308,25 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 			FS_Write( msg, strlen( msg ), logfile );
 		}
 	}
+
+#if defined RTCW_ET
+	return strlen( msg );
+#endif RTCW_XX
+
 }
+
+#if defined RTCW_ET
+int QDECL Com_VPrintf( const char *fmt, va_list argptr ) _attribute( ( format( printf,1,0 ) ) );
+
+void QDECL Com_Printf( const char *fmt, ... ) {
+	va_list argptr;
+
+	va_start( argptr, fmt );
+	Com_VPrintf( fmt, argptr );
+	va_end( argptr );
+}
+void QDECL Com_Printf( const char *fmt, ... ) _attribute( ( format( printf,1,2 ) ) );
+#endif RTCW_XX
 
 
 /*
@@ -240,7 +340,12 @@ void QDECL Com_DPrintf( const char *fmt, ... ) {
 	va_list argptr;
 	char msg[MAXPRINTMSG];
 
+#if !defined RTCW_ET
 	if ( !com_developer || !com_developer->integer ) {
+#else
+	if ( !com_developer || com_developer->integer != 1 ) {
+#endif RTCW_XX
+
 		return;         // don't confuse non-developers with techie stuff...
 	}
 
@@ -248,7 +353,7 @@ void QDECL Com_DPrintf( const char *fmt, ... ) {
 
 #if defined RTCW_SP
 	vsprintf( msg,fmt,argptr );
-#elif defined RTCW_MP
+#else
 	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
 #endif RTCW_XX
 
@@ -256,6 +361,10 @@ void QDECL Com_DPrintf( const char *fmt, ... ) {
 
 	Com_Printf( "%s", msg );
 }
+
+#if defined RTCW_ET
+void QDECL Com_DPrintf( const char *fmt, ... ) _attribute( ( format( printf,1,2 ) ) );
+#endif RTCW_XX
 
 /*
 =============
@@ -290,7 +399,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 		if ( code != ERR_ENDGAME ) {
 			code = ERR_FATAL;
 		}
-#elif defined RTCW_MP
+#else
 		code = ERR_FATAL;
 #endif RTCW_XX
 
@@ -311,7 +420,19 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	lastErrorTime = currentTime;
 
 	if ( com_errorEntered ) {
+
+#if !defined RTCW_ET
 		Sys_Error( "recursive error after: %s", com_errorMessage );
+#else
+		char buf[4096];
+
+		va_start( argptr,fmt );
+		Q_vsnprintf( buf, sizeof( buf ), fmt, argptr );
+		va_end( argptr );
+
+		Sys_Error( "recursive error '%s' after: %s", buf, com_errorMessage );
+#endif RTCW_XX
+
 	}
 	com_errorEntered = qtrue;
 
@@ -319,7 +440,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 
 #if defined RTCW_SP
 	vsprintf( com_errorMessage,fmt,argptr );
-#elif defined RTCW_MP
+#else
 	Q_vsnprintf( com_errorMessage, sizeof( com_errorMessage ), fmt, argptr );
 #endif RTCW_XX
 
@@ -327,7 +448,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 
 #if defined RTCW_SP
 	if ( code != ERR_DISCONNECT && code != ERR_NEED_CD && code != ERR_ENDGAME ) {
-#elif defined RTCW_MP
+#else
 	if ( code != ERR_DISCONNECT && code != ERR_NEED_CD ) {
 #endif RTCW_XX
 
@@ -370,16 +491,41 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 			Com_Printf( "Server didn't have CD\n" );
 		}
 		longjmp( abortframe, -1 );
+
+#if defined RTCW_ET
+#ifndef DEDICATED
+	} else if ( code == ERR_AUTOUPDATE ) {
+		CL_Disconnect( qtrue );
+		CL_FlushMemory();
+		com_errorEntered = qfalse;
+		if ( !Q_stricmpn( com_errorMessage, "Server is full", 14 ) && CL_NextUpdateServer() ) {
+			CL_GetAutoUpdate();
+		} else {
+			longjmp( abortframe, -1 );
+		}
+#endif
+#endif RTCW_XX
+
 	} else {
 		CL_Shutdown();
 		SV_Shutdown( va( "Server fatal crashed: %s\n", com_errorMessage ) );
 	}
 
+#if !defined RTCW_ET
 	Com_Shutdown();
+#else
+	Com_Shutdown( code == ERR_VID_FATAL ? qtrue : qfalse );
+#endif RTCW_XX
 
 	Sys_Error( "%s", com_errorMessage );
 }
 
+#if defined RTCW_ET
+void QDECL Com_Error( int code, const char *fmt, ... ) _attribute( ( format( printf,2,3 ) ) );
+
+//bani - moved
+void CL_ShutdownCGame( void );
+#endif RTCW_XX
 
 /*
 =============
@@ -393,8 +539,22 @@ void Com_Quit_f( void ) {
 	// don't try to shutdown if we are in a recursive error
 	if ( !com_errorEntered ) {
 		SV_Shutdown( "Server quit\n" );
+
+#if defined RTCW_ET
+//bani
+#ifndef DEDICATED
+		CL_ShutdownCGame();
+#endif
+#endif RTCW_XX
+
 		CL_Shutdown();
+
+#if !defined RTCW_ET
 		Com_Shutdown();
+#else
+		Com_Shutdown( qfalse );
+#endif RTCW_XX
+
 		FS_Shutdown( qtrue );
 	}
 	Sys_Quit();
@@ -431,13 +591,31 @@ Break it up into multiple console lines
 ==================
 */
 void Com_ParseCommandLine( char *commandLine ) {
+
+#if defined RTCW_ET
+	int inq = 0;
+#endif RTCW_XX
+
 	com_consoleLines[0] = commandLine;
 	com_numConsoleLines = 1;
 
 	while ( *commandLine ) {
+
+#if defined RTCW_ET
+		if ( *commandLine == '"' ) {
+			inq = !inq;
+		}
+#endif RTCW_XX
+
 		// look for a + seperating character
 		// if commandLine came from a file, we might have real line seperators
+
+#if !defined RTCW_ET
 		if ( *commandLine == '+' || *commandLine == '\n' ) {
+#else
+		if ( *commandLine == '+' || *commandLine == '\n' || *commandLine == '\r' ) {
+#endif RTCW_XX
+
 			if ( com_numConsoleLines == MAX_CONSOLE_LINES ) {
 				return;
 			}
@@ -790,7 +968,7 @@ int Com_RealTime( qtime_t *qtime ) {
   The old zone is gone, mallocs replaced it. To keep the widespread code changes down to a bare minimum
   Z_Malloc and Z_Free still work.
 */
-#elif defined RTCW_MP
+#else
 /*
 ==============================================================================
 
@@ -878,7 +1056,7 @@ void Z_Free( void *ptr ) {
 
 #if defined RTCW_SP
 	free( ptr );
-#elif defined RTCW_MP
+#else
 	memblock_t  *block, *other;
 	memzone_t *zone;
 
@@ -999,7 +1177,7 @@ void Z_FreeTags( int tag ) {
 }
 
 #endif
-#elif defined RTCW_MP
+#else
 /*
 ================
 Z_FreeTags
@@ -1278,7 +1456,7 @@ char *CopyString( const char *in ) {
 
 #if defined RTCW_SP
 	out = Z_Malloc( strlen( in ) + 1 );
-#elif defined RTCW_MP
+#else
 	if ( !in[0] ) {
 		return ( (char *)&emptystring ) + sizeof( memblock_t );
 	} else if ( !in[1] )     {
@@ -1364,7 +1542,7 @@ static int s_zoneTotal;
 
 #if defined RTCW_SP
 //static	int		s_smallZoneTotal; // TTimo: unused
-#elif defined RTCW_MP
+#else
 static int s_smallZoneTotal;
 #endif RTCW_XX
 
@@ -1375,7 +1553,7 @@ Com_Meminfo_f
 */
 void Com_Meminfo_f( void ) {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	memblock_t  *block;
 	int zoneBytes, zoneBlocks;
 	int smallZoneBytes, smallZoneBlocks;
@@ -1384,7 +1562,7 @@ void Com_Meminfo_f( void ) {
 
 	int unused;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	zoneBytes = 0;
 	botlibBytes = 0;
 	rendererBytes = 0;
@@ -1431,6 +1609,8 @@ void Com_Meminfo_f( void ) {
 		}
 	}
 #endif RTCW_XX
+
+#if !defined RTCW_ET
 	Com_Printf( "%8i bytes total hunk\n", s_hunkTotal );
 	Com_Printf( "%8i bytes total zone\n", s_zoneTotal );
 	Com_Printf( "\n" );
@@ -1449,6 +1629,27 @@ void Com_Meminfo_f( void ) {
 	Com_Printf( "%8i high tempHighwater\n", hunk_high.tempHighwater );
 	Com_Printf( "\n" );
 	Com_Printf( "%8i total hunk in use\n", hunk_low.permanent + hunk_high.permanent );
+#else
+	Com_Printf( "%9i bytes (%6.2f MB) total hunk\n", s_hunkTotal, s_hunkTotal / Square( 1024.f ) );
+	Com_Printf( "%9i bytes (%6.2f MB) total zone\n", s_zoneTotal, s_zoneTotal / Square( 1024.f ) );
+	Com_Printf( "\n" );
+	Com_Printf( "%9i bytes (%6.2f MB) low mark\n", hunk_low.mark, hunk_low.mark / Square( 1024.f ) );
+	Com_Printf( "%9i bytes (%6.2f MB) low permanent\n", hunk_low.permanent, hunk_low.permanent / Square( 1024.f ) );
+	if ( hunk_low.temp != hunk_low.permanent ) {
+		Com_Printf( "%9i bytes (%6.2f MB) low temp\n", hunk_low.temp, hunk_low.temp / Square( 1024.f ) );
+	}
+	Com_Printf( "%9i bytes (%6.2f MB) low tempHighwater\n", hunk_low.tempHighwater, hunk_low.tempHighwater / Square( 1024.f ) );
+	Com_Printf( "\n" );
+	Com_Printf( "%9i bytes (%6.2f MB) high mark\n", hunk_high.mark, hunk_high.mark / Square( 1024.f ) );
+	Com_Printf( "%9i bytes (%6.2f MB) high permanent\n", hunk_high.permanent, hunk_high.permanent / Square( 1024.f ) );
+	if ( hunk_high.temp != hunk_high.permanent ) {
+		Com_Printf( "%9i bytes (%6.2f MB) high temp\n", hunk_high.temp, hunk_high.temp / Square( 1024.f ) );
+	}
+	Com_Printf( "%9i bytes (%6.2f MB) high tempHighwater\n", hunk_high.tempHighwater, hunk_high.tempHighwater / Square( 1024.f ) );
+	Com_Printf( "\n" );
+	Com_Printf( "%9i bytes (%6.2f MB) total hunk in use\n", hunk_low.permanent + hunk_high.permanent, ( hunk_low.permanent + hunk_high.permanent ) / Square( 1024.f ) );
+#endif RTCW_XX
+
 	unused = 0;
 	if ( hunk_low.tempHighwater > hunk_low.permanent ) {
 		unused += hunk_low.tempHighwater - hunk_low.permanent;
@@ -1456,7 +1657,13 @@ void Com_Meminfo_f( void ) {
 	if ( hunk_high.tempHighwater > hunk_high.permanent ) {
 		unused += hunk_high.tempHighwater - hunk_high.permanent;
 	}
+
+#if !defined RTCW_ET
 	Com_Printf( "%8i unused highwater\n", unused );
+#else
+	Com_Printf( "%9i bytes (%6.2f MB) unused highwater\n", unused, unused / Square( 1024.f ) );
+#endif RTCW_XX
+
 	Com_Printf( "\n" );
 
 #if defined RTCW_SP
@@ -1467,6 +1674,12 @@ void Com_Meminfo_f( void ) {
 	Com_Printf( "        %8i bytes in dynamic renderer\n", rendererBytes );
 	Com_Printf( "        %8i bytes in dynamic other\n", zoneBytes - ( botlibBytes + rendererBytes ) );
 	Com_Printf( "        %8i bytes in small Zone memory\n", smallZoneBytes );
+#else
+	Com_Printf( "%9i bytes (%6.2f MB) in %i zone blocks\n", zoneBytes, zoneBytes / Square( 1024.f ), zoneBlocks );
+	Com_Printf( "        %9i bytes (%6.2f MB) in dynamic botlib\n", botlibBytes, botlibBytes / Square( 1024.f ) );
+	Com_Printf( "        %9i bytes (%6.2f MB) in dynamic renderer\n", rendererBytes, rendererBytes / Square( 1024.f ) );
+	Com_Printf( "        %9i bytes (%6.2f MB) in dynamic other\n", zoneBytes - ( botlibBytes + rendererBytes ), ( zoneBytes - ( botlibBytes + rendererBytes ) ) / Square( 1024.f ) );
+	Com_Printf( "        %9i bytes (%6.2f MB) in small Zone memory\n", smallZoneBytes, smallZoneBytes / Square( 1024.f ) );
 #endif RTCW_XX
 
 }
@@ -1483,7 +1696,7 @@ void Com_TouchMemory( void ) {
 	int i, j;
 	int sum;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	memblock_t  *block;
 
 	Z_CheckHeap();
@@ -1504,7 +1717,7 @@ void Com_TouchMemory( void ) {
 		sum += ( (int *)s_hunkData )[i];
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	for ( block = mainzone->blocklist.next ; ; block = block->next ) {
 		if ( block->tag ) {
 			j = block->size >> 2;
@@ -1525,7 +1738,7 @@ void Com_TouchMemory( void ) {
 
 
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 =================
 Com_InitZoneMemory
@@ -1576,7 +1789,7 @@ void Com_InitZoneMemory( void ) {
 #if defined RTCW_SP
 	//memset(g_taggedAllocations, 0, sizeof(g_taggedAllocations));
 	//g_numTaggedAllocs = 0;
-#elif defined RTCW_MP
+#else
 	cvar_t  *cv;
 	// allocate the random block zone
 	cv = Cvar_Get( "com_zoneMegs", DEF_COMZONEMEGS, CVAR_LATCH | CVAR_ARCHIVE );
@@ -1668,7 +1881,13 @@ void Hunk_SmallLog( void ) {
 			block2->printed = qtrue;
 		}
 #ifdef HUNK_DEBUG
+
+#if !defined RTCW_ET
 		Com_sprintf( buf, sizeof( buf ), "size = %8d: %s, line: %d (%s)\r\n", locsize, block->file, block->line, block->label );
+#else
+		Com_sprintf( buf, sizeof( buf ), "size = %8d (%6.2f MB / %6.2f MB): %s, line: %d (%s)\r\n", locsize, locsize / Square( 1024.f ), ( size + block->size ) / Square( 1024.f ), block->file, block->line, block->label );
+#endif RTCW_XX
+
 		FS_Write( buf, strlen( buf ), logfile );
 #endif
 		size += block->size;
@@ -1728,7 +1947,7 @@ void Com_InitHunkMemory( void ) {
 
 	Cmd_AddCommand( "meminfo", Com_Meminfo_f );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #ifdef ZONE_DEBUG
 	Cmd_AddCommand( "zonelog", Z_LogHeap );
 #endif
@@ -1790,7 +2009,10 @@ qboolean Hunk_CheckMark( void ) {
 	return qfalse;
 }
 
+#if !defined RTCW_ET
 void CL_ShutdownCGame( void );
+#endif RTCW_XX
+
 void CL_ShutdownUI( void );
 void SV_ShutdownGameProgs( void );
 
@@ -1825,6 +2047,11 @@ void Hunk_Clear( void ) {
 	hunk_temp = &hunk_high;
 
 	Cvar_Set( "com_hunkused", va( "%i", hunk_low.permanent + hunk_high.permanent ) );
+
+#if defined RTCW_ET
+	com_hunkusedvalue = hunk_low.permanent + hunk_high.permanent;
+#endif RTCW_XX
+
 	Com_Printf( "Hunk_Clear: reset the hunk ok\n" );
 	VM_Clear(); // (SA) FIXME:TODO: was commented out in wolf
 #ifdef HUNK_DEBUG
@@ -1912,9 +2139,19 @@ void *Hunk_Alloc( int size, ha_pref preference ) {
 	}
 #endif
 	// Ridah, update the com_hunkused cvar in increments, so we don't update it too often, since this cvar call isn't very efficent
+
+#if !defined RTCW_ET
 	if ( ( hunk_low.permanent + hunk_high.permanent ) > com_hunkused->integer + 10000 ) {
+#else
+	if ( ( hunk_low.permanent + hunk_high.permanent ) > com_hunkused->integer + 2500 ) {
+#endif RTCW_XX
+
 		Cvar_Set( "com_hunkused", va( "%i", hunk_low.permanent + hunk_high.permanent ) );
 	}
+
+#if defined RTCW_ET
+	com_hunkusedvalue = hunk_low.permanent + hunk_high.permanent;
+#endif RTCW_XX
 
 	return buf;
 }
@@ -1945,6 +2182,14 @@ void *Hunk_AllocateTempMemory( int size ) {
 	size = ( ( size + 3 ) & ~3 ) + sizeof( hunkHeader_t );
 
 	if ( hunk_temp->temp + hunk_permanent->permanent + size > s_hunkTotal ) {
+
+#if defined RTCW_ET
+#ifdef HUNK_DEBUG
+		Hunk_Log();
+		Hunk_SmallLog();
+#endif
+#endif RCTW_XX
+
 		Com_Error( ERR_DROP, "Hunk_AllocateTempMemory: failed on %i", size );
 	}
 
@@ -2035,6 +2280,12 @@ Hunk_Trash
 =================
 */
 void Hunk_Trash( void ) {
+
+#if defined RTCW_ET
+	return;
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 	int length, i, rnd;
 	char *buf, value;
 
@@ -2068,6 +2319,42 @@ void Hunk_Trash( void ) {
 			buf[rnd + i] ^= value;
 		}
 	}
+#else
+#if 0
+	int length, i, rnd;
+	char *buf, value;
+
+	if ( s_hunkData == NULL ) {
+		return;
+	}
+
+#ifdef _DEBUG
+	Com_Error( ERR_DROP, "hunk trashed\n" );
+	return;
+#endif
+
+	Cvar_Set( "com_jp", "1" );
+	Hunk_SwapBanks();
+
+	if ( hunk_permanent == &hunk_low ) {
+		buf = ( void * )( s_hunkData + hunk_permanent->permanent );
+	} else {
+		buf = ( void * )( s_hunkData + s_hunkTotal - hunk_permanent->permanent );
+	}
+	length = hunk_permanent->permanent;
+
+	if ( length > 0x7FFFF ) {
+		//randomly trash data within buf
+		rnd = random() * ( length - 0x7FFFF );
+		value = 31;
+		for ( i = 0; i < 0x7FFFF; i++ ) {
+			value *= 109;
+			buf[rnd + i] ^= value;
+		}
+	}
+#endif // 0
+#endif RTCW_XX
+
 }
 
 /*
@@ -2102,10 +2389,11 @@ void Com_InitJournaling( void ) {
 
 	if ( com_journal->integer == 1 ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		Com_Printf( "Journaling events\n" );
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 #ifdef __MACOS__    //DAJ MacOS file typing
 		{
 			extern _MSL_IMP_EXP_C long _fcreator, _ftype;
@@ -2123,6 +2411,7 @@ void Com_InitJournaling( void ) {
 
 #if defined RTCW_MP
 		Com_Printf( "Journaling events\n" );
+#endif RTCW_XX
 #endif RTCW_XX
 
 		com_journalFile = FS_FOpenFileWrite( "journal.dat" );
@@ -2278,6 +2567,13 @@ Com_EventLoop
 Returns last event time
 =================
 */
+
+#if defined RTCW_ET
+#ifndef DEDICATED
+extern qboolean consoleButtonWasPressed;
+#endif
+#endif RTCW_XX
+
 int Com_EventLoop( void ) {
 	sysEvent_t ev;
 	netadr_t evFrom;
@@ -2318,6 +2614,21 @@ int Com_EventLoop( void ) {
 			CL_KeyEvent( ev.evValue, ev.evValue2, ev.evTime );
 			break;
 		case SE_CHAR:
+
+#if defined RTCW_ET
+#ifndef DEDICATED
+			// fretn
+			// we just pressed the console button,
+			// so ignore this event
+			// this prevents chars appearing at console input
+			// when you just opened it
+			if ( consoleButtonWasPressed ) {
+				consoleButtonWasPressed = qfalse;
+				break;
+			}
+#endif
+#endif RTCW_XX
+
 			CL_CharEvent( ev.evValue );
 			break;
 		case SE_MOUSE:
@@ -2451,9 +2762,20 @@ static void Com_Crash_f( void ) {
 	*( int * ) 0 = 0x12345678;
 }
 
+#if defined RTCW_ET
+/*
+=============
+Com_CPUSpeed_f
+=============
+*/
+void Com_CPUSpeed_f( void ) {
+	Com_Printf( "CPU Speed: %.2f Mhz\n", Sys_GetCPUSpeed() );
+}
+#endif RTCW_XX
+
 qboolean CL_CDKeyValidate( const char *key, const char *checksum );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // TTimo: centralizing the cl_cdkey stuff after I discovered a buffer overflow problem with the dedicated server version
 //   not sure it's necessary to have different defaults for regular and dedicated, but I don't want to take the risk
 #ifndef DEDICATED
@@ -2544,6 +2866,7 @@ static void Com_WriteCDKey( const char *filename, const char *ikey ) {
 		return;
 	}
 
+#if !defined RTCW_ET
 #ifdef __MACOS__    //DAJ MacOS file typing
 	{
 		extern _MSL_IMP_EXP_C long _fcreator, _ftype;
@@ -2557,6 +2880,8 @@ static void Com_WriteCDKey( const char *filename, const char *ikey ) {
 
 	}
 #endif
+#endif RTCW_XX
+
 	f = FS_SV_FOpenFileWrite( fbuffer );
 	if ( !f ) {
 		Com_Printf( "Couldn't write %s.\n", filename );
@@ -2565,7 +2890,12 @@ static void Com_WriteCDKey( const char *filename, const char *ikey ) {
 
 	FS_Write( key, 16, f );
 
+#if !defined RTCW_ET
 	FS_Printf( f, "\n// generated by RTCW, do not modify\r\n" );
+#else
+	FS_Printf( f, "\n// generated by ET, do not modify\r\n" );
+#endif RTCW_XX
+
 	FS_Printf( f, "// Do not give this file to ANYONE.\r\n" );
 #ifdef __MACOS__ // TTimo
 	FS_Printf( f, "// Aspyr will NOT ask you to send this file to them.\r\n" );
@@ -2578,10 +2908,11 @@ static void Com_WriteCDKey( const char *filename, const char *ikey ) {
 
 #if defined RTCW_SP
 void Com_SetRecommended( qboolean vidrestart ) {
-#elif defined RTCW_MP
+#else
 void Com_SetRecommended() {
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	cvar_t *cv;
 	qboolean goodVideo;
 	qboolean goodCPU;
@@ -2633,8 +2964,242 @@ void Com_SetRecommended() {
 #elif defined RTCW_MP
 //	Cvar_Set("ui_glCustom", "999");	// 'recommended'
 #endif RTCW_XX
+#else
+	cvar_t *r_highQualityVideo,* com_recommended;
+	qboolean goodVideo;
+	float cpuSpeed;
+	//qboolean goodCPU;
+	// will use this for recommended settings as well.. do i outside the lower check so it gets done even with command line stuff
+	r_highQualityVideo = Cvar_Get( "r_highQualityVideo", "1", CVAR_ARCHIVE );
+	com_recommended = Cvar_Get( "com_recommended", "-1", CVAR_ARCHIVE );
+	goodVideo = ( r_highQualityVideo && r_highQualityVideo->integer );
+
+	cpuSpeed = Sys_GetCPUSpeed();
+
+	if ( cpuSpeed > 1500 ) {
+		if ( goodVideo ) {
+			Com_Printf( "Found high quality video and fast CPU\n" );
+			Cbuf_AddText( "exec preset_high.cfg\n" );
+			Cvar_Set( "com_recommended", "0" );
+		} else {
+			Com_Printf( "Found low quality video and fast CPU\n" );
+			Cbuf_AddText( "exec preset_normal.cfg\n" );
+			Cvar_Set( "com_recommended", "1" );
+		}
+	} else if ( cpuSpeed > 850 ) {
+		if ( goodVideo ) {
+			Com_Printf( "Found high quality video and normal CPU\n" );
+		} else {
+			Com_Printf( "Found low quality video and normal CPU\n" );
+		}
+		Cbuf_AddText( "exec preset_normal.cfg\n" );
+		Cvar_Set( "com_recommended", "1" );
+	} else if ( cpuSpeed < 200 ) {   // do the < 200 check just in case we barf, better than falling back to ugly fast
+		if ( goodVideo ) {
+			Com_Printf( "Found high quality video but didn't manage to detect a CPU properly\n" );
+		} else {
+			Com_Printf( "Found low quality video but didn't manage to detect a CPU properly\n" );
+		}
+		Cbuf_AddText( "exec preset_normal.cfg\n" );
+		Cvar_Set( "com_recommended", "1" );
+	} else {
+		if ( goodVideo ) {
+			Com_Printf( "Found high quality video and slow CPU\n" );
+			Cbuf_AddText( "exec preset_fast.cfg\n" );
+			Cvar_Set( "com_recommended", "2" );
+		} else {
+			Com_Printf( "Found low quality video and slow CPU\n" );
+			Cbuf_AddText( "exec preset_fastest.cfg\n" );
+			Cvar_Set( "com_recommended", "3" );
+		}
+	}
+
+
+	/*goodCPU = Sys_GetHighQualityCPU();
+
+	if (goodVideo && goodCPU) {
+		Com_Printf ("Found high quality video and CPU\n");
+		Cbuf_AddText ("exec highVidhighCPU.cfg\n");
+	} else if (goodVideo && !goodCPU) {
+		Cbuf_AddText ("exec highVidlowCPU.cfg\n");
+		Com_Printf ("Found high quality video and low quality CPU\n");
+	} else if (!goodVideo && goodCPU) {
+		Cbuf_AddText ("exec lowVidhighCPU.cfg\n");
+		Com_Printf ("Found low quality video and high quality CPU\n");
+	} else {
+		Cbuf_AddText ("exec lowVidlowCPU.cfg\n");
+		Com_Printf ("Found low quality video and low quality CPU\n");
+	}*/
+
+// (SA) set the cvar so the menu will reflect this on first run
+//	Cvar_Set("ui_glCustom", "999");	// 'recommended'
+#endif RTCW_XX
 
 }
+
+#if defined RTCW_ET
+// Arnout: gameinfo, to let the engine know which gametypes are SP and if we should use profiles.
+// This can't be dependant on gamecode as we sometimes need to know about it when no game-modules
+// are loaded
+gameInfo_t com_gameInfo;
+
+void Com_GetGameInfo() {
+	char    *f, *buf;
+	char    *token;
+
+	memset( &com_gameInfo, 0, sizeof( com_gameInfo ) );
+
+	if ( FS_ReadFile( "gameinfo.dat", (void **)&f ) > 0 ) {
+
+		buf = f;
+
+		while ( ( token = COM_Parse( &buf ) ) != NULL && token[0] ) {
+			if ( !Q_stricmp( token, "spEnabled" ) ) {
+				com_gameInfo.spEnabled = qtrue;
+			} else if ( !Q_stricmp( token, "spGameTypes" ) ) {
+				while ( ( token = COM_ParseExt( &buf, qfalse ) ) != NULL && token[0] ) {
+					com_gameInfo.spGameTypes |= ( 1 << atoi( token ) );
+				}
+			} else if ( !Q_stricmp( token, "defaultSPGameType" ) ) {
+				if ( ( token = COM_ParseExt( &buf, qfalse ) ) != NULL && token[0] ) {
+					com_gameInfo.defaultSPGameType = atoi( token );
+				} else {
+					FS_FreeFile( f );
+					Com_Error( ERR_FATAL, "Com_GetGameInfo: bad syntax." );
+				}
+			} else if ( !Q_stricmp( token, "coopGameTypes" ) ) {
+
+				while ( ( token = COM_ParseExt( &buf, qfalse ) ) != NULL && token[0] ) {
+					com_gameInfo.coopGameTypes |= ( 1 << atoi( token ) );
+				}
+			} else if ( !Q_stricmp( token, "defaultCoopGameType" ) ) {
+				if ( ( token = COM_ParseExt( &buf, qfalse ) ) != NULL && token[0] ) {
+					com_gameInfo.defaultCoopGameType = atoi( token );
+				} else {
+					FS_FreeFile( f );
+					Com_Error( ERR_FATAL, "Com_GetGameInfo: bad syntax." );
+				}
+			} else if ( !Q_stricmp( token, "defaultGameType" ) ) {
+				if ( ( token = COM_ParseExt( &buf, qfalse ) ) != NULL && token[0] ) {
+					com_gameInfo.defaultGameType = atoi( token );
+				} else {
+					FS_FreeFile( f );
+					Com_Error( ERR_FATAL, "Com_GetGameInfo: bad syntax." );
+				}
+			} else if ( !Q_stricmp( token, "usesProfiles" ) ) {
+				if ( ( token = COM_ParseExt( &buf, qfalse ) ) != NULL && token[0] ) {
+					com_gameInfo.usesProfiles = atoi( token );
+				} else {
+					FS_FreeFile( f );
+					Com_Error( ERR_FATAL, "Com_GetGameInfo: bad syntax." );
+				}
+			} else {
+				FS_FreeFile( f );
+				Com_Error( ERR_FATAL, "Com_GetGameInfo: bad syntax." );
+			}
+		}
+
+		// all is good
+		FS_FreeFile( f );
+	}
+}
+
+// bani - checks if profile.pid is valid
+// return qtrue if it is
+// return qfalse if it isn't(!)
+qboolean Com_CheckProfile( char *profile_path ) {
+	fileHandle_t f;
+	char f_data[32];
+	int f_pid;
+
+	//let user override this
+	if ( com_ignorecrash->integer ) {
+		return qtrue;
+	}
+
+	if ( FS_FOpenFileRead( profile_path, &f, qtrue ) < 0 ) {
+		//no profile found, we're ok
+		return qtrue;
+	}
+
+	if ( FS_Read( &f_data, sizeof( f_data ) - 1, f ) < 0 ) {
+		//b0rk3d!
+		FS_FCloseFile( f );
+		//try to delete corrupted pid file
+		FS_Delete( profile_path );
+		return qfalse;
+	}
+
+	f_pid = atoi( f_data );
+	if ( f_pid != com_pid->integer ) {
+		//pid doesn't match
+		FS_FCloseFile( f );
+		return qfalse;
+	}
+
+	//we're all ok
+	FS_FCloseFile( f );
+	return qtrue;
+}
+
+//bani - from files.c
+extern char fs_gamedir[MAX_OSPATH];
+char last_fs_gamedir[MAX_OSPATH];
+char last_profile_path[MAX_OSPATH];
+
+//bani - track profile changes, delete old profile.pid if we change fs_game(dir)
+//hackish, we fiddle with fs_gamedir to make FS_* calls work "right"
+void Com_TrackProfile( char *profile_path ) {
+	char temp_fs_gamedir[MAX_OSPATH];
+
+//	Com_Printf( "Com_TrackProfile: Tracking profile [%s] [%s]\n", fs_gamedir, profile_path );
+	//have we changed fs_game(dir)?
+	if ( strcmp( last_fs_gamedir, fs_gamedir ) ) {
+		if ( strlen( last_fs_gamedir ) && strlen( last_profile_path ) ) {
+			//save current fs_gamedir
+			Q_strncpyz( temp_fs_gamedir, fs_gamedir, sizeof( temp_fs_gamedir ) );
+			//set fs_gamedir temporarily to make FS_* stuff work "right"
+			Q_strncpyz( fs_gamedir, last_fs_gamedir, sizeof( fs_gamedir ) );
+			if ( FS_FileExists( last_profile_path ) ) {
+				Com_Printf( "Com_TrackProfile: Deleting old pid file [%s] [%s]\n", fs_gamedir, last_profile_path );
+				FS_Delete( last_profile_path );
+			}
+			//restore current fs_gamedir
+			Q_strncpyz( fs_gamedir, temp_fs_gamedir, sizeof( fs_gamedir ) );
+		}
+		//and save current vars for future reference
+		Q_strncpyz( last_fs_gamedir, fs_gamedir, sizeof( last_fs_gamedir ) );
+		Q_strncpyz( last_profile_path, profile_path, sizeof( last_profile_path ) );
+	}
+}
+
+// bani - writes pid to profile
+// returns qtrue if successful
+// returns qfalse if not(!!)
+qboolean Com_WriteProfile( char *profile_path ) {
+	fileHandle_t f;
+
+	if ( FS_FileExists( profile_path ) ) {
+		FS_Delete( profile_path );
+	}
+
+	f = FS_FOpenFileWrite( profile_path );
+	if ( f < 0 ) {
+		Com_Printf( "Com_WriteProfile: Can't write %s.\n", profile_path );
+		return qfalse;
+	}
+
+	FS_Printf( f, "%d", com_pid->integer );
+
+	FS_FCloseFile( f );
+
+	//track profile changes
+	Com_TrackProfile( profile_path );
+
+	return qtrue;
+}
+#endif RTCW_XX
+
 /*
 =================
 Com_Init
@@ -2643,7 +3208,11 @@ Com_Init
 void Com_Init( char *commandLine ) {
 	char    *s;
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+	int pid;
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 	// TTimo gcc warning: variable `safeMode' might be clobbered by `longjmp' or `vfork'
 	volatile qboolean safeMode = qtrue;
 #endif RTCW_XX
@@ -2657,7 +3226,7 @@ void Com_Init( char *commandLine ) {
 	// bk001129 - do this before anything else decides to push events
 	Com_InitPushEvent();
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	Com_InitSmallZoneMemory();
 #endif RTCW_XX
 
@@ -2679,12 +3248,36 @@ void Com_Init( char *commandLine ) {
 	// get the developer cvar set as early as possible
 	Com_StartupVariable( "developer" );
 
+#if defined RTCW_ET
+	// bani: init this early
+	Com_StartupVariable( "com_ignorecrash" );
+	com_ignorecrash = Cvar_Get( "com_ignorecrash", "0", 0 );
+
+	// ydnar: init crashed variable as early as possible
+	com_crashed = Cvar_Get( "com_crashed", "0", CVAR_TEMP );
+
+	// bani: init pid
+#ifdef _WIN32
+	pid = GetCurrentProcessId();
+#elif __linux__
+	pid = getpid();
+#elif __MACOS__
+	pid = getpid();
+#endif
+	s = va( "%d", pid );
+	com_pid = Cvar_Get( "com_pid", s, CVAR_ROM );
+#endif RTCW_XX
+
 	// done early so bind command exists
 	CL_InitKeyCommands();
 
 	FS_InitFilesystem();
 
 	Com_InitJournaling();
+
+#if defined RTCW_ET
+	Com_GetGameInfo();
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	Cbuf_AddText( "exec default.cfg\n" );
@@ -2713,6 +3306,68 @@ void Com_Init( char *commandLine ) {
 #endif
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	Cbuf_AddText( "exec default.cfg\n" );
+	Cbuf_AddText( "exec language.cfg\n" );     // NERVE - SMF
+
+	// skip the q3config.cfg if "safe" is on the command line
+	if ( !Com_SafeMode() ) {
+		char *cl_profileStr = Cvar_VariableString( "cl_profile" );
+
+		safeMode = qfalse;
+		if ( com_gameInfo.usesProfiles ) {
+			if ( !cl_profileStr[0] ) {
+				char *defaultProfile = NULL;
+
+				FS_ReadFile( "profiles/defaultprofile.dat", (void **)&defaultProfile );
+
+				if ( defaultProfile ) {
+					char *text_p = defaultProfile;
+					char *token = COM_Parse( &text_p );
+
+					if ( token && *token ) {
+						Cvar_Set( "cl_defaultProfile", token );
+						Cvar_Set( "cl_profile", token );
+					}
+
+					FS_FreeFile( defaultProfile );
+
+					cl_profileStr = Cvar_VariableString( "cl_defaultProfile" );
+				}
+			}
+
+			if ( cl_profileStr[0] ) {
+				// bani - check existing pid file and make sure it's ok
+				if ( !Com_CheckProfile( va( "profiles/%s/profile.pid", cl_profileStr ) ) ) {
+#ifndef _DEBUG
+					Com_Printf( "^3WARNING: profile.pid found for profile '%s' - system settings will revert to defaults\n", cl_profileStr );
+					// ydnar: set crashed state
+					Cbuf_AddText( "set com_crashed 1\n" );
+#endif
+				}
+
+				// bani - write a new one
+				if ( !Com_WriteProfile( va( "profiles/%s/profile.pid", cl_profileStr ) ) ) {
+					Com_Printf( "^3WARNING: couldn't write profiles/%s/profile.pid\n", cl_profileStr );
+				}
+
+				// exec the config
+				Cbuf_AddText( va( "exec profiles/%s/%s\n", cl_profileStr, CONFIG_NAME ) );
+			}
+		} else
+		{
+			Cbuf_AddText( va( "exec %s\n", CONFIG_NAME ) );
+		}
+	}
+
+	Cbuf_AddText( "exec autoexec.cfg\n" );
+
+	// ydnar: reset crashed state
+	Cbuf_AddText( "set com_crashed 0\n" );
+
+	// execute the queued commands
+#endif RTCW_XX
+
 	Cbuf_Execute();
 
 	// override anything from the config files with command line args
@@ -2735,6 +3390,13 @@ void Com_Init( char *commandLine ) {
 #else
 	com_dedicated = Cvar_Get( "dedicated", "0", CVAR_LATCH );
 #endif
+#else
+#if DEDICATED
+	// TTimo: default to internet dedicated, not LAN dedicated
+	com_dedicated = Cvar_Get( "dedicated", "2", CVAR_ROM );
+#else
+	com_dedicated = Cvar_Get( "dedicated", "0", CVAR_LATCH );
+#endif
 #endif RTCW_XX
 
 	// allocate the stack based hunk allocator
@@ -2752,9 +3414,16 @@ void Com_Init( char *commandLine ) {
 	com_maxfps = Cvar_Get( "com_maxfps", "85", CVAR_ARCHIVE );
 #elif defined RTCW_MP
 	com_maxfps = Cvar_Get( "com_maxfps", "85", CVAR_ARCHIVE | CVAR_LATCH );
+#else
+	// Gordon: no need to latch this in ET, our recoil is framerate independant
+	com_maxfps = Cvar_Get( "com_maxfps", "85", CVAR_ARCHIVE /*|CVAR_LATCH*/ );
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	com_blood = Cvar_Get( "com_blood", "1", CVAR_ARCHIVE );
+#else
+//	com_blood = Cvar_Get ("com_blood", "1", CVAR_ARCHIVE); // Gordon: no longer used?
+#endif RTCW_XX
 
 	com_developer = Cvar_Get( "developer", "0", CVAR_TEMP );
 	com_logfile = Cvar_Get( "logfile", "0", CVAR_TEMP );
@@ -2768,16 +3437,30 @@ void Com_Init( char *commandLine ) {
 	com_timedemo = Cvar_Get( "timedemo", "0", CVAR_CHEAT );
 	com_cameraMode = Cvar_Get( "com_cameraMode", "0", CVAR_CHEAT );
 
+#if defined RTCW_ET
+	com_watchdog = Cvar_Get( "com_watchdog", "60", CVAR_ARCHIVE );
+	com_watchdog_cmd = Cvar_Get( "com_watchdog_cmd", "", CVAR_ARCHIVE );
+#endif RTCW_XX
+
 	cl_paused = Cvar_Get( "cl_paused", "0", CVAR_ROM );
 	sv_paused = Cvar_Get( "sv_paused", "0", CVAR_ROM );
 	com_sv_running = Cvar_Get( "sv_running", "0", CVAR_ROM );
 	com_cl_running = Cvar_Get( "cl_running", "0", CVAR_ROM );
 	com_buildScript = Cvar_Get( "com_buildScript", "0", 0 );
 
+#if defined RTCW_ET
+	con_drawnotify = Cvar_Get( "con_drawnotify", "0", CVAR_CHEAT );
+#endif RTCW_XX
+
 	com_introPlayed = Cvar_Get( "com_introplayed", "0", CVAR_ARCHIVE );
+
+#if defined RTCW_ET
+	com_logosPlaying = Cvar_Get( "com_logosPlaying", "0", CVAR_ROM );
+#endif RTCW_XX
+
 	com_recommendedSet = Cvar_Get( "com_recommendedSet", "0", CVAR_ARCHIVE );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	Cvar_Get( "savegame_loading", "0", CVAR_ROM );
 #endif RTCW_XX
 
@@ -2786,6 +3469,10 @@ void Com_Init( char *commandLine ) {
 #endif
 
 	com_hunkused = Cvar_Get( "com_hunkused", "0", 0 );
+
+#if defined RTCW_ET
+	com_hunkusedvalue = 0;
+#endif RTCW_XX
 
 	if ( com_dedicated->integer ) {
 		if ( !com_viewlog->integer ) {
@@ -2797,6 +3484,11 @@ void Com_Init( char *commandLine ) {
 		Cmd_AddCommand( "error", Com_Error_f );
 		Cmd_AddCommand( "crash", Com_Crash_f );
 		Cmd_AddCommand( "freeze", Com_Freeze_f );
+
+#if defined RTCW_ET
+		Cmd_AddCommand( "cpuspeed", Com_CPUSpeed_f );
+#endif RTCW_XX
+
 	}
 	Cmd_AddCommand( "quit", Com_Quit_f );
 	Cmd_AddCommand( "changeVectors", MSG_ReportChangeVectors_f );
@@ -2854,7 +3546,7 @@ void Com_Init( char *commandLine ) {
 			//Cvar_Set( "nextmap", "cinematic wolfintro.RoQ" );
 		}
 	}
-#elif defined RTCW_MP
+#else
 	// NERVE - SMF - force recommendedSet and don't do vid_restart if in safe mode
 	if ( !com_recommendedSet->integer && !safeMode ) {
 		Com_SetRecommended();
@@ -2863,11 +3555,23 @@ void Com_Init( char *commandLine ) {
 	Cvar_Set( "com_recommendedSet", "1" );
 
 	if ( !com_dedicated->integer ) {
+
+#if !defined RTCW_ET
 		Cbuf_AddText( "cinematic gmlogo.RoQ\n" );
 		if ( !com_introPlayed->integer ) {
 			Cvar_Set( com_introPlayed->name, "1" );
 			Cvar_Set( "nextmap", "cinematic wolfintro.RoQ" );
 		}
+#else
+		//Cvar_Set( "com_logosPlaying", "1" );
+		Cbuf_AddText( "cinematic etintro.roq\n" );
+		/*Cvar_Set( "nextmap", "cinematic avlogo.roq" );
+		if( !com_introPlayed->integer ) {
+			Cvar_Set( com_introPlayed->name, "1" );
+			//Cvar_Set( "nextmap", "cinematic avlogo.roq" );
+		}*/
+#endif RTCW_XX
+
 	}
 #endif RTCW_XX
 
@@ -2893,7 +3597,12 @@ void Com_WriteConfigToFile( const char *filename ) {
 		return;
 	}
 
+#if !defined RTCW_ET
 	FS_Printf( f, "// generated by RTCW, do not modify\n" );
+#else
+	FS_Printf( f, "// generated by ET, do not modify\n" );
+#endif RTCW_XX
+
 	Key_WriteBindings( f );
 	Cvar_WriteVariables( f );
 	FS_FCloseFile( f );
@@ -2911,6 +3620,11 @@ void Com_WriteConfiguration( void ) {
 #ifndef DEDICATED // bk001204
 	cvar_t  *fs;
 #endif
+
+#if defined RTCW_ET
+	char *cl_profileStr = Cvar_VariableString( "cl_profile" );
+#endif RTCW_XX
+
 	// if we are quiting without fully initializing, make sure
 	// we don't write out anything
 	if ( !com_fullyInitialized ) {
@@ -2926,6 +3640,12 @@ void Com_WriteConfiguration( void ) {
 	Com_WriteConfigToFile( "wolfconfig.cfg" );
 #elif defined RTCW_MP
 	Com_WriteConfigToFile( "wolfconfig_mp.cfg" );
+#else
+	if ( com_gameInfo.usesProfiles && cl_profileStr[0] ) {
+		Com_WriteConfigToFile( va( "profiles/%s/%s", cl_profileStr, CONFIG_NAME ) );
+	} else {
+		Com_WriteConfigToFile( CONFIG_NAME );
+	}
 #endif RTCW_XX
 
 	// bk001119 - tentative "not needed for dedicated"
@@ -2934,7 +3654,13 @@ void Com_WriteConfiguration( void ) {
 	if ( UI_usesUniqueCDKey() && fs && fs->string[0] != 0 ) {
 		Com_WriteCDKey( fs->string, &cl_cdkey[16] );
 	} else {
+
+#if !defined RTCW_ET
 		Com_WriteCDKey( "main", cl_cdkey );
+#else
+		Com_WriteCDKey( BASEGAME, cl_cdkey );
+#endif RTCW_XX
+
 	}
 #endif
 }
@@ -2992,7 +3718,7 @@ int Com_ModifyMsec( int msec ) {
 
 #if defined RTCW_SP
 		if ( msec > 500 ) {
-#elif defined RTCW_MP
+#else
 		if ( msec > 500 && msec < 500000 ) {
 #endif RTCW_XX
 
@@ -3035,9 +3761,10 @@ void Com_Frame( void ) {
 	int timeBeforeClient;
 	int timeAfter;
 
-
-
-
+#if defined RTCW_ET
+	static int watchdogTime = 0;
+	static qboolean watchWarn = qfalse;
+#endif RTCW_XX
 
 	if ( setjmp( abortframe ) ) {
 		return;         // an ERR_DROP was thrown
@@ -3055,10 +3782,10 @@ void Com_Frame( void ) {
 	// old net chan encryption key
 	key = 0x87243987;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	// write config file if anything changed
 	Com_WriteConfiguration();
-#elif defined RTCW_MP
+#else
 	// DHM - Nerve :: Don't write config on Update Server
 #ifndef UPDATE_SERVER
 	// write config file if anything changed
@@ -3155,23 +3882,71 @@ void Com_Frame( void ) {
 		if ( com_speeds->integer ) {
 			timeAfter = Sys_Milliseconds();
 		}
+
+#if defined RTCW_ET
+	} else {
+		timeAfter = Sys_Milliseconds();
+	}
+
+	//
+	// watchdog
+	//
+	if ( com_dedicated->integer && !com_sv_running->integer && com_watchdog->integer ) {
+		if ( watchdogTime == 0 ) {
+			watchdogTime = Sys_Milliseconds();
+		} else {
+			if ( !watchWarn && Sys_Milliseconds() - watchdogTime > ( com_watchdog->integer - 4 ) * 1000 ) {
+				Com_Printf( "WARNING: watchdog will trigger in 4 seconds\n" );
+				watchWarn = qtrue;
+			} else if ( Sys_Milliseconds() - watchdogTime > com_watchdog->integer * 1000 ) {
+				Com_Printf( "Idle Server with no map - triggering watchdog\n" );
+				watchdogTime = 0;
+				watchWarn = qfalse;
+				if ( com_watchdog_cmd->string[0] == '\0' ) {
+					Cbuf_AddText( "quit\n" );
+				} else {
+					Cbuf_AddText( va( "%s\n", com_watchdog_cmd->string ) );
+				}
+			}
+		}
+#endif RTCW_XX
+
 	}
 
 	//
 	// report timing information
 	//
 	if ( com_speeds->integer ) {
+
+#if !defined RTCW_ET
 		int all, sv, ev, cl;
+#else
+		int all, sv, sev, cev, cl;
+#endif RTCW_XX
 
 		all = timeAfter - timeBeforeServer;
 		sv = timeBeforeEvents - timeBeforeServer;
+
+#if !defined RTCW_ET
 		ev = timeBeforeServer - timeBeforeFirstEvents + timeBeforeClient - timeBeforeEvents;
+#else
+		sev = timeBeforeServer - timeBeforeFirstEvents;
+		cev = timeBeforeClient - timeBeforeEvents;
+#endif RTCW_XX
+
 		cl = timeAfter - timeBeforeClient;
 		sv -= time_game;
 		cl -= time_frontend + time_backend;
 
+
+#if !defined RTCW_ET
 		Com_Printf( "frame:%i all:%3i sv:%3i ev:%3i cl:%3i gm:%3i rf:%3i bk:%3i\n",
 					com_frameNumber, all, sv, ev, cl, time_game, time_frontend, time_backend );
+#else
+		Com_Printf( "frame:%i all:%3i sv:%3i sev:%3i cev:%3i cl:%3i gm:%3i rf:%3i bk:%3i\n",
+					com_frameNumber, all, sv, sev, cev, cl, time_game, time_frontend, time_backend );
+#endif RTCW_XX
+
 	}
 
 	//
@@ -3201,7 +3976,26 @@ void Com_Frame( void ) {
 Com_Shutdown
 =================
 */
+
+#if !defined RTCW_ET
 void Com_Shutdown( void ) {
+#else
+void Com_Shutdown( qboolean badProfile ) {
+#endif RTCW_XX
+
+
+#if defined RTCW_ET
+	char *cl_profileStr = Cvar_VariableString( "cl_profile" );
+
+
+	// delete pid file
+	if ( com_gameInfo.usesProfiles && cl_profileStr[0] && !badProfile ) {
+		if ( FS_FileExists( va( "profiles/%s/profile.pid", cl_profileStr ) ) ) {
+			FS_Delete( va( "profiles/%s/profile.pid", cl_profileStr ) );
+		}
+	}
+#endif RTCW_XX
+
 	if ( logfile ) {
 		FS_FCloseFile( logfile );
 		logfile = 0;
@@ -3600,6 +4394,11 @@ static void FindMatches( const char *s ) {
 			shortestMatch[i] = 0;
 		}
 	}
+
+#if defined RTCW_ET
+	shortestMatch[i] = 0;
+#endif RTCW_XX
+
 }
 
 /*
@@ -3706,4 +4505,48 @@ void Field_CompleteCommand( field_t *field ) {
 	Cmd_CommandCompletion( PrintMatches );
 	Cvar_CommandCompletion( PrintMatches );
 }
+
+#if defined RTCW_ET
+void Com_GetHunkInfo( int* hunkused, int* hunkexpected ) {
+	*hunkused =     com_hunkusedvalue;
+	*hunkexpected = com_expectedhunkusage;
+}
+
+/*
+============
+Q_vsnprintf
+
+vsnprintf portability:
+
+C99 standard: vsnprintf returns the number of characters (excluding the trailing
+'\0') which would have been written to the final string if enough space had been available
+snprintf and vsnprintf do not write more than size bytes (including the trailing '\0')
+
+win32: _vsnprintf returns the number of characters written, not including the terminating null character,
+or a negative value if an output error occurs. If the number of characters to write exceeds count,
+then count characters are written and -1 is returned and no trailing '\0' is added.
+
+Q_vsnPrintf: always append a trailing '\0', returns number of characters written or
+returns -1 on failure or if the buffer would be overflowed.
+============
+*/
+int Q_vsnprintf( char *dest, int size, const char *fmt, va_list argptr ) {
+	int ret;
+
+#ifdef _WIN32
+#undef _vsnprintf
+	ret = _vsnprintf( dest, size - 1, fmt, argptr );
+#define _vsnprintf  use_idStr_vsnPrintf
+#else
+#undef vsnprintf
+	ret = vsnprintf( dest, size, fmt, argptr );
+#define vsnprintf   use_idStr_vsnPrintf
+#endif
+	dest[size - 1] = '\0';
+	if ( ret < 0 || ret >= size ) {
+		return -1;
+	}
+	return ret;
+}
+#endif RTCW_XX
 

@@ -357,6 +357,22 @@ int AAS_GroundArea( tmp_area_t *tmparea ) {
 	return false;
 } //end of the function AAS_GroundArea
 
+#if defined RTCW_ET
+int AAS_LadderArea( tmp_area_t *tmparea ) {
+	tmp_face_t *face;
+	int side;
+
+	for ( face = tmparea->tmpfaces; face; face = face->next[side] )
+	{
+		side = ( face->frontarea != tmparea );
+		if ( face->faceflags & FACE_LADDER ) {
+			return true;
+		}
+	} //end for
+	return false;
+} //end of the function AAS_GroundArea
+#endif RTCW_XX
+
 void AAS_MergeAreas( void ) {
 	int side, nummerges, merges, groundfirst;
 	tmp_area_t *tmparea, *othertmparea;
@@ -403,6 +419,17 @@ void AAS_MergeAreas( void ) {
 							continue;
 						}
 					} //end if
+
+#if defined RTCW_ET
+					// if the critical types are different, dont merge
+					if (    ( AAS_GroundArea( tmparea ) != AAS_GroundArea( othertmparea ) )
+							||  ( AAS_LadderArea( tmparea ) != AAS_LadderArea( othertmparea ) )
+							||  ( ( tmparea->contents & AREACONTENTS_MOVER ) != ( othertmparea->contents & AREACONTENTS_MOVER ) )
+							||  ( ( tmparea->contents & AREACONTENTS_WATER ) != ( othertmparea->contents & AREACONTENTS_WATER ) ) ) {
+						continue;
+					}
+#endif RTCW_XX
+
 					if ( AAS_TryMergeFaceAreas( face ) ) {
 						qprintf( "\r%6d", ++nummerges );
 						merges++;

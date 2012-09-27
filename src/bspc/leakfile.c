@@ -80,7 +80,7 @@ void LeakFile( tree_t *tree ) {
 #if defined RTCW_SP
 		portal_t    *p, *nextportal = NULL; // TTimo: init
 		node_t      *nextnode = NULL; // TTimo: init
-#elif defined RTCW_MP
+#else
 		portal_t    *p, *nextportal;
 		node_t      *nextnode;
 #endif RTCW_XX

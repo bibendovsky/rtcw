@@ -53,11 +53,16 @@ typedef struct {
 	// size display elements
 	void ( *BeginRegistration )( glconfig_t *config );
 	qhandle_t ( *RegisterModel )( const char *name );
+
+#if defined RTCW_ET
+	qhandle_t ( *RegisterModelAllLODs )( const char *name );
+#endif RTCW_XX
+
 	qhandle_t ( *RegisterSkin )( const char *name );
 	qhandle_t ( *RegisterShader )( const char *name );
 	qhandle_t ( *RegisterShaderNoMip )( const char *name );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	void ( *RegisterFont )( const char *fontName, int pointSize, fontInfo_t *font );
 #endif RTCW_XX
 
@@ -82,12 +87,18 @@ typedef struct {
 	// Ridah
 	void ( *AddPolysToScene )( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys );
 	// done.
+
+#if !defined RTCW_ET
 	void ( *AddLightToScene )( const vec3_t org, float intensity, float r, float g, float b, int overdraw );
+#else
+	void ( *AddLightToScene )( const vec3_t org, float radius, float intensity, float r, float g, float b, qhandle_t hShader, int flags );
+#endif RTCW_XX
+
 //----(SA)
 
 #if defined RTCW_SP
 	void ( *AddCoronaToScene )( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
-#elif defined RTCW_MP
+#else
 	void ( *AddCoronaToScene )( const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible );
 #endif RTCW_XX
 
@@ -95,17 +106,37 @@ typedef struct {
 //----(SA)
 	void ( *RenderScene )( const refdef_t *fd );
 
+#if defined RTCW_ET
+	void ( *SaveViewParms )();
+	void ( *RestoreViewParms )();
+#endif RTCW_XX
+
 	void ( *SetColor )( const float *rgba );    // NULL = 1,1,1,1
+
+#if !defined RTCW_ET
 	void ( *DrawStretchPic )( float x, float y, float w, float h,
 							  float s1, float t1, float s2, float t2, qhandle_t hShader ); // 0 = white
+#else
+	void ( *DrawStretchPic )( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );      // 0 = white
+#endif RTCW_XX
 
 #if defined RTCW_MP
 	void ( *DrawRotatedPic )( float x, float y, float w, float h,
 							  float s1, float t1, float s2, float t2, qhandle_t hShader, float angle ); // NERVE - SMF
+#elif defined RTCW_ET
+	void ( *DrawRotatedPic )( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader, float angle );     // NERVE - SMF
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	void ( *DrawStretchPicGradient )( float x, float y, float w, float h,
 									  float s1, float t1, float s2, float t2, qhandle_t hShader, const float *gradientColor, int gradientType );
+#else
+	void ( *DrawStretchPicGradient )( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader, const float *gradientColor, int gradientType );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	void ( *Add2dPolys )( polyVert_t* polys, int numverts, qhandle_t hShader );
+#endif RTCW_XX
 
 	// Draw images for cinematic rendering, pass as 32 bit rgba
 	void ( *DrawStretchRaw )( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty );
@@ -119,6 +150,11 @@ typedef struct {
 
 	int ( *MarkFragments )( int numPoints, const vec3_t *points, const vec3_t projection,
 							int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
+
+#if defined RTCW_ET
+	void ( *ProjectDecal )( qhandle_t hShader, int numPoints, vec3_t *points, vec4_t projection, vec4_t color, int lifeTime, int fadeTime );
+	void ( *ClearDecals )( void );
+#endif RTCW_XX
 
 	int ( *LerpTag )( orientation_t *tag,  const refEntity_t *refent, const char *tagName, int startIndex );
 	void ( *ModelBounds )( qhandle_t model, vec3_t mins, vec3_t maxs );
@@ -138,7 +174,32 @@ typedef struct {
 	void ( *ZombieFXAddNewHit )( int entityNum, const vec3_t hitPos, const vec3_t hitDir );
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	void ( *DrawDebugPolygon )( int color, int numpoints, float* points );
+
+	void ( *DrawDebugText )( const vec3_t org, float r, float g, float b, const char *text, qboolean neverOcclude );
+#endif RTCW_XX
+
 	qboolean ( *GetEntityToken )( char *buffer, int size );
+
+#if defined RTCW_ET
+	void ( *AddPolyBufferToScene )( polyBuffer_t* pPolyBuffer );
+
+	void ( *SetGlobalFog )( qboolean restore, int duration, float r, float g, float b, float depthForOpaque );
+
+	qboolean ( *inPVS )( const vec3_t p1, const vec3_t p2 );
+
+	void ( *purgeCache )( void );
+
+	//bani
+	qboolean ( *LoadDynamicShader )( const char *shadername, const char *shadertext );
+	// fretn
+	void ( *RenderToTexture )( int textureid, int x, int y, int w, int h );
+	//bani
+	int ( *GetTextureId )( const char *imagename );
+	void ( *Finish )( void );
+#endif RTCW_XX
+
 } refexport_t;
 
 //
@@ -166,7 +227,7 @@ typedef struct {
 	void    *( *Hunk_AllocateTempMemory )( int size );
 	void ( *Hunk_FreeTempMemory )( void *block );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// dynamic memory allocator for things that need to be freed
 #ifdef ZONE_DEBUG
 	void    *( *Z_MallocDebug )( int bytes, char *label, char *file, int line );

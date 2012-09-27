@@ -232,7 +232,18 @@ void SCR_DrawStringExt( int x, int y, float size, const char *string, float *set
 	while ( *s ) {
 		if ( Q_IsColorString( s ) ) {
 			if ( !forceColor ) {
-				memcpy( color, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( color ) );
+
+#if !defined RTCW_ET
+			memcpy( color, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( color ) );
+#else
+				if ( *( s + 1 ) == COLOR_NULL ) {
+					memcpy( color, setColor, sizeof( color ) );
+				} else {
+					memcpy( color, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( color ) );
+					color[3] = setColor[3];
+				}
+#endif RTCW_XX
+
 				color[3] = setColor[3];
 				re.SetColor( color );
 			}
@@ -282,8 +293,18 @@ void SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, 
 	while ( *s ) {
 		if ( Q_IsColorString( s ) ) {
 			if ( !forceColor ) {
-				memcpy( color, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( color ) );
+#if !defined RTCW_ET
+			memcpy( color, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( color ) );
 				color[3] = setColor[3];
+#else
+				if ( *( s + 1 ) == COLOR_NULL ) {
+					memcpy( color, setColor, sizeof( color ) );
+				} else {
+					memcpy( color, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( color ) );
+					color[3] = setColor[3];
+				}
+#endif RTCW_XX
+
 				re.SetColor( color );
 			}
 			s += 2;
@@ -333,15 +354,23 @@ SCR_DrawDemoRecording
 =================
 */
 void SCR_DrawDemoRecording( void ) {
+
+#if !defined RTCW_ET
 	char string[1024];
 	int pos;
+#endif RTCW_XX
 
 	if ( !clc.demorecording ) {
 		return;
 	}
 
+#if !defined RTCW_ET
 	pos = FS_FTell( clc.demofile );
 	sprintf( string, "RECORDING %s: %ik", clc.demoName, pos / 1024 );
+#else
+	//bani
+	Cvar_Set( "cl_demooffset", va( "%d", FS_FTell( clc.demofile ) ) );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	SCR_DrawStringExt( 320 - strlen( string ) * 4, 20, 8, string, g_color_table[7], qtrue );
@@ -448,6 +477,8 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 
 	// wide aspect ratio screens need to have the sides cleared
 	// unless they are displaying game renderings
+
+#if !defined RTCW_ET
 	if ( cls.state != CA_ACTIVE ) {
 		if ( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 ) {
 			re.SetColor( g_color_table[0] );
@@ -455,6 +486,15 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 			re.SetColor( NULL );
 		}
 	}
+#else
+/*	if ( cls.state != CA_ACTIVE ) {
+		if ( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 ) {
+			re.SetColor( g_color_table[0] );
+			re.DrawStretchPic( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
+			re.SetColor( NULL );
+		}
+	}*/
+#endif RTCW_XX
 
 	if ( !uivm ) {
 		Com_DPrintf( "draw screen without UI loaded\n" );
@@ -531,14 +571,27 @@ text to the screen.
 ==================
 */
 void SCR_UpdateScreen( void ) {
+
+#if !defined RTCW_ET
 	static int recursive;
+#else
+	static int recursive = 0;
+#endif RTCW_XX
 
 	if ( !scr_initialized ) {
 		return;             // not initialized yet
 	}
 
+#if !defined RTCW_ET
 	if ( ++recursive > 2 ) {
 		Com_Error( ERR_FATAL, "SCR_UpdateScreen: recursively called" );
+#else
+	if ( ++recursive >= 2 ) {
+		recursive = 0;
+		// Gordon: i'm breaking this again, because we've removed most of our cases but still have one which will not fix easily
+		return;
+//		Com_Error( ERR_FATAL, "SCR_UpdateScreen: recursively called" );
+#endif RTCW_XX
 	}
 	recursive = 1;
 

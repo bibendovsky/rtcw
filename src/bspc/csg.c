@@ -40,6 +40,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "qbsp.h"
 
+#if defined RTCW_ET
+#include "../game/surfaceflags.h"
+#endif RTCW_XX
+
 /*
 
 tag all brushes with original contents
@@ -402,7 +406,14 @@ bspbrush_t *SubtractBrush( bspbrush_t *a, bspbrush_t *b ) { // a - b = out (list
 	out = NULL;
 	for ( i = 0; i < b->numsides && in; i++ )
 	{
+
+#if !defined RTCW_ET
 		SplitBrush2( in, b->sides[i].planenum, &front, &back );
+#else
+		SplitBrush( in, b->sides[i].planenum, &front, &back );
+//		SplitBrush2(in, b->sides[i].planenum, &front, &back);
+#endif RTCW_XX
+
 		if ( in != a ) {
 			FreeBrush( in );
 		}
@@ -440,7 +451,14 @@ bspbrush_t *IntersectBrush( bspbrush_t *a, bspbrush_t *b ) {
 	in = a;
 	for ( i = 0 ; i < b->numsides && in ; i++ )
 	{
+
+#if !defined RTCW_ET
 		SplitBrush2( in, b->sides[i].planenum, &front, &back );
+#else
+		SplitBrush( in, b->sides[i].planenum, &front, &back );
+//		SplitBrush2(in, b->sides[i].planenum, &front, &back);
+#endif RTCW_XX
+
 		if ( in != a ) {
 			FreeBrush( in );
 		}
@@ -581,9 +599,18 @@ bspbrush_t *MakeBspBrushList( int startbrush, int endbrush,
 		VectorClear( normal );
 		normal[i] = 1;
 		dist = clipmaxs[i];
+
+#if !defined RTCW_ET
 		maxplanenums[i] = FindFloatPlane( normal, dist );
 		dist = clipmins[i];
 		minplanenums[i] = FindFloatPlane( normal, dist );
+#else
+		maxplanenums[i] = FindFloatPlane( normal, dist, 0, NULL );
+
+		dist = clipmins[i];
+		minplanenums[i] = FindFloatPlane( normal, dist, 0, NULL );
+#endif RTCW_XX
+
 	}
 
 	brushlist = NULL;
@@ -748,7 +775,17 @@ void WriteBrushMap(char *name, bspbrush_t *list)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if !defined RTCW_ET
 qboolean BrushGE( bspbrush_t *b1, bspbrush_t *b2 ) {
+#else
+__inline qboolean BrushGE( bspbrush_t *b1, bspbrush_t *b2 ) {
+	// RF, let mover brushes bite other mover brushes
+	if ( b1->original->contents == CONTENTS_MOVER && b2->original->contents == CONTENTS_MOVER ) {
+		return true;
+	}
+#endif RTCW_XX
+
 #ifdef ME
 	if ( create_aas ) {
 		if ( b1->original->expansionbbox != b2->original->expansionbbox ) {
@@ -767,10 +804,19 @@ qboolean BrushGE( bspbrush_t *b1, bspbrush_t *b2 ) {
 		 && !( b2->original->contents & CONTENTS_DETAIL ) ) {
 		return false;
 	} //end if
+
+#if !defined RTCW_ET
 	if ( b1->original->contents & CONTENTS_SOLID ) {
 		return true;
 	} //end if
 	return false;
+#else
+	if ( !( b1->original->contents & CONTENTS_SOLID ) ) {
+		return false;
+	} //end if
+	return true;
+#endif RTCW_XX
+
 } //end of the function BrushGE
 //===========================================================================
 // Carves any intersecting solid brushes into the minimum number
@@ -786,13 +832,24 @@ bspbrush_t *ChopBrushes( bspbrush_t *head ) {
 	bspbrush_t  *keep;
 	bspbrush_t  *sub, *sub2;
 	int c1, c2;
+
+#if !defined RTCW_ET
 	int num_csg_iterations;
+#else
+	int num_csg_iterations, total_processed;
+#endif RTCW_XX
 
 	Log_Print( "-------- Brush CSG ---------\n" );
 	Log_Print( "%6d original brushes\n", CountBrushList( head ) );
 
 	num_csg_iterations = 0;
+
+#if !defined RTCW_ET
 	qprintf( "%6d output brushes", num_csg_iterations );
+#else
+	total_processed = 0;
+	qprintf( "%6d output brushes", num_csg_iterations, total_processed );
+#endif RTCW_XX
 
 #if 0
 	if ( startbrush == 0 ) {
@@ -813,6 +870,10 @@ newlist:
 	for ( b1 = head ; b1 ; b1 = next )
 	{
 		next = b1->next;
+
+#if defined RTCW_ET
+		total_processed++;
+#endif RTCW_XX
 
 		//if the conversion is cancelled
 		if ( cancelconversion ) {
@@ -897,7 +958,13 @@ newlist:
 			keep = b1;
 		} //end if
 		num_csg_iterations++;
+
+#if !defined RTCW_ET
 		qprintf( "\r%6d", num_csg_iterations );
+#else
+		qprintf( "\r%6d", num_csg_iterations, total_processed );
+#endif RTCW_XX
+
 	} //end for
 
 	if ( cancelconversion ) {
@@ -1007,8 +1074,10 @@ tree_t *ProcessWorldBrushes( int brush_start, int brush_end ) {
 	maxs[1] = map_maxs[1] + 8;
 	maxs[2] = map_maxs[2] + 8;
 
+#if !defined RTCW_ET
 	//reset the brush bsp
 	ResetBrushBSP();
+#endif RTCW_XX
 
 	// the makelist and chopbrushes could be cached between the passes...
 

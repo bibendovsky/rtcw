@@ -28,7 +28,13 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #ifndef MAX_MAP_ENTITIES
+
+#if !defined RTCW_ET
 #define MAX_MAP_ENTITIES    2048
+#else
+#define MAX_MAP_ENTITIES    4096
+#endif RTCW_XX
+
 #endif
 
 typedef struct epair_s

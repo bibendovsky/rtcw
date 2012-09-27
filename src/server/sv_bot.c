@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/botlib.h"
 #include "../botai/botai.h"
 
+#if !defined RTCW_ET
 #define MAX_DEBUGPOLYS      128
 
 typedef struct bot_debugpoly_s
@@ -41,6 +42,7 @@ typedef struct bot_debugpoly_s
 	int numPoints;
 	vec3_t points[128];
 } bot_debugpoly_t;
+#endif RTCW_XX
 
 static bot_debugpoly_t debugpolygons[MAX_DEBUGPOLYS];
 
@@ -52,9 +54,30 @@ int bot_enable;
 SV_BotAllocateClient
 ==================
 */
+#if !defined RTCW_ET
 int SV_BotAllocateClient( void ) {
+#else
+int SV_BotAllocateClient( int clientNum ) {
+#endif RTCW_XX
+
 	int i;
 	client_t    *cl;
+
+#if defined RTCW_ET
+	// Arnout: added possibility to request a clientnum
+	if ( clientNum > 0 ) {
+		if ( clientNum >= sv_maxclients->integer ) {
+			return -1;
+		}
+
+		cl = &svs.clients[clientNum];
+		if ( cl->state != CS_FREE ) {
+			return -1;
+		} else {
+			i = clientNum;
+		}
+	} else {
+#endif RTCW_XX
 
 	// find a client slot
 	for ( i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++ ) {
@@ -67,6 +90,10 @@ int SV_BotAllocateClient( void ) {
 			break;
 		}
 	}
+
+#if defined RTCW_ET
+	}
+#endif RTCW_XX
 
 	if ( i == sv_maxclients->integer ) {
 		return -1;
@@ -106,19 +133,29 @@ void SV_BotFreeClient( int clientNum ) {
 BotDrawDebugPolygons
 ==================
 */
+
+#if !defined RTCW_ET
 void BotDrawDebugPolygons( void ( *drawPoly )( int color, int numPoints, float *points ), int value ) {
 	static cvar_t *bot_debug, *bot_groundonly, *bot_reachability, *bot_highlightarea;
+#else
+void BotDrawDebugPolygons( BotPolyFunc drawPoly, int value ) {
+	static cvar_t *bot_debug, *bot_groundonly, *bot_reachability, *bot_highlightarea;
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	static cvar_t *bot_testhidepos, *bot_testroutevispos;
-#elif defined RTCW_MP
+#else
 	static cvar_t *bot_testhidepos;
 #endif RTCW_XX
 
 	bot_debugpoly_t *poly;
 	int i, parm0;
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+	static cvar_t   *debugSurface;
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 #ifdef PRE_RELEASE_DEMO
 	return;
 #endif
@@ -157,7 +194,19 @@ void BotDrawDebugPolygons( void ( *drawPoly )( int color, int numPoints, float *
 	//
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	if ( !debugSurface ) {
+		debugSurface = Cvar_Get( "r_debugSurface", "0", 0 );
+	}
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 	if ( bot_debug->integer ) {
+#else
+	//
+	if ( bot_debug->integer == 1 || bot_debug->integer == 9 ) {
+#endif RTCW_XX
+
 		parm0 = 0;
 		if ( svs.clients[0].lastUsercmd.buttons & BUTTON_ATTACK ) {
 			parm0 |= 1;
@@ -168,11 +217,26 @@ void BotDrawDebugPolygons( void ( *drawPoly )( int color, int numPoints, float *
 		if ( bot_groundonly->integer ) {
 			parm0 |= 4;
 		}
+
+#if defined RTCW_ET
+		if ( debugSurface->integer == 3 ) {
+			parm0 |= 8;
+		} else if ( debugSurface->integer == 4 ) {
+			parm0 |= 4 | 8;
+		} else if ( debugSurface->integer == 5 ) {
+			parm0 |= 8 | 16;
+		}
+#endif RTCW_XX
+
 		botlib_export->BotLibVarSet( "bot_highlightarea", bot_highlightarea->string );
 		botlib_export->BotLibVarSet( "bot_testhidepos", bot_testhidepos->string );
 
 #if defined RTCW_SP
 		botlib_export->BotLibVarSet( "bot_testroutevispos", bot_testroutevispos->string );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+		botlib_export->BotLibVarSet( "bot_debug", bot_debug->string );
 #endif RTCW_XX
 
 		botlib_export->Test( parm0, NULL, svs.clients[0].gentity->r.currentOrigin,
@@ -201,7 +265,7 @@ void QDECL BotImport_Print( int type, char *fmt, ... ) {
 
 #if defined RTCW_SP
 	vsprintf( str, fmt, ap );
-#elif defined RTCW_MP
+#else
 	Q_vsnprintf( str, sizeof( str ), fmt, ap );
 #endif RTCW_XX
 
@@ -358,7 +422,7 @@ void *BotImport_GetMemory( int size ) {
 
 #if defined RTCW_SP
 	return malloc( size );
-#elif defined RTCW_MP
+#else
 	void *ptr;
 
 	ptr = Z_TagMalloc( size, TAG_BOTLIB );
@@ -376,13 +440,13 @@ void BotImport_FreeMemory( void *ptr ) {
 
 #if defined RTCW_SP
 	free( ptr );
-#elif defined RTCW_MP
+#else
 	Z_Free( ptr );
 #endif RTCW_XX
 
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 ==================
 BotImport_FreeZoneMemory
@@ -431,6 +495,24 @@ int BotImport_DebugPolygonCreate( int color, int numPoints, vec3_t *points ) {
 	return i;
 }
 
+#if defined RTCW_ET
+/*
+==================
+BotImport_DebugPolygonCreate
+==================
+*/
+bot_debugpoly_t* BotImport_GetFreeDebugPolygon( void ) {
+	int i;
+
+	for ( i = 1; i < MAX_DEBUGPOLYS; i++ )    {
+		if ( !debugpolygons[i].inuse ) {
+			return &debugpolygons[i];
+		}
+	}
+	return NULL;
+}
+#endif RTCW_XX
+
 /*
 ==================
 BotImport_DebugPolygonShow
@@ -454,6 +536,17 @@ BotImport_DebugPolygonDelete
 void BotImport_DebugPolygonDelete( int id ) {
 	debugpolygons[id].inuse = qfalse;
 }
+
+#if defined RTCW_ET
+/*
+==================
+BotImport_DebugPolygonDeletePointer
+==================
+*/
+void BotImport_DebugPolygonDeletePointer( bot_debugpoly_t* pPoly ) {
+	pPoly->inuse = qfalse;
+}
+#endif RTCW_XX
 
 /*
 ==================
@@ -508,13 +601,39 @@ void BotImport_DebugLineShow( int line, vec3_t start, vec3_t end, int color ) {
 	BotImport_DebugPolygonShow( line, color, 4, points );
 }
 
+#if defined RTCW_ET
+/*
+==================
+BotImport_BotVisibleFromPos
+==================
+*/
+qboolean BotImport_BotVisibleFromPos( vec3_t srcorigin, int srcnum, vec3_t destorigin, int destent, qboolean dummy ) {
+	return VM_Call( gvm, BOT_VISIBLEFROMPOS, srcorigin, srcnum, destorigin, destent, dummy );
+}
+
+/*
+==================
+BotImport_BotCheckAttackAtPos
+==================
+*/
+qboolean BotImport_BotCheckAttackAtPos( int entnum, int enemy, vec3_t pos, qboolean ducking, qboolean allowHitWorld ) {
+	return VM_Call( gvm, BOT_CHECKATTACKATPOS, entnum, enemy, pos, ducking, allowHitWorld );
+}
+#endif RTCW_XX
+
 /*
 ==================
 SV_BotClientCommand
 ==================
 */
 void BotClientCommand( int client, char *command ) {
+
+#if !defined RTCW_ET
 	SV_ExecuteClientCommand( &svs.clients[client], command, qtrue );
+#else
+	SV_ExecuteClientCommand( &svs.clients[client], command, qtrue, qfalse );
+#endif RTCW_XX
+
 }
 
 /*
@@ -524,7 +643,7 @@ SV_BotFrame
 */
 void SV_BotFrame( int time ) {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #ifdef PRE_RELEASE_DEMO
 	return;
 #endif
@@ -547,7 +666,12 @@ SV_BotLibSetup
 */
 int SV_BotLibSetup( void ) {
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+	static cvar_t *bot_norcd;
+	static cvar_t *bot_frameroutingupdates;
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 #ifdef PRE_RELEASE_DEMO
 	return 0;
 #endif
@@ -562,7 +686,27 @@ int SV_BotLibSetup( void ) {
 		return -1;
 	}
 
+#if !defined RTCW_ET
 	return botlib_export->BotLibSetup();
+#else
+	// RF, set RCD calculation status
+	bot_norcd = Cvar_Get( "bot_norcd", "0", 0 );
+	botlib_export->BotLibVarSet( "bot_norcd", bot_norcd->string );
+
+	// RF, set AAS routing max per frame
+	if ( SV_GameIsSinglePlayer() ) {
+		bot_frameroutingupdates = Cvar_Get( "bot_frameroutingupdates", "9999999", 0 );
+	} else {    // more restrictive in multiplayer
+		bot_frameroutingupdates = Cvar_Get( "bot_frameroutingupdates", "1000", 0 );
+	}
+	botlib_export->BotLibVarSet( "bot_frameroutingupdates", bot_frameroutingupdates->string );
+
+// START	Arnout changes, 28-08-2002.
+// added single player
+	return botlib_export->BotLibSetup( ( SV_GameIsSinglePlayer() || SV_GameIsCoop() ) );
+// END	Arnout changes, 28-08-2002.
+#endif RTCW_XX
+
 }
 
 /*
@@ -591,7 +735,7 @@ void SV_BotInitCvars( void ) {
 
 #if defined RTCW_SP
 	Cvar_Get( "bot_enable", "1", 0 );               //enable the bot
-#elif defined RTCW_MP
+#else
 	// DHM - Nerve :: bot_enable defaults to 0
 	Cvar_Get( "bot_enable", "0", 0 );               //enable the bot
 #endif RTCW_XX
@@ -600,17 +744,45 @@ void SV_BotInitCvars( void ) {
 	Cvar_Get( "bot_debug", "0", 0 );                //enable bot debugging
 	Cvar_Get( "bot_groundonly", "1", 0 );           //only show ground faces of areas
 	Cvar_Get( "bot_reachability", "0", 0 );     //show all reachabilities to other areas
+
+#if !defined RTCW_ET
 	Cvar_Get( "bot_thinktime", "100", 0 );      //msec the bots thinks
+#else
+	Cvar_Get( "bot_thinktime", "50", 0 );       //msec the bots thinks
+#endif RTCW_XX
+
 	Cvar_Get( "bot_reloadcharacters", "0", 0 ); //reload the bot characters each time
 	Cvar_Get( "bot_testichat", "0", 0 );            //test ichats
 	Cvar_Get( "bot_testrchat", "0", 0 );            //test rchats
 	Cvar_Get( "bot_fastchat", "0", 0 );         //fast chatting bots
+
+#if !defined RTCW_ET
 	Cvar_Get( "bot_nochat", "0", 0 );               //disable chats
+#else
+	Cvar_Get( "bot_nochat", "1", 0 );               //disable chats
+#endif RTCW_XX
+
 	Cvar_Get( "bot_grapple", "0", 0 );          //enable grapple
+
+#if !defined RTCW_ET
 	Cvar_Get( "bot_rocketjump", "1", 0 );           //enable rocket jumping
+#else
+	Cvar_Get( "bot_rocketjump", "0", 0 );           //enable rocket jumping
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 	Cvar_Get( "bot_miniplayers", "0", 0 );      //minimum players in a team or the game
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	Cvar_Get( "bot_norcd", "0", 0 );                //enable creation of RCD file
+
+	bot_enable = Cvar_VariableIntegerValue( "bot_enable" );
+#endif RTCW_XX
+
 }
 
+#if !defined RTCW_ET
 // Ridah, Cast AI
 /*
 ===============
@@ -631,6 +803,22 @@ qboolean BotImport_AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, q
 	return VM_Call( gvm, AICAST_CHECKATTACKATPOS, entnum, enemy, (int)pos, ducking, allowHitWorld );
 }
 // done.
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#ifndef DEDICATED
+void BotImport_DrawPolygon( int color, int numpoints, float* points );
+#else
+/*
+==================
+BotImport_DrawPolygon
+==================
+*/
+void BotImport_DrawPolygon( int color, int numpoints, float* points ) {
+	Com_DPrintf( "BotImport_DrawPolygon stub\n" );
+}
+#endif
+#endif RTCW_XX
 
 /*
 ==================
@@ -668,7 +856,7 @@ void SV_BotInitBotLib( void ) {
 	botlib_import.GetMemory = BotImport_GetMemory;
 	botlib_import.FreeMemory = BotImport_FreeMemory;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	botlib_import.FreeZoneMemory = BotImport_FreeZoneMemory;
 #endif RTCW_XX
 
@@ -688,12 +876,35 @@ void SV_BotInitBotLib( void ) {
 
 	//debug polygons
 	botlib_import.DebugPolygonCreate = BotImport_DebugPolygonCreate;
+
+#if defined RTCW_ET
+	botlib_import.DebugPolygonGetFree =         BotImport_GetFreeDebugPolygon;
+#endif RTCW_XX
+
 	botlib_import.DebugPolygonDelete = BotImport_DebugPolygonDelete;
 
+#if defined RTCW_ET
+	botlib_import.DebugPolygonDeletePointer =   BotImport_DebugPolygonDeletePointer;
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 	// Ridah, Cast AI
 	botlib_import.AICast_VisibleFromPos = BotImport_AICast_VisibleFromPos;
 	botlib_import.AICast_CheckAttackAtPos = BotImport_AICast_CheckAttackAtPos;
 	// done.
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	//bot routines
+	botlib_import.BotVisibleFromPos =   BotImport_BotVisibleFromPos;
+	botlib_import.BotCheckAttackAtPos = BotImport_BotCheckAttackAtPos;
+
+	botlib_import.BotDrawPolygon =      BotImport_DrawPolygon;
+
+	// singleplayer check
+	// Arnout: no need for this
+	//botlib_import.BotGameIsSinglePlayer = SV_GameIsSinglePlayer;
+#endif RTCW_XX
 
 	botlib_export = (botlib_export_t *)GetBotLibAPI( BOTLIB_API_VERSION, &botlib_import );
 }
@@ -729,17 +940,21 @@ int SV_BotGetConsoleMessage( int client, char *buf, int size ) {
 #if defined RTCW_SP
 	//if ( !cl->reliableCommands[index][0] ) {
 	if ( !( msg = SV_GetReliableCommand( cl, index ) ) || !msg[0] ) {
-#elif defined RTCW_MP
+#else
 	if ( !cl->reliableCommands[index][0] ) {
 #endif RTCW_XX
 
 		return qfalse;
 	}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	//Q_strncpyz( buf, cl->reliableCommands[index], size );
+
+#if !defined RTCW_ET
 	Q_strncpyz( buf, msg, size );
-#elif defined RTCW_MP
+#endif RTCW_XX
+
+#else
 	Q_strncpyz( buf, cl->reliableCommands[index], size );
 #endif RTCW_XX
 

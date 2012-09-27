@@ -411,7 +411,13 @@ bspbrush_t *Q1_CreateBrushes_r( bspbrush_t *brush, int nodenum ) {
 	  } //end if*/
 	  //
 	planenum = q1_dnodes[nodenum].planenum;
+
+#if !defined RTCW_ET
 	planenum = FindFloatPlane( q1_dplanes[planenum].normal, q1_dplanes[planenum].dist );
+#else
+	planenum = FindFloatPlane( q1_dplanes[planenum].normal, q1_dplanes[planenum].dist, 0, NULL );
+#endif RTCW_XX
+
 	//split the brush with the node plane
 	Q1_SplitBrush( brush, planenum, nodenum, &front, &back );
 	//free the original brush
@@ -580,7 +586,7 @@ bspbrush_t *Q1_MergeBrushes( bspbrush_t *brushlist, int modelnum ) {
 
 #if defined RTCW_SP
 	int nummerges = 0, merged; // TTimo: init
-#elif defined RTCW_MP
+#else
 	int nummerges, merged;
 #endif RTCW_XX
 
@@ -742,7 +748,13 @@ bspbrush_t *Q1_SplitBrushWithFace( bspbrush_t *brush, q1_dface_t *face ) {
 		VectorNormalize( normal );
 		dist = DotProduct( normal, v1 );
 		//
+
+#if !defined RTCW_ET
 		planenum = FindFloatPlane( normal, dist );
+#else
+		planenum = FindFloatPlane( normal, dist, 0, NULL );
+#endif RTCW_XX
+
 		//split the current brush
 		SplitBrush( brush, planenum, &front, &back );
 		//if there is a back brush just put it in the list
@@ -783,7 +795,7 @@ bspbrush_t *Q1_TextureBrushes( bspbrush_t *brushlist, int modelnum ) {
 
 #if defined RTCW_SP
 	int i, n, texinfonum, sn, numbrushes = 0; // TTimo: init
-#elif defined RTCW_MP
+#else
 	int i, n, texinfonum, sn, numbrushes;
 #endif RTCW_XX
 
@@ -1119,7 +1131,7 @@ void Q1_CreateMapBrushes( entity_t *mapent, int modelnum ) {
 
 #if defined RTCW_SP
 	int i = 0; // TTimo: init
-#elif defined RTCW_MP
+#else
 	int i;
 #endif RTCW_XX
 

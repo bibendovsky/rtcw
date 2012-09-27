@@ -91,7 +91,12 @@ called to open a channel to a remote system
 ==============
 */
 void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport ) {
+
+#if !defined RTCW_ET
 	memset( chan, 0, sizeof( *chan ) );
+#else
+	Com_Memset( chan, 0, sizeof( *chan ) );
+#endif RTCW_XX
 
 	chan->sock = sock;
 	chan->remoteAddress = adr;
@@ -232,7 +237,7 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 
 #if defined RTCW_SP
 					, chan->outgoingSequence - 1
-#elif defined RTCW_MP
+#else
 					, chan->outgoingSequence
 #endif RTCW_XX
 
@@ -420,7 +425,13 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 		// if we missed a fragment, dump the message
 		if ( fragmentStart != chan->fragmentLength ) {
 			if ( showdrop->integer || showpackets->integer ) {
+
+#if !defined RTCW_ET
 				Com_Printf( "%s:Dropped a message fragment\n"
+#else
+				Com_Printf( "%s:Dropped a message fragment, sequence %d\n"
+#endif RTCW_XX
+
 							, NET_AdrToString( chan->remoteAddress )
 							, sequence );
 			}
@@ -439,8 +450,13 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 			return qfalse;
 		}
 
+#if !defined RTCW_ET
 		memcpy( chan->fragmentBuffer + chan->fragmentLength,
 				msg->data + msg->readcount, fragmentLength );
+#else
+		Com_Memcpy( chan->fragmentBuffer + chan->fragmentLength,
+					msg->data + msg->readcount, fragmentLength );
+#endif RTCW_XX
 
 		chan->fragmentLength += fragmentLength;
 
@@ -461,13 +477,18 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 		// make sure the sequence number is still there
 		*(int *)msg->data = LittleLong( sequence );
 
+#if !defined RTCW_ET
 		memcpy( msg->data + 4, chan->fragmentBuffer, chan->fragmentLength );
+#else
+		Com_Memcpy( msg->data + 4, chan->fragmentBuffer, chan->fragmentLength );
+#endif RTCW_XX
+
 		msg->cursize = chan->fragmentLength + 4;
 		chan->fragmentLength = 0;
 		msg->readcount = 4; // past the sequence number
 		msg->bit = 32;  // past the sequence number
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		// TTimo
 		// clients were not acking fragmented messages
 		chan->incomingSequence = sequence;
@@ -533,7 +554,7 @@ const char  *NET_AdrToString( netadr_t a ) {
 
 #if defined RTCW_SP
 		Com_sprintf( s, sizeof( s ), "%i.%i.%i.%i:%i",
-#elif defined RTCW_MP
+#else
 		Com_sprintf( s, sizeof( s ), "%i.%i.%i.%i:%hu",
 #endif RTCW_XX
 
@@ -542,7 +563,7 @@ const char  *NET_AdrToString( netadr_t a ) {
 
 #if defined RTCW_SP
 		Com_sprintf( s, sizeof( s ), "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x:%i",
-#elif defined RTCW_MP
+#else
 		Com_sprintf( s, sizeof( s ), "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x:%hu",
 #endif RTCW_XX
 
@@ -586,7 +607,49 @@ qboolean    NET_IsLocalAddress( netadr_t adr ) {
 	return adr.type == NA_LOOPBACK;
 }
 
+#if defined RTCW_ET
+// rain - replaces old strlen(s) == 21 && s[8] == '.' checking in
+// Sys_StringToSockaddr
+// ffffffff.ffffffffffff:65535
+qboolean NET_IsIPXAddress( const char *buf ) {
+	int x, len = strlen( buf );
 
+	if ( len < 21 ) {
+		return qfalse;
+	}
+
+	for ( x = 0; x < 8 ; x++ ) {
+		if ( !isxdigit( buf[x] ) ) {
+			return qfalse;
+		}
+	}
+
+	if ( buf[8] != '.' ) {
+		return qfalse;
+	}
+
+	for ( x = 9; x < 21; x++ ) {
+		if ( !isxdigit( buf[x] ) ) {
+			return qfalse;
+		}
+	}
+
+	// default port
+	if ( buf[21] == '\0' ) {
+		return qtrue;
+	} else if ( buf[21] != ':' ) {
+		return qfalse;
+	}
+
+	for ( x = 22; x < len; x++ ) {
+		if ( !isdigit( buf[x] ) ) {
+			return qfalse;
+		}
+	}
+
+	return qtrue;
+}
+#endif RTCW_XX
 
 /*
 =============================================================================
@@ -630,9 +693,20 @@ qboolean    NET_GetLoopPacket( netsrc_t sock, netadr_t *net_from, msg_t *net_mes
 	i = loop->get & ( MAX_LOOPBACK - 1 );
 	loop->get++;
 
+#if !defined RTCW_ET
 	memcpy( net_message->data, loop->msgs[i].data, loop->msgs[i].datalen );
+#else
+	Com_Memcpy( net_message->data, loop->msgs[i].data, loop->msgs[i].datalen );
+#endif RTCW_XX
+
 	net_message->cursize = loop->msgs[i].datalen;
+
+#if !defined RTCW_ET
 	memset( net_from, 0, sizeof( *net_from ) );
+#else
+	Com_Memset( net_from, 0, sizeof( *net_from ) );
+#endif RTCW_XX
+
 	net_from->type = NA_LOOPBACK;
 	return qtrue;
 
@@ -648,14 +722,148 @@ void NET_SendLoopPacket( netsrc_t sock, int length, const void *data, netadr_t t
 	i = loop->send & ( MAX_LOOPBACK - 1 );
 	loop->send++;
 
+#if !defined RTCW_ET
 	memcpy( loop->msgs[i].data, data, length );
+#else
+	Com_Memcpy( loop->msgs[i].data, data, length );
+#endif RTCW_XX
+
 	loop->msgs[i].datalen = length;
 }
 
 //=============================================================================
 
+#if defined RTCW_ET
+//bani
+extern cvar_t *sv_maxclients;
+extern cvar_t *sv_packetloss;
+extern cvar_t *sv_packetdelay;
+#ifndef DEDICATED
+extern cvar_t *cl_packetloss;
+extern cvar_t *cl_packetdelay;
+#endif
+
+typedef struct delaybuf delaybuf_t;
+struct delaybuf {
+	netsrc_t sock;
+	int length;
+	char data[MAX_PACKETLEN];
+	netadr_t to;
+	int time;
+	delaybuf_t *next;
+};
+
+static delaybuf_t *sv_delaybuf_head = NULL;
+static delaybuf_t *sv_delaybuf_tail = NULL;
+#ifndef DEDICATED
+static delaybuf_t *cl_delaybuf_head = NULL;
+static delaybuf_t *cl_delaybuf_tail = NULL;
+#endif
+#endif RTCW_XX
 
 void NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to ) {
+
+#if defined RTCW_ET
+//bani
+	int packetloss, packetdelay;
+	delaybuf_t **delaybuf_head, **delaybuf_tail;
+
+	switch ( sock ) {
+#ifndef DEDICATED
+	case NS_CLIENT:
+		packetloss = cl_packetloss->integer;
+		packetdelay = cl_packetdelay->integer;
+		delaybuf_head = &cl_delaybuf_head;
+		delaybuf_tail = &cl_delaybuf_tail;
+		break;
+#endif
+	case NS_SERVER:
+		packetloss = sv_packetloss->integer;
+		packetdelay = sv_packetdelay->integer;
+		delaybuf_head = &sv_delaybuf_head;
+		delaybuf_tail = &sv_delaybuf_tail;
+		break;
+
+	default:
+		// shut up compiler for dedicated
+		packetloss = 0;
+		packetdelay = 0;
+		delaybuf_head = NULL;
+		delaybuf_tail = NULL;
+		break;
+	}
+
+	if ( packetloss > 0 ) {
+		if ( ( (float)rand() / RAND_MAX ) * 100 <= packetloss ) {
+			if ( showpackets->integer ) {
+				Com_Printf( "drop packet %4i\n", length );
+			}
+			return;
+		}
+	}
+
+//bani
+	if ( packetdelay ) {
+		int curtime;
+		delaybuf_t *buf, *nextbuf;
+
+		curtime = Sys_Milliseconds();
+
+		//send any scheduled packets, starting from oldest
+		for ( buf = *delaybuf_head; buf; buf = nextbuf ) {
+
+			if ( ( buf->time + packetdelay ) > curtime ) {
+				break;
+			}
+
+			if ( showpackets->integer ) {
+				Com_Printf( "delayed packet(%dms) %4i\n", buf->time - curtime, buf->length );
+			}
+
+			switch ( buf->to.type ) {
+			case NA_BOT:
+			case NA_BAD:
+				break;
+			case NA_LOOPBACK:
+				NET_SendLoopPacket( buf->sock, buf->length, buf->data, buf->to );
+				break;
+			default:
+				Sys_SendPacket( buf->length, buf->data, buf->to );
+				break;
+			}
+
+			// remove from queue
+			nextbuf = buf->next;
+			*delaybuf_head = nextbuf;
+			if ( !*delaybuf_head ) {
+				*delaybuf_tail = NULL;
+			}
+			Z_Free( buf );
+		}
+
+		// create buffer and add it to the queue
+		buf = (delaybuf_t *)Z_Malloc( sizeof( *buf ) );
+		if ( !buf ) {
+			Com_Error( ERR_FATAL, "Couldn't allocate packet delay buffer\n" );
+		}
+
+		buf->sock = sock;
+		buf->length = length;
+		memcpy( buf->data, data, length );
+		buf->to = to;
+		buf->time = curtime;
+		buf->next = NULL;
+
+		if ( *delaybuf_head ) {
+			( *delaybuf_tail )->next = buf;
+		} else {
+			*delaybuf_head = buf;
+		}
+		*delaybuf_tail = buf;
+
+		return;
+	}
+#endif RTCW_XX
 
 	// sequenced packets are shown in netchan, so just show oob
 	if ( showpackets->integer && *(int *)data == -1 ) {
@@ -697,7 +905,7 @@ void QDECL NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, 
 
 #if defined RTCW_SP
 	vsprintf( string + 4, format, argptr );
-#elif defined RTCW_MP
+#else
 	Q_vsnprintf( string + 4, sizeof( string ) - 4, format, argptr );
 #endif RTCW_XX
 
@@ -708,7 +916,7 @@ void QDECL NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, 
 }
 
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 ===============
 NET_OutOfBandPrint
@@ -721,6 +929,10 @@ void QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len
 	int i;
 	msg_t mbuf;
 
+#if defined RTCW_ET
+	MSG_InitOOB( &mbuf, string, sizeof( string ) );
+#endif RTCW_XX
+
 	// set the header
 	string[0] = 0xff;
 	string[1] = 0xff;
@@ -731,7 +943,10 @@ void QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len
 		string[i + 4] = format[i];
 	}
 
+#if !defined RTCW_ET
 	mbuf.data = string;
+#endif RTCW_XX
+
 	mbuf.cursize = len + 4;
 	Huff_Compress( &mbuf, 12 );
 	// send the datagram
@@ -753,7 +968,13 @@ qboolean    NET_StringToAdr( const char *s, netadr_t *a ) {
 	char    *port;
 
 	if ( !strcmp( s, "localhost" ) ) {
+
+#if !defined RTCW_ET
 		memset( a, 0, sizeof( *a ) );
+#else
+		Com_Memset( a, 0, sizeof( *a ) );
+#endif RTCW_XX
+
 		a->type = NA_LOOPBACK;
 		return qtrue;
 	}

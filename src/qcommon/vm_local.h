@@ -140,7 +140,7 @@ struct vm_s {
 
 	char name[MAX_QPATH];
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // fqpath member added 2/15/02 by T.Ray
 	char fqpath[MAX_QPATH + 1] ;
 #endif RTCW_XX

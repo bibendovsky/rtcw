@@ -32,6 +32,14 @@ If you have questions concerning this license or the applicable additional terms
 #include "../qcommon/qcommon.h"
 #include "win_local.h"
 
+#if defined RTCW_ET
+// install the internet SDK from
+// http://www.microsoft.com/msdownload/platformsdk/sdkupdate/
+// in VC6 you will also need to add the include path and lib path in Tools > Options > Directories
+#include <iptypes.h>
+#include <iphlpapi.h>
+#endif RTCW_XX
+
 static WSADATA winsockdata;
 static qboolean winsockInitialized = qfalse;
 static qboolean usingSocks = qfalse;
@@ -178,7 +186,15 @@ qboolean Sys_StringToSockaddr( const char *s, struct sockaddr *sadr ) {
 	memset( sadr, 0, sizeof( *sadr ) );
 
 	// check for an IPX address
+
+#if !defined RTCW_ET
 	if ( ( strlen( s ) == 21 ) && ( s[8] == '.' ) ) {
+#else
+	// rain - too easy to falsely match a real hostname
+//	if( ( strlen( s ) == 21 ) && ( s[8] == '.' ) ) {
+	if ( NET_IsIPXAddress( s ) ) {
+#endif RTCW_XX
+
 		( (struct sockaddr_ipx *)sadr )->sa_family = AF_IPX;
 		( (struct sockaddr_ipx *)sadr )->sa_socket = 0;
 		copy[2] = 0;
@@ -198,7 +214,7 @@ qboolean Sys_StringToSockaddr( const char *s, struct sockaddr *sadr ) {
 
 #if defined RTCW_SP
 		if ( Q_isnumeric( s[0] ) ) {
-#elif defined RTCW_MP
+#else
 		if ( s[0] >= '0' && s[0] <= '9' ) {
 #endif RTCW_XX
 
@@ -375,6 +391,17 @@ void Sys_SendPacket( int length, const void *data, netadr_t to ) {
 
 //=============================================================================
 
+#if defined RTCW_ET
+//bani
+typedef struct {
+	unsigned long ip;
+	unsigned long mask;
+} net_interface;
+#define MAX_INTERFACES  128
+int num_interfaces = 0;
+net_interface netint[MAX_INTERFACES];
+#endif RTCW_XX
+
 /*
 ==================
 Sys_IsLANAddress
@@ -396,6 +423,27 @@ qboolean Sys_IsLANAddress( netadr_t adr ) {
 	if ( adr.type != NA_IP ) {
 		return qfalse;
 	}
+
+#if defined RTCW_ET
+	//bani
+	if ( num_interfaces ) {
+		unsigned long *p_ip;
+		unsigned long ip;
+		p_ip = (unsigned long *)&adr.ip[0];
+		ip = ntohl( *p_ip );
+
+//		Com_Printf( "Sys_IsLANAddress %08lx - ", ip );
+		for ( i = 0; i < num_interfaces; i++ ) {
+//			Com_Printf( "%d: %08lx/%08lx ", i, netint[i].ip, netint[i].mask );
+			if ( ( netint[i].ip & netint[i].mask ) == ( ip & netint[i].mask ) ) {
+//				Com_Printf( "yes\n" );
+				return qtrue;
+			}
+		}
+//		Com_Printf( "no\n" );
+		return qfalse;
+	}
+#endif RTCW_XX
 
 	// choose which comparison to use based on the class of the address being tested
 	// any local adresses of a different class than the address being tested will fail based on the first byte
@@ -450,6 +498,24 @@ Sys_ShowIP
 void Sys_ShowIP( void ) {
 	int i;
 
+#if defined RTCW_ET
+	if ( num_interfaces ) {
+		for ( i = 0; i < num_interfaces; i++ ) {
+			Com_Printf( "IP: %i.%i.%i.%i / %i.%i.%i.%i\n",
+						( unsigned char )( netint[i].ip >> 24 ) & 0xFF,
+						( unsigned char )( netint[i].ip >> 16 ) & 0xFF,
+						( unsigned char )( netint[i].ip >> 8 ) & 0xFF,
+						( unsigned char )( netint[i].ip >> 0 ) & 0xFF,
+						( unsigned char )( netint[i].mask >> 24 ) & 0xFF,
+						( unsigned char )( netint[i].mask >> 16 ) & 0xFF,
+						( unsigned char )( netint[i].mask >> 8 ) & 0xFF,
+						( unsigned char )( netint[i].mask >> 0 ) & 0xFF
+						);
+		}
+		return;
+	}
+#endif RTCW_XX
+
 	for ( i = 0; i < numIP; i++ ) {
 		Com_Printf( "IP: %i.%i.%i.%i\n", localIP[i][0], localIP[i][1], localIP[i][2], localIP[i][3] );
 	}
@@ -458,6 +524,80 @@ void Sys_ShowIP( void ) {
 
 //=============================================================================
 
+#if defined RTCW_ET
+//bani
+void NET_GetInterfaces( void ) {
+	PIP_ADAPTER_INFO pAdapterInfo;
+	PIP_ADAPTER_INFO pAdapter = NULL;
+	DWORD dwRetVal = 0;
+	PIP_ADDR_STRING pIPAddrString;
+	ULONG ulOutBufLen;
+	qboolean foundloopback;
+
+	num_interfaces = 0;
+	foundloopback = qfalse;
+
+	pAdapterInfo = (IP_ADAPTER_INFO *)malloc( sizeof( IP_ADAPTER_INFO ) );
+	if ( !pAdapterInfo ) {
+		Com_Error( ERR_FATAL, "NET_GetInterfaces: Couldn't malloc( %d )", sizeof( IP_ADAPTER_INFO ) );
+	}
+	ulOutBufLen = sizeof( IP_ADAPTER_INFO );
+
+	// Make an initial call to GetAdaptersInfo to get
+	// the necessary size into the ulOutBufLen variable
+	if ( GetAdaptersInfo( pAdapterInfo, &ulOutBufLen ) == ERROR_BUFFER_OVERFLOW ) {
+		free( pAdapterInfo );
+		pAdapterInfo = (IP_ADAPTER_INFO *)malloc( ulOutBufLen );
+		if ( !pAdapterInfo ) {
+			Com_Error( ERR_FATAL, "NET_GetInterfaces: Couldn't malloc( %ld )", ulOutBufLen );
+		}
+	}
+
+	if ( ( dwRetVal = GetAdaptersInfo( pAdapterInfo, &ulOutBufLen ) ) == NO_ERROR ) {
+		pAdapter = pAdapterInfo;
+		while ( pAdapter ) {
+//			Com_Printf( "Adapter Name: %s\n", pAdapter->AdapterName );
+//			Com_Printf( "Adapter Desc: %s\n", pAdapter->Description );
+			pIPAddrString = &pAdapter->IpAddressList;
+			while ( pIPAddrString ) {
+				unsigned long ip_a, ip_m;
+//				Com_Printf( "IP Address: %s\n", pIPAddrString->IpAddress.String );
+//				Com_Printf( "IP Mask: %s\n", pIPAddrString->IpMask.String );
+				if ( !Q_stricmp( "127.0.0.1", pIPAddrString->IpAddress.String ) ) {
+					foundloopback = qtrue;
+				}
+				ip_a = ntohl( inet_addr( pIPAddrString->IpAddress.String ) );
+				ip_m = ntohl( inet_addr( pIPAddrString->IpMask.String ) );
+				//skip null netmasks
+				if ( !ip_m ) {
+					pIPAddrString = pIPAddrString->Next;
+					continue;
+				}
+				netint[num_interfaces].ip = ip_a;
+				netint[num_interfaces].mask = ip_m;
+				num_interfaces++;
+				if ( num_interfaces >= MAX_INTERFACES ) {
+					Com_Printf( "NET_GetInterfaces: MAX_INTERFACES(%d) hit.\n", MAX_INTERFACES );
+					free( pAdapterInfo );
+					return;
+				}
+				pIPAddrString = pIPAddrString->Next;
+			}
+			pAdapter = pAdapter->Next;
+		}
+	} else {
+		Com_Printf( "NET_GetInterfaces: GetAdaptersInfo failed (%ld).\n", dwRetVal );
+	}
+	//for some retarded reason, win32 doesn't count loopback as an adapter...
+	if ( !foundloopback && num_interfaces < MAX_INTERFACES ) {
+//		Com_Printf( "NET_GetInterfaces: Adding loopback interface\n" );
+		netint[num_interfaces].ip = ntohl( inet_addr( "127.0.0.1" ) );
+		netint[num_interfaces].mask = ntohl( inet_addr( "255.0.0.0" ) );
+		num_interfaces++;
+	}
+	free( pAdapterInfo );
+}
+#endif RTCW_XX
 
 /*
 ====================
@@ -467,7 +607,14 @@ NET_IPSocket
 int NET_IPSocket( char *net_interface, int port ) {
 	SOCKET newsocket;
 	struct sockaddr_in address;
+
+#if !defined RTCW_ET
 	qboolean _true = qtrue;
+#else
+//bani - was improper parameter
+	unsigned long _true = qtrue;
+#endif RTCW_XX
+
 	int i = 1;
 	int err;
 
@@ -516,6 +663,11 @@ int NET_IPSocket( char *net_interface, int port ) {
 		closesocket( newsocket );
 		return 0;
 	}
+
+#if defined RTCW_ET
+	//bani
+	NET_GetInterfaces();
+#endif RTCW_XX
 
 	return newsocket;
 }
@@ -781,7 +933,14 @@ NET_IPXSocket
 int NET_IPXSocket( int port ) {
 	SOCKET newsocket;
 	struct sockaddr_ipx address;
+
+#if !defined RTCW_ET
 	int _true = 1;
+#else
+//bani - was improper parameter
+	unsigned long _true = qtrue;
+#endif RTCW_XX
+
 	int err;
 
 	if ( ( newsocket = socket( AF_IPX, SOCK_DGRAM, NSPROTO_IPX ) ) == INVALID_SOCKET ) {
@@ -970,38 +1129,22 @@ void NET_Init( void ) {
 
 #if defined RTCW_SP
 	return; //----(SA)	disabled networking for SP
-
-	r = WSAStartup( MAKEWORD( 1, 1 ), &winsockdata );
-	if ( r ) {
-		Com_Printf( "WARNING: Winsock initialization failed, returned %d\n", r );
-		return;
-	}
-
-	winsockInitialized = qtrue;
-	Com_Printf( "Winsock Initialized\n" );
-
-	// this is really just to get the cvars registered
-	NET_GetCvars();
-
-	//FIXME testing!
-	NET_Config( qtrue );
-#elif defined RTCW_MP
-	r = WSAStartup( MAKEWORD( 1, 1 ), &winsockdata );
-	if ( r ) {
-		Com_Printf( "WARNING: Winsock initialization failed, returned %d\n", r );
-		return;
-	}
-
-	winsockInitialized = qtrue;
-	Com_Printf( "Winsock Initialized\n" );
-
-	// this is really just to get the cvars registered
-	NET_GetCvars();
-
-	//FIXME testing!
-	NET_Config( qtrue );
 #endif RTCW_XX
 
+	r = WSAStartup( MAKEWORD( 1, 1 ), &winsockdata );
+	if ( r ) {
+		Com_Printf( "WARNING: Winsock initialization failed, returned %d\n", r );
+		return;
+	}
+
+	winsockInitialized = qtrue;
+	Com_Printf( "Winsock Initialized\n" );
+
+	// this is really just to get the cvars registered
+	NET_GetCvars();
+
+	//FIXME testing!
+	NET_Config( qtrue );
 }
 
 

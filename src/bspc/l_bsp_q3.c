@@ -40,6 +40,10 @@ If you have questions concerning this license or the applicable additional terms
 #if defined RTCW_SP
 //#include "qfiles.h"
 #include "q2files.h"
+#elif defined RTCW_ET
+//#include "qfiles.h"
+//#include "q2files.h"
+#include "..\game\surfaceflags.h"
 #endif RTCW_XX
 
 void Q3_ParseEntities( void );
@@ -413,13 +417,31 @@ void Q3_FindVisibleBrushSides( void ) {
 	//create planes for the planar surfaces
 	Q3_CreatePlanarSurfacePlanes();
 	Log_Print( "searching visible brush sides...\n" );
+
+#if !defined RTCW_ET
 	Log_Print( "%6d brush sides", numsides );
+#endif RTCW_XX
+
 	//go over all the brushes
+
+#if defined RTCW_ET
+	if ( forcesidesvisible ) {
+		for ( i = 0; i < q3_numbrushsides; i++ ) {
+			if ( q3_dshaders[q3_dbrushsides[i].shaderNum].surfaceFlags & SURF_NODRAW ) {
+				q3_dbrushsidetextured[i] = false;
+			} else {
+				q3_dbrushsidetextured[i] = true;
+			}
+		} //end for
+	} else {
+		Log_Print( "%6d brush sides", numsides );
+#endif RTCW_XX
+
 	for ( i = 0; i < q3_numbrushes; i++ )
 	{
 		brush = &q3_dbrushes[i];
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		// if one of the brush sides uses the terrain shader mark all sides as visible
 		for ( j = 0; j < brush->numSides; j++ ) {
 			brushside = &q3_dbrushsides[brush->firstSide + j];
@@ -502,12 +524,21 @@ void Q3_FindVisibleBrushSides( void ) {
 		} //end for
 	} //end for
 	qprintf( "\r%6d brush sides\n", numsides );
+
+#if defined RTCW_ET
+	}
+#endif RTCW_XX
+
 	numtextured = 0;
 	for ( i = 0; i < q3_numbrushsides; i++ )
 	{
+
+#if !defined RTCW_ET
 		if ( forcesidesvisible ) {
 			q3_dbrushsidetextured[i] = true;
 		}
+#endif RTCW_XX
+
 		if ( q3_dbrushsidetextured[i] ) {
 			numtextured++;
 		}
@@ -549,10 +580,22 @@ void Q3_SwapBSPFile( void ) {
 		q3_dshaders[i].contentFlags = LittleLong( q3_dshaders[i].contentFlags );
 		q3_dshaders[i].surfaceFlags = LittleLong( q3_dshaders[i].surfaceFlags );
 
+#if defined RTCW_ET
+		// RF, HACK, clipweap causes problems, so convert to plain solid
+		if ( !strcmp( q3_dshaders[i].shader, "textures/common/clipweap" ) ) {
+			q3_dshaders[i].contentFlags = CONTENTS_MONSTERCLIP;
+			//q3_dshaders[i].surfaceFlags = SURF_NODRAW;
+		}
+#endif RTCW_XX
+
 #if defined RTCW_SP
 		//
 		// RF, only keep content flags that are consistent with q3map
 		q3_dshaders[i].contentFlags &= ( CONTENTS_SOLID | CONTENTS_WINDOW | CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER | CONTENTS_MIST | CONTENTS_AREAPORTAL | CONTENTS_PLAYERCLIP | CONTENTS_MONSTERCLIP | CONTENTS_ORIGIN | CONTENTS_DETAIL );
+#elif defined RTCW_ET
+		//
+		// RF, only keep content flags that are consistent with q3map
+		q3_dshaders[i].contentFlags &= ( CONTENTS_SOLID | CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER | CONTENTS_AREAPORTAL | CONTENTS_PLAYERCLIP | CONTENTS_MONSTERCLIP | CONTENTS_DETAIL | CONTENTS_CLUSTERPORTAL );
 #endif RTCW_XX
 
 	}
@@ -680,6 +723,10 @@ void    Q3_LoadBSPFile( struct quakefile_s *qf ) {
 
 	// swap everything
 	Q3_SwapBSPFile();
+
+#if defined RTCW_ET
+	Q3_PrintBSPFileSizes();
+#endif RTCW_XX
 
 	Q3_FindVisibleBrushSides();
 

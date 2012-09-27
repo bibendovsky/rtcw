@@ -49,7 +49,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "be_interface.h"
 #include "be_aas_def.h"
 
+#if !defined RTCW_ET
 //#define ENABLE_ALTROUTING
+#else
+#define ENABLE_ALTROUTING
+#endif RTCW_XX
 
 typedef struct midrangearea_s
 {
@@ -105,6 +109,11 @@ void AAS_AltRoutingFloodCluster_r( int areanum ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if defined RTCW_ET
+int AAS_AreaRouteToGoalArea( int areanum, vec3_t origin, int goalareanum, int travelflags, int *traveltime, int *reachnum );
+#endif RTCW_XX
+
 int AAS_AlternativeRouteGoals( vec3_t start, vec3_t goal, int travelflags,
 							   aas_altroutegoal_t *altroutegoals, int maxaltroutegoals,
 							   int color ) {
@@ -116,11 +125,22 @@ int AAS_AlternativeRouteGoals( vec3_t start, vec3_t goal, int travelflags,
 	int starttime, goaltime, goaltraveltime;
 	float dist, bestdist;
 	vec3_t mid, dir;
+
+#if !defined RTCW_ET
 #ifdef DEBUG
 	int startmillisecs;
 
 	startmillisecs = Sys_MilliSeconds();
 #endif
+#else
+	int reachnum, time;
+	int a1, a2;
+/*#ifdef DEBUG
+	int startmillisecs;
+
+	startmillisecs = Sys_MilliSeconds();
+#endif*/
+#endif RTCW_XX
 
 	startareanum = AAS_PointAreaNum( start );
 	if ( !startareanum ) {
@@ -128,7 +148,18 @@ int AAS_AlternativeRouteGoals( vec3_t start, vec3_t goal, int travelflags,
 	}
 	goalareanum = AAS_PointAreaNum( goal );
 	if ( !goalareanum ) {
+
+#if !defined RTCW_ET
 		return 0;
+#else
+		VectorCopy( goal, dir );
+		dir[2] += 30;
+		goalareanum = AAS_PointAreaNum( dir );
+		if ( !goalareanum ) {
+			return 0;
+		}
+#endif RTCW_XX
+
 	}
 	//travel time towards the goal area
 	goaltraveltime = AAS_AreaTravelTimeToGoalArea( startareanum, start, goalareanum, travelflags );
@@ -141,7 +172,14 @@ int AAS_AlternativeRouteGoals( vec3_t start, vec3_t goal, int travelflags,
 	for ( i = 1; i < ( *aasworld ).numareas; i++ )
 	{
 		//
+
+#if !defined RTCW_ET
 		if ( !( ( *aasworld ).areasettings[i].contents & AREACONTENTS_ROUTEPORTAL ) ) {
+#else
+		if ( !( ( *aasworld ).areasettings[i].contents & AREACONTENTS_ROUTEPORTAL ) &&
+			 !( ( *aasworld ).areasettings[i].contents & AREACONTENTS_CLUSTERPORTAL ) ) {
+#endif RTCW_XX
+
 			continue;
 		}
 		//if the area has no reachabilities
@@ -154,7 +192,13 @@ int AAS_AlternativeRouteGoals( vec3_t start, vec3_t goal, int travelflags,
 			continue;
 		}
 		//if the travel time from the start to the area is greater than the shortest goal travel time
+
+#if !defined RTCW_ET
 		if ( starttime > 1.5 * goaltraveltime ) {
+#else
+		if ( starttime > 500 + 3.0 * goaltraveltime ) {
+#endif RTCW_XX
+
 			continue;
 		}
 		//travel time from the area to the goal area
@@ -163,7 +207,13 @@ int AAS_AlternativeRouteGoals( vec3_t start, vec3_t goal, int travelflags,
 			continue;
 		}
 		//if the travel time from the area to the goal is greater than the shortest goal travel time
+
+#if !defined RTCW_ET
 		if ( goaltime > 1.5 * goaltraveltime ) {
+#else
+		if ( goaltime > 500 + 3.0 * goaltraveltime ) {
+#endif RTCW_XX
+
 			continue;
 		}
 		//this is a mid range area
@@ -202,9 +252,29 @@ int AAS_AlternativeRouteGoals( vec3_t start, vec3_t goal, int travelflags,
 				bestareanum = clusterareas[j];
 			} //end if
 		} //end for
+
+#if !defined RTCW_ET
 		  //now we've got an area for an alternative route
 		  //FIXME: add alternative goal origin
 		VectorCopy( ( *aasworld ).areas[bestareanum].center, altroutegoals[numaltroutegoals].origin );
+#else
+		  // make sure the route to the destination isn't in the same direction as the route to the source
+		if ( !AAS_AreaRouteToGoalArea( bestareanum, ( *aasworld ).areawaypoints[bestareanum], goalareanum, travelflags, &time, &reachnum ) ) {
+			continue;
+		}
+		a1 = ( *aasworld ).reachability[reachnum].areanum;
+		if ( !AAS_AreaRouteToGoalArea( bestareanum, ( *aasworld ).areawaypoints[bestareanum], startareanum, travelflags, &time, &reachnum ) ) {
+			continue;
+		}
+		a2 = ( *aasworld ).reachability[reachnum].areanum;
+		if ( a1 == a2 ) {
+			continue;
+		}
+		//now we've got an area for an alternative route
+		//FIXME: add alternative goal origin
+		VectorCopy( ( *aasworld ).areawaypoints[bestareanum], altroutegoals[numaltroutegoals].origin );
+#endif RTCW_XX
+
 		altroutegoals[numaltroutegoals].areanum = bestareanum;
 		altroutegoals[numaltroutegoals].starttraveltime = midrangeareas[bestareanum].starttime;
 		altroutegoals[numaltroutegoals].goaltraveltime = midrangeareas[bestareanum].goaltime;
@@ -213,6 +283,8 @@ int AAS_AlternativeRouteGoals( vec3_t start, vec3_t goal, int travelflags,
 			goaltraveltime;
 		numaltroutegoals++;
 		//
+
+#if !defined RTCW_ET
 #ifdef DEBUG
 		botimport.Print( PRT_MESSAGE, "alternative route goal area %d, numclusterareas = %d\n", bestareanum, numclusterareas );
 		if ( color ) {
@@ -220,15 +292,35 @@ int AAS_AlternativeRouteGoals( vec3_t start, vec3_t goal, int travelflags,
 		} //end if
 		  //AAS_ShowArea(bestarea, qtrue);
 #endif
+#else
+/*#ifdef DEBUG
+		botimport.Print(PRT_MESSAGE, "alternative route goal area %d, numclusterareas = %d\n", bestareanum, numclusterareas);
+		if (color)
+		{
+			AAS_DrawPermanentCross((*aasworld).areas[bestareanum].center, 10, color);
+		} //end if
+		//AAS_ShowArea(bestarea, qtrue);
+#endif*/
+#endif RTCW_XX
+
 		//don't return more than the maximum alternative route goals
 		if ( numaltroutegoals >= maxaltroutegoals ) {
 			break;
 		}
 	} //end for
+
+#if !defined RTCW_ET
 	botimport.Print( PRT_MESSAGE, "%d alternative route goals\n", numaltroutegoals );
 #ifdef DEBUG
 	botimport.Print( PRT_MESSAGE, "alternative route goals in %d msec\n", Sys_MilliSeconds() - startmillisecs );
 #endif
+#else
+	  //botimport.Print(PRT_MESSAGE, "%d alternative route goals\n", numaltroutegoals);
+#ifdef DEBUG
+//	botimport.Print(PRT_MESSAGE, "alternative route goals in %d msec\n", Sys_MilliSeconds() - startmillisecs);
+#endif
+#endif RTCW_XX
+
 	return numaltroutegoals;
 #endif
 } //end of the function AAS_AlternativeRouteGoals
@@ -247,7 +339,13 @@ void AAS_InitAlternativeRouting( void ) {
 	if ( clusterareas ) {
 		FreeMemory( clusterareas );
 	}
+
+#if !defined RTCW_ET
 	clusterareas = (int *) GetMemory( aasworld.numareas * sizeof( int ) );
+#else
+	clusterareas = (int *) GetMemory( ( *aasworld ).numareas * sizeof( int ) );
+#endif RTCW_XX
+
 #endif
 } //end of the function AAS_InitAlternativeRouting
 //===========================================================================

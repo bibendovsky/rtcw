@@ -40,6 +40,10 @@ If you have questions concerning this license or the applicable additional terms
 #include <io.h>
 #include <conio.h>
 
+#if defined RTCW_ET
+#include <math.h>
+#endif RTCW_XX
+
 /*
 ================
 Sys_Milliseconds
@@ -65,13 +69,39 @@ Sys_SnapVector
 ================
 */
 long fastftol( float f ) {
+
+#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
 	static int tmp;
 	__asm fld f
 	__asm fistp tmp
+
+#if defined RTCW_ET
+	// rain - WTF - why do they set the return this way?
+#endif RTCW_XX
+
 	__asm mov eax, tmp
+#endif RTCW_XX
+
+#if defined RTCW_ET && defined __GNUC__
+	// rain - gcc-style inline asm
+	// zinx - meh, gcc's lrint is sane, so use that. fixed inline asm too, though.
+	/*
+	asm(
+		"fld %1\n\t"
+		"fistp %0\n"
+		: "=m" (tmp) // outputs
+		: "f" (f) // inputs
+	);
+	return tmp;
+	*/
+	return lrint( f );
+#endif RTCW_XX
+
 }
 
 void Sys_SnapVector( float *v ) {
+
+#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
 	int i;
 	float f;
 
@@ -96,6 +126,18 @@ void Sys_SnapVector( float *v ) {
 	v++;
 	*v = fastftol(*v);
 	*/
+#endif RTCW_XX
+
+#if defined RTCW_ET && defined __GNUC__
+	// rain - gcc has different inline asm, but I'm not going to emulate
+	// that here for now...
+	*v = (float)fastftol( *v );
+	v++;
+	*v = (float)fastftol( *v );
+	v++;
+	*v = (float)fastftol( *v );
+#endif RTCW_XX
+
 }
 
 /*
@@ -103,7 +145,10 @@ void Sys_SnapVector( float *v ) {
 ** Disable all optimizations temporarily so this code works correctly!
 **
 */
+
+#if !defined RTCW_ET || (defined RTCW_ET && defined MSVC)
 #pragma optimize( "", off )
+#endif RTCW_XX
 
 /*
 ** --------------------------------------------------------------------------------
@@ -113,11 +158,19 @@ void Sys_SnapVector( float *v ) {
 ** --------------------------------------------------------------------------------
 */
 static void CPUID( int func, unsigned regs[4] ) {
+
+#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
 	unsigned regEAX, regEBX, regECX, regEDX;
 
 	__asm mov eax, func
+
+#if !defined RTCW_ET
 	__asm __emit 00fh
 	__asm __emit 0a2h
+#else
+	__asm cpuid
+#endif RTCW_XX
+
 	__asm mov regEAX, eax
 	__asm mov regEBX, ebx
 	__asm mov regECX, ecx
@@ -127,9 +180,22 @@ static void CPUID( int func, unsigned regs[4] ) {
 	regs[1] = regEBX;
 	regs[2] = regECX;
 	regs[3] = regEDX;
+#endif RTCW_XX
+
+#if defined RTCW_ET && defined __GNUC__
+	// rain - gcc style inline asm
+	asm (
+		"cpuid\n"
+		: "=a" ( regs[0] ), "=b" ( regs[1] ), "=c" ( regs[2] ), "=d" ( regs[3] ) // outputs
+		: "a" ( func ) // inputs
+		);
+#endif RTCW_XX
+
 }
 
 static int IsPentium( void ) {
+
+#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
 	__asm
 	{
 		pushfd                      // save eflags
@@ -159,6 +225,14 @@ err:
 	return qfalse;
 good:
 	return qtrue;
+#endif RTCW_XX
+
+#if defined RTCW_ET && defined __GNUC__
+	// rain - gcc-style inline asm
+	// rain - FIXME: I'm too tired to do this one right now
+	return qtrue;
+#endif RTCW_XX
+
 }
 
 static int Is3DNOW( void ) {
@@ -360,13 +434,170 @@ int Sys_GetHighQualityCPU() {
 	return ( !IsP3() && !IsAthlon() ) ? 0 : 1;
 }
 
+#if defined RTCW_ET
+//bani - defined but not used
+#if 0
+static void GetClockTicks( double *t ) {
+	unsigned long lo, hi;
+
+#ifndef __GNUC__
+	_asm
+	{
+		rdtsc
+		mov lo, eax
+		mov hi, edx
+	}
+#else
+	// rain - gcc-style inline asm
+	asm (
+		"rdtsc\n"
+		: "=a" ( lo ), "=d" ( hi ) // outputs
+		);
+#endif
+
+//	*t = (double) lo + (double) 0xFFFFFFFF * hi ;
+// zinx - 0x100000000
+	*t = (double) lo + (double) 4294967296.0 * hi ;
+}
+#endif
+
+float Sys_RealGetCPUSpeed( void ) {
+	LARGE_INTEGER c0, c1, freq;
+	unsigned int stamp0, stamp1, cycles, ticks, tries;
+	unsigned int freq1, freq2, freq3, total;
+	unsigned int priorityClass;
+	int threadPriority;
+
+	freq1 = freq2 = freq3 = tries = 0;
+
+	if ( !QueryPerformanceFrequency( &freq ) ) {
+		return .0f;
+	}
+
+	priorityClass = GetPriorityClass( GetCurrentProcess() );
+	threadPriority = GetThreadPriority( GetCurrentThread() );
+
+	SetPriorityClass( GetCurrentProcess(), REALTIME_PRIORITY_CLASS );
+	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
+
+	do {
+		tries++;
+
+		freq3 = freq2;
+		freq2 = freq1;
+
+		QueryPerformanceCounter( &c0 );
+
+		c1.LowPart = c0.LowPart;
+		c1.HighPart = c0.HighPart;
+
+		while ( (int)c1.LowPart - (int)c0.LowPart < 50 ) {
+			QueryPerformanceCounter( &c1 );
+		}
+
+#ifndef __GNUC__
+		_asm
+		{
+			rdtsc
+			mov stamp0, eax
+		}
+#else
+		// rain - gcc-style inline asm
+		asm (
+			"rdtsc\n"
+			: "=a" ( stamp0 ) // outputs
+			:
+			: "edx"
+			);
+#endif
+
+		c0.LowPart = c1.LowPart;
+		c0.HighPart = c1.HighPart;
+
+		while ( (int)c1.LowPart - (int)c0.LowPart < 1000 ) {
+			QueryPerformanceCounter( &c1 );
+		}
+
+#ifndef __GNUC__
+		_asm
+		{
+			rdtsc
+			mov stamp1, eax
+		}
+#else
+		// rain - gcc-style inline asm
+		asm (
+			"rdtsc\n"
+			: "=a" ( stamp1 ) // outputs
+			:
+			: "edx"
+			);
+#endif
+
+		cycles = stamp1 - stamp0;
+		ticks = (int)c1.LowPart - (int)c0.LowPart;
+
+		ticks *= 100000;
+		ticks /= ( freq.LowPart / 10 );
+
+		if ( ticks % freq.LowPart > freq.LowPart * .5f ) {
+			ticks++;
+		}
+
+		freq1 = cycles / ticks;
+
+		if ( cycles % ticks > ticks * .5f ) {
+			freq1++;
+		}
+
+		total = freq1 + freq2 + freq3;
+
+	} while ( ( tries < 3 || tries < 20 ) &&
+			  ( ( abs( 3 * freq1 - total ) > 3 ) || ( abs( 3 * freq2 - total ) > 3 ) || ( abs( 3 * freq3 - total ) > 3 ) ) );
+
+	if ( total / 3 != ( total + 1 ) / 3 ) {
+		total++;
+	}
+
+	SetPriorityClass( GetCurrentProcess(), priorityClass );
+	SetThreadPriority( GetCurrentThread(), threadPriority );
+
+	return( (float)total / 3.f );
+}
+
+float Sys_GetCPUSpeed( void ) {
+	float cpuSpeed;
+
+#ifndef __GNUC__
+	__try
+#else
+	if ( 1 )
+#endif
+	{
+		cpuSpeed = Sys_RealGetCPUSpeed();
+	}
+#ifndef __GNUC__
+	__except( EXCEPTION_EXECUTE_HANDLER )
+#else
+	if ( 0 )
+#endif
+	{
+		cpuSpeed = 100.f;
+	}
+
+	return cpuSpeed;
+}
+#endif RTCW_XX
+
 /*
 **
 ** Re-enable optimizations back to what they were
 **
 */
-#pragma optimize( "", on )
 
+#if !defined RTCW_ET || (defined RTCW_ET && defined MSVC)
+#pragma optimize( "", on )
+#endif RTCW_XX
 
 //============================================
 
@@ -395,3 +626,4 @@ char *Sys_DefaultInstallPath( void ) {
 	return Sys_Cwd();
 }
 #endif RTCW_XX
+

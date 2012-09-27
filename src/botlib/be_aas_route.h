@@ -69,3 +69,10 @@ int AAS_AreaTravelTimeToGoalAreaCheckLoop( int areanum, vec3_t origin, int goala
 
 extern int BotFuzzyPointReachabilityArea( vec3_t origin );
 #endif RTCW_XX
+
+#if defined RTCW_ET
+void AAS_InitTeamDeath( void );
+void AAS_RecordTeamDeathArea( vec3_t srcpos, int srcarea, int team, int teamCount, int travelflags );
+void AAS_UpdateTeamDeath( void );
+#endif RTCW_XX
+

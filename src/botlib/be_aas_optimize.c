@@ -70,10 +70,46 @@ typedef struct optimized_s
 	//convex areas
 	int numareas;
 	aas_area_t *areas;
+
+#if defined RTCW_ET
+	///
+	// RF, addition of removal of non-reachability areas
 	//
+#endif RTCW_XX
+
+	//
+
+#if defined RTCW_ET
+	//convex area settings
+	int numareasettings;
+	aas_areasettings_t *areasettings;
+	//reachablity list
+	int reachabilitysize;
+	aas_reachability_t *reachability;
+/*	//nodes of the bsp tree
+	int numnodes;
+	aas_node_t *nodes;
+	//cluster portals
+	int numportals;
+	aas_portal_t *portals;
+	//clusters
+	int numclusters;
+	aas_cluster_t *clusters;
+*/                                                                                                                                                                                   //
+#endif RTCW_XX
+
 	int *vertexoptimizeindex;
 	int *edgeoptimizeindex;
 	int *faceoptimizeindex;
+
+#if defined RTCW_ET
+	//
+	int *areakeep;
+	int *arearemap;
+	int *removedareas;
+	int *reachabilityremap;
+#endif RTCW_XX
+
 } optimized_t;
 
 //===========================================================================
@@ -335,3 +371,302 @@ void AAS_Optimize( void ) {
 	//print some nice stuff :)
 	botimport.Print( PRT_MESSAGE, "AAS data optimized.\n" );
 } //end of the function AAS_Optimize
+
+#if defined RTCW_ET
+//===========================================================================
+//
+// Parameter:				-
+// Returns:					-
+// Changes Globals:		-
+//===========================================================================
+void AAS_RemoveNonReachabilityAlloc( optimized_t *optimized ) {
+	optimized->areas = (aas_area_t *) GetClearedMemory( ( *aasworld ).numareas * sizeof( aas_area_t ) );
+	//
+	optimized->areasettings = (aas_areasettings_t *) GetClearedMemory( ( *aasworld ).numareas * sizeof( aas_areasettings_t ) );
+	//
+	optimized->reachability = (aas_reachability_t *) GetClearedMemory( ( *aasworld ).reachabilitysize * sizeof( aas_reachability_t ) );
+	optimized->reachabilitysize = ( *aasworld ).reachabilitysize;
+/*	//
+	optimized->nodes = (aas_node_t *) GetClearedMemory((*aasworld).numnodes * sizeof(aas_node_t));
+	optimized->numnodes = (*aasworld).numnodes;
+	//
+	optimized->portals = (aas_portals_t *) GetClearedMemory((*aasworld).numportals * sizeof(aas_portal_t));
+	optimized->numportals = (*aasworld).numportals;
+	//
+	optimized->clusters = (aas_cluster_t *) GetClearedMemory((*aasworld).numclusters * sizeof(aas_cluster_t));
+	optimized->numclusters = (*aasworld).numclusters;
+*/                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     //
+	optimized->areakeep = (int *) GetClearedMemory( ( *aasworld ).numareas * sizeof( int ) );
+	optimized->arearemap = (int *) GetClearedMemory( ( *aasworld ).numareas * sizeof( int ) );
+	optimized->removedareas = (int *) GetClearedMemory( ( *aasworld ).numareas * sizeof( int ) );
+	optimized->reachabilityremap = (int *) GetClearedMemory( ( *aasworld ).reachabilitysize * sizeof( int ) );
+} //end of the function AAS_OptimizeAlloc
+//===========================================================================
+//
+// Parameter:				-
+// Returns:					-
+// Changes Globals:		-
+//===========================================================================
+void AAS_NumberClusterAreas( int clusternum );
+void AAS_RemoveNonReachability( void ) {
+	int i, j;
+	optimized_t optimized;
+	int removed = 0, valid = 0, numoriginalareas;
+	int validreach = 0;
+	aas_face_t *face;
+
+	AAS_RemoveNonReachabilityAlloc( &optimized );
+	// mark portal areas as non-removable
+	if ( aasworld->numportals ) {
+		for ( i = 0; i < aasworld->numportals; i++ )
+		{
+			optimized.areakeep[aasworld->portals[i].areanum] = qtrue;
+		}
+	}
+	// remove non-reachability areas
+	numoriginalareas = aasworld->numareas;
+	for ( i = 1; i < ( *aasworld ).numareas; i++ )
+	{
+		// is this a reachability area?
+		if ( optimized.areakeep[i] || aasworld->areasettings[i].numreachableareas ) {
+			optimized.arearemap[i] = ++valid;
+			// copy it to the optimized areas
+			optimized.areas[valid] = ( *aasworld ).areas[i];
+			optimized.areas[valid].areanum = valid;
+			continue;
+		}
+		// yes it is if it made it to here
+		removed++;
+		optimized.removedareas[i] = qtrue;
+	}
+	optimized.numareas = valid + 1;
+	// store the new areas
+	if ( ( *aasworld ).areas ) {
+		FreeMemory( ( *aasworld ).areas );
+	}
+	( *aasworld ).areas = optimized.areas;
+	( *aasworld ).numareas = optimized.numareas;
+	//
+	// remove reachabilities that are no longer required
+	validreach = 1;
+	for ( i = 1; i < aasworld->reachabilitysize; i++ )
+	{
+		optimized.reachabilityremap[i] = validreach;
+		if ( optimized.removedareas[aasworld->reachability[i].areanum] ) {
+			continue;
+		}
+		// save this reachability
+		optimized.reachability[validreach] = aasworld->reachability[i];
+		optimized.reachability[validreach].areanum = optimized.arearemap[optimized.reachability[validreach].areanum];
+		//
+		validreach++;
+	}
+	optimized.reachabilitysize = validreach;
+	// store the reachabilities
+	if ( ( *aasworld ).reachability ) {
+		FreeMemory( ( *aasworld ).reachability );
+	}
+	( *aasworld ).reachability = optimized.reachability;
+	( *aasworld ).reachabilitysize = optimized.reachabilitysize;
+	//
+	// remove and update areasettings
+	for ( i = 1; i < numoriginalareas; i++ )
+	{
+		if ( optimized.removedareas[i] ) {
+			continue;
+		}
+		j = optimized.arearemap[i];
+		optimized.areasettings[j] = aasworld->areasettings[i];
+		optimized.areasettings[j].firstreachablearea = optimized.reachabilityremap[aasworld->areasettings[i].firstreachablearea];
+		optimized.areasettings[j].numreachableareas = 1 + optimized.reachabilityremap[aasworld->areasettings[i].firstreachablearea + aasworld->areasettings[i].numreachableareas - 1] - optimized.areasettings[j].firstreachablearea;
+	}
+	//
+	// update faces (TODO: remove unused)
+	for ( i = 1, face = &aasworld->faces[1]; i < aasworld->numfaces; i++, face++ )
+	{
+		if ( !optimized.removedareas[face->backarea] ) {
+			face->backarea = optimized.arearemap[face->backarea];
+		} else { // now points to a void
+			face->backarea = 0;
+		}
+		if ( !optimized.removedareas[face->frontarea] ) {
+			face->frontarea = optimized.arearemap[face->frontarea];
+		} else {
+			face->frontarea = 0;
+		}
+	}
+	// store the areasettings
+	if ( ( *aasworld ).areasettings ) {
+		FreeMemory( ( *aasworld ).areasettings );
+	}
+	( *aasworld ).areasettings = optimized.areasettings;
+	( *aasworld ).numareasettings = optimized.numareas;
+	//
+	// update nodes
+	for ( i = 1; i < ( *aasworld ).numnodes; i++ )
+	{
+		for ( j = 0; j < 2; j++ )
+		{
+			if ( aasworld->nodes[i].children[j] < 0 ) {
+				if ( optimized.removedareas[-aasworld->nodes[i].children[j]] ) {
+					aasworld->nodes[i].children[j] = 0; //make it solid
+				} else { // remap
+					aasworld->nodes[i].children[j] = -optimized.arearemap[-aasworld->nodes[i].children[j]];
+				}
+			}
+		}
+	}
+	//
+	// update portal areanums
+	for ( i = 0; i < aasworld->numportals; i++ )
+	{
+		aasworld->portals[i].areanum = optimized.arearemap[aasworld->portals[i].areanum];
+	}
+	// update clusters and portals
+	for ( i = 0; i < ( *aasworld ).numclusters; i++ )
+	{
+		AAS_NumberClusterAreas( i );
+	}
+	// free temporary memory
+	FreeMemory( optimized.areakeep );
+	FreeMemory( optimized.arearemap );
+	FreeMemory( optimized.removedareas );
+	FreeMemory( optimized.reachabilityremap );
+	//print some nice stuff :)
+	botimport.Print( PRT_MESSAGE, "%i non-reachability areas removed, %i remain.\n", removed, valid );
+} //end of the function AAS_Optimize
+//===========================================================================
+//
+// Parameter:				-
+// Returns:					-
+// Changes Globals:		-
+//===========================================================================
+void AAS_RemoveNonGrounded( void ) {
+	int i, j;
+	optimized_t optimized;
+	int removed = 0, valid = 0, numoriginalareas;
+	int validreach = 0;
+	aas_face_t *face;
+
+	AAS_RemoveNonReachabilityAlloc( &optimized );
+	// mark portal areas as non-removable
+	if ( aasworld->numportals ) {
+		for ( i = 0; i < aasworld->numportals; i++ )
+		{
+			optimized.areakeep[aasworld->portals[i].areanum] = qtrue;
+		}
+	}
+	// remove non-reachability areas
+	numoriginalareas = aasworld->numareas;
+	for ( i = 1; i < ( *aasworld ).numareas; i++ )
+	{
+		// is this a grounded area?
+		if ( optimized.areakeep[i] || ( aasworld->areasettings[i].areaflags & ( AREA_GROUNDED | AREA_LADDER ) ) ) {
+			optimized.arearemap[i] = ++valid;
+			// copy it to the optimized areas
+			optimized.areas[valid] = ( *aasworld ).areas[i];
+			optimized.areas[valid].areanum = valid;
+			continue;
+		}
+		// yes it is if it made it to here
+		removed++;
+		optimized.removedareas[i] = qtrue;
+	}
+	optimized.numareas = valid + 1;
+	// store the new areas
+	if ( ( *aasworld ).areas ) {
+		FreeMemory( ( *aasworld ).areas );
+	}
+	( *aasworld ).areas = optimized.areas;
+	( *aasworld ).numareas = optimized.numareas;
+	//
+	// remove reachabilities that are no longer required
+	validreach = 1;
+	for ( i = 1; i < aasworld->reachabilitysize; i++ )
+	{
+		optimized.reachabilityremap[i] = validreach;
+		if ( optimized.removedareas[aasworld->reachability[i].areanum] ) {
+			continue;
+		}
+		// save this reachability
+		optimized.reachability[validreach] = aasworld->reachability[i];
+		optimized.reachability[validreach].areanum = optimized.arearemap[optimized.reachability[validreach].areanum];
+		//
+		validreach++;
+	}
+	optimized.reachabilitysize = validreach;
+	// store the reachabilities
+	if ( ( *aasworld ).reachability ) {
+		FreeMemory( ( *aasworld ).reachability );
+	}
+	( *aasworld ).reachability = optimized.reachability;
+	( *aasworld ).reachabilitysize = optimized.reachabilitysize;
+	//
+	// remove and update areasettings
+	for ( i = 1; i < numoriginalareas; i++ )
+	{
+		if ( optimized.removedareas[i] ) {
+			continue;
+		}
+		j = optimized.arearemap[i];
+		optimized.areasettings[j] = aasworld->areasettings[i];
+		optimized.areasettings[j].firstreachablearea = optimized.reachabilityremap[aasworld->areasettings[i].firstreachablearea];
+		optimized.areasettings[j].numreachableareas = 1 + optimized.reachabilityremap[aasworld->areasettings[i].firstreachablearea + aasworld->areasettings[i].numreachableareas - 1] - optimized.areasettings[j].firstreachablearea;
+	}
+	//
+	// update faces (TODO: remove unused)
+	for ( i = 1, face = &aasworld->faces[1]; i < aasworld->numfaces; i++, face++ )
+	{
+		if ( !optimized.removedareas[face->backarea] ) {
+			face->backarea = optimized.arearemap[face->backarea];
+		} else { // now points to a void
+			face->backarea = 0;
+		}
+		if ( !optimized.removedareas[face->frontarea] ) {
+			face->frontarea = optimized.arearemap[face->frontarea];
+		} else {
+			face->frontarea = 0;
+		}
+	}
+	// store the areasettings
+	if ( ( *aasworld ).areasettings ) {
+		FreeMemory( ( *aasworld ).areasettings );
+	}
+	( *aasworld ).areasettings = optimized.areasettings;
+	( *aasworld ).numareasettings = optimized.numareas;
+	//
+	// update nodes
+	for ( i = 1; i < ( *aasworld ).numnodes; i++ )
+	{
+		for ( j = 0; j < 2; j++ )
+		{
+			if ( aasworld->nodes[i].children[j] < 0 ) {
+				if ( optimized.removedareas[-aasworld->nodes[i].children[j]] ) {
+					aasworld->nodes[i].children[j] = 0; //make it solid
+				} else { // remap
+					aasworld->nodes[i].children[j] = -optimized.arearemap[-aasworld->nodes[i].children[j]];
+				}
+			}
+		}
+	}
+	//
+	// update portal areanums
+	for ( i = 0; i < aasworld->numportals; i++ )
+	{
+		aasworld->portals[i].areanum = optimized.arearemap[aasworld->portals[i].areanum];
+	}
+	// update clusters and portals
+	for ( i = 0; i < ( *aasworld ).numclusters; i++ )
+	{
+		AAS_NumberClusterAreas( i );
+	}
+	// free temporary memory
+	FreeMemory( optimized.areakeep );
+	FreeMemory( optimized.arearemap );
+	FreeMemory( optimized.removedareas );
+	FreeMemory( optimized.reachabilityremap );
+	//print some nice stuff :)
+	botimport.Print( PRT_MESSAGE, "%i non-grounded areas removed, %i remain.\n", removed, valid );
+} //end of the function AAS_Optimize
+#endif RTCW_XX
+

@@ -53,7 +53,11 @@ extern botlib_import_t botimport;
 #define ON_EPSILON      0.005
 //#define DEG2RAD( a ) (( a * M_PI ) / 180.0F)
 
+#if !defined RTCW_ET
 #define MAX_BSPENTITIES     2048
+#else
+#define MAX_BSPENTITIES     4096
+#endif RTCW_XX
 
 typedef struct rgb_s
 {
@@ -523,3 +527,9 @@ int AAS_LoadBSPFile( void ) {
 	bspworld.loaded = qtrue;
 	return BLERR_NOERROR;
 } //end of the function AAS_LoadBSPFile
+
+#if defined RTCW_ET
+void AAS_InitBSP( void ) {
+	memset( &bspworld, 0, sizeof( bspworld ) );
+}
+#endif RTCW_XX

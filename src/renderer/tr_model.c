@@ -38,10 +38,18 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *name );
 static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *name );
 
+#if defined RTCW_ET
+static qboolean R_LoadMDM( model_t *mod, void *buffer, const char *name );
+static qboolean R_LoadMDX( model_t *mod, void *buffer, const char *name );
+#endif RTCW_XX
+
 model_t *loadmodel;
 
+#if !defined RTCW_ET
 extern cvar_t *r_compressModels;
 extern cvar_t *r_exportCompressedModels;
+#endif RTCW_XX
+
 extern cvar_t *r_buildScript;
 
 /*
@@ -80,6 +88,55 @@ model_t *R_AllocModel( void ) {
 	return mod;
 }
 
+#if defined RTCW_ET
+/*
+R_LoadModelShadow()
+loads a model's shadow script
+*/
+
+void R_LoadModelShadow( model_t *mod ) {
+	unsigned    *buf;
+	char filename[ 1024 ];
+	shader_t    *sh;
+
+	// set default shadow
+	mod->shadowShader = 0;
+
+	// build name
+	COM_StripExtension2( mod->name, filename, sizeof( filename ) );
+	COM_DefaultExtension( filename, 1024, ".shadow" );
+
+	// load file
+	ri.FS_ReadFile( filename, (void**) &buf );
+	if ( buf != NULL ) {
+		char    *shadowBits;
+
+		shadowBits = strchr( (char*) buf, ' ' );
+		if ( shadowBits != NULL ) {
+			*shadowBits = '\0';
+			shadowBits++;
+
+			if ( strlen( (char*) buf ) >= MAX_QPATH ) {
+				Com_Printf( "R_LoadModelShadow: Shader name exceeds MAX_QPATH\n" );
+				mod->shadowShader = 0;
+			} else {
+				sh = R_FindShader( (char*) buf, LIGHTMAP_NONE, qtrue );
+
+				if ( sh->defaultShader ) {
+					mod->shadowShader = 0;
+				} else {
+					mod->shadowShader = sh->index;
+				}
+			}
+			sscanf( shadowBits, "%f %f %f %f %f %f",
+					&mod->shadowParms[ 0 ], &mod->shadowParms[ 1 ], &mod->shadowParms[ 2 ],
+					&mod->shadowParms[ 3 ], &mod->shadowParms[ 4 ], &mod->shadowParms[ 5 ] );
+		}
+		ri.FS_FreeFile( buf );
+	}
+}
+#endif RTCW_XX
+
 /*
 ====================
 RE_RegisterModel
@@ -100,6 +157,10 @@ qhandle_t RE_RegisterModel( const char *name ) {
 	qboolean loaded;
 	qhandle_t hModel;
 	int numLoaded;
+
+#if defined RTCW_ET
+	char filename[1024];
+#endif RTCW_XX
 
 	if ( !name || !name[0] ) {
 		// Ridah, disabled this, we can see models that can't be found because they won't be there
@@ -155,9 +216,18 @@ qhandle_t RE_RegisterModel( const char *name ) {
 
 	// Ridah, look for it cached
 	if ( R_FindCachedModel( name, mod ) ) {
+
+#if defined RTCW_ET
+		R_LoadModelShadow( mod );
+#endif RTCW_XX
+
 		return mod->index;
 	}
 	// done.
+
+#if defined RTCW_ET
+	R_LoadModelShadow( mod );
+#endif RTCW_XX
 
 	mod->numLods = 0;
 
@@ -166,7 +236,12 @@ qhandle_t RE_RegisterModel( const char *name ) {
 	//
 	numLoaded = 0;
 
+#if !defined RTCW_ET
 	if ( strstr( name, ".mds" ) ) {  // try loading skeletal file
+#else
+	if ( strstr( name, ".mds" ) || strstr( name, ".mdm" ) || strstr( name, ".mdx" ) ) {    // try loading skeletal file
+#endif RTCW_XX
+
 		loaded = qfalse;
 		ri.FS_ReadFile( name, (void **)&buf );
 		if ( buf ) {
@@ -175,6 +250,14 @@ qhandle_t RE_RegisterModel( const char *name ) {
 			ident = LittleLong( *(unsigned *)buf );
 			if ( ident == MDS_IDENT ) {
 				loaded = R_LoadMDS( mod, buf, name );
+
+#if defined RTCW_ET
+			} else if ( ident == MDM_IDENT ) {
+				loaded = R_LoadMDM( mod, buf, name );
+			} else if ( ident == MDX_IDENT ) {
+				loaded = R_LoadMDX( mod, buf, name );
+#endif RTCW_XX
+
 			}
 
 			ri.FS_FreeFile( buf );
@@ -186,7 +269,10 @@ qhandle_t RE_RegisterModel( const char *name ) {
 	}
 
 	for ( lod = MD3_MAX_LODS - 1 ; lod >= 0 ; lod-- ) {
+
+#if !defined RTCW_ET
 		char filename[1024];
+#endif RTCW_XX
 
 		strcpy( filename, name );
 
@@ -200,19 +286,34 @@ qhandle_t RE_RegisterModel( const char *name ) {
 			strcat( filename, namebuf );
 		}
 
+#if !defined RTCW_ET
 		if ( r_compressModels->integer ) {
 			filename[strlen( filename ) - 1] = '3';  // try MD3 first
 		} else {
+#endif RTCW_XX
+
 			filename[strlen( filename ) - 1] = 'c';  // try MDC first
+
+#if !defined RTCW_ET
 		}
+#endif RTCW_XX
+
 		ri.FS_ReadFile( filename, (void **)&buf );
 
 		if ( !buf ) {
+
+#if !defined RTCW_ET
 			if ( r_compressModels->integer ) {
 				filename[strlen( filename ) - 1] = 'c';  // try MDC second
 			} else {
+#endif RTCW_XX
+
 				filename[strlen( filename ) - 1] = '3';  // try MD3 second
+
+#if !defined RTCW_ET
 			}
+#endif RTCW_XX
+
 			ri.FS_ReadFile( filename, (void **)&buf );
 			if ( !buf ) {
 				continue;
@@ -230,6 +331,8 @@ qhandle_t RE_RegisterModel( const char *name ) {
 
 		if ( ident == MD3_IDENT ) {
 			loaded = R_LoadMD3( mod, lod, buf, name );
+
+#if !defined RTCW_ET
 			if ( r_compressModels->integer && r_exportCompressedModels->integer && mod->mdc[lod] ) {
 				// save it out
 				filename[strlen( filename ) - 1] = 'c';
@@ -239,6 +342,8 @@ qhandle_t RE_RegisterModel( const char *name ) {
 					ri.FS_ReadFile( filename, NULL );
 				}
 			}
+#endif RTCW_XX
+
 		} else {
 			loaded = R_LoadMDC( mod, lod, buf, name );
 		}
@@ -258,9 +363,18 @@ qhandle_t RE_RegisterModel( const char *name ) {
 			// if we have a valid model and are biased
 			// so that we won't see any higher detail ones,
 			// stop loading them
+
+#if !defined RTCW_ET
 			if ( lod <= r_lodbias->integer ) {
 				break;
 			}
+#else
+// Arnout: don't need this anymore,
+//			if ( lod <= r_lodbias->integer ) {
+//				break;
+//			}
+#endif RTCW_XX
+
 		}
 	}
 
@@ -276,9 +390,17 @@ qhandle_t RE_RegisterModel( const char *name ) {
 			//	for various things.
 			if ( ident == MD3_IDENT ) { //----(SA)	modified
 //			if (mod->md3[0])		//----(SA)	end
+
+#if !defined RTCW_ET
 				mod->md3[lod] = mod->md3[lod + 1];
 			} else {
 				mod->mdc[lod] = mod->mdc[lod + 1];
+#else
+				mod->model.md3[lod] = mod->model.md3[lod + 1];
+			} else {
+				mod->model.mdc[lod] = mod->model.mdc[lod + 1];
+#endif RTCW_XX
+
 			}
 			// done.
 		}
@@ -317,7 +439,7 @@ unsigned char R_MDC_GetAnorm( const vec3_t dir ) {
 
 #if defined RTCW_SP
 	int i, best_start_i[3], next_start, next_end, best = 0;     // TTimo: init
-#elif defined RTCW_MP
+#else
 	int i, best_start_i[3], next_start, next_end;
 	int best = 0; // TTimo: init
 #endif RTCW_XX
@@ -347,7 +469,12 @@ unsigned char R_MDC_GetAnorm( const vec3_t dir ) {
 			this_val = r_anormals[i][2];
 		}
 
+#if !defined RTCW_ET
 		if ( ( diff = fabs( dir[2] - r_anormals[i][2] ) ) < best_diff ) {
+#else
+		if ( ( diff = Q_fabs( dir[2] - r_anormals[i][2] ) ) < best_diff ) {
+#endif RTCW_XX
+
 			best_diff = diff;
 			best_start_i[2] = i;
 
@@ -407,10 +534,22 @@ qboolean R_MDC_EncodeXyzCompressed( const vec3_t vec, const vec3_t normal, mdcXy
 
 	retval.ofsVec = 0;
 	for ( i = 0; i < 3; i++ ) {
+
+#if !defined RTCW_ET
 		if ( fabs( vec[i] ) >= MDC_MAX_DIST ) {
+#else
+		if ( Q_fabs( vec[i] ) >= MDC_MAX_DIST ) {
+#endif RTCW_XX
+
 			return qfalse;
 		}
+
+#if !defined RTCW_ET
 		retval.ofsVec += ( ( (int)fabs( ( vec[i] + MDC_DIST_SCALE * 0.5 ) * ( 1.0 / MDC_DIST_SCALE ) + MDC_MAX_OFS ) ) << ( i * MDC_BITS_PER_AXIS ) );
+#else
+		retval.ofsVec += ( ( (int)Q_fabs( ( vec[i] + MDC_DIST_SCALE * 0.5 ) * ( 1.0 / MDC_DIST_SCALE ) + MDC_MAX_OFS ) ) << ( i * MDC_BITS_PER_AXIS ) );
+#endif RTCW_XX
+
 	}
 	anorm = R_MDC_GetAnorm( normal );
 	retval.ofsVec |= ( (int)anorm ) << 24;
@@ -435,6 +574,7 @@ void R_MDC_DecodeXyzCompressed( mdcXyzCompressed_t *xyzComp, vec3_t out, vec3_t 
 }
 #endif
 
+#if !defined RTCW_ET
 /*
 =================
 R_MDC_GetXyzCompressed
@@ -712,6 +852,7 @@ static qboolean R_MDC_ConvertMD3( model_t *mod, int lod, const char *mod_name ) 
 
 	return qtrue;
 }
+#endif RTCW_XX
 
 /*
 =================
@@ -745,6 +886,8 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 	mod->type = MOD_MDC;
 	size = LittleLong( pinmodel->ofsEnd );
 	mod->dataSize += size;
+
+#if !defined RTCW_ET
 	mod->mdc[lod] = ri.Hunk_Alloc( size, h_low );
 
 	memcpy( mod->mdc[lod], buffer, LittleLong( pinmodel->ofsEnd ) );
@@ -764,13 +907,42 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 
 
 	if ( mod->mdc[lod]->numFrames < 1 ) {
+#else
+	mod->model.mdc[lod] = ri.Hunk_Alloc( size, h_low );
+
+	memcpy( mod->model.mdc[lod], buffer, LittleLong( pinmodel->ofsEnd ) );
+
+	LL( mod->model.mdc[lod]->ident );
+	LL( mod->model.mdc[lod]->version );
+	LL( mod->model.mdc[lod]->numFrames );
+	LL( mod->model.mdc[lod]->numTags );
+	LL( mod->model.mdc[lod]->numSurfaces );
+	LL( mod->model.mdc[lod]->ofsFrames );
+	LL( mod->model.mdc[lod]->ofsTagNames );
+	LL( mod->model.mdc[lod]->ofsTags );
+	LL( mod->model.mdc[lod]->ofsSurfaces );
+	LL( mod->model.mdc[lod]->ofsEnd );
+	LL( mod->model.mdc[lod]->flags );
+	LL( mod->model.mdc[lod]->numSkins );
+
+
+	if ( mod->model.mdc[lod]->numFrames < 1 ) {
+#endif RTCW_XX
+
 		ri.Printf( PRINT_WARNING, "R_LoadMDC: %s has no frames\n", mod_name );
 		return qfalse;
 	}
 
 	// swap all the frames
+
+#if !defined RTCW_ET
 	frame = ( md3Frame_t * )( (byte *)mod->mdc[lod] + mod->mdc[lod]->ofsFrames );
 	for ( i = 0 ; i < mod->mdc[lod]->numFrames ; i++, frame++ ) {
+#else
+	frame = ( md3Frame_t * )( (byte *)mod->model.mdc[lod] + mod->model.mdc[lod]->ofsFrames );
+	for ( i = 0 ; i < mod->model.mdc[lod]->numFrames ; i++, frame++ ) {
+#endif RTCW_XX
+
 		frame->radius = LittleFloat( frame->radius );
 		if ( strstr( mod->name,"sherman" ) || strstr( mod->name, "mg42" ) ) {
 			frame->radius = 256;
@@ -790,9 +962,17 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 	}
 
 	// swap all the tags
+
+#if !defined RTCW_ET
 	tag = ( mdcTag_t * )( (byte *)mod->mdc[lod] + mod->mdc[lod]->ofsTags );
 	if ( LittleLong( 1 ) != 1 ) {
 		for ( i = 0 ; i < mod->mdc[lod]->numTags * mod->mdc[lod]->numFrames ; i++, tag++ ) {
+#else
+	tag = ( mdcTag_t * )( (byte *)mod->model.mdc[lod] + mod->model.mdc[lod]->ofsTags );
+	if ( LittleLong( 1 ) != 1 ) {
+		for ( i = 0 ; i < mod->model.mdc[lod]->numTags * mod->model.mdc[lod]->numFrames ; i++, tag++ ) {
+#endif RTCW_XX
+
 			for ( j = 0 ; j < 3 ; j++ ) {
 				tag->xyz[j] = LittleShort( tag->xyz[j] );
 				tag->angles[j] = LittleShort( tag->angles[j] );
@@ -801,8 +981,14 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 	}
 
 	// swap all the surfaces
+
+#if !defined RTCW_ET
 	surf = ( mdcSurface_t * )( (byte *)mod->mdc[lod] + mod->mdc[lod]->ofsSurfaces );
 	for ( i = 0 ; i < mod->mdc[lod]->numSurfaces ; i++ ) {
+#else
+	surf = ( mdcSurface_t * )( (byte *)mod->model.mdc[lod] + mod->model.mdc[lod]->ofsSurfaces );
+	for ( i = 0 ; i < mod->model.mdc[lod]->numSurfaces ; i++ ) {
+#endif RTCW_XX
 
 		LL( surf->ident );
 		LL( surf->flags );
@@ -820,6 +1006,7 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 		LL( surf->ofsFrameCompFrames );
 		LL( surf->ofsEnd );
 
+#if !defined RTCW_ET
 		if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
 			ri.Error( ERR_DROP, "R_LoadMDC: %s has more than %i verts on a surface (%i)",
 					  mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
@@ -827,6 +1014,16 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 		if ( surf->numTriangles * 3 > SHADER_MAX_INDEXES ) {
 			ri.Error( ERR_DROP, "R_LoadMDC: %s has more than %i triangles on a surface (%i)",
 					  mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
+#else
+		if ( surf->numVerts > tess.maxShaderVerts ) {
+			ri.Error( ERR_DROP, "R_LoadMDC: %s has more than %i verts on a surface (%i)",
+					  mod_name, tess.maxShaderVerts, surf->numVerts );
+		}
+		if ( surf->numTriangles * 3 > tess.maxShaderIndicies ) {
+			ri.Error( ERR_DROP, "R_LoadMDC: %s has more than %i triangles on a surface (%i)",
+					  mod_name, tess.maxShaderIndicies / 3, surf->numTriangles );
+#endif RTCW_XX
+
 		}
 
 		// change to surface identifier
@@ -893,14 +1090,26 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 
 			// swap the frameBaseFrames
 			ps = ( short * )( (byte *)surf + surf->ofsFrameBaseFrames );
+
+#if !defined RTCW_ET
 			for ( j = 0; j < mod->mdc[lod]->numFrames; j++, ps++ )
+#else
+			for ( j = 0; j < mod->model.mdc[lod]->numFrames; j++, ps++ )
+#endif RTCW_XX
+
 			{
 				*ps = LittleShort( *ps );
 			}
 
 			// swap the frameCompFrames
 			ps = ( short * )( (byte *)surf + surf->ofsFrameCompFrames );
+
+#if !defined RTCW_ET
 			for ( j = 0; j < mod->mdc[lod]->numFrames; j++, ps++ )
+#else
+			for ( j = 0; j < mod->model.mdc[lod]->numFrames; j++, ps++ )
+#endif RTCW_XX
+
 			{
 				*ps = LittleShort( *ps );
 			}
@@ -948,6 +1157,8 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 	mod->type = MOD_MESH;
 	size = LittleLong( pinmodel->ofsEnd );
 	mod->dataSize += size;
+
+#if !defined RTCW_ET
 	// Ridah, convert to compressed format
 	if ( !r_compressModels->integer ) {
 		mod->md3[lod] = ri.Hunk_Alloc( size, h_low );
@@ -969,6 +1180,24 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 	LL( mod->md3[lod]->ofsEnd );
 
 	if ( mod->md3[lod]->numFrames < 1 ) {
+#else
+	mod->model.md3[lod] = ri.Hunk_Alloc( size, h_low );
+
+	memcpy( mod->model.md3[lod], buffer, LittleLong( pinmodel->ofsEnd ) );
+
+	LL( mod->model.md3[lod]->ident );
+	LL( mod->model.md3[lod]->version );
+	LL( mod->model.md3[lod]->numFrames );
+	LL( mod->model.md3[lod]->numTags );
+	LL( mod->model.md3[lod]->numSurfaces );
+	LL( mod->model.md3[lod]->ofsFrames );
+	LL( mod->model.md3[lod]->ofsTags );
+	LL( mod->model.md3[lod]->ofsSurfaces );
+	LL( mod->model.md3[lod]->ofsEnd );
+
+	if ( mod->model.md3[lod]->numFrames < 1 ) {
+#endif RTCW_XX
+
 		ri.Printf( PRINT_WARNING, "R_LoadMD3: %s has no frames\n", mod_name );
 		return qfalse;
 	}
@@ -978,8 +1207,15 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 	}
 
 	// swap all the frames
+
+#if !defined RTCW_ET
 	frame = ( md3Frame_t * )( (byte *)mod->md3[lod] + mod->md3[lod]->ofsFrames );
 	for ( i = 0 ; i < mod->md3[lod]->numFrames ; i++, frame++ ) {
+#else
+	frame = ( md3Frame_t * )( (byte *)mod->model.md3[lod] + mod->model.md3[lod]->ofsFrames );
+	for ( i = 0 ; i < mod->model.md3[lod]->numFrames ; i++, frame++ ) {
+#endif RTCW_XX
+
 		frame->radius = LittleFloat( frame->radius );
 		if ( fixRadius ) {
 			frame->radius = 256;
@@ -1008,8 +1244,15 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 	}
 
 	// swap all the tags
+
+#if !defined RTCW_ET
 	tag = ( md3Tag_t * )( (byte *)mod->md3[lod] + mod->md3[lod]->ofsTags );
 	for ( i = 0 ; i < mod->md3[lod]->numTags * mod->md3[lod]->numFrames ; i++, tag++ ) {
+#else
+	tag = ( md3Tag_t * )( (byte *)mod->model.md3[lod] + mod->model.md3[lod]->ofsTags );
+	for ( i = 0 ; i < mod->model.md3[lod]->numTags * mod->model.md3[lod]->numFrames ; i++, tag++ ) {
+#endif RTCW_XX
+
 		for ( j = 0 ; j < 3 ; j++ ) {
 			tag->origin[j] = LittleFloat( tag->origin[j] );
 			tag->axis[0][j] = LittleFloat( tag->axis[0][j] );
@@ -1019,8 +1262,14 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 	}
 
 	// swap all the surfaces
+
+#if !defined RTCW_ET
 	surf = ( md3Surface_t * )( (byte *)mod->md3[lod] + mod->md3[lod]->ofsSurfaces );
 	for ( i = 0 ; i < mod->md3[lod]->numSurfaces ; i++ ) {
+#else
+	surf = ( md3Surface_t * )( (byte *)mod->model.md3[lod] + mod->model.md3[lod]->ofsSurfaces );
+	for ( i = 0 ; i < mod->model.md3[lod]->numSurfaces ; i++ ) {
+#endif RTCW_XX
 
 		LL( surf->ident );
 		LL( surf->flags );
@@ -1034,6 +1283,7 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 		LL( surf->ofsXyzNormals );
 		LL( surf->ofsEnd );
 
+#if !defined RTCW_ET
 		if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
 			ri.Error( ERR_DROP, "R_LoadMD3: %s has more than %i verts on a surface (%i)",
 					  mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
@@ -1041,6 +1291,16 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 		if ( surf->numTriangles * 3 > SHADER_MAX_INDEXES ) {
 			ri.Error( ERR_DROP, "R_LoadMD3: %s has more than %i triangles on a surface (%i)",
 					  mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
+#else
+		if ( surf->numVerts > tess.maxShaderVerts ) {
+			ri.Error( ERR_DROP, "R_LoadMD3: %s has more than %i verts on a surface (%i)",
+					  mod_name, tess.maxShaderVerts, surf->numVerts );
+		}
+		if ( surf->numTriangles * 3 > tess.maxShaderIndicies ) {
+			ri.Error( ERR_DROP, "R_LoadMD3: %s has more than %i triangles on a surface (%i)",
+					  mod_name, tess.maxShaderIndicies / 3, surf->numTriangles );
+#endif RTCW_XX
+
 		}
 
 		// change to surface identifier
@@ -1105,11 +1365,13 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 		surf = ( md3Surface_t * )( (byte *)surf + surf->ofsEnd );
 	}
 
+#if !defined RTCW_ET
 	// Ridah, convert to compressed format
 	if ( r_compressModels->integer ) {
 		R_MDC_ConvertMD3( mod, lod, mod_name );
 	}
 	// done.
+#endif RTCW_XX
 
 	return qtrue;
 }
@@ -1148,7 +1410,12 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 	mod->type = MOD_MDS;
 	size = LittleLong( pinmodel->ofsEnd );
 	mod->dataSize += size;
+
+#if !defined RTCW_ET
 	mds = mod->mds = ri.Hunk_Alloc( size, h_low );
+#else
+	mds = mod->model.mds = ri.Hunk_Alloc( size, h_low );
+#endif RTCW_XX
 
 	memcpy( mds, buffer, LittleLong( pinmodel->ofsEnd ) );
 
@@ -1211,7 +1478,13 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 	surf = ( mdsSurface_t * )( (byte *)mds + mds->ofsSurfaces );
 	for ( i = 0 ; i < mds->numSurfaces ; i++ ) {
 		if ( LittleLong( 1 ) != 1 ) {
+
+#if !defined RTCW_ET
 			LL( surf->ident );
+#else
+			//LL(surf->ident);
+#endif RTCW_XX
+
 			LL( surf->shaderIndex );
 			LL( surf->minLod );
 			LL( surf->ofsHeader );
@@ -1225,6 +1498,7 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 			LL( surf->ofsEnd );
 		}
 
+#if !defined RTCW_ET
 		if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
 			ri.Error( ERR_DROP, "R_LoadMDS: %s has more than %i verts on a surface (%i)",
 					  mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
@@ -1232,6 +1506,19 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 		if ( surf->numTriangles * 3 > SHADER_MAX_INDEXES ) {
 			ri.Error( ERR_DROP, "R_LoadMDS: %s has more than %i triangles on a surface (%i)",
 					  mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
+#else
+		// change to surface identifier
+		surf->ident = SF_MDS;
+
+		if ( surf->numVerts > tess.maxShaderVerts ) {
+			ri.Error( ERR_DROP, "R_LoadMDS: %s has more than %i verts on a surface (%i)",
+					  mod_name, tess.maxShaderVerts, surf->numVerts );
+		}
+		if ( surf->numTriangles * 3 > tess.maxShaderIndicies ) {
+			ri.Error( ERR_DROP, "R_LoadMDS: %s has more than %i triangles on a surface (%i)",
+					  mod_name, tess.maxShaderIndicies / 3, surf->numTriangles );
+#endif RTCW_XX
+
 		}
 
 		// register the shaders
@@ -1275,7 +1562,7 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 					v->weights[k].offset[2] = LittleFloat( v->weights[k].offset[2] );
 				}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 				// find the fixedParent for this vert (if exists)
 				v->fixedParent = -1;
 				if ( v->numWeights == 2 ) {
@@ -1312,6 +1599,275 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 	return qtrue;
 }
 
+#if defined RTCW_ET
+/*
+=================
+R_LoadMDM
+=================
+*/
+static qboolean R_LoadMDM( model_t *mod, void *buffer, const char *mod_name ) {
+	int i, j, k;
+	mdmHeader_t         *pinmodel, *mdm;
+//    mdmFrame_t			*frame;
+	mdmSurface_t        *surf;
+	mdmTriangle_t       *tri;
+	mdmVertex_t         *v;
+	mdmTag_t            *tag;
+	int version;
+	int size;
+	shader_t            *sh;
+	int                 *collapseMap, *boneref;
+
+	pinmodel = (mdmHeader_t *)buffer;
+
+	version = LittleLong( pinmodel->version );
+	if ( version != MDM_VERSION ) {
+		ri.Printf( PRINT_WARNING, "R_LoadMDM: %s has wrong version (%i should be %i)\n",
+				   mod_name, version, MDM_VERSION );
+		return qfalse;
+	}
+
+	mod->type = MOD_MDM;
+	size = LittleLong( pinmodel->ofsEnd );
+	mod->dataSize += size;
+	mdm = mod->model.mdm = ri.Hunk_Alloc( size, h_low );
+
+	memcpy( mdm, buffer, LittleLong( pinmodel->ofsEnd ) );
+
+	LL( mdm->ident );
+	LL( mdm->version );
+//    LL(mdm->numFrames);
+	LL( mdm->numTags );
+	LL( mdm->numSurfaces );
+//    LL(mdm->ofsFrames);
+	LL( mdm->ofsTags );
+	LL( mdm->ofsEnd );
+	LL( mdm->ofsSurfaces );
+	mdm->lodBias = LittleFloat( mdm->lodBias );
+	mdm->lodScale = LittleFloat( mdm->lodScale );
+
+/*	mdm->skel = RE_RegisterModel(mdm->bonesfile);
+	if ( !mdm->skel ) {
+		ri.Error (ERR_DROP, "R_LoadMDM: %s skeleton not found\n", mdm->bonesfile );
+	}
+
+	if ( mdm->numFrames < 1 ) {
+		ri.Printf( PRINT_WARNING, "R_LoadMDM: %s has no frames\n", mod_name );
+		return qfalse;
+	}*/
+
+	if ( LittleLong( 1 ) != 1 ) {
+		// swap all the frames
+		/*frameSize = (int) ( sizeof( mdmFrame_t ) );
+		for ( i = 0 ; i < mdm->numFrames ; i++, frame++) {
+			frame = (mdmFrame_t *) ( (byte *)mdm + mdm->ofsFrames + i * frameSize );
+			frame->radius = LittleFloat( frame->radius );
+			for ( j = 0 ; j < 3 ; j++ ) {
+				frame->bounds[0][j] = LittleFloat( frame->bounds[0][j] );
+				frame->bounds[1][j] = LittleFloat( frame->bounds[1][j] );
+				frame->localOrigin[j] = LittleFloat( frame->localOrigin[j] );
+				frame->parentOffset[j] = LittleFloat( frame->parentOffset[j] );
+			}
+		}*/
+
+		// swap all the tags
+		tag = ( mdmTag_t * )( (byte *)mdm + mdm->ofsTags );
+		for ( i = 0 ; i < mdm->numTags ; i++ ) {
+			int ii;
+			for ( ii = 0; ii < 3; ii++ )
+			{
+				tag->axis[ii][0] = LittleFloat( tag->axis[ii][0] );
+				tag->axis[ii][1] = LittleFloat( tag->axis[ii][1] );
+				tag->axis[ii][2] = LittleFloat( tag->axis[ii][2] );
+			}
+
+			LL( tag->boneIndex );
+			//tag->torsoWeight = LittleFloat( tag->torsoWeight );
+			tag->offset[0] = LittleFloat( tag->offset[0] );
+			tag->offset[1] = LittleFloat( tag->offset[1] );
+			tag->offset[2] = LittleFloat( tag->offset[2] );
+
+			LL( tag->numBoneReferences );
+			LL( tag->ofsBoneReferences );
+			LL( tag->ofsEnd );
+
+			// swap the bone references
+			boneref = ( int * )( ( byte *)tag + tag->ofsBoneReferences );
+			for ( j = 0; j < tag->numBoneReferences; j++, boneref++ ) {
+				*boneref = LittleLong( *boneref );
+			}
+
+			// find the next tag
+			tag = ( mdmTag_t * )( (byte *)tag + tag->ofsEnd );
+		}
+	}
+
+	// swap all the surfaces
+	surf = ( mdmSurface_t * )( (byte *)mdm + mdm->ofsSurfaces );
+	for ( i = 0 ; i < mdm->numSurfaces ; i++ ) {
+		if ( LittleLong( 1 ) != 1 ) {
+			//LL(surf->ident);
+			LL( surf->shaderIndex );
+			LL( surf->minLod );
+			LL( surf->ofsHeader );
+			LL( surf->ofsCollapseMap );
+			LL( surf->numTriangles );
+			LL( surf->ofsTriangles );
+			LL( surf->numVerts );
+			LL( surf->ofsVerts );
+			LL( surf->numBoneReferences );
+			LL( surf->ofsBoneReferences );
+			LL( surf->ofsEnd );
+		}
+
+		// change to surface identifier
+		surf->ident = SF_MDM;
+
+		if ( surf->numVerts > tess.maxShaderVerts ) {
+			ri.Error( ERR_DROP, "R_LoadMDM: %s has more than %i verts on a surface (%i)",
+					  mod_name, tess.maxShaderVerts, surf->numVerts );
+		}
+		if ( surf->numTriangles * 3 > tess.maxShaderIndicies ) {
+			ri.Error( ERR_DROP, "R_LoadMDM: %s has more than %i triangles on a surface (%i)",
+					  mod_name, tess.maxShaderIndicies / 3, surf->numTriangles );
+		}
+
+		// register the shaders
+		if ( surf->shader[0] ) {
+			sh = R_FindShader( surf->shader, LIGHTMAP_NONE, qtrue );
+			if ( sh->defaultShader ) {
+				surf->shaderIndex = 0;
+			} else {
+				surf->shaderIndex = sh->index;
+			}
+		} else {
+			surf->shaderIndex = 0;
+		}
+
+		if ( LittleLong( 1 ) != 1 ) {
+			// swap all the triangles
+			tri = ( mdmTriangle_t * )( (byte *)surf + surf->ofsTriangles );
+			for ( j = 0 ; j < surf->numTriangles ; j++, tri++ ) {
+				LL( tri->indexes[0] );
+				LL( tri->indexes[1] );
+				LL( tri->indexes[2] );
+			}
+
+			// swap all the vertexes
+			v = ( mdmVertex_t * )( (byte *)surf + surf->ofsVerts );
+			for ( j = 0 ; j < surf->numVerts ; j++ ) {
+				v->normal[0] = LittleFloat( v->normal[0] );
+				v->normal[1] = LittleFloat( v->normal[1] );
+				v->normal[2] = LittleFloat( v->normal[2] );
+
+				v->texCoords[0] = LittleFloat( v->texCoords[0] );
+				v->texCoords[1] = LittleFloat( v->texCoords[1] );
+
+				v->numWeights = LittleLong( v->numWeights );
+
+				for ( k = 0 ; k < v->numWeights ; k++ ) {
+					v->weights[k].boneIndex = LittleLong( v->weights[k].boneIndex );
+					v->weights[k].boneWeight = LittleFloat( v->weights[k].boneWeight );
+					v->weights[k].offset[0] = LittleFloat( v->weights[k].offset[0] );
+					v->weights[k].offset[1] = LittleFloat( v->weights[k].offset[1] );
+					v->weights[k].offset[2] = LittleFloat( v->weights[k].offset[2] );
+				}
+
+				v = (mdmVertex_t *)&v->weights[v->numWeights];
+			}
+
+			// swap the collapse map
+			collapseMap = ( int * )( (byte *)surf + surf->ofsCollapseMap );
+			for ( j = 0; j < surf->numVerts; j++, collapseMap++ ) {
+				*collapseMap = LittleLong( *collapseMap );
+			}
+
+			// swap the bone references
+			boneref = ( int * )( ( byte *)surf + surf->ofsBoneReferences );
+			for ( j = 0; j < surf->numBoneReferences; j++, boneref++ ) {
+				*boneref = LittleLong( *boneref );
+			}
+		}
+
+		// find the next surface
+		surf = ( mdmSurface_t * )( (byte *)surf + surf->ofsEnd );
+	}
+
+	return qtrue;
+}
+
+/*
+=================
+R_LoadMDX
+=================
+*/
+static qboolean R_LoadMDX( model_t *mod, void *buffer, const char *mod_name ) {
+	int i, j;
+	mdxHeader_t                 *pinmodel, *mdx;
+	mdxFrame_t                  *frame;
+	short                       *bframe;
+	mdxBoneInfo_t               *bi;
+	int version;
+	int size;
+	int frameSize;
+
+	pinmodel = (mdxHeader_t *)buffer;
+
+	version = LittleLong( pinmodel->version );
+	if ( version != MDX_VERSION ) {
+		ri.Printf( PRINT_WARNING, "R_LoadMDX: %s has wrong version (%i should be %i)\n",
+				   mod_name, version, MDX_VERSION );
+		return qfalse;
+	}
+
+	mod->type = MOD_MDX;
+	size = LittleLong( pinmodel->ofsEnd );
+	mod->dataSize += size;
+	mdx = mod->model.mdx = ri.Hunk_Alloc( size, h_low );
+
+	memcpy( mdx, buffer, LittleLong( pinmodel->ofsEnd ) );
+
+	LL( mdx->ident );
+	LL( mdx->version );
+	LL( mdx->numFrames );
+	LL( mdx->numBones );
+	LL( mdx->ofsFrames );
+	LL( mdx->ofsBones );
+	LL( mdx->ofsEnd );
+	LL( mdx->torsoParent );
+
+	if ( LittleLong( 1 ) != 1 ) {
+		// swap all the frames
+		frameSize = (int) ( sizeof( mdxBoneFrameCompressed_t ) ) * mdx->numBones;
+		for ( i = 0 ; i < mdx->numFrames ; i++ ) {
+			frame = ( mdxFrame_t * )( (byte *)mdx + mdx->ofsFrames + i * frameSize + i * sizeof( mdxFrame_t ) );
+			frame->radius = LittleFloat( frame->radius );
+			for ( j = 0 ; j < 3 ; j++ ) {
+				frame->bounds[0][j] = LittleFloat( frame->bounds[0][j] );
+				frame->bounds[1][j] = LittleFloat( frame->bounds[1][j] );
+				frame->localOrigin[j] = LittleFloat( frame->localOrigin[j] );
+				frame->parentOffset[j] = LittleFloat( frame->parentOffset[j] );
+			}
+
+			bframe = ( short * )( (byte *)mdx + mdx->ofsFrames + i * frameSize + ( ( i + 1 ) * sizeof( mdxFrame_t ) ) );
+			for ( j = 0 ; j < mdx->numBones * sizeof( mdxBoneFrameCompressed_t ) / sizeof( short ) ; j++ ) {
+				( (short *)bframe )[j] = LittleShort( ( (short *)bframe )[j] );
+			}
+		}
+
+		// swap all the bones
+		for ( i = 0 ; i < mdx->numBones ; i++ ) {
+			bi = ( mdxBoneInfo_t * )( (byte *)mdx + mdx->ofsBones + i * sizeof( mdxBoneInfo_t ) );
+			LL( bi->parent );
+			bi->torsoWeight = LittleFloat( bi->torsoWeight );
+			bi->parentDist = LittleFloat( bi->parentDist );
+			LL( bi->flags );
+		}
+	}
+
+	return qtrue;
+}
+#endif RTCW_XX
 
 
 
@@ -1377,7 +1933,13 @@ void R_Modellist_f( void ) {
 		mod = tr.models[i];
 		lods = 1;
 		for ( j = 1 ; j < MD3_MAX_LODS ; j++ ) {
+
+#if !defined RTCW_ET
 			if ( mod->md3[j] && mod->md3[j] != mod->md3[j - 1] ) {
+#else
+			if ( mod->model.md3[j] && mod->model.md3[j] != mod->model.md3[j - 1] ) {
+#endif RTCW_XX
+
 				lods++;
 			}
 		}
@@ -1551,7 +2113,13 @@ int R_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagNam
 	}
 */
 	model = R_GetModelByHandle( handle );
+
+#if !defined RTCW_ET
 	if ( !model->md3[0] && !model->mdc[0] && !model->mds ) {
+#else
+	if ( !model->model.md3[0] && !model->model.mdc[0] && !model->model.mds ) {
+#endif RTCW_XX
+
 		AxisClear( tag->axis );
 		VectorClear( tag->origin );
 		return -1;
@@ -1562,12 +2130,35 @@ int R_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagNam
 
 	if ( model->type == MOD_MESH ) {
 		// old MD3 style
+
+#if !defined RTCW_ET
 		retval = R_GetTag( (byte *)model->md3[0], startFrame, tagName, startIndex, &start );
 		retval = R_GetTag( (byte *)model->md3[0], endFrame, tagName, startIndex, &end );
+#else
+		retval = R_GetTag( (byte *)model->model.md3[0], startFrame, tagName, startIndex, &start );
+		retval = R_GetTag( (byte *)model->model.md3[0], endFrame, tagName, startIndex, &end );
+#endif RTCW_XX
 
 	} else if ( model->type == MOD_MDS ) {    // use bone lerping
 
+#if !defined RTCW_ET
 		retval = R_GetBoneTag( tag, model->mds, startIndex, refent, tagNameIn );
+#else
+		retval = R_GetBoneTag( tag, model->model.mds, startIndex, refent, tagNameIn );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+		if ( retval >= 0 ) {
+			return retval;
+		}
+
+		// failed
+		return -1;
+
+	} else if ( model->type == MOD_MDM ) {    // use bone lerping
+
+		retval = R_MDM_GetBoneTag( tag, model->model.mdm, startIndex, refent, tagNameIn );
+#endif RTCW_XX
 
 		if ( retval >= 0 ) {
 			return retval;
@@ -1580,8 +2171,13 @@ int R_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagNam
 		// psuedo-compressed MDC tags
 		mdcTag_t    *cstart, *cend;
 
+#if !defined RTCW_ET
 		retval = R_GetMDCTag( (byte *)model->mdc[0], startFrame, tagName, startIndex, &cstart );
 		retval = R_GetMDCTag( (byte *)model->mdc[0], endFrame, tagName, startIndex, &cend );
+#else
+		retval = R_GetMDCTag( (byte *)model->model.mdc[0], startFrame, tagName, startIndex, &cstart );
+		retval = R_GetMDCTag( (byte *)model->model.mdc[0], endFrame, tagName, startIndex, &cend );
+#endif RTCW_XX
 
 		// uncompress the MDC tags into MD3 style tags
 		if ( cstart && cend ) {
@@ -1678,6 +2274,7 @@ void R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs ) {
 
 	model = R_GetModelByHandle( handle );
 
+#if !defined RTCW_ET
 	if ( model->bmodel ) {
 		VectorCopy( model->bmodel->bounds[0], mins );
 		VectorCopy( model->bmodel->bounds[1], maxs );
@@ -1687,18 +2284,40 @@ void R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs ) {
 	// Ridah
 	if ( model->md3[0] ) {
 		header = model->md3[0];
+#else
+	// Gordon: fixing now that it's a union
+	switch ( model->type ) {
+	case MOD_BRUSH:
+		VectorCopy( model->model.bmodel->bounds[0], mins );
+		VectorCopy( model->model.bmodel->bounds[1], maxs );
+		return;
+	case MOD_MESH:
+		header = model->model.md3[0];
+#endif RTCW_XX
 
 		frame = ( md3Frame_t * )( (byte *)header + header->ofsFrames );
 
 		VectorCopy( frame->bounds[0], mins );
 		VectorCopy( frame->bounds[1], maxs );
 		return;
+
+#if !defined RTCW_ET
 	} else if ( model->mdc[0] ) {
 		frame = ( md3Frame_t * )( (byte *)model->mdc[0] + model->mdc[0]->ofsFrames );
+#else
+	case MOD_MDC:
+		frame = ( md3Frame_t * )( (byte *)model->model.mdc[0] + model->model.mdc[0]->ofsFrames );
+#endif RTCW_XX
 
 		VectorCopy( frame->bounds[0], mins );
 		VectorCopy( frame->bounds[1], maxs );
 		return;
+
+#if defined RTCW_ET
+	default:
+		break;
+#endif RTCW_XX
+
 	}
 
 	VectorClear( mins );
@@ -1723,7 +2342,7 @@ int hunkmaxsize;
 
 #if defined RTCW_SP
 int hunkcursize;        //DAJ renamed from cursize
-#elif defined RTCW_MP
+#else
 int cursize;
 #endif RTCW_XX
 
@@ -1742,7 +2361,7 @@ void *R_Hunk_Begin( void ) {
 
 	// reserve a huge chunk of memory, but don't commit any yet
 	hunkcursize = 0;
-#elif defined RTCW_MP
+#else
 	// reserve a huge chunk of memory, but don't commit any yet
 	cursize = 0;
 #endif RTCW_XX
@@ -1800,6 +2419,29 @@ void *R_Hunk_Begin( void ) {
 	}
 
 #endif
+#else
+	// reserve a huge chunk of memory, but don't commit any yet
+	cursize = 0;
+	hunkmaxsize = maxsize;
+
+	if ( !membase ) {
+#ifdef _WIN32
+		// this will "reserve" a chunk of memory for use by this application
+		// it will not be "committed" just yet, but the swap file will grow
+		// now if needed
+		membase = VirtualAlloc( NULL, maxsize, MEM_RESERVE, PAGE_NOACCESS );
+#else
+		// show_bug.cgi?id=440
+		// if not win32, then just allocate it now
+		// it is possible that we have been allocated already, in case we don't do anything
+		membase = malloc( maxsize );
+		// TTimo NOTE: initially, I was doing the memset even if we had an existing membase
+		// but this breaks some shaders (i.e. /map mp_beach, then go back to the main menu .. some shaders are missing)
+		// I assume the shader missing is because we don't clear memory either on win32
+		// meaning even on win32 we are using memory that is still reserved but was uncommited .. it works out of pure luck
+		memset( membase, 0, maxsize );
+#endif
+	}
 #endif RTCW_XX
 
 	if ( !membase ) {
@@ -1835,7 +2477,7 @@ void *R_Hunk_Alloc( int size ) {
 	return NULL;    //DAJ
 
 #endif
-#elif defined RTCW_MP
+#else
 #ifdef _WIN32
 
 	// commit pages as needed
@@ -1852,7 +2494,7 @@ void *R_Hunk_Alloc( int size ) {
 #if defined RTCW_SP
 	hunkcursize += size;
 	if ( hunkcursize > hunkmaxsize ) {
-#elif defined RTCW_MP
+#else
 	cursize += size;
 	if ( cursize > hunkmaxsize ) {
 #endif RTCW_XX
@@ -1862,7 +2504,7 @@ void *R_Hunk_Alloc( int size ) {
 
 #if defined RTCW_SP
 	return ( void * )( membase + hunkcursize - size );
-#elif defined RTCW_MP
+#else
 	return ( void * )( membase + cursize - size );
 #endif RTCW_XX
 
@@ -1888,7 +2530,7 @@ void R_Hunk_End( void ) {
 #else
 		free( membase );
 #endif
-#elif defined RTCW_MP
+#else
 #ifdef _WIN32
 		VirtualFree( membase, 0, MEM_RELEASE );
 #else
@@ -1910,7 +2552,7 @@ void R_Hunk_Reset( void ) {
 	}
 #endif RTCW_XX
 
-#if !defined( __MACOS__ )
+#if !defined RTCW_ET || (defined RTCW_ET && !defined __MACOS__)
 	if ( !membase ) {
 		ri.Error( ERR_DROP, "R_Hunk_Reset called without a membase!" );
 	}
@@ -1921,7 +2563,7 @@ void R_Hunk_Reset( void ) {
 
 #if defined RTCW_SP
 	VirtualFree( membase, hunkcursize, MEM_DECOMMIT );
-#elif defined RTCW_MP
+#else
 	VirtualFree( membase, cursize, MEM_DECOMMIT );
 #endif RTCW_XX
 
@@ -1932,7 +2574,7 @@ void R_Hunk_Reset( void ) {
 
 #if defined RTCW_SP
 	hunkcursize = 0;
-#elif defined RTCW_MP
+#else
 	cursize = 0;
 #endif RTCW_XX
 
@@ -1961,7 +2603,7 @@ void *R_CacheModelAlloc( int size ) {
 #else
 		return R_Hunk_Alloc( size );
 #endif
-#elif defined RTCW_MP
+#else
 		return R_Hunk_Alloc( size );
 #endif RTCW_XX
 
@@ -1997,7 +2639,7 @@ void R_CacheModelFree( void *ptr ) {
 #if defined RTCW_SP
 		// if r_cache 0, this function is not supposed to get called
 		Com_Printf( "FIXME: unexpected R_CacheModelFree call with r_cache 0\n" );
-#elif defined RTCW_MP
+#else
 		// if r_cache 0, this is never supposed to get called anyway
 		Com_Printf( "FIXME: unexpected R_CacheModelFree call (r_cache 0)\n" );
 #endif RTCW_XX
@@ -2062,24 +2704,46 @@ void R_BackupModels( void ) {
 			switch ( mod->type ) {
 			case MOD_MESH:
 				for ( j = MD3_MAX_LODS - 1; j >= 0; j-- ) {
+
+#if !defined RTCW_ET
 					if ( j < mod->numLods && mod->md3[j] ) {
 						if ( ( j == MD3_MAX_LODS - 1 ) || ( mod->md3[j] != mod->md3[j + 1] ) ) {
 							modBack->md3[j] = R_CacheModelAlloc( mod->md3[j]->ofsEnd );
 							memcpy( modBack->md3[j], mod->md3[j], mod->md3[j]->ofsEnd );
 						} else {
 							modBack->md3[j] = modBack->md3[j + 1];
+#else
+					if ( j < mod->numLods && mod->model.md3[j] ) {
+						if ( ( j == MD3_MAX_LODS - 1 ) || ( mod->model.md3[j] != mod->model.md3[j + 1] ) ) {
+							modBack->model.md3[j] = R_CacheModelAlloc( mod->model.md3[j]->ofsEnd );
+							memcpy( modBack->model.md3[j], mod->model.md3[j], mod->model.md3[j]->ofsEnd );
+						} else {
+							modBack->model.md3[j] = modBack->model.md3[j + 1];
+#endif RTCW_XX
+
 						}
 					}
 				}
 				break;
 			case MOD_MDC:
 				for ( j = MD3_MAX_LODS - 1; j >= 0; j-- ) {
+
+#if !defined RTCW_ET
 					if ( j < mod->numLods && mod->mdc[j] ) {
 						if ( ( j == MD3_MAX_LODS - 1 ) || ( mod->mdc[j] != mod->mdc[j + 1] ) ) {
 							modBack->mdc[j] = R_CacheModelAlloc( mod->mdc[j]->ofsEnd );
 							memcpy( modBack->mdc[j], mod->mdc[j], mod->mdc[j]->ofsEnd );
 						} else {
 							modBack->mdc[j] = modBack->mdc[j + 1];
+#else
+					if ( j < mod->numLods && mod->model.mdc[j] ) {
+						if ( ( j == MD3_MAX_LODS - 1 ) || ( mod->model.mdc[j] != mod->model.mdc[j + 1] ) ) {
+							modBack->model.mdc[j] = R_CacheModelAlloc( mod->model.mdc[j]->ofsEnd );
+							memcpy( modBack->model.mdc[j], mod->model.mdc[j], mod->model.mdc[j]->ofsEnd );
+						} else {
+							modBack->model.mdc[j] = modBack->model.mdc[j + 1];
+#endif RTCW_XX
+
 						}
 					}
 				}
@@ -2088,7 +2752,7 @@ void R_BackupModels( void ) {
 
 #if defined RTCW_SP
 				break; // MOD_BAD, MOD_BRUSH, MOD_MDS
-#elif defined RTCW_MP
+#else
 				break; // MOD_BAD MOD_BRUSH MOD_MDS not handled
 #endif RTCW_XX
 
@@ -2111,8 +2775,15 @@ static void R_RegisterMDCShaders( model_t *mod, int lod ) {
 	int i, j;
 
 	// swap all the surfaces
+
+#if !defined RTCW_ET
 	surf = ( mdcSurface_t * )( (byte *)mod->mdc[lod] + mod->mdc[lod]->ofsSurfaces );
 	for ( i = 0 ; i < mod->mdc[lod]->numSurfaces ; i++ ) {
+#else
+	surf = ( mdcSurface_t * )( (byte *)mod->model.mdc[lod] + mod->model.mdc[lod]->ofsSurfaces );
+	for ( i = 0 ; i < mod->model.mdc[lod]->numSurfaces ; i++ ) {
+#endif RTCW_XX
+
 		// register the shaders
 		shader = ( md3Shader_t * )( (byte *)surf + surf->ofsShaders );
 		for ( j = 0 ; j < surf->numShaders ; j++, shader++ ) {
@@ -2141,8 +2812,15 @@ static void R_RegisterMD3Shaders( model_t *mod, int lod ) {
 	int i, j;
 
 	// swap all the surfaces
+
+#if !defined RTCW_ET
 	surf = ( md3Surface_t * )( (byte *)mod->md3[lod] + mod->md3[lod]->ofsSurfaces );
 	for ( i = 0 ; i < mod->md3[lod]->numSurfaces ; i++ ) {
+#else
+	surf = ( md3Surface_t * )( (byte *)mod->model.md3[lod] + mod->model.md3[lod]->ofsSurfaces );
+	for ( i = 0 ; i < mod->model.md3[lod]->numSurfaces ; i++ ) {
+#endif RTCW_XX
+
 		// register the shaders
 		shader = ( md3Shader_t * )( (byte *)surf + surf->ofsShaders );
 		for ( j = 0 ; j < surf->numShaders ; j++, shader++ ) {
@@ -2192,8 +2870,18 @@ qboolean R_FindCachedModel( const char *name, model_t *newmod ) {
 			switch ( mod->type ) {
 			case MOD_MDS:
 				return qfalse;  // not supported yet
+
+#if defined RTCW_ET
+			case MOD_MDM:
+				return qfalse;  // not supported yet
+			case MOD_MDX:
+				return qfalse;  // not supported yet
+#endif RTCW_XX
+
 			case MOD_MESH:
 				for ( j = MD3_MAX_LODS - 1; j >= 0; j-- ) {
+
+#if !defined RTCW_ET
 					if ( j < mod->numLods && mod->md3[j] ) {
 						if ( ( j == MD3_MAX_LODS - 1 ) || ( mod->md3[j] != mod->md3[j + 1] ) ) {
 							newmod->md3[j] = ri.Hunk_Alloc( mod->md3[j]->ofsEnd, h_low );
@@ -2202,12 +2890,25 @@ qboolean R_FindCachedModel( const char *name, model_t *newmod ) {
 							R_CacheModelFree( mod->md3[j] );
 						} else {
 							newmod->md3[j] = mod->md3[j + 1];
+#else
+					if ( j < mod->numLods && mod->model.md3[j] ) {
+						if ( ( j == MD3_MAX_LODS - 1 ) || ( mod->model.md3[j] != mod->model.md3[j + 1] ) ) {
+							newmod->model.md3[j] = ri.Hunk_Alloc( mod->model.md3[j]->ofsEnd, h_low );
+							memcpy( newmod->model.md3[j], mod->model.md3[j], mod->model.md3[j]->ofsEnd );
+							R_RegisterMD3Shaders( newmod, j );
+							R_CacheModelFree( mod->model.md3[j] );
+						} else {
+							newmod->model.md3[j] = mod->model.md3[j + 1];
+#endif RTCW_XX
+
 						}
 					}
 				}
 				break;
 			case MOD_MDC:
 				for ( j = MD3_MAX_LODS - 1; j >= 0; j-- ) {
+
+#if !defined RTCW_ET
 					if ( j < mod->numLods && mod->mdc[j] ) {
 						if ( ( j == MD3_MAX_LODS - 1 ) || ( mod->mdc[j] != mod->mdc[j + 1] ) ) {
 							newmod->mdc[j] = ri.Hunk_Alloc( mod->mdc[j]->ofsEnd, h_low );
@@ -2216,6 +2917,17 @@ qboolean R_FindCachedModel( const char *name, model_t *newmod ) {
 							R_CacheModelFree( mod->mdc[j] );
 						} else {
 							newmod->mdc[j] = mod->mdc[j + 1];
+#else
+					if ( j < mod->numLods && mod->model.mdc[j] ) {
+						if ( ( j == MD3_MAX_LODS - 1 ) || ( mod->model.mdc[j] != mod->model.mdc[j + 1] ) ) {
+							newmod->model.mdc[j] = ri.Hunk_Alloc( mod->model.mdc[j]->ofsEnd, h_low );
+							memcpy( newmod->model.mdc[j], mod->model.mdc[j], mod->model.mdc[j]->ofsEnd );
+							R_RegisterMDCShaders( newmod, j );
+							R_CacheModelFree( mod->model.mdc[j] );
+						} else {
+							newmod->model.mdc[j] = mod->model.mdc[j + 1];
+#endif RTCW_XX
+
 						}
 					}
 				}
@@ -2224,7 +2936,7 @@ qboolean R_FindCachedModel( const char *name, model_t *newmod ) {
 
 #if defined RTCW_SP
 				break; // MOD_BAD, MOD_BRUSH
-#elif defined RTCW_MP
+#else
 				break; // MOD_BAD MOD_BRUSH
 #endif RTCW_XX
 
@@ -2274,7 +2986,7 @@ void R_LoadCacheModels( void ) {
 
 #if defined RTCW_SP
 	pString = (char*)buf;       //DAJ added (char*)
-#elif defined RTCW_MP
+#else
 	pString = buf;
 #endif RTCW_XX
 

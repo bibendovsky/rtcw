@@ -57,9 +57,22 @@ void SV_GetChallenge( netadr_t from ) {
 	challenge_t *challenge;
 
 	// ignore if we are in single player
+
+#if !defined RTCW_ET
 	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
+#else
+	if ( SV_GameIsSinglePlayer() ) {
+#endif RTCW_XX
+
 		return;
 	}
+
+#if defined RTCW_ET
+	if ( SV_TempBanIsBanned( from ) ) {
+		NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", sv_tempbanmessage->string );
+		return;
+	}
+#endif RTCW_XX
 
 	oldest = 0;
 	oldestTime = 0x7fffffff;
@@ -70,7 +83,7 @@ void SV_GetChallenge( netadr_t from ) {
 
 #if defined RTCW_SP
 		if ( NET_CompareAdr( from, challenge->adr ) ) {
-#elif defined RTCW_MP
+#else
 		if ( !challenge->connected && NET_CompareAdr( from, challenge->adr ) ) {
 #endif RTCW_XX
 
@@ -95,7 +108,7 @@ void SV_GetChallenge( netadr_t from ) {
 
 		challenge->firstTime = svs.time;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		challenge->firstPing = 0;
 		challenge->time = svs.time;
 		challenge->connected = qfalse;
@@ -104,13 +117,21 @@ void SV_GetChallenge( netadr_t from ) {
 		i = oldest;
 	}
 
+#if defined RTCW_ET && !defined AUTHORIZE_SUPPORT
+	// FIXME: deal with restricted filesystem
+	if ( 1 ) {
+#endif RTCW_XX
+
+#if !defined RTCW_ET || (defined RTCW_ET && defined AUTHORIZE_SUPPORT)
 	// if they are on a lan address, send the challengeResponse immediately
 	if ( Sys_IsLANAddress( from ) ) {
+#endif RTCW_XX
+
 		challenge->pingTime = svs.time;
 
 #if defined RTCW_SP
 		NET_OutOfBandPrint( NS_SERVER, from, "challengeResponse %i", challenge->challenge );
-#elif defined RTCW_MP
+#else
 		if ( sv_onlyVisibleClients->integer ) {
 			NET_OutOfBandPrint( NS_SERVER, from, "challengeResponse %i %i", challenge->challenge, sv_onlyVisibleClients->integer );
 		} else {
@@ -121,6 +142,7 @@ void SV_GetChallenge( netadr_t from ) {
 		return;
 	}
 
+#if !defined RTCW_ET || (defined RTCW_ET && defined AUTHORIZE_SUPPORT)
 	// look up the authorize server's IP
 	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD ) {
 		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
@@ -146,7 +168,7 @@ void SV_GetChallenge( netadr_t from ) {
 #if defined RTCW_SP
 		NET_OutOfBandPrint( NS_SERVER, challenge->adr,
 							"challengeResponse %i", challenge->challenge );
-#elif defined RTCW_MP
+#else
 		if ( sv_onlyVisibleClients->integer ) {
 			NET_OutOfBandPrint( NS_SERVER, challenge->adr,
 								"challengeResponse %i %i", challenge->challenge, sv_onlyVisibleClients->integer );
@@ -172,7 +194,7 @@ void SV_GetChallenge( netadr_t from ) {
 		Com_DPrintf( "sending getIpAuthorize for %s\n", NET_AdrToString( from ) );
 		fs = Cvar_Get( "sv_allowAnonymous", "0", CVAR_SERVERINFO );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		// NERVE - SMF - fixed parsing on sv_allowAnonymous
 #endif RTCW_XX
 
@@ -180,14 +202,17 @@ void SV_GetChallenge( netadr_t from ) {
 
 #if defined RTCW_SP
 							"getIpAuthorize %i %i.%i.%i.%i %s %s",  svs.challenges[i].challenge,
-#elif defined RTCW_MP
+#else
 							"getIpAuthorize %i %i.%i.%i.%i %s %i",  svs.challenges[i].challenge,
 #endif RTCW_XX
 
 							from.ip[0], from.ip[1], from.ip[2], from.ip[3], game, fs->integer );
 	}
+#endif RTCW_XX
+
 }
 
+#if !defined RTCW_ET || (defined RTCW_ET && defined AUTHORIZE_SUPPORT)
 /*
 ====================
 SV_AuthorizeIpPacket
@@ -226,7 +251,12 @@ void SV_AuthorizeIpPacket( netadr_t from ) {
 	s = Cmd_Argv( 2 );
 	r = Cmd_Argv( 3 );          // reason
 
+#if !defined RTCW_ET
 	if ( !Q_stricmp( s, "demo" ) ) {
+#else
+	if ( !Q_stricmp( s, "ettest" ) ) {
+#endif RTCW_XX
+
 		if ( Cvar_VariableValue( "fs_restrict" ) ) {
 			// a demo client connecting to a demo server
 			NET_OutOfBandPrint( NS_SERVER, svs.challenges[i].adr,
@@ -244,7 +274,7 @@ void SV_AuthorizeIpPacket( netadr_t from ) {
 #if defined RTCW_SP
 		NET_OutOfBandPrint( NS_SERVER, svs.challenges[i].adr,
 							"challengeResponse %i", svs.challenges[i].challenge );
-#elif defined RTCW_MP
+#else
 		if ( sv_onlyVisibleClients->integer ) {
 			NET_OutOfBandPrint( NS_SERVER, svs.challenges[i].adr,
 								"challengeResponse %i %i", svs.challenges[i].challenge, sv_onlyVisibleClients->integer );
@@ -279,6 +309,7 @@ void SV_AuthorizeIpPacket( netadr_t from ) {
 	// clear the challenge record so it won't timeout and let them through
 	memset( &svs.challenges[i], 0, sizeof( svs.challenges[i] ) );
 }
+#endif RTCW_XX
 
 /*
 ==================
@@ -302,7 +333,7 @@ void SV_DirectConnect( netadr_t from ) {
 	sharedEntity_t *ent;
 	int clientNum;
 
-#if defined RTCW_SP || (defined RTCW_MP && !defined UPDATE_SERVER)
+#if !defined RTCW_MP || (defined RTCW_MP && !defined UPDATE_SERVER)
 	int version;
 #endif RTCW_XX
 
@@ -317,8 +348,13 @@ void SV_DirectConnect( netadr_t from ) {
 
 	Q_strncpyz( userinfo, Cmd_Argv( 1 ), sizeof( userinfo ) );
 
-#if defined RTCW_SP || (defined RTCW_MP && !defined UPDATE_SERVER)
+#if !defined RTCW_MP || (defined RTCW_MP && !defined UPDATE_SERVER)
 	// DHM - Nerve :: Update Server allows any protocol to connect
+
+#if defined RTCW_ET
+	// NOTE TTimo: but we might need to store the protocol around for potential non http/ftp clients
+#endif RTCW_XX
+
 	version = atoi( Info_ValueForKey( userinfo, "protocol" ) );
 	if ( version != PROTOCOL_VERSION ) {
 
@@ -331,6 +367,8 @@ void SV_DirectConnect( netadr_t from ) {
 		} else {
 			NET_OutOfBandPrint( NS_SERVER, from, "print\n[err_prot]" PROTOCOL_MISMATCH_ERROR );
 		}
+#else
+		NET_OutOfBandPrint( NS_SERVER, from, "print\n[err_prot]" PROTOCOL_MISMATCH_ERROR );
 #endif RTCW_XX
 
 		Com_DPrintf( "    rejected connect from version %i\n", version );
@@ -344,8 +382,15 @@ void SV_DirectConnect( netadr_t from ) {
 
 	challenge = atoi( Info_ValueForKey( userinfo, "challenge" ) );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	qport = atoi( Info_ValueForKey( userinfo, "qport" ) );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	if ( SV_TempBanIsBanned( from ) ) {
+		NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", sv_tempbanmessage->string );
+		return;
+	}
 #endif RTCW_XX
 
 	// quick reject
@@ -355,6 +400,11 @@ void SV_DirectConnect( netadr_t from ) {
 		if ( cl->state == CS_FREE ) {
 			continue;
 		}
+#elif defined RTCW_ET
+		// DHM - Nerve :: This check was allowing clients to reconnect after zombietime(2 secs)
+		//if ( cl->state == CS_FREE ) {
+		//continue;
+		//}
 #endif RTCW_XX
 
 		if ( NET_CompareBaseAdr( from, cl->netchan.remoteAddress )
@@ -392,6 +442,8 @@ void SV_DirectConnect( netadr_t from ) {
 			NET_OutOfBandPrint( NS_SERVER, from, "print\nNo challenge for address.\n" );
 #elif defined RTCW_MP
 			NET_OutOfBandPrint( NS_SERVER, from, "print\nNo or bad challenge for address.\n" );
+#else
+			NET_OutOfBandPrint( NS_SERVER, from, "print\n[err_dialog]No or bad challenge for address.\n" );
 #endif RTCW_XX
 
 			return;
@@ -401,7 +453,7 @@ void SV_DirectConnect( netadr_t from ) {
 
 #if defined RTCW_SP
 		ping = svs.time - svs.challenges[i].pingTime;
-#elif defined RTCW_MP
+#else
 		if ( svs.challenges[i].firstPing == 0 ) {
 			ping = svs.time - svs.challenges[i].pingTime;
 			svs.challenges[i].firstPing = ping;
@@ -412,7 +464,7 @@ void SV_DirectConnect( netadr_t from ) {
 
 		Com_Printf( "Client %i connecting with %i challenge ping\n", i, ping );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		svs.challenges[i].connected = qtrue;
 #endif RTCW_XX
 
@@ -424,7 +476,12 @@ void SV_DirectConnect( netadr_t from ) {
 				// don't let them keep trying until they get a big delay
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for high pings only\n" );
+#else
+				NET_OutOfBandPrint( NS_SERVER, from, "print\n[err_dialog]Server is for high pings only\n" );
+#endif RTCW_XX
+
 				Com_DPrintf( "Client %i rejected on a too low ping\n", i );
 
 #if defined RTCW_SP
@@ -436,11 +493,16 @@ void SV_DirectConnect( netadr_t from ) {
 				return;
 			}
 			if ( sv_maxPing->value && ping > sv_maxPing->value ) {
+
+#if !defined RTCW_ET
 				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for low pings only\n" );
+#else
+				NET_OutOfBandPrint( NS_SERVER, from, "print\n[err_dialog]Server is for low pings only\n" );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 				Com_DPrintf( "Client %i rejected on a too high ping\n", i );
-#elif defined RTCW_MP
+#else
 				Com_DPrintf( "Client %i rejected on a too high ping: %i\n", i, ping );
 #endif RTCW_XX
 
@@ -470,6 +532,13 @@ void SV_DirectConnect( netadr_t from ) {
 			// disconnect the client from the game first so any flags the
 			// player might have are dropped
 			VM_Call( gvm, GAME_CLIENT_DISCONNECT, newcl - svs.clients );
+			//
+#elif defined RTCW_ET
+			// this doesn't work because it nukes the players userinfo
+
+//			// disconnect the client from the game first so any flags the
+//			// player might have are dropped
+//			VM_Call( gvm, GAME_CLIENT_DISCONNECT, newcl - svs.clients );
 			//
 #endif RTCW_XX
 
@@ -523,7 +592,13 @@ void SV_DirectConnect( netadr_t from ) {
 				return;
 			}
 		} else {
+
+#if !defined RTCW_ET
 			NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is full.\n" );
+#else
+			NET_OutOfBandPrint( NS_SERVER, from, va( "print\n%s\n", sv_fullmsg->string ) );
+#endif RTCW_XX
+
 			Com_DPrintf( "Rejected a connection.\n" );
 			return;
 		}
@@ -551,6 +626,8 @@ gotnewcl:
 #if defined RTCW_MP
 	// init the netchan queue
 	newcl->netchan_end_queue = &newcl->netchan_start_queue;
+#elif defined RTCW_ET
+	// init the netchan queue
 #endif RTCW_XX
 
 	// save the userinfo
@@ -562,7 +639,12 @@ gotnewcl:
 		// we can't just use VM_ArgPtr, because that is only valid inside a VM_Call
 		denied = VM_ExplicitArgPtr( gvm, (int)denied );
 
+#if !defined RTCW_ET
 		NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", denied );
+#else
+		NET_OutOfBandPrint( NS_SERVER, from, "print\n[err_dialog]%s\n", denied );
+#endif RTCW_XX
+
 		Com_DPrintf( "Game rejected a connection: %s.\n", denied );
 		return;
 	}
@@ -578,7 +660,7 @@ gotnewcl:
 
 	SV_UserinfoChanged( newcl );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// DHM - Nerve :: Clear out firstPing now that client is connected
 	svs.challenges[i].firstPing = 0;
 #endif RTCW_XX
@@ -611,7 +693,7 @@ gotnewcl:
 	}
 }
 
-
+#if !defined RTCW_ET
 /*
 =====================
 SV_DropClient
@@ -621,19 +703,52 @@ or unwillingly.  This is NOT called if the entire server is quiting
 or crashing -- SV_FinalMessage() will handle that
 =====================
 */
+#else
+/*
+=====================
+SV_DropClient
+
+Called when the player is totally leaving the server, either willingly
+or unwillingly.  This is NOT called if the entire server is quiting
+or crashing -- SV_FinalCommand() will handle that
+=====================
+*/
+#endif RTCW_XX
+
 void SV_DropClient( client_t *drop, const char *reason ) {
 	int i;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	challenge_t *challenge;
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	qboolean isBot = qfalse;
 #endif RTCW_XX
 
 	if ( drop->state == CS_ZOMBIE ) {
 		return;     // already dropped
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
+
+#if !defined RTCW_ET
 	if ( !drop->gentity || !( drop->gentity->r.svFlags & SVF_BOT ) ) {
+#else
+	if ( drop->gentity && ( drop->gentity->r.svFlags & SVF_BOT ) ) {
+#endif RTCW_XX
+
+#if defined RTCW_ET
+		isBot = qtrue;
+	} else {
+		if ( drop->netchan.remoteAddress.type == NA_BOT ) {
+			isBot = qtrue;
+		}
+	}
+
+	if ( !isBot ) {
+#endif RTCW_XX
+
 		// see if we already have a challenge for this ip
 		challenge = &svs.challenges[0];
 
@@ -643,11 +758,27 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 				break;
 			}
 		}
+
+#if !defined RTCW_ET
 	}
+#endif RTCW_XX
+
 #endif RTCW_XX
 
 	// Kill any download
 	SV_CloseDownload( drop );
+
+#if defined RTCW_ET
+	}
+
+	if ( ( !SV_GameIsSinglePlayer() ) || ( !isBot ) ) {
+		// tell everyone why they got dropped
+
+		// Gordon: we want this displayed elsewhere now
+		SV_SendServerCommand( NULL, "cpm \"%s" S_COLOR_WHITE " %s\n\"", drop->name, reason );
+//		SV_SendServerCommand( NULL, "print \"[lof]%s" S_COLOR_WHITE " [lon]%s\n\"", drop->name, reason );
+	}
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	// Ridah, no need to tell the player if an AI drops
@@ -682,6 +813,9 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 #elif defined RTCW_MP
 	// add the disconnect command
 	SV_SendServerCommand( drop, "disconnect \"%s\"", reason );
+#else
+	// add the disconnect command
+	SV_SendServerCommand( drop, "disconnect \"%s\"\n", reason );
 #endif RTCW_XX
 
 	if ( drop->netchan.remoteAddress.type == NA_BOT ) {
@@ -732,7 +866,7 @@ void SV_SendClientGameState( client_t *client ) {
 	client->state = CS_PRIMED;
 	client->pureAuthentic = 0;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	client->gotCP = qfalse;
 #endif RTCW_XX
 
@@ -784,7 +918,7 @@ void SV_SendClientGameState( client_t *client ) {
 	// write the checksum feed
 	MSG_WriteLong( &msg, sv.checksumFeed );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// NERVE - SMF - debug info
 	Com_DPrintf( "Sending %i bytes in gamestate to client: %i\n", msg.cursize, client - svs.clients );
 #endif RTCW_XX
@@ -924,10 +1058,116 @@ void SV_BeginDownload_f( client_t *cl ) {
 	// Kill any existing download
 	SV_CloseDownload( cl );
 
+#if defined RTCW_ET
+	//bani - stop us from printing dupe messages
+	if ( strcmp( cl->downloadName, Cmd_Argv( 1 ) ) ) {
+		cl->downloadnotify = DLNOTIFY_ALL;
+	}
+#endif RTCW_XX
+
 	// cl->downloadName is non-zero now, SV_WriteDownloadToClient will see this and open
 	// the file itself
 	Q_strncpyz( cl->downloadName, Cmd_Argv( 1 ), sizeof( cl->downloadName ) );
 }
+
+#if defined RTCW_ET
+/*
+==================
+SV_WWWDownload_f
+==================
+*/
+void SV_WWWDownload_f( client_t *cl ) {
+
+	char *subcmd = Cmd_Argv( 1 );
+
+	// only accept wwwdl commands for clients which we first flagged as wwwdl ourselves
+	if ( !cl->bWWWDl ) {
+		Com_Printf( "SV_WWWDownload: unexpected wwwdl '%s' for client '%s'\n", subcmd, cl->name );
+		SV_DropClient( cl, va( "SV_WWWDownload: unexpected wwwdl %s", subcmd ) );
+		return;
+	}
+
+	if ( !Q_stricmp( subcmd, "ack" ) ) {
+		if ( cl->bWWWing ) {
+			Com_Printf( "WARNING: dupe wwwdl ack from client '%s'\n", cl->name );
+		}
+		cl->bWWWing = qtrue;
+		return;
+	} else if ( !Q_stricmp( subcmd, "bbl8r" ) ) {
+		SV_DropClient( cl, "acking disconnected download mode" );
+		return;
+	}
+
+	// below for messages that only happen during/after download
+	if ( !cl->bWWWing ) {
+		Com_Printf( "SV_WWWDownload: unexpected wwwdl '%s' for client '%s'\n", subcmd, cl->name );
+		SV_DropClient( cl, va( "SV_WWWDownload: unexpected wwwdl %s", subcmd ) );
+		return;
+	}
+
+	if ( !Q_stricmp( subcmd, "done" ) ) {
+		cl->download = 0;
+		*cl->downloadName = 0;
+		cl->bWWWing = qfalse;
+		return;
+	} else if ( !Q_stricmp( subcmd, "fail" ) )        {
+		cl->download = 0;
+		*cl->downloadName = 0;
+		cl->bWWWing = qfalse;
+		cl->bFallback = qtrue;
+		// send a reconnect
+		SV_SendClientGameState( cl );
+		return;
+	} else if ( !Q_stricmp( subcmd, "chkfail" ) )        {
+		Com_Printf( "WARNING: client '%s' reports that the redirect download for '%s' had wrong checksum.\n", cl->name, cl->downloadName );
+		Com_Printf( "         you should check your download redirect configuration.\n" );
+		cl->download = 0;
+		*cl->downloadName = 0;
+		cl->bWWWing = qfalse;
+		cl->bFallback = qtrue;
+		// send a reconnect
+		SV_SendClientGameState( cl );
+		return;
+	}
+
+	Com_Printf( "SV_WWWDownload: unknown wwwdl subcommand '%s' for client '%s'\n", subcmd, cl->name );
+	SV_DropClient( cl, va( "SV_WWWDownload: unknown wwwdl subcommand '%s'", subcmd ) );
+}
+
+// abort an attempted download
+void SV_BadDownload( client_t *cl, msg_t *msg ) {
+	MSG_WriteByte( msg, svc_download );
+	MSG_WriteShort( msg, 0 ); // client is expecting block zero
+	MSG_WriteLong( msg, -1 ); // illegal file size
+
+	*cl->downloadName = 0;
+}
+
+/*
+==================
+SV_CheckFallbackURL
+
+sv_wwwFallbackURL can be used to redirect clients to a web URL in case direct ftp/http didn't work (or is disabled on client's end)
+return true when a redirect URL message was filled up
+when the cvar is set to something, the download server will effectively never use a legacy download strategy
+==================
+*/
+static qboolean SV_CheckFallbackURL( client_t *cl, msg_t *msg ) {
+	if ( !sv_wwwFallbackURL->string || strlen( sv_wwwFallbackURL->string ) == 0 ) {
+		return qfalse;
+	}
+
+	Com_Printf( "clientDownload: sending client '%s' to fallback URL '%s'\n", cl->name, sv_wwwFallbackURL->string );
+
+	MSG_WriteByte( msg, svc_download );
+	MSG_WriteShort( msg, -1 ); // block -1 means ftp/http download
+	MSG_WriteString( msg, sv_wwwFallbackURL->string );
+	MSG_WriteLong( msg, 0 );
+	MSG_WriteLong( msg, 2 ); // DL_FLAG_URL
+
+	return qtrue;
+}
+#endif RTCW_XX
 
 /*
 ==================
@@ -945,14 +1185,19 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg ) {
 
 #if defined RTCW_SP
 	int idPack, missionPack;
-#elif defined RTCW_MP
+#else
 	int idPack;
 #endif RTCW_XX
 
 	char errorMessage[1024];
 
-#if defined RTCW_MP
-#ifdef UPDATE_SERVER
+#if defined RTCW_ET
+	int download_flag;
+#endif RTCW_XX
+
+#if !defined RTCW_SP
+
+#if !defined RTCW_ET && defined UPDATE_SERVER
 	int i;
 	char testname[MAX_QPATH];
 #endif
@@ -963,8 +1208,15 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg ) {
 	if ( !*cl->downloadName ) {
 		return; // Nothing being downloaded
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	}
+
+#if defined RTCW_ET
+	if ( cl->bWWWing ) {
+		return; // The client acked and is downloading with ftp/http
+
+	}
+#endif RTCW_XX
 
 	// CVE-2006-2082
 	// validate the download against the list of pak files
@@ -979,7 +1231,15 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg ) {
 	if ( !cl->download ) {
 		// We open the file here
 
+#if !defined RTCW_ET
 		Com_Printf( "clientDownload: %d : begining \"%s\"\n", cl - svs.clients, cl->downloadName );
+#else
+		//bani - prevent duplicate download notifications
+		if ( cl->downloadnotify & DLNOTIFY_BEGIN ) {
+			cl->downloadnotify &= ~DLNOTIFY_BEGIN;
+			Com_Printf( "clientDownload: %d : beginning \"%s\"\n", cl - svs.clients, cl->downloadName );
+		}
+#endif RTCW_XX
 
 #if defined RTCW_SP
 		missionPack = FS_idPak( cl->downloadName, "missionpack" );
@@ -1016,8 +1276,19 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg ) {
 		// DHM - Nerve
 #endif RTCW_XX
 
+#if defined RTCW_ET
+		idPack = FS_idPak( cl->downloadName, BASEGAME );
+
+		// sv_allowDownload and idPack checks
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 		if ( !sv_allowDownload->integer || idPack ||
 			 ( cl->downloadSize = FS_SV_FOpenFileRead( cl->downloadName, &cl->download ) ) <= 0 ) {
+#else
+		if ( !sv_allowDownload->integer || idPack ) {
+#endif RTCW_XX
+
 			// cannot auto-download file
 			if ( idPack ) {
 				Com_Printf( "clientDownload: %d : \"%s\" cannot download id pk3 files\n", cl - svs.clients, cl->downloadName );
@@ -1031,9 +1302,16 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg ) {
 				}
 #elif defined RTCW_MP
 				Com_sprintf( errorMessage, sizeof( errorMessage ), "Cannot autodownload id pk3 file \"%s\"", cl->downloadName );
+#else
+				Com_sprintf( errorMessage, sizeof( errorMessage ), "Cannot autodownload official pk3 file \"%s\"", cl->downloadName );
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 			} else if ( !sv_allowDownload->integer ) {
+#else
+			} else {
+#endif RTCW_XX
+
 				Com_Printf( "clientDownload: %d : \"%s\" download disabled", cl - svs.clients, cl->downloadName );
 				if ( sv_pure->integer ) {
 					Com_sprintf( errorMessage, sizeof( errorMessage ), "Could not download \"%s\" because autodownloading is disabled on the server.\n\n"
@@ -1047,8 +1325,10 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg ) {
 																	   "able to connect if you do have the file.\n", cl->downloadName );
 #elif defined RTCW_MP
 																	   "able to connect even if you do have the file.\n", cl->downloadName );
+#else
+																	   "able to connect even if you don't have the file.\n", cl->downloadName );
 #endif RTCW_XX
-
+#if !defined RTCW_ET
 				}
 			} else {
 				Com_Printf( "clientDownload: %d : \"%s\" file not found on server\n", cl - svs.clients, cl->downloadName );
@@ -1064,11 +1344,89 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg ) {
 		}
 
 		// Init
+#endif RTCW_XX
+
+#if defined RTCW_ET
+				}
+			}
+
+			SV_BadDownload( cl, msg );
+			MSG_WriteString( msg, errorMessage ); // (could SV_DropClient isntead?)
+
+			return;
+		}
+
+		// www download redirect protocol
+		// NOTE: this is called repeatedly while a client connects. Maybe we should sort of cache the message or something
+		// FIXME: we need to abstract this to an independant module for maximum configuration/usability by server admins
+		// FIXME: I could rework that, it's crappy
+		if ( sv_wwwDownload->integer ) {
+			if ( cl->bDlOK ) {
+				if ( !cl->bFallback ) {
+					fileHandle_t handle;
+					int downloadSize = FS_SV_FOpenFileRead( cl->downloadName, &handle );
+					if ( downloadSize ) {
+						FS_FCloseFile( handle ); // don't keep open, we only care about the size
+
+						Q_strncpyz( cl->downloadURL, va( "%s/%s", sv_wwwBaseURL->string, cl->downloadName ), sizeof( cl->downloadURL ) );
+
+						//bani - prevent multiple download notifications
+						if ( cl->downloadnotify & DLNOTIFY_REDIRECT ) {
+							cl->downloadnotify &= ~DLNOTIFY_REDIRECT;
+							Com_Printf( "Redirecting client '%s' to %s\n", cl->name, cl->downloadURL );
+						}
+						// once cl->downloadName is set (and possibly we have our listening socket), let the client know
+						cl->bWWWDl = qtrue;
+						MSG_WriteByte( msg, svc_download );
+						MSG_WriteShort( msg, -1 ); // block -1 means ftp/http download
+						// compatible with legacy svc_download protocol: [size] [size bytes]
+						// download URL, size of the download file, download flags
+						MSG_WriteString( msg, cl->downloadURL );
+						MSG_WriteLong( msg, downloadSize );
+						download_flag = 0;
+						if ( sv_wwwDlDisconnected->integer ) {
+							download_flag |= ( 1 << DL_FLAG_DISCON );
+						}
+						MSG_WriteLong( msg, download_flag ); // flags
+						return;
+					} else {
+						// that should NOT happen - even regular download would fail then anyway
+						Com_Printf( "ERROR: Client '%s': couldn't extract file size for %s\n", cl->name, cl->downloadName );
+					}
+				} else {
+					cl->bFallback = qfalse;
+					if ( SV_CheckFallbackURL( cl, msg ) ) {
+						return;
+					}
+					Com_Printf( "Client '%s': falling back to regular downloading for failed file %s\n", cl->name, cl->downloadName );
+				}
+			} else {
+				if ( SV_CheckFallbackURL( cl, msg ) ) {
+					return;
+				}
+				Com_Printf( "Client '%s' is not configured for www download\n", cl->name );
+			}
+		}
+
+		// find file
+		cl->bWWWDl = qfalse;
+		cl->downloadSize = FS_SV_FOpenFileRead( cl->downloadName, &cl->download );
+		if ( cl->downloadSize <= 0 ) {
+			Com_Printf( "clientDownload: %d : \"%s\" file not found on server\n", cl - svs.clients, cl->downloadName );
+			Com_sprintf( errorMessage, sizeof( errorMessage ), "File \"%s\" not found on server for autodownloading.\n", cl->downloadName );
+			SV_BadDownload( cl, msg );
+			MSG_WriteString( msg, errorMessage ); // (could SV_DropClient isntead?)
+			return;
+		}
+
+		// is valid source, init
+#endif RTCW_XX
+
 		cl->downloadCurrentBlock = cl->downloadClientBlock = cl->downloadXmitBlock = 0;
 		cl->downloadCount = 0;
 		cl->downloadEOF = qfalse;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		bTellRate = qtrue;
 #endif RTCW_XX
 
@@ -1125,7 +1483,7 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg ) {
 			rate = sv_maxRate->integer;
 		}
 	}
-#elif defined RTCW_MP
+#else
 	// show_bug.cgi?id=509
 	// for autodownload, we use a seperate max rate value
 	// we do this everytime because the client might change it's rate during the download
@@ -1225,7 +1583,7 @@ This routine would be a bit simpler with a goto but i abstained
 
 =================
 */
-#elif defined RTCW_MP
+#else
 /*
 =================
 SV_VerifyPaks_f
@@ -1269,7 +1627,7 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 
 		// start at arg 1 ( skip cl_paks )
 		nCurArg = 1;
-#elif defined RTCW_MP
+#else
 		bGood = ( FS_FileIsInPAK( FS_ShiftStr( SYS_DLLNAME_CGAME, -SYS_DLLNAME_CGAME_SHIFT ), &nChkSum1 ) == 1 );
 		if ( bGood ) {
 			bGood = ( FS_FileIsInPAK( FS_ShiftStr( SYS_DLLNAME_UI, -SYS_DLLNAME_UI_SHIFT ), &nChkSum2 ) == 1 );
@@ -1394,7 +1752,7 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 			break;
 		}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		cl->gotCP = qtrue;
 #endif RTCW_XX
 
@@ -1418,7 +1776,7 @@ SV_ResetPureClient_f
 static void SV_ResetPureClient_f( client_t *cl ) {
 	cl->pureAuthentic = 0;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	cl->gotCP = qfalse;
 #endif RTCW_XX
 
@@ -1446,7 +1804,7 @@ void SV_UserinfoChanged( client_t *cl ) {
 
 #if defined RTCW_SP
 	if ( Sys_IsLANAddress( cl->netchan.remoteAddress ) && com_dedicated->integer != 2 ) {
-#elif defined RTCW_MP
+#else
 	if ( Sys_IsLANAddress( cl->netchan.remoteAddress ) && com_dedicated->integer != 2 && sv_lanForceRate->integer == 1 ) {
 #endif RTCW_XX
 
@@ -1465,7 +1823,7 @@ void SV_UserinfoChanged( client_t *cl ) {
 
 #if defined RTCW_SP
 			cl->rate = 3000;
-#elif defined RTCW_MP
+#else
 			cl->rate = 5000;
 #endif RTCW_XX
 
@@ -1474,8 +1832,15 @@ void SV_UserinfoChanged( client_t *cl ) {
 	val = Info_ValueForKey( cl->userinfo, "handicap" );
 	if ( strlen( val ) ) {
 		i = atoi( val );
+
+#if !defined RTCW_ET
 		if ( i <= 0 || i > 100 || strlen( val ) > 4 ) {
 			Info_SetValueForKey( cl->userinfo, "handicap", "100" );
+#else
+		if ( i <= -100 || i > 100 || strlen( val ) > 4 ) {
+			Info_SetValueForKey( cl->userinfo, "handicap", "0" );
+#endif RTCW_XX
+
 		}
 	}
 
@@ -1493,13 +1858,22 @@ void SV_UserinfoChanged( client_t *cl ) {
 		cl->snapshotMsec = 50;
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// TTimo
 	// maintain the IP information
 	// this is set in SV_DirectConnect (directly on the server, not transmitted), may be lost when client updates it's userinfo
 	// the banning code relies on this being consistently present
+
+#if defined RTCW_ET
+	// zinx - modified to always keep this consistent, instead of only
+	// when "ip" is 0-length, so users can't supply their own IP
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 	val = Info_ValueForKey( cl->userinfo, "ip" );
 	if ( !val[0] ) {
+#endif RTCW_XX
+
 		//Com_DPrintf("Maintain IP in userinfo for '%s'\n", cl->name);
 		if ( !NET_IsLocalAddress( cl->netchan.remoteAddress ) ) {
 			Info_SetValueForKey( cl->userinfo, "ip", NET_AdrToString( cl->netchan.remoteAddress ) );
@@ -1507,6 +1881,19 @@ void SV_UserinfoChanged( client_t *cl ) {
 			// force the "ip" info key to "localhost" for local clients
 			Info_SetValueForKey( cl->userinfo, "ip", "localhost" );
 		}
+
+#if defined RTCW_ET
+	// TTimo
+	// download prefs of the client
+	val = Info_ValueForKey( cl->userinfo, "cl_wwwDownload" );
+	cl->bDlOK = qfalse;
+	if ( strlen( val ) ) {
+		i = atoi( val );
+		if ( i != 0 ) {
+			cl->bDlOK = qtrue;
+		}
+#endif RTCW_XX
+
 	}
 #endif RTCW_XX
 
@@ -1531,9 +1918,16 @@ static void SV_UpdateUserinfo_f( client_t *cl ) {
 typedef struct {
 	char    *name;
 	void ( *func )( client_t *cl );
+
+#if defined RTCW_ET
+	qboolean allowedpostmapchange;
+#endif RTCW_XX
+
 } ucmd_t;
 
 static ucmd_t ucmds[] = {
+
+#if !defined RTCW_ET
 	{"userinfo", SV_UpdateUserinfo_f},
 	{"disconnect", SV_Disconnect_f},
 	{"cp", SV_VerifyPaks_f},
@@ -1542,6 +1936,18 @@ static ucmd_t ucmds[] = {
 	{"nextdl", SV_NextDownload_f},
 	{"stopdl", SV_StopDownload_f},
 	{"donedl", SV_DoneDownload_f},
+#else
+	{"userinfo", SV_UpdateUserinfo_f,    qfalse },
+	{"disconnect",   SV_Disconnect_f,        qtrue },
+	{"cp",           SV_VerifyPaks_f,        qfalse },
+	{"vdr",          SV_ResetPureClient_f,   qfalse },
+	{"download", SV_BeginDownload_f,     qfalse },
+	{"nextdl",       SV_NextDownload_f,      qfalse },
+	{"stopdl",       SV_StopDownload_f,      qfalse },
+	{"donedl",       SV_DoneDownload_f,      qfalse },
+	{"wwwdl",        SV_WWWDownload_f,       qfalse },
+#endif RTCW_XX
+
 	{NULL, NULL}
 };
 
@@ -1552,10 +1958,16 @@ SV_ExecuteClientCommand
 Also called by bot code
 ==================
 */
+
+#if !defined RTCW_ET
 void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
+#else
+void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK, qboolean premaprestart ) {
+#endif RTCW_XX
+
 	ucmd_t  *u;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	qboolean bProcessed = qfalse;
 #endif RTCW_XX
 
@@ -1564,9 +1976,16 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
 	// see if it is a server level command
 	for ( u = ucmds ; u->name ; u++ ) {
 		if ( !strcmp( Cmd_Argv( 0 ), u->name ) ) {
+
+#if defined RTCW_ET
+			if ( premaprestart && !u->allowedpostmapchange ) {
+				continue;
+			}
+#endif RTCW_XX
+
 			u->func( cl );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 			bProcessed = qtrue;
 #endif RTCW_XX
 
@@ -1580,7 +1999,7 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
 			VM_Call( gvm, GAME_CLIENT_COMMAND, cl - svs.clients );
 		}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	} else if ( !bProcessed )     {
 		Com_DPrintf( "client text ignored for %s: %s\n", cl->name, Cmd_Argv( 0 ) );
 #endif RTCW_XX
@@ -1593,12 +2012,18 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
 SV_ClientCommand
 ===============
 */
+
+#if !defined RTCW_ET
 static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
+#else
+static qboolean SV_ClientCommand( client_t *cl, msg_t *msg, qboolean premaprestart ) {
+#endif RTCW_XX
+
 	int seq;
 	const char  *s;
 	qboolean clientOk = qtrue;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	qboolean floodprotect = qtrue;
 #endif RTCW_XX
 
@@ -1620,9 +2045,20 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 		return qfalse;
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
+
+#if defined RTCW_ET
+	// Gordon: AHA! Need to steal this for some other stuff BOOKMARK
+#endif RTCW_XX
+
 	// NERVE - SMF - some server game-only commands we cannot have flood protect
+
+#if !defined RTCW_ET
 	if ( !Q_strncmp( "team", s, 4 ) || !Q_strncmp( "setspawnpt", s, 10 ) || !Q_strncmp( "score", s, 5 ) ) {
+#else
+	if ( !Q_strncmp( "team", s, 4 ) || !Q_strncmp( "setspawnpt", s, 10 ) || !Q_strncmp( "score", s, 5 ) || !Q_stricmp( "forcetapout", s ) ) {
+#endif RTCW_XX
+
 //		Com_DPrintf( "Skipping flood protection for: %s\n", s );
 		floodprotect = qfalse;
 	}
@@ -1641,14 +2077,14 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 
 #if defined RTCW_SP
 		 svs.time < cl->nextReliableTime ) {
-#elif defined RTCW_MP
+#else
 		 svs.time < cl->nextReliableTime &&
 		 floodprotect ) {
 #endif RTCW_XX
 
 		// ignore any other text messages from this client but let them keep playing
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		// TTimo - moved the ignored verbose to the actual processing in SV_ExecuteClientCommand, only printing if the core doesn't intercept
 #endif RTCW_XX
 
@@ -1661,7 +2097,11 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 
 	}
 
+#if !defined RTCW_ET
 	// don't allow another command for one second
+#else
+	// don't allow another command for 800 msec
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	cl->nextReliableTime = svs.time + 1000;
@@ -1669,9 +2109,18 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 	if ( floodprotect ) {
 		cl->nextReliableTime = svs.time + 800;
 	}
+#else
+	if ( floodprotect &&
+		 svs.time >= cl->nextReliableTime ) {
+		cl->nextReliableTime = svs.time + 800;
+	}
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	SV_ExecuteClientCommand( cl, s, clientOk );
+#else
+	SV_ExecuteClientCommand( cl, s, clientOk, premaprestart );
+#endif RTCW_XX
 
 	cl->lastClientCommand = seq;
 	Com_sprintf( cl->lastClientCommandString, sizeof( cl->lastClientCommandString ), "%s", s );
@@ -1746,7 +2195,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 #if defined RTCW_SP
 	//key ^= Com_HashKey(cl->reliableCommands[ cl->reliableAcknowledge & (MAX_RELIABLE_COMMANDS-1) ], 32);
 	key ^= Com_HashKey( SV_GetReliableCommand( cl, cl->reliableAcknowledge & ( MAX_RELIABLE_COMMANDS - 1 ) ), 32 );
-#elif defined RTCW_MP
+#else
 	key ^= Com_HashKey( cl->reliableCommands[ cl->reliableAcknowledge & ( MAX_RELIABLE_COMMANDS - 1 ) ], 32 );
 #endif RTCW_XX
 
@@ -1762,7 +2211,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 	// save time for ping calculation
 	cl->frames[ cl->messageAcknowledge & PACKET_MASK ].messageAcked = svs.time;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// TTimo
 	// catch the no-cp-yet situation before SV_ClientEnterWorld
 	// if CS_ACTIVE, then it's time to trigger a new gamestate emission
@@ -1770,7 +2219,13 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 	if ( sv_pure->integer != 0 && cl->pureAuthentic == 0 && !cl->gotCP ) {
 		if ( cl->state == CS_ACTIVE ) {
 			// we didn't get a cp yet, don't assume anything and just send the gamestate all over again
+
+#if !defined RTCW_ET
 			Com_DPrintf( "%s: didn't get cp command, resending gamestate\n", cl->name, cl->state );
+#else
+			Com_DPrintf( "%s: didn't get cp command, resending gamestate\n", cl->name );
+#endif RTCW_XX
+
 			SV_SendClientGameState( cl );
 		}
 		return;
@@ -1786,7 +2241,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 
 #if defined RTCW_SP
 	//
-#elif defined RTCW_MP
+#else
 	// a bad cp command was sent, drop the client
 #endif RTCW_XX
 
@@ -1812,7 +2267,13 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 		//if ( cmds[i].serverTime > svs.time + 3000 ) {
 		//	continue;
 		//}
+
+#if !defined RTCW_ET
 		if ( sv_gametype->integer != GT_SINGLE_PLAYER ) { // RF, we need to allow this in single player, where loadgame's can cause the player to freeze after reloading if we do this check
+#else
+		if ( !SV_GameIsSinglePlayer() ) { // We need to allow this in single player, where loadgame's can cause the player to freeze after reloading if we do this check
+#endif RTCW_XX
+
 			// don't execute if this is an old cmd which is already executed
 			// these old cmds are included when cl_packetdup > 0
 			if ( cmds[i].serverTime <= cl->lastUsercmd.serverTime ) {   // Q3_MISSIONPACK
@@ -1824,6 +2285,25 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 	}
 }
 
+#if defined RTCW_ET
+/*
+=====================
+SV_ParseBinaryMessage
+=====================
+*/
+static void SV_ParseBinaryMessage( client_t *cl, msg_t *msg ) {
+	int size;
+
+	MSG_BeginReadingUncompressed( msg );
+
+	size = msg->cursize - msg->readcount;
+	if ( size <= 0 || size > MAX_BINARY_MESSAGE ) {
+		return;
+	}
+
+	SV_GameBinaryMessageReceived( cl - svs.clients, &msg->data[msg->readcount], size, cl->lastUsercmd.serverTime );
+}
+#endif RTCW_XX
 
 /*
 ===========================================================================
@@ -1855,7 +2335,7 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 
 #if defined RTCW_SP
 		//SV_DropClient( cl, "illegible client message" );
-#elif defined RTCW_MP
+#else
 #ifndef NDEBUG
 		SV_DropClient( cl, "DEBUG: illegible client message" );
 #endif
@@ -1875,7 +2355,7 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 
 #if defined RTCW_SP
 		//SV_DropClient( cl, "illegible client message" );
-#elif defined RTCW_MP
+#else
 #ifndef NDEBUG
 		SV_DropClient( cl, "DEBUG: illegible client message" );
 #endif
@@ -1897,7 +2377,7 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 		 !*cl->downloadName ) {
 		if ( serverId == sv.restartedServerId ) {
 			// they just haven't caught the map_restart yet
-#elif defined RTCW_MP
+#else
 	//
 	// show_bug.cgi?id=536
 	// don't drop as long as previous command was a nextdl, after a dl is done, downloadName is set back to ""
@@ -1917,6 +2397,26 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 			Com_DPrintf( "%s : dropped gamestate, resending\n", cl->name );
 			SV_SendClientGameState( cl );
 		}
+
+#if defined RTCW_ET
+		// read optional clientCommand strings
+		do {
+			c = MSG_ReadByte( msg );
+			if ( c == clc_EOF ) {
+				break;
+			}
+			if ( c != clc_clientCommand ) {
+				break;
+			}
+			if ( !SV_ClientCommand( cl, msg, qtrue ) ) {
+				return; // we couldn't execute it because of the flood protection
+			}
+			if ( cl->state == CS_ZOMBIE ) {
+				return; // disconnect command
+			}
+		} while ( 1 );
+#endif RTCW_XX
+
 		return;
 	}
 
@@ -1934,7 +2434,13 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 		if ( c != clc_clientCommand ) {
 			break;
 		}
+
+#if !defined RTCW_ET
 		if ( !SV_ClientCommand( cl, msg ) ) {
+#else
+		if ( !SV_ClientCommand( cl, msg, qfalse ) ) {
+#endif RTCW_XX
+
 			return; // we couldn't execute it because of the flood protection
 		}
 		if ( cl->state == CS_ZOMBIE ) {
@@ -1945,11 +2451,30 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 	// read the usercmd_t
 	if ( c == clc_move ) {
 		SV_UserMove( cl, msg, qtrue );
+
+#if defined RTCW_ET
+		c = MSG_ReadByte( msg );
+#endif RTCW_XX
+
 	} else if ( c == clc_moveNoDelta ) {
 		SV_UserMove( cl, msg, qfalse );
+
+#if !defined RTCW_ET
 	} else if ( c != clc_EOF ) {
+#else
+		c = MSG_ReadByte( msg );
+	}
+
+	if ( c != clc_EOF ) {
+#endif RTCW_XX
+
 		Com_Printf( "WARNING: bad command byte for client %i\n", cl - svs.clients );
 	}
+
+#if defined RTCW_ET
+	SV_ParseBinaryMessage( cl, msg );
+#endif RTCW_XX
+
 //	if ( msg->readcount != msg->cursize ) {
 //		Com_Printf( "WARNING: Junk at end of packet for client %i\n", cl - svs.clients );
 //	}

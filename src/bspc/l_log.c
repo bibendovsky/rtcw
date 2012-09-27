@@ -135,7 +135,13 @@ void Log_Print( char *fmt, ... ) {
 	char buf[2048];
 
 	va_start( ap, fmt );
+
+#if !defined RTCW_ET
 	vsprintf( buf, fmt, ap );
+#else
+	Q_vsnprintf( buf, sizeof( buf ), fmt, ap );
+#endif RTCW_XX
+
 	va_end( ap );
 
 	if ( verbose ) {
@@ -166,7 +172,13 @@ void Log_Write( char *fmt, ... ) {
 		return;
 	}
 	va_start( ap, fmt );
+
+#if !defined RTCW_ET
 	vsprintf( buf, fmt, ap );
+#else
+	Q_vsnprintf( buf, sizeof( buf ), fmt, ap );
+#endif RTCW_XX
+
 	va_end( ap );
 	Log_UnifyEndOfLine( buf );
 	fprintf( logfile.fp, "%s", buf );

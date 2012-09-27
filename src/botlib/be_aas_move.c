@@ -66,7 +66,13 @@ int AAS_DropToFloor( vec3_t origin, vec3_t mins, vec3_t maxs ) {
 
 	VectorCopy( origin, end );
 	end[2] -= 100;
+
+#if !defined RTCW_ET
 	trace = AAS_Trace( origin, mins, maxs, end, 0, CONTENTS_SOLID );
+#else
+	trace = AAS_Trace( origin, mins, maxs, end, 0, ( CONTENTS_SOLID | CONTENTS_PLAYERCLIP ) & ~CONTENTS_BODY );
+#endif RTCW_XX
+
 	if ( trace.startsolid ) {
 		return qfalse;
 	}
@@ -98,9 +104,9 @@ void AAS_InitSettings( void ) {
 	// Ridah, calculate maxbarrier according to jumpvel and gravity
 	aassettings.sv_jumpvel              = 270;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	aassettings.sv_maxbarrier           = 49; //-0.8 + (0.5 * aassettings.sv_gravity * (aassettings.sv_jumpvel / aassettings.sv_gravity) * (aassettings.sv_jumpvel / aassettings.sv_gravity));
-#elif defined RTCW_MP
+#else
 	aassettings.sv_maxbarrier           = -0.8 + ( 0.5 * aassettings.sv_gravity * ( aassettings.sv_jumpvel / aassettings.sv_gravity ) * ( aassettings.sv_jumpvel / aassettings.sv_gravity ) );
 #endif RTCW_XX
 
@@ -167,8 +173,17 @@ int AAS_AgainstLadder( vec3_t origin, int ms_areanum ) {
 		//get the plane the face is in
 		plane = &( *aasworld ).planes[face->planenum ^ side];
 		//if the origin is pretty close to the plane
+
+#if !defined RTCW_ET
 		if ( abs( DotProduct( plane->normal, origin ) - plane->dist ) < 3 ) {
 			if ( AAS_PointInsideFace( abs( facenum ), origin, 0.1 ) ) {
+#else
+		if ( abs( DotProduct( plane->normal, origin ) - plane->dist ) < 7 ) {
+			// RF, if hanging on to the edge of a ladder, we have to account for bounding box touching
+			//if (AAS_PointInsideFace(abs(facenum), origin, 0.1)) return qtrue;
+			if ( AAS_PointInsideFace( abs( facenum ), origin, 2.0 ) ) {
+#endif RTCW_XX
+
 				return qtrue;
 			}
 		} //end if
@@ -183,21 +198,42 @@ int AAS_AgainstLadder( vec3_t origin, int ms_areanum ) {
 // Changes Globals:		-
 //===========================================================================
 int AAS_OnGround( vec3_t origin, int presencetype, int passent ) {
+
+#if !defined RTCW_ET
 	aas_trace_t trace;
+#else
+	//aas_trace_t trace;
+	bsp_trace_t trace;
+#endif RTCW_XX
+
 	vec3_t end, up = {0, 0, 1};
+
+#if !defined RTCW_ET
 	aas_plane_t *plane;
+#else
+	//aas_plane_t *plane;
+	vec3_t mins, maxs;
+#endif RTCW_XX
+
 
 	VectorCopy( origin, end );
 	end[2] -= 10;
 
+#if !defined RTCW_ET
 	trace = AAS_TraceClientBBox( origin, end, presencetype, passent );
+#else
+	//trace = AAS_TraceClientBBox(origin, end, presencetype, passent);
+	AAS_PresenceTypeBoundingBox( presencetype, mins, maxs );
+	trace = AAS_Trace( origin, mins, maxs, end, passent, CONTENTS_SOLID | CONTENTS_PLAYERCLIP );
+#endif RTCW_XX
+
 
 	//if in solid
 	if ( trace.startsolid ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		return qtrue;                  //qfalse;
-#elif defined RTCW_MP
+#else
 		return qfalse;
 #endif RTCW_XX
 
@@ -211,8 +247,15 @@ int AAS_OnGround( vec3_t origin, int presencetype, int passent ) {
 		return qfalse;
 	}
 	//check if the plane isn't too steep
+
+#if !defined RTCW_ET
 	plane = AAS_PlaneFromNum( trace.planenum );
 	if ( DotProduct( plane->normal, up ) < aassettings.sv_maxsteepness ) {
+#else
+	//plane = AAS_PlaneFromNum(trace.planenum);
+	if ( DotProduct( trace.plane.normal, up ) < aassettings.sv_maxsteepness ) {
+#endif RTCW_XX
+
 		return qfalse;
 	}
 	//the bot is on the ground
@@ -444,7 +487,13 @@ void AAS_ApplyFriction( vec3_t vel, float friction, float stopspeed,
 //===========================================================================
 int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 							   int entnum, vec3_t origin,
+
+#if !defined RTCW_ET
 							   int presencetype, int onground,
+#else
+							   int hitent, int onground,
+#endif RTCW_XX
+
 							   vec3_t velocity, vec3_t cmdmove,
 							   int cmdframes,
 							   int maxframes, float frametime,
@@ -458,12 +507,39 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 	//float velchange, newvel;
 	int n, i, j, pc, step, swimming, ax, crouch, event, jump_frame, areanum;
 	int areas[20], numareas;
+
+#if !defined RTCW_ET
 	vec3_t points[20];
 	vec3_t org, end, feet, start, stepend, lastorg, wishdir;
 	vec3_t frame_test_vel, old_frame_test_vel, left_test_vel;
 	vec3_t up = {0, 0, 1};
 	aas_plane_t *plane, *plane2;
 	aas_trace_t trace, steptrace;
+#else
+	vec3_t points[20], mins, maxs;
+	vec3_t org, end, feet, start, stepend, lastorg, wishdir;
+	vec3_t frame_test_vel, old_frame_test_vel, left_test_vel, savevel;
+	vec3_t up = {0, 0, 1};
+	cplane_t *plane, *plane2, *lplane;
+	//aas_trace_t trace, steptrace;
+	bsp_trace_t trace, steptrace;
+
+	if ( visualize ) {
+
+// These debugging tools are not currently available in bspc. Mad Doctor I, 1/27/2003.
+#ifndef BSPC
+		AAS_ClearShownPolygons();
+		AAS_ClearShownDebugLines();
+#endif
+
+	}
+
+	// don't let us succeed on interaction with area 0
+	if ( stopareanum == 0 ) {
+		stopevent &= ~( SE_ENTERAREA | SE_HITGROUNDAREA );
+	}
+#endif RTCW_XX
+
 
 	if ( frametime <= 0 ) {
 		frametime = 0.1;
@@ -485,14 +561,42 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 	sv_jumpvel = aassettings.sv_jumpvel * frametime;
 	//
 	memset( move, 0, sizeof( aas_clientmove_t ) );
+
+#if !defined RTCW_ET
 	memset( &trace, 0, sizeof( aas_trace_t ) );
+#else
+	memset( &trace, 0, sizeof( bsp_trace_t ) );
+	AAS_PresenceTypeBoundingBox( PRESENCE_NORMAL, mins, maxs );
+#endif RTCW_XX
+
 	//start at the current origin
 	VectorCopy( origin, org );
 	org[2] += 0.25;
+
+#if defined RTCW_ET
+	// test this position, if it's in solid, move it up to adjust for capsules
+	//trace = AAS_TraceClientBBox(org, org, PRESENCE_NORMAL, entnum);
+	trace = AAS_Trace( org, mins, maxs, org, entnum, ( CONTENTS_SOLID | CONTENTS_PLAYERCLIP ) & ~CONTENTS_BODY );
+	while ( trace.startsolid ) {
+		org[2] += 8;
+		//trace = AAS_TraceClientBBox(org, org, PRESENCE_NORMAL, entnum);
+		trace = AAS_Trace( org, mins, maxs, org, entnum, ( CONTENTS_SOLID | CONTENTS_PLAYERCLIP ) & ~CONTENTS_BODY );
+		if ( trace.startsolid && ( org[2] - origin[2] > 16 ) ) {
+			move->stopevent = SE_NONE;
+			return qfalse;
+		}
+	}
+#endif RTCW_XX
+
 	//velocity to test for the first frame
 	VectorScale( velocity, frametime, frame_test_vel );
 	//
 	jump_frame = -1;
+
+#if defined RTCW_ET
+	lplane = NULL;
+#endif RTCW_XX
+
 	//predict a maximum of 'maxframes' ahead
 	for ( n = 0; n < maxframes; n++ )
 	{
@@ -511,7 +615,23 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 		} //end if
 		crouch = qfalse;
 		//apply command movement
+
+#if !defined RTCW_ET
 		if ( n < cmdframes ) {
+#else
+		if ( cmdframes < 0 ) {
+			// cmdmove is the destination, we should keep moving towards it
+			VectorSubtract( cmdmove, org, wishdir );
+			VectorNormalize( wishdir );
+			VectorScale( wishdir, sv_maxwalkvelocity, wishdir );
+			VectorCopy( frame_test_vel, savevel );
+			VectorScale( wishdir, frametime, frame_test_vel );
+			if ( !swimming ) {
+				frame_test_vel[2] = savevel[2];
+			}
+		} else if ( n < cmdframes ) {
+#endif RTCW_XX
+
 			ax = 0;
 			maxvel = sv_maxwalkvelocity;
 			accelerate = sv_airaccelerate;
@@ -566,6 +686,8 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 			} //end for
 			*/
 		} //end if
+
+#if !defined RTCW_ET
 		if ( crouch ) {
 			presencetype = PRESENCE_CROUCH;
 		} //end if
@@ -574,6 +696,20 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 				presencetype = PRESENCE_NORMAL;
 			} //end if
 		} //end else
+#else
+		  //if (crouch)
+		  //{
+		  //	presencetype = PRESENCE_CROUCH;
+		  //} //end if
+		  //else if (presencetype == PRESENCE_CROUCH)
+		  //{
+		  //	if (AAS_PointPresenceType(org) & PRESENCE_NORMAL)
+		  //	{
+		  //		presencetype = PRESENCE_NORMAL;
+		  //	} //end if
+		  //} //end else
+#endif RTCW_XX
+
 		  //save the current origin
 		VectorCopy( org, lastorg );
 		//move linear during one frame
@@ -583,17 +719,49 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 		{
 			VectorAdd( org, left_test_vel, end );
 			//trace a bounding box
+
+#if !defined RTCW_ET
 			trace = AAS_TraceClientBBox( org, end, presencetype, entnum );
+#else
+			//trace = AAS_TraceClientBBox(org, end, PRESENCE_NORMAL, entnum);
+			trace = AAS_Trace( org, mins, maxs, end, entnum, ( CONTENTS_SOLID | CONTENTS_PLAYERCLIP ) & ~CONTENTS_BODY );
+#endif RTCW_XX
+
 			//
 //#ifdef AAS_MOVE_DEBUG
 			if ( visualize ) {
+
+#if !defined RTCW_ET
 				if ( trace.startsolid ) {
 					botimport.Print( PRT_MESSAGE, "PredictMovement: start solid\n" );
 				}
+#else
+				//if (trace.startsolid)
+				//botimport.Print(PRT_MESSAGE, "PredictMovement: start solid\n");
+#endif RTCW_XX
+
 				AAS_DebugLine( org, trace.endpos, LINECOLOR_RED );
 			} //end if
 //#endif //AAS_MOVE_DEBUG
 			//
+
+#if defined RTCW_ET
+			if ( stopevent & SE_HITENT ) {
+				if ( trace.fraction < 1.0 && trace.ent == hitent ) {
+					areanum = AAS_PointAreaNum( org );
+					VectorCopy( org, move->endpos );
+					VectorScale( frame_test_vel, 1 / frametime, move->velocity );
+					move->trace = trace;
+					move->stopevent = SE_HITENT;
+					move->presencetype = ( *aasworld ).areasettings[areanum].presencetype;
+					move->endcontents = 0;
+					move->time = n * frametime;
+					move->frames = n;
+					return qtrue;
+				}
+			}
+#endif RTCW_XX
+
 			if ( stopevent & SE_ENTERAREA ) {
 				numareas = AAS_TraceAreas( org, trace.endpos, areas, points, 20 );
 				for ( i = 0; i < numareas; i++ )
@@ -603,7 +771,13 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 						VectorScale( frame_test_vel, 1 / frametime, move->velocity );
 						move->trace = trace;
 						move->stopevent = SE_ENTERAREA;
+
+#if !defined RTCW_ET
 						move->presencetype = presencetype;
+#else
+						move->presencetype = ( *aasworld ).areasettings[areas[i]].presencetype;
+#endif RTCW_XX
+
 						move->endcontents = 0;
 						move->time = n * frametime;
 						move->frames = n;
@@ -611,23 +785,64 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 					} //end if
 				} //end for
 			} //end if
+
+#if defined RTCW_ET
+			if ( stopevent & SE_STUCK ) {
+				if ( trace.fraction < 1.0 ) {
+					plane = &trace.plane;
+					//if (Q_fabs(plane->normal[2]) <= sv_maxsteepness) {
+					VectorNormalize2( frame_test_vel, wishdir );
+					if ( DotProduct( plane->normal, wishdir ) < -0.8 ) {
+						areanum = AAS_PointAreaNum( org );
+						VectorCopy( org, move->endpos );
+						VectorScale( frame_test_vel, 1 / frametime, move->velocity );
+						move->trace = trace;
+						move->stopevent = SE_STUCK;
+						move->presencetype = ( *aasworld ).areasettings[areanum].presencetype;
+						move->endcontents = 0;
+						move->time = n * frametime;
+						move->frames = n;
+						return qtrue;
+					}
+				}
+			}
+#endif RTCW_XX
+
 			  //move the entity to the trace end point
 			VectorCopy( trace.endpos, org );
 			//if there was a collision
 			if ( trace.fraction < 1.0 ) {
 				//get the plane the bounding box collided with
+
+#if !defined RTCW_ET
 				plane = AAS_PlaneFromNum( trace.planenum );
+#else
+				plane = &trace.plane;
+#endif RTCW_XX
+
 				//
 				if ( stopevent & SE_HITGROUNDAREA ) {
 					if ( DotProduct( plane->normal, up ) > sv_maxsteepness ) {
 						VectorCopy( org, start );
 						start[2] += 0.5;
+
+#if !defined RTCW_ET
 						if ( AAS_PointAreaNum( start ) == stopareanum ) {
+#else
+						if ( ( stopareanum < 0 && AAS_PointAreaNum( start ) ) || ( AAS_PointAreaNum( start ) == stopareanum ) ) {
+#endif RTCW_XX
+
 							VectorCopy( start, move->endpos );
 							VectorScale( frame_test_vel, 1 / frametime, move->velocity );
 							move->trace = trace;
 							move->stopevent = SE_HITGROUNDAREA;
+
+#if !defined RTCW_ET
 							move->presencetype = presencetype;
+#else
+							move->presencetype = ( *aasworld ).areasettings[stopareanum].presencetype;
+#endif RTCW_XX
+
 							move->endcontents = 0;
 							move->time = n * frametime;
 							move->frames = n;
@@ -643,10 +858,23 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 					VectorMA( org, -0.25, plane->normal, start );
 					VectorCopy( start, stepend );
 					start[2] += sv_maxstep;
+
+#if !defined RTCW_ET
 					steptrace = AAS_TraceClientBBox( start, stepend, presencetype, entnum );
+#else
+					//steptrace = AAS_TraceClientBBox(start, stepend, PRESENCE_NORMAL, entnum);
+					steptrace = AAS_Trace( start, mins, maxs, stepend, entnum, ( CONTENTS_SOLID | CONTENTS_PLAYERCLIP ) & ~CONTENTS_BODY );
+#endif RTCW_XX
+
 					//
 					if ( !steptrace.startsolid ) {
+
+#if !defined RTCW_ET
 						plane2 = AAS_PlaneFromNum( steptrace.planenum );
+#else
+						plane2 = &steptrace.plane;
+#endif RTCW_XX
+
 						if ( DotProduct( plane2->normal, up ) > sv_maxsteepness ) {
 							VectorSubtract( end, steptrace.endpos, left_test_vel );
 							left_test_vel[2] = 0;
@@ -671,6 +899,18 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 					//of the current test velocity into the hit plane
 					VectorMA( left_test_vel, -DotProduct( left_test_vel, plane->normal ),
 							  plane->normal, left_test_vel );
+
+#if defined RTCW_ET
+					// RF: from PM_SlideMove()
+					// if this is the same plane we hit before, nudge velocity
+					// out along it, which fixes some epsilon issues with
+					// non-axial planes
+					if ( lplane && DotProduct( lplane->normal, plane->normal ) > 0.99 ) {
+						VectorAdd( plane->normal, left_test_vel, left_test_vel );
+					}
+					lplane = plane;
+#endif RTCW_XX
+
 					//store the old velocity for landing check
 					VectorCopy( frame_test_vel, old_frame_test_vel );
 					//test velocity for the next frame is the projection
@@ -708,7 +948,16 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 								VectorCopy( frame_test_vel, move->velocity );
 								move->trace = trace;
 								move->stopevent = SE_HITGROUNDDAMAGE;
+
+#if !defined RTCW_ET
 								move->presencetype = presencetype;
+#else
+								areanum = AAS_PointAreaNum( org );
+								if ( areanum ) {
+									move->presencetype = ( *aasworld ).areasettings[areanum].presencetype;
+								}
+#endif RTCW_XX
+
 								move->endcontents = 0;
 								move->time = n * frametime;
 								move->frames = n;
@@ -757,7 +1006,13 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 				VectorCopy( org, move->endpos );
 				VectorScale( frame_test_vel, 1 / frametime, move->velocity );
 				move->stopevent = event & stopevent;
+
+#if !defined RTCW_ET
 				move->presencetype = presencetype;
+#else
+				move->presencetype = ( *aasworld ).areasettings[areanum].presencetype;
+#endif RTCW_XX
+
 				move->endcontents = pc;
 				move->time = n * frametime;
 				move->frames = n;
@@ -765,7 +1020,13 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 			} //end if
 		} //end if
 		  //
+
+#if !defined RTCW_ET
 		onground = AAS_OnGround( org, presencetype, entnum );
+#else
+		onground = AAS_OnGround( org, PRESENCE_NORMAL, entnum );
+#endif RTCW_XX
+
 		//if onground and on the ground for at least one whole frame
 		if ( onground ) {
 			if ( stopevent & SE_HITGROUND ) {
@@ -773,7 +1034,16 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 				VectorScale( frame_test_vel, 1 / frametime, move->velocity );
 				move->trace = trace;
 				move->stopevent = SE_HITGROUND;
+
+#if !defined RTCW_ET
 				move->presencetype = presencetype;
+#else
+				areanum = AAS_PointAreaNum( org );
+				if ( areanum ) {
+					move->presencetype = ( *aasworld ).areasettings[areanum].presencetype;
+				}
+#endif RTCW_XX
+
 				move->endcontents = 0;
 				move->time = n * frametime;
 				move->frames = n;
@@ -785,19 +1055,40 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 			VectorScale( frame_test_vel, 1 / frametime, move->velocity );
 			move->trace = trace;
 			move->stopevent = SE_LEAVEGROUND;
+
+#if !defined RTCW_ET
 			move->presencetype = presencetype;
+#else
+			areanum = AAS_PointAreaNum( org );
+			if ( areanum ) {
+				move->presencetype = ( *aasworld ).areasettings[areanum].presencetype;
+			}
+#endif RTCW_XX
+
 			move->endcontents = 0;
 			move->time = n * frametime;
 			move->frames = n;
 			return qtrue;
 		} //end else if
 		else if ( stopevent & SE_GAP ) {
+
+#if !defined RTCW_ET
 			aas_trace_t gaptrace;
+#else
+			bsp_trace_t gaptrace;
+#endif RTCW_XX
 
 			VectorCopy( org, start );
 			VectorCopy( start, end );
 			end[2] -= 48 + aassettings.sv_maxbarrier;
+
+#if !defined RTCW_ET
 			gaptrace = AAS_TraceClientBBox( start, end, PRESENCE_CROUCH, -1 );
+#else
+			//gaptrace = AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, -1);
+			gaptrace = AAS_Trace( start, mins, maxs, end, -1, ( CONTENTS_SOLID | CONTENTS_PLAYERCLIP ) & ~CONTENTS_BODY );
+#endif RTCW_XX
+
 			//if solid is found the bot cannot walk any further and will not fall into a gap
 			if ( !gaptrace.startsolid ) {
 				//if it is a gap (lower than one step height)
@@ -808,7 +1099,16 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 						VectorScale( frame_test_vel, 1 / frametime, move->velocity );
 						move->trace = trace;
 						move->stopevent = SE_GAP;
+
+#if !defined RTCW_ET
 						move->presencetype = presencetype;
+#else
+						areanum = AAS_PointAreaNum( org );
+						if ( areanum ) {
+							move->presencetype = ( *aasworld ).areasettings[areanum].presencetype;
+						}
+#endif RTCW_XX
+
 						move->endcontents = 0;
 						move->time = n * frametime;
 						move->frames = n;
@@ -823,7 +1123,16 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 				VectorScale( frame_test_vel, 1 / frametime, move->velocity );
 				move->trace = trace;
 				move->stopevent = SE_TOUCHJUMPPAD;
+
+#if !defined RTCW_ET
 				move->presencetype = presencetype;
+#else
+				areanum = AAS_PointAreaNum( org );
+				if ( areanum ) {
+					move->presencetype = ( *aasworld ).areasettings[areanum].presencetype;
+				}
+#endif RTCW_XX
+
 				move->endcontents = 0;
 				move->time = n * frametime;
 				move->frames = n;
@@ -836,7 +1145,16 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 				VectorScale( frame_test_vel, 1 / frametime, move->velocity );
 				move->trace = trace;
 				move->stopevent = SE_TOUCHTELEPORTER;
+
+#if !defined RTCW_ET
 				move->presencetype = presencetype;
+#else
+				areanum = AAS_PointAreaNum( org );
+				if ( areanum ) {
+					move->presencetype = ( *aasworld ).areasettings[areanum].presencetype;
+				}
+#endif RTCW_XX
+
 				move->endcontents = 0;
 				move->time = n * frametime;
 				move->frames = n;
@@ -845,10 +1163,21 @@ int AAS_PredictClientMovement( struct aas_clientmove_s *move,
 		} //end if
 	} //end for
 	  //
+
+#if defined RTCW_ET
+	areanum = AAS_PointAreaNum( org );
+#endif RTCW_XX
+
 	VectorCopy( org, move->endpos );
 	VectorScale( frame_test_vel, 1 / frametime, move->velocity );
 	move->stopevent = SE_NONE;
+
+#if !defined RTCW_ET
 	move->presencetype = presencetype;
+#else
+	move->presencetype = aasworld->areasettings ? aasworld->areasettings[areanum].presencetype : 0;
+#endif RTCW_XX
+
 	move->endcontents = 0;
 	move->time = n * frametime;
 	move->frames = n;

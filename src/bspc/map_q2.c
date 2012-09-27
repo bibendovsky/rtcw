@@ -108,6 +108,7 @@ int Q2_BrushContents( mapbrush_t *b ) {
 		}
 	}
 
+#if !defined RTCW_ET
 	// if any side is translucent, mark the contents
 	// and change solid to window
 	if ( trans & ( SURF_TRANS33 | SURF_TRANS66 ) ) {
@@ -117,6 +118,21 @@ int Q2_BrushContents( mapbrush_t *b ) {
 			contents |= CONTENTS_WINDOW;
 		}
 	}
+#else
+/*
+	// if any side is translucent, mark the contents
+	// and change solid to window
+	if ( trans & (SURF_TRANS33|SURF_TRANS66) )
+	{
+		contents |= CONTENTS_Q2TRANSLUCENT;
+		if (contents & CONTENTS_SOLID)
+		{
+			contents &= ~CONTENTS_SOLID;
+			contents |= CONTENTS_WINDOW;
+		}
+	}
+*/
+#endif RTCW_XX
 
 	return contents;
 }
@@ -143,7 +159,13 @@ void MakeAreaPortalBrush( mapbrush_t *brush ) {
 	{
 		s = brush->original_sides + sn;
 		//make sure the surfaces are not hint or skip
+
+#if !defined RTCW_ET
 		s->surf &= ~( SURF_HINT | SURF_SKIP );
+#else
+//		s->surf &= ~(SURF_HINT|SURF_SKIP);
+#endif RTCW_XX
+
 		//
 		s->texinfo = 0;
 		s->contents = CONTENTS_AREAPORTAL;
@@ -160,7 +182,13 @@ void DPlanes2MapPlanes( void ) {
 
 	for ( i = 0; i < numplanes; i++ )
 	{
+
+#if !defined RTCW_ET
 		dplanes2mapplanes[i] = FindFloatPlane( dplanes[i].normal, dplanes[i].dist );
+#else
+		dplanes2mapplanes[i] = FindFloatPlane( dplanes[i].normal, dplanes[i].dist, 0, NULL );
+#endif RTCW_XX
+
 	} //end for
 } //end of the function DPlanes2MapPlanes
 //===========================================================================
@@ -289,9 +317,16 @@ void Q2_ParseBrush( script_t *script, entity_t *mapent ) {
 		}
 
 		// translucent objects are automatically classified as detail
+
+#if !defined RTCW_ET
 		if ( side->surf & ( SURF_TRANS33 | SURF_TRANS66 ) ) {
 			side->contents |= CONTENTS_DETAIL;
 		}
+#else
+//		if (side->surf & (SURF_TRANS33|SURF_TRANS66) )
+//			side->contents |= CONTENTS_DETAIL;
+#endif RTCW_XX
+
 		if ( side->contents & ( CONTENTS_PLAYERCLIP | CONTENTS_MONSTERCLIP ) ) {
 			side->contents |= CONTENTS_DETAIL;
 		}
@@ -304,10 +339,19 @@ void Q2_ParseBrush( script_t *script, entity_t *mapent ) {
 		}
 
 		// hints and skips are never detail, and have no content
+
+#if !defined RTCW_ET
 		if ( side->surf & ( SURF_HINT | SURF_SKIP ) ) {
 			side->contents = 0;
 			side->surf &= ~CONTENTS_DETAIL;
 		}
+#else
+//		if (side->surf & (SURF_HINT|SURF_SKIP) )
+//		{
+//			side->contents = 0;
+//			side->surf &= ~CONTENTS_DETAIL;
+//		}
+#endif RTCW_XX
 
 #ifdef ME
 		//for creating AAS... this side is textured
@@ -558,7 +602,13 @@ qboolean    Q2_ParseMapEntity( script_t *script ) {
 				s = &b->original_sides[j];
 				newdist = mapplanes[s->planenum].dist -
 						  DotProduct( mapplanes[s->planenum].normal, mapent->origin );
+
+#if !defined RTCW_ET
 				s->planenum = FindFloatPlane( mapplanes[s->planenum].normal, newdist );
+#else
+				s->planenum = FindFloatPlane( mapplanes[s->planenum].normal, newdist, 0, NULL );
+#endif RTCW_XX
+
 				s->texinfo = TexinfoForBrushTexture( &mapplanes[s->planenum],
 													 &side_brushtextures[s - brushsides], mapent->origin );
 			}
@@ -808,9 +858,16 @@ void Q2_BSPBrushToMapBrush( dbrush_t *bspbrush, entity_t *mapent ) {
 		} else { side->surf = texinfo[bspbrushside->texinfo].flags;}
 
 		// translucent objects are automatically classified as detail
+
+#if !defined RTCW_ET
 		if ( side->surf & ( SURF_TRANS33 | SURF_TRANS66 ) ) {
 			side->contents |= CONTENTS_DETAIL;
 		}
+#else
+//		if (side->surf & (SURF_TRANS33|SURF_TRANS66) )
+//			side->contents |= CONTENTS_DETAIL;
+#endif RTCW_XX
+
 		if ( side->contents & ( CONTENTS_PLAYERCLIP | CONTENTS_MONSTERCLIP ) ) {
 			side->contents |= CONTENTS_DETAIL;
 		}
@@ -823,14 +880,29 @@ void Q2_BSPBrushToMapBrush( dbrush_t *bspbrush, entity_t *mapent ) {
 		}
 
 		// hints and skips are never detail, and have no content
+
+#if !defined RTCW_ET
 		if ( side->surf & ( SURF_HINT | SURF_SKIP ) ) {
 			side->contents = 0;
 			side->surf &= ~CONTENTS_DETAIL;
 		}
+#else
+//		if (side->surf & (SURF_HINT|SURF_SKIP) )
+//		{
+//			side->contents = 0;
+//			side->surf &= ~CONTENTS_DETAIL;
+//		}
+#endif RTCW_XX
 
 		//ME: get a plane for this side
 		bspplane = &dplanes[bspbrushside->planenum];
+
+#if !defined RTCW_ET
 		planenum = FindFloatPlane( bspplane->normal, bspplane->dist );
+#else
+		planenum = FindFloatPlane( bspplane->normal, bspplane->dist, 0, NULL );
+#endif RTCW_XX
+
 		//
 		// see if the plane has been used already
 		//

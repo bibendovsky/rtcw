@@ -36,6 +36,20 @@ If you have questions concerning this license or the applicable additional terms
 //#define	PRE_RELEASE_DEMO
 #endif RTCW_XX
 
+#if defined RTCW_ET
+//bani
+#ifdef __GNUC__
+#define _attribute( x ) __attribute__( x )
+#else
+#define _attribute( x )
+#endif
+
+//#define PRE_RELEASE_DEMO
+#ifdef PRE_RELEASE_DEMO
+#define PRE_RELEASE_DEMO_NODEVMAP
+#endif // PRE_RELEASE_DEMO
+#endif RTCW_XX
+
 //============================================================================
 
 //
@@ -49,7 +63,7 @@ typedef struct {
 	int maxsize;
 	int cursize;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	int uncompsize;             // NERVE - SMF - net debugging
 #endif RTCW_XX
 
@@ -64,7 +78,11 @@ void *MSG_GetSpace( msg_t *buf, int length );
 void MSG_WriteData( msg_t *buf, const void *data, int length );
 void MSG_Bitstream( msg_t *buf );
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+void MSG_Uncompressed( msg_t *buf );
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 // TTimo
 // copy a msg_t in case we need to store it as is for a bit
 // (as I needed this to keep an msg_t from a static var for later use)
@@ -89,6 +107,10 @@ void MSG_WriteAngle16( msg_t *sb, float f );
 
 void    MSG_BeginReading( msg_t *sb );
 void    MSG_BeginReadingOOB( msg_t *sb );
+
+#if defined RTCW_ET
+void    MSG_BeginReadingUncompressed( msg_t *msg );
+#endif RTCW_XX
 
 int     MSG_ReadBits( msg_t *msg, int bits );
 
@@ -193,13 +215,18 @@ void        NET_Config( qboolean enableNetworking );
 void        NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to );
 void QDECL NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *format, ... );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 void QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len );
 #endif RTCW_XX
 
 qboolean    NET_CompareAdr( netadr_t a, netadr_t b );
 qboolean    NET_CompareBaseAdr( netadr_t a, netadr_t b );
 qboolean    NET_IsLocalAddress( netadr_t adr );
+
+#if defined RTCW_ET
+qboolean    NET_IsIPXAddress( const char *buf );
+#endif RTCW_XX
+
 const char  *NET_AdrToString( netadr_t a );
 qboolean    NET_StringToAdr( const char *s, netadr_t *a );
 qboolean    NET_GetLoopPacket( netsrc_t sock, netadr_t *net_from, msg_t *net_message );
@@ -273,7 +300,7 @@ PROTOCOL
 #define UPDATE_SERVER_NAME      "update.gmistudios.com"
 #define MASTER_SERVER_NAME      "master.gmistudios.com"
 #define AUTHORIZE_SERVER_NAME   "authorize.gmistudios.com"
-#elif defined RTCW_MP
+#else
 // sent by the server, printed on connection screen, works for all clients
 // (restrictions: does not handle \n, no more than 256 chars)
 #define PROTOCOL_MISMATCH_ERROR "ERROR: Protocol Mismatch Between Client and Server.\
@@ -285,6 +312,7 @@ The server you attempted to join is running an incompatible version of the game.
 You or the server may be running older versions of the game. Press the auto-update\
  button if it appears on the Main Menu screen."
 
+#if !defined RTCW_ET
 #ifndef PRE_RELEASE_DEMO
 // 1.33 - protocol 59
 // 1.4 - protocol 60
@@ -302,6 +330,41 @@ You or the server may be running older versions of the game. Press the auto-upda
 
 // TTimo: allow override for easy dev/testing..
 // see cons -- update_server=myhost
+#else
+#define GAMENAME_STRING "et"
+#ifndef PRE_RELEASE_DEMO
+// 2.56 - protocol 83
+// 2.4 - protocol 80
+// 1.33 - protocol 59
+// 1.4 - protocol 60
+#define PROTOCOL_VERSION    84
+#else
+// the demo uses a different protocol version for independant browsing
+#define PROTOCOL_VERSION    72
+#endif
+
+// NERVE - SMF - wolf multiplayer master servers
+#ifndef MASTER_SERVER_NAME
+	#define MASTER_SERVER_NAME      "etmaster.idsoftware.com"
+#endif
+#define MOTD_SERVER_NAME        "etmaster.idsoftware.com"    //"etmotd.idsoftware.com"			// ?.?.?.?
+
+#ifdef AUTHORIZE_SUPPORT
+	#define AUTHORIZE_SERVER_NAME   "wolfauthorize.idsoftware.com"
+#endif // AUTHORIZE_SUPPORT
+
+// TTimo: override autoupdate server for testing
+#ifndef AUTOUPDATE_SERVER_NAME
+//	#define AUTOUPDATE_SERVER_NAME "127.0.0.1"
+	#define AUTOUPDATE_SERVER_NAME "au2rtcw2.activision.com"
+#endif
+
+// TTimo: allow override for easy dev/testing..
+// FIXME: not planning to support more than 1 auto update server
+// see cons -- update_server=myhost
+#define MAX_AUTOUPDATE_SERVERS  5
+#endif RTCW_XX
+
 #if !defined( AUTOUPDATE_SERVER_NAME )
   #define AUTOUPDATE_SERVER1_NAME   "au2rtcw1.activision.com"            // DHM - Nerve
   #define AUTOUPDATE_SERVER2_NAME   "au2rtcw2.activision.com"            // DHM - Nerve
@@ -318,8 +381,17 @@ You or the server may be running older versions of the game. Press the auto-upda
 #endif RTCW_XX
 
 #define PORT_MASTER         27950
+
+#if !defined RTCW_ET
 #define PORT_UPDATE         27951
 #define PORT_AUTHORIZE      27952
+#else
+#define PORT_MOTD           27951
+#ifdef AUTHORIZE_SUPPORT
+#define PORT_AUTHORIZE      27952
+#endif // AUTHORIZE_SUPPORT
+#endif RTCW_XX
+
 #define PORT_SERVER         27960
 #define NUM_SERVER_PORTS    4       // broadcast scan this many ports after
 									// PORT_SERVER so a single machine can
@@ -470,7 +542,7 @@ char    *Cmd_Args( void );
 char    *Cmd_ArgsFrom( int arg );
 void    Cmd_ArgsBuffer( char *buffer, int bufferLength );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 char    *Cmd_Cmd( void );
 #endif RTCW_XX
 
@@ -543,6 +615,11 @@ char    *Cvar_VariableString( const char *var_name );
 void    Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
 // returns an empty string if not defined
 
+#if defined RTCW_ET
+void    Cvar_LatchedVariableStringBuffer( const char *var_name, char *buffer, int bufsize );
+// Gordon: returns the latched value if there is one, else the normal one, empty string if not defined as usual
+#endif RTCW_XX
+
 void Cvar_CommandCompletion( void ( *callback )( const char *s ) );
 // callback with each valid string
 
@@ -587,7 +664,17 @@ issues.
 ==============================================================
 */
 
+
+#if !defined RTCW_ET
 #define BASEGAME "main"
+#else
+#ifndef PRE_RELEASE_DEMO
+//#define BASEGAME "main"
+#define BASEGAME "etmain"
+#else
+#define BASEGAME "ettest"
+#endif
+#endif RTCW_XX
 
 // referenced flags
 // these are in loop specific order so don't change the order
@@ -599,6 +686,14 @@ issues.
 #define NUM_ID_PAKS     9
 
 #define MAX_FILE_HANDLES    64
+
+#if defined RTCW_ET
+#ifdef WIN32
+	#define Q_rmdir _rmdir
+#else
+	#define Q_rmdir rmdir
+#endif
+#endif RTCW_XX
 
 qboolean FS_Initialized();
 
@@ -617,6 +712,10 @@ char    **FS_ListFiles( const char *directory, const char *extension, int *numfi
 void    FS_FreeFileList( char **list );
 
 qboolean FS_FileExists( const char *file );
+
+#if defined RTCW_ET
+qboolean FS_OS_FileExists( const char *file ); // TTimo - test file existence given OS path
+#endif RTCW_XX
 
 int     FS_LoadStack();
 
@@ -638,7 +737,7 @@ int     FS_FOpenFileRead( const char *qpath, fileHandle_t *file, qboolean unique
 // FS_FCloseFile instead of fclose, otherwise the pak FILE would be improperly closed
 // It is generally safe to always set uniqueFILE to true, because the majority of
 // file IO goes through FS_ReadFile, which Does The Right Thing already.
-#elif defined RTCW_MP
+#else
 /*
 if uniqueFILE is true, then a new FILE will be fopened even if the file
 is found in an already open pak file.  If uniqueFILE is false, you must call
@@ -733,13 +832,18 @@ void FS_PureServerSetLoadedPaks( const char *pakSums, const char *pakNames );
 // sole exception of .cfg files.
 
 qboolean FS_idPak( char *pak, char *base );
+
+#if defined RTCW_ET
+qboolean FS_VerifyOfficialPaks( void );
+#endif RTCW_XX
+
 qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring );
 
 void FS_Rename( const char *from, const char *to );
 
 #if defined RTCW_SP
 void    FS_CopyFileOS(  char *from, char *to ); //DAJ
-#elif defined RTCW_MP
+#else
 char *FS_BuildOSPath( const char *base, const char *game, const char *qpath );
 
 #if !defined( DEDICATED )
@@ -756,7 +860,27 @@ char *FS_ShiftStr( const char *string, int shift );
 
 void FS_CopyFile( char *fromOSPath, char *toOSPath );
 
+#if defined RTCW_ET
+int FS_CreatePath( const char *OSPath );
+#endif RTCW_XX
+
 qboolean FS_VerifyPak( const char *pak );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+qboolean FS_IsPure( void );
+
+unsigned int FS_ChecksumOSPath( char *OSPath );
+
+/*
+==============================================================
+
+DOWNLOAD
+
+==============================================================
+*/
+
+#include "dl_public.h"
 #endif RTCW_XX
 
 /*
@@ -786,12 +910,26 @@ MISC
 ==============================================================
 */
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // centralizing the declarations for cl_cdkey
 // (old code causing buffer overflows)
 extern char cl_cdkey[34];
 void Com_AppendCDKey( const char *filename );
 void Com_ReadCDKey( const char *filename );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+typedef struct gameInfo_s {
+	qboolean spEnabled;
+	int spGameTypes;
+	int defaultSPGameType;
+	int coopGameTypes;
+	int defaultCoopGameType;
+	int defaultGameType;
+	qboolean usesProfiles;
+} gameInfo_t;
+
+extern gameInfo_t com_gameInfo;
 #endif RTCW_XX
 
 // returnbed by Sys_GetProcessorId
@@ -806,7 +944,7 @@ void Com_ReadCDKey( const char *filename );
 
 #define CPUID_AMD_3DNOW         0x30            // AMD K6 3DNOW!
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // TTimo
 // centralized and cleaned, that's the max string you can send to a Com_Printf / Com_DPrintf (above gets truncated)
 #define MAXPRINTMSG 4096
@@ -817,9 +955,18 @@ void        Info_Print( const char *s );
 
 void Com_BeginRedirect( char *buffer, int buffersize, void ( *flush )( char * ) );
 void        Com_EndRedirect( void );
+
+#if !defined RTCW_ET
 void QDECL Com_Printf( const char *fmt, ... );
 void QDECL Com_DPrintf( const char *fmt, ... );
 void QDECL Com_Error( int code, const char *fmt, ... );
+#else
+int QDECL Com_VPrintf( const char *fmt, va_list argptr ) _attribute( ( format( printf,1,0 ) ) ); // conforms to vprintf prototype for print callback passing
+void QDECL Com_Printf( const char *fmt, ... ) _attribute( ( format( printf,1,2 ) ) ); // this one calls to Com_VPrintf now
+void QDECL Com_DPrintf( const char *fmt, ... ) _attribute( ( format( printf,1,2 ) ) );
+void QDECL Com_Error( int code, const char *fmt, ... ) _attribute( ( format( printf,2,3 ) ) );
+#endif RTCW_XX
+
 void        Com_Quit_f( void );
 int         Com_EventLoop( void );
 int         Com_Milliseconds( void );   // will be journaled properly
@@ -835,7 +982,7 @@ void        Com_StartupVariable( const char *match );
 
 #if defined RTCW_SP
 void        Com_SetRecommended( qboolean vid_restart );
-#elif defined RTCW_MP
+#else
 void        Com_SetRecommended();
 #endif RTCW_XX
 
@@ -843,6 +990,18 @@ void        Com_SetRecommended();
 // if match is NULL, all set commands will be executed, otherwise
 // only a set with the exact name.  Only used during startup.
 
+#if defined RTCW_ET
+//bani - profile functions
+void Com_TrackProfile( char *profile_path );
+qboolean Com_CheckProfile( char *profile_path );
+qboolean Com_WriteProfile( char *profile_path );
+
+extern cvar_t  *com_crashed;
+
+extern cvar_t  *com_ignorecrash;    //bani
+
+extern cvar_t  *com_pid;    //bani
+#endif RTCW_XX
 
 extern cvar_t  *com_developer;
 extern cvar_t  *com_dedicated;
@@ -852,10 +1011,24 @@ extern cvar_t  *com_sv_running;
 extern cvar_t  *com_cl_running;
 extern cvar_t  *com_viewlog;            // 0 = hidden, 1 = visible, 2 = minimized
 extern cvar_t  *com_version;
+
+#if !defined RTCW_ET
 extern cvar_t  *com_blood;
+#else
+//extern	cvar_t	*com_blood;
+#endif RTCW_XX
+
 extern cvar_t  *com_buildScript;        // for building release pak files
 extern cvar_t  *com_journal;
 extern cvar_t  *com_cameraMode;
+
+#if defined RTCW_ET
+extern cvar_t  *com_logosPlaying;
+
+// watchdog
+extern cvar_t  *com_watchdog;
+extern cvar_t  *com_watchdog_cmd;
+#endif RTCW_XX
 
 // both client and server must agree to pause
 extern cvar_t  *cl_paused;
@@ -868,6 +1041,11 @@ extern int time_backend;            // renderer backend time
 
 extern int com_frameTime;
 extern int com_frameMsec;
+
+#if defined RTCW_ET
+extern int com_expectedhunkusage;
+extern int com_hunkusedvalue;
+#endif RTCW_XX
 
 extern qboolean com_errorEntered;
 
@@ -911,7 +1089,7 @@ void *Z_TagMalloc( int size, int tag ); // NOT 0 filled memory
 void *Z_Malloc( int size );         // returns 0 filled memory
 void Z_Free( void *ptr );
 void Z_FreeTags( int tag );
-#elif defined RTCW_MP
+#else
 #ifdef ZONE_DEBUG
 #define Z_TagMalloc( size, tag )          Z_TagMallocDebug( size, tag, # size, __FILE__, __LINE__ )
 #define Z_Malloc( size )                  Z_MallocDebug( size, # size, __FILE__, __LINE__ )
@@ -947,8 +1125,12 @@ void Com_TouchMemory( void );
 // commandLine should not include the executable name (argv[0])
 void Com_Init( char *commandLine );
 void Com_Frame( void );
-void Com_Shutdown( void );
 
+#if !defined RTCW_ET
+void Com_Shutdown( void );
+#else
+void Com_Shutdown( qboolean badProfile );
+#endif RTCW_XX
 
 /*
 ==============================================================
@@ -966,6 +1148,11 @@ void CL_InitKeyCommands( void );
 // config files, but the rest of client startup will happen later
 
 void CL_Init( void );
+
+#if defined RTCW_ET
+void CL_ClearStaticDownload( void );
+#endif RTCW_XX
+
 void CL_Disconnect( qboolean showMainMenu );
 void CL_Shutdown( void );
 void CL_Frame( int msec );
@@ -1020,12 +1207,18 @@ void CL_CheckAutoUpdate( void );
 #endif
 #endif RTCW_XX
 
+#if defined RTCW_ET
+void CL_CheckAutoUpdate( void );
+qboolean CL_NextUpdateServer( void );
+void CL_GetAutoUpdate( void );
+#endif RTCW_XX
+
 void Key_WriteBindings( fileHandle_t f );
 // for writing the config files
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 void S_ClearSoundBuffer( qboolean killStreaming );  //----(SA)	modified
-#elif defined RTCW_MP
+#else
 void S_ClearSoundBuffer( void );
 #endif RTCW_XX
 
@@ -1091,6 +1284,10 @@ sysEvent_t  Sys_GetEvent( void );
 
 void    Sys_Init( void );
 
+#if defined RTCW_ET
+qboolean Sys_IsNumLockDown( void );
+#endif RTCW_XX
+
 void *Sys_InitializeCriticalSection();
 void Sys_EnterCriticalSection( void *ptr );
 void Sys_LeaveCriticalSection( void *ptr );
@@ -1098,7 +1295,7 @@ void Sys_LeaveCriticalSection( void *ptr );
 #if defined RTCW_SP
 // general development dll loading for virtual machine testing
 void    * QDECL Sys_LoadDll( const char *name, int( QDECL * *entryPoint ) ( int, ... ),
-#elif defined RTCW_MP
+#else
 // FIXME: wants win32 implementation
 char* Sys_GetDLLName( const char *name );
 // fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
@@ -1175,7 +1372,7 @@ void    Sys_EndProfiling( void );
 qboolean Sys_LowPhysicalMemory();
 unsigned int Sys_ProcessorCount();
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // NOTE TTimo - on win32 the cwd is prepended .. non portable behaviour
 #endif RTCW_XX
 
@@ -1186,13 +1383,17 @@ void Sys_StartProcess( char *exeName, qboolean doexit );            // NERVE - S
 // show_bug.cgi?id=447
 //int Sys_ShellExecute(char *op, char *file, qboolean doexit, char *params, char *dir);	//----(SA) added
 void Sys_OpenURL( char *url, qboolean doexit );                     // NERVE - SMF
-#elif defined RTCW_MP
+#else
 void Sys_OpenURL( const char *url, qboolean doexit );                       // NERVE - SMF
 #endif RTCW_XX
 
 int Sys_GetHighQualityCPU();
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+float Sys_GetCPUSpeed( void );
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 #ifdef __linux__
 // TTimo only on linux .. maybe on Mac too?
 // will OR with the existing mode (chmod ..+..)
@@ -1254,7 +1455,11 @@ extern huffman_t clientHuffTables;
 #define CL_ENCODE_START     12
 #define CL_DECODE_START     4
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+void Com_GetHunkInfo( int* hunkused, int* hunkexpected );
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 // TTimo
 // dll checksuming stuff, centralizing OS-dependent parts
 // *_SHIFT is the shifting we applied to the reference string
@@ -1289,6 +1494,7 @@ extern huffman_t clientHuffTables;
 
 #elif defined( __MACOS__ )
 
+#if !defined RTCW_ET
 #if 1 //DAJ
 // qagame.mp.i386.so
 #define SYS_DLLNAME_QAGAME_SHIFT 6
@@ -1315,6 +1521,33 @@ extern huffman_t clientHuffTables;
 #define SYS_DLLNAME_UI_SHIFT 0
 #define SYS_DLLNAME_UI "ui_MP.dll"
 #endif  //DAJ
+#else
+#ifdef _DEBUG
+// qagame_d_mac
+	#define SYS_DLLNAME_QAGAME_SHIFT 6
+	#define SYS_DLLNAME_QAGAME "wgmgskejesgi"
+
+// cgame_d_mac
+	#define SYS_DLLNAME_CGAME_SHIFT 2
+	#define SYS_DLLNAME_CGAME "eicogafaoce"
+
+// ui_d_mac
+	#define SYS_DLLNAME_UI_SHIFT 5
+	#define SYS_DLLNAME_UI "zndidrfh"
+#else
+// qagame_mac
+	#define SYS_DLLNAME_QAGAME_SHIFT 6
+	#define SYS_DLLNAME_QAGAME "wgmgskesgi"
+
+// cgame_mac
+	#define SYS_DLLNAME_CGAME_SHIFT 2
+	#define SYS_DLLNAME_CGAME "eicogaoce"
+
+// ui_mac
+	#define SYS_DLLNAME_UI_SHIFT 5
+	#define SYS_DLLNAME_UI "zndrfh"
+#endif
+#endif RTCW_XX
 
 #else
 #error unknown OS

@@ -52,7 +52,13 @@ static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
 	} else {
 		qglTexCoord2fv( tess.svars.texcoords[ 0 ][ index ] );
 	}
+
+#if !defined RTCW_ET
 	qglVertex3fv( tess.xyz[ index ] );
+#else
+	qglVertex3fv( tess.xyz[ index ].v );
+#endif RTCW_XX
+
 }
 
 /*
@@ -260,17 +266,84 @@ Draws triangle outlines for debugging
 ================
 */
 static void DrawTris( shaderCommands_t *input ) {
+
+#if !defined RTCW_ET
 	GL_Bind( tr.whiteImage );
 	qglColor3f( 1,1,1 );
 
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( r_showtris->integer == 1 ) {
 		qglDepthRange( 0, 0 );
 	}
-#elif defined RTCW_MP
+#else
 	qglDepthRange( 0, 0 );
+#endif RTCW_XX
+#else
+	char            *s = r_trisColor->string;
+	vec4_t trisColor = { 1, 1, 1, 1 };
+	unsigned int stateBits = 0;
+
+	GL_Bind( tr.whiteImage );
+
+	if ( *s == '0' && ( *( s + 1 ) == 'x' || *( s + 1 ) == 'X' ) ) {
+		s += 2;
+		if ( Q_IsHexColorString( s ) ) {
+			trisColor[0] = ( (float)( gethex( *( s ) ) * 16 + gethex( *( s + 1 ) ) ) ) / 255.00;
+			trisColor[1] = ( (float)( gethex( *( s + 2 ) ) * 16 + gethex( *( s + 3 ) ) ) ) / 255.00;
+			trisColor[2] = ( (float)( gethex( *( s + 4 ) ) * 16 + gethex( *( s + 5 ) ) ) ) / 255.00;
+
+			if ( Q_HexColorStringHasAlpha( s ) ) {
+				trisColor[3] = ( (float)( gethex( *( s + 6 ) ) * 16 + gethex( *( s + 7 ) ) ) ) / 255.00;
+			}
+		}
+	} else {
+		int i;
+		char    *token;
+
+		for ( i = 0 ; i < 4 ; i++ ) {
+			token = COM_Parse( &s );
+			if ( token ) {
+				trisColor[i] = atof( token );
+			} else {
+				trisColor[i] = 1.f;
+			}
+		}
+
+		if ( !trisColor[3] ) {
+			trisColor[3] = 1.f;
+		}
+	}
+
+	if ( trisColor[3] < 1.f ) {
+		stateBits |= ( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
+	}
+
+	qglColor4fv( trisColor );
+
+	// ydnar r_showtris 2
+	if ( r_showtris->integer == 2 ) {
+		stateBits |= ( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
+		GL_State( stateBits );
+		qglDepthRange( 0, 0 );
+	}
+	#ifdef CELSHADING_HACK
+	else if ( r_showtris->integer == 3 ) {
+		stateBits |= ( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
+		GL_State( stateBits );
+		qglEnable( GL_POLYGON_OFFSET_LINE );
+		qglPolygonOffset( 4.0, 0.5 );
+		qglLineWidth( 5.0 );
+	}
+	#endif
+	else
+	{
+		stateBits |= ( GLS_POLYMODE_LINE );
+		GL_State( stateBits );
+		qglEnable( GL_POLYGON_OFFSET_LINE );
+		qglPolygonOffset( r_offsetFactor->value, r_offsetUnits->value );
+	}
 #endif RTCW_XX
 
 	qglDisableClientState( GL_COLOR_ARRAY );
@@ -290,6 +363,11 @@ static void DrawTris( shaderCommands_t *input ) {
 		GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 	qglDepthRange( 0, 1 );
+
+#if defined RTCW_ET
+	qglDisable( GL_POLYGON_OFFSET_LINE );
+#endif RTCW_XX
+
 }
 
 
@@ -311,19 +389,70 @@ static void DrawNormals( shaderCommands_t *input ) {
 	if ( r_shownormals->integer == 1 ) {
 		qglDepthRange( 0, 0 );  // never occluded
 	}
-#elif defined RTCW_MP
+#else
 	qglDepthRange( 0, 0 );  // never occluded
 #endif RTCW_XX
 
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
 
+#if defined RTCW_ET
+	// ydnar: light direction
+	if ( r_shownormals->integer == 2 ) {
+		trRefEntity_t   *ent = backEnd.currentEntity;
+		vec3_t temp2;
+
+		if ( ent->e.renderfx & RF_LIGHTING_ORIGIN ) {
+			VectorSubtract( ent->e.lightingOrigin, backEnd.orientation.origin, temp2 );
+		} else {
+			VectorClear( temp2 );
+		}
+		temp[ 0 ] = DotProduct( temp2, backEnd.orientation.axis[ 0 ] );
+		temp[ 1 ] = DotProduct( temp2, backEnd.orientation.axis[ 1 ] );
+		temp[ 2 ] = DotProduct( temp2, backEnd.orientation.axis[ 2 ] );
+
+		qglColor3f( ent->ambientLight[ 0 ] / 255, ent->ambientLight[ 1 ] / 255, ent->ambientLight[ 2 ] / 255 );
+		qglPointSize( 5 );
+		qglBegin( GL_POINTS );
+		qglVertex3fv( temp );
+		qglEnd();
+		qglPointSize( 1 );
+
+		if ( fabs( VectorLengthSquared( ent->lightDir ) - 1.0f ) > 0.2f ) {
+			qglColor3f( 1, 0, 0 );
+		} else {
+			qglColor3f( ent->directedLight[ 0 ] / 255, ent->directedLight[ 1 ] / 255, ent->directedLight[ 2 ] / 255 );
+		}
+		qglLineWidth( 3 );
+		qglBegin( GL_LINES );
+		qglVertex3fv( temp );
+		VectorMA( temp, 32, ent->lightDir, temp );
+		qglVertex3fv( temp );
+		qglEnd();
+		qglLineWidth( 1 );
+	}
+	// ydnar: normals drawing
+	else
+	{
+#endif RTCW_XX
+
 	qglBegin( GL_LINES );
 	for ( i = 0 ; i < input->numVertexes ; i++ ) {
+
+#if !defined RTCW_ET
 		qglVertex3fv( input->xyz[i] );
 		VectorMA( input->xyz[i], 2, input->normal[i], temp );
+#else
+			qglVertex3fv( input->xyz[i].v );
+			VectorMA( input->xyz[i].v, r_normallength->value, input->normal[i].v, temp );
+#endif RTCW_XX
+
 		qglVertex3fv( temp );
 	}
 	qglEnd();
+
+#if defined RTCW_ET
+	}
+#endif RTCW_XX
 
 	qglDepthRange( 0, 1 );
 }
@@ -430,7 +559,7 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 }
 
 
-
+#if !defined RTCW_ET
 /*
 ===================
 ProjectDlightTexture
@@ -710,7 +839,286 @@ static void ProjectDlightTexture( void ) {
 		}
 	}
 }
+#endif RTCW_XX
 
+#if defined RTCW_ET
+/*
+DynamicLightSinglePass()
+perform all dynamic lighting with a single rendering pass
+*/
+
+static void DynamicLightSinglePass( void ) {
+	int i, l, a, b, c, color, *intColors;
+	vec3_t origin;
+	byte        *colors;
+	unsigned hitIndexes[ SHADER_MAX_INDEXES ];
+	int numIndexes;
+	float radius, radiusInverseCubed;
+	float intensity, remainder, modulate;
+	vec3_t floatColor, dir;
+	dlight_t    *dl;
+
+
+	// early out
+	if ( backEnd.refdef.num_dlights == 0 ) {
+		return;
+	}
+
+	// clear colors
+	Com_Memset( tess.svars.colors, 0, sizeof( tess.svars.colors ) );
+
+	// walk light list
+	for ( l = 0; l < backEnd.refdef.num_dlights; l++ )
+	{
+		// early out
+		if ( !( tess.dlightBits & ( 1 << l ) ) ) {
+			continue;
+		}
+
+		// setup
+		dl = &backEnd.refdef.dlights[ l ];
+		VectorCopy( dl->transformed, origin );
+		radius = dl->radius;
+		radiusInverseCubed = dl->radiusInverseCubed;
+		intensity = dl->intensity;
+		floatColor[ 0 ] = dl->color[ 0 ] * 255.0f;
+		floatColor[ 1 ] = dl->color[ 1 ] * 255.0f;
+		floatColor[ 2 ] = dl->color[ 2 ] * 255.0f;
+
+		// directional lights have max intensity and washout remainder intensity
+		if ( dl->flags & REF_DIRECTED_DLIGHT ) {
+			remainder = intensity * 0.125;
+		} else {
+			remainder = 0.0f;
+		}
+
+		// illuminate vertexes
+		colors = tess.svars.colors[ 0 ];
+		for ( i = 0; i < tess.numVertexes; i++, colors += 4 )
+		{
+			backEnd.pc.c_dlightVertexes++;
+
+			// directional dlight, origin is a directional normal
+			if ( dl->flags & REF_DIRECTED_DLIGHT ) {
+				// twosided surfaces use absolute value of the calculated lighting
+				modulate = intensity * DotProduct( dl->origin, tess.normal[ i ].v );
+				if ( tess.shader->cullType == CT_TWO_SIDED ) {
+					modulate = fabs( modulate );
+				}
+				modulate += remainder;
+			}
+			// ball dlight
+			else
+			{
+				dir[ 0 ] = radius - fabs( origin[ 0 ] - tess.xyz[ i ].v[ 0 ] );
+				if ( dir[ 0 ] <= 0.0f ) {
+					continue;
+				}
+				dir[ 1 ] = radius - fabs( origin[ 1 ] - tess.xyz[ i ].v[ 1 ] );
+				if ( dir[ 1 ] <= 0.0f ) {
+					continue;
+				}
+				dir[ 2 ] = radius - fabs( origin[ 2 ] - tess.xyz[ i ].v[ 2 ] );
+				if ( dir[ 2 ] <= 0.0f ) {
+					continue;
+				}
+
+				modulate = intensity * dir[ 0 ] * dir[ 1 ] * dir[ 2 ] * radiusInverseCubed;
+			}
+
+			// optimizations
+			if ( modulate < ( 1.0f / 128.0f ) ) {
+				continue;
+			} else if ( modulate > 1.0f ) {
+				modulate = 1.0f;
+			}
+
+			// add to color
+			color = colors[ 0 ] + myftol( floatColor[ 0 ] * modulate );
+			colors[ 0 ] = color > 255 ? 255 : color;
+			color = colors[ 1 ] + myftol( floatColor[ 1 ] * modulate );
+			colors[ 1 ] = color > 255 ? 255 : color;
+			color = colors[ 2 ] + myftol( floatColor[ 2 ] * modulate );
+			colors[ 2 ] = color > 255 ? 255 : color;
+		}
+	}
+
+	// build a list of triangles that need light
+	intColors = (int*) tess.svars.colors;
+	numIndexes = 0;
+	for ( i = 0; i < tess.numIndexes; i += 3 )
+	{
+		a = tess.indexes[ i ];
+		b = tess.indexes[ i + 1 ];
+		c = tess.indexes[ i + 2 ];
+		if ( !( intColors[ a ] | intColors[ b ] | intColors[ c ] ) ) {
+			continue;
+		}
+		hitIndexes[ numIndexes++ ] = a;
+		hitIndexes[ numIndexes++ ] = b;
+		hitIndexes[ numIndexes++ ] = c;
+	}
+
+	if ( numIndexes == 0 ) {
+		return;
+	}
+
+	// debug code
+	//%	for( i = 0; i < numIndexes; i++ )
+	//%		intColors[ hitIndexes[ i ] ] = 0x000000FF;
+
+	qglEnableClientState( GL_COLOR_ARRAY );
+	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
+
+	// render the dynamic light pass
+	R_FogOff();
+	GL_Bind( tr.whiteImage );
+	GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
+	R_DrawElements( numIndexes, hitIndexes );
+	backEnd.pc.c_totalIndexes += numIndexes;
+	backEnd.pc.c_dlightIndexes += numIndexes;
+	R_FogOn();
+}
+
+
+
+/*
+DynamicLightPass()
+perform dynamic lighting with multiple rendering passes
+*/
+
+static void DynamicLightPass( void ) {
+	int i, l, a, b, c, color, *intColors;
+	vec3_t origin;
+	byte        *colors;
+	unsigned hitIndexes[ SHADER_MAX_INDEXES ];
+	int numIndexes;
+	float radius, radiusInverseCubed;
+	float intensity, remainder, modulate;
+	vec3_t floatColor, dir;
+	dlight_t    *dl;
+
+
+	// early out
+	if ( backEnd.refdef.num_dlights == 0 ) {
+		return;
+	}
+
+	// walk light list
+	for ( l = 0; l < backEnd.refdef.num_dlights; l++ )
+	{
+		// early out
+		if ( !( tess.dlightBits & ( 1 << l ) ) ) {
+			continue;
+		}
+
+		// clear colors
+		Com_Memset( tess.svars.colors, 0, sizeof( tess.svars.colors ) );
+
+		// setup
+		dl = &backEnd.refdef.dlights[ l ];
+		VectorCopy( dl->transformed, origin );
+		radius = dl->radius;
+		radiusInverseCubed = dl->radiusInverseCubed;
+		intensity = dl->intensity;
+		floatColor[ 0 ] = dl->color[ 0 ] * 255.0f;
+		floatColor[ 1 ] = dl->color[ 1 ] * 255.0f;
+		floatColor[ 2 ] = dl->color[ 2 ] * 255.0f;
+
+		// directional lights have max intensity and washout remainder intensity
+		if ( dl->flags & REF_DIRECTED_DLIGHT ) {
+			remainder = intensity * 0.125;
+		} else {
+			remainder = 0.0f;
+		}
+
+		// illuminate vertexes
+		colors = tess.svars.colors[ 0 ];
+		for ( i = 0; i < tess.numVertexes; i++, colors += 4 )
+		{
+			backEnd.pc.c_dlightVertexes++;
+
+			// directional dlight, origin is a directional normal
+			if ( dl->flags & REF_DIRECTED_DLIGHT ) {
+				// twosided surfaces use absolute value of the calculated lighting
+				modulate = intensity * DotProduct( dl->origin, tess.normal[ i ].v );
+				if ( tess.shader->cullType == CT_TWO_SIDED ) {
+					modulate = fabs( modulate );
+				}
+				modulate += remainder;
+			}
+			// ball dlight
+			else
+			{
+				dir[ 0 ] = radius - fabs( origin[ 0 ] - tess.xyz[ i ].v[ 0 ] );
+				if ( dir[ 0 ] <= 0.0f ) {
+					continue;
+				}
+				dir[ 1 ] = radius - fabs( origin[ 1 ] - tess.xyz[ i ].v[ 1 ] );
+				if ( dir[ 1 ] <= 0.0f ) {
+					continue;
+				}
+				dir[ 2 ] = radius - fabs( origin[ 2 ] - tess.xyz[ i ].v[ 2 ] );
+				if ( dir[ 2 ] <= 0.0f ) {
+					continue;
+				}
+
+				modulate = intensity * dir[ 0 ] * dir[ 1 ] * dir[ 2 ] * radiusInverseCubed;
+			}
+
+			// optimizations
+			if ( modulate < ( 1.0f / 128.0f ) ) {
+				continue;
+			} else if ( modulate > 1.0f ) {
+				modulate = 1.0f;
+			}
+
+			// set color
+			color = myftol( floatColor[ 0 ] * modulate );
+			colors[ 0 ] = color > 255 ? 255 : color;
+			color = myftol( floatColor[ 1 ] * modulate );
+			colors[ 1 ] = color > 255 ? 255 : color;
+			color = myftol( floatColor[ 2 ] * modulate );
+			colors[ 2 ] = color > 255 ? 255 : color;
+		}
+
+		// build a list of triangles that need light
+		intColors = (int*) tess.svars.colors;
+		numIndexes = 0;
+		for ( i = 0; i < tess.numIndexes; i += 3 )
+		{
+			a = tess.indexes[ i ];
+			b = tess.indexes[ i + 1 ];
+			c = tess.indexes[ i + 2 ];
+			if ( !( intColors[ a ] | intColors[ b ] | intColors[ c ] ) ) {
+				continue;
+			}
+			hitIndexes[ numIndexes++ ] = a;
+			hitIndexes[ numIndexes++ ] = b;
+			hitIndexes[ numIndexes++ ] = c;
+		}
+
+		if ( numIndexes == 0 ) {
+			continue;
+		}
+
+		// debug code (fixme, there's a bug in this function!)
+		//%	for( i = 0; i < numIndexes; i++ )
+		//%		intColors[ hitIndexes[ i ] ] = 0x000000FF;
+
+		qglEnableClientState( GL_COLOR_ARRAY );
+		qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
+
+		R_FogOff();
+		GL_Bind( tr.whiteImage );
+		GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
+		R_DrawElements( numIndexes, hitIndexes );
+		backEnd.pc.c_totalIndexes += numIndexes;
+		backEnd.pc.c_dlightIndexes += numIndexes;
+		R_FogOn();
+	}
+}
+#endif RTCW_XX
 
 /*
 ===================
@@ -723,9 +1131,22 @@ static void RB_FogPass( void ) {
 	fog_t       *fog;
 	int i;
 
+#if !defined RTCW_ET
 	if ( tr.refdef.rdflags & RDF_SNOOPERVIEW ) { // no fog pass in snooper
+#else
+	// no fog pass in snooper
+	if ( tr.refdef.rdflags & RDF_SNOOPERVIEW || tess.shader->noFog || !r_wolffog->integer ) {
+#endif RTCW_XX
+
 		return;
 	}
+
+#if defined RTCW_ET
+	// ydnar: no world, no fogging
+	if ( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) {
+		return;
+	}
+#endif RTCW_XX
 
 	qglEnableClientState( GL_COLOR_ARRAY );
 	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
@@ -736,7 +1157,13 @@ static void RB_FogPass( void ) {
 	fog = tr.world->fogs + tess.fogNum;
 
 	for ( i = 0; i < tess.numVertexes; i++ ) {
+
+#if !defined RTCW_ET
 		*( int * )&tess.svars.colors[i] = fog->colorInt;
+#else
+		*( int * )&tess.svars.colors[i] = fog->shader->fogParms.colorInt;
+#endif RTCW_XX
+
 	}
 
 	RB_CalcFogTexCoords( ( float * ) tess.svars.texcoords[0] );
@@ -776,7 +1203,13 @@ static void ComputeColors( shaderStage_t *pStage ) {
 		RB_CalcDiffuseColor( ( unsigned char * ) tess.svars.colors );
 		break;
 	case CGEN_EXACT_VERTEX:
+
+#if !defined RTCW_ET
 		memcpy( tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof( tess.vertexColors[0] ) );
+#else
+		memcpy( tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof( tess.vertexColors[0].v ) );
+#endif RTCW_XX
+
 		break;
 	case CGEN_CONST:
 		for ( i = 0; i < tess.numVertexes; i++ ) {
@@ -785,15 +1218,30 @@ static void ComputeColors( shaderStage_t *pStage ) {
 		break;
 	case CGEN_VERTEX:
 		if ( tr.identityLight == 1 ) {
+
+#if !defined RTCW_ET
 			memcpy( tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof( tess.vertexColors[0] ) );
+#else
+			memcpy( tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof( tess.vertexColors[0].v ) );
+#endif RTCW_XX
+
 		} else
 		{
 			for ( i = 0; i < tess.numVertexes; i++ )
 			{
+
+#if !defined RTCW_ET
 				tess.svars.colors[i][0] = tess.vertexColors[i][0] * tr.identityLight;
 				tess.svars.colors[i][1] = tess.vertexColors[i][1] * tr.identityLight;
 				tess.svars.colors[i][2] = tess.vertexColors[i][2] * tr.identityLight;
 				tess.svars.colors[i][3] = tess.vertexColors[i][3];
+#else
+				tess.svars.colors[i][0] = tess.vertexColors[i].v[0] * tr.identityLight;
+				tess.svars.colors[i][1] = tess.vertexColors[i].v[1] * tr.identityLight;
+				tess.svars.colors[i][2] = tess.vertexColors[i].v[2] * tr.identityLight;
+				tess.svars.colors[i][3] = tess.vertexColors[i].v[3];
+#endif RTCW_XX
+
 			}
 		}
 		break;
@@ -801,17 +1249,33 @@ static void ComputeColors( shaderStage_t *pStage ) {
 		if ( tr.identityLight == 1 ) {
 			for ( i = 0; i < tess.numVertexes; i++ )
 			{
+
+#if !defined RTCW_ET
 				tess.svars.colors[i][0] = 255 - tess.vertexColors[i][0];
 				tess.svars.colors[i][1] = 255 - tess.vertexColors[i][1];
 				tess.svars.colors[i][2] = 255 - tess.vertexColors[i][2];
+#else
+				tess.svars.colors[i][0] = 255 - tess.vertexColors[i].v[0];
+				tess.svars.colors[i][1] = 255 - tess.vertexColors[i].v[1];
+				tess.svars.colors[i][2] = 255 - tess.vertexColors[i].v[2];
+#endif RTCW_XX
+
 			}
 		} else
 		{
 			for ( i = 0; i < tess.numVertexes; i++ )
 			{
+
+#if !defined RTCW_ET
 				tess.svars.colors[i][0] = ( 255 - tess.vertexColors[i][0] ) * tr.identityLight;
 				tess.svars.colors[i][1] = ( 255 - tess.vertexColors[i][1] ) * tr.identityLight;
 				tess.svars.colors[i][2] = ( 255 - tess.vertexColors[i][2] ) * tr.identityLight;
+#else
+				tess.svars.colors[i][0] = ( 255 - tess.vertexColors[i].v[0] ) * tr.identityLight;
+				tess.svars.colors[i][1] = ( 255 - tess.vertexColors[i].v[1] ) * tr.identityLight;
+				tess.svars.colors[i][2] = ( 255 - tess.vertexColors[i].v[2] ) * tr.identityLight;
+#endif RTCW_XX
+
 			}
 		}
 		break;
@@ -822,7 +1286,13 @@ static void ComputeColors( shaderStage_t *pStage ) {
 		fog = tr.world->fogs + tess.fogNum;
 
 		for ( i = 0; i < tess.numVertexes; i++ ) {
+
+#if !defined RTCW_ET
 			*( int * )&tess.svars.colors[i] = fog->colorInt;
+#else
+			*( int * )&tess.svars.colors[i] = fog->shader->fogParms.colorInt;
+#endif RTCW_XX
+
 		}
 	}
 	break;
@@ -902,7 +1372,12 @@ static void ComputeColors( shaderStage_t *pStage ) {
 		}
 		range = highest - lowest;
 		for ( i = 0; i < tess.numVertexes; i++ ) {
+
+#if !defined RTCW_ET
 			dot = DotProduct( tess.normal[i], worldUp );
+#else
+			dot = DotProduct( tess.normal[i].v, worldUp );
+#endif RTCW_XX
 
 			// special handling for Zombie fade effect
 			if ( zombieEffect ) {
@@ -949,14 +1424,26 @@ static void ComputeColors( shaderStage_t *pStage ) {
 	case AGEN_VERTEX:
 		if ( pStage->rgbGen != CGEN_VERTEX ) {
 			for ( i = 0; i < tess.numVertexes; i++ ) {
+
+#if !defined RTCW_ET
 				tess.svars.colors[i][3] = tess.vertexColors[i][3];
+#else
+				tess.svars.colors[i][3] = tess.vertexColors[i].v[3];
+#endif RTCW_XX
+
 			}
 		}
 		break;
 	case AGEN_ONE_MINUS_VERTEX:
 		for ( i = 0; i < tess.numVertexes; i++ )
 		{
+
+#if !defined RTCW_ET
 			tess.svars.colors[i][3] = 255 - tess.vertexColors[i][3];
+#else
+			tess.svars.colors[i][3] = 255 - tess.vertexColors[i].v[3];
+#endif RTCW_XX
+
 		}
 		break;
 	case AGEN_PORTAL:
@@ -968,7 +1455,12 @@ static void ComputeColors( shaderStage_t *pStage ) {
 			float len;
 			vec3_t v;
 
+#if !defined RTCW_ET
 			VectorSubtract( tess.xyz[i], backEnd.viewParms.or.origin, v );
+#else
+			VectorSubtract( tess.xyz[i].v, backEnd.viewParms.orientation.origin, v );
+#endif RTCW_XX
+
 			len = VectorLength( v );
 
 			len /= tess.shader->portalRange;
@@ -991,7 +1483,13 @@ static void ComputeColors( shaderStage_t *pStage ) {
 	//
 	// fog adjustment for colors to fade out as fog increases
 	//
+
+#if !defined RTCW_ET
 	if ( tess.fogNum ) {
+#else
+	if ( tess.fogNum && !tess.shader->noFog ) {
+#endif RTCW_XX
+
 		switch ( pStage->adjustColorsForFog )
 		{
 		case ACFF_MODULATE_RGB:
@@ -1031,20 +1529,41 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 			break;
 		case TCGEN_TEXTURE:
 			for ( i = 0 ; i < tess.numVertexes ; i++ ) {
+
+#if !defined RTCW_ET
 				tess.svars.texcoords[b][i][0] = tess.texCoords[i][0][0];
 				tess.svars.texcoords[b][i][1] = tess.texCoords[i][0][1];
+#else
+				tess.svars.texcoords[b][i][0] = tess.texCoords0[i].v[0];
+				tess.svars.texcoords[b][i][1] = tess.texCoords0[i].v[1];
+#endif RTCW_XX
+
 			}
 			break;
 		case TCGEN_LIGHTMAP:
 			for ( i = 0 ; i < tess.numVertexes ; i++ ) {
+
+#if !defined RTCW_ET
 				tess.svars.texcoords[b][i][0] = tess.texCoords[i][1][0];
 				tess.svars.texcoords[b][i][1] = tess.texCoords[i][1][1];
+#else
+				tess.svars.texcoords[b][i][0] = tess.texCoords1[i].v[0];
+				tess.svars.texcoords[b][i][1] = tess.texCoords1[i].v[1];
+#endif RTCW_XX
+
 			}
 			break;
 		case TCGEN_VECTOR:
 			for ( i = 0 ; i < tess.numVertexes ; i++ ) {
+
+#if !defined RTCW_ET
 				tess.svars.texcoords[b][i][0] = DotProduct( tess.xyz[i], pStage->bundle[b].tcGenVectors[0] );
 				tess.svars.texcoords[b][i][1] = DotProduct( tess.xyz[i], pStage->bundle[b].tcGenVectors[1] );
+#else
+				tess.svars.texcoords[b][i][0] = DotProduct( tess.xyz[i].v, pStage->bundle[b].tcGenVectors[0] );
+				tess.svars.texcoords[b][i][1] = DotProduct( tess.xyz[i].v, pStage->bundle[b].tcGenVectors[1] );
+#endif RTCW_XX
+
 			}
 			break;
 		case TCGEN_FOG:
@@ -1199,11 +1718,18 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input ) {
 			//
 			// set state
 			//
+
+#if !defined RTCW_ET
 			if ( pStage->bundle[0].vertexLightmap && ( ( r_vertexLight->integer && !r_uiFullScreen->integer ) || glConfig.hardwareType == GLHW_PERMEDIA2 ) && r_lightmap->integer ) {
 				GL_Bind( tr.whiteImage );
 			} else {
+#endif RTCW_XX
+
 				R_BindAnimatedImage( &pStage->bundle[0] );
+
+#if !defined RTCW_ET
 			}
+#endif RTCW_XX
 
 			// Ridah, per stage fogging (detail textures)
 			if ( tess.shader->noFog && pStage->isFogged ) {
@@ -1249,10 +1775,28 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input ) {
 						tess.svars.colors[i][3] *= alphaval;
 					}
 				}
+
+#if !defined RTCW_ET
+			} else {
+				GL_State( pStage->stateBits );
+#endif RTCW_XX
+
+			}
+			//----(SA)	end
+
+#if defined RTCW_ET
+			// ydnar: lightmap stages should be GL_ONE GL_ZERO so they can be seen
+			else if ( r_lightmap->integer && ( pStage->bundle[0].isLightmap || pStage->bundle[1].isLightmap ) ) {
+				unsigned int stateBits;
+
+
+				stateBits = ( pStage->stateBits & ~( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) |
+							( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
+				GL_State( stateBits );
 			} else {
 				GL_State( pStage->stateBits );
 			}
-			//----(SA)	end
+#endif RTCW_XX
 
 			//
 			// draw
@@ -1260,7 +1804,13 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input ) {
 			R_DrawElements( input->numIndexes, input->indexes );
 		}
 		// allow skipping out to show just lightmaps during development
+
+#if !defined RTCW_ET
 		if ( r_lightmap->integer && ( pStage->bundle[0].isLightmap || pStage->bundle[1].isLightmap || pStage->bundle[0].vertexLightmap ) ) {
+#else
+		if ( r_lightmap->integer && ( pStage->bundle[0].isLightmap || pStage->bundle[1].isLightmap ) ) {
+#endif RTCW_XX
+
 			break;
 		}
 	}
@@ -1367,9 +1917,23 @@ void RB_StageIteratorGeneric( void ) {
 	//
 	// now do any dynamic lighting needed
 	//
+
+#if !defined RTCW_ET
 	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE
 		 && !( tess.shader->surfaceFlags & ( SURF_NODLIGHT | SURF_SKY ) ) ) {
 		ProjectDlightTexture();
+#else
+	//%	tess.dlightBits = 255;	// HACK!
+	//%	if( tess.dlightBits && tess.shader->sort <= SS_OPAQUE &&
+	if ( tess.dlightBits && tess.shader->fogPass &&
+		 !( tess.shader->surfaceFlags & ( SURF_NODLIGHT | SURF_SKY ) ) ) {
+		if ( r_dynamiclight->integer == 2 ) {
+			DynamicLightPass();
+		} else {
+			DynamicLightSinglePass();
+		}
+#endif RTCW_XX
+
 	}
 
 	//
@@ -1462,7 +2026,13 @@ void RB_StageIteratorVertexLitTexture( void ) {
 #endif RTCW_XX
 
 	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
+
+#if !defined RTCW_ET
 	qglTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][0] );
+#else
+	qglTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords0 );
+#endif RTCW_XX
+
 	qglVertexPointer( 3, GL_FLOAT, 16, input->xyz );
 
 	if ( qglLockArraysEXT ) {
@@ -1480,9 +2050,22 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	//
 	// now do any dynamic lighting needed
 	//
+
+#if !defined RTCW_ET
 	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE ) {
 		ProjectDlightTexture();
 	}
+#else
+	//%	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE )
+	if ( tess.dlightBits && tess.shader->fogPass &&
+		 !( tess.shader->surfaceFlags & ( SURF_NODLIGHT | SURF_SKY ) ) ) {
+		if ( r_dynamiclight->integer == 2 ) {
+			DynamicLightPass();
+		} else {
+			DynamicLightSinglePass();
+		}
+	}
+#endif RTCW_XX
 
 	//
 	// now do fog
@@ -1569,7 +2152,12 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	R_BindAnimatedImage( &tess.xstages[0]->bundle[0] );
+
+#if !defined RTCW_ET
 	qglTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][0] );
+#else
+	qglTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords0 );
+#endif RTCW_XX
 
 	//
 	// configure second stage
@@ -1590,7 +2178,12 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	}
 
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+
+#if !defined RTCW_ET
 	qglTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][1] );
+#else
+	qglTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords1 );
+#endif RTCW_XX
 
 	//
 	// lock arrays
@@ -1617,8 +2210,21 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	//
 	// now do any dynamic lighting needed
 	//
+
+#if !defined RTCW_ET
 	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE ) {
 		ProjectDlightTexture();
+#else
+	//%	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE )
+	if ( tess.dlightBits && tess.shader->fogPass &&
+		 !( tess.shader->surfaceFlags & ( SURF_NODLIGHT | SURF_SKY ) ) ) {
+		if ( r_dynamiclight->integer == 2 ) {
+			DynamicLightPass();
+		} else {
+			DynamicLightSinglePass();
+		}
+#endif RTCW_XX
+
 	}
 
 	//
@@ -1661,12 +2267,21 @@ void RB_EndSurface( void ) {
 		return;
 	}
 
+#if !defined RTCW_ET
 	if ( input->indexes[SHADER_MAX_INDEXES - 1] != 0 ) {
 		ri.Error( ERR_DROP, "RB_EndSurface() - SHADER_MAX_INDEXES hit" );
 	}
 	if ( input->xyz[SHADER_MAX_VERTEXES - 1][0] != 0 ) {
 		ri.Error( ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit" );
 	}
+#else
+	if ( input->indexes[input->maxShaderIndicies - 1] != 0 ) {
+		ri.Error( ERR_DROP, "RB_EndSurface() - input->maxShaderIndicies(%i) hit", input->maxShaderIndicies );
+	}
+	if ( input->xyz[input->maxShaderVerts - 1].v[0] != 0 ) {
+		ri.Error( ERR_DROP, "RB_EndSurface() - input->maxShaderVerts(%i) hit", input->maxShaderVerts );
+	}
+#endif RTCW_XX
 
 	if ( tess.shader == tr.shadowShader ) {
 		RB_ShadowTessEnd();

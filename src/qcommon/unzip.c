@@ -1324,7 +1324,11 @@ extern unzFile unzReOpen (const char* path, unzFile file)
 	Com_Memcpy(s, (unz_s*)file, sizeof(unz_s));
 
 	s->file = fin;
+
+#if !defined RTCW_ET
 	s->pfile_in_zip_read = NULL;
+#endif RTCW_XX
+
 	return (unzFile)s;	
 }
 

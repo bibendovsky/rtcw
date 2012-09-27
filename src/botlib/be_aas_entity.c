@@ -53,15 +53,17 @@ If you have questions concerning this license or the applicable additional terms
 
 // Ridah, always use the default world for entities
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 extern aas_t aasworlds[MAX_AAS_WORLDS];
-#elif defined RTCW_MP
+#else
 extern aas_t aasworlds[2];
 #endif RTCW_XX
 
 aas_t *defaultaasworld = aasworlds;
 
 //FIXME: these might change
+
+#if !defined RTCW_ET
 enum {
 	ET_GENERAL,
 	ET_PLAYER,
@@ -69,6 +71,15 @@ enum {
 	ET_MISSILE,
 	ET_MOVER
 };
+#else
+/*enum {
+	ET_GENERAL,
+	ET_PLAYER,
+	ET_ITEM,
+	ET_MISSILE,
+	ET_MOVER
+};*/
+#endif RTCW_XX
 
 //===========================================================================
 //
@@ -117,7 +128,14 @@ int AAS_UpdateEntity( int entnum, bot_entitystate_t *state ) {
 
 	if ( ( *defaultaasworld ).numframes == 1 ) {
 		relink = qtrue;
+
+#if !defined RTCW_ET
 	} else { relink = qfalse;}
+#else
+	} else {
+		relink = qfalse;
+	}
+#endif RTCW_XX
 
 	//
 	if ( ent->i.solid == SOLID_BSP ) {
@@ -128,7 +146,16 @@ int AAS_UpdateEntity( int entnum, bot_entitystate_t *state ) {
 		} //end if
 		  //get the mins and maxs of the model
 		  //FIXME: rotate mins and maxs
+
+#if !defined RTCW_ET
 		AAS_BSPModelMinsMaxsOrigin( ent->i.modelindex, ent->i.angles, ent->i.mins, ent->i.maxs, NULL );
+#else
+		// RF, this is broken, just use the state bounds
+		//AAS_BSPModelMinsMaxsOrigin(ent->i.modelindex, ent->i.angles, ent->i.mins, ent->i.maxs, NULL);
+		VectorCopy( state->mins, ent->i.mins );
+		VectorCopy( state->maxs, ent->i.maxs );
+#endif RTCW_XX
+
 	} //end if
 	else if ( ent->i.solid == SOLID_BBOX ) {
 		//if the bounding box size changed
@@ -171,6 +198,7 @@ int AAS_UpdateEntity( int entnum, bot_entitystate_t *state ) {
 // Changes Globals:		-
 //===========================================================================
 void AAS_EntityInfo( int entnum, aas_entityinfo_t *info ) {
+#if !defined RTCW_ET
 	if ( !( *defaultaasworld ).initialized ) {
 		botimport.Print( PRT_FATAL, "AAS_EntityInfo: (*defaultaasworld) not initialized\n" );
 		memset( info, 0, sizeof( aas_entityinfo_t ) );
@@ -179,6 +207,26 @@ void AAS_EntityInfo( int entnum, aas_entityinfo_t *info ) {
 
 	if ( entnum < 0 || entnum >= ( *defaultaasworld ).maxentities ) {
 		botimport.Print( PRT_FATAL, "AAS_EntityInfo: entnum %d out of range\n", entnum );
+#else
+	// Gordon: lets not spam this message making it impossible to see anything on the console
+	static qboolean debug_msg_done = qfalse;
+
+	if ( !( *defaultaasworld ).initialized ) {
+		if ( !debug_msg_done ) {
+			debug_msg_done = qtrue;
+			botimport.Print( PRT_FATAL, "AAS_EntityInfo: (*defaultaasworld) not initialized\n" );
+			memset( info, 0, sizeof( aas_entityinfo_t ) );
+		}
+		return;
+	} //end if
+
+	if ( entnum < 0 || entnum >= ( *defaultaasworld ).maxentities ) {
+		// if it's not a bot game entity, then report it
+		if ( !( entnum >= ( *defaultaasworld ).maxentities && entnum < ( *defaultaasworld ).maxentities + NUM_BOTGAMEENTITIES ) ) {
+			botimport.Print( PRT_FATAL, "AAS_EntityInfo: entnum %d out of range\n", entnum );
+		}
+#endif RTCW_XX
+
 		memset( info, 0, sizeof( aas_entityinfo_t ) );
 		return;
 	} //end if
@@ -413,7 +461,10 @@ AAS_EntityInArea
 int AAS_IsEntityInArea( int entnumIgnore, int entnumIgnore2, int areanum ) {
 	aas_link_t *link;
 	aas_entity_t *ent;
+
+#if !defined RTCW_ET
 //	int i;
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	// RF, not functional (doesnt work with multiple areas)
@@ -469,15 +520,26 @@ AAS_SetAASBlockingEntity
 =============
 */
 int AAS_EnableRoutingArea( int areanum, int enable );
+
+#if !defined RTCW_ET
 void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, qboolean blocking ) {
 	int areas[128];
+#else
+void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, int blocking ) {
+	int areas[1024];
+#endif RTCW_XX
+
 	int numareas, i, w;
+
+#if defined RTCW_ET
+	qboolean mover, changed = qfalse;
+#endif RTCW_XX
 	//
 	// check for resetting AAS blocking
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( VectorCompare( absmin, absmax ) && blocking < 0 ) {
-#elif defined RTCW_MP
+#else
 	// TTimo WTF?? qboolean blocking
 	// warning: comparison is always false due to limited range of data type
 	//  if (VectorCompare( absmin, absmax ) && blocking < 0) {
@@ -499,6 +561,19 @@ void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, qboolean blocking )
 		return;
 	}
 	//
+
+#if defined RTCW_ET
+	if ( blocking & BLOCKINGFLAG_MOVER ) {
+		mover = qtrue;
+		blocking &= ~BLOCKINGFLAG_MOVER;
+	} else {
+		mover = qfalse;
+	}
+	//
+areas_again:
+	//
+#endif RTCW_XX
+
 	for ( w = 0; w < MAX_AAS_WORLDS; w++ ) {
 		AAS_SetCurrentWorld( w );
 		//
@@ -506,10 +581,36 @@ void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, qboolean blocking )
 			continue;
 		}
 		// grab the list of areas
+
+#if !defined RTCW_ET
 		numareas = AAS_BBoxAreas( absmin, absmax, areas, 128 );
+#else
+		numareas = AAS_BBoxAreas( absmin, absmax, areas, 1024 );
+#endif RTCW_XX
+
 		// now set their blocking status
 		for ( i = 0; i < numareas; i++ ) {
+
+#if !defined RTCW_ET
 			AAS_EnableRoutingArea( areas[i], !blocking );
 		}
 	}
 }
+#else
+			if ( mover ) {
+				if ( !( aasworld->areasettings[areas[i]].contents & AREACONTENTS_MOVER ) ) {
+					continue;   // this isn't a mover area, so ignore it
+				}
+			}
+			AAS_EnableRoutingArea( areas[i], ( blocking & ~0x1 ) | !( blocking & 1 ) );
+			changed = qtrue;
+		}
+	}
+	//
+	if ( mover && !changed ) {    // map must not be compiled with MOVER flags enabled, so redo the old way
+		mover = qfalse;
+		goto areas_again;
+	}
+}
+#endif RTCW_X
+

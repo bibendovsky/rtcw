@@ -46,25 +46,51 @@ void R_PerformanceCounters( void ) {
 		return;
 	}
 
+#if !defined RTCW_ET
 	if ( r_speeds->integer == 1 ) {
+#else
+	if ( r_speeds->integer ) { //%	== 1)
+#endif RTCW_XX
+
 		ri.Printf( PRINT_ALL, "%i/%i shaders/surfs %i leafs %i verts %i/%i tris %.2f mtex %.2f dc\n",
 				   backEnd.pc.c_shaders, backEnd.pc.c_surfaces, tr.pc.c_leafs, backEnd.pc.c_vertexes,
 				   backEnd.pc.c_indexes / 3, backEnd.pc.c_totalIndexes / 3,
 				   R_SumOfUsedImages() / ( 1000000.0f ), backEnd.pc.c_overDraw / (float)( glConfig.vidWidth * glConfig.vidHeight ) );
+
+#if !defined RTCW_ET
 	} else if ( r_speeds->integer == 2 ) {
+#else
+	}
+
+	if ( r_speeds->integer == 2 ) {
+#endif RTCW_XX
+
 		ri.Printf( PRINT_ALL, "(patch) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n",
 				   tr.pc.c_sphere_cull_patch_in, tr.pc.c_sphere_cull_patch_clip, tr.pc.c_sphere_cull_patch_out,
 				   tr.pc.c_box_cull_patch_in, tr.pc.c_box_cull_patch_clip, tr.pc.c_box_cull_patch_out );
 		ri.Printf( PRINT_ALL, "(md3) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n",
 				   tr.pc.c_sphere_cull_md3_in, tr.pc.c_sphere_cull_md3_clip, tr.pc.c_sphere_cull_md3_out,
 				   tr.pc.c_box_cull_md3_in, tr.pc.c_box_cull_md3_clip, tr.pc.c_box_cull_md3_out );
+
+#if defined RTCW_ET
+		ri.Printf( PRINT_ALL, "(gen) %i sin %i sout %i pin %i pout\n",
+				   tr.pc.c_sphere_cull_in, tr.pc.c_sphere_cull_out,
+				   tr.pc.c_plane_cull_in, tr.pc.c_plane_cull_out );
+#endif RTCW_XX
+
 	} else if ( r_speeds->integer == 3 ) {
 		ri.Printf( PRINT_ALL, "viewcluster: %i\n", tr.viewCluster );
 	} else if ( r_speeds->integer == 4 ) {
+
+#if !defined RTCW_ET
 		if ( backEnd.pc.c_dlightVertexes ) {
+#endif RTCW_XX
+
 			ri.Printf( PRINT_ALL, "dlight srf:%i  culled:%i  verts:%i  tris:%i\n",
 					   tr.pc.c_dlightSurfaces, tr.pc.c_dlightSurfacesCulled,
 					   backEnd.pc.c_dlightVertexes, backEnd.pc.c_dlightIndexes / 3 );
+
+#if !defined RTCW_ET
 		}
 	}
 //----(SA)	this is unnecessary since it will always show 2048.  I moved this to where it is accurate for the world
@@ -73,8 +99,19 @@ void R_PerformanceCounters( void ) {
 //		ri.Printf( PRINT_ALL, "zFar: %.0f\n", tr.viewParms.zFar );
 //	}
 	else if ( r_speeds->integer == 6 ) {
+#else
+	} else if ( r_speeds->integer == 6 )    {
+#endif RTCW_XX
+
 		ri.Printf( PRINT_ALL, "flare adds:%i tests:%i renders:%i\n",
 				   backEnd.pc.c_flareAdds, backEnd.pc.c_flareTests, backEnd.pc.c_flareRenders );
+
+#if defined RTCW_ET
+	} else if ( r_speeds->integer == 7 )    {
+		ri.Printf( PRINT_ALL, "decal projectors: %d test surfs: %d clip surfs: %d decal surfs: %d created: %d\n",
+				   tr.pc.c_decalProjectors, tr.pc.c_decalTestSurfaces, tr.pc.c_decalClipSurfaces, tr.pc.c_decalSurfaces, tr.pc.c_decalSurfacesCreated );
+#endif RTCW_XX
+
 	}
 
 	memset( &tr.pc, 0, sizeof( tr.pc ) );
@@ -215,9 +252,16 @@ void *R_GetCommandBuffer( int bytes ) {
 
 	cmdList = &backEndData[tr.smpFrame]->commands;
 
+#if !defined RTCW_ET
 	// always leave room for the end of list command
 	if ( cmdList->used + bytes + 4 > MAX_RENDER_COMMANDS ) {
 		if ( bytes > MAX_RENDER_COMMANDS - 4 ) {
+#else
+	// always leave room for the swap buffers and end of list commands
+	if ( cmdList->used + bytes + ( sizeof( swapBuffersCommand_t ) + sizeof( int ) ) > MAX_RENDER_COMMANDS ) {
+		if ( bytes > MAX_RENDER_COMMANDS - ( sizeof( swapBuffersCommand_t ) + sizeof( int ) ) ) {
+#endif RTCW_XX
+
 			ri.Error( ERR_FATAL, "R_GetCommandBuffer: bad size %i", bytes );
 		}
 		// if we run out of room, just start dropping commands
@@ -306,8 +350,37 @@ void RE_StretchPic( float x, float y, float w, float h,
 	cmd->t2 = t2;
 }
 
+#if defined RTCW_ET
+/*
+=============
+RE_2DPolyies
+=============
+*/
+extern int r_numpolyverts;
 
-#if defined RTCW_MP
+void RE_2DPolyies( polyVert_t* verts, int numverts, qhandle_t hShader ) {
+	poly2dCommand_t* cmd;
+
+	if ( r_numpolyverts + numverts > max_polyverts ) {
+		return;
+	}
+
+	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	if ( !cmd ) {
+		return;
+	}
+
+	cmd->commandId =    RC_2DPOLYS;
+	cmd->verts =        &backEndData[tr.smpFrame]->polyVerts[r_numpolyverts];
+	cmd->numverts =     numverts;
+	memcpy( cmd->verts, verts, sizeof( polyVert_t ) * numverts );
+	cmd->shader =       R_GetShaderByHandle( hShader );
+
+	r_numpolyverts += numverts;
+}
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 /*
 =============
 RE_RotatedPic
@@ -382,6 +455,57 @@ void RE_StretchPicGradient( float x, float y, float w, float h,
 	cmd->gradientType = gradientType;
 }
 //----(SA)	end
+
+#if defined RTCW_ET
+/*
+====================
+RE_SetGlobalFog
+	rgb = colour
+	depthForOpaque is depth for opaque
+
+	the restore flag can be used to restore the original level fog
+	duration can be set to fade over a certain period
+====================
+*/
+void RE_SetGlobalFog( qboolean restore, int duration, float r, float g, float b, float depthForOpaque ) {
+	if ( restore ) {
+		if ( duration > 0 ) {
+			VectorCopy( tr.world->fogs[tr.world->globalFog].shader->fogParms.color, tr.world->globalTransStartFog );
+			tr.world->globalTransStartFog[ 3 ] = tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque;
+
+			Vector4Copy( tr.world->globalOriginalFog, tr.world->globalTransEndFog );
+
+			tr.world->globalFogTransStartTime = tr.refdef.time;
+			tr.world->globalFogTransEndTime = tr.refdef.time + duration;
+		} else {
+			VectorCopy( tr.world->globalOriginalFog, tr.world->fogs[tr.world->globalFog].shader->fogParms.color );
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.colorInt = ColorBytes4( tr.world->globalOriginalFog[ 0 ] * tr.identityLight,
+																						 tr.world->globalOriginalFog[ 1 ] * tr.identityLight,
+																						 tr.world->globalOriginalFog[ 2 ] * tr.identityLight, 1.0 );
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque = tr.world->globalOriginalFog[ 3 ];
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.tcScale = 1.0f / ( tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque );
+		}
+	} else {
+		if ( duration > 0 ) {
+			VectorCopy( tr.world->fogs[tr.world->globalFog].shader->fogParms.color, tr.world->globalTransStartFog );
+			tr.world->globalTransStartFog[ 3 ] = tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque;
+
+			VectorSet( tr.world->globalTransEndFog, r, g, b );
+			tr.world->globalTransEndFog[ 3 ] = depthForOpaque < 1 ? 1 : depthForOpaque;
+
+			tr.world->globalFogTransStartTime = tr.refdef.time;
+			tr.world->globalFogTransEndTime = tr.refdef.time + duration;
+		} else {
+			VectorSet( tr.world->fogs[tr.world->globalFog].shader->fogParms.color, r, g, b );
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.colorInt = ColorBytes4( r * tr.identityLight,
+																						 g * tr.identityLight,
+																						 b * tr.identityLight, 1.0 );
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque = depthForOpaque < 1 ? 1 : depthForOpaque;
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.tcScale = 1.0f / ( tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque );
+		}
+	}
+}
+#endif RTCW_XX
 
 
 /*
@@ -499,6 +623,17 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	}
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	//
+	// anisotropic filtering stuff
+	//
+	if ( r_textureAnisotropy->modified ) {
+		R_SyncRenderThread();
+		GL_TextureAnisotropy( r_textureAnisotropy->value );
+		r_textureAnisotropy->modified = qfalse;
+	}
+#endif RTCW_XX
+
 	//
 	// NVidia stuff
 	//
@@ -577,16 +712,31 @@ Returns the number of msec spent in the back end
 =============
 */
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
+
+#if !defined RTCW_ET
 	swapBuffersCommand_t    *cmd;
+#else
+	renderCommandList_t *cmdList;
+#endif RTCW_XX
 
 	if ( !tr.registered ) {
 		return;
 	}
+
+#if !defined RTCW_ET
 	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
 	if ( !cmd ) {
 		return;
 	}
 	cmd->commandId = RC_SWAP_BUFFERS;
+#else
+	// Needs to use reserved space, so no R_GetCommandBuffer.
+	cmdList = &backEndData[tr.smpFrame]->commands;
+	assert( cmdList );
+	// add swap-buffers command
+	*( int * )( cmdList->cmds + cmdList->used ) = RC_SWAP_BUFFERS;
+	cmdList->used += sizeof( swapBuffersCommand_t );
+#endif RTCW_XX
 
 	R_IssueRenderCommands( qtrue );
 
@@ -603,4 +753,52 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 	}
 	backEnd.pc.msec = 0;
 }
+
+#if defined RTCW_ET
+//bani
+/*
+==================
+RE_RenderToTexture
+==================
+*/
+void RE_RenderToTexture( int textureid, int x, int y, int w, int h ) {
+	renderToTextureCommand_t    *cmd;
+
+//	ri.Printf( PRINT_ALL, "RE_RenderToTexture\n" );
+
+	if ( textureid > tr.numImages || textureid < 0 ) {
+		ri.Printf( PRINT_ALL, "Warning: trap_R_RenderToTexture textureid %d out of range.\n", textureid );
+		return;
+	}
+
+	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	if ( !cmd ) {
+		return;
+	}
+	cmd->commandId = RC_RENDERTOTEXTURE;
+	cmd->image = tr.images[textureid];
+	cmd->x = x;
+	cmd->y = y;
+	cmd->w = w;
+	cmd->h = h;
+}
+
+//bani
+/*
+==================
+RE_Finish
+==================
+*/
+void RE_Finish( void ) {
+	renderFinishCommand_t   *cmd;
+
+	ri.Printf( PRINT_ALL, "RE_Finish\n" );
+
+	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	if ( !cmd ) {
+		return;
+	}
+	cmd->commandId = RC_FINISH;
+}
+#endif RTCW_XX
 

@@ -35,6 +35,7 @@ int g_console_field_width = 78;
 
 #define COLNSOLE_COLOR  COLOR_WHITE //COLOR_BLACK
 
+#if !defined RTCW_ET
 #define NUM_CON_TIMES 4
 
 //#define		CON_TEXTSIZE	32768
@@ -64,6 +65,7 @@ typedef struct {
 } console_t;
 
 extern console_t con;
+#endif RTCW_XX
 
 console_t con;
 
@@ -71,7 +73,12 @@ cvar_t      *con_debug;
 cvar_t      *con_conspeed;
 cvar_t      *con_notifytime;
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+cvar_t      *con_autoclear;
+#endif RTCW_XX
+
+
+#if !defined RTCW_SP
 // DHM - Nerve :: Must hold CTRL + SHIFT + ~ to get console
 cvar_t      *con_restricted;
 #endif RTCW_XX
@@ -80,6 +87,11 @@ cvar_t      *con_restricted;
 
 vec4_t console_color = {1.0, 1.0, 1.0, 1.0};
 
+#if defined RTCW_ET
+vec4_t console_highlightcolor = {0.5, 0.5, 0.2, 0.45};
+#endif RTCW_XX
+
+
 
 /*
 ================
@@ -87,6 +99,8 @@ Con_ToggleConsole_f
 ================
 */
 void Con_ToggleConsole_f( void ) {
+
+#if !defined RTCW_ET
 	// closing a full screen console restarts the demo loop
 	if ( cls.state == CA_DISCONNECTED && cls.keyCatchers == KEYCATCH_CONSOLE ) {
 		CL_StartDemoLoop();
@@ -104,6 +118,46 @@ void Con_ToggleConsole_f( void ) {
 
 	Con_ClearNotify();
 	cls.keyCatchers ^= KEYCATCH_CONSOLE;
+#else
+	con.acLength = 0;
+
+	if ( con_restricted->integer && ( !keys[K_CTRL].down || !keys[K_SHIFT].down ) ) {
+		return;
+	}
+
+	// ydnar: persistent console input is more useful
+	// Arnout: added cvar
+	if ( con_autoclear->integer ) {
+		Field_Clear( &g_consoleField );
+	}
+
+	g_consoleField.widthInChars = g_console_field_width;
+
+	Con_ClearNotify();
+
+	// ydnar: multiple console size support
+	if ( cls.keyCatchers & KEYCATCH_CONSOLE ) {
+		cls.keyCatchers &= ~KEYCATCH_CONSOLE;
+		con.desiredFrac = 0.0;
+	} else
+	{
+		cls.keyCatchers |= KEYCATCH_CONSOLE;
+
+		// short console
+		if ( keys[ K_CTRL ].down ) {
+			con.desiredFrac = ( 5.0 * SMALLCHAR_HEIGHT ) / cls.glconfig.vidHeight;
+		}
+		// full console
+		else if ( keys[ K_ALT ].down ) {
+			con.desiredFrac = 1.0;
+		}
+		// normal half-screen console
+		else {
+			con.desiredFrac = 0.5;
+		}
+	}
+#endif RTCW_XX
+
 }
 
 /*
@@ -112,7 +166,11 @@ Con_MessageMode_f
 ================
 */
 void Con_MessageMode_f( void ) {
+
+#if !defined RTCW_ET
 	chat_playerNum = -1;
+#endif RTCW_XX
+
 	chat_team = qfalse;
 
 #if defined RTCW_SP
@@ -131,7 +189,11 @@ Con_MessageMode2_f
 ================
 */
 void Con_MessageMode2_f( void ) {
+
+#if !defined RTCW_ET
 	chat_playerNum = -1;
+#endif RTCW_XX
+
 	chat_team = qtrue;
 
 #if defined RTCW_SP
@@ -149,6 +211,8 @@ Con_MessageMode3_f
 ================
 */
 void Con_MessageMode3_f( void ) {
+
+#if !defined RTCW_ET
 	chat_playerNum = VM_Call( cgvm, CG_CROSSHAIR_PLAYER );
 	if ( chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS ) {
 		chat_playerNum = -1;
@@ -163,8 +227,17 @@ void Con_MessageMode3_f( void ) {
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 	cls.keyCatchers ^= KEYCATCH_MESSAGE;
+#else
+	chat_team = qfalse;
+	chat_buddy = qtrue;
+	Field_Clear( &chatField );
+	chatField.widthInChars = 26;
+	cls.keyCatchers ^= KEYCATCH_MESSAGE;
+#endif RTCW_XX
+
 }
 
+#if !defined RTCW_ET
 /*
 ================
 Con_MessageMode4_f
@@ -230,6 +303,7 @@ void Con_StopLimboMode_f( void ) {
 
 }
 // -NERVE - SMF
+#endif RTCW_XX
 
 /*
 ================
@@ -266,6 +340,7 @@ void Con_Dump_f( void ) {
 
 	Com_Printf( "Dumped console text to %s.\n", Cmd_Argv( 1 ) );
 
+#if !defined RTCW_ET
 #ifdef __MACOS__    //DAJ MacOS file typing
 	{
 		extern _MSL_IMP_EXP_C long _fcreator, _ftype;
@@ -273,6 +348,8 @@ void Con_Dump_f( void ) {
 		_fcreator = 'R*ch';
 	}
 #endif
+#endif RTCW_XX
+
 	f = FS_FOpenFileWrite( Cmd_Argv( 1 ) );
 	if ( !f ) {
 		Com_Printf( "ERROR: couldn't open.\n" );
@@ -341,7 +418,14 @@ void Con_CheckResize( void ) {
 	int i, j, width, oldwidth, oldtotallines, numlines, numchars;
 	MAC_STATIC short tbuf[CON_TEXTSIZE];
 
+#if !defined RTCW_ET
 	width = ( SCREEN_WIDTH / SMALLCHAR_WIDTH ) - 2;
+#else
+	// ydnar: wasn't allowing for larger consoles
+	// width = (SCREEN_WIDTH / SMALLCHAR_WIDTH) - 2;
+	width = ( cls.glconfig.vidWidth / SMALLCHAR_WIDTH ) - 2;
+#endif RTCW_XX
+
 
 	if ( width == con.linewidth ) {
 		return;
@@ -406,14 +490,18 @@ void Con_Init( void ) {
 
 #if defined RTCW_SP
 	con_notifytime = Cvar_Get( "con_notifytime", "3", 0 );
-#elif defined RTCW_MP
+#else
 	con_notifytime = Cvar_Get( "con_notifytime", "7", 0 ); // JPW NERVE increased per id req for obits
 #endif RTCW_XX
 
 	con_conspeed = Cvar_Get( "scr_conspeed", "3", 0 );
 	con_debug = Cvar_Get( "con_debug", "0", CVAR_ARCHIVE ); //----(SA)	added
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+	con_autoclear = Cvar_Get( "con_autoclear", "1", CVAR_ARCHIVE );
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 	con_restricted = Cvar_Get( "con_restricted", "0", CVAR_INIT );      // DHM - Nerve
 #endif RTCW_XX
 
@@ -424,6 +512,7 @@ void Con_Init( void ) {
 		historyEditLines[i].widthInChars = g_console_field_width;
 	}
 
+#if !defined RTCW_ET
 	Cmd_AddCommand( "toggleconsole", Con_ToggleConsole_f );
 	Cmd_AddCommand( "messagemode", Con_MessageMode_f );
 	Cmd_AddCommand( "messagemode2", Con_MessageMode2_f );
@@ -431,8 +520,20 @@ void Con_Init( void ) {
 	Cmd_AddCommand( "messagemode4", Con_MessageMode4_f );
 	Cmd_AddCommand( "startLimboMode", Con_StartLimboMode_f );     // NERVE - SMF
 	Cmd_AddCommand( "stopLimboMode", Con_StopLimboMode_f );           // NERVE - SMF
+#else
+	Cmd_AddCommand( "toggleConsole", Con_ToggleConsole_f );
+#endif RTCW_XX
+
 	Cmd_AddCommand( "clear", Con_Clear_f );
 	Cmd_AddCommand( "condump", Con_Dump_f );
+
+#if defined RTCW_ET
+	// ydnar: these are deprecated in favor of cgame/ui based version
+	Cmd_AddCommand( "clMessageMode", Con_MessageMode_f );
+	Cmd_AddCommand( "clMessageMode2", Con_MessageMode2_f );
+	Cmd_AddCommand( "clMessageMode3", Con_MessageMode3_f );
+#endif RTCW_XX
+
 }
 
 
@@ -443,7 +544,7 @@ Con_Linefeed
 */
 #if defined RTCW_SP
 void Con_Linefeed( void ) {
-#elif defined RTCW_MP
+#else
 void Con_Linefeed( qboolean skipnotify ) {
 #endif RTCW_XX
 
@@ -454,7 +555,7 @@ void Con_Linefeed( qboolean skipnotify ) {
 
 #if defined RTCW_SP
 		con.times[con.current % NUM_CON_TIMES] = cls.realtime;
-#elif defined RTCW_MP
+#else
 		if ( skipnotify ) {
 			con.times[con.current % NUM_CON_TIMES] = 0;
 		} else {
@@ -483,7 +584,7 @@ If no console is visible, the text will appear at the top of the game window
 ================
 */
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #if defined( _WIN32 ) && defined( NDEBUG )
 #pragma optimize( "g", off ) // SMF - msvc totally screws this function up with optimize on
 #endif
@@ -494,7 +595,7 @@ void CL_ConsolePrint( char *txt ) {
 	int c, l;
 	int color;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	qboolean skipnotify = qfalse;       // NERVE - SMF
 	int prev;                           // NERVE - SMF
 
@@ -524,7 +625,17 @@ void CL_ConsolePrint( char *txt ) {
 
 	while ( ( c = *txt ) != 0 ) {
 		if ( Q_IsColorString( txt ) ) {
+
+#if !defined RTCW_ET
 			color = ColorIndex( *( txt + 1 ) );
+#else
+			if ( *( txt + 1 ) == COLOR_NULL ) {
+				color = ColorIndex( COLNSOLE_COLOR );
+			} else {
+				color = ColorIndex( *( txt + 1 ) );
+			}
+#endif RTCW_XX
+
 			txt += 2;
 			continue;
 		}
@@ -542,8 +653,7 @@ void CL_ConsolePrint( char *txt ) {
 
 #if defined RTCW_SP
 			Con_Linefeed();
-
-#elif defined RTCW_MP
+#else
 			Con_Linefeed( skipnotify );
 #endif RTCW_XX
 
@@ -557,7 +667,7 @@ void CL_ConsolePrint( char *txt ) {
 
 #if defined RTCW_SP
 			Con_Linefeed();
-#elif defined RTCW_MP
+#else
 			Con_Linefeed( skipnotify );
 #endif RTCW_XX
 
@@ -567,13 +677,21 @@ void CL_ConsolePrint( char *txt ) {
 			break;
 		default:    // display character and advance
 			y = con.current % con.totallines;
+
+#if !defined RTCW_ET
 			con.text[y * con.linewidth + con.x] = ( color << 8 ) | c;
+#else
+			// rain - sign extension caused the character to carry over
+			// into the color info for high ascii chars; casting c to unsigned
+			con.text[y * con.linewidth + con.x] = ( color << 8 ) | (unsigned char)c;
+#endif RTCW_XX
+
 			con.x++;
 			if ( con.x >= con.linewidth ) {
 
 #if defined RTCW_SP
 				Con_Linefeed();
-#elif defined RTCW_MP
+#else
 				Con_Linefeed( skipnotify );
 #endif RTCW_XX
 
@@ -588,7 +706,7 @@ void CL_ConsolePrint( char *txt ) {
 
 #if defined RTCW_SP
 		con.times[con.current % NUM_CON_TIMES] = cls.realtime;
-#elif defined RTCW_MP
+#else
 		// NERVE - SMF
 		if ( skipnotify ) {
 			prev = con.current % NUM_CON_TIMES - 1;
@@ -605,7 +723,7 @@ void CL_ConsolePrint( char *txt ) {
 	}
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #if defined( _WIN32 ) && defined( NDEBUG )
 #pragma optimize( "g", on ) // SMF - re-enabled optimization
 #endif
@@ -635,6 +753,21 @@ void Con_DrawInput( void ) {
 	}
 
 	y = con.vislines - ( SMALLCHAR_HEIGHT * 2 );
+
+#if defined RTCW_ET
+	// hightlight the current autocompleted part
+	if ( con.acLength ) {
+		Cmd_TokenizeString( g_consoleField.buffer );
+
+		if ( strlen( Cmd_Argv( 0 ) ) - con.acLength > 0 ) {
+			re.SetColor( console_highlightcolor );
+			re.DrawStretchPic( con.xadjust + ( 2 + con.acLength ) * SMALLCHAR_WIDTH,
+							   y + 2,
+							   ( strlen( Cmd_Argv( 0 ) ) - con.acLength ) * SMALLCHAR_WIDTH,
+							   SMALLCHAR_HEIGHT - 2, 0, 0, 0, 0, cls.whiteShader );
+		}
+	}
+#endif RTCW_XX
 
 	re.SetColor( con.color );
 
@@ -694,8 +827,15 @@ void Con_DrawNotify( void ) {
 			if ( ( text[x] & 0xff ) == ' ' ) {
 				continue;
 			}
+
+#if !defined RTCW_ET
 			if ( ( ( text[x] >> 8 ) & 7 ) != currentColor ) {
 				currentColor = ( text[x] >> 8 ) & 7;
+#else
+			if ( ( ( text[x] >> 8 ) & COLOR_BITS ) != currentColor ) {
+				currentColor = ( text[x] >> 8 ) & COLOR_BITS;
+#endif RTCW_XX
+
 				re.SetColor( g_color_table[currentColor] );
 			}
 			SCR_DrawSmallChar( cl_conXOffset->integer + con.xadjust + ( x + 1 ) * SMALLCHAR_WIDTH, v, text[x] & 0xff );
@@ -722,14 +862,25 @@ void Con_DrawNotify( void ) {
 			SCR_DrawBigString( 8, v, "say:", 1.0f );
 			skip = 5;
 		}
-#elif defined RTCW_MP
+#else
 		if ( chat_team ) {
 			char buf[128];
 			CL_TranslateString( "say_team:", buf );
 			SCR_DrawBigString( 8, v, buf, 1.0f );
 			skip = strlen( buf ) + 2;
+
+#if !defined RTCW_ET
 		} else
 		{
+#else
+		} else if ( chat_buddy ) {
+			char buf[128];
+			CL_TranslateString( "say_fireteam:", buf );
+			SCR_DrawBigString( 8, v, buf, 1.0f );
+			skip = strlen( buf ) + 2;
+		} else {
+#endif RTCW_XX
+
 			char buf[128];
 			CL_TranslateString( "say:", buf );
 			SCR_DrawBigString( 8, v, buf, 1.0f );
@@ -789,7 +940,7 @@ void Con_DrawSolidConsole( float frac ) {
 
 #if defined RTCW_SP
 		if ( frac >= 0.5f ) {  // only draw when the console is down all the way (for now)
-#elif defined RTCW_MP
+#else
 		// NERVE - SMF - merged from WolfSP
 		if ( frac >= 0.5f ) {
 #endif RTCW_XX
@@ -803,12 +954,13 @@ void Con_DrawSolidConsole( float frac ) {
 			re.SetColor( NULL );
 		}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		// -NERVE - SMF
 #endif RTCW_XX
 
 	}
 
+#if !defined RTCW_ET
 	color[0] = 0;
 	color[1] = 0;
 	color[2] = 0;
@@ -819,6 +971,16 @@ void Con_DrawSolidConsole( float frac ) {
 
 	color[3] = 0.6f;
 	SCR_FillRect( 0, y, SCREEN_WIDTH, 2, color );
+#else
+	// ydnar: matching light text
+	color[0] = 0.75;
+	color[1] = 0.75;
+	color[2] = 0.75;
+	color[3] = 1.0f;
+	if ( frac < 1.0 ) {
+		SCR_FillRect( 0, y, SCREEN_WIDTH, 1.25, color );
+	}
+#endif RTCW_XX
 
 
 	// draw the version number
@@ -878,8 +1040,14 @@ void Con_DrawSolidConsole( float frac ) {
 				continue;
 			}
 
+#if !defined RTCW_ET
 			if ( ( ( text[x] >> 8 ) & 7 ) != currentColor ) {
 				currentColor = ( text[x] >> 8 ) & 7;
+#else
+			if ( ( ( text[x] >> 8 ) & COLOR_BITS ) != currentColor ) {
+				currentColor = ( text[x] >> 8 ) & COLOR_BITS;
+#endif RTCW_XX
+
 				re.SetColor( g_color_table[currentColor] );
 			}
 			SCR_DrawSmallChar(  con.xadjust + ( x + 1 ) * SMALLCHAR_WIDTH, y, text[x] & 0xff );
@@ -892,7 +1060,9 @@ void Con_DrawSolidConsole( float frac ) {
 	re.SetColor( NULL );
 }
 
-
+#if defined RTCW_ET
+extern cvar_t   *con_drawnotify;
+#endif RTCW_XX
 
 /*
 ==================
@@ -930,7 +1100,7 @@ void Con_DrawConsole( void ) {
 			return;
 		}
 		break;
-#elif defined RTCW_MP
+#else
 	if ( cls.state == CA_DISCONNECTED ) {
 		if ( !( cls.keyCatchers & ( KEYCATCH_UI | KEYCATCH_CGAME ) ) ) {
 			Con_DrawSolidConsole( 1.0 );
@@ -969,6 +1139,11 @@ void Con_DrawConsole( void ) {
 		if ( cls.state == CA_ACTIVE ) {
 			Con_DrawNotify();
 		}
+#else
+		// draw notify lines
+		if ( cls.state == CA_ACTIVE && con_drawnotify->integer ) {
+			Con_DrawNotify();
+		}
 #endif RTCW_XX
 
 	}
@@ -985,10 +1160,19 @@ Scroll it up or down
 */
 void Con_RunConsole( void ) {
 	// decide on the destination height of the console
+
+#if !defined RTCW_ET
 	if ( cls.keyCatchers & KEYCATCH_CONSOLE ) {
 		con.finalFrac = 0.5;        // half screen
 	} else {
 		con.finalFrac = 0;              // none visible
+#else
+	// ydnar: added short console support (via shift+~)
+	if ( cls.keyCatchers & KEYCATCH_CONSOLE ) {
+		con.finalFrac = con.desiredFrac;
+	} else {
+		con.finalFrac = 0;  // none visible
+#endif RTCW_XX
 
 	}
 	// scroll towards the destination height

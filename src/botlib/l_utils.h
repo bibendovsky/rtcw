@@ -36,6 +36,14 @@ If you have questions concerning this license or the applicable additional terms
  *****************************************************************************/
 
 #define Vector2Angles( v,a )      vectoangles( v,a )
+
+#if !defined RTCW_ET
 #define MAX_PATH                MAX_QPATH
+#else
+#ifndef MAX_PATH // LBO 1/25/05
+#define MAX_PATH                MAX_QPATH
+#endif
+#endif RTCW_XX
+
 #define Maximum( x,y )            ( x > y ? x : y )
 #define Minimum( x,y )            ( x < y ? x : y )

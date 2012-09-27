@@ -239,6 +239,12 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	// encode the size into the entityState_t for client prediction
 	if ( gEnt->r.bmodel ) {
 		gEnt->s.solid = SOLID_BMODEL;       // a solid_box will never create this value
+
+#if defined RTCW_ET
+		// Gordon: for the origin only bmodel checks
+		ent->originCluster = CM_LeafCluster( CM_PointLeafnum( gEnt->r.currentOrigin ) );
+#endif RTCW_XX
+
 	} else if ( gEnt->r.contents & ( CONTENTS_SOLID | CONTENTS_BODY ) ) {
 		// assume that x/y are equal and symetric
 		i = gEnt->r.maxs[0];
@@ -416,6 +422,12 @@ void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
 
 		gcheck = SV_GEntityForSvEntity( check );
 
+#if defined RTCW_ET
+		if ( !gcheck->r.linked ) {
+			continue;
+		}
+#endif RTCW_XX
+
 		if ( gcheck->r.absmin[0] > ap->maxs[0]
 			 || gcheck->r.absmin[1] > ap->maxs[1]
 			 || gcheck->r.absmin[2] > ap->maxs[2]
@@ -429,7 +441,7 @@ void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
 
 #if defined RTCW_SP
 			Com_DPrintf( "SV_AreaEntities: MAXCOUNT\n" );
-#elif defined RTCW_MP
+#else
 			Com_Printf( "SV_AreaEntities: MAXCOUNT\n" );
 #endif RTCW_XX
 
@@ -538,7 +550,7 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 }
 
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // FIXME: Copied from cm_local.h
 #define BOX_MODEL_HANDLE        511
 #endif RTCW_XX
@@ -604,7 +616,14 @@ void SV_ClipMoveToEntities( moveclip_t *clip ) {
 		// might intersect, so do an exact clip
 		clipHandle = SV_ClipHandleForEntity( touch );
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+		// ydnar: non-worldspawn entities must not use world as clip model!
+		if ( clipHandle == 0 ) {
+			continue;
+		}
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 		// DHM - Nerve :: If clipping against BBOX, set to correct contents
 		if ( clipHandle == BOX_MODEL_HANDLE ) {
 			CM_SetTempBoxModelContents( touch->r.contents );
@@ -648,7 +667,7 @@ void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			clip->trace.startsolid |= oldStart;
 		}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		// DHM - Nerve :: Reset contents to default
 		if ( clipHandle == BOX_MODEL_HANDLE ) {
 			CM_SetTempBoxModelContents( CONTENTS_BODY );
@@ -683,7 +702,13 @@ void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const ve
 	// clip to world
 	CM_BoxTrace( &clip.trace, start, end, mins, maxs, 0, contentmask, capsule );
 	clip.trace.entityNum = clip.trace.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
+
+#if !defined RTCW_ET
 	if ( clip.trace.fraction == 0 ) {
+#else
+	if ( clip.trace.fraction == 0 || passEntityNum == -2 ) {
+#endif RTCW_XX
+
 		*results = clip.trace;
 		return;     // blocked immediately by the world
 	}
@@ -745,7 +770,20 @@ int SV_PointContents( const vec3_t p, int passEntityNum ) {
 		hit = SV_GentityNum( touch[i] );
 		// might intersect, so do an exact clip
 		clipHandle = SV_ClipHandleForEntity( hit );
+
+#if defined RTCW_ET
+		// ydnar: non-worldspawn entities must not use world as clip model!
+		if ( clipHandle == 0 ) {
+			continue;
+		}
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 		angles = hit->s.angles;
+#else
+		angles = hit->r.currentAngles;
+#endif RTCW_XX
+
 		if ( !hit->r.bmodel ) {
 			angles = vec3_origin;   // boxes don't rotate
 		}
@@ -755,7 +793,13 @@ int SV_PointContents( const vec3_t p, int passEntityNum ) {
 		//if (!VectorCompare( hit->s.origin, vec3_origin )) {
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 		c2 = CM_TransformedPointContents( p, clipHandle, hit->s.origin, hit->s.angles );
+#else
+		c2 = CM_TransformedPointContents( p, clipHandle, hit->r.currentOrigin, hit->r.currentAngles );
+		// Gordon: s.origin/angles is base origin/angles, need to use the current origin/angles for moving entity based water, or water locks in movement start position.
+//		c2 = CM_TransformedPointContents (p, clipHandle, hit->s.origin, hit->s.angles);
+#endif RTCW_XX
 
 		contents |= c2;
 

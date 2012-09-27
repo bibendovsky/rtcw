@@ -563,7 +563,13 @@ qboolean	Sin_ParseMapEntity (void)
 				s = &b->original_sides[j];
 				newdist = mapplanes[s->planenum].dist -
 					DotProduct (mapplanes[s->planenum].normal, mapent->origin);
+
+#if !defined RTCW_ET
 				s->planenum = FindFloatPlane (mapplanes[s->planenum].normal, newdist);
+#else
+				s->planenum = FindFloatPlane (mapplanes[s->planenum].normal, newdist, 0, NULL);
+#endif RTCW_XX
+
 #ifdef SIN
 				s->texinfo = TexinfoForBrushTexture (&mapplanes[s->planenum],
 					&side_brushtextures[s-brushsides], mapent->origin, &side_newrefs[s-brushsides]);
@@ -919,9 +925,16 @@ void Sin_BSPBrushToMapBrush( sin_dbrush_t *bspbrush, entity_t *mapent ) {
 		} else { side->surf = sin_texinfo[bspbrushside->texinfo].flags;}
 
 		// translucent objects are automatically classified as detail
+
+#if !defined RTCW_ET
 		if ( side->surf & ( SURF_TRANS33 | SURF_TRANS66 ) ) {
 			side->contents |= CONTENTS_DETAIL;
 		}
+#else
+//		if (side->surf & (SURF_TRANS33|SURF_TRANS66) )
+//			side->contents |= CONTENTS_DETAIL;
+#endif RTCW_XX
+
 		if ( side->contents & ( CONTENTS_PLAYERCLIP | CONTENTS_MONSTERCLIP ) ) {
 			side->contents |= CONTENTS_DETAIL;
 		}
@@ -941,7 +954,13 @@ void Sin_BSPBrushToMapBrush( sin_dbrush_t *bspbrush, entity_t *mapent ) {
 
 		//ME: get a plane for this side
 		bspplane = &sin_dplanes[bspbrushside->planenum];
+
+#if !defined RTCW_ET
 		planenum = FindFloatPlane( bspplane->normal, bspplane->dist );
+#else
+		planenum = FindFloatPlane( bspplane->normal, bspplane->dist, 0, NULL );
+#endif RTCW_XX
+
 		//
 		// see if the plane has been used already
 		//

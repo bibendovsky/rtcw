@@ -43,6 +43,8 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 #elif defined RTCW_MP
 	#define MEMDEBUG
+#else
+//	#define MEMDEBUG
 #endif RTCW_XX
 
 #endif

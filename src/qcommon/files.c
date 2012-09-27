@@ -35,10 +35,22 @@ If you have questions concerning this license or the applicable additional terms
  *
  *****************************************************************************/
 
+#if defined RTCW_ET
+#define MP_LEGACY_PAK 0x7776DC09
+#endif RTCW_XX
 
 #include "../game/q_shared.h"
 #include "qcommon.h"
 #include "unzip.h"
+
+#if defined RTCW_ET
+#ifdef _WIN32
+#include <direct.h>
+#endif
+#ifdef __linux__
+#include <unistd.h>
+#endif
+#endif RTCW_XX
 
 /*
 =============================================================================
@@ -203,6 +215,7 @@ or configs will never get loaded from disk!
 
 */
 
+#if !defined RTCW_ET
 // TTimo: moved to qcommon.h
 // NOTE: could really do with a cvar
 //#define	BASEGAME			"main"
@@ -229,6 +242,8 @@ or configs will never get loaded from disk!
 //#define PRE_RELEASE_TADEMO
 #elif defined RTCW_MP
 #define DEMO_PAK_CHECKSUM   2031778175u
+#endif RTCW_XX
+
 #endif RTCW_XX
 
 #define MAX_ZPATH           256
@@ -267,10 +282,22 @@ typedef struct searchpath_s {
 	directory_t *dir;
 } searchpath_t;
 
+#if !defined RTCW_ET
 static char fs_gamedir[MAX_OSPATH];         // this will be a single file name with no separators
+#else
+//bani - made fs_gamedir non-static
+char fs_gamedir[MAX_OSPATH];        // this will be a single file name with no separators
+#endif RTCW_XX
+
 static cvar_t      *fs_debug;
 static cvar_t      *fs_homepath;
 static cvar_t      *fs_basepath;
+
+#if defined RTCW_ET
+static cvar_t      *fs_buildpath;
+static cvar_t      *fs_buildgame;
+#endif RTCW_XX
+
 static cvar_t      *fs_basegame;
 static cvar_t      *fs_cdpath;
 static cvar_t      *fs_copyfiles;
@@ -308,7 +335,7 @@ typedef struct {
 
 static fileHandleData_t fsh[MAX_FILE_HANDLES];
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // TTimo - show_bug.cgi?id=540
 // wether we did a reorder on the current search path when joining the server
 static qboolean fs_reordered;
@@ -316,7 +343,7 @@ static qboolean fs_reordered;
 
 // never load anything from pk3 files that are not present at the server when pure
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // ex: when fs_numServerPaks != 0, FS_FOpenFileRead won't load anything outside of pk3 except .cfg .menu .game .dat
 #endif RTCW_XX
 
@@ -337,6 +364,10 @@ char lastValidGame[MAX_OSPATH];
 #ifdef FS_MISSING
 FILE*       missingFiles = NULL;
 #endif
+
+#if defined RTCW_ET
+qboolean legacy_mp_bin = qfalse;
+#endif RTCW_XX
 
 /*
 ==============
@@ -368,7 +399,7 @@ qboolean FS_PakIsPure( pack_t *pack ) {
 		for ( i = 0 ; i < fs_numServerPaks ; i++ ) {
 			// FIXME: also use hashed file names
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 			// NOTE TTimo: a pk3 with same checksum but different name would be validated too
 			//   I don't see this as allowing for any exploit, it would only happen if the client does manips of it's file names 'not a bug'
 #endif RTCW_XX
@@ -438,7 +469,13 @@ static fileHandle_t FS_HandleForFile( void ) {
 
 static FILE *FS_FileForHandle( fileHandle_t f ) {
 	if ( f < 0 || f > MAX_FILE_HANDLES ) {
+
+#if !defined RTCW_ET
 		Com_Error( ERR_DROP, "FS_FileForHandle: out of reange" );
+#else
+		Com_Error( ERR_DROP, "FS_FileForHandle: %d out of range", f );
+#endif RTCW_XX
+
 	}
 	if ( fsh[f].zipFile == qtrue ) {
 		Com_Error( ERR_DROP, "FS_FileForHandle: can't get FILE on zip file" );
@@ -530,8 +567,16 @@ FS_CreatePath
 Creates any directories needed to store the given filename
 ============
 */
+
+#if !defined RTCW_ET
 static qboolean FS_CreatePath( char *OSPath ) {
 	char    *ofs;
+#else
+int FS_CreatePath( const char *OSPath_ ) {
+	// use va() to have a clean const char* prototype
+	char *OSPath = va( "%s", OSPath_ );
+	char *ofs;
+#endif RTCW_XX
 
 	// make absolutely sure that it can't back up the path
 	// FIXME: is c: allowed???
@@ -561,7 +606,7 @@ Copy a fully specified file from one place to another
 
 #if defined RTCW_SP
 static void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
-#elif defined RTCW_MP
+#else
 void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 #endif RTCW_XX
 
@@ -571,7 +616,7 @@ void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 
 #if defined RTCW_SP
 	//Com_Printf( "copy %s to %s\n", fromOSPath, toOSPath );
-#elif defined RTCW_MP
+#else
 	Com_Printf( "copy %s to %s\n", fromOSPath, toOSPath );
 #endif RTCW_XX
 
@@ -588,8 +633,11 @@ void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 	len = ftell( f );
 	fseek( f, 0, SEEK_SET );
 
+#if !defined RTCW_ET
 	// we are using direct malloc instead of Z_Malloc here, so it
 	// probably won't work on a mac... Its only for developers anyway...
+#endif RTCW_XX
+
 	buf = malloc( len );
 	if ( fread( buf, 1, len, f ) != len ) {
 		Com_Error( ERR_FATAL, "Short read in FS_Copyfiles()\n" );
@@ -603,7 +651,7 @@ void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 	f = fopen( toOSPath, "wb" );
 	if ( !f ) {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		free( buf );    //DAJ free as well
 #endif RTCW_XX
 
@@ -721,6 +769,17 @@ qboolean FS_SV_FileExists( const char *file ) {
 	return qfalse;
 }
 
+#if defined RTCW_ET
+qboolean FS_OS_FileExists( const char *file ) {
+	FILE *f;
+	f = fopen( file, "rb" );
+	if ( f ) {
+		fclose( f );
+		return qtrue;
+	}
+	return qfalse;
+}
+#endif RTCW_XX
 
 /*
 ===========
@@ -784,9 +843,9 @@ int FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp ) {
 
 	// don't let sound stutter
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //	S_ClearSoundBuffer();
-#elif defined RTCW_MP
+#else
 	S_ClearSoundBuffer();
 #endif RTCW_XX
 
@@ -861,9 +920,9 @@ void FS_SV_Rename( const char *from, const char *to ) {
 
 	// don't let sound stutter
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //	S_ClearSoundBuffer();
-#elif defined RTCW_MP
+#else
 	S_ClearSoundBuffer();
 #endif RTCW_XX
 
@@ -900,9 +959,9 @@ void FS_Rename( const char *from, const char *to ) {
 
 	// don't let sound stutter
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //	S_ClearSoundBuffer();
-#elif defined RTCW_MP
+#else
 	S_ClearSoundBuffer();
 #endif RTCW_XX
 
@@ -919,14 +978,14 @@ void FS_Rename( const char *from, const char *to ) {
 		// Failed first attempt, try deleting destination, and renaming again
 		FS_Remove( to_ospath );
 		if ( rename( from_ospath, to_ospath ) ) {
+#endif RTCW_XX
+
 			// Failed, try copying it and deleting the original
 			FS_CopyFile( from_ospath, to_ospath );
 			FS_Remove( from_ospath );
+
+#if defined RTCW_SP
 		}
-#elif defined RTCW_MP
-		// Failed, try copying it and deleting the original
-		FS_CopyFile( from_ospath, to_ospath );
-		FS_Remove( from_ospath );
 #endif RTCW_XX
 
 	}
@@ -1028,9 +1087,9 @@ fileHandle_t FS_FOpenFileAppend( const char *filename ) {
 
 	// don't let sound stutter
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //	S_ClearSoundBuffer();
-#elif defined RTCW_MP
+#else
 	S_ClearSoundBuffer();
 #endif RTCW_XX
 
@@ -1068,7 +1127,7 @@ qboolean FS_FilenameCompare( const char *s1, const char *s2 ) {
 
 #if defined RTCW_SP
 		if ( Q_islower( c1 ) ) {
-#elif defined RTCW_MP
+#else
 		if ( c1 >= 'a' && c1 <= 'z' ) {
 #endif RTCW_XX
 
@@ -1077,7 +1136,7 @@ qboolean FS_FilenameCompare( const char *s1, const char *s2 ) {
 
 #if defined RTCW_SP
 		if ( Q_islower( c2 ) ) {
-#elif defined RTCW_MP
+#else
 		if ( c2 >= 'a' && c2 <= 'z' ) {
 #endif RTCW_XX
 
@@ -1190,7 +1249,7 @@ char *FS_ShiftedStrStr( const char *string, const char *substring, int shift ) {
 	return strstr( string, buf );
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 ==========
 FS_ShiftStr
@@ -1222,7 +1281,7 @@ separate file or a ZIP file.
 */
 extern qboolean com_fullyInitialized;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // see FS_FOpenFileRead_Filtered
 static int fs_filter_flag = 0;
 #endif RTCW_XX
@@ -1245,7 +1304,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// TTimo - NOTE
 	// when checking for file existence, it's probably safer to use FS_FileExists, as I'm not
 	// sure this chunk of code is really up to date with everything
@@ -1261,7 +1320,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 			// is the element a pak file?
 			if ( search->pack && search->pack->hashTable[hash] ) {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 				if ( fs_filter_flag & FS_EXCLUDE_PK3 ) {
 					continue;
 				}
@@ -1280,7 +1339,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 				} while ( pakFile != NULL );
 			} else if ( search->dir ) {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 				if ( fs_filter_flag & FS_EXCLUDE_DIR ) {
 					continue;
 				}
@@ -1320,7 +1379,13 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 
 	// make sure the q3key file is only readable by the quake3.exe at initialization
 	// any other time the key should only be accessed in memory using the provided functions
+
+#if !defined RTCW_ET
 	if ( com_fullyInitialized && strstr( filename, "rtcwkey" ) ) {
+#else
+	if ( com_fullyInitialized && strstr( filename, "etkey" ) ) {
+#endif RTCW_XX
+
 		*file = 0;
 		return -1;
 	}
@@ -1340,7 +1405,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 		// is the element a pak file?
 		if ( search->pack && search->pack->hashTable[hash] ) {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 			if ( fs_filter_flag & FS_EXCLUDE_PK3 ) {
 				continue;
 			}
@@ -1393,11 +1458,11 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 					if ( !( pak->referenced & FS_UI_REF ) && FS_ShiftedStrStr( filename, "pd)lqh", 5 ) ) {
 						pak->referenced |= FS_UI_REF;
 					}
-#elif defined RTCW_MP
+#else
 					// for OS client/server interoperability, we expect binaries for .so and .dll to be in the same pk3
 					// so that when we reference the DLL files on any platform, this covers everyone else
 
-		  #if 0 // TTimo: use that stuff for shitted strings
+		  #if 0 // TTimo: use that stuff for shifted strings
 					Com_Printf( "SYS_DLLNAME_QAGAME + %d: '%s'\n", SYS_DLLNAME_QAGAME_SHIFT, FS_ShiftStr( "qagame_mp_x86.dll" /*"qagame.mp.i386.so"*/, SYS_DLLNAME_QAGAME_SHIFT ) );
 					Com_Printf( "SYS_DLLNAME_CGAME + %d: '%s'\n", SYS_DLLNAME_CGAME_SHIFT, FS_ShiftStr( "cgame_mp_x86.dll" /*"cgame.mp.i386.so"*/, SYS_DLLNAME_CGAME_SHIFT ) );
 					Com_Printf( "SYS_DLLNAME_UI + %d: '%s'\n", SYS_DLLNAME_UI_SHIFT, FS_ShiftStr( "ui_mp_x86.dll" /*"ui.mp.i386.so"*/, SYS_DLLNAME_UI_SHIFT ) );
@@ -1415,7 +1480,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 						pak->referenced |= FS_UI_REF;
 					}
 
-#if !defined( PRE_RELEASE_DEMO ) && !defined( DO_LIGHT_DEDICATED )
+#if !defined RTCW_ET && !defined PRE_RELEASE_DEMO && !defined DO_LIGHT_DEDICATED
 					// DHM -- Nerve :: Don't allow maps to be loaded from pak0 (singleplayer)
 					if ( Q_stricmp( filename + l - 4, ".bsp" ) == 0 &&
 						 Q_stricmp( pak->pakBasename, "pak0" ) == 0 ) {
@@ -1423,7 +1488,18 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 						*file = 0;
 						return -1;
 					}
-#endif
+#elif defined RTCW_ET
+//#if !defined(PRE_RELEASE_DEMO) && !defined(DO_LIGHT_DEDICATED)
+//					// DHM -- Nerve :: Don't allow maps to be loaded from pak0 (singleplayer)
+//					if ( Q_stricmp(filename + l - 4, ".bsp") == 0 &&
+//						Q_stricmp( pak->pakBasename, "pak0" ) == 0 ) {
+//
+//						*file = 0;
+//						return -1;
+//					}
+//#endif
+#endif RTCW_XX
+
 #endif RTCW_XX
 
 					if ( uniqueFILE ) {
@@ -1443,7 +1519,17 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 					// set the file position in the zip file (also sets the current file info)
 					unzSetCurrentFileInfoPosition( pak->handle, pakFile->pos );
 					// copy the file info into the unzip structure
+
+#if defined RTCW_ET
+					// rain - don't copy zfi over itself
+					if ( zfi != pak->handle ) {
+#endif RTCW_XX
+
 					Com_Memcpy( zfi, pak->handle, sizeof( unz_s ) );
+
+#if defined RTCW_ET
+					}
+#endif RTCW_XX
 					// we copy this back into the structure
 					zfi->file = temp;
 					// open the file in the zip
@@ -1454,13 +1540,45 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 						Com_Printf( "FS_FOpenFileRead: %s (found in '%s')\n",
 									filename, pak->pakFilename );
 					}
+
+#if defined RTCW_ET
+					// Arnout: let's make this thing work from pakfiles as well
+					// FIXME: doing this seems to break things?
+					/*if ( fs_copyfiles->integer && fs_buildpath->string[0] && Q_stricmpn( fs_buildpath->string, pak->pakFilename, strlen(fs_buildpath->string) ) ) {
+						char			copypath[MAX_OSPATH];
+						fileHandle_t	f;
+						byte			*srcData;
+						int				len = zfi->cur_file_info.uncompressed_size;
+
+						Q_strncpyz( copypath, FS_BuildOSPath( fs_buildpath->string, fs_buildgame->string, filename ), sizeof(copypath) );
+						netpath = FS_BuildOSPath( fs_basepath->string, fs_gamedir, filename );
+
+						f = FS_FOpenFileWrite( filename );
+						if ( !f ) {
+							Com_Printf( "FS_FOpenFileRead Failed to open %s for copying\n", filename );
+						} else {
+							srcData = Hunk_AllocateTempMemory( len) ;
+							FS_Read( srcData, len, *file );
+							FS_Write( srcData, len, f );
+							FS_FCloseFile( f );
+							Hunk_FreeTempMemory( srcData );
+
+							if (rename( netpath, copypath )) {
+								// Failed, try copying it and deleting the original
+								FS_CopyFile ( netpath, copypath );
+								FS_Remove ( netpath );
+							}
+						}
+					}*/
+#endif RTCW_XX
+
 					return zfi->cur_file_info.uncompressed_size;
 				}
 				pakFile = pakFile->next;
 			} while ( pakFile != NULL );
 		} else if ( search->dir ) {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 			if ( fs_filter_flag & FS_EXCLUDE_DIR ) {
 				continue;
 			}
@@ -1471,7 +1589,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 #if defined RTCW_SP
 			// if we are running restricted, the only files we
 			// will allow to come from the directory are .cfg files
-#elif defined RTCW_MP
+#else
 			// if we are running restricted, or if the filesystem is configured for pure (fs_numServerPaks)
 			// the only files we will allow to come from the directory are .cfg files
 #endif RTCW_XX
@@ -1493,13 +1611,26 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 #if defined RTCW_SP
 //					&& Q_stricmp( filename + l - 5, ".menu" )	// menu files
 					 && Q_stricmp( filename + l - 4, ".svg" ) // savegames
-#elif defined RTCW_MP
+#else
 					 && Q_stricmp( filename + l - 5, ".menu" )  // menu files
 #endif RTCW_XX
 
 					 && Q_stricmp( filename + l - 5, ".game" )  // menu files
 					 && Q_stricmp( filename + l - strlen( demoExt ), demoExt ) // menu files
+
+#if !defined RTCW_ET
 					 && Q_stricmp( filename + l - 4, ".dat" ) ) { // for journal files
+#else
+					 && Q_stricmp( filename + l - 4, ".dat" ) // for journal files
+					 && Q_stricmp( filename + l - 8, "bots.txt" )
+					 && Q_stricmp( filename + l - 8, ".botents" )
+#ifdef __MACOS__
+					 // even when pure is on, let the server game be loaded
+					 && Q_stricmp( filename, "qagame_mac" )
+#endif
+					 ) {
+#endif RTCW_XX
+
 					continue;
 				}
 			}
@@ -1516,7 +1647,15 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 				 && Q_stricmp( filename + l - 5, ".menu" )  // menu files
 				 && Q_stricmp( filename + l - 5, ".game" )  // menu files
 				 && Q_stricmp( filename + l - strlen( demoExt ), demoExt ) // menu files
+
+#if !defined RTCW_ET
 				 && Q_stricmp( filename + l - 4, ".dat" ) ) { // for journal files
+#else
+				 && Q_stricmp( filename + l - 4, ".dat" )
+				 && Q_stricmp( filename + l - 8, ".botents" )
+				 /*&& !strstr( filename, "botfiles" )*/ ) { // RF, need this for dev
+#endif RTCW_XX
+
 				fs_fakeChkSum = random();
 			}
 
@@ -1534,6 +1673,15 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 
 				copypath = FS_BuildOSPath( fs_basepath->string, dir->gamedir, filename );
 				FS_CopyFile( netpath, copypath );
+
+#if defined RTCW_ET
+			} else if ( fs_copyfiles->integer && fs_buildpath->string[0] && Q_stricmp( dir->path, fs_buildpath->string ) ) {
+				char    *copypath;
+
+				copypath = FS_BuildOSPath( fs_buildpath->string, fs_buildgame->string, filename );
+				FS_CopyFile( netpath, copypath );
+#endif RTCW_XX
+
 			}
 
 			return FS_filelength( *file );
@@ -1550,7 +1698,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 	return -1;
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 int FS_FOpenFileRead_Filtered( const char *qpath, fileHandle_t *file, qboolean uniqueFILE, int filter_flag ) {
 	int ret;
 
@@ -1617,7 +1765,13 @@ qboolean FS_CL_ExtractFromPakFile( const char *fullpath, const char *gamedir, co
 		if ( destLength > 0 ) {
 			destData = (unsigned char*)Z_Malloc( destLength );
 
+#if !defined RTCW_ET
 			fread( destData, 1, destLength, destHandle );
+#else
+//			fread( destData, 1, destLength, destHandle );
+			fread( destData, destLength, 1, destHandle );
+#endif RTCW_XX
+
 
 			// compare files
 			if ( destLength == srcLength ) {
@@ -1670,6 +1824,121 @@ qboolean FS_CL_ExtractFromPakFile( const char *fullpath, const char *gamedir, co
 #endif
 #endif RTCW_XX
 
+#if defined RTCW_ET
+/*
+==============
+FS_AllowDeletion
+==============
+*/
+qboolean FS_AllowDeletion( char *filename ) {
+	// for safety, only allow deletion from the save, profiles and demo directory
+	if ( Q_strncmp( filename, "save/", 5 ) != 0 &&
+		 Q_strncmp( filename, "profiles/", 9 ) != 0 &&
+		 Q_strncmp( filename, "demos/", 6 ) != 0 ) {
+		return qfalse;
+	}
+
+	return qtrue;
+}
+
+/*
+==============
+FS_DeleteDir
+==============
+*/
+int FS_DeleteDir( char *dirname, qboolean nonEmpty, qboolean recursive ) {
+	char *ospath;
+	char **pFiles = NULL;
+	int i, nFiles = 0;
+
+	if ( !fs_searchpaths ) {
+		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
+	}
+
+	if ( !dirname || dirname[0] == 0 ) {
+		return 0;
+	}
+
+	if ( !FS_AllowDeletion( dirname ) ) {
+		return 0;
+	}
+
+	if ( recursive ) {
+		ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, dirname );
+		pFiles = Sys_ListFiles( ospath, "/", NULL, &nFiles, qfalse );
+		for ( i = 0; i < nFiles; i++ ) {
+			char temp[MAX_OSPATH];
+
+			if ( !Q_stricmp( pFiles[i], ".." ) || !Q_stricmp( pFiles[i], "." ) ) {
+				continue;
+			}
+
+			Com_sprintf( temp, sizeof( temp ), "%s/%s", dirname, pFiles[i] );
+
+			if ( !FS_DeleteDir( temp, nonEmpty, recursive ) ) {
+				return 0;
+			}
+		}
+		Sys_FreeFileList( pFiles );
+	}
+
+	if ( nonEmpty ) {
+		ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, dirname );
+		pFiles = Sys_ListFiles( ospath, NULL, NULL, &nFiles, qfalse );
+		for ( i = 0; i < nFiles; i++ ) {
+			ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, va( "%s/%s", dirname, pFiles[i] ) );
+
+			if ( remove( ospath ) == -1 ) {  // failure
+				return 0;
+			}
+		}
+		Sys_FreeFileList( pFiles );
+	}
+
+	ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, dirname );
+
+	if ( Q_rmdir( ospath ) == 0 ) {
+		return 1;
+	}
+
+	return 0;
+}
+
+/*
+==============
+FS_OSStatFile
+Test an file given OS path:
+returns -1 if not found
+returns 1 if directory
+returns 0 otherwise
+==============
+*/
+#ifdef WIN32
+int FS_OSStatFile( char *ospath ) {
+	struct _stat stat;
+	if ( _stat( ospath, &stat ) == -1 ) {
+		return -1;
+	}
+	if ( stat.st_mode & _S_IFDIR ) {
+		return 1;
+	}
+	return 0;
+}
+#else
+int FS_OSStatFile( char *ospath ) {
+	struct stat stat_buf;
+	if ( stat( ospath, &stat_buf ) == -1 ) {
+		return -1;
+	}
+	if ( S_ISDIR( stat_buf.st_mode ) ) {
+		return 1;
+	}
+	return 0;
+}
+#endif
+#endif RTCW_XX
+
+
 /*
 ==============
 FS_Delete
@@ -1680,6 +1949,10 @@ using fs_homepath for the file to remove
 int FS_Delete( char *filename ) {
 	char *ospath;
 
+#if defined RTCW_ET
+	int stat;
+#endif RTCW_XX
+
 	if ( !fs_searchpaths ) {
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
 	}
@@ -1688,17 +1961,36 @@ int FS_Delete( char *filename ) {
 		return 0;
 	}
 
+#if !defined RTCW_ET
 	// for safety, only allow deletion from the save directory
 	if ( Q_strncmp( filename, "save/", 5 ) != 0 ) {
+#else
+	if ( !FS_AllowDeletion( filename ) ) {
+#endif RTCW_XX
+
 		return 0;
 	}
 
 	ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, filename );
 
+#if !defined RTCW_ET
 	if ( remove( ospath ) != -1 ) {  // success
 		return 1;
 	}
+#else
+	stat = FS_OSStatFile( ospath );
+	if ( stat == -1 ) {
+		return 0;
+	}
 
+	if ( stat == 1 ) {
+		return( FS_DeleteDir( filename, qtrue, qtrue ) );
+	} else {
+		if ( remove( ospath ) != -1 ) {  // success
+			return 1;
+		}
+	}
+#endif RTCW_XX
 
 	return 0;
 }
@@ -1752,6 +2044,11 @@ int FS_Read( void *buffer, int len, fileHandle_t f ) {
 		tries = 0;
 		while ( remaining ) {
 			block = remaining;
+
+#if defined RTCW_ET
+//			read = fread (buf, block, 1, fsh[f].handleFiles.file.o);
+#endif RTCW_XX
+
 			read = fread( buf, 1, block, fsh[f].handleFiles.file.o );
 			if ( read == 0 ) {
 				// we might have been trying to read from a CD, which
@@ -1810,13 +2107,25 @@ int FS_Write( const void *buffer, int len, fileHandle_t h ) {
 			if ( !tries ) {
 				tries = 1;
 			} else {
+
+#if !defined RTCW_ET
 				Com_Printf( "FS_Write: 0 bytes written\n" );
+#else
+				Com_Printf( "FS_Write: 0 bytes written (%d attempted)\n", block );
+#endif RTCW_XX
+
 				return 0;
 			}
 		}
 
+#if !defined RTCW_ET
 		if ( written == -1 ) {
 			Com_Printf( "FS_Write: -1 bytes written\n" );
+#else
+		if ( written < 0 ) {
+			Com_Printf( "FS_Write: %d bytes written (%d attempted)\n", written, block );
+#endif RTCW_XX
+
 			return 0;
 		}
 
@@ -1841,7 +2150,7 @@ void QDECL FS_Printf( fileHandle_t h, const char *fmt, ... ) {
 
 #if defined RTCW_SP
 	vsprintf( msg,fmt,argptr );
-#elif defined RTCW_MP
+#else
 	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
 #endif RTCW_XX
 
@@ -1968,6 +2277,16 @@ int FS_FileIsInPAK( const char *filename, int *pChecksum ) {
 					if ( pChecksum ) {
 						*pChecksum = pak->pure_checksum;
 					}
+
+#if defined RTCW_ET
+					// Mac hack
+					if ( pak->checksum == MP_LEGACY_PAK ) {
+						legacy_mp_bin = qtrue;
+					} else {
+						legacy_mp_bin = qfalse;
+					}
+#endif RTCW_XX
+
 					return 1;
 				}
 				pakFile = pakFile->next;
@@ -2439,6 +2758,12 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, char *filt
 			if ( ( fs_restrict->integer || fs_numServerPaks ) && Q_stricmp( extension, "svg" ) ) {
 #elif defined RTCW_MP
 			if ( fs_restrict->integer || fs_numServerPaks ) {
+#else
+			if ( fs_numServerPaks ) {
+				continue;
+			} else if ( fs_restrict->integer &&
+						( !com_gameInfo.usesProfiles || ( com_gameInfo.usesProfiles && Q_stricmpn( path, "profiles", 8 ) ) ) &&
+						Q_stricmpn( path, "demos", 5 ) ) {
 #endif RTCW_XX
 
 				continue;
@@ -2638,7 +2963,7 @@ int FS_GetModList( char *listbuf, int bufsize ) {
 
 #if defined RTCW_SP
 	if ( fs_cdpath->string && strlen( fs_cdpath->string ) ) {
-#elif defined RTCW_MP
+#else
 	// DHM - Nerve :: Don't add blank paths (root)
 	if ( fs_cdpath->string[0] ) {
 #endif RTCW_XX
@@ -2676,6 +3001,9 @@ int FS_GetModList( char *listbuf, int bufsize ) {
 #elif defined RTCW_MP
 		// we drop "baseq3" "." and ".."
 		if ( Q_stricmp( name, "main" ) && Q_stricmpn( name, ".", 1 ) ) {
+#else
+		// we drop "baseq3" "." and ".."
+		if ( Q_stricmp( name, BASEGAME ) && Q_stricmpn( name, ".", 1 ) ) {
 #endif RTCW_XX
 
 			// now we need to find some .pk3 files to validate the mod
@@ -2683,6 +3011,11 @@ int FS_GetModList( char *listbuf, int bufsize ) {
 			// we didn't keep the information when we merged the directory names, as to what OS Path it was found under
 			//   so it could be in base path, cd path or home path
 			//   we will try each three of them here (yes, it's a bit messy)
+
+#if defined RTCW_ET
+			// NOTE Arnout: what about dropping the current loaded mod as well?
+#endif RTCW_XX
+
 			path = FS_BuildOSPath( fs_basepath->string, name, "" );
 			nPaks = 0;
 			pPaks = Sys_ListFiles( path, ".pk3", NULL, &nPaks, qfalse );
@@ -2815,7 +3148,7 @@ int FS_PathCmp( const char *s1, const char *s2 ) {
 
 #if defined RTCW_SP
 		if ( Q_islower( c1 ) ) {
-#elif defined RTCW_MP
+#else
 		if ( c1 >= 'a' && c1 <= 'z' ) {
 #endif RTCW_XX
 
@@ -2824,7 +3157,7 @@ int FS_PathCmp( const char *s1, const char *s2 ) {
 
 #if defined RTCW_SP
 		if ( Q_islower( c2 ) ) {
-#elif defined RTCW_MP
+#else
 		if ( c2 >= 'a' && c2 <= 'z' ) {
 #endif RTCW_XX
 
@@ -2923,6 +3256,11 @@ void FS_Path_f( void ) {
 	Com_Printf( "Current search path:\n" );
 	for ( s = fs_searchpaths; s; s = s->next ) {
 		if ( s->pack ) {
+
+#if defined RTCW_ET
+			//			Com_Printf( "%s %X (%i files)\n", s->pack->pakFilename, s->pack->checksum, s->pack->numfiles );
+#endif RTCW_XX
+
 			Com_Printf( "%s (%i files)\n", s->pack->pakFilename, s->pack->numfiles );
 			if ( fs_numServerPaks ) {
 				if ( !FS_PakIsPure( s->pack ) ) {
@@ -3003,6 +3341,12 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 
 	sprintf( mpsppakfilestring,"msp" );
 // jpw
+#elif defined RTCW_ET
+// JPW NERVE
+	/*char			mpsppakfilestring[4];
+
+	sprintf( mpsppakfilestring, "msp" );*/
+// jpw
 #endif RTCW_XX
 
 	// this fixes the case where fs_basepath is the same as fs_cdpath
@@ -3050,12 +3394,17 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 // JPW NERVE KLUDGE: sorry, temp mod mp_* to _p_* so "mp_pak*" gets alphabetically sorted before "pak*"
 
 		if ( !Q_strncmp( sorted[i],"mp_",3 ) ) {
+#else
+/*		if (!Q_strncmp(sorted[i],"mp_",3))
+			memcpy(sorted[i],"zz",2);	*/
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 			memcpy( sorted[i],"zz",2 );
 		}
+#endif RTCW_XX
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // jpw
 #endif RTCW_XX
 
@@ -3065,6 +3414,7 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 
 	for ( i = 0 ; i < numfiles ; i++ ) {
 
+#if !defined RTCW_ET
 #if defined RTCW_SP
 		if ( Q_strncmp( sorted[i],"mp_",3 ) ) { // (SA) SP mod -- exclude mp_*
 
@@ -3083,6 +3433,17 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 			}
 
 // jpw
+#else
+/*		if (Q_strncmp(sorted[i],"sp_",3)) { // JPW NERVE -- exclude sp_*
+// JPW NERVE KLUDGE: fix filenames broken in mp/sp/pak sort above
+
+			if (!Q_strncmp(sorted[i],"zz_",3))
+				memcpy(sorted[i],"mp",2);
+
+// jpw
+*/
+#endif RTCW_XX
+
 			pakfile = FS_BuildOSPath( path, dir, sorted[i] );
 			if ( ( pak = FS_LoadZipFile( pakfile, sorted[i] ) ) == 0 ) {
 				continue;
@@ -3094,7 +3455,13 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 			search->pack = pak;
 			search->next = fs_searchpaths;
 			fs_searchpaths = search;
+
+#if !defined RTCW_ET
 		}
+#else
+//		}
+#endif RTCW_XX
+
 	}
 
 	// done
@@ -3109,7 +3476,7 @@ FS_idPak
 qboolean FS_idPak( char *pak, char *base ) {
 	int i;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	if ( !FS_FilenameCompare( pak, va( "%s/mp_bin", base ) ) ) {
 		return qtrue;
 	}
@@ -3119,6 +3486,8 @@ qboolean FS_idPak( char *pak, char *base ) {
 		if ( !FS_FilenameCompare( pak, va( "%s/pak%d", base, i ) ) ) {
 			break;
 		}
+
+#if !defined RTCW_ET
 // JPW NERVE -- this fn prevents external sources from downloading/overwriting official files, so exclude both SP and MP files from this list as well
 		if ( !FS_FilenameCompare( pak, va( "%s/mp_pak%d",base,i ) ) ) {
 			break;
@@ -3127,12 +3496,88 @@ qboolean FS_idPak( char *pak, char *base ) {
 			break;
 		}
 // jpw
+#else
+/*
+// JPW NERVE -- this fn prevents external sources from downloading/overwriting official files, so exclude both SP and MP files from this list as well
+		if ( !FS_FilenameCompare(pak, va("%s/mp_pak%d",base,i)) ) {
+			break;
+		}
+		if ( !FS_FilenameCompare(pak, va("%s/sp_pak%d",base,i)) ) {
+			break;
+		}
+// jpw
+*/
+#endif RTCW_XX
+
 	}
 	if ( i < NUM_ID_PAKS ) {
 		return qtrue;
 	}
 	return qfalse;
 }
+
+#if defined RTCW_ET
+typedef struct {
+	char pakname[MAX_QPATH];
+	qboolean ok;
+} officialpak_t;
+
+/*
+================
+FS_VerifyOfficialPaks
+================
+*/
+qboolean FS_VerifyOfficialPaks( void ) {
+	int i, j;
+	searchpath_t    *sp;
+	int numOfficialPaksOnServer = 0;
+	int numOfficialPaksLocal = 0;
+	officialpak_t officialpaks[64];
+
+	if ( !fs_numServerPaks ) {
+		return qtrue;
+	}
+
+	for ( i = 0; i < fs_numServerPaks; i++ ) {
+		if ( FS_idPak( fs_serverPakNames[i], BASEGAME ) ) {
+			Q_strncpyz( officialpaks[numOfficialPaksOnServer].pakname, fs_serverPakNames[i], sizeof( officialpaks[0].pakname ) );
+			officialpaks[numOfficialPaksOnServer].ok = qfalse;
+			numOfficialPaksOnServer++;
+		}
+	}
+
+	for ( i = 0; i < fs_numServerPaks; i++ ) {
+		for ( sp = fs_searchpaths ; sp ; sp = sp->next ) {
+			if ( sp->pack && sp->pack->checksum == fs_serverPaks[i] ) {
+				char packPath[MAX_QPATH];
+
+				Com_sprintf( packPath, sizeof( packPath ), "%s/%s", sp->pack->pakGamename, sp->pack->pakBasename );
+
+				if ( FS_idPak( packPath, BASEGAME ) ) {
+					for ( j = 0; j < numOfficialPaksOnServer; j++ ) {
+						if ( !Q_stricmp( packPath, officialpaks[j].pakname ) ) {
+							officialpaks[j].ok = qtrue;
+						}
+					}
+					numOfficialPaksLocal++;
+				}
+				break;
+			}
+		}
+	}
+
+	if ( numOfficialPaksOnServer != numOfficialPaksLocal ) {
+		for ( i = 0; i < numOfficialPaksOnServer; i++ ) {
+			if ( officialpaks[i].ok != qtrue ) {
+				Com_Printf( "ERROR: Missing/corrupt official pak file %s\n", officialpaks[i].pakname );
+			}
+		}
+		return qfalse;
+	} else {
+		return qtrue;
+	}
+}
+#endif RTCW_XX
 
 /*
 ================
@@ -3160,6 +3605,11 @@ we are not interested in a download string format, we want something human-reada
 
 ================
 */
+
+#if defined RTCW_ET
+qboolean CL_WWWBadChecksum( const char *pakname );
+#endif RTCW_XX
+
 qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
 	searchpath_t    *sp;
 	qboolean havepak, badchecksum;
@@ -3182,6 +3632,8 @@ qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
 		if ( FS_idPak( fs_serverReferencedPakNames[i], "baseq3" ) || FS_idPak( fs_serverReferencedPakNames[i], "missionpack" ) ) {
 #elif defined RTCW_MP
 		if ( FS_idPak( fs_serverReferencedPakNames[i], "main" ) ) {
+#else
+		if ( FS_idPak( fs_serverReferencedPakNames[i], BASEGAME ) ) {
 #endif RTCW_XX
 
 			continue;
@@ -3224,6 +3676,21 @@ qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
 				// Do we have one with the same name?
 				if ( FS_SV_FileExists( va( "%s.pk3", fs_serverReferencedPakNames[i] ) ) ) {
 					Q_strcat( neededpaks, len, " (local file exists with wrong checksum)" );
+
+#if defined RTCW_ET
+					#ifndef DEDICATED
+					// let the client subsystem track bad download redirects (dl file with wrong checksums)
+					// this is a bit ugly but the only other solution would have been callback passing..
+					if ( CL_WWWBadChecksum( va( "%s.pk3", fs_serverReferencedPakNames[i] ) ) ) {
+						// remove a potentially malicious download file
+						// (this is also intended to avoid expansion of the pk3 into a file with different checksum .. messes up wwwdl chkfail)
+						char *rmv = FS_BuildOSPath( fs_homepath->string, va( "%s.pk3", fs_serverReferencedPakNames[i] ), "" );
+						rmv[strlen( rmv ) - 1] = '\0';
+						FS_Remove( rmv );
+					}
+					#endif
+#endif RTCW_XX
+
 				}
 				Q_strcat( neededpaks, len, "\n" );
 			}
@@ -3288,7 +3755,7 @@ void FS_Shutdown( qboolean closemfp ) {
 #if defined RTCW_SP
 void Com_AppendCDKey( const char *filename );
 void Com_ReadCDKey( const char *filename );
-#elif defined RTCW_MP
+#else
 /*
 ================
 FS_ReorderPurePaks
@@ -3345,6 +3812,12 @@ static void FS_Startup( const char *gameName ) {
 	fs_copyfiles = Cvar_Get( "fs_copyfiles", "0", CVAR_INIT );
 	fs_cdpath = Cvar_Get( "fs_cdpath", Sys_DefaultCDPath(), CVAR_INIT );
 	fs_basepath = Cvar_Get( "fs_basepath", Sys_DefaultInstallPath(), CVAR_INIT );
+
+#if defined RTCW_ET
+	fs_buildpath = Cvar_Get( "fs_buildpath", "", CVAR_INIT );
+	fs_buildgame = Cvar_Get( "fs_buildgame", BASEGAME, CVAR_INIT );
+#endif RTCW_XX
+
 	fs_basegame = Cvar_Get( "fs_basegame", "", CVAR_INIT );
 	homePath = Sys_DefaultHomePath();
 	if ( !homePath || !homePath[0] ) {
@@ -3367,6 +3840,7 @@ static void FS_Startup( const char *gameName ) {
 		FS_AddGameDirectory( fs_homepath->string, gameName );
 	}
 
+#if !defined RTCW_ET || (defined RTCW_ET && !defined PRE_RELEASE_DEMO)
 	// check for additional base game so mods can be based upon other mods
 	if ( fs_basegame->string[0] && !Q_stricmp( gameName, BASEGAME ) && Q_stricmp( fs_basegame->string, gameName ) ) {
 		if ( fs_cdpath->string[0] ) {
@@ -3392,6 +3866,7 @@ static void FS_Startup( const char *gameName ) {
 			FS_AddGameDirectory( fs_homepath->string, fs_gamedirvar->string );
 		}
 	}
+#endif RTCW_XX
 
 	Com_ReadCDKey( BASEGAME );
 	fs = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO );
@@ -3405,7 +3880,7 @@ static void FS_Startup( const char *gameName ) {
 	Cmd_AddCommand( "fdir", FS_NewDir_f );
 	Cmd_AddCommand( "touchFile", FS_TouchFile_f );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// show_bug.cgi?id=506
 	// reorder the pure pk3 files according to server order
 	FS_ReorderPurePaks();
@@ -3439,7 +3914,7 @@ static void FS_SetRestrictions( void ) {
 
 #if defined RTCW_SP
 //	searchpath_t	*path;
-#elif defined RTCW_MP
+#else
 	searchpath_t	*path;
 #endif RTCW_XX
 
@@ -3452,7 +3927,7 @@ static void FS_SetRestrictions( void ) {
 		return; // no restrictions
 	}
 #endif
-#elif defined RTCW_MP
+#else
 #ifndef PRE_RELEASE_DEMO
 	// if fs_restrict is set, don't even look for the id file,
 	// which allows the demo release to be tested even if
@@ -3485,14 +3960,55 @@ static void FS_SetRestrictions( void ) {
 #else
 	FS_Startup( BASEGAME );
 #endif
+#else
+	FS_Startup( BASEGAME );
+#endif RTCW_XX
 
+#if !defined RTCW_SP
 	// make sure that the pak file has the header checksum we expect
 	for ( path = fs_searchpaths ; path ; path = path->next ) {
 		if ( path->pack ) {
+#endif RTCW_XX
+
+#if defined RTCW_MP
 			// a tiny attempt to keep the checksum from being scannable from the exe
 			if ( ( path->pack->checksum ^ 0x02261994u )
 				 != ( DEMO_PAK_CHECKSUM ^ 0x02261994u ) ) {
 				Com_Error( ERR_FATAL, "Corrupted pak0.pk3: %u", path->pack->checksum );
+#elif defined RTCW_ET
+// every time a new demo pk3 file is built, this checksum must be updated.
+// the easiest way to get it is to just run the game and see what it spits out
+//DHM - Nerve :: Wolf Multiplayer demo checksum
+// NOTE TTimo: always needs the 'u' for unsigned int (gcc)
+#define DEMO_MPBIN_CHECKSUM 2217494506u
+#define DEMO_PAK0_CHECKSUM  846032800u
+
+#define SYS_PAKNAME_MPBIN_SHIFT 3
+#define SYS_PAKNAME_MPBIN "psbelq"
+#define SYS_PAKNAME_PAK0_SHIFT 7
+#define SYS_PAKNAME_PAK0 "whr7"
+
+#if 0 // use that stuff for shifted strings
+			Com_Printf( "SYS_PAKNAME_MPBIN + %d: '%s'\n", SYS_PAKNAME_MPBIN_SHIFT, FS_ShiftStr( "mp_bin", SYS_PAKNAME_MPBIN_SHIFT ) );
+			Com_Printf( "SYS_PAKNAME_PAK0 + %d: '%s'\n", SYS_PAKNAME_PAK0_SHIFT, FS_ShiftStr( "pak0", SYS_PAKNAME_PAK0_SHIFT ) );
+#endif
+			if ( FS_ShiftedStrStr( path->pack->pakBasename, SYS_PAKNAME_MPBIN, -SYS_PAKNAME_MPBIN_SHIFT ) ) {
+				// a tiny attempt to keep the checksum from being scannable from the exe
+				if ( ( path->pack->checksum ^ 0x01042000u )
+					 != ( DEMO_MPBIN_CHECKSUM ^ 0x01042000u ) ) {
+					Com_Error( ERR_FATAL, "Corrupted pakfile: %u", path->pack->checksum );
+				}
+			} else if ( FS_ShiftedStrStr( path->pack->pakBasename, SYS_PAKNAME_PAK0, -SYS_PAKNAME_PAK0_SHIFT ) ) {
+				// a tiny attempt to keep the checksum from being scannable from the exe
+				if ( ( path->pack->checksum ^ 0x04062001u )
+					 != ( DEMO_PAK0_CHECKSUM ^ 0x04062001u ) ) {
+					Com_Error( ERR_FATAL, "Corrupted pakfile: %u", path->pack->checksum );
+				}
+			} else {
+				Com_Error( ERR_FATAL, "Corrupted pakfile: %u", path->pack->checksum );
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 			}
 		}
 	}
@@ -3508,7 +4024,7 @@ FS_GamePureChecksum
 Returns the checksum of the pk3 from which the server loaded the qagame.qvm
 =====================
 */
-#elif defined RTCW_MP
+#else
 /*
 =====================
 FS_GamePureChecksum
@@ -3536,7 +4052,7 @@ const char *FS_GamePureChecksum( void ) {
 	return info;
 }
 
-#if defined RTCW_SP || (defined RTCW_MP && !defined DO_LIGHT_DEDICATED)
+#if defined RTCW_SP || (!defined RTCW_SP && !defined DO_LIGHT_DEDICATED)
 /*
 =====================
 FS_LoadedPakChecksums
@@ -3586,6 +4102,14 @@ const char *FS_LoadedPakNames( void ) {
 		if ( *info ) {
 			Q_strcat( info, sizeof( info ), " " );
 		}
+
+#if defined RTCW_ET
+		// Arnout: changed to have the full path
+		//Q_strcat( info, sizeof( info ), search->pack->pakBasename );
+		Q_strcat( info, sizeof( info ), search->pack->pakGamename );
+		Q_strcat( info, sizeof( info ), "/" );
+#endif RTCW_XX
+
 		Q_strcat( info, sizeof( info ), search->pack->pakBasename );
 	}
 
@@ -3616,7 +4140,7 @@ const char *FS_LoadedPakPureChecksums( void ) {
 		Q_strcat( info, sizeof( info ), va( "%i ", search->pack->pure_checksum ) );
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// DO_LIGHT_DEDICATED
 	// only comment out when you need a new pure checksums string
 	//Com_DPrintf("FS_LoadPakPureChecksums: %s\n", info);
@@ -3651,7 +4175,7 @@ const char *FS_ReferencedPakChecksums( void ) {
 	return info;
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 =====================
 FS_ReferencedPakNames
@@ -3700,7 +4224,7 @@ NOTE TTimo: this code is taken from Wolf MP source
 pure checksums code is not relevant to SP binary anyway
 =====================
 */
-#elif defined RTCW_MP
+#else
 /*
 =====================
 FS_ReferencedPakPureChecksums
@@ -3729,7 +4253,7 @@ const char *FS_ReferencedPakPureChecksums( void ) {
 
 #if defined RTCW_SP
 	for ( nFlags = FS_GENERAL_REF; nFlags; nFlags = nFlags >> 1 ) {
-#elif defined RTCW_MP
+#else
 	for ( nFlags = FS_CGAME_REF; nFlags; nFlags = nFlags >> 1 ) {
 		if ( nFlags & FS_GENERAL_REF ) {
 			// add a delimter between must haves and general refs
@@ -3746,7 +4270,7 @@ const char *FS_ReferencedPakPureChecksums( void ) {
 			if ( search->pack && ( search->pack->referenced & nFlags ) ) {
 				Q_strcat( info, sizeof( info ), va( "%i ", search->pack->pure_checksum ) );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 				if ( nFlags & ( FS_CGAME_REF | FS_UI_REF ) ) {
 					break;
 				}
@@ -3767,7 +4291,7 @@ const char *FS_ReferencedPakPureChecksums( void ) {
 
 	return info;
 }
-#elif defined RTCW_MP
+#else
 
 /*
 =========================================================================================
@@ -3807,30 +4331,63 @@ you need to use the right line in FS_LoadedPakPureChecksums wether you are runni
 /*
 // clear checksums, rebuild those from a regular server and you will shift them next
 static const int feeds[5] = {
+
+#if !defined RTCW_ET
 	0xd6009839, 0x636bb1d5, 0x198df4c9, 0x7ffa631b, 0x8f89a69e
+#else
+  0x14d48835, 0xc44ed670, 0xd1c8da0d, 0x98df0626, 0xb4e51e7a
+#endif RTCW_XX
+
 };
 
 static const char* pak_purechecksums[5] = {
+
+#if !defined RTCW_ET
  "943814896 694898104 1407923890 242847633 1117823230 -1543700213",
  "-111135514 976363775 -1066586315 -509503305 226888806 623380740",
  "465689568 1394972621 1593048073 488347192 -238809598 -396332776",
  "-2000534548 253432450 -1505880367 682854303 -1183636432 -1745648892",
  "-588301396 -637070806 -49124646 831116909 -666702847 1152718748"
+#else
+ "-631058236 1439191868 -1758535722 -1109639830 -756342425 -26055934",
+ "420891163 -2077045804 -1212476885 273103692 1907819222 -1162012968",
+ "724865970 393950398 1987220301 679766798 -966287476 -1045306141",
+ "468836794 -690412926 -481399336 1089964294 -1538547350 394664641",
+ "-1484520489 -1891368444 -510451918 -919424191 -1623567814 889557862"
+#endif RTCW_XX
+
 };
 */
 
 static const int feeds[5] = {
+
+#if !defined RTCW_ET
 	0xd6009839, 0x636bb1d5, 0x198df4c9, 0x7ffa631b, 0x8f89a69e
+#else
+	0x14d48835, 0xc44ed670, 0xd1c8da0d, 0x98df0626, 0xb4e51e7a
+#endif RTCW_XX
+
 };
 
 // shifted strings, so that it's not directly scannable from exe
 // see FS_RandChecksumFeed to generate them
 static const char* pak_purechecksums[5] = {
+
+#if !defined RTCW_ET
 	"FA@E>AEFC-CFAEFE>=A->A=DF?@EF=-?A?EADC@@->>>DE?@?@=-:>BA@D==?>@",
 	";????ACC?B.GEDADAEEC.;?>DDCFDA?C.;C>GC>AA>C.@@DFFFF>D.D@AAF>EB>",
 	"CEDEGHDEG/@BHCHFAEA@/@DHB?CG?FB/CGGBCF@HA/<ABGG?HDHG/<BHEBBAFFE",
 	"=B@@@ECDEDH0BECDCBDE@0=AE@EHH@CFG0FHBHEDC@C0=AAHCFCFDCB0=AGDEFDHHIB",
 	">FIIDABDJG1>GDHAHAIAG1>EJBCEGEG1IDBBBGJAJ1>GGGHACIEH1BBFCHBIHEI"
+#else
+	// rain - escaped ?s to prevent parsing as trigraph
+	":C@>=BE?@C->A@F>F>ECE-:>DBEB@BD\?\?-:>>=FC@FE@=-:DBC@A?A?B-:?C=BBF@A",
+	"B@>FG??DA.;@>EE>BCF>B.;?@?@BEDFFC.@EA?>ADG@.?G>EF?G@@@.;??D@>?@GDF",
+	"FACGEDHF?/BHBHD?BHG/@HGFAA?B?@/EFHFEEFHG/<HEEAGFCFE/<@?CDB?E@C@",
+	"DFHHCFGID0=FI@DABIBF0=DHACIICCF0A@HIIFDBID0=AECHEDGCE@0CIDFFDFDA",
+	">BEIEFCAEIJ1>BIJBDGIEEE1>FBAEFBJBI1>JBJECEBJB1>BGCDFGHIBE1IIJFFHIGC"
+#endif RTCW_XX
+
 };
 
 // counter to walk through the randomized list
@@ -4162,7 +4719,7 @@ void FS_PureServerSetLoadedPaks( const char *pakSums, const char *pakNames ) {
 	if ( fs_numServerPaks ) {
 		Com_DPrintf( "Connected to a pure server.\n" );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	} else
 	{
 		if ( fs_reordered ) {
@@ -4256,6 +4813,12 @@ void FS_InitFilesystem( void ) {
 	// has already been initialized
 	Com_StartupVariable( "fs_cdpath" );
 	Com_StartupVariable( "fs_basepath" );
+
+#if defined RTCW_ET
+	Com_StartupVariable( "fs_buildpath" );
+	Com_StartupVariable( "fs_buildgame" );
+#endif RTCW_XX
+
 	Com_StartupVariable( "fs_homepath" );
 	Com_StartupVariable( "fs_game" );
 	Com_StartupVariable( "fs_copyfiles" );
@@ -4284,6 +4847,14 @@ void FS_InitFilesystem( void ) {
 		Com_Error( ERR_FATAL, "Couldn't load default.cfg - I am missing essential files - verify your installation?" );
 	}
 #endif
+#else
+	// if we can't find default.cfg, assume that the paths are
+	// busted and error out now, rather than getting an unreadable
+	// graphics screen when the font fails to load
+	// Arnout: we want the nice error message here as well
+	if ( FS_ReadFile( "default.cfg", NULL ) <= 0 ) {
+		Com_Error( ERR_FATAL, "Couldn't load default.cfg - I am missing essential files - verify your installation?" );
+	}
 #endif RTCW_XX
 
 	Q_strncpyz( lastValidBase, fs_basepath->string, sizeof( lastValidBase ) );
@@ -4296,7 +4867,19 @@ void FS_InitFilesystem( void ) {
 FS_Restart
 ================
 */
+
+#if defined RTCW_ET
+//void CL_PurgeCache( void );
+#endif RTCW_XX
+
 void FS_Restart( int checksumFeed ) {
+
+#if defined RTCW_ET
+#ifndef DEDICATED
+	// Arnout: big hack to clear the image cache on a FS_Restart
+//	CL_PurgeCache();
+#endif
+#endif RTCW_XX
 
 	// free anything we currently have loaded
 	FS_Shutdown( qfalse );
@@ -4330,7 +4913,14 @@ void FS_Restart( int checksumFeed ) {
 			Com_Error( ERR_DROP, "Invalid game folder\n" );
 			return;
 		}
+
+#if !defined RTCW_ET
 		Com_Error( ERR_FATAL, "Couldn't load default.cfg" );
+#else
+		// TTimo - added some verbosity, 'couldn't load default.cfg' confuses the hell out of users
+		Com_Error( ERR_FATAL, "Couldn't load default.cfg - I am missing essential files - verify your installation?" );
+#endif RTCW_XX
+
 	}
 
 	// bk010116 - new check before safeMode
@@ -4338,10 +4928,36 @@ void FS_Restart( int checksumFeed ) {
 		// skip the wolfconfig.cfg if "safe" is on the command line
 		if ( !Com_SafeMode() ) {
 
+#if !defined RTCW_ET
 #if defined RTCW_SP
 			Cbuf_AddText( "exec wolfconfig.cfg\n" );
 #elif defined RTCW_MP
 			Cbuf_AddText( "exec wolfconfig_mp.cfg\n" );
+#endif RTCW_XX
+#else
+			char *cl_profileStr = Cvar_VariableString( "cl_profile" );
+
+			if ( com_gameInfo.usesProfiles && cl_profileStr[0] ) {
+				// bani - check existing pid file and make sure it's ok
+				if ( !Com_CheckProfile( va( "profiles/%s/profile.pid", cl_profileStr ) ) ) {
+#ifndef _DEBUG
+					Com_Printf( "^3WARNING: profile.pid found for profile '%s' - system settings will revert to defaults\n", cl_profileStr );
+					// ydnar: set crashed state
+					Cbuf_AddText( "set com_crashed 1\n" );
+#endif
+				}
+
+				// bani - write a new one
+				if ( !Com_WriteProfile( va( "profiles/%s/profile.pid", cl_profileStr ) ) ) {
+					Com_Printf( "^3WARNING: couldn't write profiles/%s/profile.pid\n", cl_profileStr );
+				}
+
+				// exec the config
+				Cbuf_AddText( va( "exec profiles/%s/%s\n", cl_profileStr, CONFIG_NAME ) );
+
+			} else {
+				Cbuf_AddText( va( "exec %s\n", CONFIG_NAME ) );
+			}
 #endif RTCW_XX
 
 		}
@@ -4359,7 +4975,7 @@ FS_ConditionalRestart
 restart if necessary
 =================
 */
-#elif defined RTCW_MP
+#else
 /*
 =================
 FS_ConditionalRestart
@@ -4399,6 +5015,8 @@ int     FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) 
 		r = FS_FOpenFileRead( qpath, f, qtrue );
 		break;
 	case FS_WRITE:
+
+#if !defined RTCW_ET
 #ifdef __MACOS__    //DAJ MacOS file typing
 		{
 			extern _MSL_IMP_EXP_C long _fcreator, _ftype;
@@ -4412,6 +5030,8 @@ int     FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) 
 
 		}
 #endif
+#endif RTCW_XX
+
 		*f = FS_FOpenFileWrite( qpath );
 		r = 0;
 		if ( *f == 0 ) {
@@ -4421,6 +5041,8 @@ int     FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) 
 	case FS_APPEND_SYNC:
 		sync = qtrue;
 	case FS_APPEND:
+
+#if !defined RTCW_ET
 #ifdef __MACOS__    //DAJ MacOS file typing
 		{
 			extern _MSL_IMP_EXP_C long _fcreator, _ftype;
@@ -4434,6 +5056,8 @@ int     FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) 
 
 		}
 #endif
+#endif RTCW_XX
+
 		*f = FS_FOpenFileAppend( qpath );
 		r = 0;
 		if ( *f == 0 ) {
@@ -4488,7 +5112,7 @@ void    FS_Flush( fileHandle_t f ) {
 	fflush( fsh[f].handleFiles.file.o );
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 // CVE-2006-2082
 // compared requested pak against the names as we built them in FS_ReferencedPakNames
 qboolean FS_VerifyPak( const char *pak ) {
@@ -4509,3 +5133,38 @@ qboolean FS_VerifyPak( const char *pak ) {
 	return qfalse;
 }
 #endif RTCW_XX
+
+#if defined RTCW_ET
+qboolean FS_IsPure( void ) {
+	return fs_numServerPaks != 0;
+}
+
+unsigned int FS_ChecksumOSPath( char *OSPath ) {
+	FILE    *f;
+	int len;
+	byte    *buf;
+	unsigned int checksum;
+
+	f = fopen( OSPath, "rb" );
+	if ( !f ) {
+		return (unsigned int)-1;
+	}
+	fseek( f, 0, SEEK_END );
+	len = ftell( f );
+	fseek( f, 0, SEEK_SET );
+
+	buf = malloc( len );
+	if ( fread( buf, 1, len, f ) != len ) {
+		Com_Error( ERR_FATAL, "short read in FS_ChecksumOSPath\n" );
+	}
+	fclose( f );
+
+	// Com_BlockChecksum returns an indian-dependent value
+	// (better fix would have to be doing the LittleLong inside that function..)
+	checksum = LittleLong( Com_BlockChecksum( buf, len ) );
+
+	free( buf );
+	return checksum;
+}
+#endif RTCW_XX
+

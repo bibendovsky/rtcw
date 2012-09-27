@@ -39,13 +39,13 @@ If you have questions concerning this license or the applicable additional terms
 #define SND_CHUNK_SIZE_FLOAT    ( SND_CHUNK_SIZE / 2 )      // floats
 #define SND_CHUNK_SIZE_BYTE     ( SND_CHUNK_SIZE * 2 )      // floats
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 #define TALKANIM
-#elif defined RTCW_MP
+#else
 //#define TALKANIM			// NERVE - SMF - we don't want this for multiplayer
 #endif RTCW_XX
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 typedef struct {
 	int left;           // the final values will be clamped to +/- 0x00ffff00 and shifted down
 	int right;
@@ -56,7 +56,7 @@ typedef struct adpcm_state {
 	short sample;       /* Previous output value */
 	char index;         /* Index into stepsize table */
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 #if defined( __MACOS__ )
 	char pad;           /* //DAJ added pad for alignment */
 #endif
@@ -98,9 +98,24 @@ typedef struct {
 typedef struct loopSound_s {
 	vec3_t origin;
 	vec3_t velocity;
+
+#if !defined RTCW_ET
 	float range;            //----(SA)	added
+#endif RTCW_XX
+
 	sfx_t       *sfx;
 	int mergeFrame;
+
+#if defined RTCW_ET
+	qboolean active;
+	qboolean kill;
+	qboolean doppler;
+	float dopplerScale;
+	float oldDopplerScale;
+	int framenum;
+	float range;            //----(SA)	added
+#endif RTCW_XX
+
 	int vol;
 	qboolean loudUnderWater;    // (SA) set if this sound should be played at full vol even when under water (under water loop sound for ex.)
 
@@ -111,6 +126,10 @@ typedef struct loopSound_s {
 	int framenum;
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	int startTime, startSample;         // ydnar: so looping sounds can be out of phase
+#endif RTCW_XX
+
 } loopSound_t;
 
 typedef struct
@@ -118,7 +137,7 @@ typedef struct
 
 #if defined RTCW_SP
 	int         *ptr;           //DAJ BUGFIX for freelist/endlist pointer
-#elif defined RTCW_MP
+#else
 	int         *prt;           //DAJ BUGFIX for freelist/endlist pointer
 #endif RTCW_XX
 
@@ -176,13 +195,13 @@ void    SNDDMA_Submit( void );
 
 //====================================================================
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 #if defined( __MACOS__ )
   #define   MAX_CHANNELS 64
 #else
   #define MAX_CHANNELS 96
 #endif
-#elif defined RTCW_MP
+#else
 #ifdef __MACOS__
 #define MAX_CHANNELS 64
 #else
@@ -204,7 +223,7 @@ extern dma_t dma;
 extern unsigned char s_entityTalkAmplitude[MAX_CLIENTS];
 #endif
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //----(SA)	some flags for queued music tracks
 #define QUEUED_PLAY_ONCE    -1
 #define QUEUED_PLAY_LOOPED  -2
@@ -218,13 +237,13 @@ typedef struct {
 	wavinfo_t info;
 	int samples;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	char name[MAX_QPATH];           //----(SA)	added
 #endif RTCW_XX
 
 	char loop[MAX_QPATH];
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	int looped;                 //----(SA)	added
 #endif RTCW_XX
 
@@ -232,7 +251,7 @@ typedef struct {
 	int channel;
 	int attenuation;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	int kill;           //----(SA)	changed
 
 	int fadeStart;              //----(SA)	added
@@ -247,7 +266,7 @@ typedef struct {
 
 
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 typedef struct {
 	vec3_t origin;
 	qboolean fixedOrigin;
@@ -255,11 +274,22 @@ typedef struct {
 	int entityChannel;
 	sfxHandle_t sfx;
 	int flags;
+
+#if defined RTCW_ET
+	int volume;
+#endif RTCW_XX
+
 } s_pushStack;
 
 #define MAX_PUSHSTACK   64
 #define LOOP_HASH       128
+
+#if !defined RTCW_ET
 #define MAX_LOOP_SOUNDS 128
+#else
+#define MAX_LOOP_SOUNDS 1024
+#endif RTCW_XX
+
 
 // removed many statics into a common sound struct
 typedef struct {
@@ -274,6 +304,10 @@ typedef struct {
 	float volFadeFrac;
 	float volCurrent;
 
+#if defined RTCW_ET
+	qboolean stopSounds;
+#endif RTCW_XX
+
 	channel_t   *freelist;
 	channel_t   *endflist;
 
@@ -286,7 +320,11 @@ typedef struct {
 	int s_clearSoundBuffer;
 
 	int s_soundStarted;
+
+#if !defined RTCW_ET
 //	qboolean	s_soundMute;
+#endif RTCW_XX
+
 	int s_soundMute;                // 0 - not muted, 1 - muted, 2 - no new sounds, but play out remaining sounds (so they can die if necessary)
 
 	vec3_t entityPositions[MAX_GENTITIES];
@@ -300,9 +338,9 @@ extern snd_t snd;   // globals for sound
 
 
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 #define MAX_STREAMING_SOUNDS    12  // need to keep it low, or the rawsamples will get too big
-#elif defined RTCW_MP
+#else
 #ifdef __MACOS__
 #define MAX_STREAMING_SOUNDS    12  //DAJ use SP number (was 24)	// need to keep it low, or the rawsamples will get too big
 #else
@@ -328,9 +366,15 @@ extern cvar_t   *s_mute;
 extern cvar_t   *s_testsound;
 extern cvar_t   *s_separation;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 extern cvar_t   *s_currentMusic;    //----(SA)	added
 extern cvar_t   *s_debugMusic;      //----(SA)	added
+#endif RTCW_XX
+
+#if defined RTCW_ET
+// fretn
+extern cvar_t   *s_bits;
+extern cvar_t   *s_numchannels;
 #endif RTCW_XX
 
 qboolean S_LoadSound( sfx_t *sfx );
@@ -371,8 +415,9 @@ extern short *sfxScratchBuffer;
 extern const sfx_t *sfxScratchPointer;
 extern int sfxScratchIndex;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 extern unsigned char s_entityTalkAmplitude[MAX_CLIENTS];
 
 extern float S_GetStreamingFade( streamingSound_t *ss );    //----(SA)	added
 #endif RTCW_XX
+

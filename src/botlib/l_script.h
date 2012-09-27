@@ -60,10 +60,10 @@ If you have questions concerning this license or the applicable additional terms
 //maximum path length
 #ifndef _MAX_PATH
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 // TTimo: used to be MAX_QPATH, which is the game filesystem max len, and not the OS max len
 	#define _MAX_PATH               1024
-#elif defined RTCW_MP
+#else
 	#define _MAX_PATH               MAX_QPATH
 #endif RTCW_XX
 

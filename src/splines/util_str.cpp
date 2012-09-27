@@ -34,9 +34,21 @@ If you have questions concerning this license or the applicable additional terms
 #include <stdio.h>
 #include <stdarg.h>
 
+#if defined RTCW_ET
+#if __MACOS__
+// LBO 2/1/05. Apple's system headers define these as macros. D'oh!
+#undef tolower
+#undef toupper
+#endif
+#endif RTCW_XX
+
 #ifdef _WIN32
+
+#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
 #pragma warning(disable : 4244) // 'conversion' conversion from 'type1' to 'type2', possible loss of data
 #pragma warning(disable : 4710) // function 'blah' not inlined
+#endif RTCW_XX
+
 #endif
 
 static const int STR_ALLOC_GRAN = 20;
@@ -447,7 +459,11 @@ void idStr::snprintf
 }
 
 #ifdef _WIN32
+
+#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
 #pragma warning(disable : 4189) // local variable is initialized but not referenced
+#endif RTCW_XX
+
 #endif
 
 #if defined RTCW_SP
@@ -683,9 +699,129 @@ void TestStringClass
 }
 
 #endif
+#else
+#if 0
+/*
+=================
+TestStringClass
+
+This is a fairly rigorous test of the idStr class's functionality.
+Because of the fairly global and subtle ramifications of a bug occuring
+in this class, it should be run after any changes to the class.
+Add more tests as functionality is changed.  Tests should include
+any possible bounds violation and NULL data tests.
+=================
+*/
+void TestStringClass
+(
+	void
+) {
+	char ch;                            // ch == ?
+	idStr   *t;                         // t == ?
+	idStr a;                                // a.len == 0, a.data == "\0"
+	idStr b;                                // b.len == 0, b.data == "\0"
+	idStr c( "test" );              // c.len == 4, c.data == "test\0"
+	idStr d( c );                       // d.len == 4, d.data == "test\0"
+	idStr e( reinterpret_cast<const char *>( NULL ) );
+	// e.len == 0, e.data == "\0"					ASSERT!
+	int i;                              // i == ?
+
+	i = a.length();                 // i == 0
+	i = c.length();                 // i == 4
+
+	const char *s1 = a.c_str(); // s1 == "\0"
+	const char *s2 = c.c_str(); // s2 == "test\0"
+
+	t = new idStr();                        // t->len == 0, t->data == "\0"
+	delete t;                           // t == ?
+
+	b = "test";                          // b.len == 4, b.data == "test\0"
+	t = new idStr( "test" );         // t->len == 4, t->data == "test\0"
+	delete t;                           // t == ?
+
+	a = c;                              // a.len == 4, a.data == "test\0"
+//   a = "";
+	a = NULL;                           // a.len == 0, a.data == "\0"					ASSERT!
+	a = c + d;                          // a.len == 8, a.data == "testtest\0"
+	a = c + "wow";                       // a.len == 7, a.data == "testwow\0"
+	a = c + reinterpret_cast<const char *>( NULL );
+	// a.len == 4, a.data == "test\0"			ASSERT!
+	a = "this" + d;                  // a.len == 8, a.data == "thistest\0"
+	a = reinterpret_cast<const char *>( NULL ) + d;
+	// a.len == 4, a.data == "test\0"			ASSERT!
+	a += c;                             // a.len == 8, a.data == "testtest\0"
+	a += "wow";                          // a.len == 11, a.data == "testtestwow\0"
+	a += reinterpret_cast<const char *>( NULL );
+	// a.len == 11, a.data == "testtestwow\0"	ASSERT!
+
+	a = "test";                          // a.len == 4, a.data == "test\0"
+	ch = a[ 0 ];                        // ch == 't'
+	ch = a[ -1 ];                       // ch == 0											ASSERT!
+	ch = a[ 1000 ];                 // ch == 0											ASSERT!
+	ch = a[ 0 ];                        // ch == 't'
+	ch = a[ 1 ];                        // ch == 'e'
+	ch = a[ 2 ];                        // ch == 's'
+	ch = a[ 3 ];                        // ch == 't'
+	ch = a[ 4 ];                        // ch == '\0'										ASSERT!
+	ch = a[ 5 ];                        // ch == '\0'										ASSERT!
+
+	a[ 1 ] = 'b';                        // a.len == 4, a.data == "tbst\0"
+	a[ -1 ] = 'b';                       // a.len == 4, a.data == "tbst\0"			ASSERT!
+	a[ 0 ] = '0';                        // a.len == 4, a.data == "0bst\0"
+	a[ 1 ] = '1';                        // a.len == 4, a.data == "01st\0"
+	a[ 2 ] = '2';                        // a.len == 4, a.data == "012t\0"
+	a[ 3 ] = '3';                        // a.len == 4, a.data == "0123\0"
+	a[ 4 ] = '4';                        // a.len == 4, a.data == "0123\0"			ASSERT!
+	a[ 5 ] = '5';                        // a.len == 4, a.data == "0123\0"			ASSERT!
+	a[ 7 ] = '7';                        // a.len == 4, a.data == "0123\0"			ASSERT!
+
+	a = "test";                          // a.len == 4, a.data == "test\0"
+	b = "no";                            // b.len == 2, b.data == "no\0"
+
+	i = ( a == b );                 // i == 0
+	i = ( a == c );                 // i == 1
+
+	i = ( a == "blow" );             // i == 0
+	i = ( a == "test" );             // i == 1
+	i = ( a == NULL );              // i == 0											ASSERT!
+
+	i = ( "test" == b );             // i == 0
+	i = ( "test" == a );             // i == 1
+	i = ( NULL == a );              // i == 0											ASSERT!
+
+	i = ( a != b );                 // i == 1
+	i = ( a != c );                 // i == 0
+
+	i = ( a != "blow" );             // i == 1
+	i = ( a != "test" );             // i == 0
+	i = ( a != NULL );              // i == 1											ASSERT!
+
+	i = ( "test" != b );             // i == 1
+	i = ( "test" != a );             // i == 0
+	i = ( NULL != a );              // i == 1											ASSERT!
+
+	a = "test";                 // a.data == "test"
+	b = a;                       // b.data == "test"
+
+	a = "not";                 // a.data == "not", b.data == "test"
+
+	a = b;                       // a.data == b.data == "test"
+
+	a += b;                      // a.data == "testtest", b.data = "test"
+
+	a = b;
+
+	a[1] = '1';                 // a.data = "t1st", b.data = "test"
+}
+
+#endif
 #endif RTCW_XX
 
 #ifdef _WIN32
+
+#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
 #pragma warning(default : 4189) // local variable is initialized but not referenced
 #pragma warning(disable : 4514) // unreferenced inline function has been removed
+#endif RTCW_XX
+
 #endif

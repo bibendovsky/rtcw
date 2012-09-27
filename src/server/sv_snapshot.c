@@ -186,12 +186,23 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 	MSG_WriteByte( msg, frame->areabytes );
 	MSG_WriteData( msg, frame->areabits, frame->areabytes );
 
+#if defined RTCW_ET
+	{
+//		int sz = msg->cursize;
+//		int usz = msg->uncompsize;
+#endif RTCW_XX
+
 	// delta encode the playerstate
 	if ( oldframe ) {
 		MSG_WriteDeltaPlayerstate( msg, &oldframe->ps, &frame->ps );
 	} else {
 		MSG_WriteDeltaPlayerstate( msg, NULL, &frame->ps );
 	}
+
+#if defined RTCW_ET
+//		Com_Printf( "Playerstate delta size: %f\n", ((msg->cursize - sz) * sv_fps->integer) / 8.f );
+	}
+#endif RTCW_XX
 
 	// delta encode the entities
 	SV_EmitPacketEntities( oldframe, frame, msg );
@@ -223,7 +234,7 @@ void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg ) {
 #if defined RTCW_SP
 		//MSG_WriteString( msg, client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
 		MSG_WriteString( msg, SV_GetReliableCommand( client, i & ( MAX_RELIABLE_COMMANDS - 1 ) ) );
-#elif defined RTCW_MP
+#else
 		MSG_WriteString( msg, client->reliableCommands[ i & ( MAX_RELIABLE_COMMANDS - 1 ) ] );
 #endif RTCW_XX
 
@@ -275,7 +286,13 @@ static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
 SV_AddEntToSnapshot
 ===============
 */
+
+#if !defined RTCW_ET
 static void SV_AddEntToSnapshot( svEntity_t *svEnt, sharedEntity_t *gEnt, snapshotEntityNumbers_t *eNums ) {
+#else
+static void SV_AddEntToSnapshot( sharedEntity_t* clientEnt, svEntity_t *svEnt, sharedEntity_t *gEnt, snapshotEntityNumbers_t *eNums ) {
+#endif RTCW_XX
+
 	// if we have already added this entity to this snapshot, don't add again
 	if ( svEnt->snapshotCounter == sv.snapshotCounter ) {
 		return;
@@ -287,6 +304,14 @@ static void SV_AddEntToSnapshot( svEntity_t *svEnt, sharedEntity_t *gEnt, snapsh
 		return;
 	}
 
+#if defined RTCW_ET
+	if ( gEnt->r.snapshotCallback ) {
+		if ( !(qboolean)VM_Call( gvm, GAME_SNAPSHOT_CALLBACK, gEnt->s.number, clientEnt->s.number ) ) {
+			return;
+		}
+	}
+#endif RTCW_XX
+
 	eNums->snapshotEntities[ eNums->numSnapshotEntities ] = gEnt->s.number;
 	eNums->numSnapshotEntities++;
 }
@@ -296,10 +321,19 @@ static void SV_AddEntToSnapshot( svEntity_t *svEnt, sharedEntity_t *gEnt, snapsh
 SV_AddEntitiesVisibleFromPoint
 ===============
 */
+
+#if !defined RTCW_ET
 static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame,
 //									snapshotEntityNumbers_t *eNums, qboolean portal, clientSnapshot_t *oldframe, qboolean localClient ) {
 //									snapshotEntityNumbers_t *eNums, qboolean portal ) {
 											snapshotEntityNumbers_t *eNums, qboolean portal, qboolean localClient  ) {
+#else
+static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame,
+//									snapshotEntityNumbers_t *eNums, qboolean portal, clientSnapshot_t *oldframe, qboolean localClient ) {
+//									snapshotEntityNumbers_t *eNums, qboolean portal ) {
+											snapshotEntityNumbers_t *eNums /*, qboolean portal, qboolean localClient*/  ) {
+#endif RTCW_XX
+
 	int e, i;
 	sharedEntity_t *ent, *playerEnt;
 	svEntity_t  *svEnt;
@@ -329,6 +363,12 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 	c_fullsend = 0;
 
 	playerEnt = SV_GentityNum( frame->ps.clientNum );
+
+#if defined RTCW_ET
+	if ( playerEnt->r.svFlags & SVF_SELF_PORTAL ) {
+		SV_AddEntitiesVisibleFromPoint( playerEnt->s.origin2, frame, eNums );
+	}
+#endif RTCW_XX
 
 	for ( e = 0 ; e < sv.num_entities ; e++ ) {
 		ent = SV_GentityNum( e );
@@ -368,6 +408,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			continue;
 		}
 
+#if !defined RTCW_ET
 		// if this client is viewing from a camera, only add ents visible from portal ents
 		if ( ( playerEnt->s.eFlags & EF_VIEWING_CAMERA ) && !portal ) {
 			if ( ent->r.svFlags & SVF_PORTAL ) {
@@ -377,10 +418,27 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			}
 			continue;
 		}
+#endif RTCW_XX
 
 		// broadcast entities are always sent
 		if ( ent->r.svFlags & SVF_BROADCAST ) {
+
+#if !defined RTCW_ET
 			SV_AddEntToSnapshot( svEnt, ent, eNums );
+#else
+			SV_AddEntToSnapshot( playerEnt, svEnt, ent, eNums );
+			continue;
+		}
+
+		bitvector = clientpvs;
+
+		// Gordon: just check origin for being in pvs, ignore bmodel extents
+		if ( ent->r.svFlags & SVF_IGNOREBMODELEXTENTS ) {
+			if ( bitvector[svEnt->originCluster >> 3] & ( 1 << ( svEnt->originCluster & 7 ) ) ) {
+				SV_AddEntToSnapshot( playerEnt, svEnt, ent, eNums );
+			}
+#endif RTCW_XX
+
 			continue;
 		}
 
@@ -390,15 +448,29 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			// doors can legally straddle two areas, so
 			// we may need to check another one
 			if ( !CM_AreasConnected( clientarea, svEnt->areanum2 ) ) {
+
+#if !defined RTCW_ET
 				goto notVisible;    // blocked by a door
+#else
+				continue;
+#endif RTCW_XX
+
 			}
 		}
 
+#if !defined RTCW_ET
 		bitvector = clientpvs;
+#endif RTCW_XX
 
 		// check individual leafs
 		if ( !svEnt->numClusters ) {
+
+#if !defined RTCW_ET
 			goto notVisible;
+#else
+			continue;
+#endif RTCW_XX
+
 		}
 		l = 0;
 		for ( i = 0 ; i < svEnt->numClusters ; i++ ) {
@@ -418,10 +490,22 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 					}
 				}
 				if ( l == svEnt->lastCluster ) {
+
+#if !defined RTCW_ET
 					goto notVisible;    // not visible
+#else
+					continue;
+#endif RTCW_XX
+
 				}
 			} else {
+
+#if !defined RTCW_ET
 				goto notVisible;
+#else
+				continue;
+#endif RTCW_XX
+
 			}
 		}
 
@@ -437,14 +521,31 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 				master = SV_SvEntityForGentity( ment );
 
 				if ( master->snapshotCounter == sv.snapshotCounter || !ment->r.linked ) {
+
+#if !defined RTCW_ET
 					goto notVisible;
 					//continue;
+#else
+					continue;
+#endif RTCW_XX
+
 				}
 
+#if !defined RTCW_ET
 				SV_AddEntToSnapshot( master, ment, eNums );
+#else
+				SV_AddEntToSnapshot( playerEnt, master, ment, eNums );
+#endif RTCW_XX
+
 			}
+
+#if !defined RTCW_ET
 			goto notVisible;
 			//continue;	// master needs to be added, but not this dummy ent
+#else
+			continue;   // master needs to be added, but not this dummy ent
+#endif RTCW_XX
+
 		}
 		//----(SA) end
 		else if ( ent->r.svFlags & SVF_VISDUMMY_MULTIPLE ) {
@@ -485,24 +586,48 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 					}
 
 					if ( ment->s.otherEntityNum == ent->s.number ) {
+
+#if !defined RTCW_ET
 						SV_AddEntToSnapshot( master, ment, eNums );
+#else
+						SV_AddEntToSnapshot( playerEnt, master, ment, eNums );
+#endif RTCW_XX
+
 					}
 				}
+
+#if !defined RTCW_ET
 				goto notVisible;
+#else
+				continue;
+#endif RTCW_XX
+
 			}
 		}
 
 		// add it
+
+#if !defined RTCW_ET
 		SV_AddEntToSnapshot( svEnt, ent, eNums );
+#else
+		SV_AddEntToSnapshot( playerEnt, svEnt, ent, eNums );
+#endif RTCW_XX
 
 		// if its a portal entity, add everything visible from its camera position
 		if ( ent->r.svFlags & SVF_PORTAL ) {
 //			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue, oldframe, localClient );
+
+#if !defined RTCW_ET
 			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue, localClient );
+#else
+			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums /*, qtrue, localClient*/ );
+#endif RTCW_XX
+
 		}
 
 		continue;
 
+#if !defined RTCW_ET
 notVisible:
 
 		// Ridah, if this entity has changed events, then send it regardless of whether we can see it or not
@@ -519,6 +644,7 @@ notVisible:
 				}
 			}
 		}
+#endif RTCW_XX
 
 	}
 }
@@ -581,7 +707,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	entityNumbers.numSnapshotEntities = 0;
 	memset( frame->areabits, 0, sizeof( frame->areabits ) );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// show_bug.cgi?id=62
 	frame->num_entities = 0;
 #endif RTCW_XX
@@ -605,8 +731,18 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 
 	svEnt->snapshotCounter = sv.snapshotCounter;
 
+#if !defined RTCW_ET
 	// find the client's viewpoint
 	VectorCopy( ps->origin, org );
+#else
+	if ( clent->r.svFlags & SVF_SELF_PORTAL_EXCLUSIVE ) {
+		// find the client's viewpoint
+		VectorCopy( clent->s.origin2, org );
+	} else {
+		VectorCopy( ps->origin, org );
+	}
+#endif RTCW_XX
+
 	org[2] += ps->viewheight;
 
 //----(SA)	added for 'lean'
@@ -622,7 +758,12 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 
 	// add all the entities directly visible to the eye, which
 	// may include portal entities that merge other viewpoints
+
+#if !defined RTCW_ET
 	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse, client->netchan.remoteAddress.type == NA_LOOPBACK );
+#else
+	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers /*, qfalse, client->netchan.remoteAddress.type == NA_LOOPBACK*/ );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 //	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse, oldframe, client->netchan.remoteAddress.type == NA_LOOPBACK );
@@ -667,7 +808,7 @@ Return the number of msec a given size message is supposed
 to take to clear, based on the current rate
 ====================
 */
-#elif defined RTCW_MP
+#else
 /*
 ====================
 SV_RateMsec
@@ -684,7 +825,7 @@ static int SV_RateMsec( client_t *client, int messageSize ) {
 	int rate;
 	int rateMsec;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	int maxRate;
 #endif RTCW_XX
 
@@ -693,7 +834,7 @@ static int SV_RateMsec( client_t *client, int messageSize ) {
 		messageSize = 1500;
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// low watermark for sv_maxRate, never 0 < sv_maxRate < 1000 (0 is no limitation)
 	if ( sv_maxRate->integer && sv_maxRate->integer < 1000 ) {
 		Cvar_Set( "sv_MaxRate", "1000" );
@@ -709,7 +850,7 @@ static int SV_RateMsec( client_t *client, int messageSize ) {
 		}
 		if ( sv_maxRate->integer < rate ) {
 			rate = sv_maxRate->integer;
-#elif defined RTCW_MP
+#else
 	// work on the appropriate max rate (client or download)
 	if ( !*client->downloadName ) {
 		maxRate = sv_maxRate->integer;
@@ -748,7 +889,7 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 
 #if defined RTCW_SP
 	SV_Netchan_Transmit( client, msg ); //msg->cursize, msg->data );
-#elif defined RTCW_MP
+#else
 	SV_Netchan_Transmit( client, msg );
 #endif RTCW_XX
 
@@ -758,7 +899,7 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 
 #if defined RTCW_SP
 	if ( client->netchan.remoteAddress.type == NA_LOOPBACK || Sys_IsLANAddress( client->netchan.remoteAddress ) ) {
-#elif defined RTCW_MP
+#else
 	// TTimo - show_bug.cgi?id=491
 	// added sv_lanForceRate check
 	if ( client->netchan.remoteAddress.type == NA_LOOPBACK || ( sv_lanForceRate->integer && Sys_IsLANAddress( client->netchan.remoteAddress ) ) ) {
@@ -773,7 +914,7 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 
 #if defined RTCW_SP
 	if ( rateMsec < client->snapshotMsec ) {
-#elif defined RTCW_MP
+#else
 	// TTimo - during a download, ignore the snapshotMsec
 	// the update server on steroids, with this disabled and sv_fps 60, the download can reach 30 kb/s
 	// on a regular server, we will still top at 20 kb/s because of sv_fps 20
@@ -800,7 +941,55 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 	}
 }
 
+#if defined RTCW_ET
+//bani
+/*
+=======================
+SV_SendClientIdle
 
+There is no need to send full snapshots to clients who are loading a map.
+So we send them "idle" packets with the bare minimum required to keep them on the server.
+
+=======================
+*/
+void SV_SendClientIdle( client_t *client ) {
+	byte msg_buf[MAX_MSGLEN];
+	msg_t msg;
+
+	MSG_Init( &msg, msg_buf, sizeof( msg_buf ) );
+	msg.allowoverflow = qtrue;
+
+	// NOTE, MRE: all server->client messages now acknowledge
+	// let the client know which reliable clientCommands we have received
+	MSG_WriteLong( &msg, client->lastClientCommand );
+
+	// (re)send any reliable server commands
+	SV_UpdateServerCommandsToClient( client, &msg );
+
+	// send over all the relevant entityState_t
+	// and the playerState_t
+//	SV_WriteSnapshotToClient( client, &msg );
+
+	// Add any download data if the client is downloading
+	SV_WriteDownloadToClient( client, &msg );
+
+	// check for overflow
+	if ( msg.overflowed ) {
+		Com_Printf( "WARNING: msg overflowed for %s\n", client->name );
+		MSG_Clear( &msg );
+
+		SV_DropClient( client, "Msg overflowed" );
+		return;
+	}
+
+	SV_SendMessageToClient( &msg, client );
+
+	sv.bpsTotalBytes += msg.cursize;            // NERVE - SMF - net debugging
+	sv.ubpsTotalBytes += msg.uncompsize / 8;    // NERVE - SMF - net debugging
+}
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 /*
 =======================
 SV_SendClientSnapshot
@@ -809,6 +998,17 @@ Also called by SV_FinalMessage
 
 =======================
 */
+#else
+/*
+=======================
+SV_SendClientSnapshot
+
+Also called by SV_FinalCommand
+
+=======================
+*/
+#endif RTCW_XX
+
 void SV_SendClientSnapshot( client_t *client ) {
 	byte msg_buf[MAX_MSGLEN];
 	msg_t msg;
@@ -817,6 +1017,18 @@ void SV_SendClientSnapshot( client_t *client ) {
 	//RF, AI don't need snapshots built
 	if ( client->gentity && client->gentity->r.svFlags & SVF_CASTAI ) {
 		return;
+	}
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	//bani
+	if ( client->state < CS_ACTIVE ) {
+		// bani - #760 - zombie clients need full snaps so they can still process reliable commands
+		// (eg so they can pick up the disconnect reason)
+		if ( client->state != CS_ZOMBIE ) {
+			SV_SendClientIdle( client );
+			return;
+		}
 	}
 #endif RTCW_XX
 
@@ -850,11 +1062,17 @@ void SV_SendClientSnapshot( client_t *client ) {
 	if ( msg.overflowed ) {
 		Com_Printf( "WARNING: msg overflowed for %s\n", client->name );
 		MSG_Clear( &msg );
+
+#if defined RTCW_ET
+		SV_DropClient( client, "Msg overflowed" );
+		return;
+#endif RTCW_XX
+
 	}
 
 	SV_SendMessageToClient( &msg, client );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	sv.bpsTotalBytes += msg.cursize;            // NERVE - SMF - net debugging
 	sv.ubpsTotalBytes += msg.uncompsize / 8;    // NERVE - SMF - net debugging
 #endif RTCW_XX
@@ -872,24 +1090,54 @@ void SV_SendClientMessages( void ) {
 	int i;
 	client_t    *c;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	int numclients = 0;         // NERVE - SMF - net debugging
 
 	sv.bpsTotalBytes = 0;       // NERVE - SMF - net debugging
 	sv.ubpsTotalBytes = 0;      // NERVE - SMF - net debugging
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	// Gordon: update any changed configstrings from this frame
+	SV_UpdateConfigStrings();
+#endif RTCW_XX
+
 	// send a message to each connected client
+
+#if !defined RTCW_ET
 	for ( i = 0, c = svs.clients ; i < sv_maxclients->integer ; i++, c++ ) {
+#else
+	for ( i = 0; i < sv_maxclients->integer; i++ ) {
+#endif RTCW_XX
+
+#if defined RTCW_ET
+		c = &svs.clients[i];
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 		if ( !c->state ) {
+#else
+		// rain - changed <= CS_ZOMBIE to < CS_ZOMBIE so that the
+		// disconnect reason is properly sent in the network stream
+		if ( c->state < CS_ZOMBIE ) {
+#endif RTCW_XX
+
 			continue;       // not connected
 		}
+
+#if defined RTCW_ET
+		// RF, needed to insert this otherwise bots would cause error drops in sv_net_chan.c:
+		// --> "netchan queue is not properly initialized in SV_Netchan_TransmitNextFragment\n"
+		if ( c->gentity && c->gentity->r.svFlags & SVF_BOT ) {
+			continue;
+		}
+#endif RTCW_XX
 
 		if ( svs.time < c->nextSnapshotTime ) {
 			continue;       // not time yet
 		}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		numclients++;       // NERVE - SMF - net debugging
 #endif RTCW_XX
 
@@ -900,7 +1148,7 @@ void SV_SendClientMessages( void ) {
 								  SV_RateMsec( c, c->netchan.unsentLength - c->netchan.unsentFragmentStart );
 #if defined RTCW_SP
 			SV_Netchan_TransmitNextFragment( &c->netchan );
-#elif defined RTCW_MP
+#else
 			SV_Netchan_TransmitNextFragment( c );
 #endif RTCW_XX
 
@@ -911,7 +1159,7 @@ void SV_SendClientMessages( void ) {
 		SV_SendClientSnapshot( c );
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// NERVE - SMF - net debugging
 	if ( sv_showAverageBPS->integer && numclients > 0 ) {
 		float ave = 0, uave = 0;

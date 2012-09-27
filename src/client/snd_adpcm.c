@@ -91,9 +91,9 @@ void S_AdpcmGetSamples( sndBuffer *chunk, short *to ) {
 	out = (byte *)chunk->sndChunk;
 	// get samples
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	S_AdpcmDecode( (const char*)out, to, SND_CHUNK_SIZE_BYTE * 2, &state );       //DAJ added (const char*)
-#elif defined RTCW_MP
+#else
 	S_AdpcmDecode( out, to, SND_CHUNK_SIZE_BYTE * 2, &state );
 #endif RTCW_XX
 
@@ -141,9 +141,9 @@ void S_AdpcmEncodeSound( sfx_t *sfx, short *samples ) {
 
 		// encode the samples
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		S_AdpcmEncode( samples + inOffset, (char*)out, n, &state );     //DAJ added (char*)
-#elif defined RTCW_MP
+#else
 		S_AdpcmEncode( samples + inOffset, out, n, &state );
 #endif RTCW_XX
 

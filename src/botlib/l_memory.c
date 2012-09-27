@@ -41,7 +41,13 @@ If you have questions concerning this license or the applicable additional terms
 #include "be_interface.h"
 
 #ifdef _DEBUG
+
+#if !defined RTCW_ET
 	#define MEMDEBUG
+#else
+//	#define MEMDEBUG
+#endif RTCW_XX
+
 	#define MEMORYMANEGER
 #endif
 

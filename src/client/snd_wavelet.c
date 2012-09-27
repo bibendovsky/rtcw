@@ -37,7 +37,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "snd_local.h"
 
+#if !defined RTCW_ET
 long myftol( float f );
+#endif RTCW_XX
 
 #define C0 0.4829629131445341
 #define C1 0.8365163037378079

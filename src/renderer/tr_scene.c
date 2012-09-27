@@ -45,6 +45,18 @@ int r_firstScenePoly;
 
 int r_numpolyverts;
 
+#if defined RTCW_ET
+// Gordon: TESTING
+int r_firstScenePolybuffer;
+int r_numpolybuffers;
+
+// ydnar: decals
+int r_firstSceneDecalProjector;
+int r_numDecalProjectors;
+int r_firstSceneDecal;
+int r_numDecals;
+#endif RTCW_XX
+
 int skyboxportal;
 
 #if defined RTCW_SP
@@ -83,6 +95,19 @@ void R_ToggleSmpFrame( void ) {
 	r_firstScenePoly = 0;
 
 	r_numpolyverts = 0;
+
+#if defined RTCW_ET
+	// Gordon: TESTING
+	r_numpolybuffers = 0;
+	r_firstScenePolybuffer = 0;
+
+	// ydnar: decals
+	r_numDecalProjectors = 0;
+	r_firstSceneDecalProjector = 0;
+	r_numDecals = 0;
+	r_firstSceneDecal = 0;
+#endif RTCW_XX
+
 }
 
 
@@ -93,6 +118,20 @@ RE_ClearScene
 ====================
 */
 void RE_ClearScene( void ) {
+
+#if defined RTCW_ET
+	int i;
+
+
+	// ydnar: clear model stuff for dynamic fog
+	if ( tr.world != NULL ) {
+		for ( i = 0; i < tr.world->numBModels; i++ )
+			tr.world->bmodels[ i ].visible[ tr.smpFrame ] = qfalse;
+	}
+
+	// everything else
+#endif RTCW_XX
+
 	r_firstSceneDlight = r_numdlights;
 	r_firstSceneCorona = r_numcoronas;
 	r_firstSceneEntity = r_numentities;
@@ -130,6 +169,8 @@ void R_AddPolygonSurfaces( void ) {
 		R_AddDrawSurf( ( void * )poly, sh, poly->fogIndex, qfalse, ATI_TESS_NONE );
 #elif defined RTCW_MP
 		R_AddDrawSurf( ( void * )poly, sh, poly->fogIndex, qfalse );
+#else
+		R_AddDrawSurf( ( void * )poly, sh, poly->fogIndex, 0, 0 );
 #endif RTCW_XX
 
 	}
@@ -289,6 +330,75 @@ void RE_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *vert
 }
 // done.
 
+#if defined RTCW_ET
+/*
+=====================
+R_AddPolygonSurfaces
+
+Adds all the scene's polys into this view's drawsurf list
+=====================
+*/
+void R_AddPolygonBufferSurfaces( void ) {
+	int i;
+	shader_t        *sh;
+	srfPolyBuffer_t *polybuffer;
+
+	tr.currentEntityNum = ENTITYNUM_WORLD;
+	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
+
+	for ( i = 0, polybuffer = tr.refdef.polybuffers; i < tr.refdef.numPolyBuffers ; i++, polybuffer++ ) {
+		sh = R_GetShaderByHandle( polybuffer->pPolyBuffer->shader );
+
+		R_AddDrawSurf( ( void * )polybuffer, sh, polybuffer->fogIndex, 0, 0 );
+	}
+}
+
+/*
+=====================
+RE_AddPolyBufferToScene
+
+=====================
+*/
+void RE_AddPolyBufferToScene( polyBuffer_t* pPolyBuffer ) {
+	srfPolyBuffer_t*    pPolySurf;
+	int fogIndex;
+	fog_t*              fog;
+	vec3_t bounds[2];
+	int i;
+
+	if ( r_numpolybuffers >= MAX_POLYS ) {
+		return;
+	}
+
+	pPolySurf = &backEndData[tr.smpFrame]->polybuffers[r_numpolybuffers];
+	r_numpolybuffers++;
+
+	pPolySurf->surfaceType = SF_POLYBUFFER;
+	pPolySurf->pPolyBuffer = pPolyBuffer;
+
+	VectorCopy( pPolyBuffer->xyz[0], bounds[0] );
+	VectorCopy( pPolyBuffer->xyz[0], bounds[1] );
+	for ( i = 1 ; i < pPolyBuffer->numVerts ; i++ ) {
+		AddPointToBounds( pPolyBuffer->xyz[i], bounds[0], bounds[1] );
+	}
+	for ( fogIndex = 1 ; fogIndex < tr.world->numfogs ; fogIndex++ ) {
+		fog = &tr.world->fogs[fogIndex];
+		if ( bounds[1][0] >= fog->bounds[0][0]
+			 && bounds[1][1] >= fog->bounds[0][1]
+			 && bounds[1][2] >= fog->bounds[0][2]
+			 && bounds[0][0] <= fog->bounds[1][0]
+			 && bounds[0][1] <= fog->bounds[1][1]
+			 && bounds[0][2] <= fog->bounds[1][2] ) {
+			break;
+		}
+	}
+	if ( fogIndex == tr.world->numfogs ) {
+		fogIndex = 0;
+	}
+
+	pPolySurf->fogIndex = fogIndex;
+}
+#endif RTCW_XX
 
 //=================================================================================
 
@@ -315,8 +425,16 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 	backEndData[tr.smpFrame]->entities[r_numentities].lightingCalculated = qfalse;
 
 	r_numentities++;
+
+#if defined RTCW_ET
+	// ydnar: add projected shadows for this model
+	// Arnout: casting const away
+	R_AddModelShadow( (refEntity_t*) ent );
+#endif RTCW_XX
+
 }
 
+#if !defined RTCW_ET
 // Ridah, added support for overdraw field
 /*
 =====================
@@ -325,29 +443,58 @@ RE_AddLightToScene
 =====================
 */
 void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int overdraw ) {
+#else
+/*
+RE_AddLightToScene()
+ydnar: modified dlight system to support seperate radius and intensity
+*/
+
+void RE_AddLightToScene( const vec3_t org, float radius, float intensity, float r, float g, float b, qhandle_t hShader, int flags ) {
+#endif RTCW_XX
+
 	dlight_t    *dl;
 
+#if !defined RTCW_ET
 	if ( !tr.registered ) {
+#else
+	// early out
+	if ( !tr.registered || r_numdlights >= MAX_DLIGHTS || radius <= 0 || intensity <= 0 ) {
+#endif RTCW_XX
+
 		return;
 	}
+
+#if !defined RTCW_ET
 	if ( r_numdlights >= MAX_DLIGHTS ) {
 		return;
 	}
 	if ( intensity <= 0 ) {
 		return;
 	}
+#endif RTCW_XX
+
 	// these cards don't have the correct blend mode
 	if ( glConfig.hardwareType == GLHW_RIVA128 || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
 		return;
 	}
 	// RF, allow us to force some dlights under all circumstances
+
+#if !defined RTCW_ET
 	if ( !( overdraw & REF_FORCE_DLIGHT ) ) {
+#else
+	if ( !( flags & REF_FORCE_DLIGHT ) ) {
+#endif RTCW_XX
+
 		if ( r_dynamiclight->integer == 0 ) {
 			return;
 		}
+
+#if !defined RTCW_ET
 		if ( r_dynamiclight->integer == 2 && !( backEndData[tr.smpFrame]->dlights[r_numdlights].forced ) ) {
 			return;
 		}
+#endif RTCW_XX
+
 	}
 
 #if defined RTCW_SP
@@ -356,7 +503,9 @@ void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, fl
 	}
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	overdraw &= ~REF_FORCE_DLIGHT;
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	overdraw &= ~REF_JUNIOR_DLIGHT;
@@ -375,12 +524,30 @@ void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, fl
 	dl->radius = intensity * r_dlightScale->value;  //----(SA)	modified
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	VectorCopy( org, dl->transformed );
+	dl->radius = radius;
+	dl->radiusInverseCubed = ( 1.0 / dl->radius );
+	dl->radiusInverseCubed = dl->radiusInverseCubed * dl->radiusInverseCubed * dl->radiusInverseCubed;
+	dl->intensity = intensity;
+#endif RTCW_XX
+
 	dl->color[0] = r;
 	dl->color[1] = g;
 	dl->color[2] = b;
+
+#if !defined RTCW_ET
 	dl->dlshader = NULL;
 	dl->overdraw = 0;
+#else
+	dl->shader = R_GetShaderByHandle( hShader );
+	if ( dl->shader == tr.defaultShader ) {
+		dl->shader = NULL;
+	}
+	dl->flags = flags;
+#endif RTCW_XX
 
+#if !defined RTCW_ET
 	if ( overdraw == 10 ) { // sorry, hijacking 10 for a quick hack (SA)
 		dl->dlshader = R_GetShaderByHandle( RE_RegisterShader( "negdlightshader" ) );
 	} else if ( overdraw == 11 ) { // 11 is flames
@@ -388,6 +555,8 @@ void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, fl
 	} else {
 		dl->overdraw = overdraw;
 	}
+#endif RTCW_XX
+
 }
 // done.
 
@@ -400,7 +569,7 @@ RE_AddCoronaToScene
 
 #if defined RTCW_SP
 void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags ) {
-#elif defined RTCW_MP
+#else
 void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible ) {
 #endif RTCW_XX
 
@@ -423,7 +592,7 @@ void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float sca
 
 #if defined RTCW_SP
 	cor->flags = flags;
-#elif defined RTCW_MP
+#else
 	cor->visible = visible;
 #endif RTCW_XX
 
@@ -522,13 +691,30 @@ void RE_RenderScene( const refdef_t *fd ) {
 	tr.refdef.num_dlights = r_numdlights - r_firstSceneDlight;
 	tr.refdef.dlights = &backEndData[tr.smpFrame]->dlights[r_firstSceneDlight];
 
+#if defined RTCW_ET
+	tr.refdef.dlightBits = 0;
+#endif RTCW_XX
+
 	tr.refdef.num_coronas = r_numcoronas - r_firstSceneCorona;
 	tr.refdef.coronas = &backEndData[tr.smpFrame]->coronas[r_firstSceneCorona];
 
 	tr.refdef.numPolys = r_numpolys - r_firstScenePoly;
 	tr.refdef.polys = &backEndData[tr.smpFrame]->polys[r_firstScenePoly];
 
+#if defined RTCW_ET
+	tr.refdef.numPolyBuffers = r_numpolybuffers - r_firstScenePolybuffer;
+	tr.refdef.polybuffers = &backEndData[tr.smpFrame]->polybuffers[r_firstScenePolybuffer];
+
+	tr.refdef.numDecalProjectors = r_numDecalProjectors - r_firstSceneDecalProjector;
+	tr.refdef.decalProjectors = &backEndData[ tr.smpFrame ]->decalProjectors[ r_firstSceneDecalProjector ];
+
+	tr.refdef.numDecals = r_numDecals - r_firstSceneDecal;
+	tr.refdef.decals = &backEndData[ tr.smpFrame ]->decals[ r_firstSceneDecal ];
+#endif RTCW_XX
+
 	// turn off dynamic lighting globally by clearing all the
+
+#if !defined RTCW_ET
 	// dlights if it needs to be disabled or if vertex lighting is enabled
 
 #if defined RTCW_SP
@@ -540,6 +726,11 @@ void RE_RenderScene( const refdef_t *fd ) {
 #endif RTCW_XX
 
 		glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+#else
+	// dlights if using permedia hw
+	if ( glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+#endif RTCW_XX
+
 		tr.refdef.num_dlights = 0;
 	}
 
@@ -567,10 +758,17 @@ void RE_RenderScene( const refdef_t *fd ) {
 	parms.fovX = tr.refdef.fov_x;
 	parms.fovY = tr.refdef.fov_y;
 
+#if !defined RTCW_ET
 	VectorCopy( fd->vieworg, parms.or.origin );
 	VectorCopy( fd->viewaxis[0], parms.or.axis[0] );
 	VectorCopy( fd->viewaxis[1], parms.or.axis[1] );
 	VectorCopy( fd->viewaxis[2], parms.or.axis[2] );
+#else
+	VectorCopy( fd->vieworg, parms.orientation.origin );
+	VectorCopy( fd->viewaxis[0], parms.orientation.axis[0] );
+	VectorCopy( fd->viewaxis[1], parms.orientation.axis[1] );
+	VectorCopy( fd->viewaxis[2], parms.orientation.axis[2] );
+#endif RTCW_XX
 
 	VectorCopy( fd->vieworg, parms.pvsOrigin );
 
@@ -582,5 +780,48 @@ void RE_RenderScene( const refdef_t *fd ) {
 	r_firstSceneDlight = r_numdlights;
 	r_firstScenePoly = r_numpolys;
 
+#if defined RTCW_ET
+	r_firstScenePolybuffer = r_numpolybuffers;
+#endif RTCW_XX
+
 	tr.frontEndMsec += ri.Milliseconds() - startTime;
 }
+
+#if defined RTCW_ET
+// Temp storage for saving view paramters.  Drawing the animated head in the corner
+// was creaming important view info.
+viewParms_t g_oldViewParms;
+
+
+
+/*
+================
+RE_SaveViewParms
+
+Save out the old render info to a temp place so we don't kill the LOD system
+when we do a second render.
+================
+*/
+void RE_SaveViewParms() {
+	// save old viewParms so we can return to it after the mirror view
+	g_oldViewParms = tr.viewParms;
+}
+
+
+/*
+================
+RE_RestoreViewParms
+
+Restore the old render info so we don't kill the LOD system
+when we do a second render.
+================
+*/
+void RE_RestoreViewParms() {
+
+	// This was killing the LOD computation
+	tr.viewParms = g_oldViewParms;
+
+
+}
+#endif RTCW_XX
+

@@ -140,8 +140,21 @@ weaponconfig_t *weaponconfig;
 // Returns:					-
 // Changes Globals:		-
 //========================================================================
+
+#if defined RTCW_ET
+extern qboolean g_singleplayer;
+#endif RTCW_XX
+
 int BotValidWeaponNumber( int weaponnum ) {
+
+#if !defined RTCW_ET
 	if ( weaponnum <= 0 || weaponnum > weaponconfig->numweapons ) {
+#else
+	// Thanks Arnout! TDF
+	// Gordon: 0 is valid in mp now too, for mr. pow
+	if ( ( g_singleplayer && weaponnum < 0 ) || ( !g_singleplayer && weaponnum < 0 ) || weaponnum > weaponconfig->numweapons ) {
+#endif RTCW_XX
+
 		botimport.Print( PRT_ERROR, "weapon number out of range\n" );
 		return qfalse;
 	} //end if
@@ -206,6 +219,7 @@ weaponconfig_t *LoadWeaponConfig( char *filename ) {
 	weaponconfig_t *wc;
 	weaponinfo_t weaponinfo;
 
+#if !defined RTCW_ET
 	max_weaponinfo = (int) LibVarValue( "max_weaponinfo", "32" );
 	if ( max_weaponinfo < 0 ) {
 		botimport.Print( PRT_ERROR, "max_weaponinfo = %d\n", max_weaponinfo );
@@ -217,6 +231,20 @@ weaponconfig_t *LoadWeaponConfig( char *filename ) {
 		botimport.Print( PRT_ERROR, "max_projectileinfo = %d\n", max_projectileinfo );
 		max_projectileinfo = 32;
 		LibVarSet( "max_projectileinfo", "32" );
+#else
+	max_weaponinfo = (int) LibVarValue( "max_weaponinfo", "64" );
+	if ( max_weaponinfo < 0 ) {
+		botimport.Print( PRT_ERROR, "max_weaponinfo = %d\n", max_weaponinfo );
+		max_weaponinfo = 64;
+		LibVarSet( "max_weaponinfo", "64" );
+	} //end if
+	max_projectileinfo = (int) LibVarValue( "max_projectileinfo", "64" );
+	if ( max_projectileinfo < 0 ) {
+		botimport.Print( PRT_ERROR, "max_projectileinfo = %d\n", max_projectileinfo );
+		max_projectileinfo = 64;
+		LibVarSet( "max_projectileinfo", "64" );
+#endif RTCW_XX
+
 	} //end if
 	strncpy( path, filename, MAX_PATH );
 	source = LoadSourceFile( path );
@@ -365,7 +393,17 @@ int BotLoadWeaponWeights( int weaponstate, char *filename ) {
 	}
 	BotFreeWeaponWeights( weaponstate );
 	//
+
+#if defined RTCW_ET
+	PS_SetBaseFolder( "botfiles" );
+#endif RTCW_XX
+
 	ws->weaponweightconfig = ReadWeightConfig( filename );
+
+#if defined RTCW_ET
+	PS_SetBaseFolder( "" );
+#endif RTCW_XX
+
 	if ( !ws->weaponweightconfig ) {
 		botimport.Print( PRT_FATAL, "couldn't load weapon config %s\n", filename );
 		return BLERR_CANNOTLOADWEAPONWEIGHTS;
@@ -510,8 +548,17 @@ void BotFreeWeaponState( int handle ) {
 int BotSetupWeaponAI( void ) {
 	char *file;
 
+#if defined RTCW_ET
+	PS_SetBaseFolder( "botfiles" );
+#endif RTCW_XX
+
 	file = LibVarString( "weaponconfig", "weapons.c" );
 	weaponconfig = LoadWeaponConfig( file );
+
+#if defined RTCW_ET
+	PS_SetBaseFolder( "" );
+#endif RTCW_XX
+
 	if ( !weaponconfig ) {
 		botimport.Print( PRT_FATAL, "couldn't load the weapon config\n" );
 		return BLERR_CANNOTLOADWEAPONCONFIG;

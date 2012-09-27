@@ -35,11 +35,21 @@ cvar_t      *cvar_vars;
 cvar_t      *cvar_cheats;
 int cvar_modifiedFlags;
 
+#if !defined RTCW_ET
 #define MAX_CVARS   1024
+#else
+#define MAX_CVARS   2048
+#endif RTCW_XX
+
 cvar_t cvar_indexes[MAX_CVARS];
 int cvar_numIndexes;
 
+#if !defined RTCW_ET
 #define FILE_HASH_SIZE      256
+#else
+#define FILE_HASH_SIZE      512
+#endif RTCW_XX
+
 static cvar_t*     hashTable[FILE_HASH_SIZE];
 
 cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force );
@@ -173,6 +183,27 @@ void Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize 
 	}
 }
 
+#if defined RTCW_ET
+/*
+============
+Cvar_VariableStringBuffer
+============
+*/
+void Cvar_LatchedVariableStringBuffer( const char *var_name, char *buffer, int bufsize ) {
+	cvar_t *var;
+
+	var = Cvar_FindVar( var_name );
+	if ( !var ) {
+		*buffer = 0;
+	} else {
+		if ( var->latchedString ) {
+			Q_strncpyz( buffer, var->latchedString, bufsize );
+		} else {
+			Q_strncpyz( buffer, var->string, bufsize );
+		}
+	}
+}
+#endif RTCW_XX
 
 /*
 ============
@@ -187,7 +218,7 @@ void    Cvar_CommandCompletion( void ( *callback )(const char *s) ) {
 	}
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 ============
 Cvar_ClearForeignCharacters
@@ -201,7 +232,14 @@ char *Cvar_ClearForeignCharacters( const char *value ) {
 	j = 0;
 	for ( i = 0; value[i] != '\0'; i++ )
 	{
+
+#if !defined RTCW_ET
 		if ( !( value[i] & 128 ) ) {
+#else
+		//if( !(value[i] & 128) )
+		if ( ( (byte *)value )[i] != 0xFF && ( ( (byte *)value )[i] <= 127 || ( (byte *)value )[i] >= 161 ) ) {
+#endif RTCW_XX
+
 			clean[j] = value[i];
 			j++;
 		}
@@ -275,7 +313,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 			Z_Free( s );
 		}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		// TTimo
 		// if CVAR_USERINFO was toggled on for an existing cvar, check wether the value needs to be cleaned from foreigh characters
 		// (for instance, seta name "name-with-foreign-chars" in the config file, and toggle to CVAR_USERINFO happens later in CL_Init)
@@ -301,7 +339,13 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 	// allocate a new cvar
 	//
 	if ( cvar_numIndexes >= MAX_CVARS ) {
+
+#if !defined RTCW_ET
 		Com_Error( ERR_FATAL, "MAX_CVARS" );
+#else
+		Com_Error( ERR_FATAL, "MAX_CVARS (%d) hit -- too many cvars!", MAX_CVARS );
+#endif RTCW_XX
+
 	}
 	var = &cvar_indexes[cvar_numIndexes];
 	cvar_numIndexes++;
@@ -332,7 +376,7 @@ Cvar_Set2
 ============
 */
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #define FOREIGN_MSG "Foreign characters are not allowed in userinfo variables.\n"
 #ifndef DEDICATED
 const char* CL_TranslateStringBuf( const char *string );
@@ -375,28 +419,49 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 		value = var->resetString;
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	if ( var->flags & CVAR_USERINFO ) {
 		char *cleaned = Cvar_ClearForeignCharacters( value );
 		if ( strcmp( value, cleaned ) ) {
-			#ifdef DEDICATED
+#ifdef DEDICATED
 			Com_Printf( FOREIGN_MSG );
-			#else
+#else
 			Com_Printf( CL_TranslateStringBuf( FOREIGN_MSG ) );
-			#endif
+#endif
 			Com_Printf( "Using %s instead of %s\n", cleaned, value );
 			return Cvar_Set2( var_name, cleaned, force );
 		}
 	}
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	if ( !strcmp( value,var->string ) ) {
 		return var;
+#else
+	if ( !strcmp( value, var->string ) ) {
+		if ( ( var->flags & CVAR_LATCH ) && var->latchedString ) {
+			if ( !strcmp( value, var->latchedString ) ) {
+				return var;
+			}
+		} else {
+			return var;
+		}
+#endif RTCW_XX
+
 	}
 	// note what types of cvars have been modified (userinfo, archive, serverinfo, systeminfo)
 	cvar_modifiedFlags |= var->flags;
 
 	if ( !force ) {
+
+#if defined RTCW_ET
+		// ydnar: don't set unsafe variables when com_crashed is set
+		if ( ( var->flags & CVAR_UNSAFE ) && com_crashed != NULL && com_crashed->integer ) {
+			Com_Printf( "%s is unsafe. Check com_crashed.\n", var_name );
+			return var;
+		}
+#endif RTCW_XX
+
 		if ( var->flags & CVAR_ROM ) {
 			Com_Printf( "%s is read only.\n", var_name );
 			return var;
@@ -407,7 +472,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 			return var;
 		}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		if ( ( var->flags & CVAR_CHEAT ) && !cvar_cheats->integer ) {
 			Com_Printf( "%s is cheat protected.\n", var_name );
 			return var;
@@ -582,6 +647,53 @@ void Cvar_Toggle_f( void ) {
 	Cvar_Set2( Cmd_Argv( 1 ), va( "%i", v ), qfalse );
 }
 
+#if defined RTCW_ET
+/*
+============
+Cvar_Cycle_f - ydnar
+
+Cycles a cvar for easy single key binding
+============
+*/
+void Cvar_Cycle_f( void ) {
+	int start, end, step, oldvalue, value;
+
+
+	if ( Cmd_Argc() < 4 || Cmd_Argc() > 5 ) {
+		Com_Printf( "usage: cycle <variable> <start> <end> [step]\n" );
+		return;
+	}
+
+	oldvalue = value = Cvar_VariableValue( Cmd_Argv( 1 ) );
+	start = atoi( Cmd_Argv( 2 ) );
+	end = atoi( Cmd_Argv( 3 ) );
+
+	if ( Cmd_Argc() == 5 ) {
+		step = abs( atoi( Cmd_Argv( 4 ) ) );
+	} else {
+		step = 1;
+	}
+
+	if ( abs( end - start ) < step ) {
+		step = 1;
+	}
+
+	if ( end < start ) {
+		value -= step;
+		if ( value < end ) {
+			value = start - ( step - ( oldvalue - end + 1 ) );
+		}
+	} else {
+		value += step;
+		if ( value > end ) {
+			value = start + ( step - ( end - oldvalue + 1 ) );
+		}
+	}
+
+	Cvar_Set2( Cmd_Argv( 1 ), va( "%i", value ), qfalse );
+}
+#endif RTCW_XX
+
 /*
 ============
 Cvar_Set_f
@@ -596,8 +708,24 @@ void Cvar_Set_f( void ) {
 
 	c = Cmd_Argc();
 	if ( c < 3 ) {
+
+#if !defined RTCW_ET
 		Com_Printf( "usage: set <variable> <value>\n" );
 		return;
+#else
+		Com_Printf( "usage: set <variable> <value> [unsafe]\n" );
+		return;
+	}
+
+	// ydnar: handle unsafe vars
+	if ( c >= 4 && !strcmp( Cmd_Argv( c - 1 ), "unsafe" ) ) {
+		c--;
+		if ( com_crashed != NULL && com_crashed->integer ) {
+			Com_Printf( "%s is unsafe. Check com_crashed.\n", Cmd_Argv( 1 ) );
+			return;
+		}
+#endif RTCW_XX
+
 	}
 
 	combined[0] = 0;
@@ -626,8 +754,14 @@ As Cvar_Set, but also flags it as userinfo
 void Cvar_SetU_f( void ) {
 	cvar_t  *v;
 
+#if !defined RTCW_ET
 	if ( Cmd_Argc() != 3 ) {
 		Com_Printf( "usage: setu <variable> <value>\n" );
+#else
+	if ( Cmd_Argc() != 3 && Cmd_Argc() != 4 ) {
+		Com_Printf( "usage: setu <variable> <value> [unsafe]\n" );
+#endif RTCW_XX
+
 		return;
 	}
 	Cvar_Set_f();
@@ -646,7 +780,7 @@ Cvar_SetS_f
 As Cvar_Set, but also flags it as userinfo
 ============
 */
-#elif defined RTCW_MP
+#else
 /*
 ============
 Cvar_SetS_f
@@ -659,8 +793,14 @@ As Cvar_Set, but also flags it as serverinfo
 void Cvar_SetS_f( void ) {
 	cvar_t  *v;
 
+#if !defined RTCW_ET
 	if ( Cmd_Argc() != 3 ) {
 		Com_Printf( "usage: sets <variable> <value>\n" );
+#else
+	if ( Cmd_Argc() != 3 && Cmd_Argc() != 4 ) {
+		Com_Printf( "usage: sets <variable> <value> [unsafe]\n" );
+#endif RTCW_XX
+
 		return;
 	}
 	Cvar_Set_f();
@@ -681,8 +821,14 @@ As Cvar_Set, but also flags it as archived
 void Cvar_SetA_f( void ) {
 	cvar_t  *v;
 
+#if !defined RTCW_ET
 	if ( Cmd_Argc() != 3 ) {
 		Com_Printf( "usage: seta <variable> <value>\n" );
+#else
+	if ( Cmd_Argc() != 3 && Cmd_Argc() != 4 ) {
+		Com_Printf( "usage: seta <variable> <value> [unsafe]\n" );
+#endif RTCW_XX
+
 		return;
 	}
 	Cvar_Set_f();
@@ -725,10 +871,28 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 		if ( var->flags & CVAR_ARCHIVE ) {
 			// write the latched value, even if it hasn't taken effect yet
 			if ( var->latchedString ) {
+
+#if !defined RTCW_ET
 				Com_sprintf( buffer, sizeof( buffer ), "seta %s \"%s\"\n", var->name, var->latchedString );
 			} else {
 				Com_sprintf( buffer, sizeof( buffer ), "seta %s \"%s\"\n", var->name, var->string );
 			}
+#else
+				if ( var->flags & CVAR_UNSAFE ) {
+					Com_sprintf( buffer, sizeof( buffer ), "seta %s \"%s\" unsafe\n", var->name, var->latchedString );
+				} else {
+					Com_sprintf( buffer, sizeof( buffer ), "seta %s \"%s\"\n", var->name, var->latchedString );
+				}
+			} else
+			{
+				if ( var->flags & CVAR_UNSAFE ) {
+					Com_sprintf( buffer, sizeof( buffer ), "seta %s \"%s\" unsafe\n", var->name, var->string );
+				} else {
+					Com_sprintf( buffer, sizeof( buffer ), "seta %s \"%s\"\n", var->name, var->string );
+				}
+			}
+#endif RTCW_XX
+
 			FS_Printf( f, "%s", buffer );
 		}
 	}
@@ -937,7 +1101,13 @@ void    Cvar_Update( vmCvar_t *vmCvar ) {
 	assert( vmCvar ); // bk
 
 	if ( (unsigned)vmCvar->handle >= cvar_numIndexes ) {
+
+#if !defined RTCW_ET
 		Com_Error( ERR_DROP, "Cvar_Update: handle out of range" );
+#else
+		Com_Error( ERR_DROP, "Cvar_Update: handle %d out of range", (unsigned)vmCvar->handle );
+#endif RTCW_XX
+
 	}
 
 	cv = cvar_indexes + vmCvar->handle;
@@ -951,7 +1121,13 @@ void    Cvar_Update( vmCvar_t *vmCvar ) {
 	vmCvar->modificationCount = cv->modificationCount;
 	// bk001129 - mismatches.
 	if ( strlen( cv->string ) + 1 > MAX_CVAR_VALUE_STRING ) {
+
+#if !defined RTCW_ET
 		Com_Error( ERR_DROP, "Cvar_Update: src %s length %d exceeds MAX_CVAR_VALUE_STRING",
+#else
+		Com_Error( ERR_DROP, "Cvar_Update: src %s length %d exceeds MAX_CVAR_VALUE_STRING(%d)",
+#endif RTCW_XX
+
 				   cv->string,
 				   strlen( cv->string ),
 				   sizeof( vmCvar->string ) );
@@ -979,11 +1155,16 @@ void Cvar_Init( void ) {
 
 #if defined RTCW_SP
 	cvar_cheats = Cvar_Get( "sv_cheats", "0", CVAR_ROM | CVAR_SYSTEMINFO );
-#elif defined RTCW_MP
+#else
 	cvar_cheats = Cvar_Get( "sv_cheats", "1", CVAR_ROM | CVAR_SYSTEMINFO );
 #endif RTCW_XX
 
 	Cmd_AddCommand( "toggle", Cvar_Toggle_f );
+
+#if defined RTCW_ET
+	Cmd_AddCommand( "cycle", Cvar_Cycle_f );  // ydnar
+#endif RTCW_XX
+
 	Cmd_AddCommand( "set", Cvar_Set_f );
 	Cmd_AddCommand( "sets", Cvar_SetS_f );
 	Cmd_AddCommand( "setu", Cvar_SetU_f );
@@ -992,7 +1173,7 @@ void Cvar_Init( void ) {
 	Cmd_AddCommand( "cvarlist", Cvar_List_f );
 	Cmd_AddCommand( "cvar_restart", Cvar_Restart_f );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// NERVE - SMF - can't rely on autoexec to do this
 	Cvar_Get( "devdll", "1", CVAR_ROM );
 #endif RTCW_XX

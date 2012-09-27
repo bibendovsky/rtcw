@@ -30,11 +30,12 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tr_local.h"
 
-
+#if !defined RTCW_ET
 //#ifdef __USEA3D
 //// Defined in snd_a3dg_refcommon.c
 //void RE_A3D_RenderGeometry (void *pVoidA3D, void *pVoidGeom, void *pVoidMat, void *pVoidGeomStatus);
 //#endif
+#endif RTCW_XX
 
 glconfig_t glConfig;
 glstate_t glState;
@@ -87,11 +88,16 @@ cvar_t  *r_lodscale;
 cvar_t  *r_norefresh;
 cvar_t  *r_drawentities;
 cvar_t  *r_drawworld;
+
+#if defined RTCW_ET
+cvar_t  *r_drawfoliage;     // ydnar
+#endif RTCW_XX
+
 cvar_t  *r_speeds;
 
 #if defined RTCW_SP
 cvar_t  *r_fullbright;
-#elif defined RTCW_MP
+#else
 //cvar_t	*r_fullbright; // JPW NERVE removed per atvi request
 #endif RTCW_XX
 
@@ -108,6 +114,10 @@ cvar_t  *r_ext_gamma_control;
 cvar_t  *r_ext_multitexture;
 cvar_t  *r_ext_compiled_vertex_array;
 cvar_t  *r_ext_texture_env_add;
+
+#if defined RTCW_ET
+cvar_t  *r_clampToEdge; // ydnar: opengl 1.2 GL_CLAMP_TO_EDGE SUPPORT
+#endif RTCW_XX
 
 //----(SA)	added
 cvar_t  *r_ext_texture_filter_anisotropic;
@@ -137,12 +147,21 @@ cvar_t  *r_drawBuffer;
 cvar_t  *r_glDriver;
 cvar_t  *r_glIgnoreWicked3D;
 cvar_t  *r_lightmap;
+
+#if !defined RTCW_ET
 cvar_t  *r_vertexLight;
+#endif RTCW_XX
+
 cvar_t  *r_uiFullScreen;
 cvar_t  *r_shadows;
 cvar_t  *r_portalsky;   //----(SA)	added
 cvar_t  *r_flares;
 cvar_t  *r_mode;
+
+#if defined RTCW_ET
+cvar_t  *r_oldMode;     // ydnar
+#endif RTCW_XX
+
 cvar_t  *r_nobind;
 cvar_t  *r_singleShader;
 cvar_t  *r_roundImagesDown;
@@ -160,12 +179,28 @@ cvar_t  *r_picmip2;
 #endif RTCW_XX
 
 cvar_t  *r_showtris;
+
+#if defined RTCW_ET
+cvar_t  *r_trisColor;
+#endif RTCW_XX
+
 cvar_t  *r_showsky;
 cvar_t  *r_shownormals;
+
+#if defined RTCW_ET
+cvar_t  *r_normallength;
+cvar_t  *r_showmodelbounds;
+#endif RTCW_XX
+
 cvar_t  *r_finish;
 cvar_t  *r_clear;
 cvar_t  *r_swapInterval;
 cvar_t  *r_textureMode;
+
+#if defined RTCW_ET
+cvar_t  *r_textureAnisotropy;
+#endif RTCW_XX
+
 cvar_t  *r_offsetFactor;
 cvar_t  *r_offsetUnits;
 cvar_t  *r_gamma;
@@ -202,8 +237,11 @@ cvar_t  *r_saveFontData;
 cvar_t  *r_cache;
 cvar_t  *r_cacheShaders;
 cvar_t  *r_cacheModels;
+
+#if !defined RTCW_ET
 cvar_t  *r_compressModels;
 cvar_t  *r_exportCompressedModels;
+#endif RTCW_XX
 
 cvar_t  *r_cacheGathering;
 
@@ -223,6 +261,15 @@ cvar_t  *r_maxpolys;
 int max_polys;
 cvar_t  *r_maxpolyverts;
 int max_polyverts;
+
+#if defined RTCW_ET
+vec4hack_t tess_xyz[SHADER_MAX_VERTEXES];
+vec4hack_t tess_normal[SHADER_MAX_VERTEXES];
+vec2hack_t tess_texCoords0[SHADER_MAX_VERTEXES];
+vec2hack_t tess_texCoords1[SHADER_MAX_VERTEXES];
+glIndex_t tess_indexes[SHADER_MAX_INDEXES];
+color4ubhack_t tess_vertexColors[SHADER_MAX_VERTEXES];
+#endif RTCW_XX
 
 void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
 void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
@@ -381,7 +428,12 @@ void GL_CheckErrors( void ) {
 		break;
 	}
 
+#if !defined RTCW_ET
 	ri.Error( ERR_FATAL, "GL_CheckErrors: %s", s );
+#else
+	ri.Error( ERR_VID_FATAL, "GL_CheckErrors: %s", s );
+#endif RTCW_XX
+
 }
 
 
@@ -412,7 +464,7 @@ vidmode_t r_vidModes[] =
 #if defined RTCW_SP
 	{ "Mode 11: 856x480 (wide)",856, 480,    1 },
 	{ "Mode 12: 1920x1200 (wide)",1920,  1200,   1 }     //----(SA)	added
-#elif defined RTCW_MP
+#else
 	{ "Mode 11: 856x480 (wide)",856, 480,    1 }
 #endif RTCW_XX
 
@@ -536,13 +588,17 @@ R_ScreenshotFilename
 ==================
 */
 void R_ScreenshotFilename( int lastNumber, char *fileName ) {
+
+#if !defined RTCW_ET
 	int a,b,c,d;
+#endif RTCW_XX
 
 	if ( lastNumber < 0 || lastNumber > 9999 ) {
 		Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot9999.tga" );
 		return;
 	}
 
+#if !defined RTCW_ET
 	a = lastNumber / 1000;
 	lastNumber -= a * 1000;
 	b = lastNumber / 100;
@@ -553,6 +609,10 @@ void R_ScreenshotFilename( int lastNumber, char *fileName ) {
 
 	Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot%i%i%i%i.tga"
 				 , a, b, c, d );
+#else
+	Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot%04i.tga", lastNumber );
+#endif RTCW_XX
+
 }
 
 /*
@@ -561,13 +621,17 @@ R_ScreenshotFilenameJPEG
 ==============
 */
 void R_ScreenshotFilenameJPEG( int lastNumber, char *fileName ) {
+
+#if !defined RTCW_ET
 	int a,b,c,d;
+#endif RTCW_XX
 
 	if ( lastNumber < 0 || lastNumber > 9999 ) {
 		Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot9999.jpg" );
 		return;
 	}
 
+#if !defined RTCW_ET
 	a = lastNumber / 1000;
 	lastNumber -= a * 1000;
 	b = lastNumber / 100;
@@ -578,6 +642,10 @@ void R_ScreenshotFilenameJPEG( int lastNumber, char *fileName ) {
 
 	Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot%i%i%i%i.jpg"
 				 , a, b, c, d );
+#else
+	Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot%04i.jpg", lastNumber );
+#endif RTCW_XX
+
 }
 
 /*
@@ -784,6 +852,11 @@ void GL_SetDefaultState( void ) {
 	if ( qglActiveTextureARB ) {
 		GL_SelectTexture( 1 );
 		GL_TextureMode( r_textureMode->string );
+
+#if defined RTCW_ET
+		GL_TextureAnisotropy( r_textureAnisotropy->value );
+#endif RTCW_XX
+
 		GL_TexEnv( GL_MODULATE );
 		qglDisable( GL_TEXTURE_2D );
 		GL_SelectTexture( 0 );
@@ -791,6 +864,11 @@ void GL_SetDefaultState( void ) {
 
 	qglEnable( GL_TEXTURE_2D );
 	GL_TextureMode( r_textureMode->string );
+
+#if defined RTCW_ET
+	GL_TextureAnisotropy( r_textureAnisotropy->value );
+#endif RTCW_XX
+
 	GL_TexEnv( GL_MODULATE );
 
 	qglShadeModel( GL_SMOOTH );
@@ -845,6 +923,11 @@ void GL_SetDefaultState( void ) {
 //----(SA)	end
 }
 
+#if defined RTCW_ET
+#ifdef __linux__
+extern const char *glx_extensions_string;
+#endif
+#endif RTCW_XX
 
 /*
 ================
@@ -868,6 +951,13 @@ void GfxInfo_f( void ) {
 	ri.Printf( PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
 	ri.Printf( PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );
 	ri.Printf( PRINT_ALL, "GL_EXTENSIONS: %s\n", glConfig.extensions_string );
+
+#if defined RTCW_ET
+#ifdef __linux__
+	ri.Printf( PRINT_ALL, "GLX_EXTENSIONS: %s\n", glx_extensions_string );
+#endif
+#endif RTCW_XX
+
 	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
 	ri.Printf( PRINT_ALL, "GL_MAX_ACTIVE_TEXTURES_ARB: %d\n", glConfig.maxActiveTextures );
 	ri.Printf( PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
@@ -934,12 +1024,21 @@ void GfxInfo_f( void ) {
 	}
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	ri.Printf( PRINT_ALL, "anisotropy: %s\n", r_textureAnisotropy->string );
+#endif RTCW_XX
+
 	ri.Printf( PRINT_ALL, "NV distance fog: %s\n", enablestrings[glConfig.NVFogAvailable != 0] );
 	if ( glConfig.NVFogAvailable ) {
 		ri.Printf( PRINT_ALL, "Fog Mode: %s\n", r_nv_fogdist_mode->string );
 	}
 
+#if !defined RTCW_ET
 	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+#else
+	if ( glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+#endif RTCW_XX
+
 		ri.Printf( PRINT_ALL, "HACK: using vertex lightmap approximation\n" );
 	}
 	if ( glConfig.hardwareType == GLHW_RAGEPRO ) {
@@ -970,6 +1069,8 @@ void R_Register( void ) {
 	//
 	// latched and archived variables
 	//
+
+#if !defined RTCW_ET
 	r_glDriver = ri.Cvar_Get( "r_glDriver", OPENGL_DRIVER_NAME, CVAR_ARCHIVE | CVAR_LATCH );
 	r_allowExtensions = ri.Cvar_Get( "r_allowExtensions", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ext_compressed_textures = ri.Cvar_Get( "r_ext_compressed_textures", "1", CVAR_ARCHIVE | CVAR_LATCH );   // (SA) ew, a spelling change I missed from the missionpack
@@ -981,6 +1082,24 @@ void R_Register( void ) {
 //----(SA)	added
 	r_ext_ATI_pntriangles           = ri.Cvar_Get( "r_ext_ATI_pntriangles", "0", CVAR_ARCHIVE | CVAR_LATCH );   //----(SA)	default to '0'
 	r_ati_truform_tess              = ri.Cvar_Get( "r_ati_truform_tess", "1", CVAR_ARCHIVE );
+#else
+	r_glDriver = ri.Cvar_Get( "r_glDriver", OPENGL_DRIVER_NAME, CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+	r_allowExtensions = ri.Cvar_Get( "r_allowExtensions", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+	r_ext_compressed_textures = ri.Cvar_Get( "r_ext_compressed_textures", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE ); // (SA) ew, a spelling change I missed from the missionpack
+	r_ext_gamma_control = ri.Cvar_Get( "r_ext_gamma_control", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+	r_ext_multitexture = ri.Cvar_Get( "r_ext_multitexture", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+	r_ext_compiled_vertex_array = ri.Cvar_Get( "r_ext_compiled_vertex_array", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+	r_glIgnoreWicked3D = ri.Cvar_Get( "r_glIgnoreWicked3D", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+
+//----(SA)	added
+	r_ext_ATI_pntriangles           = ri.Cvar_Get( "r_ext_ATI_pntriangles", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE ); //----(SA)	default to '0'
+	r_ati_truform_tess              = ri.Cvar_Get( "r_ati_truform_tess", "1", CVAR_ARCHIVE | CVAR_UNSAFE );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	r_ati_truform_normalmode        = ri.Cvar_Get( "r_ati_truform_normalmode", "GL_PN_TRIANGLES_NORMAL_MODE_LINEAR", CVAR_ARCHIVE | CVAR_UNSAFE );
+	r_ati_truform_pointmode         = ri.Cvar_Get( "r_ati_truform_pointmode", "GL_PN_TRIANGLES_POINT_MODE_LINEAR", CVAR_ARCHIVE | CVAR_UNSAFE );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 // GR - Change default mode -- linear doesn't do much...
@@ -991,29 +1110,52 @@ void R_Register( void ) {
 	r_ati_truform_pointmode         = ri.Cvar_Get( "r_ati_truform_pointmode", "GL_PN_TRIANGLES_POINT_MODE_LINEAR", CVAR_ARCHIVE );
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE );       //DAJ valids are 1, 2, 4
-
 	r_ext_texture_filter_anisotropic    = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE );
+#else
+	r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE | CVAR_UNSAFE );        //DAJ valids are 1, 2, 4
+	r_ext_texture_filter_anisotropic    = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	r_ext_NV_fog_dist                   = ri.Cvar_Get( "r_ext_NV_fog_dist", "1", CVAR_ARCHIVE | CVAR_LATCH );
 #elif defined RTCW_MP
 	r_ext_NV_fog_dist                   = ri.Cvar_Get( "r_ext_NV_fog_dist", "0", CVAR_ARCHIVE | CVAR_LATCH );
+#else
+	r_ext_NV_fog_dist                   = ri.Cvar_Get( "r_ext_NV_fog_dist", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	r_nv_fogdist_mode                   = ri.Cvar_Get( "r_nv_fogdist_mode", "GL_EYE_RADIAL_NV", CVAR_ARCHIVE );    // default to 'looking good'
+#else
+	r_nv_fogdist_mode                   = ri.Cvar_Get( "r_nv_fogdist_mode", "GL_EYE_RADIAL_NV", CVAR_ARCHIVE | CVAR_UNSAFE );  // default to 'looking good'
+#endif RTCW_XX
+
 //----(SA)	end
 
+#if !defined RTCW_ET
 #ifdef __linux__ // broken on linux
 	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "0", CVAR_ARCHIVE | CVAR_LATCH );
 #else
 	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "1", CVAR_ARCHIVE | CVAR_LATCH );
 #endif
+#else
+#ifdef __linux__ // broken on linux
+	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+#else
+	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+#endif
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	r_clampToEdge = ri.Cvar_Get( "r_clampToEdge", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE ); // ydnar: opengl 1.2 GL_CLAMP_TO_EDGE support
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	r_picmip = ri.Cvar_Get( "r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_picmip2 = ri.Cvar_Get( "r_picmip2", "2", CVAR_ARCHIVE | CVAR_LATCH );   // used for character skins picmipping at a different level from the rest of the game
-#elif defined RTCW_MP
+#else
 	r_picmip = ri.Cvar_Get( "r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH ); //----(SA)	mod for DM and DK for id build.  was "1" // JPW NERVE pushed back to 1
 #endif RTCW_XX
 
@@ -1026,16 +1168,30 @@ void R_Register( void ) {
 
 	r_rmse = ri.Cvar_Get( "r_rmse", "0.0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_colorMipLevels = ri.Cvar_Get( "r_colorMipLevels", "0", CVAR_LATCH );
+
+#if !defined RTCW_ET
 	AssertCvarRange( r_picmip, 0, 16, qtrue );
+#else
+	AssertCvarRange( r_picmip, 0, 3, qtrue );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	AssertCvarRange( r_picmip2, 0, 16, qtrue );
 #endif RTCW_XX
 
 	r_detailTextures = ri.Cvar_Get( "r_detailtextures", "1", CVAR_ARCHIVE | CVAR_LATCH );
+
+#if !defined RTCW_ET
 	r_texturebits = ri.Cvar_Get( "r_texturebits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_colorbits = ri.Cvar_Get( "r_colorbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_stereo = ri.Cvar_Get( "r_stereo", "0", CVAR_ARCHIVE | CVAR_LATCH );
+#else
+	r_texturebits = ri.Cvar_Get( "r_texturebits", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+	r_colorbits = ri.Cvar_Get( "r_colorbits", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+	r_stereo = ri.Cvar_Get( "r_stereo", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 #ifdef __linux__
 	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 
@@ -1059,35 +1215,92 @@ void R_Register( void ) {
 #endif RTCW_XX
 
 #endif
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#ifdef __linux__
+	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+#else
+	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+#endif
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 	r_depthbits = ri.Cvar_Get( "r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_overBrightBits = ri.Cvar_Get( "r_overBrightBits", "1", CVAR_ARCHIVE | CVAR_LATCH );
+#else
+	r_depthbits = ri.Cvar_Get( "r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+	r_overBrightBits = ri.Cvar_Get( "r_overBrightBits", "0", CVAR_ARCHIVE | CVAR_LATCH ); // Arnout: disable overbrightbits by default
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	AssertCvarRange( r_overBrightBits, 0, 1, qtrue );                                   // ydnar: limit to overbrightbits 1 (sorry 1337 players)
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	r_ignorehwgamma = ri.Cvar_Get( "r_ignorehwgamma", "1", CVAR_ARCHIVE | CVAR_LATCH );    //----(SA) changed this to default to '1' for Drew
 #elif defined RTCW_MP
 	r_ignorehwgamma = ri.Cvar_Get( "r_ignorehwgamma", "1", CVAR_ARCHIVE | CVAR_LATCH );
+#else
+	r_ignorehwgamma = ri.Cvar_Get( "r_ignorehwgamma", "0", CVAR_ARCHIVE | CVAR_LATCH );        // ydnar: use hw gamma by default
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	r_mode = ri.Cvar_Get( "r_mode", "3", CVAR_ARCHIVE | CVAR_LATCH );
+#else
+	r_mode = ri.Cvar_Get( "r_mode", "4", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	r_oldMode = ri.Cvar_Get( "r_oldMode", "", CVAR_ARCHIVE );                             // ydnar: previous "good" video mode
+#endif RTCW_XX
+
 	r_fullscreen = ri.Cvar_Get( "r_fullscreen", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_customwidth = ri.Cvar_Get( "r_customwidth", "1600", CVAR_ARCHIVE | CVAR_LATCH );
 	r_customheight = ri.Cvar_Get( "r_customheight", "1024", CVAR_ARCHIVE | CVAR_LATCH );
 	r_customaspect = ri.Cvar_Get( "r_customaspect", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_simpleMipMaps = ri.Cvar_Get( "r_simpleMipMaps", "1", CVAR_ARCHIVE | CVAR_LATCH );
+
+#if !defined RTCW_ET
 	r_vertexLight = ri.Cvar_Get( "r_vertexLight", "0", CVAR_ARCHIVE | CVAR_LATCH );
+#endif RTCW_XX
+
 	r_uiFullScreen = ri.Cvar_Get( "r_uifullscreen", "0", 0 );
 	r_subdivisions = ri.Cvar_Get( "r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH );
+
+#if !defined RTCW_ET
 #ifdef MACOS_X
 	// Default to using SMP on Mac OS X if we have multiple processors
 	r_smp = ri.Cvar_Get( "r_smp", Sys_ProcessorCount() > 1 ? "1" : "0", CVAR_ARCHIVE | CVAR_LATCH );
 #else
 	r_smp = ri.Cvar_Get( "r_smp", "0", CVAR_ARCHIVE | CVAR_LATCH );
 #endif
-	r_ignoreFastPath = ri.Cvar_Get( "r_ignoreFastPath", "1", CVAR_ARCHIVE | CVAR_LATCH );
+#else
+#ifdef MACOS_X
+	// Default to using SMP on Mac OS X if we have multiple processors
+	r_smp = ri.Cvar_Get( "r_smp", Sys_ProcessorCount() > 1 ? "1" : "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+#elif defined WIN32
+	// ydnar: r_smp is nonfunctional on windows
+	r_smp = ri.Cvar_Get( "r_smp", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE | CVAR_ROM );
+	Cvar_Set( "r_smp", "0" );
+#else
+	r_smp = ri.Cvar_Get( "r_smp", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+#endif
+#endif RTCW_XX
 
-#if defined RTCW_MP
+#if !defined RTCW_ET
+	r_ignoreFastPath = ri.Cvar_Get( "r_ignoreFastPath", "1", CVAR_ARCHIVE | CVAR_LATCH );
+#else
+	r_ignoreFastPath = ri.Cvar_Get( "r_ignoreFastPath", "0", CVAR_ARCHIVE | CVAR_LATCH ); // ydnar: use fast path by default
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 #if MAC_STVEF_HM || MAC_WOLF2_MP
+
+#if !defined RTCW_ET
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE | CVAR_LATCH ); //DAJ
+#endif RTCW_XX
+
 	r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE );       //DAJ valids are 1, 2, 4
 #endif
 #endif RTCW_XX
@@ -1095,7 +1308,13 @@ void R_Register( void ) {
 	//
 	// temporary latched variables that can only change over a restart
 	//
+
+#if !defined RTCW_ET
 	r_displayRefresh = ri.Cvar_Get( "r_displayRefresh", "0", CVAR_LATCH );
+#else
+	r_displayRefresh = ri.Cvar_Get( "r_displayRefresh", "0", CVAR_LATCH | CVAR_UNSAFE );
+#endif RTCW_XX
+
 	AssertCvarRange( r_displayRefresh, 0, 200, qtrue );
 
 #if defined RTCW_SP
@@ -1105,7 +1324,17 @@ void R_Register( void ) {
 #endif RTCW_XX
 
 	r_mapOverBrightBits = ri.Cvar_Get( "r_mapOverBrightBits", "2", CVAR_LATCH );
+
+#if defined RTCW_ET
+	AssertCvarRange( r_mapOverBrightBits, 0, 3, qtrue );
+#endif RTCW_XX
+
 	r_intensity = ri.Cvar_Get( "r_intensity", "1", CVAR_LATCH );
+
+#if defined RTCW_ET
+	AssertCvarRange( r_intensity, 0, 1.5, qfalse );
+#endif RTCW_XX
+
 	r_singleShader = ri.Cvar_Get( "r_singleShader", "0", CVAR_CHEAT | CVAR_LATCH );
 
 	//
@@ -1114,7 +1343,13 @@ void R_Register( void ) {
 	r_lodCurveError = ri.Cvar_Get( "r_lodCurveError", "250", CVAR_ARCHIVE );
 	r_lodbias = ri.Cvar_Get( "r_lodbias", "0", CVAR_ARCHIVE );
 	r_flares = ri.Cvar_Get( "r_flares", "1", CVAR_ARCHIVE );
+
+#if !defined RTCW_ET
 	r_znear = ri.Cvar_Get( "r_znear", "4", CVAR_CHEAT );
+#else
+	r_znear = ri.Cvar_Get( "r_znear", "3", CVAR_CHEAT );  // ydnar: changed it to 3 (from 4) because of lean/fov cheats
+#endif RTCW_XX
+
 	AssertCvarRange( r_znear, 0.001f, 200, qtrue );
 //----(SA)	added
 	r_zfar = ri.Cvar_Get( "r_zfar", "0", CVAR_CHEAT );
@@ -1132,6 +1367,11 @@ void R_Register( void ) {
 	r_dlightBacks = ri.Cvar_Get( "r_dlightBacks", "1", CVAR_ARCHIVE );
 	r_finish = ri.Cvar_Get( "r_finish", "0", CVAR_ARCHIVE );
 	r_textureMode = ri.Cvar_Get( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE );
+
+#if defined RTCW_ET
+	r_textureAnisotropy = ri.Cvar_Get( "r_textureAnisotropy", "1.0", CVAR_ARCHIVE );
+#endif RTCW_XX
+
 	r_swapInterval = ri.Cvar_Get( "r_swapInterval", "0", CVAR_ARCHIVE );
 #ifdef __MACOS__
 	r_gamma = ri.Cvar_Get( "r_gamma", "1.2", CVAR_ARCHIVE );
@@ -1176,7 +1416,7 @@ void R_Register( void ) {
 	ri.Cvar_Set( "r_cacheShaders", "0" );
 	r_cacheShaders = ri.Cvar_Get( "r_cacheShaders", "0", CVAR_LATCH );
 //----(SA)	end
-#elif defined RTCW_MP
+#else
 	// TTimo show_bug.cgi?id=440
 	//   with r_cache enabled, non-win32 OSes were leaking 24Mb per R_Init..
 	r_cache = ri.Cvar_Get( "r_cache", "1", CVAR_LATCH );  // leaving it as this for backwards compability. but it caches models and shaders also
@@ -1185,8 +1425,12 @@ void R_Register( void ) {
 #endif RTCW_XX
 
 	r_cacheModels = ri.Cvar_Get( "r_cacheModels", "1", CVAR_LATCH );
+
+#if !defined RTCW_ET
 	r_compressModels = ri.Cvar_Get( "r_compressModels", "0", 0 );     // converts MD3 -> MDC at run-time
 	r_exportCompressedModels = ri.Cvar_Get( "r_exportCompressedModels", "0", 0 ); // saves compressed models
+#endif RTCW_XX
+
 	r_cacheGathering = ri.Cvar_Get( "cl_cacheGathering", "0", 0 );
 	r_buildScript = ri.Cvar_Get( "com_buildscript", "0", 0 );
 	r_bonesDebug = ri.Cvar_Get( "r_bonesDebug", "0", CVAR_CHEAT );
@@ -1196,7 +1440,7 @@ void R_Register( void ) {
 
 #if defined RTCW_SP
 	r_wolffog = ri.Cvar_Get( "r_wolffog", "1", 0 );
-#elif defined RTCW_MP
+#else
 	r_wolffog = ri.Cvar_Get( "r_wolffog", "1", CVAR_CHEAT ); // JPW NERVE cheat protected per id request
 #endif RTCW_XX
 
@@ -1205,9 +1449,13 @@ void R_Register( void ) {
 	r_nocurves = ri.Cvar_Get( "r_nocurves", "0", CVAR_CHEAT );
 	r_drawworld = ri.Cvar_Get( "r_drawworld", "1", CVAR_CHEAT );
 
+#if defined RTCW_ET
+	r_drawfoliage = ri.Cvar_Get( "r_drawfoliage", "1", CVAR_CHEAT );  // ydnar
+#endif RTCW_XX
+
 #if defined RTCW_SP
 	r_lightmap = ri.Cvar_Get( "r_lightmap", "0", CVAR_CHEAT );
-#elif defined RTCW_MP
+#else
 	r_lightmap = ri.Cvar_Get( "r_lightmap", "0", CVAR_CHEAT ); // DHM - NERVE :: cheat protect
 #endif RTCW_XX
 
@@ -1215,7 +1463,7 @@ void R_Register( void ) {
 
 	r_flareSize = ri.Cvar_Get( "r_flareSize", "40", CVAR_CHEAT );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	ri.Cvar_Set( "r_flareFade", "5" ); // to force this when people already have "7" in their config
 #endif RTCW_XX
 
@@ -1238,8 +1486,19 @@ void R_Register( void ) {
 	r_debugSurface = ri.Cvar_Get( "r_debugSurface", "0", CVAR_CHEAT );
 	r_nobind = ri.Cvar_Get( "r_nobind", "0", CVAR_CHEAT );
 	r_showtris = ri.Cvar_Get( "r_showtris", "0", CVAR_CHEAT );
+
+#if defined RTCW_ET
+	r_trisColor = ri.Cvar_Get( "r_trisColor", "1.0 1.0 1.0 1.0", CVAR_ARCHIVE );
+#endif RTCW_XX
+
 	r_showsky = ri.Cvar_Get( "r_showsky", "0", CVAR_CHEAT );
 	r_shownormals = ri.Cvar_Get( "r_shownormals", "0", CVAR_CHEAT );
+
+#if defined RTCW_ET
+	r_normallength = ri.Cvar_Get( "r_normallength", "0.5", CVAR_ARCHIVE );
+	r_showmodelbounds = ri.Cvar_Get( "r_showmodelbounds", "0", CVAR_CHEAT );
+#endif RTCW_XX
+
 	r_clear = ri.Cvar_Get( "r_clear", "0", CVAR_CHEAT );
 	r_offsetFactor = ri.Cvar_Get( "r_offsetfactor", "-1", CVAR_CHEAT );
 	r_offsetUnits = ri.Cvar_Get( "r_offsetunits", "-2", CVAR_CHEAT );
@@ -1247,7 +1506,11 @@ void R_Register( void ) {
 	r_lockpvs = ri.Cvar_Get( "r_lockpvs", "0", CVAR_CHEAT );
 	r_noportals = ri.Cvar_Get( "r_noportals", "0", CVAR_CHEAT );
 	r_shadows = ri.Cvar_Get( "cg_shadows", "1", 0 );
+
+#if !defined RTCW_ET
 	r_shadows = ri.Cvar_Get( "cg_shadows", "1", 0 );
+#endif RTCW_XX
+
 	r_portalsky = ri.Cvar_Get( "cg_skybox", "1", 0 );
 
 	r_maxpolys = ri.Cvar_Get( "r_maxpolys", va( "%d", MAX_POLYS ), 0 );
@@ -1296,6 +1559,18 @@ void R_Init( void ) {
 	memset( &backEnd, 0, sizeof( backEnd ) );
 	memset( &tess, 0, sizeof( tess ) );
 
+#if defined RTCW_ET
+	tess.xyz =              tess_xyz;
+	tess.texCoords0 =       tess_texCoords0;
+	tess.texCoords1 =       tess_texCoords1;
+	tess.indexes =          tess_indexes;
+	tess.normal =           tess_normal;
+	tess.vertexColors =     tess_vertexColors;
+
+	tess.maxShaderVerts =       SHADER_MAX_VERTEXES;
+	tess.maxShaderIndicies =    SHADER_MAX_INDEXES;
+#endif RTCW_XX
+
 	Swap_Init();
 
 	if ( (int)tess.xyz & 15 ) {
@@ -1326,7 +1601,7 @@ void R_Init( void ) {
 		}
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// Ridah, init the virtual memory
 	R_Hunk_Begin();
 #endif RTCW_XX
@@ -1387,6 +1662,14 @@ void R_Init( void ) {
 	ri.Printf( PRINT_ALL, "----- finished R_Init -----\n" );
 }
 
+#if defined RTCW_ET
+void R_PurgeCache( void ) {
+	R_PurgeShaders( 9999999 );
+	R_PurgeBackupImages( 9999999 );
+	R_PurgeModels( 9999999 );
+}
+#endif RTCW_XX
+
 /*
 ===============
 RE_Shutdown
@@ -1415,9 +1698,14 @@ void RE_Shutdown( qboolean destroyWindow ) {
 
 	// Ridah, keep a backup of the current images if possible
 	// clean out any remaining unused media from the last backup
+
+#if !defined RTCW_ET
 	R_PurgeShaders( 9999999 );
 	R_PurgeBackupImages( 9999999 );
 	R_PurgeModels( 9999999 );
+#else
+	R_PurgeCache();
+#endif RTCW_XX
 
 	if ( r_cache->integer ) {
 		if ( tr.registered ) {
@@ -1452,7 +1740,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
 
 #if defined RTCW_SP
 		//ri.Tag_Free();	// wipe all render alloc'd zone memory
-#elif defined RTCW_MP
+#else
 		ri.Tag_Free();  // wipe all render alloc'd zone memory
 #endif RTCW_XX
 
@@ -1472,10 +1760,19 @@ Touch all images to make sure they are resident
 void RE_EndRegistration( void ) {
 	R_SyncRenderThread();
 	if ( !Sys_LowPhysicalMemory() ) {
+
+#if !defined RTCW_ET
 		RB_ShowImages();
+#else
+//		RB_ShowImages();
+#endif RTCW_XX
+
 	}
 }
 
+#if defined RTCW_ET
+void R_DebugPolygon( int color, int numPoints, float *points );
+#endif RTCW_XX
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
@@ -1517,6 +1814,12 @@ refexport_t *GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	re.EndFrame         = RE_EndFrame;
 
 	re.MarkFragments    = R_MarkFragments;
+
+#if defined RTCW_ET
+	re.ProjectDecal     = RE_ProjectDecal;
+	re.ClearDecals      = RE_ClearDecals;
+#endif RTCW_XX
+
 	re.LerpTag          = R_LerpTag;
 	re.ModelBounds      = R_ModelBounds;
 
@@ -1533,11 +1836,20 @@ refexport_t *GetRefAPI( int apiVersion, refimport_t *rimp ) {
 //----(SA)
 	re.RenderScene      = RE_RenderScene;
 
+#if defined RTCW_ET
+	re.SaveViewParms    = RE_SaveViewParms;
+	re.RestoreViewParms = RE_RestoreViewParms;
+#endif RTCW_XX
+
 	re.SetColor         = RE_SetColor;
 	re.DrawStretchPic   = RE_StretchPic;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	re.DrawRotatedPic   = RE_RotatedPic;        // NERVE - SMF
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	re.Add2dPolys       = RE_2DPolyies;
 #endif RTCW_XX
 
 	re.DrawStretchPicGradient   = RE_StretchPicGradient;
@@ -1555,6 +1867,28 @@ refexport_t *GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	// RF
 	re.ZombieFXAddNewHit = RB_ZombieFXAddNewHit;
 #endif RTCW_XX
+
+#if defined RTCW_ET
+	re.DrawDebugPolygon = R_DebugPolygon;
+	re.DrawDebugText    = R_DebugText;
+
+	re.AddPolyBufferToScene =   RE_AddPolyBufferToScene;
+
+	re.SetGlobalFog     = RE_SetGlobalFog;
+
+	re.inPVS = R_inPVS;
+
+	re.purgeCache       = R_PurgeCache;
+
+	//bani
+	re.LoadDynamicShader = RE_LoadDynamicShader;
+	re.GetTextureId = R_GetTextureId;
+	// fretn
+	re.RenderToTexture = RE_RenderToTexture;
+	//bani
+	re.Finish = RE_Finish;
+#endif RTCW_XX
+
 
 	return &re;
 }

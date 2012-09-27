@@ -52,6 +52,11 @@ cvar_t  *sv_privateClients;     // number of clients reserved for password
 cvar_t  *sv_hostname;
 cvar_t  *sv_master[MAX_MASTER_SERVERS];     // master server ip address
 cvar_t  *sv_reconnectlimit;     // minimum seconds between connect messages
+
+#if defined RTCW_ET
+cvar_t  *sv_tempbanmessage;
+#endif RTCW_XX
+
 cvar_t  *sv_showloss;           // report when usercmds are lost
 cvar_t  *sv_padPackets;         // add nop bytes to messages
 cvar_t  *sv_killserver;         // menu system can set to 1 to shut server down
@@ -61,31 +66,77 @@ cvar_t  *sv_serverid;
 cvar_t  *sv_maxRate;
 cvar_t  *sv_minPing;
 cvar_t  *sv_maxPing;
+
+#if !defined RTCW_ET
 cvar_t  *sv_gametype;
+#else
+//cvar_t	*sv_gametype;
+#endif RTCW_XX
+
 cvar_t  *sv_pure;
 cvar_t  *sv_floodProtect;
 cvar_t  *sv_allowAnonymous;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 cvar_t  *sv_lanForceRate; // TTimo - dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
 cvar_t  *sv_onlyVisibleClients; // DHM - Nerve
 cvar_t  *sv_friendlyFire;       // NERVE - SMF
 cvar_t  *sv_maxlives;           // NERVE - SMF
+
+#if !defined RTCW_ET
 cvar_t  *sv_tourney;            // NERVE - SMF
+#endif RTCW_XX
+
+#if defined RTCW_ET
+cvar_t  *sv_needpass;
+#endif RTCW_XX
 
 cvar_t *sv_dl_maxRate;
 #endif RTCW_XX
 
+#if defined RTCW_ET
+cvar_t* g_gameType;
+#endif RTCW_XX
+
 // Rafael gameskill
+
+#if !defined RTCW_ET
 cvar_t  *sv_gameskill;
+#else
+//cvar_t	*sv_gameskill;
+#endif RTCW_XX
+
 // done
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 cvar_t  *sv_reloading;  //----(SA)	added
-#elif defined RTCW_MP
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 cvar_t  *sv_showAverageBPS;     // NERVE - SMF - net debugging
 
+#if defined RTCW_ET
+cvar_t  *sv_wwwDownload; // server does a www dl redirect
+cvar_t  *sv_wwwBaseURL; // base URL for redirect
+// tell clients to perform their downloads while disconnected from the server
+// this gets you a better throughput, but you loose the ability to control the download usage
+cvar_t *sv_wwwDlDisconnected;
+cvar_t *sv_wwwFallbackURL; // URL to send to if an http/ftp fails or is refused client side
+
+//bani
+cvar_t  *sv_cheats;
+cvar_t  *sv_packetloss;
+cvar_t  *sv_packetdelay;
+
+// fretn
+cvar_t  *sv_fullmsg;
+#endif RTCW_XX
+
 void SVC_GameCompleteStatus( netadr_t from );       // NERVE - SMF
+#endif RTCW_XX
+
+#if defined RTCW_ET
+#define LL( x ) x = LittleLong( x )
 #endif RTCW_XX
 
 /*
@@ -114,7 +165,7 @@ char    *SV_ExpandNewlines( char *in ) {
 			string[l++] = 'n';
 		} else {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 			// NERVE - SMF - HACK - strip out localization tokens before string command is displayed in syscon window
 			if ( !Q_strncmp( in, "[lon]", 5 ) || !Q_strncmp( in, "[lof]", 5 ) ) {
 				in += 5;
@@ -191,7 +242,7 @@ void SV_AddServerCommand( client_t *client, const char *cmd ) {
 #if defined RTCW_SP
 			//Com_Printf( "cmd %5d: %s\n", i, client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
 			Com_Printf( "cmd %5d: %s\n", i, SV_GetReliableCommand( client, i & ( MAX_RELIABLE_COMMANDS - 1 ) ) );
-#elif defined RTCW_MP
+#else
 			Com_Printf( "cmd %5d: %s\n", i, client->reliableCommands[ i & ( MAX_RELIABLE_COMMANDS - 1 ) ] );
 #endif RTCW_XX
 
@@ -205,7 +256,7 @@ void SV_AddServerCommand( client_t *client, const char *cmd ) {
 #if defined RTCW_SP
 	//Q_strncpyz( client->reliableCommands[ index ], cmd, sizeof( client->reliableCommands[ index ] ) );
 	SV_AddReliableCommand( client, index, cmd );
-#elif defined RTCW_MP
+#else
 	Q_strncpyz( client->reliableCommands[ index ], cmd, sizeof( client->reliableCommands[ index ] ) );
 #endif RTCW_XX
 
@@ -231,13 +282,13 @@ void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ... ) {
 
 #if defined RTCW_SP
 	vsprintf( (char *)message, fmt,argptr );
-#elif defined RTCW_MP
+#else
 	Q_vsnprintf( (char *)message, sizeof( message ), fmt, argptr );
 #endif RTCW_XX
 
 	va_end( argptr );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// do not forward server command messages that would be too big to clients
 	// ( q3infoboom / q3msgboom stuff )
 	if ( strlen( (char *)message ) > 1022 ) {
@@ -261,7 +312,13 @@ void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ... ) {
 			continue;
 		}
 		// Ridah, don't need to send messages to AI
+
+#if !defined RTCW_ET
 		if ( client->gentity && client->gentity->r.svFlags & SVF_CASTAI ) {
+#else
+		if ( client->gentity && client->gentity->r.svFlags & SVF_BOT ) {
+#endif RTCW_XX
+
 			continue;
 		}
 		// done.
@@ -290,12 +347,24 @@ but not on every player enter or exit.
 ================
 */
 #define HEARTBEAT_MSEC  300 * 1000
+
+#if !defined RTCW_ET
 #define HEARTBEAT_GAME  "Wolfenstein-1"
+#else
+//#define	HEARTBEAT_GAME	"Wolfenstein-1"
+//#define	HEARTBEAT_DEAD	"WolfFlatline-1"			// NERVE - SMF
+#define HEARTBEAT_GAME  "EnemyTerritory-1"
+#endif RTCW_XX
 
 #if defined RTCW_SP
 void SV_MasterHeartbeat( void ) {
-#elif defined RTCW_MP
+#else
+
+#if !defined RTCW_ET
 #define HEARTBEAT_DEAD  "WolfFlatline-1"         // NERVE - SMF
+#else
+#define HEARTBEAT_DEAD  "ETFlatline-1"           // NERVE - SMF
+#endif RTCW_XX
 
 void SV_MasterHeartbeat( const char *hbname ) {
 #endif RTCW_XX
@@ -308,6 +377,12 @@ void SV_MasterHeartbeat( const char *hbname ) {
 #ifdef UPDATE_SERVER
 	return;
 #endif
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	if ( SV_GameIsSinglePlayer() ) {
+		return;     // no heartbeats for SP
+	}
 #endif RTCW_XX
 
 	// "dedicated 1" is for lan play, "dedicated 2" is for inet public play
@@ -358,14 +433,14 @@ void SV_MasterHeartbeat( const char *hbname ) {
 
 #if defined RTCW_SP
 		NET_OutOfBandPrint( NS_SERVER, adr[i], "heartbeat %s\n", HEARTBEAT_GAME );
-#elif defined RTCW_MP
+#else
 		NET_OutOfBandPrint( NS_SERVER, adr[i], "heartbeat %s\n", hbname );
 #endif RTCW_XX
 
 	}
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 =================
 SV_MasterGameCompleteStatus
@@ -376,6 +451,12 @@ NERVE - SMF - Sends gameCompleteStatus messages to all master servers
 void SV_MasterGameCompleteStatus() {
 	static netadr_t adr[MAX_MASTER_SERVERS];
 	int i;
+
+#if defined RTCW_ET
+	if ( SV_GameIsSinglePlayer() ) {
+		return;     // no master game status for SP
+	}
+#endif RTCW_XX
 
 	// "dedicated 1" is for lan play, "dedicated 2" is for inet public play
 	if ( !com_dedicated || com_dedicated->integer != 2 ) {
@@ -432,7 +513,7 @@ void SV_MasterShutdown( void ) {
 
 #if defined RTCW_SP
 	SV_MasterHeartbeat();
-#elif defined RTCW_MP
+#else
 	SV_MasterHeartbeat( HEARTBEAT_DEAD );               // NERVE - SMF - changed to flatline
 #endif RTCW_XX
 
@@ -441,7 +522,7 @@ void SV_MasterShutdown( void ) {
 #if defined RTCW_SP
 	svs.nextHeartbeatTime = -9999;
 	SV_MasterHeartbeat();
-#elif defined RTCW_MP
+#else
 //	svs.nextHeartbeatTime = -9999;
 //	SV_MasterHeartbeat( HEARTBEAT_DEAD );
 #endif RTCW_XX
@@ -458,6 +539,37 @@ CONNECTIONLESS COMMANDS
 
 ==============================================================================
 */
+
+#if defined RTCW_ET
+//bani - bugtraq 12534
+//returns qtrue if valid challenge
+//returns qfalse if m4d h4x0rz
+qboolean SV_VerifyChallenge( char *challenge ) {
+	int i, j;
+
+	if ( !challenge ) {
+		return qfalse;
+	}
+
+	j = strlen( challenge );
+	if ( j > 64 ) {
+		return qfalse;
+	}
+	for ( i = 0; i < j; i++ ) {
+		if ( challenge[i] == '\\' ||
+			 challenge[i] == '/' ||
+			 challenge[i] == '%' ||
+			 challenge[i] == ';' ||
+			 challenge[i] == '"' ||
+			 challenge[i] < 32 ||   // non-ascii
+			 challenge[i] > 126 // non-ascii
+			 ) {
+			return qfalse;
+		}
+	}
+	return qtrue;
+}
+#endif RTCW_XX
 
 /*
 ================
@@ -479,7 +591,12 @@ void SVC_Status( netadr_t from ) {
 	char infostring[MAX_INFO_STRING];
 
 	// ignore if we are in single player
+
+#if !defined RTCW_ET
 	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
+#else
+	if ( SV_GameIsSinglePlayer() ) {
+#endif RTCW_XX
 		return;
 	}
 
@@ -490,7 +607,19 @@ void SVC_Status( netadr_t from ) {
 #endif
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	//bani - bugtraq 12534
+	if ( !SV_VerifyChallenge( Cmd_Argv( 1 ) ) ) {
+		return;
+	}
+#endif RTCW_XX
+
+
+#if !defined RTCW_ET
 	strcpy( infostring, Cvar_InfoString( CVAR_SERVERINFO ) );
+#else
+	strcpy( infostring, Cvar_InfoString( CVAR_SERVERINFO | CVAR_SERVERINFO_NOUPDATE ) );
+#endif RTCW_XX
 
 	// echo back the parameter to status. so master servers can use it as a challenge
 	// to prevent timed spoofed reply packets that add ghost servers
@@ -500,7 +629,12 @@ void SVC_Status( netadr_t from ) {
 	if ( Cvar_VariableValue( "fs_restrict" ) ) {
 		char keywords[MAX_INFO_STRING];
 
+#if !defined RTCW_ET
 		Com_sprintf( keywords, sizeof( keywords ), "demo %s",
+#else
+		Com_sprintf( keywords, sizeof( keywords ), "ettest %s",
+#endif RTCW_XX
+
 					 Info_ValueForKey( infostring, "sv_keywords" ) );
 		Info_SetValueForKey( infostring, "sv_keywords", keywords );
 	}
@@ -526,7 +660,7 @@ void SVC_Status( netadr_t from ) {
 	NET_OutOfBandPrint( NS_SERVER, from, "statusResponse\n%s\n%s", infostring, status );
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 =================
 SVC_GameCompleteStatus
@@ -546,11 +680,29 @@ void SVC_GameCompleteStatus( netadr_t from ) {
 	char infostring[MAX_INFO_STRING];
 
 	// ignore if we are in single player
+
+#if !defined RTCW_ET
 	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
+#else
+	if ( SV_GameIsSinglePlayer() ) {
+#endif RTCW_XX
+
 		return;
 	}
 
+#if defined RTCW_ET
+	//bani - bugtraq 12534
+	if ( !SV_VerifyChallenge( Cmd_Argv( 1 ) ) ) {
+		return;
+	}
+#endif RTCW_XX
+
+
+#if !defined RTCW_ET
 	strcpy( infostring, Cvar_InfoString( CVAR_SERVERINFO ) );
+#else
+	strcpy( infostring, Cvar_InfoString( CVAR_SERVERINFO | CVAR_SERVERINFO_NOUPDATE ) );
+#endif RTCW_XX
 
 	// echo back the parameter to status. so master servers can use it as a challenge
 	// to prevent timed spoofed reply packets that add ghost servers
@@ -560,7 +712,12 @@ void SVC_GameCompleteStatus( netadr_t from ) {
 	if ( Cvar_VariableValue( "fs_restrict" ) ) {
 		char keywords[MAX_INFO_STRING];
 
+#if !defined RTCW_ET
 		Com_sprintf( keywords, sizeof( keywords ), "demo %s",
+#else
+		Com_sprintf( keywords, sizeof( keywords ), "ettest %s",
+#endif RTCW_XX
+
 					 Info_ValueForKey( infostring, "sv_keywords" ) );
 		Info_SetValueForKey( infostring, "sv_keywords", keywords );
 	}
@@ -609,10 +766,30 @@ void SVC_Info( netadr_t from ) {
 #endif
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	char    *antilag;
+	char    *weaprestrict;
+	char    *balancedteams;
+
+	// ignore if we are in single player
+	if ( SV_GameIsSinglePlayer() ) {
+		return;
+	}
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 	// ignore if we are in single player
 	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
 		return;
 	}
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	//bani - bugtraq 12534
+	if ( !SV_VerifyChallenge( Cmd_Argv( 1 ) ) ) {
+		return;
+	}
+#endif RTCW_XX
 
 	// don't count privateclients
 	count = 0;
@@ -630,11 +807,22 @@ void SVC_Info( netadr_t from ) {
 
 	Info_SetValueForKey( infostring, "protocol", va( "%i", PROTOCOL_VERSION ) );
 	Info_SetValueForKey( infostring, "hostname", sv_hostname->string );
+
+#if defined RTCW_ET
+	Info_SetValueForKey( infostring, "serverload", va( "%i", svs.serverLoad ) );
+#endif RTCW_XX
+
 	Info_SetValueForKey( infostring, "mapname", sv_mapname->string );
 	Info_SetValueForKey( infostring, "clients", va( "%i", count ) );
 	Info_SetValueForKey( infostring, "sv_maxclients",
 						 va( "%i", sv_maxclients->integer - sv_privateClients->integer ) );
+
+#if !defined RTCW_ET
 	Info_SetValueForKey( infostring, "gametype", va( "%i", sv_gametype->integer ) );
+#else
+	Info_SetValueForKey( infostring, "gametype", Cvar_VariableString( "g_gametype" ) );
+#endif RTCW_XX
+
 	Info_SetValueForKey( infostring, "pure", va( "%i", sv_pure->integer ) );
 
 	if ( sv_minPing->integer ) {
@@ -650,19 +838,45 @@ void SVC_Info( netadr_t from ) {
 	Info_SetValueForKey( infostring, "sv_allowAnonymous", va( "%i", sv_allowAnonymous->integer ) );
 
 	// Rafael gameskill
+
+#if !defined RTCW_ET
 	Info_SetValueForKey( infostring, "gameskill", va( "%i", sv_gameskill->integer ) );
+#else
+//	Info_SetValueForKey (infostring, "gameskill", va ("%i", sv_gameskill->integer));
+#endif RTCW_XX
+
 	// done
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	Info_SetValueForKey( infostring, "friendlyFire", va( "%i", sv_friendlyFire->integer ) );        // NERVE - SMF
 	Info_SetValueForKey( infostring, "maxlives", va( "%i", sv_maxlives->integer ? 1 : 0 ) );        // NERVE - SMF
+
+#if !defined RTCW_ET
 	Info_SetValueForKey( infostring, "tourney", va( "%i", sv_tourney->integer ) );              // NERVE - SMF
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	Info_SetValueForKey( infostring, "needpass", va( "%i", sv_needpass->integer ? 1 : 0 ) );
+#endif RTCW_XX
+
 	Info_SetValueForKey( infostring, "gamename", GAMENAME_STRING );                               // Arnout: to be able to filter out Quake servers
 
 	// TTimo
 	antilag = Cvar_VariableString( "g_antilag" );
 	if ( antilag ) {
 		Info_SetValueForKey( infostring, "g_antilag", antilag );
+	}
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	weaprestrict = Cvar_VariableString( "g_heavyWeaponRestriction" );
+	if ( weaprestrict ) {
+		Info_SetValueForKey( infostring, "weaprestrict", weaprestrict );
+	}
+
+	balancedteams = Cvar_VariableString( "g_balancedteams" );
+	if ( balancedteams ) {
+		Info_SetValueForKey( infostring, "balancedteams", balancedteams );
 	}
 #endif RTCW_XX
 
@@ -773,7 +987,7 @@ void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 	}
 
 	Com_EndRedirect();
-#elif defined RTCW_MP
+#else
 	qboolean valid;
 	unsigned int time;
 	char remaining[1024];
@@ -861,7 +1075,7 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	MSG_BeginReadingOOB( msg );
 	MSG_ReadLong( msg );        // skip the -1 marker
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	if ( !Q_strncmp( "connect", &msg->data[4], 7 ) ) {
 		Huff_Decompress( msg, 12 );
 	}
@@ -882,8 +1096,12 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		SV_GetChallenge( from );
 	} else if ( !Q_stricmp( c,"connect" ) ) {
 		SV_DirectConnect( from );
+
+#if !defined RTCW_ET || (defined RTCW_ET && AUTHORIZE_SUPPORT)
 	} else if ( !Q_stricmp( c,"ipAuthorize" ) ) {
 		SV_AuthorizeIpPacket( from );
+#endif RTCW_XX
+
 	} else if ( !Q_stricmp( c, "rcon" ) ) {
 		SVC_RemoteCommand( from, msg );
 
@@ -951,7 +1169,7 @@ void SV_PacketEvent( netadr_t from, msg_t *msg ) {
 
 #if defined RTCW_SP
 			Com_Printf( "SV_ReadPackets: fixing up a translated port\n" );
-#elif defined RTCW_MP
+#else
 			Com_Printf( "SV_PacketEvent: fixing up a translated port\n" );
 #endif RTCW_XX
 
@@ -1089,7 +1307,7 @@ void SV_CheckTimeouts( void ) {
 			} else {
 				cl->timeoutCount = 0;
 			}
-#elif defined RTCW_MP
+#else
 			// using the client id cause the cl->name is empty at this point
 			Com_DPrintf( "Going from CS_ZOMBIE to CS_FREE for client %d\n", i );
 			cl->state = CS_FREE;    // can now be reused
@@ -1141,7 +1359,7 @@ qboolean SV_CheckPaused( void ) {
 	}
 
 	sv_paused->integer = 1;
-#elif defined RTCW_MP
+#else
 	if ( count > 1 ) {
 		// don't pause
 		if ( sv_paused->integer ) {
@@ -1170,8 +1388,12 @@ void SV_Frame( int msec ) {
 	int frameMsec;
 	int startTime;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	char mapname[MAX_QPATH];
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	int frameStartTime = 0, frameEndTime;
 #endif RTCW_XX
 
 	// the menu kills the server with this cvar
@@ -1189,6 +1411,12 @@ void SV_Frame( int msec ) {
 	if ( SV_CheckPaused() ) {
 		return;
 	}
+
+#if defined RTCW_ET
+	if ( com_dedicated->integer ) {
+		frameStartTime = Sys_Milliseconds();
+	}
+#endif RTCW_XX
 
 	// if it isn't time for the next frame, do nothing
 	if ( sv_fps->integer < 1 ) {
@@ -1218,7 +1446,7 @@ void SV_Frame( int msec ) {
 #if defined RTCW_SP
 		SV_Shutdown( "Restarting server due to time wrapping" );
 		Cbuf_AddText( "vstr nextmap\n" );
-#elif defined RTCW_MP
+#else
 		Q_strncpyz( mapname, sv_mapname->string, MAX_QPATH );
 		SV_Shutdown( "Restarting server due to time wrapping" );
 		// TTimo
@@ -1237,7 +1465,7 @@ void SV_Frame( int msec ) {
 #if defined RTCW_SP
 		SV_Shutdown( "Restarting server due to numSnapshotEntities wrapping" );
 		Cbuf_AddText( "vstr nextmap\n" );
-#elif defined RTCW_MP
+#else
 		Q_strncpyz( mapname, sv_mapname->string, MAX_QPATH );
 		SV_Shutdown( "Restarting server due to numSnapshotEntities wrapping" );
 		// TTimo see above
@@ -1255,15 +1483,29 @@ void SV_Frame( int msec ) {
 
 	// update infostrings if anything has been changed
 	if ( cvar_modifiedFlags & CVAR_SERVERINFO ) {
+
+#if !defined RTCW_ET
 		SV_SetConfigstring( CS_SERVERINFO, Cvar_InfoString( CVAR_SERVERINFO ) );
+#else
+		SV_SetConfigstring( CS_SERVERINFO, Cvar_InfoString( CVAR_SERVERINFO | CVAR_SERVERINFO_NOUPDATE ) );
+#endif RTCW_XX
+
 		cvar_modifiedFlags &= ~CVAR_SERVERINFO;
 	}
+
+#if defined RTCW_ET
+	if ( cvar_modifiedFlags & CVAR_SERVERINFO_NOUPDATE ) {
+		SV_SetConfigstringNoUpdate( CS_SERVERINFO, Cvar_InfoString( CVAR_SERVERINFO | CVAR_SERVERINFO_NOUPDATE ) );
+		cvar_modifiedFlags &= ~CVAR_SERVERINFO_NOUPDATE;
+	}
+#endif RTCW_XX
+
 	if ( cvar_modifiedFlags & CVAR_SYSTEMINFO ) {
 		SV_SetConfigstring( CS_SYSTEMINFO, Cvar_InfoString_Big( CVAR_SYSTEMINFO ) );
 		cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// NERVE - SMF
 	if ( cvar_modifiedFlags & CVAR_WOLFINFO ) {
 		SV_SetConfigstring( CS_WOLFINFO, Cvar_InfoString( CVAR_WOLFINFO ) );
@@ -1291,7 +1533,7 @@ void SV_Frame( int msec ) {
 
 		// let everything in the world think and move
 
-#if defined RTCW_SP || (defined RTCW_MP && !UPDATE_SERVER)
+#if !defined RTCW_MP || (defined RTCW_MP && !UPDATE_SERVER)
 		VM_Call( gvm, GAME_RUN_FRAME, svs.time );
 #endif RTCW_XX
 
@@ -1311,10 +1553,132 @@ void SV_Frame( int msec ) {
 
 #if defined RTCW_SP
 	SV_MasterHeartbeat();
-#elif defined RTCW_MP
+#else
 	SV_MasterHeartbeat( HEARTBEAT_GAME );
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	if ( com_dedicated->integer ) {
+		frameEndTime = Sys_Milliseconds();
+
+		svs.totalFrameTime += ( frameEndTime - frameStartTime );
+		svs.currentFrameIndex++;
+
+		//if( svs.currentFrameIndex % 50 == 0 )
+		//	Com_Printf( "currentFrameIndex: %i\n", svs.currentFrameIndex );
+
+		if ( svs.currentFrameIndex == SERVER_PERFORMANCECOUNTER_FRAMES ) {
+			int averageFrameTime;
+
+			averageFrameTime = svs.totalFrameTime / SERVER_PERFORMANCECOUNTER_FRAMES;
+
+			svs.sampleTimes[svs.currentSampleIndex % SERVER_PERFORMANCECOUNTER_SAMPLES] = averageFrameTime;
+			svs.currentSampleIndex++;
+
+			if ( svs.currentSampleIndex > SERVER_PERFORMANCECOUNTER_SAMPLES ) {
+				int totalTime, i;
+
+				totalTime = 0;
+				for ( i = 0; i < SERVER_PERFORMANCECOUNTER_SAMPLES; i++ ) {
+					totalTime += svs.sampleTimes[i];
+				}
+
+				if ( !totalTime ) {
+					totalTime = 1;
+				}
+
+				averageFrameTime = totalTime / SERVER_PERFORMANCECOUNTER_SAMPLES;
+
+				svs.serverLoad = ( averageFrameTime / (float)frameMsec ) * 100;
+			}
+
+			//Com_Printf( "serverload: %i (%i/%i)\n", svs.serverLoad, averageFrameTime, frameMsec );
+
+			svs.totalFrameTime = 0;
+			svs.currentFrameIndex = 0;
+		}
+	} else
+	{
+		svs.serverLoad = -1;
+	}
+#endif RTCW_XX
+
 }
+
+#if defined RTCW_ET
+/*
+=================
+SV_LoadTag
+=================
+*/
+int SV_LoadTag( const char *mod_name ) {
+	unsigned char*      buffer;
+	tagHeader_t         *pinmodel;
+	int version;
+	md3Tag_t            *tag;
+	md3Tag_t            *readTag;
+	int i, j;
+
+	for ( i = 0; i < sv.num_tagheaders; i++ ) {
+		if ( !Q_stricmp( mod_name, sv.tagHeadersExt[i].filename ) ) {
+			return i + 1;
+		}
+	}
+
+	FS_ReadFile( mod_name, (void**)&buffer );
+
+	if ( !buffer ) {
+		return qfalse;
+	}
+
+	pinmodel = (tagHeader_t *)buffer;
+
+	version = LittleLong( pinmodel->version );
+	if ( version != TAG_VERSION ) {
+		Com_Printf( S_COLOR_YELLOW "WARNING: SV_LoadTag: %s has wrong version (%i should be %i)\n", mod_name, version, TAG_VERSION );
+		return 0;
+	}
+
+	if ( sv.num_tagheaders >= MAX_TAG_FILES ) {
+		Com_Error( ERR_DROP, "MAX_TAG_FILES reached\n" );
+
+		FS_FreeFile( buffer );
+		return 0;
+	}
+
+	LL( pinmodel->ident );
+	LL( pinmodel->numTags );
+	LL( pinmodel->ofsEnd );
+	LL( pinmodel->version );
+
+	Q_strncpyz( sv.tagHeadersExt[sv.num_tagheaders].filename, mod_name, MAX_QPATH );
+	sv.tagHeadersExt[sv.num_tagheaders].start = sv.num_tags;
+	sv.tagHeadersExt[sv.num_tagheaders].count = pinmodel->numTags;
+
+	if ( sv.num_tags + pinmodel->numTags >= MAX_SERVER_TAGS ) {
+		Com_Error( ERR_DROP, "MAX_SERVER_TAGS reached\n" );
+
+		FS_FreeFile( buffer );
+		return qfalse;
+	}
+
+	// swap all the tags
+	tag = &sv.tags[sv.num_tags];
+	sv.num_tags += pinmodel->numTags;
+	readTag = ( md3Tag_t* )( buffer + sizeof( tagHeader_t ) );
+	for ( i = 0 ; i < pinmodel->numTags; i++, tag++, readTag++ ) {
+		for ( j = 0 ; j < 3 ; j++ ) {
+			tag->origin[j] = LittleFloat( readTag->origin[j] );
+			tag->axis[0][j] = LittleFloat( readTag->axis[0][j] );
+			tag->axis[1][j] = LittleFloat( readTag->axis[1][j] );
+			tag->axis[2][j] = LittleFloat( readTag->axis[2][j] );
+		}
+		Q_strncpyz( tag->name, readTag->name, 64 );
+	}
+
+	FS_FreeFile( buffer );
+	return ++sv.num_tagheaders;
+}
+#endif RTCW_XX
 
 //============================================================================

@@ -35,7 +35,11 @@ If you have questions concerning this license or the applicable additional terms
 // needs to be larger than PACKET_BACKUP
 
 
+#if !defined RTCW_ET
 #define MAX_ENTITIES_IN_SNAPSHOT    256
+#else
+#define MAX_ENTITIES_IN_SNAPSHOT    512
+#endif RTCW_XX
 
 // snapshots are a view of the server at a given time
 
@@ -59,12 +63,23 @@ typedef struct {
 	int serverCommandSequence;              // snapshot becomes current
 } snapshot_t;
 
+#if !defined RTCW_ET
 enum {
 	CGAME_EVENT_NONE,
 	CGAME_EVENT_TEAMMENU,
 	CGAME_EVENT_SCOREBOARD,
 	CGAME_EVENT_EDITHUD
 };
+#else
+typedef enum cgameEvent_e {
+	CGAME_EVENT_NONE,
+	CGAME_EVENT_GAMEVIEW,
+	CGAME_EVENT_SPEAKEREDITOR,
+	CGAME_EVENT_CAMPAIGNBREIFING,
+	CGAME_EVENT_DEMO,               // OSP
+	CGAME_EVENT_FIRETEAMMSG,
+} cgameEvent_t;
+#endif RTCW_XX
 
 
 /*
@@ -85,6 +100,11 @@ typedef enum {
 	CG_CVAR_UPDATE,
 	CG_CVAR_SET,
 	CG_CVAR_VARIABLESTRINGBUFFER,
+
+#if defined RTCW_ET
+	CG_CVAR_LATCHEDVARIABLESTRINGBUFFER,
+#endif RTCW_XX
+
 	CG_ARGC,
 	CG_ARGV,
 	CG_ARGS,
@@ -92,6 +112,12 @@ typedef enum {
 	CG_FS_READ,
 	CG_FS_WRITE,
 	CG_FS_FCLOSEFILE,
+
+#if defined RTCW_ET
+	CG_FS_GETFILELIST,
+	CG_FS_DELETEFILE,
+#endif RTCW_XX
+
 	CG_SENDCONSOLECOMMAND,
 	CG_ADDCOMMAND,
 	CG_SENDCLIENTCOMMAND,
@@ -111,10 +137,21 @@ typedef enum {
 	CG_CM_TEMPCAPSULEMODEL,
 // done.
 	CG_CM_MARKFRAGMENTS,
+
+#if defined RTCW_ET
+	CG_R_PROJECTDECAL,          // ydnar: projects a decal onto brush models
+	CG_R_CLEARDECALS,           // ydnar: clears world/entity decals
+#endif RTCW_XX
+
 	CG_S_STARTSOUND,
 	CG_S_STARTSOUNDEX,  //----(SA)	added
 	CG_S_STARTLOCALSOUND,
 	CG_S_CLEARLOOPINGSOUNDS,
+
+#if defined RTCW_ET
+	CG_S_CLEARSOUNDS,
+#endif RTCW_XX
+
 	CG_S_ADDLOOPINGSOUND,
 	CG_S_UPDATEENTITYPOSITION,
 // Ridah, talking animations
@@ -124,12 +161,18 @@ typedef enum {
 	CG_S_REGISTERSOUND,
 	CG_S_STARTBACKGROUNDTRACK,
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	CG_S_FADESTREAMINGSOUND,    //----(SA)	modified
 	CG_S_FADEALLSOUNDS,         //----(SA)	added for fading out everything
 #endif RTCW_XX
 
 	CG_S_STARTSTREAMINGSOUND,
+
+#if defined RTCW_ET
+	CG_S_GETSOUNDLENGTH,        // xkan - get the length (in milliseconds) of the sound
+	CG_S_GETCURRENTSOUNDTIME,
+#endif RTCW_XX
+
 	CG_R_LOADWORLDMAP,
 	CG_R_REGISTERMODEL,
 	CG_R_REGISTERSKIN,
@@ -151,12 +194,28 @@ typedef enum {
 #endif RTCW_XX
 
 // done.
+
+#if defined RTCW_ET
+	CG_R_ADDPOLYBUFFERTOSCENE,
+#endif RTCW_XX
+
 	CG_R_ADDLIGHTTOSCENE,
 
 	CG_R_ADDCORONATOSCENE,
 	CG_R_SETFOG,
 
+#if defined RTCW_ET
+	CG_R_SETGLOBALFOG,
+#endif RTCW_XX
+
+
 	CG_R_RENDERSCENE,
+
+#if defined RTCW_ET
+	CG_R_SAVEVIEWPARMS,
+	CG_R_RESTOREVIEWPARMS,
+#endif RTCW_XX
+
 	CG_R_SETCOLOR,
 	CG_R_DRAWSTRETCHPIC,
 	CG_R_DRAWSTRETCHPIC_GRADIENT,   //----(SA)	added
@@ -171,7 +230,7 @@ typedef enum {
 	CG_GETUSERCMD,
 	CG_SETUSERCMDVALUE,
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	CG_SETCLIENTLERPORIGIN,         // DHM - Nerve
 #endif RTCW_XX
 
@@ -183,11 +242,21 @@ typedef enum {
 	CG_KEY_SETCATCHER,
 	CG_KEY_GETKEY,
 
+#if defined RTCW_ET
+	CG_KEY_GETOVERSTRIKEMODE,
+	CG_KEY_SETOVERSTRIKEMODE,
+#endif RTCW_XX
+
 	CG_PC_ADD_GLOBAL_DEFINE,
 	CG_PC_LOAD_SOURCE,
 	CG_PC_FREE_SOURCE,
 	CG_PC_READ_TOKEN,
 	CG_PC_SOURCE_FILE_AND_LINE,
+
+#if defined RTCW_ET
+	CG_PC_UNREAD_TOKEN,
+#endif RTCW_XX
+
 	CG_S_STOPBACKGROUNDTRACK,
 	CG_REAL_TIME,
 	CG_SNAPVECTOR,
@@ -195,11 +264,13 @@ typedef enum {
 
 #if defined RTCW_SP
 //	CG_R_LIGHTFORPOINT,	// not currently used (sorry, trying to keep CG_MEMSET @ 100)
-#elif defined RTCW_MP
+#else
 	CG_R_LIGHTFORPOINT,
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	CG_SENDMOVESPEEDSTOGAME,
+#endif RTCW_XX
 
 	CG_CIN_PLAYCINEMATIC,
 	CG_CIN_STOPCINEMATIC,
@@ -210,20 +281,22 @@ typedef enum {
 
 #if defined RTCW_SP
 //	CG_S_ADDREALLOOPINGSOUND,	// not currently used (sorry, trying to keep CG_MEMSET @ 100)
-#elif defined RTCW_MP
+#else
 	CG_S_ADDREALLOOPINGSOUND,
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	CG_S_STOPLOOPINGSOUND,
+#endif RTCW_XX
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	CG_S_STOPSTREAMINGSOUND,    //----(SA)	added
 #endif RTCW_XX
 
 	CG_LOADCAMERA,
 	CG_STARTCAMERA,
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	CG_STOPCAMERA,  //----(SA)	added
 #endif RTCW_XX
 
@@ -233,6 +306,8 @@ typedef enum {
 	CG_MEMSET = 110,
 #elif defined RTCW_MP
 	CG_MEMSET = 100,
+#else
+	CG_MEMSET = 150,
 #endif RTCW_XX
 
 	CG_MEMCPY,
@@ -255,19 +330,66 @@ typedef enum {
 	CG_LIMBOCHAT,           // NERVE - SMF
 
 	CG_GETMODELINFO
-#elif defined RTCW_MP
+#else
 	// NERVE - SMF
 	CG_INGAME_CLOSEPOPUP,
+#endif RTCW_XX
+
+#if defined RTCW_MP
 	CG_LIMBOCHAT,
+#endif RTCW_XX
 
+#if !defined RTCW_SP
 	CG_R_DRAWROTATEDPIC,
+#endif RTCW_XX
 
+#if defined RTCW_ET
+	CG_R_DRAW2DPOLYS,
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 	CG_KEY_GETBINDINGBUF,
 	CG_KEY_SETBINDING,
 	CG_KEY_KEYNUMTOSTRINGBUF,
+#endif RTCW_XX
 
+#if defined RTCW_ET
+	CG_KEY_BINDINGTOKEYS,
+#endif RTCW_XX
+
+
+#if defined RTCW_MP
 	CG_TRANSLATE_STRING
+#elif defined RTCW_ET
+	CG_TRANSLATE_STRING,
+#endif RTCW_XX
+
 	// -NERVE - SMF
+
+#if defined RTCW_ET
+	CG_R_INPVS,
+	CG_GETHUNKDATA,
+
+	CG_PUMPEVENTLOOP,
+
+	// zinx
+	CG_SENDMESSAGE,
+	CG_MESSAGESTATUS,
+	// -zinx
+
+	// bani
+	CG_R_LOADDYNAMICSHADER,
+	// -bani
+
+	// fretn
+	CG_R_RENDERTOTEXTURE,
+	// -fretn
+	// bani
+	CG_R_GETTEXTUREID,
+	// -bani
+	// bani
+	CG_R_FINISH,
+	// -bani
 #endif RTCW_XX
 
 } cgameImport_t;
@@ -319,16 +441,34 @@ typedef enum {
 	CG_MOUSE_EVENT,
 //	void	(*CG_MouseEvent)( int dx, int dy );
 	CG_EVENT_HANDLING,
+
+#if !defined RTCW_ET
 //	void (*CG_EventHandling)(int type);
+#else
+//	void (*CG_EventHandling)(int type, qboolean fForced);
+#endif RTCW_XX
 
 	CG_GET_TAG,
 //	qboolean CG_GetTag( int clientNum, char *tagname, orientation_t *or );
 
 #if defined RTCW_SP
 	MAX_CGAME_EXPORT
-#elif defined RTCW_MP
+#endif RTCW_XX
+
+#if defined RTCW_MP
 	CG_CHECKCENTERVIEW,
 //	qboolean CG_CheckCenterView();
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	CG_CHECKEXECKEY,
+
+	CG_WANTSBINDKEYS,
+
+	// zinx
+	CG_MESSAGERECEIVED,
+//	void (*CG_MessageReceived)( const char *buf, int buflen, int serverTime );
+	// -zinx
 #endif RTCW_XX
 
 } cgameExport_t;

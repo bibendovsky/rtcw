@@ -219,12 +219,30 @@ typedef struct {
 
 #define Q3_MAX_MAP_AREAS        0x100   // MAX_MAP_AREA_BYTES in q_shared must match!
 #define Q3_MAX_MAP_FOGS     0x100
+
+#if !defined RTCW_ET
 #define Q3_MAX_MAP_PLANES       0x10000
+#else
+#define Q3_MAX_MAP_PLANES       0x40000
+#endif RTCW_XX
+
 #define Q3_MAX_MAP_NODES        0x10000
+
+#if !defined RTCW_ET
 #define Q3_MAX_MAP_BRUSHSIDES   0x10000
+#else
+#define Q3_MAX_MAP_BRUSHSIDES   0x100000
+#endif RTCW_XX
+
 #define Q3_MAX_MAP_LEAFS        0x10000
 #define Q3_MAX_MAP_LEAFFACES    0x10000
+
+#if !defined RTCW_ET
 #define Q3_MAX_MAP_LEAFBRUSHES  0x10000
+#else
+#define Q3_MAX_MAP_LEAFBRUSHES  0x20000
+#endif RTCW_XX
+
 #define Q3_MAX_MAP_PORTALS      0x10000
 #define Q3_MAX_MAP_LIGHTING 0x400000
 #define Q3_MAX_MAP_LIGHTGRID    0x400000
@@ -350,7 +368,14 @@ typedef enum {
 	MST_PLANAR,
 	MST_PATCH,
 	MST_TRIANGLE_SOUP,
+
+#if !defined RTCW_ET
 	MST_FLARE
+#else
+	MST_FLARE,
+	MST_FOLIAGE
+#endif RTCW_XX
+
 } q3_mapSurfaceType_t;
 
 typedef struct {

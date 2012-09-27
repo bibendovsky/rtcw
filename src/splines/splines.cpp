@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #if defined RTCW_SP
 #include "q_splineshared.h"
-#elif defined RTCW_MP
+#else
 //#include "stdafx.h"
 //#include "qe3.h"
 
@@ -560,7 +560,7 @@ bool idCameraDef::getCameraInfo( long time, idVec3 &origin, idVec3 &direction, f
 
 #if defined RTCW_SP
 				// empty!
-#elif defined RTCW_MP
+#else
 				//idEntity *ent = NULL;
 				//ent = level.FindTarget( ent, events[i]->getParam());
 				//if (ent) {
@@ -608,7 +608,7 @@ bool idCameraDef::getCameraInfo( long time, idVec3 &origin, idVec3 &direction, f
 
 	origin = *cameraPosition->getPosition( time );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	CHECK_NAN_VEC( origin );
 #endif RTCW_XX
 
@@ -621,7 +621,7 @@ bool idCameraDef::getCameraInfo( long time, idVec3 &origin, idVec3 &direction, f
 
 #if defined RTCW_SP
 		// empty!
-#elif defined RTCW_MP
+#else
 /*
 		// follow the path
 		if (cameraSpline.getActiveSegment() < count - 1) {
@@ -667,7 +667,13 @@ void idCameraDef::buildCamera() {
 	idList<int> targets;
 
 	totalTime = baseTime;
+
+#if !defined RTCW_ET
 	cameraPosition->setTime( totalTime * 1000 );
+#else
+	cameraPosition->setTime( (int)( totalTime * 1000 ) );
+#endif RTCW_XX
+
 	// we have a base time layout for the path and the target path
 	// now we need to layer on any wait or speed changes
 	for ( i = 0; i < events.Num(); i++ ) {
@@ -679,7 +685,7 @@ void idCameraDef::buildCamera() {
 			break;
 		}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		case idCameraEvent::EVENT_FEATHER: {
 			long startTime = 0;
 			float speed = 0;
@@ -730,7 +736,12 @@ void idCameraDef::buildCamera() {
 				speed -= steps;
 				startTime += loopTime;
 			}
+
+#if !defined RTCW_ET
 			cameraPosition->addVelocity( events[i]->getTime(), atof( events[i]->getParam() ) * 1000, 0 );
+#else
+			cameraPosition->addVelocity( events[i]->getTime(), (int)( atof( events[i]->getParam() ) * 1000 ), 0 );
+#endif RTCW_XX
 
 			startTime = ( long int )( events[i]->getTime() + atof( events[i]->getParam() ) * 1000 );
 			long endTime = startTime + 1000;
@@ -810,7 +821,7 @@ void idCameraDef::buildCamera() {
 
 void idCameraDef::startCamera( long t ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	cameraPosition->clearVelocities();
 	cameraPosition->start( t );
 #endif RTCW_XX
@@ -892,7 +903,7 @@ bool idCameraDef::load( const char *filename ) {
 	char *buf;
 	const char *buf_p;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	// TTimo: unused (int length = FS_ReadFile( filename, (void **)&buf );)
 #endif RTCW_XX
 
@@ -976,10 +987,10 @@ const char *idCameraEvent::eventStr[] = {
 	"CAMERA",
 	"FADEOUT",
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	"FADEIN",
 	"FEATHER"
-#elif defined RTCW_MP
+#else
 	"FADEIN"
 #endif RTCW_XX
 
@@ -1054,7 +1065,7 @@ const char *idCameraPosition::positionStr[] = {
 const idVec3 *idInterpolatedPosition::getPosition( long t ) {
 	static idVec3 interpolatedPos;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	float percent = 0.0;
 #endif RTCW_XX
 
@@ -1077,7 +1088,7 @@ const idVec3 *idInterpolatedPosition::getPosition( long t ) {
 	float percent = (float)( distSoFar ) / distance;
 #endif RTCW_XX
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	// TTimo
 	// show_bug.cgi?id=409
 	// avoid NaN on fixed cameras
@@ -1398,7 +1409,7 @@ void idSplinePosition::write( fileHandle_t file, const char *p ) {
 
 void idCameraDef::addTarget( const char *name, idCameraPosition::positionType type ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	// TTimo: unused
 #endif RTCW_XX
 
@@ -1443,7 +1454,7 @@ const idVec3 *idSplinePosition::getPosition( long t ) {
 
 #if defined RTCW_SP
 	// TTimo fixed MSVCism
-#elif defined RTCW_MP
+#else
 	// TTimo fixed MSVCism: for(int i = 1; ...
 #endif RTCW_XX
 

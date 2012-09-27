@@ -65,7 +65,13 @@ void QDECL AAS_Error( char *fmt, ... ) {
 	va_list arglist;
 
 	va_start( arglist, fmt );
+
+#if !defined RTCW_ET
 	vsprintf( str, fmt, arglist );
+#else
+	Q_vsnprintf( str, sizeof( str ), fmt, arglist );
+#endif RTCW_XX
+
 	va_end( arglist );
 	botimport.Print( PRT_FATAL, str );
 } //end of the function AAS_Error
@@ -211,6 +217,10 @@ void AAS_SetInitialized( void ) {
 	AAS_RT_BuildRouteTable();
 	// done.
 
+#if defined RTCW_ET
+	AAS_InitTeamDeath();
+#endif RTCW_XX
+
 } //end of the function AAS_SetInitialized
 //===========================================================================
 //
@@ -274,6 +284,12 @@ int AAS_StartFrame( float time ) {
 		AAS_InvalidateEntities();
 		//initialize AAS
 		AAS_ContinueInit( time );
+
+#if defined RTCW_ET
+		//update team deaths
+		AAS_UpdateTeamDeath();
+#endif RTCW_XX
+
 		//
 		( *aasworld ).frameroutingupdates = 0;
 		//
@@ -304,9 +320,17 @@ int AAS_StartFrame( float time ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if !defined RTCW_ET
 float AAS_Time( void ) {
 	return ( *aasworld ).time;
 } //end of the function AAS_Time
+#else
+float AAS_Time( void ) {
+	return aasworld->time;
+}
+#endif RTCW_XX
+
 //===========================================================================
 // basedir	= Quake2 console basedir
 // gamedir	= Quake2 console gamedir
@@ -355,18 +379,36 @@ int AAS_LoadFiles( const char *mapname ) {
 int AAS_LoadMap( const char *mapname ) {
 	int errnum;
 	int i;
+
+#if !defined RTCW_ET
 	char this_mapname[256], intstr[4];
+#else
+	char this_mapname[256];   //, intstr[4];
+#endif RTCW_XX
+
 	qboolean loaded = qfalse;
+
+#if !defined RTCW_ET
 	int missingErrNum = 0;     // TTimo: init
+#else
+	int missingErrNum = 0;
+#endif RTCW_XX
 
 	for ( i = 0; i < MAX_AAS_WORLDS; i++ )
 	{
 		AAS_SetCurrentWorld( i );
 
 		strncpy( this_mapname, mapname, 256 );
+
+#if !defined RTCW_ET
 		strncat( this_mapname, "_b", 256 );
 		sprintf( intstr, "%i", i );
 		strncat( this_mapname, intstr, 256 );
+#else
+		//strncat( this_mapname, "_b", 256 );
+		//sprintf( intstr, "%i", i );
+		//strncat( this_mapname, intstr, 256 );
+#endif RTCW_XX
 
 		//if no mapname is provided then the string indexes are updated
 		if ( !mapname ) {

@@ -308,7 +308,7 @@ srfGridMesh_t *R_CreateSurfaceGridMesh( int width, int height,
 
 #if defined RTCW_SP
 	grid = malloc( size );
-#elif defined RTCW_MP
+#else
 	grid = /*ri.Hunk_Alloc*/ ri.Z_Malloc( size );
 #endif RTCW_XX
 
@@ -316,7 +316,7 @@ srfGridMesh_t *R_CreateSurfaceGridMesh( int width, int height,
 
 #if defined RTCW_SP
 	grid->widthLodError = malloc( width * 4 );
-#elif defined RTCW_MP
+#else
 	grid->widthLodError = /*ri.Hunk_Alloc*/ ri.Z_Malloc( width * 4 );
 #endif RTCW_XX
 
@@ -324,7 +324,7 @@ srfGridMesh_t *R_CreateSurfaceGridMesh( int width, int height,
 
 #if defined RTCW_SP
 	grid->heightLodError = malloc( height * 4 );
-#elif defined RTCW_MP
+#else
 	grid->heightLodError = /*ri.Hunk_Alloc*/ ri.Z_Malloc( height * 4 );
 #endif RTCW_XX
 
@@ -343,16 +343,30 @@ srfGridMesh_t *R_CreateSurfaceGridMesh( int width, int height,
 	grid->width = width;
 	grid->height = height;
 	grid->surfaceType = SF_GRID;
+
+#if !defined RTCW_ET
 	ClearBounds( grid->meshBounds[0], grid->meshBounds[1] );
+#else
+	ClearBounds( grid->bounds[0], grid->bounds[1] );
+#endif RTCW_XX
+
 	for ( i = 0 ; i < width ; i++ ) {
 		for ( j = 0 ; j < height ; j++ ) {
 			vert = &grid->verts[j * width + i];
 			*vert = ctrl[j][i];
+
+#if !defined RTCW_ET
 			AddPointToBounds( vert->xyz, grid->meshBounds[0], grid->meshBounds[1] );
+#else
+			AddPointToBounds( vert->xyz, grid->bounds[0], grid->bounds[1] );
+#endif RTCW_XX
+
 		}
 	}
 
 	// compute local origin and bounds
+
+#if !defined RTCW_ET
 	VectorAdd( grid->meshBounds[0], grid->meshBounds[1], grid->localOrigin );
 	VectorScale( grid->localOrigin, 0.5f, grid->localOrigin );
 	VectorSubtract( grid->meshBounds[0], grid->localOrigin, tmpVec );
@@ -360,6 +374,16 @@ srfGridMesh_t *R_CreateSurfaceGridMesh( int width, int height,
 
 	VectorCopy( grid->localOrigin, grid->lodOrigin );
 	grid->lodRadius = grid->meshRadius;
+#else
+	VectorAdd( grid->bounds[0], grid->bounds[1], grid->origin );
+	VectorScale( grid->origin, 0.5f, grid->origin );
+	VectorSubtract( grid->bounds[0], grid->origin, tmpVec );
+	grid->radius = VectorLength( tmpVec );
+
+	VectorCopy( grid->origin, grid->lodOrigin );
+	grid->lodRadius = grid->radius;
+#endif RTCW_XX
+
 	//
 	return grid;
 }
@@ -375,7 +399,7 @@ void R_FreeSurfaceGridMesh( srfGridMesh_t *grid ) {
 	free( grid->widthLodError );
 	free( grid->heightLodError );
 	free( grid );
-#elif defined RTCW_MP
+#else
 	ri.Free( grid->widthLodError );
 	ri.Free( grid->heightLodError );
 	ri.Free( grid );

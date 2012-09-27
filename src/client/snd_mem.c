@@ -53,6 +53,10 @@ static sndBuffer   *freelist = NULL;
 static int inUse = 0;
 static int totalInUse = 0;
 
+#if defined RTCW_ET
+static int totalAllocated = 0;
+#endif RTCW_XX
+
 short *sfxScratchBuffer = NULL;
 const sfx_t *sfxScratchPointer = NULL;
 int sfxScratchIndex = 0;
@@ -68,6 +72,11 @@ void SND_free( sndBuffer *v ) {
 	*(sndBuffer **)v = freelist;
 	freelist = (sndBuffer*)v;
 	inUse += sizeof( sndBuffer );
+
+#if defined RTCW_ET
+	totalInUse -= sizeof( sndBuffer );
+#endif RTCW_XX
+
 }
 
 /*
@@ -84,6 +93,10 @@ sndBuffer*  SND_malloc() {
 
 	inUse -= sizeof( sndBuffer );
 	totalInUse += sizeof( sndBuffer );
+#if defined RTCW_ET
+	totalAllocated += sizeof( sndBuffer );
+#endif RTCW_XX
+
 
 	v = freelist;
 	freelist = *(sndBuffer **)freelist;
@@ -108,9 +121,9 @@ void SND_setup() {
 	buffer = malloc( scs * sizeof( sndBuffer ) );
 	// allocate the stack based hunk allocator
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	sfxScratchBuffer = malloc( SND_CHUNK_SIZE * sizeof( short ) * 4 );  //Hunk_Alloc(SND_CHUNK_SIZE * sizeof(short) * 4);
-#elif defined RTCW_MP
+#else
 //DAJ HOG	sfxScratchBuffer = malloc(SND_CHUNK_SIZE * sizeof(short) * 4);
 	sfxScratchBuffer = Hunk_Alloc( SND_CHUNK_SIZE * sizeof( short ) * 4, h_high );  //DAJ HOG was CO
 #endif RTCW_XX
@@ -118,6 +131,12 @@ void SND_setup() {
 	sfxScratchPointer = NULL;
 
 	inUse = scs * sizeof( sndBuffer );
+
+#if defined RTCW_ET
+	totalInUse = 0;
+	totalAllocated = 0;
+#endif RTCW_XX
+
 	p = buffer;;
 	q = p + scs;
 	while ( --q > p ) {
@@ -210,6 +229,69 @@ static void FindChunk( char *name ) {
 	FindNextChunk( name );
 }
 
+#if defined RTCW_ET
+typedef struct waveFormat_s {
+	const char  *name;
+	int format;
+} waveFormat_t;
+
+static waveFormat_t waveFormats[] = {
+	{ "Windows PCM", 1 },
+	{ "Antex ADPCM", 14 },
+	{ "Antex ADPCME", 33 },
+	{ "Antex ADPCM", 40 },
+	{ "Audio Processing Technology", 25 },
+	{ "Audiofile, Inc.", 24 },
+	{ "Audiofile, Inc.", 26 },
+	{ "Control Resources Limited", 34 },
+	{ "Control Resources Limited", 37 },
+	{ "Creative ADPCM", 200 },
+	{ "Dolby Laboratories", 30 },
+	{ "DSP Group, Inc", 22 },
+	{ "DSP Solutions, Inc.", 15 },
+	{ "DSP Solutions, Inc.", 16 },
+	{ "DSP Solutions, Inc.", 35 },
+	{ "DSP Solutions ADPCM", 36 },
+	{ "Echo Speech Corporation", 23 },
+	{ "Fujitsu Corp.", 300 },
+	{ "IBM Corporation", 5 },
+	{ "Ing C. Olivetti & C., S.p.A.", 1000 },
+	{ "Ing C. Olivetti & C., S.p.A.", 1001 },
+	{ "Ing C. Olivetti & C., S.p.A.", 1002 },
+	{ "Ing C. Olivetti & C., S.p.A.", 1003 },
+	{ "Ing C. Olivetti & C., S.p.A.", 1004 },
+	{ "Intel ADPCM", 11 },
+	{ "Intel ADPCM", 11 },
+	{ "Unknown", 0 },
+	{ "Microsoft ADPCM", 2 },
+	{ "Microsoft Corporation", 6 },
+	{ "Microsoft Corporation", 7 },
+	{ "Microsoft Corporation", 31 },
+	{ "Microsoft Corporation", 50 },
+	{ "Natural MicroSystems ADPCM", 38 },
+	{ "OKI ADPCM", 10 },
+	{ "Sierra ADPCM", 13 },
+	{ "Speech Compression", 21 },
+	{ "Videologic ADPCM", 12 },
+	{ "Yamaha ADPCM", 20 },
+	{ NULL, 0 }
+};
+
+static const char *GetWaveFormatName( const int format ) {
+	int i = 0;
+
+	while ( waveFormats[i].name ) {
+		if ( format == waveFormats[i].format ) {
+			return( waveFormats[i].name );
+		}
+		i++;
+	}
+
+	return( "Unknown" );
+
+}
+#endif RTCW_XX
+
 /*
 ============
 GetWavinfo
@@ -251,6 +333,11 @@ static wavinfo_t GetWavinfo( char *name, byte *wav, int wavlength ) {
 	info.width = GetLittleShort() / 8;
 
 	if ( info.format != 1 ) {
+
+#if defined RTCW_ET
+		Com_Printf( "Unsupported format: %s\n", GetWaveFormatName( info.format ) );
+#endif RTCW_XX
+
 		Com_Printf( "Microsoft PCM format only\n" );
 		return info;
 	}
@@ -295,6 +382,35 @@ static void ResampleSfx( sfx_t *sfx, int inrate, int inwidth, byte *data, qboole
 	fracstep = stepscale * 256;
 	chunk = sfx->soundData;
 
+#if defined RTCW_ET
+	// Gordon: use the littleshort version only if we need to
+	if ( LittleShort( 256 ) == 256 ) {
+		for ( i = 0 ; i < outcount ; i++ )
+		{
+			srcsample = samplefrac >> 8;
+			samplefrac += fracstep;
+			if ( inwidth == 2 ) {
+				sample = ( (short *)data )[srcsample];
+			} else {
+				sample = (int)( ( unsigned char )( data[srcsample] ) - 128 ) << 8;
+			}
+			part  = ( i & ( SND_CHUNK_SIZE - 1 ) );
+			if ( part == 0 ) {
+				sndBuffer   *newchunk;
+				newchunk = SND_malloc();
+				if ( chunk == NULL ) {
+					sfx->soundData = newchunk;
+				} else {
+					chunk->next = newchunk;
+				}
+				chunk = newchunk;
+			}
+
+			chunk->sndChunk[part] = sample;
+		}
+	} else {
+#endif RTCW_XX
+
 	for ( i = 0 ; i < outcount ; i++ )
 	{
 		srcsample = samplefrac >> 8;
@@ -318,6 +434,11 @@ static void ResampleSfx( sfx_t *sfx, int inrate, int inwidth, byte *data, qboole
 
 		chunk->sndChunk[part] = sample;
 	}
+
+#if defined RTCW_ET
+	}
+#endif RTCW_XX
+
 }
 
 /*
@@ -341,6 +462,23 @@ static int ResampleSfxRaw( short *sfx, int inrate, int inwidth, int samples, byt
 	samplefrac = 0;
 	fracstep = stepscale * 256;
 
+#if defined RTCW_ET
+	// Gordon: use the littleshort version only if we need to
+	if ( LittleShort( 256 ) == 256 ) {
+		for ( i = 0 ; i < outcount ; i++ )
+		{
+			srcsample = samplefrac >> 8;
+			samplefrac += fracstep;
+			if ( inwidth == 2 ) {
+				sample = ( (short *)data )[srcsample];
+			} else {
+				sample = (int)( ( unsigned char )( data[srcsample] ) - 128 ) << 8;
+			}
+			sfx[i] = sample;
+		}
+	} else {
+#endif RTCW_XX
+
 	for ( i = 0 ; i < outcount ; i++ )
 	{
 		srcsample = samplefrac >> 8;
@@ -352,6 +490,11 @@ static int ResampleSfxRaw( short *sfx, int inrate, int inwidth, int samples, byt
 		}
 		sfx[i] = sample;
 	}
+
+#if defined RTCW_ET
+	}
+#endif RTCW_XX
+
 	return outcount;
 }
 
@@ -400,7 +543,7 @@ qboolean S_LoadSound( sfx_t *sfx ) {
 
 	samples = Hunk_AllocateTempMemory( info.samples * sizeof( short ) * 2 );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// DHM - Nerve
 #endif RTCW_XX
 
@@ -453,5 +596,12 @@ S_DisplayFreeMemory
 ================
 */
 void S_DisplayFreeMemory() {
+
+#if !defined RTCW_ET
 	Com_Printf( "%d bytes free sound buffer memory, %d total used\n", inUse, totalInUse );
+#else
+	Com_Printf( "%d bytes (%.2fMB) free sound buffer memory, %d bytes (%.2fMB) total used\n%d bytes (%.2fMB) sound buffer memory have been allocated since the last SND_setup", inUse, inUse / Square( 1024.f ), totalInUse, totalInUse / Square( 1024.f ), totalAllocated, totalAllocated / Square( 1024.f ) );
+#endif RTCW_XX
+
 }
+

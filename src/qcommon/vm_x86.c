@@ -52,7 +52,7 @@ static int pc;
 
 static int     *instructionPointers;
 
-#ifdef _WIN32
+#if (!defined RTCW_ET && defined _WIN32) || (defined RTCW_ET && !defined __GNUC__)
 void AsmCall( void );
 int _ftol( float );
 
@@ -64,7 +64,7 @@ static int asmCallPtr = (int)AsmCall;
 void doAsmCall( void );
 
 static int asmCallPtr = (int)doAsmCall;
-#endif
+#endif RTCW_XX
 
 
 /*
@@ -72,7 +72,7 @@ static int asmCallPtr = (int)doAsmCall;
 AsmCall
 =================
 */
-#ifdef _WIN32
+#if (!defined RTCW_ET && defined _WIN32) || (defined RTCW_ET && !defined __GNUC__)
 __declspec( naked ) void AsmCall( void ) {
 	static int programStack;
 	static int     *opStack;
@@ -135,7 +135,18 @@ void callAsmCall( void ) {
 	*( callOpStack + 1 ) = currentVM->systemCall( ( int * )( (byte *)currentVM->dataBase + callProgramStack + 4 ) );
 }
 
+#if defined RTCW_ET
+// rain - hack to make the asm work for win32 - symbol prefix
+#ifdef _WIN32
+#define P "_"
+#else
+#define P ""
+#endif
+#endif RTCW_XX
+
 void AsmCall( void ) {
+
+#if !defined RTCW_ET
 	__asm__( "doAsmCall:                \n\t"\
 			 "	movl (%%edi),%%eax			\n\t"\
 			 "	subl $4,%%edi				\n\t"\
@@ -165,8 +176,40 @@ void AsmCall( void ) {
 			 : "rm" ( instructionPointers )	\
 			 : "ax", "di", "si", "cx" \
 			 );
+#else
+	__asm__( P "doAsmCall:                  \n\t"\
+			   "	movl (%%edi),%%eax			\n\t"\
+			   "	subl $4,%%edi				\n\t"\
+			   "   orl %%eax,%%eax				\n\t"\
+			   "	jl systemCall				\n\t"\
+			   "	shll $2,%%eax				\n\t"\
+			   "	addl %3,%%eax				\n\t"\
+			   "	call *(%%eax)				\n\t"\
+			   "	jmp doret					\n\t"\
+			   "systemCall:					\n\t"\
+			   "	negl %%eax					\n\t"\
+			   "	decl %%eax					\n\t"\
+			   "	movl %%eax,%0				\n\t"\
+			   "	movl %%esi,%1				\n\t"\
+			   "	movl %%edi,%2				\n\t"\
+			   "	pushl %%ecx					\n\t"\
+			   "	pushl %%esi					\n\t"\
+			   "	pushl %%edi					\n\t"\
+			   "	call "P "callAsmCall		\n\t"\
+						  "	popl %%edi					\n\t"\
+						  "	popl %%esi					\n\t"\
+						  "	popl %%ecx					\n\t"\
+						  "	addl $4,%%edi				\n\t"\
+						  "doret:							\n\t"\
+						  "	ret							\n\t"\
+			 : "=rm" ( callSyscallNum ), "=rm" ( callProgramStack ), "=rm" ( callOpStack ) \
+			 : "rm" ( instructionPointers )	\
+			 : "ax", "di", "si", "cx" \
+			 );
+#endif RTCW_XX
+
 }
-#endif
+#endif RTCW_XX
 
 
 static int  Constant4( void ) {
@@ -772,7 +815,7 @@ int VM_CallCompiled( vm_t *vm, int *args ) {
 	entryPoint = vm->codeBase;
 	opStack = &stack;
 
-#ifdef _WIN32
+#if (!defined RTCW_ET && defined _WIN32) || (defined RTCW_ET && !defined __GNUC__)
 	__asm  {
 		pushad
 		mov esi, programStack;
@@ -807,7 +850,7 @@ int VM_CallCompiled( vm_t *vm, int *args ) {
 		programStack = memProgramStack;
 		opStack      = memOpStack;
 	}
-#endif
+#endif RTCW_XX
 
 	if ( opStack != &stack[1] ) {
 		Com_Error( ERR_DROP, "opStack corrupted in compiled code" );

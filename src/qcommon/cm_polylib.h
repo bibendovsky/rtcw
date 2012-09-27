@@ -47,6 +47,8 @@ typedef struct
 #if defined RTCW_SP
 //#define MAX_MAP_BOUNDS			65535
 #define MAX_MAP_BOUNDS      ( 128*1024 )    // (SA) (9/19/01) new map dimensions (from Q3TA)
+#elif defined RTCW_ET
+#define MAX_MAP_BOUNDS  65535
 #endif RTCW_XX
 
 // you can define on_epsilon in the makefile as tighter

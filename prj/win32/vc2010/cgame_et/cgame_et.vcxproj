@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{68A804FC-00C3-44E2-A479-3DB3D20F943D}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\rtcw_et_debug.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\rtcw_et_release.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cgame_mp_x86</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cgame_mp_x86</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;CGAMEDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <ModuleDefinitionFile>cgame_et.def</ModuleDefinitionFile>
+      <SubSystem>Windows</SubSystem>
+      <BaseAddress>0x30000000</BaseAddress>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;CGAMEDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <ModuleDefinitionFile>cgame_et.def</ModuleDefinitionFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\game\bg_animation.c" />
+    <ClCompile Include="..\..\..\..\src\game\bg_animgroup.c" />
+    <ClCompile Include="..\..\..\..\src\game\bg_campaign.c" />
+    <ClCompile Include="..\..\..\..\src\game\bg_character.c" />
+    <ClCompile Include="..\..\..\..\src\game\bg_classes.c" />
+    <ClCompile Include="..\..\..\..\src\game\bg_lib.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\game\bg_misc.c" />
+    <ClCompile Include="..\..\..\..\src\game\bg_pmove.c" />
+    <ClCompile Include="..\..\..\..\src\game\bg_slidemove.c" />
+    <ClCompile Include="..\..\..\..\src\game\bg_sscript.c" />
+    <ClCompile Include="..\..\..\..\src\game\bg_stats.c" />
+    <ClCompile Include="..\..\..\..\src\game\bg_tracemap.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_atmospheric.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_character.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_commandmap.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_consolecmds.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_debriefing.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_draw.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_drawtools.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_effects.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_ents.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_event.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_fireteamoverlay.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_fireteams.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_flamethrower.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_info.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_limbopanel.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_loadpanel.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_localents.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_main.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_marks.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_missionbriefing.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_multiview.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_newDraw.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_particles.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_players.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_playerstate.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_polybus.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_popupmessages.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_predict.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_scoreboard.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_servercmds.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_snapshot.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_sound.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_spawn.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_statsranksmedals.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_syscalls.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_trails.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_view.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_weapons.c" />
+    <ClCompile Include="..\..\..\..\src\cgame\cg_window.c" />
+    <ClCompile Include="..\..\..\..\src\game\q_math.c" />
+    <ClCompile Include="..\..\..\..\src\game\q_shared.c" />
+    <ClCompile Include="..\..\..\..\src\ui\ui_shared.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\src\game\bg_classes.h" />
+    <ClInclude Include="..\..\..\..\src\game\bg_local.h" />
+    <ClInclude Include="..\..\..\..\src\game\bg_public.h" />
+    <ClInclude Include="..\..\..\..\src\cgame\cg_local.h" />
+    <ClInclude Include="..\..\..\..\src\cgame\cg_public.h" />
+    <ClInclude Include="..\..\..\..\src\ui\keycodes.h" />
+    <ClInclude Include="..\..\..\..\src\ui\menudef.h" />
+    <ClInclude Include="..\..\..\..\src\game\q_shared.h" />
+    <ClInclude Include="..\..\..\..\src\game\surfaceflags.h" />
+    <ClInclude Include="..\..\..\..\src\cgame\tr_types.h" />
+    <ClInclude Include="..\..\..\..\src\ui\ui_shared.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cgame_et.def" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -39,6 +39,8 @@ If you have questions concerning this license or the applicable additional terms
 #define INVENTORY_ARMOR             1
 //weapons
 #define INVENTORY_LUGER             4
+
+#if !defined RTCW_ET
 #define INVENTORY_MAUSER            5
 #define INVENTORY_MP40              6
 #define INVENTORY_SP5               7
@@ -49,6 +51,24 @@ If you have questions concerning this license or the applicable additional terms
 #define INVENTORY_CROSS             12
 
 #define INVENTORY_GAUNTLET          13
+#else
+#define INVENTORY_MP40              6
+#define INVENTORY_DYNAMITE          7
+#define INVENTORY_GRENADELAUNCHER   8
+#define INVENTORY_FLAMETHROWER      10
+#define INVENTORY_PANZERFAUST       11
+#define INVENTORY_COLT              12
+#define INVENTORY_THOMPSON          13
+#define INVENTORY_GRENADE_PINEAPPLE 15
+#define INVENTORY_STEN              17
+
+//special "powers"
+#define INVENTORY_MEDIC_SYRINGE     20
+#define INVENTORY_AMMO              21
+#define INVENTORY_MEDKIT            22
+#define INVENTORY_PLIERS            23
+#define INVENTORY_SMOKE_GRENADE     24
+#endif RTCW_XX
 
 
 // please leave these open up to 27 (INVENTORY_9MM) (and double check defines when merging)
@@ -56,6 +76,8 @@ If you have questions concerning this license or the applicable additional terms
 
 //ammo
 #define INVENTORY_9MM               27
+
+#if !defined RTCW_ET
 #define INVENTORY_792MM             28
 #define INVENTORY_SP5AMMO           29
 #define INVENTORY_ROCKETS           30
@@ -63,6 +85,16 @@ If you have questions concerning this license or the applicable additional terms
 #define INVENTORY_127MM             32
 #define INVENTORY_FUEL              33
 #define INVENTORY_CHARGES           34
+#else
+#define INVENTORY_45CAL             28
+#define INVENTORY_PANZERFAUST_AMMO  33
+#define INVENTORY_FUEL              34
+#define INVENTORY_GRENADES          35
+#define INVENTORY_GRENADES_AMERICAN 36
+#define INVENTORY_DYNAMITE_AMMO     37
+// Mad Doc - TDF
+// @TODO make an inventory for whatever we decide to use for BAR ammo. Bots can't use M1?
+#endif RTCW_XX
 
 // please leave these open up to 48 (INVENTORY_HEALTH) (and double check defines when merging)
 // the inventory max (MAX_ITEMS) is 256, so we aren't too concerned about running out of space
@@ -70,7 +102,11 @@ If you have questions concerning this license or the applicable additional terms
 //powerups
 #define INVENTORY_HEALTH            48
 #define INVENTORY_TELEPORTER        49
+
+#if !defined RTCW_ET
 #define INVENTORY_MEDKIT            50
+#endif RTCW_XX
+
 #define INVENTORY_QUAD              51
 #define INVENTORY_ENVIRONMENTSUIT   52
 #define INVENTORY_HASTE             53
@@ -84,6 +120,10 @@ If you have questions concerning this license or the applicable additional terms
 #define ENEMY_HEIGHT                201
 #define NUM_VISIBLE_ENEMIES         202
 #define NUM_VISIBLE_TEAMMATES       203
+
+#if defined RTCW_ET
+#define GOAL_TRAVELTIME             204
+#endif RTCW_XX
 
 //item numbers (make sure they are in sync with bg_itemlist in bg_misc.c)
 #define MODELINDEX_ARMORSHARD       1

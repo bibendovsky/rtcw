@@ -95,6 +95,8 @@ typedef struct bsp_trace_s
 
 
 // from the server
+
+#if !defined RTCW_ET
 /*
 void	trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags );
 void	trap_Cvar_Update( vmCvar_t *cvar );
@@ -108,3 +110,18 @@ qboolean trap_InPVS( const vec3_t p1, const vec3_t p2 );
 int		trap_BotAllocateClient( void );
 void	trap_BotFreeClient( int clientNum );
 */
+#else
+/*
+void	trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags );
+void	trap_Cvar_Update( vmCvar_t *cvar );
+void	trap_Cvar_Set( const char *var_name, const char *value );
+int		trap_Cvar_VariableIntegerValue( const char *var_name );
+void	trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
+void	trap_GetConfigstring( int num, char *buffer, int bufferSize );
+void	trap_GetServerinfo( char *buffer, int bufferSize );
+int		trap_PointContents( const vec3_t point, int passEntityNum );
+qboolean trap_InPVS( const vec3_t p1, const vec3_t p2 );
+int		trap_BotAllocateClient( int clientNum );
+void	trap_BotFreeClient( int clientNum );
+*/
+#endif RTCW_XX

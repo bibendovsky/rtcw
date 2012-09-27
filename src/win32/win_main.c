@@ -68,6 +68,11 @@ If you have questions concerning this license or the applicable additional terms
 #define CD_EXE      "wolf.exe"
 #define CD_BASEDIR_LINUX    "bin\\x86\\glibc-2.1"
 #define CD_EXE_LINUX "wolf"
+#else
+#define CD_BASEDIR  "et"
+#define CD_EXE      "et.exe"
+#define CD_BASEDIR_LINUX    "bin\\x86\\glibc-2.1"
+#define CD_EXE_LINUX "et"
 #endif RTCW_XX
 
 #define MEM_THRESHOLD 96 * 1024 * 1024
@@ -145,7 +150,7 @@ Sys_StartProcess
 ==================
 */
 void Sys_StartProcess( char *exeName, qboolean doexit ) {           // NERVE - SMF
-#elif defined RTCW_MP
+#else
 /*
 ==================
 Sys_StartProcess
@@ -165,7 +170,7 @@ void Sys_StartProcess( char *exeName, qboolean doexit ) {
 
 	GetCurrentDirectory( _MAX_PATH, szPathOrig );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// JPW NERVE swiped from Sherman's SP code
 #endif RTCW_XX
 
@@ -175,7 +180,7 @@ void Sys_StartProcess( char *exeName, qboolean doexit ) {
 		return;
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// jpw
 #endif RTCW_XX
 
@@ -184,7 +189,7 @@ void Sys_StartProcess( char *exeName, qboolean doexit ) {
 
 #if defined RTCW_SP
 		Cbuf_ExecuteText( EXEC_APPEND, "quit" );
-#elif defined RTCW_MP
+#else
 		Cbuf_ExecuteText( EXEC_APPEND, "quit\n" );
 #endif RTCW_XX
 
@@ -199,7 +204,7 @@ Sys_OpenURL
 ==================
 */
 void Sys_OpenURL( char *url, qboolean doexit ) {                // NERVE - SMF
-#elif defined RTCW_MP
+#else
 /*
 ==================
 Sys_OpenURL
@@ -211,6 +216,17 @@ void Sys_OpenURL( const char *url, qboolean doexit ) {
 #endif RTCW_XX
 
 	HWND wnd;
+
+#if defined RTCW_ET
+	static qboolean doexit_spamguard = qfalse;
+
+	if ( doexit_spamguard ) {
+		Com_DPrintf( "Sys_OpenURL: already in a doexit sequence, ignoring %s\n", url );
+		return;
+	}
+
+	Com_Printf( "Open URL: %s\n", url );
+#endif RTCW_XX
 
 	if ( !ShellExecute( NULL, "open", url, NULL, NULL, SW_RESTORE ) ) {
 		// couldn't start it, popup error box
@@ -226,9 +242,14 @@ void Sys_OpenURL( const char *url, qboolean doexit ) {
 
 	if ( doexit ) {
 
+#if defined RTCW_ET
+		// show_bug.cgi?id=612
+		doexit_spamguard = qtrue;
+#endif RTCW_XX
+
 #if defined RTCW_SP
 		Cbuf_ExecuteText( EXEC_APPEND, "quit" );
-#elif defined RTCW_MP
+#else
 		Cbuf_ExecuteText( EXEC_APPEND, "quit\n" );
 #endif RTCW_XX
 
@@ -261,7 +282,13 @@ void QDECL Sys_Error( const char *error, ... ) {
 	MSG msg;
 
 	va_start( argptr, error );
+
+#if !defined RTCW_ET
 	vsprintf( text, error, argptr );
+#else
+	Q_vsnprintf( text, sizeof( text ), error, argptr );
+#endif RTCW_XX
+
 	va_end( argptr );
 
 	Conbuf_AppendText( text );
@@ -604,9 +631,9 @@ qboolean    Sys_CheckCD( void ) {
 	// FIXME: mission pack
 	return qtrue;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //	return Sys_ScanForCD();
-#elif defined RTCW_MP
+#else
 	//return Sys_ScanForCD();
 #endif RTCW_XX
 
@@ -680,9 +707,11 @@ int cl_connectedToPureServer;
 #else
 extern int cl_connectedToPureServer;
 #endif
+#else
+extern int cl_connectedToPureServer;
 #endif RTCW_XX
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 char* Sys_GetDLLName( const char *name ) {
 	return va( "%s_mp_x86.dll", name );
 }
@@ -690,14 +719,18 @@ char* Sys_GetDLLName( const char *name ) {
 
 #if defined RTCW_SP
 void * QDECL Sys_LoadDll( const char *name, int( QDECL **entryPoint ) ( int, ... ),
-#elif defined RTCW_MP
+#else
 // fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
 // fqpath will be empty if dll not loaded, otherwise will hold fully qualified path of dll module loaded
 // fqpath buffersize must be at least MAX_QPATH+1 bytes long
 void * QDECL Sys_LoadDll( const char *name, char *fqpath, int( QDECL **entryPoint ) ( int, ... ),
 #endif RTCW_XX
 						  int ( QDECL *systemcalls )( int, ... ) ) {
+
+#if !defined RTCW_ET
 	static int lastWarning = 0;
+#endif RTCW_XX
+
 	HINSTANCE libHandle;
 	void ( QDECL * dllEntry )( int ( QDECL *syscallptr )( int, ... ) );
 	char    *basepath;
@@ -750,7 +783,7 @@ void * QDECL Sys_LoadDll( const char *name, char *fqpath, int( QDECL **entryPoin
 			goto found_dll;
 		}
 	}
-#elif defined RTCW_MP
+#else
 	*fqpath = 0 ;       // added 2/15/02 by T.Ray
 
 	Q_strncpyz( filename, Sys_GetDLLName( name ), sizeof( filename ) );
@@ -760,13 +793,13 @@ void * QDECL Sys_LoadDll( const char *name, char *fqpath, int( QDECL **entryPoin
 	cdpath = Cvar_VariableString( "fs_cdpath" );
 	gamedir = Cvar_VariableString( "fs_game" );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// try gamepath first
 #endif RTCW_XX
 
 	fn = FS_BuildOSPath( basepath, gamedir, filename );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// TTimo - this is only relevant for full client
 	// if a full client runs a dedicated server, it's not affected by this
 #if !defined( DEDICATED )
@@ -799,9 +832,16 @@ void * QDECL Sys_LoadDll( const char *name, char *fqpath, int( QDECL **entryPoin
 
 found_dll:
 
-#elif defined RTCW_MP
+#else
+
+#if !defined RTCW_ET
 		// First try falling back to "main"
 		fn = FS_BuildOSPath( basepath, "main", filename );
+#else
+		// First try falling back to BASEGAME
+		fn = FS_BuildOSPath( basepath, BASEGAME, filename );
+#endif RTCW_XX
+
 		libHandle = LoadLibrary( fn );
 
 		if ( !libHandle ) {
@@ -839,6 +879,10 @@ BACKGROUND FILE STREAMING
 ========================================================================
 */
 
+#if defined RTCW_ET
+//#define DO_STREAMING
+#endif RTCW_XX
+
 typedef struct {
 	fileHandle_t file;
 	byte    *buffer;
@@ -858,22 +902,36 @@ typedef struct {
 	streamsIO_t sIO[64];
 } streamState_t;
 
+#if !defined RTCW_ET || (defined RTCW_ET && defined DO_STREAMING)
 static streamState_t stream;
+#endif RTCW_XX
 
+
+#if !defined RTCW_ET
 int FS_ReadDirect( void *buffer, int len, fileHandle_t f );
+#else
+//int FS_ReadDirect( void *buffer, int len, fileHandle_t f );
+int FS_Read2( void *buffer, int len, fileHandle_t f );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 void Sys_MusicThread( void ) {
 	while ( 1 ) {
 		Sleep( 33 );
+
+#if defined RTCW_ET
+//		S_Update_Debug();
+		S_AddLoopSounds();
+#endif RTCW_XX
+
 		S_UpdateThread();
 	}
 }
 #endif RTCW_XX
 
-#if defined RTCW_SP
-#if 1
+#if !defined RTCW_MP
 
+#if !defined RTCW_ET || (defined RTCW_ET && !defined DO_STREAMING)
 void Sys_InitStreamThread( void ) {
 }
 
@@ -904,9 +962,9 @@ void Sys_EnterCriticalSection( void *ptr ) {
 
 void Sys_LeaveCriticalSection( void *ptr ) {
 }
+#endif RTCW_XX
 
-#else
-
+#if defined RTCW_ET && defined DO_STREAMING
 void Sys_StreamFillBuffer( int i ) {
 	int count;
 	int r;
@@ -925,7 +983,13 @@ void Sys_StreamFillBuffer( int i ) {
 		buffer = stream.sIO[i].bufferSize - bufferPoint;
 		readCount = buffer < count ? buffer : count;
 
+#if !defined RTCW_ET
 		r = FS_ReadDirect( stream.sIO[i].buffer + bufferPoint, readCount, stream.sIO[i].file );
+#else
+		//r = FS_ReadDirect( stream.sIO[i].buffer + bufferPoint, readCount, stream.sIO[i].file );
+		r = FS_Read2( stream.sIO[i].buffer + bufferPoint, readCount, stream.sIO[i].file );
+#endif RTCW_XX
+
 		if ( r != readCount ) {
 			stream.sIO[i].eof = qtrue;
 		}
@@ -1146,9 +1210,9 @@ void Sys_LeaveCriticalSection( void *ptr ) {
 	crit = ptr;
 	LeaveCriticalSection( crit );
 }
+#endif RTCW_XX
 
-#endif
-#elif defined RTCW_MP
+#else /* RTCW_MP */
 #if 1
 
 void Sys_InitStreamThread( void ) {
@@ -1605,6 +1669,10 @@ are initialized
 #define OSR2_BUILD_NUMBER 1111
 #define WIN98_BUILD_NUMBER 1998
 
+#if defined RTCW_ET
+extern void Sys_ClearViewlog_f( void ); // fretn
+#endif RTCW_XX
+
 void Sys_Init( void ) {
 	int cpuid;
 
@@ -1614,6 +1682,10 @@ void Sys_Init( void ) {
 
 	Cmd_AddCommand( "in_restart", Sys_In_Restart_f );
 	Cmd_AddCommand( "net_restart", Sys_Net_Restart_f );
+
+#if defined RTCW_ET
+	Cmd_AddCommand( "clearviewlog", Sys_ClearViewlog_f );
+#endif RTCW_XX
 
 	g_wv.osversion.dwOSVersionInfoSize = sizeof( g_wv.osversion );
 
@@ -1627,6 +1699,8 @@ void Sys_Init( void ) {
 		Sys_Error( "Wolf requires Windows version 4 or greater" );
 #elif defined RTCW_MP
 		Sys_Error( "Quake3 requires Windows version 4 or greater" );
+#else
+		Sys_Error( GAME_VERSION " requires Windows version 4 or greater" );
 #endif RTCW_XX
 
 	}
@@ -1636,6 +1710,8 @@ void Sys_Init( void ) {
 		Sys_Error( "Wolf doesn't run on Win32s" );
 #elif defined RTCW_MP
 		Sys_Error( "Quake3 doesn't run on Win32s" );
+#else
+		Sys_Error( GAME_VERSION " doesn't run on Win32s" );
 #endif RTCW_XX
 
 	}
@@ -1722,7 +1798,12 @@ void Sys_Init( void ) {
 
 	Cvar_Set( "username", Sys_GetCurrentUser() );
 
+#if !defined RTCW_ET
 	IN_Init();      // FIXME: not in dedicated?
+#else
+//	IN_Init();		// FIXME: not in dedicated?
+#endif RTCW_XX
+
 }
 
 
@@ -1744,6 +1825,12 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	if ( hPrevInstance ) {
 		return 0;
 	}
+
+#if defined RTCW_ET
+#ifdef EXCEPTION_HANDLER
+	WinSetExceptionVersion( Q3_VERSION );
+#endif
+#endif RTCW_XX
 
 	g_wv.hInstance = hInstance;
 	Q_strncpyz( sys_cmdline, lpCmdLine, sizeof( sys_cmdline ) );
@@ -1768,7 +1855,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	}
 
 #endif
-#elif defined RTCW_MP
+#else
 #if 0
 	// if we find the CD, add a +set cddir xxx command line
 	Sys_ScanForCD();
@@ -1779,6 +1866,12 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 	Com_Init( sys_cmdline );
 	NET_Init();
+
+#if defined RTCW_ET
+#ifndef DEDICATED
+	IN_Init(); // fretn - directinput must be inited after video etc
+#endif
+#endif RTCW_XX
 
 	_getcwd( cwd, sizeof( cwd ) );
 	Com_Printf( "Working directory: %s\n", cwd );
@@ -1809,7 +1902,12 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		// make sure mouse and joystick are only called once a frame
 		IN_Frame();
 
+#if !defined RTCW_ET
 		// run the game
+#else
+//		Com_FrameExt();
+#endif RTCW_XX
+
 		Com_Frame();
 
 		endTime = Sys_Milliseconds();
@@ -1820,7 +1918,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	// never gets here
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 char    *Sys_DefaultHomePath( void ) {
 	return NULL;
 }
@@ -1829,3 +1927,17 @@ char *Sys_DefaultInstallPath( void ) {
 	return Sys_Cwd();
 }
 #endif RTCW_XX
+
+#if defined RTCW_ET
+qboolean Sys_IsNumLockDown( void ) {
+	// thx juz ;)
+	SHORT state = GetKeyState( VK_NUMLOCK );
+
+	if ( state & 0x01 ) {
+		return qtrue;
+	}
+
+	return qfalse;
+}
+#endif RTCW_XX
+

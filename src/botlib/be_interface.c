@@ -166,7 +166,18 @@ qboolean BotLibSetup( char *str ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if defined RTCW_ET
+extern define_t *globaldefines;
+#endif RTCW_XX
+
+
+#if !defined RTCW_ET
 int Export_BotLibSetup( void ) {
+#else
+int Export_BotLibSetup( qboolean singleplayer ) {
+#endif RTCW_XX
+
 	int errnum;
 
 	bot_developer = LibVarGetValue( "bot_developer" );
@@ -180,7 +191,7 @@ int Export_BotLibSetup( void ) {
 
 #if defined RTCW_SP
 	botlibglobals.maxentities = (int) LibVarValue( "maxentities", "2048" );
-#elif defined RTCW_MP
+#else
 	botlibglobals.maxentities = (int) LibVarValue( "maxentities", "1024" );
 #endif RTCW_XX
 
@@ -192,24 +203,48 @@ int Export_BotLibSetup( void ) {
 	if ( errnum != BLERR_NOERROR ) {
 		return errnum;
 	}
+
+#if !defined RTCW_ET
 //	errnum = BotSetupWeaponAI();	//be_ai_weap.c
 //	if (errnum != BLERR_NOERROR)return errnum;
 //	errnum = BotSetupGoalAI();		//be_ai_goal.c
 //	if (errnum != BLERR_NOERROR) return errnum;
 //	errnum = BotSetupChatAI();		//be_ai_chat.c
 //	if (errnum != BLERR_NOERROR) return errnum;
+#else
+	errnum = BotSetupWeaponAI();    //be_ai_weap.c
+	if ( errnum != BLERR_NOERROR ) {
+		return errnum;
+	}
+// START	Arnout changes, 28-08-2002.
+// added single player
+	errnum = BotSetupGoalAI( singleplayer );      //be_ai_goal.c
+// END	Arnout changes, 28-08-2002.
+	if ( errnum != BLERR_NOERROR ) {
+		return errnum;
+	}
+	errnum = BotSetupChatAI();      //be_ai_chat.c
+	if ( errnum != BLERR_NOERROR ) {
+		return errnum;
+	}
+#endif RTCW_XX
 
 #if defined RTCW_MP
 //	errnum = BotSetupMoveAI();		//be_ai_move.c
 //	if (errnum != BLERR_NOERROR) return errnum;
 #endif RTCW_XX
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	errnum = BotSetupMoveAI();      //be_ai_move.c
 	if ( errnum != BLERR_NOERROR ) {
 		return errnum;
 	}
 #endif RTCW_XX
+
+#if defined RTCW_ET
+	globaldefines = NULL;
+#endif RTCW_XX
+
 
 	botlibsetup = qtrue;
 	botlibglobals.botlibsetup = qtrue;
@@ -306,6 +341,11 @@ int Export_BotLibStartFrame( float time ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if defined RTCW_ET
+void AAS_EnableAllAreas( void );
+#endif RTCW_XX
+
 int Export_BotLibLoadMap( const char *mapname ) {
 #ifdef DEBUG
 	int starttime = Sys_MilliSeconds();
@@ -316,6 +356,25 @@ int Export_BotLibLoadMap( const char *mapname ) {
 		return BLERR_LIBRARYNOTSETUP;
 	}
 	//
+
+#if defined RTCW_ET
+	// if the mapname is NULL, then this is a restart
+	if ( !mapname ) {
+		// START	Arnout changes, 29-08-2002.
+		// don't init the heap if no aas loaded, causes "SV_Bot_HunkAlloc: Alloc with marks already set"
+		if ( ( *aasworld ).loaded ) {
+			AAS_InitAASLinkHeap();
+			AAS_EnableAllAreas();
+		}
+		// END	Arnout changes, 29-08-2002.
+		( *aasworld ).numframes = 0;
+		memset( ( *aasworld ).arealinkedentities, 0, ( *aasworld ).numareas * sizeof( aas_link_t * ) );
+		memset( ( *aasworld ).entities, 0, ( *aasworld ).maxentities * sizeof( aas_entity_t ) );
+		return BLERR_NOERROR;
+	}
+	//
+#endif RTCW_XX
+
 	botimport.Print( PRT_MESSAGE, "------------ Map Loading ------------\n" );
 	//startup AAS for the current map, model and sound index
 	errnum = AAS_LoadMap( mapname );
@@ -372,7 +431,12 @@ int BotFuzzyPointReachabilityArea( vec3_t origin );
 
 float BotGapDistance( vec3_t origin, vec3_t hordir, int entnum );
 
+#if !defined RTCW_ET
 int AAS_NearestHideArea( int srcnum, vec3_t origin, int areanum, int enemynum, vec3_t enemyorigin, int enemyareanum, int travelflags );
+#else
+int AAS_NearestHideArea( int srcnum, vec3_t origin, int areanum, int enemynum, vec3_t enemyorigin, int enemyareanum, int travelflags, float maxdist, vec3_t distpos );
+#endif RTCW_XX
+
 
 int AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float rangedist, int travelflags, float *outpos );
 
@@ -384,8 +448,26 @@ qboolean AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags
 void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, qboolean blocking );
 #endif RTCW_XX
 
+#if defined RTCW_ET
+int AAS_ListAreasInRange( vec3_t srcpos, int srcarea, float range, int travelflags, vec3_t *outareas, int maxareas );
+
+int AAS_AvoidDangerArea( vec3_t srcpos, int srcarea, vec3_t dangerpos, int dangerarea, float range, int travelflags );
+
+int AAS_Retreat( int *dangerSpots, int dangerSpotCount, vec3_t srcpos, int srcarea, vec3_t dangerpos, int dangerarea, float range, float dangerRange, int travelflags );
+
+int AAS_AlternativeRouteGoals( vec3_t start, vec3_t goal, int travelflags,
+							   aas_altroutegoal_t *altroutegoals, int maxaltroutegoals,
+							   int color );
+
+void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, int blocking );
+
+void AAS_RecordTeamDeathArea( vec3_t srcpos, int srcarea, int team, int teamCount, int travelflags );
+#endif RTCW_XX
+
+
 int BotExportTest( int parm0, char *parm1, vec3_t parm2, vec3_t parm3 ) {
 
+#if !defined RTCW_ET
 //	return AAS_PointLight(parm2, NULL, NULL, NULL);
 
 #ifdef DEBUG
@@ -734,6 +816,231 @@ int BotExportTest( int parm0, char *parm1, vec3_t parm2, vec3_t parm3 ) {
 	} //end if
 	*/
 #endif
+#else
+	static int area = -1;
+	static int line[2];
+	int newarea, i, highlightarea, bot_testhidepos, hideposarea, bot_debug;
+	vec3_t forward, origin;
+
+//	vec3_t mins = {-16, -16, -24};
+//	vec3_t maxs = {16, 16, 32};
+
+	if ( !aasworld->loaded ) {
+		return 0;
+	}
+
+	AAS_SetCurrentWorld( 0 );
+
+	for ( i = 0; i < 2; i++ ) {
+		if ( !line[i] ) {
+			line[i] = botimport.DebugLineCreate();
+		}
+	}
+
+//	AAS_ClearShownDebugLines();
+	bot_testhidepos = LibVarGetValue( "bot_testhidepos" );
+	if ( bot_testhidepos ) {
+		VectorCopy( parm2, origin );
+		newarea = BotFuzzyPointReachabilityArea( origin );
+
+		if ( parm0 & 1 ) {
+			botlibglobals.goalareanum = newarea;
+			VectorCopy( origin, botlibglobals.goalorigin );
+			botimport.Print( PRT_MESSAGE, "new enemy position %2.1f %2.1f %2.1f area %d\n", origin[0], origin[1], origin[2], newarea );
+		} //end if
+
+		AAS_ClearShownPolygons();
+		AAS_ClearShownDebugLines();
+		hideposarea = AAS_NearestHideArea( 0, origin, AAS_PointAreaNum( origin ), 0,
+										   botlibglobals.goalorigin, botlibglobals.goalareanum, TFL_DEFAULT, 99999, NULL );
+
+		//area we are currently in
+		AAS_ShowAreaPolygons( newarea, 1, qtrue );
+
+		//enemy position
+		AAS_ShowAreaPolygons( botlibglobals.goalareanum, 2, qtrue );
+
+		//area we should go hide
+		AAS_ShowAreaPolygons( hideposarea, 4, qtrue );
+
+		return 0;
+	}
+
+	highlightarea = LibVarGetValue( "bot_highlightarea" );
+	if ( highlightarea > 0 ) {
+		newarea = highlightarea;
+	} else {
+		VectorCopy( parm2, origin );
+
+		//origin[2] += 0.5;
+		newarea = BotFuzzyPointReachabilityArea( origin );
+	} //end else
+
+	bot_debug = LibVarGetValue( "bot_debug" );
+	if ( bot_debug == 9 ) {
+		aas_clientmove_t move;
+		vec3_t dest;
+		qboolean this_success;
+
+		if ( parm0 & 1 ) {
+			botlibglobals.goalareanum = newarea;
+			VectorCopy( parm2, botlibglobals.goalorigin );
+			botimport.Print( PRT_MESSAGE, "new goal %2.1f %2.1f %2.1f area %d\n", origin[0], origin[1], origin[2], newarea );
+		}
+
+		VectorCopy( parm2, origin );
+		VectorCopy( botlibglobals.goalorigin, dest );
+
+		// debug direct movement
+		VectorSubtract( dest, origin, forward );
+		VectorNormalize( forward );
+		VectorScale( forward, 300, forward );
+
+		this_success = AAS_PredictClientMovement( &move, 0, origin,
+												  -1, qfalse,
+												  forward, dest, -1,
+												  40, 0.05, SE_ENTERAREA | SE_HITGROUNDDAMAGE | SE_HITENT | SE_HITGROUNDAREA | SE_STUCK | SE_GAP, botlibglobals.goalareanum,
+												  qtrue );
+
+		if ( this_success ) {
+			switch ( move.stopevent ) {
+			case SE_ENTERAREA:
+			case SE_HITENT:
+			case SE_HITGROUNDAREA:
+				break;
+			default:
+				this_success = qfalse;
+			}
+		}
+
+		if ( this_success != botlibglobals.lastsuccess ) {
+			botimport.Print( PRT_MESSAGE, "DirectMove: %s\n", this_success ? "SUCCESS" : "FAILURE" );
+			botlibglobals.lastsuccess = this_success;
+		}
+
+		return 0;
+	}
+
+	botimport.Print( PRT_MESSAGE, "\rtravel time to goal (%d) = %d  ", botlibglobals.goalareanum, AAS_AreaTravelTimeToGoalArea( newarea, origin, botlibglobals.goalareanum, TFL_DEFAULT ) );
+	if ( newarea != area ) {
+		botimport.Print( PRT_MESSAGE, "origin = %f, %f, %f\n", origin[0], origin[1], origin[2] );
+		area = newarea;
+		botimport.Print( PRT_MESSAGE, "new area %d, cluster %d, presence type %d\n", area, AAS_AreaCluster( area ), AAS_PointPresenceType( origin ) );
+
+		if ( aasworld->areasettings[area].areaflags & AREA_LIQUID ) {
+			botimport.Print( PRT_MESSAGE, "liquid area\n" );
+		} //end if
+
+		botimport.Print( PRT_MESSAGE, "area contents: " );
+		if ( aasworld->areasettings[area].contents & AREACONTENTS_MOVER ) {
+			botimport.Print( PRT_MESSAGE, "mover " );
+		} //end if
+		if ( aasworld->areasettings[area].contents & AREACONTENTS_WATER ) {
+			botimport.Print( PRT_MESSAGE, "water " );
+		} //end if
+		if ( aasworld->areasettings[area].contents & AREACONTENTS_LAVA ) {
+			botimport.Print( PRT_MESSAGE, "lava " );
+		} //end if
+		if ( aasworld->areasettings[area].contents & AREACONTENTS_SLIME ) {
+			botimport.Print( PRT_MESSAGE, "slag " );
+		} //end if
+
+		if ( aasworld->areasettings[area].contents & AREACONTENTS_JUMPPAD ) {
+			botimport.Print( PRT_MESSAGE, "jump pad " );
+		} //end if
+		if ( aasworld->areasettings[area].contents & AREACONTENTS_CLUSTERPORTAL ) {
+			botimport.Print( PRT_MESSAGE, "cluster portal " );
+		} //end if
+		if ( aasworld->areasettings[area].contents & AREACONTENTS_DONOTENTER ) {
+			botimport.Print( PRT_MESSAGE, "do not enter " );
+		} //end if
+		if ( aasworld->areasettings[area].contents & AREACONTENTS_DONOTENTER_LARGE ) {
+			botimport.Print( PRT_MESSAGE, "do not enter large " );
+		} //end if
+		if ( !aasworld->areasettings[area].contents ) {
+			botimport.Print( PRT_MESSAGE, "empty " );
+		} //end if
+
+		botimport.Print( PRT_MESSAGE, "\n" );
+		botimport.Print( PRT_MESSAGE, "area flags: " );
+
+		if ( aasworld->areasettings[area].areaflags & AREA_LADDER ) {
+			botimport.Print( PRT_MESSAGE, "ladder " );
+		}
+		if ( aasworld->areasettings[area].areaflags & AREA_GROUNDED ) {
+			botimport.Print( PRT_MESSAGE, "grounded " );
+		}
+		if ( aasworld->areasettings[area].areaflags & AREA_LIQUID ) {
+			botimport.Print( PRT_MESSAGE, "liquid " );
+		}
+		if ( aasworld->areasettings[area].areaflags & AREA_DISABLED ) {
+			botimport.Print( PRT_MESSAGE, "DISABLED " );
+		}
+		if ( aasworld->areasettings[area].areaflags & AREA_AVOID ) {
+			botimport.Print( PRT_MESSAGE, "AVOID " );
+		}
+
+		botimport.Print( PRT_MESSAGE, "\n" );
+		botimport.Print( PRT_MESSAGE, "travel time to goal (%d) = %d\n", botlibglobals.goalareanum, AAS_AreaTravelTimeToGoalArea( newarea, origin, botlibglobals.goalareanum, TFL_DEFAULT | TFL_ROCKETJUMP ) );
+	}
+
+	if ( parm0 & 1 ) {
+		botlibglobals.goalareanum = newarea;
+		VectorCopy( parm2, botlibglobals.goalorigin );
+		botimport.Print( PRT_MESSAGE, "new goal %2.1f %2.1f %2.1f area %d\n", origin[0], origin[1], origin[2], newarea );
+	}
+
+	AAS_ClearShownPolygons();
+	AAS_ClearShownDebugLines();
+
+	if ( parm0 & 8 ) {
+		int jk = 0;
+		if ( parm0 & 16 ) {
+			for ( ; jk < aasworld->numareas; jk++ ) {
+				if ( !( aasworld->areasettings[jk].areaflags & AREA_DISABLED ) ) {
+					AAS_ShowAreaPolygons( jk, 1, parm0 & 4 );
+				}
+			}
+		} else {
+			for ( ; jk < aasworld->numareas; jk++ ) {
+				AAS_ShowAreaPolygons( jk, 1, parm0 & 4 );
+			}
+		}
+	} else {
+		AAS_ShowAreaPolygons( newarea, 1, parm0 & 4 );
+	}
+
+	if ( parm0 & 2 ) {
+		AAS_ShowReachableAreas( area );
+	} else {
+		static int lastgoalareanum, lastareanum;
+		static int avoidreach[MAX_AVOIDREACH];
+		static float avoidreachtimes[MAX_AVOIDREACH];
+		static int avoidreachtries[MAX_AVOIDREACH];
+
+		int reachnum;
+		bot_goal_t goal;
+		aas_reachability_t reach;
+		static int lastreach;
+
+		goal.areanum = botlibglobals.goalareanum;
+		VectorCopy( botlibglobals.goalorigin, goal.origin );
+		reachnum = BotGetReachabilityToGoal( origin, newarea, -1,
+											 lastgoalareanum, lastareanum,
+											 avoidreach, avoidreachtimes, avoidreachtries,
+											 &goal, TFL_DEFAULT | TFL_FUNCBOB, TFL_DEFAULT );
+		AAS_ReachabilityFromNum( reachnum, &reach );
+		if ( lastreach != reachnum ) {
+			botimport.Print( PRT_MESSAGE, "Travel Type: " );
+			AAS_PrintTravelType( reach.traveltype );
+			botimport.Print( PRT_MESSAGE, "\n" );
+		}
+		lastreach = reachnum;
+		AAS_ShowReachability( &reach );
+	} //end else
+	VectorClear( forward );
+#endif RTCW_XX
+
 	return 0;
 } //end of the function BotExportTest
 
@@ -759,6 +1066,13 @@ static void Init_AAS_Export( aas_export_t *aas ) {
 	//--------------------------------------------
 	aas->AAS_PointAreaNum = AAS_PointAreaNum;
 	aas->AAS_TraceAreas = AAS_TraceAreas;
+
+#if defined RTCW_ET
+	aas->AAS_BBoxAreas = AAS_BBoxAreas;
+	aas->AAS_AreaCenter = AAS_AreaCenter;
+	aas->AAS_AreaWaypoint = AAS_AreaWaypoint;
+#endif RTCW_XX
+
 	//--------------------------------------------
 	// be_aas_bspq3.c
 	//--------------------------------------------
@@ -772,6 +1086,11 @@ static void Init_AAS_Export( aas_export_t *aas ) {
 	// be_aas_reach.c
 	//--------------------------------------------
 	aas->AAS_AreaReachability = AAS_AreaReachability;
+
+#if defined RTCW_ET
+	aas->AAS_AreaLadder = AAS_AreaLadder;
+#endif RTCW_XX
+
 	//--------------------------------------------
 	// be_aas_route.c
 	//--------------------------------------------
@@ -794,7 +1113,20 @@ static void Init_AAS_Export( aas_export_t *aas ) {
 	aas->AAS_GetRouteFirstVisPos = AAS_GetRouteFirstVisPos;
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	aas->AAS_NearestHideArea = AAS_NearestHideArea;
+	aas->AAS_ListAreasInRange = AAS_ListAreasInRange;
+	aas->AAS_AvoidDangerArea = AAS_AvoidDangerArea;
+	aas->AAS_Retreat = AAS_Retreat;
+	aas->AAS_AlternativeRouteGoals = AAS_AlternativeRouteGoals;
+#endif RTCW_XX
+
 	aas->AAS_SetAASBlockingEntity = AAS_SetAASBlockingEntity;
+
+#if defined RTCW_ET
+	aas->AAS_RecordTeamDeathArea = AAS_RecordTeamDeathArea;
+#endif RTCW_XX
+
 	// done.
 
 	// Ridah, multiple AAS files
@@ -828,6 +1160,11 @@ static void Init_EA_Export( ea_export_t *ea ) {
 	ea->EA_Jump = EA_Jump;
 	ea->EA_DelayedJump = EA_DelayedJump;
 	ea->EA_Crouch = EA_Crouch;
+
+#if defined RTCW_ET
+	ea->EA_Walk = EA_Walk;
+#endif RTCW_XX
+
 	ea->EA_MoveUp = EA_MoveUp;
 	ea->EA_MoveDown = EA_MoveDown;
 	ea->EA_MoveForward = EA_MoveForward;
@@ -839,6 +1176,11 @@ static void Init_EA_Export( ea_export_t *ea ) {
 	ea->EA_GetInput = EA_GetInput;
 	ea->EA_EndRegular = EA_EndRegular;
 	ea->EA_ResetInput = EA_ResetInput;
+
+#if defined RTCW_ET
+	ea->EA_Prone = EA_Prone;
+#endif RTCW_XX
+
 }
 
 
@@ -969,10 +1311,19 @@ botlib_export_t *GetBotLibAPI( int apiVersion, botlib_import_t *import ) {
 	be_botlib_export.BotLibVarSet = Export_BotLibVarSet;
 	be_botlib_export.BotLibVarGet = Export_BotLibVarGet;
 	be_botlib_export.PC_AddGlobalDefine = PC_AddGlobalDefine;
+
+#if defined RTCW_ET
+	be_botlib_export.PC_RemoveAllGlobalDefines = PC_RemoveAllGlobalDefines;
+#endif RTCW_XX
+
 	be_botlib_export.PC_LoadSourceHandle = PC_LoadSourceHandle;
 	be_botlib_export.PC_FreeSourceHandle = PC_FreeSourceHandle;
 	be_botlib_export.PC_ReadTokenHandle = PC_ReadTokenHandle;
 	be_botlib_export.PC_SourceFileAndLine = PC_SourceFileAndLine;
+
+#if defined RTCW_ET
+	be_botlib_export.PC_UnreadLastTokenHandle = PC_UnreadLastTokenHandle;
+#endif RTCW_XX
 
 	be_botlib_export.BotLibStartFrame = Export_BotLibStartFrame;
 	be_botlib_export.BotLibLoadMap = Export_BotLibLoadMap;

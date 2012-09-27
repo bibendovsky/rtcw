@@ -50,13 +50,17 @@ If you have questions concerning this license or the applicable additional terms
 #define NODELIST
 #define SIN
 
+#if defined RTCW_ET
+#define MRE_ET
+#endif RTCW_XX
+
 #define MAX_BRUSH_SIDES     128     //maximum number of sides per brush
 #define CLIP_EPSILON        0.1
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //#define MAX_MAP_BOUNDS		65535
 #define MAX_MAP_BOUNDS      ( 128 * 1024 )    // (SA) (9/17/01) new map dimensions (from Q3TA)
-#elif defined RTCW_MP
+#else
 #define MAX_MAP_BOUNDS      65535
 #endif RTCW_XX
 
@@ -78,8 +82,15 @@ typedef struct plane_s
 {
 	vec3_t normal;
 	vec_t dist;
+
+#if !defined RTCW_ET
 	int type;
 	int signbits;
+#else
+	byte /*int*/ type;
+	byte /*int*/ signbits;
+#endif RTCW_XX
+
 	struct plane_s  *hash_chain;
 } plane_t;
 //brush texture
@@ -236,13 +247,24 @@ extern qboolean cancelconversion;
 extern qboolean noliquids;
 extern qboolean capsule_collision;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 extern qboolean writeaasmap;
+#endif RTCW_XX
+
+#if defined RTCW_ET
+extern qboolean groundonly;
+extern qboolean writebrushmap;
+extern qboolean noPatches;
 #endif RTCW_XX
 
 #endif //ME
 
 extern float subdivide_size;
+
+#if defined RTCW_ET
+extern float bsp_grid_size;
+#endif RTCW_XX
+
 extern vec_t microvolume;
 
 extern char outbase[32];
@@ -252,7 +274,12 @@ extern char source[1024];
 // map.c
 //=============================================================================
 
+#if !defined RTCW_ET
 #define MAX_MAPFILE_PLANES          128000
+#else
+#define MAX_MAPFILE_PLANES          512000 //128000
+#endif RTCW_XX
+
 #define MAX_MAPFILE_BRUSHES         65535 //16384
 #define MAX_MAPFILE_BRUSHSIDES      ( MAX_MAPFILE_BRUSHES * 8 )
 #define MAX_MAPFILE_TEXINFO         8192
@@ -310,7 +337,13 @@ extern int c_clipbrushes;
 extern int c_squattbrushes;
 
 //finds a float plane for the given normal and distance
+
+#if !defined RTCW_ET
 int FindFloatPlane( vec3_t normal, vec_t dist );
+#else
+int FindFloatPlane( vec3_t normal, vec_t dist, int numPoints, vec3_t* points );
+#endif RTCW_XX
+
 //returns the plane type for the given normal
 int PlaneTypeForNormal( vec3_t normal );
 //returns the plane defined by the three given points
@@ -332,6 +365,7 @@ void PrintMapInfo( void );
 //writes a map file (type depending on loaded map type)
 void WriteMapFile( char *filename );
 
+#if !defined RTCW_ET
 //=============================================================================
 // map_q2.c
 //=============================================================================
@@ -351,6 +385,7 @@ void Q1_ResetMapLoading( void );
 void Q1_LoadMapFile( char *filename );
 //loads a map from a Quake1 bsp file
 void Q1_LoadMapFromBSP( char *filename, int offset, int length );
+#endif RTCW_XX
 
 //=============================================================================
 // map_q3.c
@@ -359,6 +394,8 @@ void Q3_ResetMapLoading( void );
 //loads a map from a Quake3 bsp file
 void Q3_LoadMapFromBSP( struct quakefile_s *qf );
 
+
+#if !defined RTCW_ET
 //=============================================================================
 // map_sin.c
 //=============================================================================
@@ -378,6 +415,7 @@ void HL_ResetMapLoading( void );
 void HL_LoadMapFile( char *filename );
 //loads a map from a Half-Life bsp file
 void HL_LoadMapFromBSP( char *filename, int offset, int length );
+#endif RTCW_XX
 
 //=============================================================================
 // textures.c
@@ -423,9 +461,20 @@ tree_t *ProcessWorldBrushes( int brush_start, int brush_end );
 #define PSIDE_BOTH          ( PSIDE_FRONT | PSIDE_BACK )
 #define PSIDE_FACING        4
 
+#if defined RTCW_ET
+void OpenBSPBrushMap( char *filename, int contents );
+void WriteBrushListToFile( bspbrush_t *brushlist, char *filename );
+#endif RTCW_XX
+
 void WriteBrushList( char *name, bspbrush_t *brush, qboolean onlyvis );
 bspbrush_t *CopyBrush( bspbrush_t *brush );
+
+#if !defined RTCW_ET
 void SplitBrush( bspbrush_t *brush, int planenum, bspbrush_t **front, bspbrush_t **back );
+#else
+int SplitBrush( bspbrush_t *brush, int planenum, bspbrush_t **front, bspbrush_t **back );
+#endif RTCW_XX
+
 node_t *AllocNode( void );
 bspbrush_t *AllocBrush( int numsides );
 int CountBrushList( bspbrush_t *brushes );

@@ -27,6 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
+#if !defined RTCW_ET
 /*****************************************************************************
  * name:		ai_cmd.h
  *
@@ -34,6 +35,15 @@ If you have questions concerning this license or the applicable additional terms
  *
  *
  *****************************************************************************/
+#else
+/*****************************************************************************
+ * name:		ai_cmd.h
+ *
+ * desc:		Wolf bot AI
+ *
+ *
+ *****************************************************************************/
+#endif RTCW_XX
 
 int BotMatchMessage( bot_state_t *bs, char *message );
 void BotPrintTeamGoal( bot_state_t *bs );

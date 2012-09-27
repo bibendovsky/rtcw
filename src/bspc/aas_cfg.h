@@ -81,7 +81,7 @@ typedef struct cfg_s
 	float rs_falldamage10;
 	float rs_maxjumpfallheight;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	qboolean rs_allowladders;
 #endif RTCW_XX
 

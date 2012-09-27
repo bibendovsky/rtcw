@@ -39,6 +39,11 @@ vm_t *uivm;
 extern char cl_cdkey[34];
 #endif RTCW_XX
 
+#if defined RTCW_ET
+// ydnar: can we put this in a header, pls?
+void Key_GetBindingByString( const char* binding, int* key1, int* key2 );
+#endif RTCW_XX
+
 
 /*
 ====================
@@ -105,6 +110,35 @@ void LAN_LoadCachedServers() {
 		}
 		FS_FCloseFile( fileIn );
 	}
+#else
+	int size;
+	fileHandle_t fileIn;
+	char filename[MAX_QPATH];
+
+	cls.numglobalservers = cls.numfavoriteservers = 0;
+	cls.numGlobalServerAddresses = 0;
+
+	if ( com_gameInfo.usesProfiles && cl_profile->string[0] ) {
+		Com_sprintf( filename, sizeof( filename ), "profiles/%s/servercache.dat", cl_profile->string );
+	} else {
+		Q_strncpyz( filename, "servercache.dat", sizeof( filename ) );
+	}
+
+	// Arnout: moved to mod/profiles dir
+	//if (FS_SV_FOpenFileRead(filename, &fileIn)) {
+	if ( FS_FOpenFileRead( filename, &fileIn, qtrue ) ) {
+		FS_Read( &cls.numglobalservers, sizeof( int ), fileIn );
+		FS_Read( &cls.numfavoriteservers, sizeof( int ), fileIn );
+		FS_Read( &size, sizeof( int ), fileIn );
+		if ( size == sizeof( cls.globalServers ) + sizeof( cls.favoriteServers ) ) {
+			FS_Read( &cls.globalServers, sizeof( cls.globalServers ), fileIn );
+			FS_Read( &cls.favoriteServers, sizeof( cls.favoriteServers ), fileIn );
+		} else {
+			cls.numglobalservers = cls.numfavoriteservers = 0;
+			cls.numGlobalServerAddresses = 0;
+		}
+		FS_FCloseFile( fileIn );
+	}
 #endif RTCW_XX
 
 }
@@ -160,6 +194,27 @@ void LAN_SaveServersToCache() {
 	FS_Write( &cls.mplayerServers, sizeof( cls.mplayerServers ), fileOut );
 	FS_Write( &cls.favoriteServers, sizeof( cls.favoriteServers ), fileOut );
 	FS_FCloseFile( fileOut );
+#else
+	int size;
+	fileHandle_t fileOut;
+	char filename[MAX_QPATH];
+
+	if ( com_gameInfo.usesProfiles && cl_profile->string[0] ) {
+		Com_sprintf( filename, sizeof( filename ), "profiles/%s/servercache.dat", cl_profile->string );
+	} else {
+		Q_strncpyz( filename, "servercache.dat", sizeof( filename ) );
+	}
+
+	// Arnout: moved to mod/profiles dir
+	//fileOut = FS_SV_FOpenFileWrite(filename);
+	fileOut = FS_FOpenFileWrite( filename );
+	FS_Write( &cls.numglobalservers, sizeof( int ), fileOut );
+	FS_Write( &cls.numfavoriteservers, sizeof( int ), fileOut );
+	size = sizeof( cls.globalServers ) + sizeof( cls.favoriteServers );
+	FS_Write( &size, sizeof( int ), fileOut );
+	FS_Write( &cls.globalServers, sizeof( cls.globalServers ), fileOut );
+	FS_Write( &cls.favoriteServers, sizeof( cls.favoriteServers ), fileOut );
+	FS_FCloseFile( fileOut );
 #endif RTCW_XX
 }
 
@@ -179,10 +234,14 @@ static void LAN_ResetPings( int source ) {
 		servers = &cls.localServers[0];
 		count = MAX_OTHER_SERVERS;
 		break;
+
+#if !defined RTCW_ET
 	case AS_MPLAYER:
 		servers = &cls.mplayerServers[0];
 		count = MAX_OTHER_SERVERS;
 		break;
+#endif RTCW_XX
+
 	case AS_GLOBAL:
 		servers = &cls.globalServers[0];
 		count = MAX_GLOBAL_SERVERS;
@@ -216,10 +275,14 @@ static int LAN_AddServer( int source, const char *name, const char *address ) {
 		count = &cls.numlocalservers;
 		servers = &cls.localServers[0];
 		break;
+
+#if !defined RTCW_ET
 	case AS_MPLAYER:
 		count = &cls.nummplayerservers;
 		servers = &cls.mplayerServers[0];
 		break;
+#endif RTCW_XX
+
 	case AS_GLOBAL:
 		max = MAX_GLOBAL_SERVERS;
 		count = &cls.numglobalservers;
@@ -263,10 +326,14 @@ static void LAN_RemoveServer( int source, const char *addr ) {
 		count = &cls.numlocalservers;
 		servers = &cls.localServers[0];
 		break;
+
+#if !defined RTCW_ET
 	case AS_MPLAYER:
 		count = &cls.nummplayerservers;
 		servers = &cls.mplayerServers[0];
 		break;
+#endif RTCW_XX
+
 	case AS_GLOBAL:
 		count = &cls.numglobalservers;
 		servers = &cls.globalServers[0];
@@ -304,9 +371,13 @@ static int LAN_GetServerCount( int source ) {
 	case AS_LOCAL:
 		return cls.numlocalservers;
 		break;
+
+#if !defined RTCW_ET
 	case AS_MPLAYER:
 		return cls.nummplayerservers;
 		break;
+#endif RTCW_XX
+
 	case AS_GLOBAL:
 		return cls.numglobalservers;
 		break;
@@ -330,12 +401,16 @@ static void LAN_GetServerAddressString( int source, int n, char *buf, int buflen
 			return;
 		}
 		break;
+
+#if !defined RTCW_ET
 	case AS_MPLAYER:
 		if ( n >= 0 && n < MAX_OTHER_SERVERS ) {
 			Q_strncpyz( buf, NET_AdrToString( cls.mplayerServers[n].adr ), buflen );
 			return;
 		}
 		break;
+#endif RTCW_XX
+
 	case AS_GLOBAL:
 		if ( n >= 0 && n < MAX_GLOBAL_SERVERS ) {
 			Q_strncpyz( buf, NET_AdrToString( cls.globalServers[n].adr ), buflen );
@@ -367,11 +442,15 @@ static void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 			server = &cls.localServers[n];
 		}
 		break;
+
+#if !defined RTCW_ET
 	case AS_MPLAYER:
 		if ( n >= 0 && n < MAX_OTHER_SERVERS ) {
 			server = &cls.mplayerServers[n];
 		}
 		break;
+#endif RTCW_XX
+
 	case AS_GLOBAL:
 		if ( n >= 0 && n < MAX_GLOBAL_SERVERS ) {
 			server = &cls.globalServers[n];
@@ -386,6 +465,11 @@ static void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 	if ( server && buf ) {
 		buf[0] = '\0';
 		Info_SetValueForKey( info, "hostname", server->hostName );
+
+#if defined RTCW_ET
+		Info_SetValueForKey( info, "serverload", va( "%i", server->load ) );
+#endif RTCW_XX
+
 		Info_SetValueForKey( info, "mapname", server->mapName );
 		Info_SetValueForKey( info, "clients", va( "%i",server->clients ) );
 		Info_SetValueForKey( info, "sv_maxclients", va( "%i",server->maxClients ) );
@@ -398,13 +482,24 @@ static void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 		Info_SetValueForKey( info, "addr", NET_AdrToString( server->adr ) );
 		Info_SetValueForKey( info, "sv_allowAnonymous", va( "%i", server->allowAnonymous ) );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		Info_SetValueForKey( info, "friendlyFire", va( "%i", server->friendlyFire ) );               // NERVE - SMF
 		Info_SetValueForKey( info, "maxlives", va( "%i", server->maxlives ) );                       // NERVE - SMF
+
+#if !defined RTCW_ET
 		Info_SetValueForKey( info, "tourney", va( "%i", server->tourney ) );                     // NERVE - SMF
+#else
+		Info_SetValueForKey( info, "needpass", va( "%i", server->needpass ) );                       // NERVE - SMF
+#endif RTCW_XX
+
 		Info_SetValueForKey( info, "punkbuster", va( "%i", server->punkbuster ) );                   // DHM - Nerve
 		Info_SetValueForKey( info, "gamename", server->gameName );                                // Arnout
 		Info_SetValueForKey( info, "g_antilag", va( "%i", server->antilag ) ); // TTimo
+#endif RTCW_XX
+
+#if defined RTCW_ET
+		Info_SetValueForKey( info, "weaprestrict", va( "%i", server->weaprestrict ) );
+		Info_SetValueForKey( info, "balancedteams", va( "%i", server->balancedteams ) );
 #endif RTCW_XX
 
 		Q_strncpyz( buf, info, buflen );
@@ -428,11 +523,15 @@ static int LAN_GetServerPing( int source, int n ) {
 			server = &cls.localServers[n];
 		}
 		break;
+
+#if !defined RTCW_ET
 	case AS_MPLAYER:
 		if ( n >= 0 && n < MAX_OTHER_SERVERS ) {
 			server = &cls.mplayerServers[n];
 		}
 		break;
+#endif RTCW_XX
+
 	case AS_GLOBAL:
 		if ( n >= 0 && n < MAX_GLOBAL_SERVERS ) {
 			server = &cls.globalServers[n];
@@ -462,11 +561,15 @@ static serverInfo_t *LAN_GetServerPtr( int source, int n ) {
 			return &cls.localServers[n];
 		}
 		break;
+
+#if !defined RTCW_ET
 	case AS_MPLAYER:
 		if ( n >= 0 && n < MAX_OTHER_SERVERS ) {
 			return &cls.mplayerServers[n];
 		}
 		break;
+#endif RTCW_XX
+
 	case AS_GLOBAL:
 		if ( n >= 0 && n < MAX_GLOBAL_SERVERS ) {
 			return &cls.globalServers[n];
@@ -490,6 +593,10 @@ static int LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int
 	int res;
 	serverInfo_t *server1, *server2;
 
+#if defined RTCW_ET
+	char name1[ MAX_NAME_LENGTH ], name2[ MAX_NAME_LENGTH ];
+#endif RTCW_XX
+
 	server1 = LAN_GetServerPtr( source, s1 );
 	server2 = LAN_GetServerPtr( source, s2 );
 	if ( !server1 || !server2 ) {
@@ -499,7 +606,18 @@ static int LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int
 	res = 0;
 	switch ( sortKey ) {
 	case SORT_HOST:
+
+#if !defined RTCW_ET
 		res = Q_stricmp( server1->hostName, server2->hostName );
+#else
+		//%	res = Q_stricmp( server1->hostName, server2->hostName );
+		Q_strncpyz( name1, server1->hostName, sizeof( name1 ) );
+		Q_CleanStr( name1 );
+		Q_strncpyz( name2, server2->hostName, sizeof( name2 ) );
+		Q_CleanStr( name2 );
+		res = Q_stricmp( name1, name2 );
+#endif RTCW_XX
+
 		break;
 
 	case SORT_MAP:
@@ -607,9 +725,13 @@ static void LAN_MarkServerVisible( int source, int n, qboolean visible ) {
 		case AS_LOCAL:
 			server = &cls.localServers[0];
 			break;
+
+#if !defined RTCW_ET
 		case AS_MPLAYER:
 			server = &cls.mplayerServers[0];
 			break;
+#endif RTCW_XX
+
 		case AS_GLOBAL:
 			server = &cls.globalServers[0];
 			count = MAX_GLOBAL_SERVERS;
@@ -631,11 +753,15 @@ static void LAN_MarkServerVisible( int source, int n, qboolean visible ) {
 				cls.localServers[n].visible = visible;
 			}
 			break;
+
+#if !defined RTCW_ET
 		case AS_MPLAYER:
 			if ( n >= 0 && n < MAX_OTHER_SERVERS ) {
 				cls.mplayerServers[n].visible = visible;
 			}
 			break;
+#endif RTCW_XX
+
 		case AS_GLOBAL:
 			if ( n >= 0 && n < MAX_GLOBAL_SERVERS ) {
 				cls.globalServers[n].visible = visible;
@@ -663,11 +789,15 @@ static int LAN_ServerIsVisible( int source, int n ) {
 			return cls.localServers[n].visible;
 		}
 		break;
+
+#if !defined RTCW_ET
 	case AS_MPLAYER:
 		if ( n >= 0 && n < MAX_OTHER_SERVERS ) {
 			return cls.mplayerServers[n].visible;
 		}
 		break;
+#endif RTCW_XX
+
 	case AS_GLOBAL:
 		if ( n >= 0 && n < MAX_GLOBAL_SERVERS ) {
 			return cls.globalServers[n].visible;
@@ -699,6 +829,48 @@ LAN_GetServerStatus
 int LAN_GetServerStatus( char *serverAddress, char *serverStatus, int maxLen ) {
 	return CL_ServerStatus( serverAddress, serverStatus, maxLen );
 }
+
+#if defined RTCW_ET
+/*
+=======================
+LAN_ServerIsInFavoriteList
+=======================
+*/
+qboolean LAN_ServerIsInFavoriteList( int source, int n ) {
+	int i;
+	serverInfo_t *server = NULL;
+
+	switch ( source ) {
+	case AS_LOCAL:
+		if ( n >= 0 && n < MAX_OTHER_SERVERS ) {
+			server = &cls.localServers[n];
+		}
+		break;
+	case AS_GLOBAL:
+		if ( n >= 0 && n < MAX_GLOBAL_SERVERS ) {
+			server = &cls.globalServers[n];
+		}
+		break;
+	case AS_FAVORITES:
+		if ( n >= 0 && n < MAX_OTHER_SERVERS ) {
+			return qtrue;
+		}
+		break;
+	}
+
+	if ( !server ) {
+		return qfalse;
+	}
+
+	for ( i = 0; i < cls.numfavoriteservers; i++ ) {
+		if ( NET_CompareAdr( cls.favoriteServers[i].adr, server->adr ) ) {
+			return qtrue;
+		}
+	}
+
+	return qfalse;
+}
+#endif RTCW_XX
 
 /*
 ====================
@@ -737,7 +909,7 @@ Key_KeynumToStringBuf
 
 #if defined RTCW_SP
 static void Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
-#elif defined RTCW_MP
+#else
 void Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
 #endif RTCW_XX
 
@@ -752,7 +924,7 @@ Key_GetBindingBuf
 
 #if defined RTCW_SP
 static void Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
-#elif defined RTCW_MP
+#else
 void Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
 #endif RTCW_XX
 
@@ -784,7 +956,7 @@ void Key_SetCatcher( int catcher ) {
 
 #if defined RTCW_SP
 	cls.keyCatchers = catcher;
-#elif defined RTCW_MP
+#else
 	// NERVE - SMF - console overrides everything
 	if ( cls.keyCatchers & KEYCATCH_CONSOLE ) {
 		cls.keyCatchers = catcher | KEYCATCH_CONSOLE;
@@ -887,11 +1059,23 @@ The ui module is making a system call
 int CL_UISystemCalls( int *args ) {
 	switch ( args[0] ) {
 	case UI_ERROR:
+
+#if !defined RTCW_ET
 		Com_Error( ERR_DROP, "%s", VMA( 1 ) );
+#else
+		Com_Error( ERR_DROP, "%s", (char *)VMA( 1 ) );
+#endif RTCW_XX
+
 		return 0;
 
 	case UI_PRINT:
+
+#if !defined RTCW_ET
 		Com_Printf( "%s", VMA( 1 ) );
+#else
+		Com_Printf( "%s", (char *)VMA( 1 ) );
+#endif RTCW_XX
+
 		return 0;
 
 	case UI_MILLISECONDS:
@@ -915,6 +1099,12 @@ int CL_UISystemCalls( int *args ) {
 	case UI_CVAR_VARIABLESTRINGBUFFER:
 		Cvar_VariableStringBuffer( VMA( 1 ), VMA( 2 ), args[3] );
 		return 0;
+
+#if defined RTCW_ET
+	case UI_CVAR_LATCHEDVARIABLESTRINGBUFFER:
+		Cvar_LatchedVariableStringBuffer( VMA( 1 ), VMA( 2 ), args[3] );
+		return 0;
+#endif RTCW_XX
 
 	case UI_CVAR_SETVALUE:
 		Cvar_SetValue( VMA( 1 ), VMF( 2 ) );
@@ -942,6 +1132,12 @@ int CL_UISystemCalls( int *args ) {
 	case UI_CMD_EXECUTETEXT:
 		Cbuf_ExecuteText( args[1], VMA( 2 ) );
 		return 0;
+
+#if defined RTCW_ET
+	case UI_ADDCOMMAND:
+		Cmd_AddCommand( VMA( 1 ), NULL );
+		return 0;
+#endif RTCW_XX
 
 	case UI_FS_FOPENFILE:
 		return FS_FOpenFileByMode( VMA( 1 ), VMA( 2 ), args[3] );
@@ -1000,7 +1196,15 @@ int CL_UISystemCalls( int *args ) {
 		// done.
 
 	case UI_R_ADDLIGHTTOSCENE:
+
+#if !defined RTCW_ET
 		re.AddLightToScene( VMA( 1 ), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), args[6] );
+#else
+		// ydnar: new dlight code
+		//%	re.AddLightToScene( VMA(1), VMF(2), VMF(3), VMF(4), VMF(5), args[6] );
+		re.AddLightToScene( VMA( 1 ), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ), args[7], args[8] );
+#endif RTCW_XX
+
 		return 0;
 
 	case UI_R_ADDCORONATOSCENE:
@@ -1015,9 +1219,21 @@ int CL_UISystemCalls( int *args ) {
 		re.SetColor( VMA( 1 ) );
 		return 0;
 
+#if defined RTCW_ET
+	case UI_R_DRAW2DPOLYS:
+		re.Add2dPolys( VMA( 1 ), args[2], args[3] );
+		return 0;
+#endif RTCW_XX
+
 	case UI_R_DRAWSTRETCHPIC:
 		re.DrawStretchPic( VMF( 1 ), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ), VMF( 7 ), VMF( 8 ), args[9] );
 		return 0;
+
+#if defined RTCW_ET
+	case UI_R_DRAWROTATEDPIC:
+		re.DrawRotatedPic( VMF( 1 ), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ), VMF( 7 ), VMF( 8 ), args[9], VMF( 10 ) );
+		return 0;
+#endif RTCW_XX
 
 	case UI_R_MODELBOUNDS:
 		re.ModelBounds( args[1], VMA( 2 ), VMA( 3 ) );
@@ -1034,21 +1250,39 @@ int CL_UISystemCalls( int *args ) {
 #ifdef DOOMSOUND    ///// (SA) DOOMSOUND
 		return S_RegisterSound( VMA( 1 ) );
 #else
+
+#if !defined RTCW_ET
 		return S_RegisterSound( VMA( 1 ), qfalse );
+#else
+		return S_RegisterSound( VMA( 1 ), args[2] );
+#endif RTCW_XX
+
 #endif  ///// (SA) DOOMSOUND
 
 	case UI_S_STARTLOCALSOUND:
+
+#if !defined RTCW_ET
 		S_StartLocalSound( args[1], args[2] );
+#else
+		S_StartLocalSound( args[1], args[2], args[3] );
+#endif RTCW_XX
+
 		return 0;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //----(SA)	added
 	case UI_S_FADESTREAMINGSOUND:
 		S_FadeStreamingSound( VMF( 1 ), args[2], args[3] );
 		return 0;
 
 	case UI_S_FADEALLSOUNDS:
+
+#if !defined RTCW_ET
 		S_FadeAllSounds( VMF( 1 ), args[2] );
+#else
+		S_FadeAllSounds( VMF( 1 ), args[2], args[3] );
+#endif RTCW_XX
+
 		return 0;
 //----(SA)	end
 #endif RTCW_XX
@@ -1064,6 +1298,12 @@ int CL_UISystemCalls( int *args ) {
 	case UI_KEY_SETBINDING:
 		Key_SetBinding( args[1], VMA( 2 ) );
 		return 0;
+
+#if defined RTCW_ET
+	case UI_KEY_BINDINGTOKEYS:
+		Key_GetBindingByString( VMA( 1 ), VMA( 2 ), VMA( 3 ) );
+		return 0;
+#endif RTCW_XX
 
 	case UI_KEY_ISDOWN:
 		return Key_IsDown( args[1] );
@@ -1162,7 +1402,12 @@ int CL_UISystemCalls( int *args ) {
 	case UI_LAN_SERVERSTATUS:
 		return LAN_GetServerStatus( VMA( 1 ), VMA( 2 ), args[3] );
 
-#if defined RTCW_MP
+#if defined RTCW_ET
+	case UI_LAN_SERVERISINFAVORITELIST:
+		return LAN_ServerIsInFavoriteList( args[1], args[2] );
+#endif RTCW_XX
+
+#if !defined RTCW_SP
 	case UI_SET_PBCLSTATUS:
 		return 0;
 
@@ -1217,6 +1462,13 @@ int CL_UISystemCalls( int *args ) {
 
 	case UI_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( VMA( 1 ) );
+
+#if defined RTCW_ET
+	case UI_PC_REMOVE_ALL_GLOBAL_DEFINES:
+		botlib_export->PC_RemoveAllGlobalDefines();
+		return 0;
+#endif RTCW_XX
+
 	case UI_PC_LOAD_SOURCE:
 		return botlib_export->PC_LoadSourceHandle( VMA( 1 ) );
 	case UI_PC_FREE_SOURCE:
@@ -1226,14 +1478,21 @@ int CL_UISystemCalls( int *args ) {
 	case UI_PC_SOURCE_FILE_AND_LINE:
 		return botlib_export->PC_SourceFileAndLine( args[1], VMA( 2 ), VMA( 3 ) );
 
+#if defined RTCW_ET
+	case UI_PC_UNREAD_TOKEN:
+		botlib_export->PC_UnreadLastTokenHandle( args[1] );
+		return 0;
+#endif RTCW_XX
+
+
 	case UI_S_STOPBACKGROUNDTRACK:
 		S_StopBackgroundTrack();
 		return 0;
 	case UI_S_STARTBACKGROUNDTRACK:
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		S_StartBackgroundTrack( VMA( 1 ), VMA( 2 ), args[3] );   //----(SA)	added fadeup time
-#elif defined RTCW_MP
+#else
 		S_StartBackgroundTrack( VMA( 1 ), VMA( 2 ) );
 #endif RTCW_XX
 
@@ -1275,7 +1534,7 @@ int CL_UISystemCalls( int *args ) {
 		// -NERVE - SMF
 #endif RTCW_XX
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	case UI_CL_TRANSLATE_STRING:
 		CL_TranslateString( VMA( 1 ), VMA( 2 ) );
 		return 0;
@@ -1295,6 +1554,13 @@ int CL_UISystemCalls( int *args ) {
 		CL_OpenURL( (const char *)VMA( 1 ) );
 		return 0;
 #endif RTCW_XX
+
+#if defined RTCW_ET
+	case UI_GETHUNKDATA:
+		Com_GetHunkInfo( VMA( 1 ), VMA( 2 ) );
+		return 0;
+#endif RTCW_XX
+
 
 	default:
 		Com_Error( ERR_DROP, "Bad UI system trap: %i", args[0] );
@@ -1347,7 +1613,7 @@ void CL_InitUI( void ) {
 #else
 	uivm = VM_Create( "ui", CL_UISystemCalls, Cvar_VariableValue( "vm_ui" ) );
 #endif
-#elif defined RTCW_MP
+#else
 	uivm = VM_Create( "ui", CL_UISystemCalls, VMI_NATIVE );
 #endif RTCW_XX
 
@@ -1375,7 +1641,7 @@ qboolean UI_usesUniqueCDKey() {
 	}
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 qboolean UI_checkKeyExec( int key ) {
 	if ( uivm ) {
 		return VM_Call( uivm, UI_CHECKEXECKEY, key );

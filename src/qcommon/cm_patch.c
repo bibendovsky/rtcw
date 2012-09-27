@@ -46,7 +46,7 @@ WARNING: this may misbehave with meshes that have rows or columns that only
 degenerate a few triangles.  Completely degenerate rows and columns are handled
 properly.
 */
-#elif defined RTCW_MP
+#else
 //#define	CULL_BBOX
 
 /*
@@ -128,7 +128,7 @@ typedef struct {
 #define	WRAP_POINT_EPSILON	0.1
 */
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #define ADDBEVELS
 #endif RTCW_XX
 
@@ -401,7 +401,7 @@ static void CM_SubdivideGridColumns( cGrid_t *grid ) {
 	}
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #define POINT_EPSILON   0.1
 #endif RTCW_XX
 
@@ -493,10 +493,19 @@ int CM_PlaneEqual( patchPlane_t *p, float plane[4], int *flipped ) {
 	float invplane[4];
 
 	if (
+
+#if !defined RTCW_ET
 		fabs( p->plane[0] - plane[0] ) < NORMAL_EPSILON
 		&& fabs( p->plane[1] - plane[1] ) < NORMAL_EPSILON
 		&& fabs( p->plane[2] - plane[2] ) < NORMAL_EPSILON
 		&& fabs( p->plane[3] - plane[3] ) < DIST_EPSILON ) {
+#else
+		Q_fabs( p->plane[0] - plane[0] ) < NORMAL_EPSILON
+		&& Q_fabs( p->plane[1] - plane[1] ) < NORMAL_EPSILON
+		&& Q_fabs( p->plane[2] - plane[2] ) < NORMAL_EPSILON
+		&& Q_fabs( p->plane[3] - plane[3] ) < DIST_EPSILON ) {
+#endif RTCW_XX
+
 		*flipped = qfalse;
 		return qtrue;
 	}
@@ -505,10 +514,19 @@ int CM_PlaneEqual( patchPlane_t *p, float plane[4], int *flipped ) {
 	invplane[3] = -plane[3];
 
 	if (
+
+#if !defined RTCW_ET
 		fabs( p->plane[0] - invplane[0] ) < NORMAL_EPSILON
 		&& fabs( p->plane[1] - invplane[1] ) < NORMAL_EPSILON
 		&& fabs( p->plane[2] - invplane[2] ) < NORMAL_EPSILON
 		&& fabs( p->plane[3] - invplane[3] ) < DIST_EPSILON ) {
+#else
+		Q_fabs( p->plane[0] - invplane[0] ) < NORMAL_EPSILON
+		&& Q_fabs( p->plane[1] - invplane[1] ) < NORMAL_EPSILON
+		&& Q_fabs( p->plane[2] - invplane[2] ) < NORMAL_EPSILON
+		&& Q_fabs( p->plane[3] - invplane[3] ) < DIST_EPSILON ) {
+#endif RTCW_XX
+
 		*flipped = qtrue;
 		return qtrue;
 	}
@@ -526,12 +544,24 @@ void CM_SnapVector( vec3_t normal ) {
 
 	for ( i = 0 ; i < 3 ; i++ )
 	{
+
+#if !defined RTCW_ET
 		if ( fabs( normal[i] - 1 ) < NORMAL_EPSILON ) {
+#else
+		if ( Q_fabs( normal[i] - 1 ) < NORMAL_EPSILON ) {
+#endif RTCW_XX
+
 			VectorClear( normal );
 			normal[i] = 1;
 			break;
 		}
+
+#if !defined RTCW_ET
 		if ( fabs( normal[i] - -1 ) < NORMAL_EPSILON ) {
+#else
+		if ( Q_fabs( normal[i] - -1 ) < NORMAL_EPSILON ) {
+#endif RTCW_XX
+
 			VectorClear( normal );
 			normal[i] = -1;
 			break;
@@ -828,6 +858,11 @@ static qboolean CM_ValidateFacet( facet_t *facet ) {
 	w = BaseWindingForPlane( plane,  plane[3] );
 	for ( j = 0 ; j < facet->numBorders && w ; j++ ) {
 		if ( facet->borderPlanes[j] == -1 ) {
+
+#if defined RTCW_ET
+			FreeWinding( w );
+#endif RTCW_XX
+
 			return qfalse;
 		}
 		Vector4Copy( planes[ facet->borderPlanes[j] ].plane, plane );
@@ -848,7 +883,7 @@ static qboolean CM_ValidateFacet( facet_t *facet ) {
 
 	for ( j = 0 ; j < 3 ; j++ ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		if ( bounds[1][j] - bounds[0][j] > MAX_MAP_BOUNDS ) {
 			return qfalse;      // we must be missing a plane
 		}
@@ -858,7 +893,7 @@ static qboolean CM_ValidateFacet( facet_t *facet ) {
 		if ( bounds[1][j] <= -MAX_MAP_BOUNDS ) {
 			return qfalse;
 		}
-#elif defined RTCW_MP
+#else
 		if ( bounds[1][j] - bounds[0][j] > 4096 ) {
 			return qfalse;      // we must be missing a plane
 		}
@@ -878,11 +913,17 @@ void CM_AddFacetBevels( facet_t *facet ) {
 
 	int i, j, k, l;
 	int axis, dir, order, flipped;
+
+#if !defined RTCW_ET
 	float plane[4], d, newplane[4];
+#else
+	float plane[4], d, minBack, newplane[4];
+#endif RTCW_XX
+
 	winding_t *w, *w2;
 	vec3_t mins, maxs, vec, vec2;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #ifndef ADDBEVELS
 	return;
 #endif
@@ -912,10 +953,17 @@ void CM_AddFacetBevels( facet_t *facet ) {
 
 	// add the axial planes
 	order = 0;
+
+#if !defined RTCW_ET
 	for ( axis = 0 ; axis < 3 ; axis++ )
 	{
 		for ( dir = -1 ; dir <= 1 ; dir += 2, order++ )
 		{
+#else
+	for ( axis = 0; axis < 3; axis++ ) {
+		for ( dir = -1; dir <= 1; dir += 2, order++ ) {
+#endif RTCW_XX
+
 			VectorClear( plane );
 			plane[axis] = dir;
 			if ( dir == 1 ) {
@@ -928,9 +976,23 @@ void CM_AddFacetBevels( facet_t *facet ) {
 				continue;
 			}
 			// see if the plane is allready present
+
+#if !defined RTCW_ET
 			for ( i = 0 ; i < facet->numBorders ; i++ ) {
 				if ( CM_PlaneEqual( &planes[facet->borderPlanes[i]], plane, &flipped ) ) {
 					break;
+#else
+			for ( i = 0; i < facet->numBorders; i++ ) {
+				if ( dir > 0 ) {
+					if ( planes[facet->borderPlanes[i]].plane[axis] >= 0.9999f ) {
+						break;
+					}
+				} else {
+					if ( planes[facet->borderPlanes[i]].plane[axis] <= -0.9999f ) {
+						break;
+					}
+#endif RTCW_XX
+
 				}
 			}
 
@@ -949,6 +1011,8 @@ void CM_AddFacetBevels( facet_t *facet ) {
 	// add the edge bevels
 	//
 	// test the non-axial plane edges
+
+#if !defined RTCW_ET
 	for ( j = 0 ; j < w->numpoints ; j++ )
 	{
 		k = ( j + 1 ) % w->numpoints;
@@ -966,6 +1030,26 @@ void CM_AddFacetBevels( facet_t *facet ) {
 			continue;   // only test non-axial edges
 
 		}
+#else
+	for ( j = 0; j < w->numpoints; j++ )
+	{
+		k = ( j + 1 ) % w->numpoints;
+		VectorSubtract( w->p[j], w->p[k], vec );
+		//if it's a degenerate edge
+		if ( VectorNormalize( vec ) < 0.5f ) {
+			continue;
+		}
+		CM_SnapVector( vec );
+		for ( k = 0; k < 3; k++ ) {
+			if ( vec[k] == -1.0f || vec[k] == 1.0f || ( vec[k] == 0.0f && vec[( k + 1 ) % 3] == 0.0f ) ) {
+				break;  // axial
+			}
+		}
+		if ( k < 3 ) {
+			continue;   // only test non-axial edges
+		}
+#endif RTCW_XX
+
 		// try the six possible slanted axials from this edge
 		for ( axis = 0 ; axis < 3 ; axis++ )
 		{
@@ -975,13 +1059,21 @@ void CM_AddFacetBevels( facet_t *facet ) {
 				VectorClear( vec2 );
 				vec2[axis] = dir;
 				CrossProduct( vec, vec2, plane );
+
+#if !defined RTCW_ET
 				if ( VectorNormalize( plane ) < 0.5 ) {
+#else
+				if ( VectorNormalize( plane ) < 0.5f ) {
+#endif RTCW_XX
+
 					continue;
 				}
 				plane[3] = DotProduct( w->p[j], plane );
 
 				// if all the points of the facet winding are
 				// behind this plane, it is a proper edge bevel
+
+#if !defined RTCW_ET
 				for ( l = 0 ; l < w->numpoints ; l++ )
 				{
 					d = DotProduct( w->p[l], plane ) - plane[3];
@@ -989,9 +1081,31 @@ void CM_AddFacetBevels( facet_t *facet ) {
 						break;  // point in front
 					}
 				}
+#else
+				minBack = 0.0f;
+				for ( l = 0; l < w->numpoints; l++ )
+				{
+					d = DotProduct( w->p[l], plane ) - plane[3];
+					if ( d > 0.1f ) {
+						break;  // point in front
+					}
+					if ( d < minBack ) {
+						minBack = d;
+					}
+				}
+				// if some point was at the front
+#endif RTCW_XX
+
 				if ( l < w->numpoints ) {
 					continue;
 				}
+
+#if defined RTCW_ET
+				// if no points at the back then the winding is on the bevel plane
+				if ( minBack > -0.1f ) {
+					break;
+				}
+#endif RTCW_XX
 
 				//if it's the surface plane
 				if ( CM_PlaneEqual( &planes[facet->surfacePlane], plane, &flipped ) ) {
@@ -1031,7 +1145,7 @@ void CM_AddFacetBevels( facet_t *facet ) {
 
 #if defined RTCW_SP
 						Com_DPrintf( "WARNING: CM_AddFacetBevels... invalid bevel\n" );
-#elif defined RTCW_MP
+#else
 						// TTimo - can't stand this, useless and noisy
 						//Com_DPrintf("WARNING: CM_AddFacetBevels... invalid bevel\n");
 #endif RTCW_XX
@@ -1072,7 +1186,13 @@ typedef enum {
 CM_PatchCollideFromGrid
 ==================
 */
+
+#if !defined RTCW_ET
 static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
+#else
+static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf, qboolean addBevels ) {
+#endif RTCW_XX
+
 	int i, j;
 	float           *p1, *p2, *p3;
 	MAC_STATIC int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2];
@@ -1151,9 +1271,9 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 			}
 			facet = &facets[numFacets];
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 			Com_Memset( facet, 0, sizeof( *facet ) );
-#elif defined RTCW_MP
+#else
 			memset( facet, 0, sizeof( *facet ) );
 #endif RTCW_XX
 
@@ -1174,7 +1294,15 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 				facet->borderNoAdjust[3] = noAdjust[EN_LEFT];
 				CM_SetBorderInward( facet, grid, gridPlanes, i, j, -1 );
 				if ( CM_ValidateFacet( facet ) ) {
+
+#if !defined RTCW_ET
 					CM_AddFacetBevels( facet );
+#else
+					if ( addBevels ) {
+						CM_AddFacetBevels( facet );
+					}
+#endif RTCW_XX
+
 					numFacets++;
 				}
 			} else {
@@ -1194,7 +1322,15 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 				}
 				CM_SetBorderInward( facet, grid, gridPlanes, i, j, 0 );
 				if ( CM_ValidateFacet( facet ) ) {
+
+#if !defined RTCW_ET
 					CM_AddFacetBevels( facet );
+#else
+					if ( addBevels ) {
+						CM_AddFacetBevels( facet );
+					}
+#endif RTCW_XX
+
 					numFacets++;
 				}
 
@@ -1203,9 +1339,9 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 				}
 				facet = &facets[numFacets];
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 				Com_Memset( facet, 0, sizeof( *facet ) );
-#elif defined RTCW_MP
+#else
 				memset( facet, 0, sizeof( *facet ) );
 #endif RTCW_XX
 
@@ -1224,7 +1360,15 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 				}
 				CM_SetBorderInward( facet, grid, gridPlanes, i, j, 1 );
 				if ( CM_ValidateFacet( facet ) ) {
+
+#if !defined RTCW_ET
 					CM_AddFacetBevels( facet );
+#else
+					if ( addBevels ) {
+						CM_AddFacetBevels( facet );
+					}
+#endif RTCW_XX
+
 					numFacets++;
 				}
 			}
@@ -1236,17 +1380,17 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 	pf->numFacets = numFacets;
 	pf->facets = Hunk_Alloc( numFacets * sizeof( *pf->facets ), h_high );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	Com_Memcpy( pf->facets, facets, numFacets * sizeof( *pf->facets ) );
-#elif defined RTCW_MP
+#else
 	memcpy( pf->facets, facets, numFacets * sizeof( *pf->facets ) );
 #endif RTCW_XX
 
 	pf->planes = Hunk_Alloc( numPlanes * sizeof( *pf->planes ), h_high );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	Com_Memcpy( pf->planes, planes, numPlanes * sizeof( *pf->planes ) );
-#elif defined RTCW_MP
+#else
 	memcpy( pf->planes, planes, numPlanes * sizeof( *pf->planes ) );
 #endif RTCW_XX
 
@@ -1263,7 +1407,13 @@ collision detection with a patch mesh.
 Points is packed as concatenated rows.
 ===================
 */
+
+#if !defined RTCW_ET
 struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t *points ) {
+#else
+struct patchCollide_s *CM_GeneratePatchCollide( int width, int height, vec3_t *points, qboolean addBevels ) {
+#endif RTCW_XX
+
 	patchCollide_t  *pf;
 	MAC_STATIC cGrid_t grid;
 	int i, j;
@@ -1317,7 +1467,12 @@ struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t 
 	c_totalPatchBlocks += ( grid.width - 1 ) * ( grid.height - 1 );
 
 	// generate a bsp tree for the surface
+
+#if !defined RTCW_ET
 	CM_PatchCollideFromGrid( &grid, pf );
+#else
+	CM_PatchCollideFromGrid( &grid, pf, addBevels );
+#endif RTCW_XX
 
 	// expand by one unit for epsilon purposes
 	pf->bounds[0][0] -= 1;
@@ -1339,7 +1494,7 @@ TRACE TESTING
 ================================================================================
 */
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 ====================
 CM_TraceThroughPatchCollide
@@ -1466,7 +1621,7 @@ void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollid
 	if ( !cm_playerCurveClip->integer || !tw->isPoint ) {
 		return;
 	}
-#elif defined RTCW_MP
+#else
 	if ( !cm_playerCurveClip->integer && !tw->isPoint ) {
 		return;     // FIXME: until I get player sized clipping working right
 	}
@@ -1566,7 +1721,7 @@ int CM_CheckFacetPlane( float *plane, vec3_t start, vec3_t end, float *enterFrac
 	// if completely in front of face, no intersection with the entire facet
 	if ( d1 > 0 && ( d2 >= SURFACE_CLIP_EPSILON || d2 >= d1 )  ) {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 //	if (d1 > 0 && d2 > 0) {
 #endif RTCW_XX
 
@@ -1622,7 +1777,7 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 		return;
 	}
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 #ifndef ADDBEVELS
 	CM_TracePointThroughPatchCollide( tw, pc );
 	return;
@@ -1646,9 +1801,9 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 			// find the closest point on the capsule to the plane
 			t = DotProduct( plane, tw->sphere.offset );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 			if ( t > 0.0f ) {
-#elif defined RTCW_MP
+#else
 			if ( t > 0 ) {
 #endif RTCW_XX
 
@@ -1688,9 +1843,9 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 				// find the closest point on the capsule to the plane
 				t = DotProduct( plane, tw->sphere.offset );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 				if ( t > 0.0f ) {
-#elif defined RTCW_MP
+#else
 				if ( t > 0 ) {
 #endif RTCW_XX
 
@@ -1703,7 +1858,13 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 			} else {
 				// NOTE: this works even though the plane might be flipped because the bbox is centered
 				offset = DotProduct( tw->offsets[ planes->signbits ], plane );
+
+#if !defined RTCW_ET
 				plane[3] += fabs( offset );
+#else
+				plane[3] += Q_fabs( offset );
+#endif RTCW_XX
+
 				VectorCopy( tw->start, startp );
 				VectorCopy( tw->end, endp );
 			}
@@ -1762,13 +1923,13 @@ POSITION TEST
 #define BOX_CROSS   2
 #endif RTCW_XX
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 /*
 ====================
 CM_PositionTestInPatchCollide
 ====================
 */
-#elif defined RTCW_MP
+#else
 /*
 ====================
 CM_PositionTestInPatchCollide
@@ -1780,7 +1941,7 @@ Modifies tr->tr if any of the facets effect the trace
 
 qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	int i, j;
 	float offset, t;
 	patchPlane_t *planes;
@@ -1841,7 +2002,13 @@ qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchColli
 			} else {
 				// NOTE: this works even though the plane might be flipped because the bbox is centered
 				offset = DotProduct( tw->offsets[ planes->signbits ], plane );
+
+#if !defined RTCW_ET
 				plane[3] += fabs( offset );
+#else
+				plane[3] += Q_fabs( offset );
+#endif RTCW_XX
+
 				VectorCopy( tw->start, startp );
 			}
 
@@ -1855,7 +2022,7 @@ qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchColli
 		// inside this patch facet
 		return qtrue;
 	}
-#elif defined RTCW_MP
+#else
 	int cross[MAX_PATCH_PLANES];
 	const patchPlane_t  *planes;
 	const facet_t   *facet;
@@ -1934,7 +2101,15 @@ Called from the renderer
 ==================
 */
 #ifndef BSPC
+
+#if !defined RTCW_ET
 void BotDrawDebugPolygons( void ( *drawPoly )( int color, int numPoints, float *points ), int value );
+#else
+typedef void ( *BotPolyFunc )( int color, int numPoints, float *points );
+
+void BotDrawDebugPolygons( BotPolyFunc drawPoly, int value );
+#endif RTCW_XX
+
 #endif
 
 void CM_DrawDebugSurface( void ( *drawPoly )( int color, int numPoints, float *points ) ) {
@@ -2004,7 +2179,13 @@ void CM_DrawDebugSurface( void ( *drawPoly )( int color, int numPoints, float *p
 				} else { v1[n] = mins[n];}
 			} //end for
 			VectorNegate( plane, v2 );
+
+#if !defined RTCW_ET
 			plane[3] += fabs( DotProduct( v1, v2 ) );
+#else
+			plane[3] += Q_fabs( DotProduct( v1, v2 ) );
+#endif RTCW_XX
+
 			//*/
 
 			w = BaseWindingForPlane( plane,  plane[3] );
@@ -2038,7 +2219,12 @@ void CM_DrawDebugSurface( void ( *drawPoly )( int color, int numPoints, float *p
 					} else { v1[n] = mins[n];}
 				} //end for
 				VectorNegate( plane, v2 );
+
+#if !defined RTCW_ET
 				plane[3] -= fabs( DotProduct( v1, v2 ) );
+#else
+				plane[3] -= Q_fabs( DotProduct( v1, v2 ) );
+#endif RTCW_XX
 
 				ChopWindingInPlace( &w, plane, plane[3], 0.1f );
 			}

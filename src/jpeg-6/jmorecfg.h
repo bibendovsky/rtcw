@@ -149,7 +149,17 @@ typedef unsigned short UINT16;
 typedef unsigned int UINT16;
 #endif /* HAVE_UNSIGNED_SHORT */
 
+#if !defined RTCW_ET
 typedef long INT32;
+#else
+#ifndef __MACOS__
+#ifndef _WIN32
+typedef long INT32;
+#else
+typedef int INT32;
+#endif
+#endif
+#endif RTCW_XX
 
 /* INT16 must hold at least the values -32768..32767. */
 

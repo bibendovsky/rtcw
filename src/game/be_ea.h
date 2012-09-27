@@ -63,6 +63,11 @@ void EA_MoveLeft( int client );
 void EA_MoveRight( int client );
 void EA_Move( int client, vec3_t dir, float speed );
 void EA_View( int client, vec3_t viewangles );
+
+#if defined RTCW_ET
+void EA_Prone( int client );
+#endif RTCW_XX
+
 //send regular input to the server
 void EA_EndRegular( int client, float thinktime );
 void EA_GetInput( int client, float thinktime, bot_input_t *input );

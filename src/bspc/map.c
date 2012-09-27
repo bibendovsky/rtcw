@@ -41,10 +41,17 @@ If you have questions concerning this license or the applicable additional terms
 #include "l_bsp_hl.h"
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 #include "l_bsp_q1.h"
 #include "l_bsp_q2.h"
+#endif RTCW_XX
+
 #include "l_bsp_q3.h"
+
+#if !defined RTCW_ET
 #include "l_bsp_sin.h"
+#endif RTCW_XX
+
 #include "l_mem.h"
 #include "../botlib/aasfile.h"           //aas_bbox_t
 #include "aas_store.h"       //AAS_MAX_BBOXES
@@ -166,6 +173,9 @@ int PlaneTypeForNormal( vec3_t normal ) {
 #define NORMAL_EPSILON  0.0001
 //ME NOTE: changed from 0.01
 #define DIST_EPSILON    0.02
+#else
+#define NORMAL_EPSILON  0.00001f
+#define DIST_EPSILON    0.01f
 #endif RTCW_XX
 
 qboolean    PlaneEqual( plane_t *p, vec3_t normal, vec_t dist ) {
@@ -196,8 +206,13 @@ qboolean    PlaneEqual( plane_t *p, vec3_t normal, vec_t dist ) {
 void AddPlaneToHash( plane_t *p ) {
 	int hash;
 
+#if !defined RTCW_ET
 	hash = (int)fabs( p->dist ) / 8;
 	hash &= ( PLANE_HASHES - 1 );
+#else
+	hash = ( PLANE_HASHES - 1 ) & (int)fabs( p->dist );
+#endif RTCW_XX
+
 
 	p->hash_chain = planehash[hash];
 	planehash[hash] = p;
@@ -281,9 +296,16 @@ void SnapVector( vec3_t normal ) {
 void SnapPlane( vec3_t normal, vec_t *dist ) {
 	SnapVector( normal );
 
+#if !defined RTCW_ET
 	if ( fabs( *dist - Q_rint( *dist ) ) < DIST_EPSILON ) {
 		*dist = Q_rint( *dist );
 	}
+#else
+/*	if (fabs(*dist-Q_rint(*dist)) < DIST_EPSILON)
+		*dist = Q_rint(*dist);
+*/
+#endif RTCW_XX
+
 } //end of the function SnapPlane
 //===========================================================================
 //
@@ -291,6 +313,8 @@ void SnapPlane( vec3_t normal, vec_t *dist ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if !defined RTCW_ET
 #ifndef USE_HASHING
 int FindFloatPlane( vec3_t normal, vec_t dist ) {
 	int i;
@@ -335,6 +359,74 @@ int FindFloatPlane( vec3_t normal, vec_t dist ) {
 	return i;
 } //end of the function FindFloatPlane
 #endif
+#else
+#ifndef USE_HASHING
+int FindFloatPlane( vec3_t normal, vec_t dist, int numPoints, vec3_t* points ) {
+	int i;
+	plane_t *p;
+
+	SnapPlane( normal, &dist );
+	for ( i = 0, p = mapplanes; i < nummapplanes; i++, p++ ) {
+
+		if ( PlaneEqual( p, normal, dist ) ) {
+			mapplaneusers[i]++;
+			return i;
+		}
+	}
+
+	i = CreateNewFloatPlane( normal, dist );
+	mapplaneusers[i]++;
+
+	return i;
+}
+
+#else
+int FindFloatPlane( vec3_t normal, vec_t dist, int numPoints, vec3_t* points ) {
+	plane_t *p;
+	int hash, i, j, h;
+
+	SnapPlane( normal, &dist );
+
+	hash = ( PLANE_HASHES - 1 ) & (int)fabs( dist );
+
+	// search the border bins as well
+	for ( i = -1; i <= 1; i++ ) {
+
+		h = ( hash + i ) & ( PLANE_HASHES - 1 );
+		for ( p = planehash[h]; p; p = p->hash_chain ) {
+			if ( !PlaneEqual( p, normal, dist ) ) {
+				continue;
+			}
+
+			// Gordon: old styleeee
+			mapplaneusers[p - mapplanes]++;
+			return p - mapplanes;
+
+
+			for ( j = 0; j < numPoints; j++ ) {
+				vec_t d = DotProduct( points[j], normal ) - dist;
+				if ( fabs( d ) > DIST_EPSILON ) {
+					break;
+				}
+			}
+
+			if ( j == numPoints ) {
+				mapplaneusers[p - mapplanes]++;
+				return p - mapplanes;
+			} else {
+				qprintf( "Not all points on plane matched\n" );
+			}
+		}
+	}
+
+	i = CreateNewFloatPlane( normal, dist );
+	mapplaneusers[i]++;
+
+	return i;
+}
+#endif
+#endif RTCW_XX
+
 //===========================================================================
 //
 // Parameter:				-
@@ -345,6 +437,14 @@ int PlaneFromPoints( int *p0, int *p1, int *p2 ) {
 	vec3_t t1, t2, normal;
 	vec_t dist;
 
+#if defined RTCW_ET
+	vec3_t points[3];
+
+	VectorCopy( p0, points[0] );
+	VectorCopy( p1, points[1] );
+	VectorCopy( p2, points[2] );
+#endif RTCW_XX
+
 	VectorSubtract( p0, p1, t1 );
 	VectorSubtract( p2, p1, t2 );
 	CrossProduct( t1, t2, normal );
@@ -352,7 +452,12 @@ int PlaneFromPoints( int *p0, int *p1, int *p2 ) {
 
 	dist = DotProduct( p0, normal );
 
+#if !defined RTCW_ET
 	return FindFloatPlane( normal, dist );
+#else
+	return FindFloatPlane( normal, dist, 3, points );
+#endif RTCW_XX
+
 } //end of the function PlaneFromPoints
 //===========================================================================
 // Adds any additional planes necessary to allow the brush to be expanded
@@ -362,6 +467,188 @@ int PlaneFromPoints( int *p0, int *p1, int *p2 ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if defined RTCW_ET && defined MRE_ET
+void AddBrushBevels( mapbrush_t *b ) {
+	int axis, dir;
+	int i, j, k, l, order;
+	side_t sidetemp;
+	brush_texture_t tdtemp;
+#ifdef SIN
+	textureref_t trtemp;
+#endif
+	side_t  *s, *s2;
+	vec3_t normal;
+	float dist;
+	winding_t   *w, *w2;
+	vec3_t vec, vec2;
+	float d, minBack;
+
+	//
+	// add the axial planes
+	//
+	order = 0;
+	for ( axis = 0; axis < 3; axis++ ) {
+		for ( dir = -1; dir <= 1; dir += 2, order++ ) {
+			// see if the plane is allready present
+			for ( i = 0, s = b->original_sides; i < b->numsides; i++, s++ ) {
+				if ( dir > 0 ) {
+					if ( mapplanes[s->planenum].normal[axis] >= 0.9999f ) {
+						break;
+					}
+				} else {
+					if ( mapplanes[s->planenum].normal[axis] <= -0.9999f ) {
+						break;
+					}
+				}
+			}
+
+			if ( i == b->numsides ) {
+				// add a new side
+				if ( nummapbrushsides == MAX_MAP_BRUSHSIDES ) {
+					Error( "MAX_MAP_BRUSHSIDES" );
+				}
+				nummapbrushsides++;
+				b->numsides++;
+				VectorClear( normal );
+				normal[axis] = dir;
+				if ( dir == 1 ) {
+					dist = b->maxs[axis];
+				} else {
+					dist = -b->mins[axis];
+				}
+				s->planenum = FindFloatPlane( normal, dist, 0, NULL );
+				s->texinfo = b->original_sides[0].texinfo;
+#ifdef SIN
+				s->lightinfo = b->original_sides[0].lightinfo;
+#endif
+				s->contents = b->original_sides[0].contents;
+				s->flags |= SFL_BEVEL;
+				c_boxbevels++;
+			}
+
+			// if the plane is not in it canonical order, swap it
+			if ( i != order ) {
+				sidetemp = b->original_sides[order];
+				b->original_sides[order] = b->original_sides[i];
+				b->original_sides[i] = sidetemp;
+
+				j = b->original_sides - brushsides;
+				tdtemp = side_brushtextures[j + order];
+				side_brushtextures[j + order] = side_brushtextures[j + i];
+				side_brushtextures[j + i] = tdtemp;
+
+#ifdef SIN
+				trtemp = side_newrefs[j + order];
+				side_newrefs[j + order] = side_newrefs[j + i];
+				side_newrefs[j + i] = trtemp;
+#endif
+			}
+		}
+	}
+
+	//
+	// add the edge bevels
+	//
+	if ( b->numsides == 6 ) {
+		return;     // pure axial
+	}
+
+	// test the non-axial plane edges
+	for ( i = 6; i < b->numsides; i++ ) {
+		s = b->original_sides + i;
+		w = s->winding;
+		if ( !w ) {
+			continue;
+		}
+		for ( j = 0; j < w->numpoints; j++ ) {
+			k = ( j + 1 ) % w->numpoints;
+			VectorSubtract( w->p[j], w->p[k], vec );
+			if ( VectorNormalize( vec ) < 0.5f ) {
+				continue;
+			}
+			SnapVector( vec );
+			for ( k = 0; k < 3; k++ ) {
+				if ( vec[k] == -1.0f || vec[k] == 1.0f || ( vec[k] == 0.0f && vec[( k + 1 ) % 3] == 0.0f ) ) {
+					break;  // axial
+				}
+			}
+			if ( k != 3 ) {
+				continue;   // only test non-axial edges
+			}
+
+			// try the six possible slanted axials from this edge
+			for ( axis = 0; axis < 3; axis++ ) {
+				for ( dir = -1; dir <= 1; dir += 2 ) {
+					// construct a plane
+					VectorClear( vec2 );
+					vec2[axis] = dir;
+					CrossProduct( vec, vec2, normal );
+					if ( VectorNormalize( normal ) < 0.5f ) {
+						continue;
+					}
+					dist = DotProduct( w->p[j], normal );
+
+					// if all the points on all the sides are
+					// behind this plane, it is a proper edge bevel
+					for ( k = 0; k < b->numsides; k++ ) {
+
+						// if this plane has allready been used, skip it
+						if ( PlaneEqual( &mapplanes[b->original_sides[k].planenum], normal, dist ) ) {
+							break;
+						}
+
+						w2 = b->original_sides[k].winding;
+						if ( !w2 ) {
+							continue;
+						}
+						minBack = 0.0f;
+						for ( l = 0; l < w2->numpoints; l++ ) {
+							d = DotProduct( w2->p[l], normal ) - dist;
+							if ( d > 0.01f ) {
+								break;  // point in front
+							}
+							if ( d < minBack ) {
+								minBack = d;
+							}
+						}
+						// if some point was at the front
+						if ( l != w2->numpoints ) {
+							break;
+						}
+
+						// if no points at the back then the winding is on the bevel plane
+						if ( minBack > -0.1f ) {
+							break;
+						}
+					}
+
+					if ( k != b->numsides ) {
+						continue;   // wasn't part of the outer hull
+					}
+					// add this plane
+					if ( nummapbrushsides == MAX_MAP_BRUSHSIDES ) {
+						Error( "MAX_MAP_BRUSHSIDES" );
+					}
+					nummapbrushsides++;
+					s2 = &b->original_sides[b->numsides];
+					s2->planenum = FindFloatPlane( normal, dist, 0, NULL );
+					s2->texinfo = b->original_sides[0].texinfo;
+#ifdef SIN
+					s2->lightinfo = b->original_sides[0].lightinfo;
+#endif
+					s2->contents = b->original_sides[0].contents;
+					s2->flags |= SFL_BEVEL;
+					c_edgebevels++;
+					b->numsides++;
+				}
+			}
+		}
+	}
+}
+#endif RTCW_XX
+
+#if !defined RTCW_ET || (defined RTCW_ET && !defined MRE_ET)
 void AddBrushBevels( mapbrush_t *b ) {
 	int axis, dir;
 	int i, j, k, l, order;
@@ -406,7 +693,13 @@ void AddBrushBevels( mapbrush_t *b ) {
 				} else {
 					dist = -b->mins[axis];
 				}
+
+#if !defined RTCW_ET
 				s->planenum = FindFloatPlane( normal, dist );
+#else
+				s->planenum = FindFloatPlane( normal, dist, 0, NULL );
+#endif RTCW_XX
+
 				s->texinfo = b->original_sides[0].texinfo;
 #ifdef SIN
 				s->lightinfo = b->original_sides[0].lightinfo;
@@ -516,7 +809,13 @@ void AddBrushBevels( mapbrush_t *b ) {
 					}
 					nummapbrushsides++;
 					s2 = &b->original_sides[b->numsides];
+
+#if !defined RTCW_ET
 					s2->planenum = FindFloatPlane( normal, dist );
+#else
+					s2->planenum = FindFloatPlane( normal, dist, 0, NULL );
+#endif RTCW_XX
+
 					s2->texinfo = b->original_sides[0].texinfo;
 #ifdef SIN
 					s2->lightinfo = b->original_sides[0].lightinfo;
@@ -530,6 +829,8 @@ void AddBrushBevels( mapbrush_t *b ) {
 		}
 	}
 } //end of the function AddBrushBevels
+#endif RTCW_XX
+
 //===========================================================================
 // creates windigs for sides and mins / maxs for the brush
 //
@@ -725,12 +1026,20 @@ qboolean WriteMapBrush( FILE *fp, mapbrush_t *brush, vec3_t origin ) {
 		if ( !( s->flags & SFL_BEVEL ) ) {
 			//if the entity has an origin set
 			if ( origin[0] || origin[1] || origin[2] ) {
+
+#if !defined RTCW_ET
 				newdist = mapplanes[s->planenum].dist +
 						  DotProduct( mapplanes[s->planenum].normal, origin );
 				planenum = FindFloatPlane( mapplanes[s->planenum].normal, newdist );
 			} //end if
 			else
 			{
+#else
+				newdist = mapplanes[s->planenum].dist + DotProduct( mapplanes[s->planenum].normal, origin );
+				planenum = FindFloatPlane( mapplanes[s->planenum].normal, newdist, 0, NULL );
+			} else {
+#endif RTCW_XX
+
 				planenum = s->planenum;
 			} //end else
 			  //always take the first plane, then flip the points if necesary
@@ -779,7 +1088,13 @@ qboolean WriteMapBrush( FILE *fp, mapbrush_t *brush, vec3_t origin ) {
 						}
 					} //end else
 					else if ( loadedmaptype == MAPTYPE_QUAKE3 ) {
+
+#if !defined RTCW_ET
 						if ( fprintf( fp, "e1u1/clip 0 0 0 1 1" ) < 0 ) {
+#else
+						if ( fprintf( fp, "common/clipplayer 0 0 0 1 1" ) < 0 ) {
+#endif RTCW_XX
+
 							return false;
 						}
 					} //end else if
@@ -804,7 +1119,13 @@ qboolean WriteMapBrush( FILE *fp, mapbrush_t *brush, vec3_t origin ) {
 					} //end else
 					else
 					{
+
+#if !defined RTCW_ET
 						if ( fprintf( fp, "clip 0 0 0 1 1" ) < 0 ) {
+#else
+						if ( fprintf( fp, "common/clipmonster 0 0 0 1 1" ) < 0 ) {
+#endif RTCW_XX
+
 							return false;
 						}
 					} //end else
@@ -817,6 +1138,8 @@ qboolean WriteMapBrush( FILE *fp, mapbrush_t *brush, vec3_t origin ) {
 					Log_Write( "brush->contents = %d\n", brush->contents );
 				} //end else
 			} //end if
+
+#if !defined RTCW_ET
 			else if ( loadedmaptype == MAPTYPE_SIN && s->texinfo == 0 ) {
 				if ( brush->contents & CONTENTS_DUMMYFENCE ) {
 					if ( fprintf( fp, "generic/misc/fence 0 0 0 1 1" ) < 0 ) {
@@ -835,9 +1158,33 @@ qboolean WriteMapBrush( FILE *fp, mapbrush_t *brush, vec3_t origin ) {
 					}
 				} //end else
 			} //end if
+#else
+/*			else if (loadedmaptype == MAPTYPE_SIN && s->texinfo == 0)
+			{
+				if (brush->contents & CONTENTS_DUMMYFENCE)
+				{
+					if (fprintf(fp, "generic/misc/fence 0 0 0 1 1") < 0) return false;
+				} //end if
+				else if (brush->contents & CONTENTS_MIST)
+				{
+					if (fprintf(fp, "generic/misc/volumetric_base 0 0 0 1 1") < 0) return false;
+				} //end if
+				else //unknown so far
+				{
+					if (fprintf(fp, "generic/misc/red 0 0 0 1 1") < 0) return false;
+				} //end else
+			} //end if*/
+#endif RTCW_XX
+
 			else if ( loadedmaptype == MAPTYPE_QUAKE3 ) {
 				//always use the same texture
+
+#if !defined RTCW_ET
 				if ( fprintf( fp, "e2u3/floor1_2 0 0 0 1 1 1 0 0" ) < 0 ) {
+#else
+				if ( fprintf( fp, "common/caulk 0 0 0 1 1 1 0 0" ) < 0 ) {
+#endif RTCW_XX
+
 					return false;
 				}
 			} //end else if
@@ -924,7 +1271,7 @@ qboolean WriteMapBrush( FILE *fp, mapbrush_t *brush, vec3_t origin ) {
 
 #if defined RTCW_SP
 					if ( fprintf( fp, " %d %d %d", s->contents, ti->flags, ti->value ) < 0 ) {
-#elif defined RTCW_MP
+#else
 					if ( fprintf( fp, " %ld %ld %ld", s->contents, ti->flags, ti->value ) < 0 ) {
 #endif RTCW_XX
 
@@ -1027,7 +1374,7 @@ mapbrush_t *GetAreaPortalBrush( entity_t *mapent ) {
 
 #if defined RTCW_SP
 	mapbrush_t *brush = NULL; // TTimo: init
-#elif defined RTCW_MP
+#else
 	mapbrush_t *brush;
 #endif RTCW_XX
 
@@ -1248,8 +1595,10 @@ void ResetMapLoading( void ) {
 	int i;
 	epair_t *ep, *nextep;
 
+#if !defined RTCW_ET
 	Q2_ResetMapLoading();
 	Sin_ResetMapLoading();
+#endif RTCW_XX
 
 	//free all map brush side windings
 	for ( i = 0; i < nummapbrushsides; i++ )
@@ -1303,6 +1652,8 @@ void ResetMapLoading( void ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if !defined RTCW_ET
 #ifndef Q1_BSPVERSION
 #define Q1_BSPVERSION   29
 #endif
@@ -1318,6 +1669,7 @@ void ResetMapLoading( void ) {
 
 #define SIN_BSPHEADER           ( ( 'P' << 24 ) + ( 'S' << 16 ) + ( 'B' << 8 ) + 'I' )  //IBSP
 #define SIN_BSPVERSION  41
+#endif RTCW_XX
 
 typedef struct
 {
@@ -1340,6 +1692,8 @@ int LoadMapFromBSP( struct quakefile_s *qf ) {
 		Q3_LoadMapFromBSP( qf );
 		Q3_FreeMaxBSP();
 	} //end if
+
+#if !defined RTCW_ET
 	  //Quake2 BSP file
 	else if ( idheader.ident == Q2_BSPHEADER && idheader.version == Q2_BSPVERSION ) {
 		ResetMapLoading();
@@ -1370,6 +1724,8 @@ int LoadMapFromBSP( struct quakefile_s *qf ) {
 		HL_LoadMapFromBSP( qf->filename, qf->offset, qf->length );
 		HL_FreeMaxBSP();
 	} //end if
+#endif RTCW_XX
+
 	else
 	{
 		Error( "unknown BSP format %c%c%c%c, version %d\n",

@@ -73,8 +73,14 @@ typedef struct aas_tracestack_s
 void AAS_PresenceTypeBoundingBox( int presencetype, vec3_t mins, vec3_t maxs ) {
 	int index;
 	//bounding box size for each presence type
+
+#if !defined RTCW_ET
 	vec3_t boxmins[3] = {{0, 0, 0}, {-15, -15, -24}, {-15, -15, -24}};
 	vec3_t boxmaxs[3] = {{0, 0, 0}, { 15,  15,  32}, { 15,  15,   8}};
+#else
+	vec3_t boxmins[3] = {{0, 0, 0}, {-18, -18, -24}, {-18, -18, -24}};
+	vec3_t boxmaxs[3] = {{0, 0, 0}, { 18,  18,  48}, { 18,  18,  24}};
+#endif RTCW_XX
 
 	if ( presencetype == PRESENCE_NORMAL ) {
 		index = 1;
@@ -106,8 +112,18 @@ void AAS_InitAASLinkHeap( void ) {
 		}
 		( *aasworld ).linkheapsize = max_aaslinks;
 		( *aasworld ).linkheap = (aas_link_t *) GetHunkMemory( max_aaslinks * sizeof( aas_link_t ) );
+
+#if !defined RTCW_ET
 	} //end if
 	  //link the links on the heap
+#else
+	} else {
+		// just clear the memory
+		memset( ( *aasworld ).linkheap, 0, ( *aasworld ).linkheapsize * sizeof( aas_link_t ) );
+	}
+	//link the links on the heap
+#endif RTCW_XX
+
 	( *aasworld ).linkheap[0].prev_ent = NULL;
 	( *aasworld ).linkheap[0].next_ent = &( *aasworld ).linkheap[1];
 	for ( i = 1; i < max_aaslinks - 1; i++ )
@@ -206,11 +222,30 @@ void AAS_FreeAASLinkedEntities( void ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if !defined RTCW_ET
 int AAS_PointAreaNum( vec3_t point ) {
+#else
+int AAS_PointAreaNum( vec3_t inPoint ) {
+#endif RTCW_XX
+
 	int nodenum;
 	vec_t dist;
 	aas_node_t *node;
+
+#if !defined RTCW_ET
 	aas_plane_t *plane;
+#else
+	aas_plane_t *plane = NULL;
+	vec3_t point;
+//	aas_plane_t *closestPlane;
+//	aas_node_t	*closestNode;
+//	float closestDist;
+//	static int recursion = 0;
+
+	VectorCopy( inPoint, point );
+#endif RTCW_XX
+
 
 	if ( !( *aasworld ).loaded ) {
 		botimport.Print( PRT_ERROR, "AAS_PointAreaNum: aas not loaded\n" );
@@ -219,6 +254,15 @@ int AAS_PointAreaNum( vec3_t point ) {
 
 	//start with node 1 because node zero is a dummy used for solid leafs
 	nodenum = 1;
+
+#if defined RTCW_ET
+//nodesearch:
+
+//	recursion++;
+//	closestDist = 128.0f;
+//	closestPlane = NULL;
+#endif RTCW_XX
+
 	while ( nodenum > 0 )
 	{
 //		botimport.Print(PRT_MESSAGE, "[%d]", nodenum);
@@ -237,16 +281,62 @@ int AAS_PointAreaNum( vec3_t point ) {
 #endif //AAS_SAMPLE_DEBUG
 		plane = &( *aasworld ).planes[node->planenum];
 		dist = DotProduct( point, plane->normal ) - plane->dist;
+
+#if defined RTCW_ET
+		//
+#endif RTCW_XX
+
 		if ( dist > 0 ) {
 			nodenum = node->children[0];
 		} else { nodenum = node->children[1];}
+
+#if !defined RTCW_ET
 	} //end while
+#else
+/*		// check for closest plane
+		if (dist > 0 && Q_fabs(dist) < Q_fabs(closestDist)) {
+			closestPlane = plane;
+			closestDist = dist;
+			closestNode = node;
+		}
+*/  } //end while
+#endif RTCW_XX
+
 	if ( !nodenum ) {
 #ifdef AAS_SAMPLE_DEBUG
 		botimport.Print( PRT_MESSAGE, "in solid\n" );
 #endif //AAS_SAMPLE_DEBUG
+
+#if defined RTCW_ET
+/*
+		// RF (HACK), if we failed, move us to the other side of the closest plane
+		if ((recursion < 10) && closestPlane) {
+			dist = closestDist;
+			node = closestNode;
+			plane = closestPlane;
+			if (dist > 0) {
+				VectorMA( point, -(dist+1), plane->normal, point );
+			} else {
+				VectorMA( point, -(dist-1), plane->normal, point );
+			}
+			// take the opposite side since we have moved the point there now
+			if (dist <= 0) nodenum = node->children[0];
+			else nodenum = node->children[1];
+			//
+			goto nodesearch;
+			//return AAS_PointAreaNum( point );
+		}
+*/
+//		recursion = 0;
+#endif RTCW_XX
+
 		return 0;
 	} //end if
+
+#if defined RTCW_ET
+//	recursion = 0;
+#endif RTCW_XX
+
 	return -nodenum;
 } //end of the function AAS_PointAreaNum
 //===========================================================================
@@ -361,6 +451,11 @@ aas_trace_t AAS_TraceClientBBox( vec3_t start, vec3_t end, int presencetype,
 	//clear the trace structure
 	memset( &trace, 0, sizeof( aas_trace_t ) );
 
+#if defined RTCW_ET
+	trace.ent = ENTITYNUM_NONE;
+#endif RTCW_XX
+
+
 	if ( !( *aasworld ).loaded ) {
 		return trace;
 	}
@@ -388,7 +483,13 @@ aas_trace_t AAS_TraceClientBBox( vec3_t start, vec3_t end, int presencetype,
 			//endpos is the end of the line
 			VectorCopy( end, trace.endpos );
 			//nothing hit
+
+#if !defined RTCW_ET
 			trace.ent = 0;
+#else
+			trace.ent = ENTITYNUM_NONE;
+#endif RTCW_XX
+
 			trace.area = 0;
 			trace.planenum = 0;
 			return trace;
@@ -404,6 +505,8 @@ aas_trace_t AAS_TraceClientBBox( vec3_t start, vec3_t end, int presencetype,
 			} //end if
 #endif //AAS_SAMPLE_DEBUG
 			//botimport.Print(PRT_MESSAGE, "areanum = %d, must be %d\n", -nodenum, AAS_PointAreaNum(start));
+
+#if !defined RTCW_ET
 			//if can't enter the area because it hasn't got the right presence type
 			if ( !( ( *aasworld ).areasettings[-nodenum].presencetype & presencetype ) ) {
 				//if the start point is still the initial start point
@@ -437,6 +540,44 @@ aas_trace_t AAS_TraceClientBBox( vec3_t start, vec3_t end, int presencetype,
 			} //end if
 			else
 			{
+#else
+/*			//if can't enter the area because it hasn't got the right presence type
+			if (!((*aasworld).areasettings[-nodenum].presencetype & presencetype))
+			{
+				//if the start point is still the initial start point
+				//NOTE: no need for epsilons because the points will be
+				//exactly the same when they're both the start point
+				if (tstack_p->start[0] == start[0] &&
+						tstack_p->start[1] == start[1] &&
+						tstack_p->start[2] == start[2])
+				{
+					trace.startsolid = qtrue;
+					trace.fraction = 0.0;
+					// Gordon: NOTE, uninitialized var: v1
+					VectorSubtract(end, start, v1);
+				} //end if
+				else
+				{
+					trace.startsolid = qfalse;
+					VectorSubtract(end, start, v1);
+					VectorSubtract(tstack_p->start, start, v2);
+					trace.fraction = VectorLength(v2) / VectorNormalize(v1);
+					VectorMA(tstack_p->start, -0.125, v1, tstack_p->start);
+				} //end else
+				VectorCopy(tstack_p->start, trace.endpos);
+				trace.ent = ENTITYNUM_NONE;
+				trace.area = -nodenum;
+//				VectorSubtract(end, start, v1);
+				trace.planenum = tstack_p->planenum;
+				//always take the plane with normal facing towards the trace start
+				plane = &(*aasworld).planes[trace.planenum];
+				if (DotProduct(v1, plane->normal) > 0) trace.planenum ^= 1;
+				return trace;
+			} //end if
+			else
+*/          {
+#endif RTCW_XX
+
 				if ( passent >= 0 ) {
 					if ( AAS_AreaEntityCollision( -nodenum, tstack_p->start,
 												  tstack_p->end, presencetype, passent,
@@ -463,6 +604,12 @@ aas_trace_t AAS_TraceClientBBox( vec3_t start, vec3_t end, int presencetype,
 				 tstack_p->start[2] == start[2] ) {
 				trace.startsolid = qtrue;
 				trace.fraction = 0.0;
+
+#if defined RTCW_ET
+				// Gordon: NOTE, uninitialized var: v1
+				VectorSubtract( end, start, v1 );
+#endif RTCW_XX
+
 			} //end if
 			else
 			{
@@ -473,7 +620,13 @@ aas_trace_t AAS_TraceClientBBox( vec3_t start, vec3_t end, int presencetype,
 				VectorMA( tstack_p->start, -0.125, v1, tstack_p->start );
 			} //end else
 			VectorCopy( tstack_p->start, trace.endpos );
+
+#if !defined RTCW_ET
 			trace.ent = 0;
+#else
+			trace.ent = ENTITYNUM_NONE;
+#endif RTCW_XX
+
 			trace.area = 0; //hit solid leaf
 //			VectorSubtract(end, start, v1);
 			trace.planenum = tstack_p->planenum;
@@ -1128,13 +1281,27 @@ aas_link_t *AAS_AASLinkEntity( vec3_t absmins, vec3_t absmaxs, int entnum ) {
 	aas_plane_t *plane;
 	aas_link_t *link, *areas;
 
+#if !defined RTCW_ET
 	if ( !( *aasworld ).loaded ) {
+#else
+	if ( !aasworld->loaded ) {
+#endif RTCW_XX
+
 		botimport.Print( PRT_ERROR, "AAS_LinkEntity: aas not loaded\n" );
 		return NULL;
+
+#if !defined RTCW_ET
 	} //end if
+#else
+	}
+#endif RTCW_XX
 
 	areas = NULL;
+
+#if !defined RTCW_ET
 	//
+#endif RTCW_XX
+
 	lstack_p = linkstack;
 	//we start with the whole line on the stack
 	//start with node 1 because node zero is a dummy used for solid leafs
@@ -1250,11 +1417,132 @@ aas_plane_t *AAS_PlaneFromNum( int planenum ) {
 	return &( *aasworld ).planes[planenum];
 } //end of the function AAS_PlaneFromNum
 
+#if (defined RTCW_ET) && (!defined BSPC)
 /*
 =============
 AAS_BBoxAreas
 =============
 */
+
+#define NUM_BBOXAREASCACHE          128
+#define BBOXAREASCACHE_MAXAREAS     128
+
+typedef struct {
+	float lastUsedTime;
+	int numUsed;
+	vec3_t absmins, absmaxs;
+#if AAS_MAX_AREAS <= 65536
+	unsigned short areas[BBOXAREASCACHE_MAXAREAS];  // we can used shorts since AAS_MAX_AREAS < 65536
+#else
+	int areas[BBOXAREASCACHE_MAXAREAS];
+#endif
+	int numAreas;
+} bboxAreasCache_t;
+
+bboxAreasCache_t bboxAreasCache[NUM_BBOXAREASCACHE];
+
+int AAS_BBoxAreasCheckCache( vec3_t absmins, vec3_t absmaxs, int *areas, int maxareas ) {
+	int i;
+	bboxAreasCache_t *cache;
+
+	// is this absmins/absmax in the cache?
+	for ( i = 0, cache = bboxAreasCache; i < NUM_BBOXAREASCACHE; i++, cache++ ) {
+		if ( VectorCompare( absmins, cache->absmins ) && VectorCompare( absmaxs, cache->absmaxs ) ) {
+			// found a match
+			break;
+		}
+	}
+
+	if ( i == NUM_BBOXAREASCACHE ) {
+		return 0;
+	}
+
+	// use this cache
+	cache->lastUsedTime = AAS_Time();
+	cache->numUsed++;
+	if ( cache->numUsed > 99999 ) {
+		cache->numUsed = 99999; // cap it so it doesn't loop back to 0
+	}
+	if ( cache->numAreas > maxareas ) {
+		for ( i = 0; i < maxareas; i++ )
+			areas[i] = (int)cache->areas[i];
+		return maxareas;
+	} else {
+		memcpy( areas, cache->areas, sizeof( int ) * cache->numAreas );
+		return cache->numAreas;
+	}
+}
+
+void AAS_BBoxAreasAddToCache( vec3_t absmins, vec3_t absmaxs, int *areas, int numareas ) {
+	int i;
+	bboxAreasCache_t *cache, *weakestLink = NULL;
+
+	// find a free cache slot
+	for ( i = 0, cache = bboxAreasCache; i < NUM_BBOXAREASCACHE; i++, cache++ ) {
+		if ( !cache->lastUsedTime ) {
+			break;
+		}
+		if ( cache->lastUsedTime < AAS_Time() - 2.0 ) {
+			break;  // too old
+		}
+
+		if ( !weakestLink ) {
+			weakestLink = cache;
+		} else {
+			if ( cache->numUsed < weakestLink->numUsed ) {
+				weakestLink = cache;
+			}
+		}
+	}
+
+	if ( i == NUM_BBOXAREASCACHE ) {
+		// overwrite the weakest link
+		cache = weakestLink;
+	}
+
+	cache->lastUsedTime = AAS_Time();
+	cache->numUsed = 1;
+	VectorCopy( absmins, cache->absmins );
+	VectorCopy( absmaxs, cache->absmaxs );
+
+	if ( numareas > BBOXAREASCACHE_MAXAREAS ) {
+		numareas = BBOXAREASCACHE_MAXAREAS;
+	}
+
+	for ( i = 0; i < numareas; i++ ) {
+		cache->areas[i] = (unsigned short) areas[i];
+	}
+}
+
+int AAS_BBoxAreas( vec3_t absmins, vec3_t absmaxs, int *areas, int maxareas ) {
+	aas_link_t *linkedareas, *link;
+	int num;
+
+	if ( ( num = AAS_BBoxAreasCheckCache( absmins, absmaxs, areas, maxareas ) ) ) {
+		return num;
+	}
+
+	linkedareas = AAS_AASLinkEntity( absmins, absmaxs, -1 );
+
+	num = 0;
+	for ( link = linkedareas; link; link = link->next_area ) {
+		areas[num] = link->areanum;
+		num++;
+		if ( num >= maxareas ) {
+			break;
+		}
+	}
+
+	AAS_UnlinkFromAreas( linkedareas );
+
+	//record this result in the cache
+	AAS_BBoxAreasAddToCache( absmins, absmaxs, areas, num );
+
+	return num;
+} //end of the function AAS_BBoxAreas
+
+#else
+
 int AAS_BBoxAreas( vec3_t absmins, vec3_t absmaxs, int *areas, int maxareas ) {
 	aas_link_t *linkedareas, *link;
 	int num;
@@ -1272,3 +1560,42 @@ int AAS_BBoxAreas( vec3_t absmins, vec3_t absmaxs, int *areas, int maxareas ) {
 	AAS_UnlinkFromAreas( linkedareas );
 	return num;
 } //end of the function AAS_BBoxAreas
+
+#endif RTCW_XX
+
+#if defined RTCW_ET
+/*
+=============
+AAS_AreaCenter
+=============
+*/
+void AAS_AreaCenter( int areanum, vec3_t center ) {
+	if ( areanum < 0 || areanum >= ( *aasworld ).numareas ) {
+		botimport.Print( PRT_ERROR, "AAS_AreaCenter: invalid areanum\n" );
+		return;
+	}
+	VectorCopy( ( *aasworld ).areas[areanum].center, center );
+	return;
+} //end of the function AAS_AreaCenter
+
+/*
+=============
+AAS_AreaWaypoint
+=============
+*/
+qboolean AAS_AreaWaypoint( int areanum, vec3_t center ) {
+	if ( areanum < 0 || areanum >= ( *aasworld ).numareas ) {
+		botimport.Print( PRT_ERROR, "AAS_AreaWaypoint: invalid areanum\n" );
+		return qfalse;
+	}
+	if ( !( *aasworld ).areawaypoints ) {
+		return qfalse;
+	}
+	if ( VectorCompare( ( *aasworld ).areawaypoints[areanum], vec3_origin ) ) {
+		return qfalse;
+	}
+	VectorCopy( ( *aasworld ).areawaypoints[areanum], center );
+	return qtrue;
+} //end of the function AAS_AreaCenter
+#endif RTCW_XX
+

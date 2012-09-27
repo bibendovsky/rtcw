@@ -66,7 +66,13 @@ extern botlib_import_t botimport;
 // done.
 
 //maximum number of reachability links
+
+#if !defined RTCW_ET
 #define AAS_MAX_REACHABILITYSIZE            65536
+#else
+#define AAS_MAX_REACHABILITYSIZE            128000
+#endif RTCW_XX
+
 //number of areas reachability is calculated for each frame
 #define REACHABILITYAREASPERCYCLE           15
 //number of units reachability points are placed inside the areas
@@ -85,7 +91,7 @@ extern botlib_import_t botimport;
 
 // Ridah, tweaked these for Wolf AI
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 #define REACH_MIN_TIME                      4   // always at least this much time for a reachability
 #endif RTCW_XX
 
@@ -105,6 +111,11 @@ extern botlib_import_t botimport;
 #define MAX_JUMPFALLHEIGHT                  450
 //area flag used for weapon jumping
 #define AREA_WEAPONJUMP                     8192    //valid area to weapon jump to
+
+#if defined RTCW_ET
+#define AREA_JUMPSRC                        16384   //valid area to JUMP FROM
+#endif RTCW_XX
+
 //number of reachabilities of each type
 int reach_swim;         //swim
 int reach_equalfloor;   //walk on floors with equal height
@@ -126,7 +137,13 @@ int reach_rocketjump;   //rocket jump
 int reach_bfgjump;      //bfg jump
 int reach_jumppad;      //jump pads
 //if true grapple reachabilities are skipped
+
+#if !defined RTCW_ET
 int calcgrapplereach;
+#else
+int calcgrapplereach = qfalse;
+#endif RTCW_XX
+
 //linked reachability
 typedef struct aas_lreachability_s
 {
@@ -145,6 +162,16 @@ aas_lreachability_t *reachabilityheap;  //heap with reachabilities
 aas_lreachability_t *nextreachability;  //next free reachability from the heap
 aas_lreachability_t **areareachability; //reachability links for every area
 int numlreachabilities;
+
+#if defined RTCW_ET
+typedef struct {
+	int destarea;
+	vec3_t srcpos;
+	vec3_t destpos;
+} aas_jumplink_t;
+
+static aas_jumplink_t *jumplinks;
+#endif RTCW_XX
 
 //===========================================================================
 //
@@ -226,7 +253,13 @@ int AAS_BestReachableArea( vec3_t origin, vec3_t mins, vec3_t maxs, vec3_t goalo
 			// does not have to be calculated when the level items are loaded
 			//if the origin is in an area with reachability
 			//if (AAS_AreaReachability(areanum)) return areanum;
+
+#if !defined RTCW_ET
 			if ( areanum ) {
+#else
+			if ( AAS_AreaGrounded( areanum ) ) {
+#endif RTCW_XX
+
 				return areanum;
 			}
 		} //end if
@@ -346,7 +379,7 @@ int AAS_AreaReachability( int areanum ) {
 		return 0;
 	} //end if
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	  // RF, if this area is disabled, then fail
 	if ( ( *aasworld ).areasettings[areanum].areaflags & AREA_DISABLED ) {
 		return 0;
@@ -506,7 +539,13 @@ float AAS_FallDelta( float distance ) {
 	float t, delta, gravity;
 
 	gravity = aassettings.sv_gravity;
+
+#if !defined RTCW_ET
 	t = sqrt( fabs( distance ) * 2 / gravity );
+#else
+	t = sqrt( Q_fabs( distance ) * 2 / gravity );
+#endif RTCW_XX
+
 	delta = t * gravity;
 	return delta * delta * 0.0001;
 } //end of the function AAS_FallDelta
@@ -547,11 +586,23 @@ float AAS_MaxJumpDistance( float sv_jumpvel ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if !defined RTCW_ET
 int AAS_AreaCrouch( int areanum ) {
 	if ( !( ( *aasworld ).areasettings[areanum].presencetype & PRESENCE_NORMAL ) ) {
 		return qtrue;
 	} else { return qfalse;}
 } //end of the function AAS_AreaCrouch
+#else
+/*int AAS_AreaCrouch(int areanum) {
+	if (!(aasworld->areasettings[areanum].presencetype & PRESENCE_NORMAL)) {
+		return qtrue;
+	} else {
+		return qfalse;
+	}
+}*/
+#endif RTCW_XX
+
 //===========================================================================
 // returns qtrue if it is possible to swim in the area
 //
@@ -559,11 +610,23 @@ int AAS_AreaCrouch( int areanum ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if !defined RTCW_ET
 int AAS_AreaSwim( int areanum ) {
 	if ( ( *aasworld ).areasettings[areanum].areaflags & AREA_LIQUID ) {
 		return qtrue;
 	} else { return qfalse;}
 } //end of the function AAS_AreaSwim
+#else
+/*int AAS_AreaSwim(int areanum) {
+	if(aasworld->areasettings[areanum].areaflags & AREA_LIQUID) {
+		return qtrue;
+	} else {
+		return qfalse;
+	}
+}*/
+#endif RTCW_XX
+
 //===========================================================================
 // returns qtrue if the area contains a liquid
 //
@@ -1467,7 +1530,13 @@ int AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge( int area1num, int area
 					VectorCopy( ground_beststart, lreach->start );
 					VectorCopy( ground_bestend, lreach->end );
 					lreach->traveltype = TRAVEL_WALKOFFLEDGE;
+
+#if !defined RTCW_ET
 					lreach->traveltime = STARTWALKOFFLEDGE_TIME + fabs( ground_bestdist ) * 50 / aassettings.sv_gravity;
+#else
+					lreach->traveltime = STARTWALKOFFLEDGE_TIME + Q_fabs( ground_bestdist ) * 50 / aassettings.sv_gravity;
+#endif RTCW_XX
+
 					//if falling from too high and not falling into water
 					if ( !AAS_AreaSwim( area2num ) && !AAS_AreaJumpPad( area2num ) ) {
 						if ( AAS_FallDelta( ground_bestdist ) > FALLDELTA_5DAMAGE ) {
@@ -2026,6 +2095,46 @@ int AAS_Reachability_Jump( int area1num, int area2num ) {
 	area1 = &( *aasworld ).areas[area1num];
 	area2 = &( *aasworld ).areas[area2num];
 	//
+
+#if defined RTCW_ET
+	// RF, check for a forced jump reachability
+	if ( aasworld->areasettings[area1num].areaflags & AREA_JUMPSRC ) {
+		if ( jumplinks[area1num].destarea == area2num ) {
+			//create a new reachability link
+			lreach = AAS_AllocReachability();
+			if ( !lreach ) {
+				return qfalse;
+			}
+			lreach->areanum = area2num;
+			lreach->facenum = 0;
+			lreach->edgenum = 0;
+			VectorCopy( jumplinks[area1num].srcpos, lreach->start );
+			VectorCopy( jumplinks[area1num].destpos, lreach->end );
+			lreach->traveltype = TRAVEL_JUMP;
+
+			VectorCopy( jumplinks[area1num].srcpos, beststart );
+			VectorCopy( jumplinks[area1num].destpos, bestend );
+			VectorSubtract( bestend, beststart, dir );
+			height = dir[2];
+			dir[2] = 0;
+			lreach->traveltime = STARTJUMP_TIME + VectorDistance( beststart, bestend ) * 240 / aassettings.sv_maxwalkvelocity;
+			//
+			if ( AAS_FallDelta( beststart[2] - bestend[2] ) > FALLDELTA_5DAMAGE ) {
+				lreach->traveltime += FALLDAMAGE_5_TIME;
+			} //end if
+			else if ( AAS_FallDelta( beststart[2] - bestend[2] ) > FALLDELTA_10DAMAGE ) {
+				lreach->traveltime += FALLDAMAGE_10_TIME;
+			} //end if
+			lreach->next = areareachability[area1num];
+			areareachability[area1num] = lreach;
+			//
+			reach_jump++;
+			return qtrue;
+		}
+	}
+	//
+#endif RTCW_XX
+
 	sv_jumpvel = aassettings.sv_jumpvel;
 	//maximum distance a player can jump
 	maxjumpdistance = 2 * AAS_MaxJumpDistance( sv_jumpvel );
@@ -2102,7 +2211,13 @@ int AAS_Reachability_Jump( int area1num, int area2num ) {
 			speed *= 1.2;
 			traveltype = TRAVEL_WALKOFFLEDGE;
 		} //end if
+
+#if !defined RTCW_ET
 		else if ( bestdist <= 48 && fabs( beststart[2] - bestend[2] ) < 8 ) {
+#else
+		else if ( bestdist <= 48 && Q_fabs( beststart[2] - bestend[2] ) < 8 ) {
+#endif RTCW_XX
+
 			speed = 400;
 			traveltype = TRAVEL_WALKOFFLEDGE;
 		} //end else if
@@ -2158,7 +2273,13 @@ int AAS_Reachability_Jump( int area1num, int area2num ) {
 		if ( trace.fraction < 1 ) {
 			plane = &( *aasworld ).planes[trace.planenum];
 			if ( DotProduct( plane->normal, up ) >= 0.7 ) {
+
+#if !defined RTCW_ET
 				if ( !( AAS_PointContents( trace.endpos ) & ( CONTENTS_LAVA | CONTENTS_SLIME ) ) ) {
+#else
+				if ( !( AAS_PointContents( trace.endpos ) & ( CONTENTS_LAVA /*|CONTENTS_SLIME*/ ) ) ) {
+#endif RTCW_XX
+
 					if ( teststart[2] - trace.endpos[2] <= aassettings.sv_maxbarrier ) {
 						return qfalse;
 					}
@@ -2244,6 +2365,12 @@ int AAS_Reachability_Jump( int area1num, int area2num ) {
 		if ( traveltype == TRAVEL_JUMP ) {
 			reach_jump++;
 		} else { reach_walkoffledge++;}
+
+#if defined RTCW_ET
+		//
+		return qtrue;
+#endif RTCW_XX
+
 	} //end if
 	return qfalse;
 } //end of the function AAS_Reachability_Jump
@@ -2359,8 +2486,15 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 		VectorMA( area1point, -32, dir, area1point );
 		VectorMA( area2point, 32, dir, area2point );
 		//
+
+#if !defined RTCW_ET
 		ladderface1vertical = abs( DotProduct( plane1->normal, up ) ) < 0.1;
 		ladderface2vertical = abs( DotProduct( plane2->normal, up ) ) < 0.1;
+#else
+		ladderface1vertical = Q_fabs( DotProduct( plane1->normal, up ) ) < 0.1;
+		ladderface2vertical = Q_fabs( DotProduct( plane2->normal, up ) ) < 0.1;
+#endif RTCW_XX
+
 		//there's only reachability between vertical ladder faces
 		if ( !ladderface1vertical && !ladderface2vertical ) {
 			return qfalse;
@@ -2370,7 +2504,13 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 			 //and the ladder faces do not make a sharp corner
 			 && DotProduct( plane1->normal, plane2->normal ) > 0.7
 			 //and the shared edge is not too vertical
+
+#if !defined RTCW_ET
 			 && abs( DotProduct( sharededgevec, up ) ) < 0.7 ) {
+#else
+			 && Q_fabs( DotProduct( sharededgevec, up ) ) < 0.7 ) {
+#endif RTCW_XX
+
 			//create a new reachability link
 			lreach = AAS_AllocReachability();
 			if ( !lreach ) {
@@ -2399,9 +2539,9 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 			VectorCopy( area2point, lreach->start );
 			//VectorCopy(area1point, lreach->end);
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 			VectorMA( area1point, -3, plane2->normal, lreach->end );
-#elif defined RTCW_MP
+#else
 			VectorMA( area1point, -3, plane1->normal, lreach->end );
 #endif RTCW_XX
 
@@ -2437,6 +2577,11 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 			//
 			reach_ladder++;
 			//create a new reachability link
+
+#if defined RTCW_ET
+			// RF, this should be a ladder reachability, since we usually climb down ladders in Wolf (falling is possibly dangerous)
+#endif RTCW_XX
+
 			lreach = AAS_AllocReachability();
 			if ( !lreach ) {
 				return qfalse;
@@ -2446,8 +2591,22 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 			lreach->edgenum = abs( sharededgenum );
 			VectorCopy( area2point, lreach->start );
 			VectorCopy( area1point, lreach->end );
+
+#if !defined RTCW_ET
 			lreach->traveltype = TRAVEL_WALKOFFLEDGE;
 			lreach->traveltime = 10;
+#else
+#if 1   // testing ladder descend instead of walk off ledge
+			lreach->end[2] -= 16;
+			VectorMA( lreach->start, -15, plane1->normal, lreach->start );
+			lreach->traveltype = TRAVEL_LADDER;
+			lreach->traveltime = 100;   // have to turn around
+#else
+			lreach->traveltype = TRAVEL_WALKOFFLEDGE;
+			lreach->traveltime = 10;
+#endif
+#endif RTCW_XX
+
 			lreach->next = areareachability[area2num];
 			areareachability[area2num] = lreach;
 			//
@@ -2503,7 +2662,13 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 				//
 				if ( face2->faceflags & FACE_LADDER ) {
 					plane2 = &( *aasworld ).planes[face2->planenum];
+
+#if !defined RTCW_ET
 					if ( abs( DotProduct( plane2->normal, up ) ) < 0.1 ) {
+#else
+					if ( Q_fabs( DotProduct( plane2->normal, up ) ) < 0.1 ) {
+#endif RTCW_XX
+
 						break;
 					}
 				} //end if
@@ -3560,7 +3725,13 @@ void AAS_Reachability_JumpPad( void ) {
 			} //end if
 		} //end if
 		  //
+
+#if !defined RTCW_ET
 		if ( fabs( velocity[0] ) > 100 || fabs( velocity[1] ) > 100 ) {
+#else
+		if ( Q_fabs( velocity[0] ) > 100 || Q_fabs( velocity[1] ) > 100 ) {
+#endif RTCW_XX
+
 			continue;
 		}
 		//check for areas we can reach with air control
@@ -3868,6 +4039,8 @@ int AAS_Reachability_Grapple( int area1num, int area2num ) {
 // Changes Globals:		-
 //===========================================================================
 void AAS_SetWeaponJumpAreaFlags( void ) {
+
+#if !defined RTCW_ET
 	int ent, i;
 	vec3_t mins = {-15, -15, -15}, maxs = {15, 15, 15};
 	vec3_t origin;
@@ -3924,6 +4097,160 @@ void AAS_SetWeaponJumpAreaFlags( void ) {
 		} //end if
 	} //end for
 	botimport.Print( PRT_MESSAGE, "%d weapon jump areas\n", weaponjumpareas );
+#else
+	int ent, dent;
+	vec3_t mins = {-18, -18, -24}, maxs = {18, 18, 40};
+	vec3_t origin, destorigin;
+	int areanum, weaponjumpareas, spawnflags, destareanum;
+	char classname[MAX_EPAIRKEY];
+	char target[MAX_EPAIRKEY];
+	char targetname[MAX_EPAIRKEY];
+	//
+	weaponjumpareas = 0;
+	jumplinks = (aas_jumplink_t *)GetClearedMemory( aasworld->numareas * sizeof( aas_jumplink_t ) );
+	//
+	for ( ent = AAS_NextBSPEntity( 0 ); ent; ent = AAS_NextBSPEntity( ent ) )
+	{
+		if ( !AAS_ValueForBSPEpairKey( ent, "classname", classname, MAX_EPAIRKEY ) ) {
+			continue;
+		}
+		if ( !strcmp( classname, "bot_jump_source" ) ) {
+			if ( !AAS_ValueForBSPEpairKey( ent, "target", target, MAX_EPAIRKEY ) ) {
+				continue;
+			}
+			// find the destination
+			for ( dent = AAS_NextBSPEntity( 0 ); dent; dent = AAS_NextBSPEntity( dent ) )
+			{
+				if ( !AAS_ValueForBSPEpairKey( dent, "targetname", targetname, MAX_EPAIRKEY ) ) {
+					continue;
+				}
+				if ( !strcmp( target, targetname ) ) {
+					// match found
+					break;
+				}
+			}
+			// if it failed, ignore and print message
+			if ( !dent ) {
+				botimport.Print( PRT_MESSAGE, "WARNING: %s doesn't have a matching bot_jump_dest (target = %s)\n",
+								 classname, target );
+				continue;
+			}
+			// success
+			// find source area
+			if ( AAS_VectorForBSPEpairKey( ent, "origin", origin ) ) {
+				spawnflags = 0;
+				AAS_IntForBSPEpairKey( ent, "spawnflags", &spawnflags );
+				//if not a stationary item
+				if ( !( spawnflags & 1 ) ) {
+					if ( !AAS_DropToFloor( origin, mins, maxs ) ) {
+						botimport.Print( PRT_MESSAGE, "%s in solid at (%1.1f %1.1f %1.1f)\n",
+										 classname, origin[0], origin[1], origin[2] );
+					} //end if
+				} //end if
+				  //areanum = AAS_PointAreaNum(origin);
+				areanum = AAS_BestReachableArea( origin, mins, maxs, origin );
+				if ( !areanum ) {
+					botimport.Print( PRT_MESSAGE, "%s in void area at (%1.1f %1.1f %1.1f)\n",
+									 classname, origin[0], origin[1], origin[2] );
+					continue;
+				}
+			} else {
+				botimport.Print( PRT_MESSAGE, "%s has no origin (%s)\n",
+								 classname, target );
+				continue;
+			}
+			// find dest area
+			if ( !AAS_ValueForBSPEpairKey( dent, "classname", classname, MAX_EPAIRKEY ) ) {
+				continue;
+			}
+			if ( AAS_VectorForBSPEpairKey( dent, "origin", destorigin ) ) {
+				spawnflags = 0;
+				AAS_IntForBSPEpairKey( dent, "spawnflags", &spawnflags );
+				//if not a stationary item
+				if ( !( spawnflags & 1 ) ) {
+					if ( !AAS_DropToFloor( destorigin, mins, maxs ) ) {
+						botimport.Print( PRT_MESSAGE, "%s in solid at (%1.1f %1.1f %1.1f)\n",
+										 classname, destorigin[0], destorigin[1], destorigin[2] );
+					} //end if
+				} //end if
+				  //areanum = AAS_PointAreaNum(origin);
+				destareanum = AAS_BestReachableArea( destorigin, mins, maxs, destorigin );
+				if ( !destareanum ) {
+					botimport.Print( PRT_MESSAGE, "%s in void area at (%1.1f %1.1f %1.1f)\n",
+									 classname, destorigin[0], destorigin[1], destorigin[2] );
+					continue;
+				}
+			} else {
+				botimport.Print( PRT_MESSAGE, "%s has no origin (%s)\n",
+								 classname, targetname );
+				continue;
+			}
+
+			//the bot may jump between these areas
+			( *aasworld ).areasettings[areanum].areaflags |= AREA_JUMPSRC;
+			jumplinks[areanum].destarea = destareanum;
+			VectorCopy( origin, jumplinks[areanum].srcpos );
+			VectorCopy( destorigin, jumplinks[areanum].destpos );
+			//
+			if ( !AAS_AreaGrounded( areanum ) ) {
+				botimport.Print( PRT_MESSAGE, "area not grounded\n" );
+			}
+			//
+			weaponjumpareas++;
+		} //end if
+/*
+		if (
+			!strcmp(classname, "item_armor_body") ||
+			!strcmp(classname, "item_armor_combat") ||
+			!strcmp(classname, "item_health_mega") ||
+			!strcmp(classname, "weapon_grenadelauncher") ||
+			!strcmp(classname, "weapon_rocketlauncher") ||
+			!strcmp(classname, "weapon_lightning") ||
+			!strcmp(classname, "weapon_sp5") ||
+			!strcmp(classname, "weapon_railgun") ||
+			!strcmp(classname, "weapon_bfg") ||
+			!strcmp(classname, "item_quad") ||
+			!strcmp(classname, "item_regen") ||
+			!strcmp(classname, "item_invulnerability"))
+		{
+			if (AAS_VectorForBSPEpairKey(ent, "origin", origin))
+			{
+				spawnflags = 0;
+				AAS_IntForBSPEpairKey(ent, "spawnflags", &spawnflags);
+				//if not a stationary item
+				if (!(spawnflags & 1))
+				{
+					if (!AAS_DropToFloor(origin, mins, maxs))
+					{
+						botimport.Print(PRT_MESSAGE, "%s in solid at (%1.1f %1.1f %1.1f)\n",
+														classname, origin[0], origin[1], origin[2]);
+					} //end if
+				} //end if
+				//areanum = AAS_PointAreaNum(origin);
+				areanum = AAS_BestReachableArea(origin, mins, maxs, origin);
+				//the bot may rocket jump towards this area
+				(*aasworld).areasettings[areanum].areaflags |= AREA_WEAPONJUMP;
+				//
+				if (!AAS_AreaGrounded(areanum)) botimport.Print(PRT_MESSAGE, "area not grounded\n");
+				//
+				weaponjumpareas++;
+			} //end if
+		} //end if
+*/
+	} //end for
+/*
+	for (i = 1; i < (*aasworld).numareas; i++)
+	{
+		if ((*aasworld).areasettings[i].contents & AREACONTENTS_JUMPPAD)
+		{
+			(*aasworld).areasettings[i].areaflags |= AREA_WEAPONJUMP;
+			weaponjumpareas++;
+		} //end if
+	} //end for
+*/
+	botimport.Print( PRT_MESSAGE, "%d weapon jump areas\n", weaponjumpareas );
+#endif RTCW_XX
+
 } //end of the function AAS_SetWeaponJumpAreaFlags
 //===========================================================================
 // create a possible weapon jump reachability from area1 to area2
@@ -4212,7 +4539,13 @@ void AAS_Reachability_WalkOffLedge( int areanum ) {
 						VectorCopy( mid, lreach->start );
 						VectorCopy( trace.endpos, lreach->end );
 						lreach->traveltype = TRAVEL_WALKOFFLEDGE;
+
+#if !defined RTCW_ET
 						lreach->traveltime = STARTWALKOFFLEDGE_TIME + fabs( mid[2] - trace.endpos[2] ) * 50 / aassettings.sv_gravity;
+#else
+						lreach->traveltime = STARTWALKOFFLEDGE_TIME + Q_fabs( mid[2] - trace.endpos[2] ) * 50 / aassettings.sv_gravity;
+#endif RTCW_XX
+
 						if ( !AAS_AreaSwim( reachareanum ) && !AAS_AreaJumpPad( reachareanum ) ) {
 							if ( AAS_FallDelta( mid[2] - trace.endpos[2] ) > FALLDELTA_5DAMAGE ) {
 								lreach->traveltime += FALLDAMAGE_5_TIME;
@@ -4265,7 +4598,7 @@ void AAS_StoreReachability( void ) {
 			reach->traveltype = lreach->traveltype;
 			reach->traveltime = lreach->traveltime;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 			// RF, enforce the min reach time
 			if ( reach->traveltime < REACH_MIN_TIME ) {
 				reach->traveltime = REACH_MIN_TIME;

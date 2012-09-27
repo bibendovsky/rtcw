@@ -604,7 +604,7 @@ void BotDumpSynonymList( bot_synonymlist_t *synlist ) {
 
 #if defined RTCW_SP
 		fprintf( fp, "%d : [", (int)syn->context );
-#elif defined RTCW_MP
+#else
 		fprintf( fp, "%ld : [", syn->context );
 #endif RTCW_XX
 
@@ -929,7 +929,7 @@ int BotLoadChatMessage( source_t *source, char *chatmessagestring ) {
 
 #if defined RTCW_SP
 			sprintf( &ptr[strlen( ptr )], "%cv%d%c", ESCAPE_CHAR, (int)token.intvalue, ESCAPE_CHAR );
-#elif defined RTCW_MP
+#else
 			sprintf( &ptr[strlen( ptr )], "%cv%ld%c", ESCAPE_CHAR, token.intvalue, ESCAPE_CHAR );
 #endif RTCW_XX
 
@@ -1095,7 +1095,13 @@ char *RandomString( char *name ) {
 	for ( random = randomstrings; random; random = random->next )
 	{
 		if ( !strcmp( random->string, name ) ) {
+
+#if !defined RTCW_ET
 			i = random() * random->numstrings;
+#else
+			i = rand() % random->numstrings;
+#endif RTCW_XX
+
 			for ( rs = random->firstrandomstring; rs; rs = rs->next )
 			{
 				if ( --i < 0 ) {
@@ -1130,7 +1136,7 @@ void BotDumpMatchTemplates( bot_matchtemplate_t *matches ) {
 
 #if defined RTCW_SP
 		//fprintf(fp, "%8d { ");
-#elif defined RTCW_MP
+#else
 		// TTimo ?
 		// fprintf(fp, "%8d { ");
 #endif RTCW_XX
@@ -2083,7 +2089,11 @@ bot_chat_t *BotLoadInitialChat( char *chatfile, char *chatname ) {
 		} //end if
 	} //end for
 	  //
+
+#if (!defined RTCW_ET) || ((defined RTCW_ET) && (defined DEBUG))
 	botimport.Print( PRT_MESSAGE, "loaded %s from %s\n", chatname, chatfile );
+#endif RTCW_XX
+
 	//
 	//BotDumpInitialChat(chat);
 	if ( bot_developer ) {
@@ -2155,7 +2165,17 @@ int BotLoadChatFile( int chatstate, char *chatfile, char *chatname ) {
 		}
 	}
 
+
+#if defined RTCW_ET
+	PS_SetBaseFolder( "botfiles" );
+#endif RTCW_XX
+
 	cs->chat = BotLoadInitialChat( chatfile, chatname );
+
+#if defined RTCW_ET
+	PS_SetBaseFolder( "" );
+#endif RTCW_XX
+
 	if ( !cs->chat ) {
 		botimport.Print( PRT_FATAL, "couldn't load chat %s from %s\n", chatname, chatfile );
 		return BLERR_CANNOTLOADICHAT;
@@ -2836,6 +2856,11 @@ int BotSetupChatAI( void ) {
 	int starttime = Sys_MilliSeconds();
 #endif //DEBUG
 
+
+#if defined RTCW_ET
+	PS_SetBaseFolder( "botfiles" );
+#endif RTCW_XX
+
 	file = LibVarString( "synfile", "syn.c" );
 	synonyms = BotLoadSynonyms( file );
 	file = LibVarString( "rndfile", "rnd.c" );
@@ -2847,6 +2872,11 @@ int BotSetupChatAI( void ) {
 		file = LibVarString( "rchatfile", "rchat.c" );
 		replychats = BotLoadReplyChat( file );
 	} //end if
+
+#if defined RTCW_ET
+	PS_SetBaseFolder( "" );
+#endif RTCW_XX
+
 
 	InitConsoleMessageHeap();
 

@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../qcommon/qcommon.h"
 #include "server.h"
 
-#if (defined RTCW_SP && defined DO_NET_ENCODE) || defined RTCW_MP
+#if (defined RTCW_SP && defined DO_NET_ENCODE) || !defined RTCW_SP
 /*
 ==============
 SV_Netchan_Encode
@@ -41,7 +41,13 @@ SV_Netchan_Encode
 
 ==============
 */
+
+#if !defined RTCW_ET
 static void SV_Netchan_Encode( client_t *client, msg_t *msg ) {
+#else
+static void SV_Netchan_Encode( client_t *client, msg_t *msg, char *commandString ) {
+#endif RTCW_XX
+
 	long reliableAcknowledge, i, index;
 	byte key, *string;
 	int srdc, sbit, soob;
@@ -49,6 +55,10 @@ static void SV_Netchan_Encode( client_t *client, msg_t *msg ) {
 	if ( msg->cursize < SV_ENCODE_START ) {
 		return;
 	}
+
+#if defined RTCW_ET
+	// NOTE: saving pos, reading reliableAck, restoring, not using it .. useless?
+#endif RTCW_XX
 
 	srdc = msg->readcount;
 	sbit = msg->bit;
@@ -64,7 +74,12 @@ static void SV_Netchan_Encode( client_t *client, msg_t *msg ) {
 	msg->bit = sbit;
 	msg->readcount = srdc;
 
+#if !defined RTCW_ET
 	string = (byte *)client->lastClientCommandString;
+#else
+	string = (byte *)commandString;
+#endif RTCW_XX
+
 	index = 0;
 	// xor the client challenge with the netchan sequence number
 	key = client->challenge ^ client->netchan.outgoingSequence;
@@ -116,7 +131,7 @@ static void SV_Netchan_Decode( client_t *client, msg_t *msg ) {
 
 #if defined RTCW_SP
 	string = (byte *)SV_GetReliableCommand( client, reliableAcknowledge & ( MAX_RELIABLE_COMMANDS - 1 ) );
-#elif defined RTCW_MP
+#else
 	string = (byte *)client->reliableCommands[ reliableAcknowledge & ( MAX_RELIABLE_COMMANDS - 1 ) ];
 #endif RTCW_XX
 
@@ -181,8 +196,57 @@ void SV_Netchan_TransmitNextFragment( client_t *client ) {
 		}
 	}
 }
+#else
+void SV_Netchan_TransmitNextFragment( client_t *client ) {
+	Netchan_TransmitNextFragment( &client->netchan );
+	while ( !client->netchan.unsentFragments && client->netchan_start_queue )
+	{
+		// make sure the netchan queue has been properly initialized (you never know)
+		//%	if (!client->netchan_end_queue) {
+		//%		Com_Error(ERR_DROP, "netchan queue is not properly initialized in SV_Netchan_TransmitNextFragment\n");
+		//%	}
+		// the last fragment was transmitted, check wether we have queued messages
+		netchan_buffer_t* netbuf = client->netchan_start_queue;
+
+		// pop from queue
+		client->netchan_start_queue = netbuf->next;
+		if ( !client->netchan_start_queue ) {
+			client->netchan_end_queue = NULL;
+		}
+
+		if ( !SV_GameIsSinglePlayer() ) {
+			SV_Netchan_Encode( client, &netbuf->msg, netbuf->lastClientCommandString );
+		}
+		Netchan_Transmit( &client->netchan, netbuf->msg.cursize, netbuf->msg.data );
+
+		Z_Free( netbuf );
+	}
+}
 #endif RTCW_XX
 
+#if defined RTCW_ET
+/*
+===============
+SV_WriteBinaryMessage
+===============
+*/
+static void SV_WriteBinaryMessage( msg_t *msg, client_t *cl ) {
+	if ( !cl->binaryMessageLength ) {
+		return;
+	}
+
+	MSG_Uncompressed( msg );
+
+	if ( ( msg->cursize + cl->binaryMessageLength ) >= msg->maxsize ) {
+		cl->binaryMessageOverflowed = qtrue;
+		return;
+	}
+
+	MSG_WriteData( msg, cl->binaryMessage, cl->binaryMessageLength );
+	cl->binaryMessageLength = 0;
+	cl->binaryMessageOverflowed = qfalse;
+}
+#endif RTCW_XX
 
 #if defined RTCW_SP
 /*
@@ -190,7 +254,7 @@ void SV_Netchan_TransmitNextFragment( client_t *client ) {
 SV_Netchan_Transmit
 ================
 */
-#elif defined RTCW_MP
+#else
 /*
 ===============
 SV_Netchan_Transmit
@@ -238,6 +302,44 @@ void SV_Netchan_Transmit( client_t *client, msg_t *msg ) {   //int length, const
 		Netchan_Transmit( &client->netchan, msg->cursize, msg->data );
 	}
 }
+#else
+void SV_Netchan_Transmit( client_t *client, msg_t *msg ) {   //int length, const byte *data ) {
+	MSG_WriteByte( msg, svc_EOF );
+	SV_WriteBinaryMessage( msg, client );
+
+	if ( client->netchan.unsentFragments ) {
+		netchan_buffer_t *netbuf;
+		//Com_DPrintf("SV_Netchan_Transmit: there are unsent fragments remaining\n");
+		netbuf = (netchan_buffer_t *)Z_Malloc( sizeof( netchan_buffer_t ) );
+
+		// store the msg, we can't store it encoded, as the encoding depends on stuff we still have to finish sending
+		MSG_Copy( &netbuf->msg, netbuf->msgBuffer, sizeof( netbuf->msgBuffer ), msg );
+
+		// copy the command, since the command number used for encryption is
+		// already compressed in the buffer, and receiving a new command would
+		// otherwise lose the proper encryption key
+		strcpy( netbuf->lastClientCommandString, client->lastClientCommandString );
+
+		// insert it in the queue, the message will be encoded and sent later
+		//%	*client->netchan_end_queue = netbuf;
+		//%	client->netchan_end_queue = &(*client->netchan_end_queue)->next;
+		netbuf->next = NULL;
+		if ( !client->netchan_start_queue ) {
+			client->netchan_start_queue = netbuf;
+		} else {
+			client->netchan_end_queue->next = netbuf;
+		}
+		client->netchan_end_queue = netbuf;
+
+		// emit the next fragment of the current message for now
+		Netchan_TransmitNextFragment( &client->netchan );
+	} else {
+		if ( !SV_GameIsSinglePlayer() ) {
+			SV_Netchan_Encode( client, msg, client->lastClientCommandString );
+		}
+		Netchan_Transmit( &client->netchan, msg->cursize, msg->data );
+	}
+}
 #endif RTCW_XX
 
 /*
@@ -257,8 +359,16 @@ qboolean SV_Netchan_Process( client_t *client, msg_t *msg ) {
 		return qfalse;
 	}
 
-#if (defined RTCW_SP && DO_NET_ENCODE) || defined RTCW_MP
+#if defined RTCW_ET
+	if ( !SV_GameIsSinglePlayer() ) {
+#endif RTCW_XX
+
+#if (defined RTCW_SP && DO_NET_ENCODE) || !defined RTCW_SP
 	SV_Netchan_Decode( client, msg );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	}
 #endif RTCW_XX
 
 #if defined RTCW_SP

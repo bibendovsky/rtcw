@@ -16,3 +16,9 @@ game/ai_cast_func_boss1.c
 
 qcommon/files.c
 	FS_ReferencedPakNames
+
+----------
+Merge files:
+splines/qshared.cpp (SP/MP)
+splines/qshared.c (ET)
+

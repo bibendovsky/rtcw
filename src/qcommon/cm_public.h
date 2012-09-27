@@ -33,14 +33,14 @@ If you have questions concerning this license or the applicable additional terms
 
 void        CM_LoadMap( const char *name, qboolean clientload, int *checksum );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 void        CM_ClearMap( void );
 #endif RTCW_XX
 
 clipHandle_t CM_InlineModel( int index );       // 0 = world, 1 + are bmodels
 clipHandle_t CM_TempBoxModel( const vec3_t mins, const vec3_t maxs, int capsule );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 void        CM_SetTempBoxModelContents( int contents );     // DHM - Nerve
 #endif RTCW_XX
 

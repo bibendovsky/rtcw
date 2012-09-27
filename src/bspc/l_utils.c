@@ -242,7 +242,7 @@ qboolean FindQuakeFile2( char *basedir, char *gamedir, char *filename, foundfile
 			// doing it more 'clean'
 			sprintf( &filedir[strlen( filedir )], "pak%d.pak ", i );
 			filedir[strlen( filedir ) - 1] = '\0';
-#elif defined RTCW_MP
+#else
 			sprintf( &filedir[strlen( filedir )], "pak%d.pak\0", i );
 #endif RTCW_XX
 

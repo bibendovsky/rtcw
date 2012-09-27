@@ -1,25 +1,25 @@
 /*
 ===========================================================================
 
-Return to Castle Wolfenstein single player GPL Source Code
+Wolfenstein: Enemy Territory GPL Source Code
 Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company. 
 
-This file is part of the Return to Castle Wolfenstein single player GPL Source Code (RTCW SP Source Code).  
+This file is part of the Wolfenstein: Enemy Territory GPL Source Code (Wolf ET Source Code).  
 
-RTCW SP Source Code is free software: you can redistribute it and/or modify
+Wolf ET Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-RTCW SP Source Code is distributed in the hope that it will be useful,
+Wolf ET Source Code is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with RTCW SP Source Code.  If not, see <http://www.gnu.org/licenses/>.
+along with Wolf ET Source Code.  If not, see <http://www.gnu.org/licenses/>.
 
-In addition, the RTCW SP Source Code is also subject to certain additional terms. You should have received a copy of these additional terms immediately following the terms and conditions of the GNU General Public License which accompanied the RTCW SP Source Code.  If not, please request a copy in writing from id Software at the address below.
+In addition, the Wolf: ET Source Code is also subject to certain additional terms. You should have received a copy of these additional terms immediately following the terms and conditions of the GNU General Public License which accompanied the Wolf ET Source Code.  If not, please request a copy in writing from id Software at the address below.
 
 If you have questions concerning this license or the applicable additional terms, you may contact in writing id Software LLC, c/o ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
 
@@ -1006,8 +1006,6 @@ void AAS_RemoveAllPortals( void ) {
 		( *aasworld ).areasettings[i].contents &= ~AREACONTENTS_CLUSTERPORTAL;
 	} //end for
 } //end of the function AAS_RemoveAllPortals
-
-#if defined RTCW_SP
 /*
 //===========================================================================
 //
@@ -1124,8 +1122,7 @@ void AAS_FloodClusterReachabilities(int clusternum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-*/
-/*
+
 void AAS_RemoveNotClusterClosingPortals(void)
 {
 	int i, j, k, facenum, otherareanum, nonclosingportals;
@@ -1424,454 +1421,6 @@ void AAS_AddTeleporterPortals(void)
 		} //end for
 	} //end for
 } //end of the function AAS_AddTeleporterPortals*/
-#elif defined RTCW_MP
-#if 0
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void AAS_FloodCluster_r( int areanum, int clusternum ) {
-	int i, otherareanum;
-	aas_face_t *face;
-	aas_area_t *area;
-
-	//set cluster mark
-	( *aasworld ).areasettings[areanum].cluster = clusternum;
-	//if the area is a portal
-	//if ((*aasworld).areasettings[areanum].contents & AREACONTENTS_CLUSTERPORTAL) return;
-	//
-	area = &( *aasworld ).areas[areanum];
-	//use area faces to flood into adjacent areas
-	for ( i = 0; i < area->numfaces; i++ )
-	{
-		face = &( *aasworld ).faces[abs( ( *aasworld ).faceindex[area->firstface + i] )];
-		//
-		if ( face->frontarea != areanum ) {
-			otherareanum = face->frontarea;
-		} else { otherareanum = face->backarea;}
-		//if there's no area at the other side
-		if ( !otherareanum ) {
-			continue;
-		}
-		//if the area is a portal
-		if ( ( *aasworld ).areasettings[otherareanum].contents & AREACONTENTS_CLUSTERPORTAL ) {
-			continue;
-		}
-		//if the area is already marked
-		if ( ( *aasworld ).areasettings[otherareanum].cluster ) {
-			continue;
-		}
-		//
-		AAS_FloodCluster_r( otherareanum, clusternum );
-	} //end for
-	  //use the reachabilities to flood into other areas
-	for ( i = 0; i < ( *aasworld ).areasettings[areanum].numreachableareas; i++ )
-	{
-		otherareanum = ( *aasworld ).reachability[
-			( *aasworld ).areasettings[areanum].firstreachablearea + i].areanum;
-		if ( !otherareanum ) {
-			continue;
-			AAS_Error( "reachability %d has zero area\n", ( *aasworld ).areasettings[areanum].firstreachablearea + i );
-		} //end if
-		  //if the area is a portal
-		if ( ( *aasworld ).areasettings[otherareanum].contents & AREACONTENTS_CLUSTERPORTAL ) {
-			continue;
-		}
-		//if the area is already marked
-		if ( ( *aasworld ).areasettings[otherareanum].cluster ) {
-			continue;
-		}
-		//
-		AAS_FloodCluster_r( otherareanum, clusternum );
-	} //end for
-} //end of the function AAS_FloodCluster_r
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void AAS_RemoveTeleporterPortals( void ) {
-	int i, j, areanum;
-
-	for ( i = 1; i < ( *aasworld ).numareas; i++ )
-	{
-		for ( j = 0; j < ( *aasworld ).areasettings[i].numreachableareas; j++ )
-		{
-			areanum = ( *aasworld ).reachability[( *aasworld ).areasettings[i].firstreachablearea + j].areanum;
-			if ( ( *aasworld ).reachability[( *aasworld ).areasettings[i].firstreachablearea + j].traveltype == TRAVEL_TELEPORT ) {
-				( *aasworld ).areasettings[i].contents &= ~AREACONTENTS_CLUSTERPORTAL;
-				( *aasworld ).areasettings[areanum].contents &= ~AREACONTENTS_CLUSTERPORTAL;
-				break;
-			} //end if
-		} //end for
-	} //end for
-} //end of the function AAS_RemoveTeleporterPortals
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void AAS_FloodClusterReachabilities( int clusternum ) {
-	int i, j, areanum;
-
-	for ( i = 1; i < ( *aasworld ).numareas; i++ )
-	{
-		//if this area already has a cluster set
-		if ( ( *aasworld ).areasettings[i].cluster ) {
-			continue;
-		}
-		//if this area is a cluster portal
-		if ( ( *aasworld ).areasettings[i].contents & AREACONTENTS_CLUSTERPORTAL ) {
-			continue;
-		}
-		//loop over the reachable areas from this area
-		for ( j = 0; j < ( *aasworld ).areasettings[i].numreachableareas; j++ )
-		{
-			//the reachable area
-			areanum = ( *aasworld ).reachability[( *aasworld ).areasettings[i].firstreachablearea + j].areanum;
-			//if this area is a cluster portal
-			if ( ( *aasworld ).areasettings[areanum].contents & AREACONTENTS_CLUSTERPORTAL ) {
-				continue;
-			}
-			//if this area has a cluster set
-			if ( ( *aasworld ).areasettings[areanum].cluster == clusternum ) {
-				AAS_FloodCluster_r( i, clusternum );
-				i = 0;
-				break;
-			} //end if
-		} //end for
-	} //end for
-} //end of the function AAS_FloodClusterReachabilities
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-
-void AAS_RemoveNotClusterClosingPortals( void ) {
-	int i, j, k, facenum, otherareanum, nonclosingportals;
-	aas_area_t *area;
-	aas_face_t *face;
-
-	AAS_RemoveTeleporterPortals();
-	//
-	nonclosingportals = 0;
-	for ( i = 1; i < ( *aasworld ).numareas; i++ )
-	{
-		if ( !( ( *aasworld ).areasettings[i].contents & AREACONTENTS_CLUSTERPORTAL ) ) {
-			continue;
-		}
-		//find a non-portal area adjacent to the portal area and flood
-		//the cluster from there
-		area = &( *aasworld ).areas[i];
-		for ( j = 0; j < area->numfaces; j++ )
-		{
-			facenum = abs( ( *aasworld ).faceindex[area->firstface + j] );
-			face = &( *aasworld ).faces[facenum];
-			//
-			if ( face->frontarea != i ) {
-				otherareanum = face->frontarea;
-			} else { otherareanum = face->backarea;}
-			//
-			if ( !otherareanum ) {
-				continue;
-			}
-			//
-			if ( ( *aasworld ).areasettings[otherareanum].contents & AREACONTENTS_CLUSTERPORTAL ) {
-				continue;
-			} //end if
-			  //reset all cluster fields
-			AAS_RemoveClusterAreas();
-			//
-			AAS_FloodCluster_r( otherareanum, 1 );
-			AAS_FloodClusterReachabilities( 1 );
-			//check if all adjacent non-portal areas have a cluster set
-			for ( k = 0; k < area->numfaces; k++ )
-			{
-				facenum = abs( ( *aasworld ).faceindex[area->firstface + k] );
-				face = &( *aasworld ).faces[facenum];
-				//
-				if ( face->frontarea != i ) {
-					otherareanum = face->frontarea;
-				} else { otherareanum = face->backarea;}
-				//
-				if ( !otherareanum ) {
-					continue;
-				}
-				//
-				if ( ( *aasworld ).areasettings[otherareanum].contents & AREACONTENTS_CLUSTERPORTAL ) {
-					continue;
-				} //end if
-				  //
-				if ( !( *aasworld ).areasettings[otherareanum].cluster ) {
-					break;
-				}
-			} //end for
-			  //if all adjacent non-portal areas have a cluster set then the portal
-			  //didn't seal a cluster
-			if ( k >= area->numfaces ) {
-				( *aasworld ).areasettings[i].contents &= ~AREACONTENTS_CLUSTERPORTAL;
-				nonclosingportals++;
-				//recheck all the other portals again
-				i = 0;
-				break;
-			} //end if
-		} //end for
-	} //end for
-	botimport.Print( PRT_MESSAGE, "\r%6d non closing portals removed\n", nonclosingportals );
-} //end of the function AAS_RemoveNotClusterClosingPortals*/
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-
-void AAS_RemoveNotClusterClosingPortals( void ) {
-	int i, j, facenum, otherareanum, nonclosingportals, numseperatedclusters;
-	aas_area_t *area;
-	aas_face_t *face;
-
-	AAS_RemoveTeleporterPortals();
-	//
-	nonclosingportals = 0;
-	for ( i = 1; i < ( *aasworld ).numareas; i++ )
-	{
-		if ( !( ( *aasworld ).areasettings[i].contents & AREACONTENTS_CLUSTERPORTAL ) ) {
-			continue;
-		}
-		//
-		numseperatedclusters = 0;
-		//reset all cluster fields
-		AAS_RemoveClusterAreas();
-		//find a non-portal area adjacent to the portal area and flood
-		//the cluster from there
-		area = &( *aasworld ).areas[i];
-		for ( j = 0; j < area->numfaces; j++ )
-		{
-			facenum = abs( ( *aasworld ).faceindex[area->firstface + j] );
-			face = &( *aasworld ).faces[facenum];
-			//
-			if ( face->frontarea != i ) {
-				otherareanum = face->frontarea;
-			} else { otherareanum = face->backarea;}
-			//if not solid at the other side of the face
-			if ( !otherareanum ) {
-				continue;
-			}
-			//don't flood into other portals
-			if ( ( *aasworld ).areasettings[otherareanum].contents & AREACONTENTS_CLUSTERPORTAL ) {
-				continue;
-			}
-			//if the area already has a cluster set
-			if ( ( *aasworld ).areasettings[otherareanum].cluster ) {
-				continue;
-			}
-			//another cluster is seperated by this portal
-			numseperatedclusters++;
-			//flood the cluster
-			AAS_FloodCluster_r( otherareanum, numseperatedclusters );
-			AAS_FloodClusterReachabilities( numseperatedclusters );
-		} //end for
-		  //use the reachabilities to flood into other areas
-		for ( j = 0; j < ( *aasworld ).areasettings[i].numreachableareas; j++ )
-		{
-			otherareanum = ( *aasworld ).reachability[
-				( *aasworld ).areasettings[i].firstreachablearea + j].areanum;
-			//this should never be qtrue but we check anyway
-			if ( !otherareanum ) {
-				continue;
-			}
-			//don't flood into other portals
-			if ( ( *aasworld ).areasettings[otherareanum].contents & AREACONTENTS_CLUSTERPORTAL ) {
-				continue;
-			}
-			//if the area already has a cluster set
-			if ( ( *aasworld ).areasettings[otherareanum].cluster ) {
-				continue;
-			}
-			//another cluster is seperated by this portal
-			numseperatedclusters++;
-			//flood the cluster
-			AAS_FloodCluster_r( otherareanum, numseperatedclusters );
-			AAS_FloodClusterReachabilities( numseperatedclusters );
-		} //end for
-		  //a portal must seperate no more and no less than 2 clusters
-		if ( numseperatedclusters != 2 ) {
-			( *aasworld ).areasettings[i].contents &= ~AREACONTENTS_CLUSTERPORTAL;
-			nonclosingportals++;
-			//recheck all the other portals again
-			i = 0;
-		} //end if
-	} //end for
-	botimport.Print( PRT_MESSAGE, "\r%6d non closing portals removed\n", nonclosingportals );
-} //end of the function AAS_RemoveNotClusterClosingPortals
-
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-
-void AAS_AddTeleporterPortals( void ) {
-	int j, area2num, facenum, otherareanum;
-	char *target, *targetname, *classname;
-	bsp_entity_t *entities, *ent, *dest;
-	vec3_t origin, destorigin, mins, maxs, end;
-	vec3_t bbmins, bbmaxs;
-	aas_area_t *area;
-	aas_face_t *face;
-	aas_trace_t trace;
-	aas_link_t *areas, *link;
-
-	entities = AAS_ParseBSPEntities();
-
-	for ( ent = entities; ent; ent = ent->next )
-	{
-		classname = AAS_ValueForBSPEpairKey( ent, "classname" );
-		if ( classname && !strcmp( classname, "misc_teleporter" ) ) {
-			if ( !AAS_VectorForBSPEpairKey( ent, "origin", origin ) ) {
-				botimport.Print( PRT_ERROR, "teleporter (%s) without origin\n", target );
-				continue;
-			} //end if
-			  //
-			target = AAS_ValueForBSPEpairKey( ent, "target" );
-			if ( !target ) {
-				botimport.Print( PRT_ERROR, "teleporter (%s) without target\n", target );
-				continue;
-			} //end if
-			for ( dest = entities; dest; dest = dest->next )
-			{
-				classname = AAS_ValueForBSPEpairKey( dest, "classname" );
-				if ( classname && !strcmp( classname, "misc_teleporter_dest" ) ) {
-					targetname = AAS_ValueForBSPEpairKey( dest, "targetname" );
-					if ( targetname && !strcmp( targetname, target ) ) {
-						break;
-					} //end if
-				} //end if
-			} //end for
-			if ( !dest ) {
-				botimport.Print( PRT_ERROR, "teleporter without destination (%s)\n", target );
-				continue;
-			} //end if
-			if ( !AAS_VectorForBSPEpairKey( dest, "origin", destorigin ) ) {
-				botimport.Print( PRT_ERROR, "teleporter destination (%s) without origin\n", target );
-				continue;
-			} //end if
-			destorigin[2] += 24; //just for q2e1m2, the dork has put the telepads in the ground
-			VectorCopy( destorigin, end );
-			end[2] -= 100;
-			trace = AAS_TraceClientBBox( destorigin, end, PRESENCE_CROUCH, -1 );
-			if ( trace.startsolid ) {
-				botimport.Print( PRT_ERROR, "teleporter destination (%s) in solid\n", target );
-				continue;
-			} //end if
-			VectorCopy( trace.endpos, destorigin );
-			area2num = AAS_PointAreaNum( destorigin );
-			//reset all cluster fields
-			for ( j = 0; j < ( *aasworld ).numareas; j++ )
-			{
-				( *aasworld ).areasettings[j].cluster = 0;
-			} //end for
-			  //
-			VectorSet( mins, -8, -8, 8 );
-			VectorSet( maxs, 8, 8, 24 );
-			//
-			AAS_PresenceTypeBoundingBox( PRESENCE_CROUCH, bbmins, bbmaxs );
-			//
-			VectorAdd( origin, mins, mins );
-			VectorAdd( origin, maxs, maxs );
-			//add bounding box size
-			VectorSubtract( mins, bbmaxs, mins );
-			VectorSubtract( maxs, bbmins, maxs );
-			//link an invalid (-1) entity
-			areas = AAS_AASLinkEntity( mins, maxs, -1 );
-			//
-			for ( link = areas; link; link = link->next_area )
-			{
-				if ( !AAS_AreaGrounded( link->areanum ) ) {
-					continue;
-				}
-				//add the teleporter portal mark
-				( *aasworld ).areasettings[link->areanum].contents |= AREACONTENTS_CLUSTERPORTAL |
-																	  AREACONTENTS_TELEPORTAL;
-			} //end for
-			  //
-			for ( link = areas; link; link = link->next_area )
-			{
-				if ( !AAS_AreaGrounded( link->areanum ) ) {
-					continue;
-				}
-				//find a non-portal area adjacent to the portal area and flood
-				//the cluster from there
-				area = &( *aasworld ).areas[link->areanum];
-				for ( j = 0; j < area->numfaces; j++ )
-				{
-					facenum = abs( ( *aasworld ).faceindex[area->firstface + j] );
-					face = &( *aasworld ).faces[facenum];
-					//
-					if ( face->frontarea != link->areanum ) {
-						otherareanum = face->frontarea;
-					} else { otherareanum = face->backarea;}
-					//
-					if ( !otherareanum ) {
-						continue;
-					}
-					//
-					if ( ( *aasworld ).areasettings[otherareanum].contents & AREACONTENTS_CLUSTERPORTAL ) {
-						continue;
-					} //end if
-					  //
-					AAS_FloodCluster_r( otherareanum, 1 );
-				} //end for
-			} //end for
-			  //if the teleport destination IS in the same cluster
-			if ( ( *aasworld ).areasettings[area2num].cluster ) {
-				for ( link = areas; link; link = link->next_area )
-				{
-					if ( !AAS_AreaGrounded( link->areanum ) ) {
-						continue;
-					}
-					//add the teleporter portal mark
-					( *aasworld ).areasettings[link->areanum].contents &= ~( AREACONTENTS_CLUSTERPORTAL |
-																			 AREACONTENTS_TELEPORTAL );
-				} //end for
-			} //end if
-		} //end if
-	} //end for
-	AAS_FreeBSPEntities( entities );
-} //end of the function AAS_AddTeleporterPortals
-
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void AAS_AddTeleporterPortals( void ) {
-	int i, j, areanum;
-
-	for ( i = 1; i < ( *aasworld ).numareas; i++ )
-	{
-		for ( j = 0; j < ( *aasworld ).areasettings[i].numreachableareas; j++ )
-		{
-			if ( ( *aasworld ).reachability[( *aasworld ).areasettings[i].firstreachablearea + j].traveltype != TRAVEL_TELEPORT ) {
-				continue;
-			}
-			areanum = ( *aasworld ).reachability[( *aasworld ).areasettings[i].firstreachablearea + j].areanum;
-			( *aasworld ).areasettings[areanum].contents |= AREACONTENTS_CLUSTERPORTAL;
-		} //end for
-	} //end for
-} //end of the function AAS_AddTeleporterPortals*/
-#endif
-#endif RTCW_XX
-
 //===========================================================================
 //
 // Parameter:				-
@@ -1964,6 +1513,14 @@ void AAS_InitClustering( void ) {
 	//if there are clusters
 	if ( ( *aasworld ).numclusters >= 1 ) {
 #ifndef BSPC
+
+#if defined RTCW_ET
+		if ( ( *aasworld ).clusterTeamTravelFlags ) {
+			FreeMemory( ( *aasworld ).clusterTeamTravelFlags );
+		}
+		( *aasworld ).clusterTeamTravelFlags = (int *) GetClearedMemory( ( *aasworld ).numclusters * sizeof( int ) );
+#endif RTCW_XX
+
 		//if clustering isn't forced
 		if ( !( (int)LibVarGetValue( "forceclustering" ) ) &&
 			 !( (int)LibVarGetValue( "forcereachability" ) ) ) {
@@ -2001,6 +1558,15 @@ void AAS_InitClustering( void ) {
 	}
 	( *aasworld ).clusters = (aas_cluster_t *) GetClearedMemory( AAS_MAX_CLUSTERS * sizeof( aas_cluster_t ) );
 	//
+
+#if defined RTCW_ET
+	if ( ( *aasworld ).clusterTeamTravelFlags ) {
+		FreeMemory( ( *aasworld ).clusterTeamTravelFlags );
+	}
+	( *aasworld ).clusterTeamTravelFlags = (int *) GetClearedMemory( AAS_MAX_CLUSTERS * sizeof( int ) );
+	//
+#endif RTCW_XX
+
 	removedPortalAreas = 0;
 	botimport.Print( PRT_MESSAGE, "\r%6d removed portal areas", removedPortalAreas );
 	while ( 1 )

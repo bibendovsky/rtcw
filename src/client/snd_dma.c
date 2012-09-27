@@ -43,13 +43,13 @@ void S_Play_f( void );
 void S_SoundList_f( void );
 void S_Music_f( void );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 void S_QueueMusic_f( void );
 #endif RTCW_XX
 
 void S_StreamingSound_f( void );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 void S_ClearSounds( qboolean clearStreaming, qboolean clearMusic ); //----(SA)	modified
 #endif RTCW_XX
 
@@ -57,7 +57,7 @@ void S_Update_Mix();
 void S_StopAllSounds( void );
 void S_UpdateStreamingSounds( void );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 snd_t snd;  // globals for sound
 #endif RTCW_XX
 
@@ -149,7 +149,7 @@ cvar_t      *s_mixahead;
 cvar_t      *s_mixPreStep;
 cvar_t      *s_musicVolume;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 cvar_t      *s_currentMusic;    //----(SA)	added
 #endif RTCW_XX
 
@@ -160,10 +160,10 @@ cvar_t      *s_defaultsound; // (SA) added to silence the default beep sound if 
 cvar_t      *cl_cacheGathering; // Ridah
 cvar_t      *s_wavonly;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 cvar_t      *s_debugMusic;  //----(SA)	added
 
-#elif defined RTCW_MP
+#else
 #define MAX_LOOP_SOUNDS     128
 static int numLoopSounds;
 static loopSound_t loopSounds[MAX_LOOP_SOUNDS];
@@ -174,6 +174,12 @@ static channel_t       *endflist = NULL;
 
 // Rafael
 cvar_t      *s_nocompressed;
+
+#if defined RTCW_ET
+// fretn
+cvar_t      *s_bits;
+cvar_t      *s_numchannels;
+#endif RTCW_XX
 
 // for streaming sounds
 int s_rawend[MAX_STREAMING_SOUNDS];
@@ -191,18 +197,18 @@ S_SoundInfo_f
 void S_SoundInfo_f( void ) {
 	Com_Printf( "----- Sound Info -----\n" );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( !snd.s_soundStarted ) {
-#elif defined RTCW_MP
+#else
 	if ( !s_soundStarted ) {
 #endif RTCW_XX
 
 		Com_Printf( "sound system not started\n" );
 	} else {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		if ( snd.s_soundMute ) {
-#elif defined RTCW_MP
+#else
 		if ( s_soundMuted ) {
 #endif RTCW_XX
 
@@ -214,7 +220,13 @@ void S_SoundInfo_f( void ) {
 		Com_Printf( "%5d samplebits\n", dma.samplebits );
 		Com_Printf( "%5d submission_chunk\n", dma.submission_chunk );
 		Com_Printf( "%5d speed\n", dma.speed );
+
+#if !defined RTCW_ET
 		Com_Printf( "0x%x dma buffer\n", dma.buffer );
+#else
+		Com_Printf( "0x%p dma buffer\n", dma.buffer );
+#endif RTCW_XX
+
 		if ( streamingSounds[0].file ) {
 			Com_Printf( "Background file: %s\n", streamingSounds[0].loop );
 		} else {
@@ -242,19 +254,30 @@ void S_Init( void ) {
 	s_volume = Cvar_Get( "s_volume", "0.8", CVAR_ARCHIVE );
 	s_musicVolume = Cvar_Get( "s_musicvolume", "0.25", CVAR_ARCHIVE );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	s_currentMusic = Cvar_Get( "s_currentMusic", "", CVAR_ROM );
 #endif RTCW_XX
 
 	s_separation = Cvar_Get( "s_separation", "0.5", CVAR_ARCHIVE );
 	s_doppler = Cvar_Get( "s_doppler", "1", CVAR_ARCHIVE );
+
+#if !defined RTCW_ET
 	s_khz = Cvar_Get( "s_khz", "22", CVAR_ARCHIVE );
+#else
+	s_khz = Cvar_Get( "s_khz", "22", CVAR_ARCHIVE | CVAR_LATCH );
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	s_mixahead = Cvar_Get( "s_mixahead", "0.2", CVAR_ARCHIVE );
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	s_mixahead = Cvar_Get( "s_mixahead", "0.5", CVAR_ARCHIVE );    //DAJ was 0.2
 	s_debugMusic = Cvar_Get( "s_debugMusic", "0", CVAR_TEMP );
 #elif defined RTCW_MP
 	s_mixahead = Cvar_Get( "s_mixahead", "0.2", CVAR_ARCHIVE );
+#else
+	s_debugMusic = Cvar_Get( "s_debugMusic", "0", CVAR_TEMP );
 #endif RTCW_XX
 
 	s_mixPreStep = Cvar_Get( "s_mixPreStep", "0.05", CVAR_ARCHIVE );
@@ -267,6 +290,12 @@ void S_Init( void ) {
 
 	// Rafael
 	s_nocompressed = Cvar_Get( "s_nocompressed", "0", CVAR_INIT );
+
+#if defined RTCW_ET
+	// fretn
+	s_bits = Cvar_Get( "s_bits", "16", CVAR_LATCH | CVAR_ARCHIVE );
+	s_numchannels = Cvar_Get( "s_channels", "2", CVAR_LATCH | CVAR_ARCHIVE );
+#endif RTCW_XX
 
 	cv = Cvar_Get( "s_initsound", "1", 0 );
 	if ( !cv->integer ) {
@@ -282,6 +311,8 @@ void S_Init( void ) {
 
 #if defined RTCW_SP
 	Cmd_AddCommand( "queuemusic", S_QueueMusic_f );
+#elif defined RTCW_ET
+	Cmd_AddCommand( "music_queue", S_QueueMusic_f );
 #endif RTCW_XX
 
 	Cmd_AddCommand( "streamingsound", S_StreamingSound_f );
@@ -294,16 +325,27 @@ void S_Init( void ) {
 
 	if ( r ) {
 
-#if defined RTCW_SP
+#if defined RTCW_ET
+		Sys_EnterCriticalSection( crit );
+#endif RTCW_XX
+
+#if !defined RTCW_MP
 		Com_Memset( &snd, 0, sizeof( snd ) );
 //		Com_Memset(snd.sfxHash, 0, sizeof(sfx_t *)*LOOP_HASH);
 
 		snd.s_soundStarted = 1;
 		snd.s_soundMute = 1;
 //		snd.s_numSfx = 0;
+
+#if !defined RTCW_ET
 //		snd.volTarget = 1.0f;	// full volume
 		snd.volTarget = 0.0f;   // full volume
-#elif defined RTCW_MP
+#else
+		snd.volTarget = 0.0f;
+		//snd.volTarget = 1.0f;	// full volume
+#endif RTCW_XX
+
+#else
 		Com_Memset( sfxHash, 0, sizeof( sfx_t * ) * LOOP_HASH );
 
 		s_soundStarted = 1;
@@ -318,6 +360,11 @@ void S_Init( void ) {
 
 		S_SoundInfo_f();
 		S_ChannelSetup();
+
+#if defined RTCW_ET
+		Sys_LeaveCriticalSection( crit );
+#endif RTCW_XX
+
 	}
 
 }
@@ -331,7 +378,7 @@ void S_ChannelFree( channel_t *v ) {
 	v->thesfx = NULL;
 	v->threadReady = qfalse;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 #ifdef _DEBUG
 	if ( v >  &s_channels[MAX_CHANNELS] || v <  &s_channels[0] ) {
 		Com_DPrintf( "s_channel OUT OF BOUNDS\n" );
@@ -340,7 +387,7 @@ void S_ChannelFree( channel_t *v ) {
 #endif
 	*(channel_t **)snd.endflist = v;
 	snd.endflist = v;
-#elif defined RTCW_MP
+#else
 	*(channel_t **)endflist = v;
 	endflist = v;
 #endif RTCW_XX
@@ -356,7 +403,7 @@ S_ChannelMalloc
 channel_t*  S_ChannelMalloc() {
 	channel_t *v;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( snd.freelist == NULL ) {
 		return NULL;
 	}
@@ -372,7 +419,7 @@ channel_t*  S_ChannelMalloc() {
 #endif
 	v = snd.freelist;
 	snd.freelist = *(channel_t **)snd.freelist;
-#elif defined RTCW_MP
+#else
 	if ( freelist == NULL ) {
 		return NULL;
 	}
@@ -401,17 +448,17 @@ void S_ChannelSetup() {
 		*(channel_t **)q = q - 1;
 	}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	snd.endflist = q;
-#elif defined RTCW_MP
+#else
 	endflist = q;
 #endif RTCW_XX
 
 	*(channel_t **)q = NULL;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	snd.freelist = p + MAX_CHANNELS - 1;
-#elif defined RTCW_MP
+#else
 	freelist = p + MAX_CHANNELS - 1;
 #endif RTCW_XX
 
@@ -425,9 +472,9 @@ S_Shutdown
 */
 void S_Shutdown( void ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( !snd.s_soundStarted ) {
-#elif defined RTCW_MP
+#else
 	if ( !s_soundStarted ) {
 #endif RTCW_XX
 
@@ -438,19 +485,32 @@ void S_Shutdown( void ) {
 
 	SNDDMA_Shutdown();
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	snd.s_soundStarted = 0;
 	snd.s_soundMute = 1;
-#elif defined RTCW_MP
+#else
 	s_soundStarted = 0;
 	s_soundMuted = qtrue;
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	Sys_LeaveCriticalSection( crit );
+#endif RTCW_XX
+
 	Cmd_RemoveCommand( "play" );
 	Cmd_RemoveCommand( "music" );
+
+#if !defined RTCW_ET
 	Cmd_RemoveCommand( "stopsound" );
 	Cmd_RemoveCommand( "soundlist" );
 	Cmd_RemoveCommand( "soundinfo" );
+
+#else
+	Cmd_RemoveCommand( "s_stop" );
+	Cmd_RemoveCommand( "s_list" );
+	Cmd_RemoveCommand( "s_info" );
+#endif RTCW_XX
+
 }
 
 /*
@@ -553,9 +613,9 @@ static sfx_t *S_FindName( const char *name ) {
 
 	hash = S_HashSFXName( name );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	sfx = snd.sfxHash[hash];
-#elif defined RTCW_MP
+#else
 	sfx = sfxHash[hash];
 #endif RTCW_XX
 
@@ -569,9 +629,9 @@ static sfx_t *S_FindName( const char *name ) {
 
 	// find a free sfx
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	for ( i = 0 ; i < snd.s_numSfx ; i++ ) {
-#elif defined RTCW_MP
+#else
 	for ( i = 0 ; i < s_numSfx ; i++ ) {
 #endif RTCW_XX
 
@@ -580,10 +640,10 @@ static sfx_t *S_FindName( const char *name ) {
 		}
 	}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( i == snd.s_numSfx ) {
 		if ( snd.s_numSfx == MAX_SFX ) {
-#elif defined RTCW_MP
+#else
 	if ( i == s_numSfx ) {
 		if ( s_numSfx == MAX_SFX ) {
 #endif RTCW_XX
@@ -591,9 +651,9 @@ static sfx_t *S_FindName( const char *name ) {
 			Com_Error( ERR_FATAL, "S_FindName: out of sfx_t" );
 		}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		snd.s_numSfx++;
-#elif defined RTCW_MP
+#else
 		s_numSfx++;
 #endif RTCW_XX
 
@@ -603,10 +663,10 @@ static sfx_t *S_FindName( const char *name ) {
 	Com_Memset( sfx, 0, sizeof( *sfx ) );
 	strcpy( sfx->soundName, name );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	sfx->next = snd.sfxHash[hash];
 	snd.sfxHash[hash] = sfx;
-#elif defined RTCW_MP
+#else
 	sfx->next = sfxHash[hash];
 	sfxHash[hash] = sfx;
 #endif RTCW_XX
@@ -622,13 +682,13 @@ S_DefaultSound
 void S_DefaultSound( sfx_t *sfx ) {
 	int i;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( s_defaultsound->integer ) {
 		sfx->soundLength = 512;
 	} else {
 		sfx->soundLength = 8;
 	}
-#elif defined RTCW_MP
+#else
 	sfx->soundLength = 512;
 #endif RTCW_XX
 
@@ -646,6 +706,35 @@ void S_DefaultSound( sfx_t *sfx ) {
 	}
 }
 
+#if defined RTCW_ET
+/*
+================
+S_Reload
+================
+*/
+void S_Reload( void ) {
+	sfx_t *sfx;
+	int i;
+
+	if ( !snd.s_soundStarted ) {
+		return;
+	}
+
+	Com_Printf( "reloading sounds...\n" );
+
+	Sys_EnterCriticalSection( crit );
+
+	S_StopAllSounds();
+
+	for ( sfx = s_knownSfx, i = 0; i < snd.s_numSfx; i++, sfx++ ) {
+		sfx->inMemory = qfalse;
+		S_memoryLoad( sfx );
+	}
+
+	Sys_LeaveCriticalSection( crit );
+}
+#endif RTCW_XX
+
 /*
 ===================
 S_DisableSounds
@@ -658,9 +747,9 @@ are no longer valid.
 void S_DisableSounds( void ) {
 	S_StopAllSounds();
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	snd.s_soundMute = 1;
-#elif defined RTCW_MP
+#else
 	s_soundMuted = qtrue;
 #endif RTCW_XX
 
@@ -674,7 +763,7 @@ S_BeginRegistration
 void S_BeginRegistration( void ) {
 	sfx_t   *sfx;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	snd.s_soundMute = 0;        // we can play again
 
 	if ( snd.s_numSfx == 0 ) {
@@ -683,7 +772,7 @@ void S_BeginRegistration( void ) {
 		snd.s_numSfx = 0;
 		Com_Memset( s_knownSfx, 0, sizeof( s_knownSfx ) );
 		Com_Memset( snd.sfxHash, 0, sizeof( sfx_t * ) * LOOP_HASH );
-#elif defined RTCW_MP
+#else
 	s_soundMuted = qfalse;      // we can play again
 
 	if ( s_numSfx == 0 ) {
@@ -714,6 +803,10 @@ sfxHandle_t S_RegisterSound( const char *name, qboolean compressed ) {
 	if ( !snd.s_soundStarted ) {
 #elif defined RTCW_MP
 	if ( !s_soundStarted ) {
+#else
+	//compressed = qfalse; // Arnout: memory corruption with compressed sounds?
+
+	if ( !snd.s_soundStarted ) {
 #endif RTCW_XX
 
 		return 0;
@@ -721,9 +814,9 @@ sfxHandle_t S_RegisterSound( const char *name, qboolean compressed ) {
 
 	if ( strlen( name ) >= MAX_QPATH ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		Com_Printf( "Sound name exceeds MAX_QPATH\n" );
-#elif defined RTCW_MP
+#else
 		Com_DPrintf( "Sound name exceeds MAX_QPATH\n" );
 #endif RTCW_XX
 
@@ -735,9 +828,9 @@ sfxHandle_t S_RegisterSound( const char *name, qboolean compressed ) {
 		if ( sfx->defaultSound ) {
 			if ( com_developer->integer ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 				Com_Printf( S_COLOR_YELLOW "WARNING: could not find %s - using default\n", sfx->soundName );
-#elif defined RTCW_MP
+#else
 				Com_DPrintf( S_COLOR_YELLOW "WARNING: could not find %s - using default\n", sfx->soundName );
 #endif RTCW_XX
 
@@ -747,6 +840,11 @@ sfxHandle_t S_RegisterSound( const char *name, qboolean compressed ) {
 		return sfx - s_knownSfx;
 	}
 
+#if defined RTCW_ET
+	Sys_EnterCriticalSection( crit );
+#endif RTCW_XX
+
+
 	sfx->inMemory = qfalse;
 	sfx->soundCompressed = compressed;
 
@@ -754,12 +852,16 @@ sfxHandle_t S_RegisterSound( const char *name, qboolean compressed ) {
 	S_memoryLoad( sfx );
 //	}
 
+#if defined RTCW_ET
+	Sys_LeaveCriticalSection( crit );
+#endif RTCW_XX
+
 	if ( sfx->defaultSound ) {
 		if ( com_developer->integer ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 			Com_Printf( S_COLOR_YELLOW "WARNING: could not find %s - using default\n", sfx->soundName );
-#elif defined RTCW_MP
+#else
 			Com_DPrintf( S_COLOR_YELLOW "WARNING: could not find %s - using default\n", sfx->soundName );
 #endif RTCW_XX
 
@@ -793,8 +895,16 @@ S_SpatializeOrigin
 Used for spatializing s_channels
 =================
 */
+
+#if !defined RTCW_ET
 void S_SpatializeOrigin( vec3_t origin, int master_vol, int *left_vol, int *right_vol, float range ) {
 	vec_t dot;
+#else
+// xkan, 11/04/2002 - added noAttenuation arg.
+void S_SpatializeOrigin( vec3_t origin, int master_vol, int *left_vol, int *right_vol, float range, int noAttenuation ) {
+//	vec_t		dot;
+#endif RTCW_XX
+
 	vec_t dist;
 	vec_t lscale, rscale, scale;
 	vec3_t source_vec;
@@ -813,7 +923,13 @@ void S_SpatializeOrigin( vec3_t origin, int master_vol, int *left_vol, int *righ
 	dist = VectorNormalize( source_vec );
 //	dist -= SOUND_FULLVOLUME;
 	dist -= dist_fullvol;
+
+#if !defined RTCW_ET
 	if ( dist < 0 ) {
+#else
+	if ( dist < 0 || noAttenuation ) {
+#endif RTCW_XX
+
 		dist = 0;           // close enough to be at full volume
 
 	}
@@ -824,23 +940,57 @@ void S_SpatializeOrigin( vec3_t origin, int master_vol, int *left_vol, int *righ
 
 	VectorRotate( source_vec, listener_axis, vec );
 
+#if !defined RTCW_ET
 	dot = -vec[1];
 
 	if ( dma.channels == 1 ) { // no attenuation = no spatialization
+#else
+//	dot = -vec[1];
+
+	if ( dma.channels == 1 || noAttenuation ) { // no attenuation = no spatialization
+#endif RTCW_XX
+
 		rscale = 1.0;
 		lscale = 1.0;
 	} else
 	{
+
+#if !defined RTCW_ET
 		rscale = 0.5 * ( 1.0 + dot );
 		lscale = 0.5 * ( 1.0 - dot );
+#else
+		// xkan 11/22/2002 - the total energy of left + right should stay constant
+		// and the energy is proportional to the square of sound volume.
+		//
+		// therefore lscale and rscale should satisfy the following 2 conditions:
+		//		lscale^2 + rscale^2 = 2
+		//		lscale^2 - rscale^2 = 2*vec[1]
+		// (the second condition here is more experimental than physical).
+		// These 2 conditions together give us the following solution.
+//		rscale = 0.5 * (1.0 + dot);
+//		lscale = 0.5 * (1.0 - dot);
+		rscale = sqrt( 1.0 - vec[1] );
+		lscale = sqrt( 1.0 + vec[1] );
+#endif RTCW_XX
 		//rscale = s_separation->value + ( 1.0 - s_separation->value ) * dot;
 		//lscale = s_separation->value - ( 1.0 - s_separation->value ) * dot;
+
+#if !defined RTCW_ET
 		if ( rscale < 0 ) {
 			rscale = 0;
 		}
 		if ( lscale < 0 ) {
 			lscale = 0;
 		}
+#else
+/*		if ( rscale < 0 ) {
+			rscale = 0;
+		}
+		if ( lscale < 0 ) {
+			lscale = 0;
+		}*/
+#endif RTCW_XX
+
 	}
 
 	// add in distance effect
@@ -876,9 +1026,15 @@ Entchannel 0 will never override a playing sound
 
 #if defined RTCW_SP
 void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle, int flags );
+#elif defined RTCW_ET
+void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle, int flags, int volume );
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 void S_StartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle, int flags ) {
+#else
+void S_StartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle, int flags, int volume ) {
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	if ( !snd.s_soundStarted || snd.s_soundMute || ( cls.state != CA_ACTIVE && cls.state != CA_DISCONNECTED ) ) {
@@ -938,20 +1094,62 @@ void S_StartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHandle_t s
 
 		tart++;
 	}
+#else
+	if ( !snd.s_soundStarted || snd.s_soundMute || ( cls.state != CA_ACTIVE && cls.state != CA_DISCONNECTED ) ) {
+		return;
+	}
+
+	// RF, we have lots of NULL sounds using up valuable channels, so just ignore them
+/*	if( !sfxHandle && entchannel != CHAN_WEAPON ) {	// let null weapon sounds try to play.  they kill any weapon sounds playing when a guy dies
+		Com_Printf( "^1WARNING: NULL sfx handle\n" );
+		return;
+	}*/
+
+	// RF, make the call now, or else we could override following streaming sounds in the same frame, due to the delay
+	S_ThreadStartSoundEx( origin, entityNum, entchannel, sfxHandle, flags, volume );
+/*
+	if (snd.tart < MAX_PUSHSTACK) {
+		sfx_t		*sfx;
+		if (origin) {
+			VectorCopy( origin, snd.pushPop[snd.tart].origin );
+			snd.pushPop[snd.tart].fixedOrigin = qtrue;
+		} else {
+			snd.pushPop[snd.tart].fixedOrigin = qfalse;
+		}
+		snd.pushPop[snd.tart].entityNum = entityNum;
+		snd.pushPop[snd.tart].entityChannel = entchannel;
+		snd.pushPop[snd.tart].sfx = sfxHandle;
+		snd.pushPop[snd.tart].flags = flags;
+		// Gordon: more volume control, so more cookies from Tim!
+		snd.pushPop[snd.tart].volume = volume; // default was 127
+		sfx = &s_knownSfx[ sfxHandle ];
+
+		if (sfx->inMemory == qfalse) {
+			S_memoryLoad(sfx);
+		}
+
+		snd.tart++;
+	}
+*/
 #endif RTCW_XX
 
 }
 
+#if !defined RTCW_ET
 void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle, int flags ) {
+#else
+void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle, int flags, int volume ) {
+#endif RTCW_XX
+
 	channel_t   *ch;
 	sfx_t       *sfx;
 	int i, oldest, chosen;
 
 	chosen = -1;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( !snd.s_soundStarted || snd.s_soundMute ) {
-#elif defined RTCW_MP
+#else
 	if ( !s_soundStarted || s_soundMuted ) {
 #endif RTCW_XX
 
@@ -968,10 +1166,17 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 #elif defined RTCW_MP
 	if ( sfxHandle < 0 || sfxHandle >= s_numSfx ) {
 		Com_DPrintf( S_COLOR_YELLOW, "S_StartSound: handle %i out of range\n", sfxHandle );
+#else
+	if ( sfxHandle < 0 || sfxHandle >= snd.s_numSfx ) {
+		Com_Printf( S_COLOR_YELLOW "S_StartSound: handle %i out of range\n", sfxHandle );
 #endif RTCW_XX
 
 		return;
 	}
+
+#if defined RTCW_ET
+	Sys_EnterCriticalSection( crit );
+#endif RTCW_XX
 
 	sfx = &s_knownSfx[ sfxHandle ];
 
@@ -979,7 +1184,9 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 		Com_Printf( "%i : %s\n", s_paintedtime, sfx->soundName );
 	}
 
+#if !defined RTCW_ET
 //	Com_Printf("playing %s\n", sfx->soundName);
+#endif RTCW_XX
 
 	sfx->lastTimeUsed = Sys_Milliseconds();
 
@@ -994,9 +1201,9 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 			if ( ( entchannel != CHAN_AUTO ) && ( streamingSounds[i].entnum >= 0 ) && ( streamingSounds[i].channel == entchannel ) && ( streamingSounds[i].entnum == entityNum ) ) {
 				// found a match, override this channel
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 				streamingSounds[i].kill = 1;
-#elif defined RTCW_MP
+#else
 				streamingSounds[i].kill = qtrue;
 #endif RTCW_XX
 
@@ -1029,6 +1236,20 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 				S_ChannelFree( &s_channels[i] );
 				continue;
 			}
+#elif defined RTCW_ET
+			// RF, let client voice sounds be overwritten
+
+			// TAT 11/2/2002 - don't do this, then if 2 bots try to talk at the same time, the 1st voice goes away.
+			//		multiple people are allowed to talk at the same time
+
+			// xkan, 11/21/2002 - restore this for all non-zero clients, for client 0, we sometimes do get (and want)
+			// multiple sounds on him.
+			//
+			/*if(entityNum != 0 &&
+			   entityNum < MAX_CLIENTS && s_channels[i].entchannel != CHAN_AUTO && s_channels[i].entchannel != CHAN_WEAPON) {
+				S_ChannelFree(&s_channels[i]);
+				continue;
+			}*/
 #endif RTCW_XX
 
 			// cutoff sounds that expect to be overwritten
@@ -1051,9 +1272,9 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 	// re-use channel if applicable
 	for ( i = 0 ; i < MAX_CHANNELS ; i++ ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		if ( s_channels[i].entnum == entityNum && s_channels[i].entchannel == entchannel && entchannel != CHAN_AUTO ) {
-#elif defined RTCW_MP
+#else
 		if ( s_channels[i].entnum == entityNum && s_channels[i].entchannel == entchannel ) {
 #endif RTCW_XX
 
@@ -1102,6 +1323,11 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 				}
 				if ( chosen == -1 ) {
 					//Com_Printf("dropping sound\n");
+
+#if defined RTCW_ET
+					Sys_LeaveCriticalSection( crit );
+#endif RTCW_XX
+
 					return;
 				}
 			}
@@ -1110,10 +1336,15 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 		ch->allocTime = sfx->lastTimeUsed;
 	}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 #ifdef _DEBUG
 	if ( ch > &s_channels[MAX_CHANNELS] || ch < &s_channels[0] ) { //DAJ	extra check
 		Com_DPrintf( "s_channel OUT OF BOUNDS\n" );
+
+#if defined RTCW_ET
+		Sys_LeaveCriticalSection( crit );
+#endif RTCW_XX
+
 		return;
 	}
 #endif
@@ -1127,7 +1358,13 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 	}
 
 	ch->flags = flags;  //----(SA)	added
+
+#if !defined RTCW_ET
 	ch->master_vol = 127;
+#else
+	ch->master_vol = volume;
+#endif RTCW_XX
+
 	ch->entnum = entityNum;
 	ch->thesfx = sfx;
 	ch->entchannel = entchannel;
@@ -1136,19 +1373,32 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 	ch->doppler = qfalse;
 
 	if ( ch->fixed_origin ) {
+
+#if !defined RTCW_ET
 		S_SpatializeOrigin( ch->origin, ch->master_vol, &ch->leftvol, &ch->rightvol, SOUND_RANGE_DEFAULT );
+#else
+		S_SpatializeOrigin( ch->origin, ch->master_vol, &ch->leftvol, &ch->rightvol, SOUND_RANGE_DEFAULT, flags & SND_NO_ATTENUATION );
+#endif RTCW_XX
+
 	} else {
 
 #if defined RTCW_SP
 		S_SpatializeOrigin( snd.entityPositions[ ch->entnum ], ch->master_vol, &ch->leftvol, &ch->rightvol, SOUND_RANGE_DEFAULT );
 #elif defined RTCW_MP
 		S_SpatializeOrigin( entityPositions[ ch->entnum ], ch->master_vol, &ch->leftvol, &ch->rightvol, SOUND_RANGE_DEFAULT );
+#else
+		S_SpatializeOrigin( snd.entityPositions[ch->entnum], ch->master_vol, &ch->leftvol, &ch->rightvol, SOUND_RANGE_DEFAULT, flags & SND_NO_ATTENUATION );
 #endif RTCW_XX
 
 	}
 
 	ch->startSample = START_SAMPLE_IMMEDIATE;
 	ch->threadReady = qtrue;
+
+#if defined RTCW_ET
+	Sys_LeaveCriticalSection( crit );
+#endif RTCW_XX
+
 }
 
 /*
@@ -1156,9 +1406,16 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 S_StartSound
 ==============
 */
+
+#if !defined RTCW_ET
 void S_StartSound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle ) {
 	S_StartSoundEx( origin, entityNum, entchannel, sfxHandle, 0 );
 }
+#else
+void S_StartSound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle, int volume ) {
+	S_StartSoundEx( origin, entityNum, entchannel, sfxHandle, 0, volume );
+}
+#endif RTCW_XX
 
 
 
@@ -1167,6 +1424,8 @@ void S_StartSound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx
 S_StartLocalSound
 ==================
 */
+
+#if !defined RTCW_ET
 void S_StartLocalSound( sfxHandle_t sfxHandle, int channelNum ) {
 
 #if defined RTCW_SP
@@ -1191,7 +1450,20 @@ void S_StartLocalSound( sfxHandle_t sfxHandle, int channelNum ) {
 
 	S_StartSound( NULL, listener_number, channelNum, sfxHandle );
 }
+#else
+void S_StartLocalSound( sfxHandle_t sfxHandle, int channelNum, int volume ) {
+	if ( !snd.s_soundStarted || snd.s_soundMute ) {
+		return;
+	}
 
+	if ( sfxHandle < 0 || sfxHandle >= snd.s_numSfx ) {
+		Com_Printf( S_COLOR_YELLOW "S_StartLocalSound: handle %i out of range\n", sfxHandle );
+		return;
+	}
+
+	S_StartSound( NULL, listener_number, channelNum, sfxHandle, volume );
+}
+#endif RTCW_XX
 
 /*
 ==================
@@ -1202,7 +1474,7 @@ so sound doesn't stutter.
 ==================
 */
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 void S_ClearSoundBuffer( qboolean killStreaming ) {
 	if ( !snd.s_soundStarted ) {
 		return;
@@ -1219,7 +1491,7 @@ void S_ClearSoundBuffer( qboolean killStreaming ) {
 
 	S_ClearSounds( killStreaming, qtrue );    // do this now since you might not be allowed to in a sec (no multi-threaeded)
 }
-#elif defined RTCW_MP
+#else
 void S_ClearSoundBuffer( void ) {
 	if ( !s_soundStarted ) {
 		return;
@@ -1245,7 +1517,7 @@ S_StopAllSounds
 void S_StopAllSounds( void ) {
 	int i;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( !snd.s_soundStarted ) {
 		return;
 	}
@@ -1253,10 +1525,17 @@ void S_StopAllSounds( void ) {
 	Sys_EnterCriticalSection( crit );
 
 //DAJ BUGFIX	for(i=0;i<numStreamingSounds;i++) {
+
+#if !defined RTCW_ET
 	for ( i = 0; i < MAX_STREAMING_SOUNDS; i++ ) {   //DAJ numStreamingSounds can get bigger than the MAX array size
 		if ( i == 0 ) {
 			continue;   // ignore music
 		}
+#else
+	// Arnout: i = 1, as we ignore music
+	for ( i = 1; i < MAX_STREAMING_SOUNDS; i++ ) {   //DAJ numStreamingSounds can get bigger than the MAX array size
+#endif RTCW_XX
+
 		streamingSounds[i].kill = 1;
 	}
 	Sys_LeaveCriticalSection( crit );
@@ -1267,7 +1546,7 @@ void S_StopAllSounds( void ) {
 	S_ClearSoundBuffer( qtrue );
 
 	S_UpdateThread();   // clear the stuff that needs to clear
-#elif defined RTCW_MP
+#else
 	if ( !s_soundStarted ) {
 		return;
 	}
@@ -1305,6 +1584,19 @@ void S_ClearLoopingSounds( void ) {
 	snd.numLoopSounds = 0;
 #elif defined RTCW_MP
 	numLoopSounds = 0;
+#else
+	int i;
+
+	Sys_EnterCriticalSection( crit );
+
+	for ( i = 0 ; i < snd.numLoopSounds ; i++ ) {
+		snd.loopSounds[i].active = qfalse;
+		//%	snd.loopSounds[i].sfx = NULL;
+	}
+	snd.numLoopSounds = 0;
+	numLoopChannels = 0;
+
+	Sys_LeaveCriticalSection( crit );
 #endif RTCW_XX
 
 }
@@ -1320,17 +1612,26 @@ NOTE: 'volume' with underwater bit set stays at set volume underwater
 ==================
 */
 
+#if !defined RTCW_ET
 #define UNDERWATER_BIT  8
+#else
+#define UNDERWATER_BIT  16
+#endif RTCW_XX
 
+#if !defined RTCW_ET
 void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, const int range, sfxHandle_t sfxHandle, int volume ) {
+#else
+void S_AddLoopingSound( const vec3_t origin, const vec3_t velocity, const int range, sfxHandle_t sfxHandle, int volume, int soundTime ) {
+#endif RTCW_XX
+
 	sfx_t *sfx;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( !snd.s_soundStarted || snd.s_soundMute || cls.state != CA_ACTIVE ) {
 		return;
 	}
 	if ( snd.numLoopSounds >= MAX_LOOP_SOUNDS ) {
-#elif defined RTCW_MP
+#else
 	if ( !s_soundStarted || s_soundMuted || cls.state != CA_ACTIVE ) {
 		return;
 	}
@@ -1343,14 +1644,23 @@ void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocit
 		return;
 	}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( sfxHandle < 0 || sfxHandle >= snd.s_numSfx ) {
-#elif defined RTCW_MP
+#else
 	if ( sfxHandle < 0 || sfxHandle >= s_numSfx ) {
 #endif RTCW_XX
 
 		Com_Error( ERR_DROP, "S_AddLoopingSound: handle %i out of range", sfxHandle );
+
+#if defined RTCW_ET
+		return;
+#endif RTCW_XX
+
 	}
+
+#if defined RTCW_ET
+	Sys_EnterCriticalSection( crit );
+#endif RTCW_XX
 
 	sfx = &s_knownSfx[ sfxHandle ];
 
@@ -1362,9 +1672,30 @@ void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocit
 		Com_Error( ERR_DROP, "%s has length 0", sfx->soundName );
 	}
 
-#if defined RTCW_SP
+#if defined RTCW_ET
+	// ydnar: allow looped sounds to start when initially triggered, rather than in the middle of the sample
+	snd.loopSounds[ snd.numLoopSounds ].startSample = sfx->soundLength
+													  ? ( ( s_khz->integer * soundTime ) - s_paintedtime ) % sfx->soundLength
+													  : 0;
+
+	snd.loopSounds[ snd.numLoopSounds ].startSample = sfx->soundLength
+													  ?  s_paintedtime - ( (int) ( dma.speed * ( cl.serverTime - soundTime ) / 1000.0f ) )
+													  : 0;
+
+	snd.loopSounds[ snd.numLoopSounds ].startSample = soundTime % sfx->soundLength;
+#endif RTCW_XX
+
+#if !defined RTCW_MP
 	VectorCopy( origin, snd.loopSounds[snd.numLoopSounds].origin );
 	VectorCopy( velocity, snd.loopSounds[snd.numLoopSounds].velocity );
+
+#if defined RTCW_ET
+	snd.loopSounds[snd.numLoopSounds].active = qtrue;
+	snd.loopSounds[snd.numLoopSounds].doppler = qfalse;
+	snd.loopSounds[snd.numLoopSounds].oldDopplerScale = 1.0;
+	snd.loopSounds[snd.numLoopSounds].dopplerScale = 1.0;
+#endif RTCW_XX
+
 	snd.loopSounds[snd.numLoopSounds].sfx = sfx;
 	if ( range ) {
 		snd.loopSounds[snd.numLoopSounds].range = range;
@@ -1375,7 +1706,7 @@ void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocit
 	if ( volume & 1 << UNDERWATER_BIT ) {
 		snd.loopSounds[snd.numLoopSounds].loudUnderWater = qtrue;
 	}
-#elif defined RTCW_MP
+#else
 	VectorCopy( origin, loopSounds[numLoopSounds].origin );
 	VectorCopy( velocity, loopSounds[numLoopSounds].velocity );
 	loopSounds[numLoopSounds].sfx = sfx;
@@ -1390,8 +1721,14 @@ void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocit
 	}
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	if ( volume > 255 ) {
 		volume = 255;
+#else
+	if ( volume > 65535 ) {
+		volume = 65535;
+#endif RTCW_XX
+
 	} else if ( volume < 0 ) {
 		volume = 0;
 	}
@@ -1404,9 +1741,119 @@ void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocit
 	loopSounds[numLoopSounds].vol = volume;
 
 	numLoopSounds++;
+#else
+	snd.loopSounds[snd.numLoopSounds].vol = (int)( (float)volume * snd.volCurrent );  //----(SA)	modified
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	if ( s_doppler->integer && VectorLengthSquared( velocity ) > 0.0 ) {
+		vec3_t out;
+		float lena, lenb;
+
+		snd.loopSounds[snd.numLoopSounds].doppler = qtrue;
+		lena = DistanceSquared( snd.entityPositions[listener_number], snd.loopSounds[snd.numLoopSounds].origin );
+		VectorAdd( snd.loopSounds[snd.numLoopSounds].origin, snd.loopSounds[snd.numLoopSounds].velocity, out );
+		lenb = DistanceSquared( snd.entityPositions[listener_number], out );
+		if ( ( snd.loopSounds[snd.numLoopSounds].framenum + 1 ) != cls.framecount ) {
+			snd.loopSounds[snd.numLoopSounds].oldDopplerScale = 1.0;
+		} else {
+			snd.loopSounds[snd.numLoopSounds].oldDopplerScale = snd.loopSounds[snd.numLoopSounds].dopplerScale;
+		}
+		snd.loopSounds[snd.numLoopSounds].dopplerScale = lenb / ( lena * 100 );
+		if ( snd.loopSounds[snd.numLoopSounds].dopplerScale <= 1.0 ) {
+			snd.loopSounds[snd.numLoopSounds].doppler = qfalse;         // don't bother doing the math
+		}
+	}
+
+	snd.loopSounds[snd.numLoopSounds].framenum = cls.framecount;
+	snd.numLoopSounds++;
+
+	Sys_LeaveCriticalSection( crit );
+
 #endif RTCW_XX
 
 }
+
+#if defined RTCW_ET
+/*
+==================
+S_AddLoopingSound
+
+Called during entity generation for a frame
+Include velocity in case I get around to doing doppler...
+==================
+*/
+void S_AddRealLoopingSound( const vec3_t origin, const vec3_t velocity, const int range, sfxHandle_t sfxHandle, int volume, int soundTime ) {
+	sfx_t *sfx;
+
+	if ( !snd.s_soundStarted || snd.s_soundMute ) {
+		return;
+	}
+
+	if ( snd.numLoopSounds >= MAX_LOOP_SOUNDS ) {
+		return;
+	}
+
+	if ( !volume ) {
+		return;
+	}
+
+	if ( sfxHandle < 0 || sfxHandle >= snd.s_numSfx ) {
+		Com_Printf( S_COLOR_YELLOW "S_AddRealLoopingSound: handle %i out of range\n", sfxHandle );
+		return;
+	}
+
+	Sys_EnterCriticalSection( crit );
+
+	sfx = &s_knownSfx[ sfxHandle ];
+
+	if ( sfx->inMemory == qfalse ) {
+		S_memoryLoad( sfx );
+	}
+
+	if ( !sfx->soundLength ) {
+		Com_Error( ERR_DROP, "%s has length 0", sfx->soundName );
+	}
+
+	// ydnar: allow looped sounds to start when initially triggered, rather than in the middle of the sample
+	/*snd.loopSounds[ snd.numLoopSounds ].startSample = sfx->soundLength
+		? ((s_khz->integer * soundTime) - s_paintedtime) % sfx->soundLength
+		: 0;
+
+	snd.loopSounds[ snd.numLoopSounds ].startSample = sfx->soundLength
+		?  s_paintedtime - ((int) (dma.speed * (cl.serverTime - soundTime) / 1000.0f))
+		: 0;
+
+	snd.loopSounds[ snd.numLoopSounds ].startSample = soundTime % sfx->soundLength;*/
+
+	VectorCopy( origin, snd.loopSounds[snd.numLoopSounds].origin );
+	VectorCopy( velocity, snd.loopSounds[snd.numLoopSounds].velocity );
+	snd.loopSounds[snd.numLoopSounds].sfx = sfx;
+	snd.loopSounds[snd.numLoopSounds].active = qtrue;
+	snd.loopSounds[snd.numLoopSounds].doppler = qfalse;
+
+	if ( range ) {
+		snd.loopSounds[snd.numLoopSounds].range = range;
+	} else {
+		snd.loopSounds[snd.numLoopSounds].range = SOUND_RANGE_DEFAULT;
+	}
+
+	if ( volume & 1 << UNDERWATER_BIT ) {
+		snd.loopSounds[snd.numLoopSounds].loudUnderWater = qtrue;
+	}
+
+	if ( volume > 65535 ) {
+		volume = 65535;
+	} else if ( volume < 0 ) {
+		volume = 0;
+	}
+
+	snd.loopSounds[snd.numLoopSounds].vol = (int)( (float)volume * snd.volCurrent );  //----(SA)	modified
+	snd.numLoopSounds++;
+
+	Sys_LeaveCriticalSection( crit );
+}
+#endif RTCW_XX
 
 /*
 ==================
@@ -1424,7 +1871,17 @@ void S_AddLoopSounds( void ) {
 	loopSound_t *loop, *loop2;
 	static int loopFrame;
 
+#if !defined RTCW_ET
 //	Sys_EnterCriticalSection(crit);
+#else
+	if ( !snd.s_soundStarted || ( snd.s_soundMute == 1 ) ) {
+//		Com_DPrintf ("not started or muted\n");
+		return;
+	}
+
+	Sys_EnterCriticalSection( crit );
+#endif RTCW_XX
+
 
 	numLoopChannels = 0;
 
@@ -1432,23 +1889,36 @@ void S_AddLoopSounds( void ) {
 
 	loopFrame++;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	for ( i = 0 ; i < snd.numLoopSounds ; i++ ) {
 		loop = &snd.loopSounds[i];
-#elif defined RTCW_MP
+#else
 	for ( i = 0 ; i < numLoopSounds ; i++ ) {
 		loop = &loopSounds[i];
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 		if ( loop->mergeFrame == loopFrame ) {
+#else
+		if ( !loop->active || loop->mergeFrame == loopFrame ) {
+#endif RTCW_XX
+
 			continue;   // already merged into an earlier sound
 		}
 
+#if !defined RTCW_ET
 		//if (loop->kill) {
 		//	S_SpatializeOrigin( loop->origin, 127, &left_total, &right_total, loop->range);	// 3d
 		//} else {
 		S_SpatializeOrigin( loop->origin, 90,  &left_total, &right_total, loop->range );    // sphere
 		//}
+#else
+		if ( loop->kill ) {
+			S_SpatializeOrigin( loop->origin, 127, &left_total, &right_total, loop->range, qfalse );         // 3d
+		} else {
+			S_SpatializeOrigin( loop->origin, 90,  &left_total, &right_total, loop->range, qfalse );         // sphere
+		}
+#endif RTCW_XX
 
 		// adjust according to volume
 		left_total = (int)( (float)loop->vol * (float)left_total / 256.0 );
@@ -1456,24 +1926,42 @@ void S_AddLoopSounds( void ) {
 
 		loop->sfx->lastTimeUsed = time;
 
+#if !defined RTCW_ET
 		for ( j = ( i + 1 ); j < numLoopChannels ; j++ ) {
+#else
+		for ( j = ( i + 1 ); j < MAX_GENTITIES ; j++ ) {
+#endif RTCW_XX
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 			loop2 = &snd.loopSounds[j];
-#elif defined RTCW_MP
+#else
 			loop2 = &loopSounds[j];
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 			if ( loop2->sfx != loop->sfx ) {
+#else
+			if ( !loop2->active || loop2->doppler || loop2->sfx != loop->sfx ||
+				 loop2->startSample != loop->startSample ) { // ydnar
+#endif RTCW_XX
+
 				continue;
 			}
 			loop2->mergeFrame = loopFrame;
 
+#if !defined RTCW_ET
 			//if (loop2->kill) {
 			//	S_SpatializeOrigin( loop2->origin, 127, &left, &right, loop2->range);	// 3d
 			//} else {
 			S_SpatializeOrigin( loop2->origin, 90,  &left, &right, loop2->range );      // sphere
 			//}
+#else
+			if ( loop2->kill ) {
+				S_SpatializeOrigin( loop2->origin, 127, &left, &right, loop2->range, qfalse );               // 3d
+			} else {
+				S_SpatializeOrigin( loop2->origin, 90,  &left, &right, loop2->range, qfalse );               // sphere
+			}
+#endif RTCW_XX
 
 			// adjust according to volume
 			left = (int)( (float)loop2->vol * (float)left / 256.0 );
@@ -1502,8 +1990,19 @@ void S_AddLoopSounds( void ) {
 		ch->rightvol = right_total;
 		ch->thesfx = loop->sfx;
 
+#if defined RTCW_ET
+		ch->doppler = loop->doppler;
+		ch->dopplerScale = loop->dopplerScale;
+		ch->oldDopplerScale = loop->oldDopplerScale;
+
+		// ydnar: allow offsetting of sound samples
+		ch->startSample = loop->startSample;
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 		// RF, disabled doppler for looping sounds for now, since we are reverting to the old looping sound code
 		ch->doppler = qfalse;
+#endif RTCW_XX
 
 #if defined RTCW_SP
 		//ch->doppler = loop->doppler;
@@ -1514,15 +2013,21 @@ void S_AddLoopSounds( void ) {
 		numLoopChannels++;
 		if ( numLoopChannels == MAX_CHANNELS ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 			i = snd.numLoopSounds + 1;
-#elif defined RTCW_MP
+#else
 			i = numLoopSounds + 1;
 #endif RTCW_XX
 
 		}
 	}
+
+#if !defined RTCW_ET
 //	Sys_LeaveCriticalSection(crit);
+#else
+	Sys_LeaveCriticalSection( crit );
+#endif RTCW_XX
+
 }
 
 //=============================================================================
@@ -1583,9 +2088,9 @@ void S_RawSamples( int samples, int rate, int width, int s_channels, const byte 
 	float scale;
 	int intVolumeL, intVolumeR;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( !snd.s_soundStarted || ( snd.s_soundMute == 1 ) ) {
-#elif defined RTCW_MP
+#else
 	if ( !s_soundStarted || s_soundMuted ) {
 #endif RTCW_XX
 
@@ -1605,6 +2110,8 @@ void S_RawSamples( int samples, int rate, int width, int s_channels, const byte 
 		Com_DPrintf( "S_RawSamples: resetting minumum: %i\n",s_soundtime - s_rawend[streamingIndex] );
 #elif defined RTCW_MP
 		Com_DPrintf( "S_RawSamples: resetting minimum: %i < %i\n", s_rawend[streamingIndex], s_soundtime );
+#else
+		Com_DPrintf( "S_RawSamples: resetting minimum: %i < %i (%i)\n", s_rawend[streamingIndex], s_soundtime, s_soundtime - s_rawend[streamingIndex] );
 #endif RTCW_XX
 
 		s_rawend[streamingIndex] = s_soundtime;
@@ -1612,7 +2119,7 @@ void S_RawSamples( int samples, int rate, int width, int s_channels, const byte 
 
 	scale = (float)rate / dma.speed;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	//Com_Printf ("%i < %i < %i\n", s_soundtime, s_paintedtime, s_rawend);
 #endif RTCW_XX
 
@@ -1689,6 +2196,9 @@ void S_RawSamples( int samples, int rate, int width, int s_channels, const byte 
 #elif defined RTCW_MP
 	if ( s_rawend[streamingIndex] > s_soundtime + MAX_RAW_SAMPLES ) {
 		Com_DPrintf( "S_RawSamples: overflowed %i > %i\n", s_rawend[streamingIndex], s_soundtime );
+#else
+	if ( s_rawend[streamingIndex] > ( s_soundtime + MAX_RAW_SAMPLES ) ) {
+		Com_DPrintf( "S_RawSamples: overflowed %i > %i (%i)\n",  s_rawend[streamingIndex], s_soundtime + MAX_RAW_SAMPLES, s_rawend[streamingIndex] - ( s_soundtime + MAX_RAW_SAMPLES ) );
 #endif RTCW_XX
 
 	}
@@ -1708,9 +2218,9 @@ void S_UpdateEntityPosition( int entityNum, const vec3_t origin ) {
 		Com_Error( ERR_DROP, "S_UpdateEntityPosition: bad entitynum %i", entityNum );
 	}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	VectorCopy( origin, snd.entityPositions[entityNum] );
-#elif defined RTCW_MP
+#else
 	VectorCopy( origin, entityPositions[entityNum] );
 #endif RTCW_XX
 
@@ -1726,9 +2236,9 @@ Change the volumes of all the playing sounds for changes in their positions
 */
 void S_Respatialize( int entityNum, const vec3_t head, vec3_t axis[3], int inwater ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( !snd.s_soundStarted || ( snd.s_soundMute == 1 ) ) {
-#elif defined RTCW_MP
+#else
 	if ( !s_soundStarted || s_soundMuted ) {
 #endif RTCW_XX
 
@@ -1761,15 +2271,20 @@ void S_ThreadRespatialize() {
 				VectorCopy( ch->origin, origin );
 			} else {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 				VectorCopy( snd.entityPositions[ ch->entnum ], origin );
-#elif defined RTCW_MP
+#else
 				VectorCopy( entityPositions[ ch->entnum ], origin );
 #endif RTCW_XX
 
 			}
 
+#if !defined RTCW_ET
 			S_SpatializeOrigin( origin, ch->master_vol, &ch->leftvol, &ch->rightvol, SOUND_RANGE_DEFAULT );
+#else
+			S_SpatializeOrigin( origin, ch->master_vol, &ch->leftvol, &ch->rightvol, SOUND_RANGE_DEFAULT, ch->flags & SND_NO_ATTENUATION );
+#endif RTCW_XX
+
 		}
 	}
 }
@@ -1805,7 +2320,7 @@ qboolean S_ScanChannelStarts( void ) {
 		// if it is completely finished by now, clear it
 		if ( ch->startSample + ( ch->thesfx->soundLength ) <= s_paintedtime ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //----(SA)	got from TA sound.  correct?
 //			Com_Memset(ch, 0, sizeof(*ch));
 #endif RTCW_XX
@@ -1817,7 +2332,7 @@ qboolean S_ScanChannelStarts( void ) {
 	return newSamples;
 }
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 /*
 ==============
 S_CheckForQueuedMusic
@@ -1844,12 +2359,18 @@ int S_CheckForQueuedMusic( void ) {
 	}
 
 	snd.nextMusicTrackType = 0;     // clear out music queue
+
+#if !defined RTCW_ET
 //	snd.nextMusicTrack[0] = 0;		// clear out music queue
+#else
+	snd.nextMusicTrack[0] = 0;      // clear out music queue
+#endif RTCW_XX
 
 	return 1;
 }
 #endif RTCW_XX
 
+#if defined RTCW_ET
 /*
 ============
 S_Update
@@ -1858,14 +2379,52 @@ Called once each time through the main loop
 ============
 */
 
-void S_Update( void ) {
+void S_Update_Debug( void ) {
 	int i;
 	int total;
 	channel_t   *ch;
 
-#if defined RTCW_SP
 	if ( !snd.s_soundStarted || ( snd.s_soundMute == 1 ) ) {
-#elif defined RTCW_MP
+//		Com_DPrintf ("not started or muted\n");
+		return;
+	}
+
+	if ( s_show->integer == 2 ) {
+		total = 0;
+		ch = s_channels;
+		for ( i = 0; i < MAX_CHANNELS; i++, ch++ ) {
+			if ( ch->thesfx && ( ch->leftvol || ch->rightvol ) ) {
+				Com_Printf( "%i %i %s\n", ch->leftvol, ch->rightvol, ch->thesfx->soundName );          // <- this is not thread safe
+				total++;
+			}
+		}
+
+		Com_Printf( "----(%i)---- painted: %i\n", total, s_paintedtime );
+	}
+}
+#endif RTCW_XX
+
+#if !defined RTCW_ET
+/*
+============
+S_Update
+
+Called once each time through the main loop
+============
+*/
+#endif RTCW_XX
+
+void S_Update( void ) {
+
+#if !defined RTCW_ET
+	int i;
+	int total;
+	channel_t   *ch;
+#endif RTCW_XX
+
+#if !defined RTCW_MP
+	if ( !snd.s_soundStarted || ( snd.s_soundMute == 1 ) ) {
+#else
 	if ( !s_soundStarted || s_soundMuted ) {
 #endif RTCW_XX
 
@@ -1873,6 +2432,7 @@ void S_Update( void ) {
 		return;
 	}
 
+#if !defined RTCW_ET
 	//
 	// debugging output
 	//
@@ -1894,17 +2454,19 @@ void S_Update( void ) {
 
 		Com_Printf( "----(%i)---- painted: %i\n", total, s_paintedtime );
 	}
+#endif RTCW_XX
+
 	// add loopsounds
 	S_AddLoopSounds();
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// do all the rest
 #endif RTCW_XX
 
 	S_UpdateThread();
 }
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 /*
 ==============
 S_ClearSounds
@@ -1919,7 +2481,14 @@ void S_ClearSounds( qboolean clearStreaming, qboolean clearMusic ) {
 	Sys_EnterCriticalSection( crit );
 
 	// stop looping sounds
+
+#if !defined RTCW_ET
 	S_ClearLoopingSounds();
+#else
+	Com_Memset( snd.loopSounds, 0, MAX_GENTITIES * sizeof( loopSound_t ) );
+	Com_Memset( loop_channels, 0, MAX_CHANNELS * sizeof( channel_t ) );
+	numLoopChannels = 0;
+#endif RTCW_XX
 
 	// RF, moved this up so streaming sounds dont get updated with the music, below, and leave us with a snippet off streaming sounds after we reload
 	if ( clearStreaming ) {    // we don't want to stop guys with long dialogue from getting cut off by a file read
@@ -1960,16 +2529,33 @@ void S_ClearSounds( qboolean clearStreaming, qboolean clearMusic ) {
 
 		SNDDMA_BeginPainting();
 		if ( dma.buffer ) {
+
+#if !defined RTCW_ET
 			Com_Memset( dma.buffer, clear, dma.samples * dma.samplebits / 8 );
+#else
+			// TTimo: due to a particular bug workaround in linux sound code,
+			//   have to optionally use a custom C implementation of Com_Memset
+			//   not affecting win32, we have #define Snd_Memset Com_Memset
+			// show_bug.cgi?id=371
+			Snd_Memset( dma.buffer, clear, dma.samples * dma.samplebits / 8 );
+#endif RTCW_XX
 		}
 		SNDDMA_Submit();
 
 		Sys_LeaveCriticalSection( crit );
+
+#if defined RTCW_ET
+		// NERVE - SMF - clear out channels so they don't finish playing when audio restarts
+		S_ChannelSetup();
+	} else {
+		Sys_LeaveCriticalSection( crit );
+#endif RTCW_XX
+
 	}
 }
 #endif RTCW_XX
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 /*
 ==============
 S_UpdateThread
@@ -1979,9 +2565,9 @@ S_UpdateThread
 
 void S_UpdateThread( void ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( !snd.s_soundStarted || ( snd.s_soundMute == 1 ) ) {
-#elif defined RTCW_MP
+#else
 	if ( !s_soundStarted || s_soundMuted ) {
 #endif RTCW_XX
 
@@ -1994,7 +2580,7 @@ void S_UpdateThread( void ) {
 	memset( s_entityTalkAmplitude, 0, sizeof( s_entityTalkAmplitude ) );
 #endif
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( snd.s_clearSoundBuffer ) {
 		S_ClearSounds( qtrue, (qboolean)( snd.s_clearSoundBuffer >= 4 ) );    //----(SA)	modified
 		snd.s_clearSoundBuffer = 0;
@@ -2009,7 +2595,7 @@ void S_UpdateThread( void ) {
 
 		Sys_LeaveCriticalSection( crit );
 	}
-#elif defined RTCW_MP
+#else
 	if ( s_clearSoundBuffer ) {
 		int clear;
 		int i;
@@ -2107,9 +2693,9 @@ S_Update_Mix
 void S_Update_Mix( void ) {
 	unsigned endtime;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	int samps;            //, i;
-#elif defined RTCW_MP
+#else
 	int samps, i;
 #endif RTCW_XX
 
@@ -2117,16 +2703,22 @@ void S_Update_Mix( void ) {
 	float ma, op;
 	float thisTime, sane;
 
+#if defined RTCW_ET
+	static int ot = -1;
+#endif RTCW_XX
+
 #if defined RTCW_SP
 	if ( !snd.s_soundStarted || ( snd.s_soundMute == 1 ) ) {
 #elif defined RTCW_MP
 	if ( !s_soundStarted || s_soundMuted ) {
+#else
+	if ( !snd.s_soundStarted || snd.s_soundMute ) {
 #endif RTCW_XX
 
 		return;
 	}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	// RF, this isn't used anymore, since it was causing timing problems with streaming sounds, since the
 	// starting of the sound is delayed, it could cause streaming sounds to be cutoff, when the steaming sound was issued after
 	// this sound
@@ -2142,7 +2734,7 @@ void S_Update_Mix( void ) {
 	snd.tart = 0;
 */
 	snd.s_soundPainted = qtrue;
-#elif defined RTCW_MP
+#else
 	for ( i = 0; i < tart; i++ ) {
 		if ( pushPop[i].fixedOrigin ) {
 			S_ThreadStartSoundEx( pushPop[i].origin, pushPop[i].entityNum, pushPop[i].entityChannel, pushPop[i].sfx, pushPop[i].flags );
@@ -2160,6 +2752,13 @@ void S_Update_Mix( void ) {
 
 	// Updates s_soundtime
 	S_GetSoundtime();
+
+#if defined RTCW_ET
+	if ( s_soundtime == ot ) {
+		return;
+	}
+	ot = s_soundtime;
+#endif RTCW_XX
 
 	// clear any sound effects that end before the current time,
 	// and start any new sounds
@@ -2190,7 +2789,7 @@ void S_Update_Mix( void ) {
 		endtime = s_soundtime + samps;
 	}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //----(SA)	added
 	// global volume fading
 
@@ -2207,6 +2806,14 @@ void S_Update_Mix( void ) {
 		}
 	} else {
 		snd.volCurrent = snd.volTarget;
+
+#if defined RTCW_ET
+		if ( snd.stopSounds ) {
+			S_StopAllSounds();  // faded out, stop playing
+			snd.stopSounds = qfalse;
+		}
+#endif RTCW_XX
+
 	}
 //----(SA)	end
 #endif RTCW_XX
@@ -2240,13 +2847,19 @@ void S_Play_f( void ) {
 		}
 		h = S_RegisterSound( name, qfalse );
 		if ( h ) {
+
+#if !defined RTCW_ET
 			S_StartLocalSound( h, CHAN_LOCAL_SOUND );
+#else
+			S_StartLocalSound( h, CHAN_LOCAL_SOUND, 127 );
+#endif RTCW_XX
+
 		}
 		i++;
 	}
 }
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 /*
 ==============
 S_QueueMusic_f
@@ -2279,17 +2892,17 @@ void S_Music_f( void ) {
 
 	if ( c == 2 ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		S_StartBackgroundTrack( Cmd_Argv( 1 ), Cmd_Argv( 1 ), 0 );
-#elif defined RTCW_MP
+#else
 		S_StartBackgroundTrack( Cmd_Argv( 1 ), Cmd_Argv( 1 ) );
 #endif RTCW_XX
 
 	} else if ( c == 3 ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		S_StartBackgroundTrack( Cmd_Argv( 1 ), Cmd_Argv( 2 ), 0 );
-#elif defined RTCW_MP
+#else
 		S_StartBackgroundTrack( Cmd_Argv( 1 ), Cmd_Argv( 2 ) );
 #endif RTCW_XX
 
@@ -2333,9 +2946,9 @@ void S_SoundList_f( void ) {
 	strcpy( mem[1], "resident " );
 	total = 0;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	for ( sfx = s_knownSfx, i = 0 ; i < snd.s_numSfx ; i++, sfx++ ) {
-#elif defined RTCW_MP
+#else
 	for ( sfx = s_knownSfx, i = 0 ; i < s_numSfx ; i++, sfx++ ) {
 #endif RTCW_XX
 
@@ -2356,9 +2969,9 @@ STREAMING SOUND
 ===============================================================================
 */
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 int FGetLittleLong( const fileHandle_t f ) {
-#elif defined RTCW_MP
+#else
 int FGetLittleLong( fileHandle_t f ) {
 #endif RTCW_XX
 
@@ -2369,9 +2982,9 @@ int FGetLittleLong( fileHandle_t f ) {
 	return LittleLong( v );
 }
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 int FGetLittleShort( const fileHandle_t f ) {
-#elif defined RTCW_MP
+#else
 int FGetLittleShort( fileHandle_t f ) {
 #endif RTCW_XX
 
@@ -2384,9 +2997,9 @@ int FGetLittleShort( fileHandle_t f ) {
 
 // returns the length of the data in the chunk, or 0 if not found
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 int S_FindWavChunk( const fileHandle_t f, const char *chunk ) {
-#elif defined RTCW_MP
+#else
 int S_FindWavChunk( fileHandle_t f, char *chunk ) {
 #endif RTCW_XX
 
@@ -2421,7 +3034,7 @@ S_StartBackgroundTrack
 ======================
 */
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 void S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime ) {
 	int len;
 	char dump[16];
@@ -2602,7 +3215,7 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime
 	Com_DPrintf( "S_StartBackgroundTrack - Success\n" );
 	Sys_LeaveCriticalSection( crit );
 }
-#elif defined RTCW_MP
+#else
 void S_StartBackgroundTrack( const char *intro, const char *loop ) {
 	int len;
 	char dump[16];
@@ -2718,20 +3331,38 @@ void S_StartBackgroundTrack( const char *intro, const char *loop ) {
 #endif RTCW_XX
 
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 /*
 ==============
 S_FadeAllSounds
 
 ==============
 */
+
+#if !defined RTCW_ET
 void S_FadeAllSounds( float targetVol, int time ) {
+#else
+void S_FadeAllSounds( float targetVol, int time, qboolean stopsounds ) {
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	// TAT 11/15/2002
+	//		Because of strange timing issues, sometimes we try to fade up before the fade down completed
+	//		If that's the case, just force an immediate stop to all sounds
+	if ( s_soundtime < snd.volTime2 && snd.stopSounds ) {
+		S_StopAllSounds();
+	}
+#endif RTCW_XX
 
 	snd.volStart = snd.volCurrent;
 	snd.volTarget = targetVol;
 
 	snd.volTime1 = s_soundtime;
 	snd.volTime2 = s_soundtime + ( ( (float)( dma.speed ) / 1000.0f ) * time );
+
+#if defined RTCW_ET
+	snd.stopSounds = stopsounds;
+#endif RTCW_XX
 
 	// instant
 	if ( !time ) {
@@ -2833,13 +3464,19 @@ S_StartStreamingSound
   savegame won't screw up the timing of important sounds
 ======================
 */
+
+#if !defined RTCW_ET
 void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int channel, int attenuation ) {
+#else
+float S_StartStreamingSound( const char *intro, const char *loop, int entnum, int channel, int attenuation ) {
+#endif RTCW_XX
+
 	int len;
 	char dump[16];
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //	char	name[MAX_QPATH];
-#elif defined RTCW_MP
+#else
 	char name[MAX_QPATH];
 #endif RTCW_XX
 
@@ -2847,13 +3484,18 @@ void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int
 	streamingSound_t *ss;
 	fileHandle_t fh;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	if ( !crit || !snd.s_soundStarted || snd.s_soundMute || cls.state != CA_ACTIVE ) {
-#elif defined RTCW_MP
+#else
 	if ( !crit || !s_soundStarted || s_soundMuted || cls.state != CA_ACTIVE ) {
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 		return;
+#else
+		return 0;
+#endif RTCW_XX
+
 	}
 
 	Sys_EnterCriticalSection( crit );
@@ -2877,9 +3519,9 @@ void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int
 			if ( ( channel != CHAN_AUTO ) && ( streamingSounds[i].entnum >= 0 ) && ( streamingSounds[i].channel == channel ) && ( streamingSounds[i].entnum == entnum ) ) {
 				// found a match, override this channel
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 				streamingSounds[i].kill = 1;
-#elif defined RTCW_MP
+#else
 				streamingSounds[i].kill = qtrue;
 #endif RTCW_XX
 
@@ -2902,7 +3544,13 @@ void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int
 			Com_Printf( "S_StartStreamingSound: No free streaming tracks\n" );
 		}
 		Sys_LeaveCriticalSection( crit );
+
+#if !defined RTCW_ET
 		return;
+#else
+		return 0;
+#endif RTCW_XX
+
 	}
 
 	if ( ss->loop && loop ) {
@@ -2911,10 +3559,10 @@ void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int
 		ss->loop[0] = 0;
 	}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	Q_strncpyz( ss->name, intro, sizeof( ss->name ) - 4 );
 	COM_DefaultExtension( ss->name, sizeof( ss->name ), ".wav" );
-#elif defined RTCW_MP
+#else
 	Q_strncpyz( name, intro, sizeof( name ) - 4 );
 	COM_DefaultExtension( name, sizeof( name ), ".wav" );
 #endif RTCW_XX
@@ -2928,10 +3576,16 @@ void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int
 
 	if ( !intro[0] ) {
 		Sys_LeaveCriticalSection( crit );
+
+#if !defined RTCW_ET
 		return;
+#else
+		return 0;
+#endif RTCW_XX
+
 	}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	fh = 0;
 #endif RTCW_XX
 
@@ -2939,18 +3593,24 @@ void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int
 	// open up a wav file and get all the info
 	//
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	FS_FOpenFileRead( ss->name, &fh, qtrue );
 	if ( !fh ) {
 		Com_Printf( "Couldn't open streaming sound file %s\n", ss->name );
-#elif defined RTCW_MP
+#else
 	FS_FOpenFileRead( name, &fh, qtrue );
 	if ( !fh ) {
 		Com_Printf( "Couldn't open streaming sound file %s\n", name );
 #endif RTCW_XX
 
 		Sys_LeaveCriticalSection( crit );
+
+#if !defined RTCW_ET
 		return;
+#else
+		return 0;
+#endif RTCW_XX
+
 	}
 
 	// skip the riff wav header
@@ -2959,15 +3619,21 @@ void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int
 
 	if ( !S_FindWavChunk( fh, "fmt " ) ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		Com_Printf( "No fmt chunk in %s\n", ss->name );
-#elif defined RTCW_MP
+#else
 		Com_Printf( "No fmt chunk in %s\n", name );
 #endif RTCW_XX
 
 		FS_FCloseFile( fh );
 		Sys_LeaveCriticalSection( crit );
+
+#if !defined RTCW_ET
 		return;
+#else
+		return 0;
+#endif RTCW_XX
+
 	}
 
 	// save name for soundinfo
@@ -2981,21 +3647,27 @@ void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int
 	if ( ss->info.format != WAV_FORMAT_PCM ) {
 		FS_FCloseFile( fh );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		Com_Printf( "Not a microsoft PCM format wav: %s\n", ss->name );
-#elif defined RTCW_MP
+#else
 		Com_Printf( "Not a microsoft PCM format wav: %s\n", name );
 #endif RTCW_XX
 
 		Sys_LeaveCriticalSection( crit );
+
+#if !defined RTCW_ET
 		return;
+#else
+		return 0;
+#endif RTCW_XX
+
 	}
 
 	//if ( ss->info.channels != 2 || ss->info.rate != 22050 ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	//	Com_Printf("WARNING: music file %s is not 22k stereo\n", ss->name );
-#elif defined RTCW_MP
+#else
 	//	Com_Printf("WARNING: music file %s is not 22k stereo\n", name );
 #endif RTCW_XX
 
@@ -3004,14 +3676,20 @@ void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int
 	if ( ( len = S_FindWavChunk( fh, "data" ) ) == 0 ) {
 		FS_FCloseFile( fh );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		Com_Printf( "No data chunk in %s\n", ss->name );
-#elif defined RTCW_MP
+#else
 		Com_Printf( "No data chunk in %s\n", name );
 #endif RTCW_XX
 
 		Sys_LeaveCriticalSection( crit );
+
+#if !defined RTCW_ET
 		return;
+#else
+		return 0;
+#endif RTCW_XX
+
 	}
 
 	ss->info.samples = len / ( ss->info.width * ss->info.channels );
@@ -3021,14 +3699,14 @@ void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int
 	ss->attenuation = attenuation;
 	ss->entnum = entnum;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	ss->kill = 0;
 
 	ss->fadeStartVol    = 0;
 	ss->fadeStart       = 0;
 	ss->fadeEnd         = 0;
 	ss->fadeTargetVol   = 0;
-#elif defined RTCW_MP
+#else
 	ss->kill = qfalse;
 #endif RTCW_XX
 
@@ -3040,6 +3718,11 @@ void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int
 	ss->file = fh;
 	numStreamingSounds++;
 	Sys_LeaveCriticalSection( crit );
+
+#if defined RTCW_ET
+	return ( ss->samples / (float)ss->info.rate ) * 1000.f;
+#endif RTCW_XX
+
 }
 
 /*
@@ -3053,16 +3736,16 @@ void S_StopStreamingSound( int index ) {
 	}
 	Sys_EnterCriticalSection( crit );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	streamingSounds[index].kill = 1;
-#elif defined RTCW_MP
+#else
 	streamingSounds[index].kill = qtrue;
 #endif RTCW_XX
 
 	Sys_LeaveCriticalSection( crit );
 }
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //----(SA)	added
 /*
 ==============
@@ -3072,16 +3755,24 @@ S_StopEntStreamingSound
 void S_StopEntStreamingSound( int entNum ) {
 	int i;
 
+#if !defined RTCW_ET
 	if ( entNum < 0 ) {
 		return;
 	}
+#endif RTCW_XX
 
 	for ( i = 1; i < MAX_STREAMING_SOUNDS; i++ ) {    // track 0 is music/cinematics
 		if ( !streamingSounds[i].file ) {
 			continue;
 		}
 
+#if !defined RTCW_ET
 		if ( streamingSounds[i].entnum != entNum ) {
+#else
+		// Gordon: -1 = ALL now
+		if ( streamingSounds[i].entnum != entNum && entNum != -1 ) {
+#endif RTCW_XX
+
 			continue;
 		}
 
@@ -3115,16 +3806,16 @@ void S_UpdateStreamingSounds( void ) {
 	streamingSound_t *ss;
 	int     *re, *rp;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //	qboolean looped;
-#elif defined RTCW_MP
+#else
 	qboolean looped;
 #endif RTCW_XX
 
 	float lvol, rvol;
 	int soundMixAheadTime;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	float streamingVol = 1.0f;
 
 	if ( !snd.s_soundStarted  || !crit ) {
@@ -3135,7 +3826,7 @@ void S_UpdateStreamingSounds( void ) {
 //	if ( s_mute->value ) {	//----(SA)	sound is muted, skip everything
 //		return;
 //	}
-#elif defined RTCW_MP
+#else
 //	if (!s_soundStarted  || !crit) {
 //		return;
 //	}
@@ -3147,9 +3838,9 @@ void S_UpdateStreamingSounds( void ) {
 
 	soundMixAheadTime = s_soundtime; // + (int)(0.35 * dma.speed);	// allow for talking animations
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	snd.s_soundPainted = qtrue;
-#elif defined RTCW_MP
+#else
 	//----(SA)	it seems this could potentially be in the wrong place.
 	//			The intended purpose is to just quiet all sounds if s_mute is set (like a TV mute button)
 	//			however, it seems the location here could potentially cause some streaming sound updates
@@ -3165,9 +3856,9 @@ void S_UpdateStreamingSounds( void ) {
 
 	for ( i = 0, ss = streamingSounds, re = s_rawend, rp = s_rawpainted; i < MAX_STREAMING_SOUNDS; i++, ss++, re++, rp++ ) {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		if ( ss->kill && ss->file ) {
-#elif defined RTCW_MP
+#else
 		if ( ss->kill ) {
 #endif RTCW_XX
 
@@ -3178,14 +3869,14 @@ void S_UpdateStreamingSounds( void ) {
 			FS_FCloseFile( file );
 			numStreamingSounds--;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 			if ( i == 0 || ss->kill == 2 ) { //  kill whole channel /now/
 //				memset( &s_rawsamples[i], 0, MAX_RAW_SAMPLES*sizeof(portable_samplepair_t) );
 				*re = 0;    // reset rawend
 
 			}
 			ss->kill = 0;
-#elif defined RTCW_MP
+#else
 			ss->kill = qfalse;
 #endif RTCW_XX
 
@@ -3208,7 +3899,7 @@ void S_UpdateStreamingSounds( void ) {
 			continue;
 		}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		if ( !ss->file ) {
 			if ( i == 0 ) {  // music
 				// quiet now, so start up queued music if it exists
@@ -3223,9 +3914,9 @@ void S_UpdateStreamingSounds( void ) {
 			*re = soundMixAheadTime;
 		}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //		looped = qfalse;
-#elif defined RTCW_MP
+#else
 		looped = qfalse;
 #endif RTCW_XX
 
@@ -3258,9 +3949,9 @@ void S_UpdateStreamingSounds( void ) {
 			if ( r != fileBytes ) {
 				Com_DPrintf( "StreamedRead failure on stream sound\n" );
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 				ss->kill = 1;
-#elif defined RTCW_MP
+#else
 				ss->kill = qtrue;
 #endif RTCW_XX
 
@@ -3272,7 +3963,7 @@ void S_UpdateStreamingSounds( void ) {
 
 			// calculate the volume
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 			streamingVol = S_GetStreamingFade( ss );
 
 			streamingVol *= snd.volCurrent; // get current global volume level
@@ -3284,9 +3975,9 @@ void S_UpdateStreamingSounds( void ) {
 
 			if ( i == 0 ) {   // music
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 				lvol = rvol = s_musicVolume->value * streamingVol;
-#elif defined RTCW_MP
+#else
 				lvol = rvol = s_musicVolume->value;
 #endif RTCW_XX
 
@@ -3298,6 +3989,8 @@ void S_UpdateStreamingSounds( void ) {
 					S_SpatializeOrigin( snd.entityPositions[ ss->entnum ], s_volume->value * 255.0f, &l, &r, SOUND_RANGE_DEFAULT );
 #elif defined RTCW_MP
 					S_SpatializeOrigin( entityPositions[ ss->entnum ], s_volume->value * 255.0f, &l, &r, SOUND_RANGE_DEFAULT );
+#else
+					S_SpatializeOrigin( snd.entityPositions[ ss->entnum ], s_volume->value * 255.0f, &l, &r, SOUND_RANGE_DEFAULT, qfalse );
 #endif RTCW_XX
 
 					if ( ( lvol = ( (float)l / 255.0 ) ) > 1.0 ) {
@@ -3307,16 +4000,16 @@ void S_UpdateStreamingSounds( void ) {
 						rvol = 1.0;
 					}
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 					lvol *= streamingVol;
 					rvol *= streamingVol;
 #endif RTCW_XX
 
 				} else {
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 					lvol = rvol = s_volume->value * streamingVol;
-#elif defined RTCW_MP
+#else
 					lvol = rvol = s_volume->value;
 #endif RTCW_XX
 
@@ -3333,7 +4026,7 @@ void S_UpdateStreamingSounds( void ) {
 
 			if ( !ss->samples ) {   // at the end of the sound
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 				// Queued music will take over as the new loop
 				// start up queued music if it exists
 				if ( i == 0 && snd.nextMusicTrackType ) {        // queued music is queued
@@ -3406,7 +4099,7 @@ void S_UpdateStreamingSounds( void ) {
 						break;
 					}
 				}
-#elif defined RTCW_MP
+#else
 				if ( ss->loop && ss->loop[0] ) {
 					// loop
 					if ( looped ) {
@@ -3450,7 +4143,7 @@ void S_UpdateStreamingSounds( void ) {
 }
 
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 /*
 ======================
 S_FreeOldestSound
@@ -3486,3 +4179,23 @@ void S_FreeOldestSound( void ) {
 	sfx->soundData = NULL;
 }
 #endif RTCW_XX
+
+#if defined RTCW_ET
+// START	xkan, 9/23/2002
+// returns how long the sound lasts in milliseconds
+int S_GetSoundLength( sfxHandle_t sfxHandle ) {
+	if ( sfxHandle < 0 || sfxHandle >= snd.s_numSfx ) {
+		Com_DPrintf( S_COLOR_YELLOW "S_StartSound: handle %i out of range\n", sfxHandle );
+		return -1;
+	}
+	return (int)( (float)s_knownSfx[ sfxHandle ].soundLength / dma.speed * 1000.0 );
+}
+// END		xkan, 9/23/2002
+
+// ydnar: for looped sound synchronization
+int S_GetCurrentSoundTime( void ) {
+	return s_soundtime + dma.speed;
+//	 return s_paintedtime;
+}
+#endif RTCW_XX
+

@@ -41,7 +41,31 @@ SV_SetConfigstring
 
 ===============
 */
+
+#if defined RTCW_ET
+void SV_SetConfigstringNoUpdate( int index, const char *val ) {
+	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
+		Com_Error( ERR_DROP, "SV_SetConfigstring: bad index %i\n", index );
+	}
+
+	if ( !val ) {
+		val = "";
+	}
+
+	// don't bother broadcasting an update if no change
+	if ( !strcmp( val, sv.configstrings[ index ] ) ) {
+		return;
+	}
+
+	// change the string in sv
+	Z_Free( sv.configstrings[index] );
+	sv.configstrings[index] = CopyString( val );
+}
+#endif RTCW_XX
+
 void SV_SetConfigstring( int index, const char *val ) {
+
+#if !defined RTCW_ET
 	int len, i;
 	int maxChunkSize = MAX_STRING_CHARS - 24;
 	client_t    *client;
@@ -119,9 +143,94 @@ void SV_SetConfigstring( int index, const char *val ) {
 			}
 		}
 	}
+#else
+	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
+		Com_Error( ERR_DROP, "SV_SetConfigstring: bad index %i\n", index );
+	}
+
+	if ( !val ) {
+		val = "";
+	}
+
+	// don't bother broadcasting an update if no change
+	if ( !strcmp( val, sv.configstrings[ index ] ) ) {
+		return;
+	}
+
+	// change the string in sv
+	Z_Free( sv.configstrings[index] );
+	sv.configstrings[index] = CopyString( val );
+	sv.configstringsmodified[index] = qtrue;
+#endif RTCW_XX
+
 }
 
+#if defined RTCW_ET
+void SV_UpdateConfigStrings( void ) {
+	int len, i, index;
+	client_t    *client;
+	int maxChunkSize = MAX_STRING_CHARS - 24;
 
+	for ( index = 0; index < MAX_CONFIGSTRINGS; index++ ) {
+
+		if ( !sv.configstringsmodified[index] ) {
+			continue;
+		}
+		sv.configstringsmodified[index] = qfalse;
+
+		// send it to all the clients if we aren't
+		// spawning a new server
+		if ( sv.state == SS_GAME || sv.restarting ) {
+			// send the data to all relevent clients
+			for ( i = 0, client = svs.clients; i < sv_maxclients->integer ; i++, client++ ) {
+				if ( client->state < CS_PRIMED ) {
+					continue;
+				}
+				// do not always send server info to all clients
+				if ( index == CS_SERVERINFO && client->gentity && ( client->gentity->r.svFlags & SVF_NOSERVERINFO ) ) {
+					continue;
+				}
+
+				// RF, don't send to bot/AI
+				// Gordon: Note: might want to re-enable later for bot support
+				// RF, re-enabled
+				// Arnout: removed hardcoded gametype
+				// Arnout: added coop
+				if ( ( SV_GameIsSinglePlayer() || SV_GameIsCoop() ) && client->gentity && ( client->gentity->r.svFlags & SVF_BOT ) ) {
+					continue;
+				}
+
+				len = strlen( sv.configstrings[ index ] );
+				if ( len >= maxChunkSize ) {
+					int sent = 0;
+					int remaining = len;
+					char    *cmd;
+					char buf[MAX_STRING_CHARS];
+
+					while ( remaining > 0 ) {
+						if ( sent == 0 ) {
+							cmd = "bcs0";
+						} else if ( remaining < maxChunkSize )    {
+							cmd = "bcs2";
+						} else {
+							cmd = "bcs1";
+						}
+						Q_strncpyz( buf, &sv.configstrings[ index ][sent], maxChunkSize );
+
+						SV_SendServerCommand( client, "%s %i \"%s\"\n", cmd, index, buf );
+
+						sent += ( maxChunkSize - 1 );
+						remaining -= ( maxChunkSize - 1 );
+					}
+				} else {
+					// standard cs, just send it
+					SV_SendServerCommand( client, "cs %i \"%s\"\n", index, sv.configstrings[ index ] );
+				}
+			}
+		}
+	}
+}
+#endif RTCW_XX
 
 /*
 ===============
@@ -222,12 +331,27 @@ void SV_BoundMaxClients( int minimum ) {
 
 #if defined RTCW_SP
 	Cvar_Get( "sv_maxclients", "8", 0 );
-#elif defined RTCW_MP
+#else
 #ifdef __MACOS__
 	Cvar_Get( "sv_maxclients", "16", 0 );         //DAJ HOG
 #else
 	Cvar_Get( "sv_maxclients", "20", 0 );         // NERVE - SMF - changed to 20 from 8
 #endif
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	// START	xkan, 10/03/2002
+	// allow many bots in single player. note that this pretty much means all previous
+	// settings will be ignored (including the one set through "seta sv_maxclients <num>"
+	// in user profile's wolfconfig_mp.cfg). also that if the user subsequently start
+	// the server in multiplayer mode, the number of clients will still be the number
+	// set here, which may be wrong - we can certainly just set it to a sensible number
+	// when it is not in single player mode in the else part of the if statement when
+	// necessary
+	if ( SV_GameIsSinglePlayer() || SV_GameIsCoop() ) {
+		Cvar_Set( "sv_maxclients", "64" );
+	}
+	// END		xkan, 10/03/2002
 #endif RTCW_XX
 
 	sv_maxclients->modified = qfalse;
@@ -445,7 +569,7 @@ void SV_Startup( void ) {
 		Com_Error( ERR_FATAL, "SV_Startup: unable to allocate svs.clients" );
 	}
 #endif
-#elif defined RTCW_MP
+#else
 	// RF, avoid trying to allocate large chunk on a fragmented zone
 	svs.clients = calloc( sizeof( client_t ) * sv_maxclients->integer, 1 );
 	if ( !svs.clients ) {
@@ -454,7 +578,9 @@ void SV_Startup( void ) {
 	//svs.clients = Z_Malloc (sizeof(client_t) * sv_maxclients->integer );
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 //	SV_InitReliableCommands( svs.clients );	// RF
+#endif RTCW_XX
 
 	if ( com_dedicated->integer ) {
 		svs.numSnapshotEntities = sv_maxclients->integer * PACKET_BACKUP * 64;
@@ -536,7 +662,7 @@ void SV_ChangeMaxClients( void ) {
 		Com_Error( ERR_FATAL, "SV_Startup: unable to allocate svs.clients" );
 	}
 #endif
-#elif defined RTCW_MP
+#else
 	//Z_Free( svs.clients );
 	free( svs.clients );    // RF, avoid trying to allocate large chunk on a fragmented zone
 
@@ -614,13 +740,26 @@ void SV_SetExpectedHunkUsage( char *mapname ) {
 
 		// now parse the file, filtering out the current map
 		buftrav = buf;
+
+#if !defined RTCW_ET
 		while ( ( token = COM_Parse( &buftrav ) ) && token[0] ) {
 			if ( !Q_strcasecmp( token, mapname ) ) {
+#else
+		while ( ( token = COM_Parse( &buftrav ) ) != NULL && token[0] ) {
+			if ( !Q_stricmp( token, mapname ) ) {
+#endif RTCW_XX
+
 				// found a match
 				token = COM_Parse( &buftrav );  // read the size
 				if ( token && token[0] ) {
 					// this is the usage
+
+#if !defined RTCW_ET
 					Cvar_Set( "com_expectedhunkusage", token );
+#else
+					com_expectedhunkusage = atoi( token );
+#endif RTCW_XX
+
 					Z_Free( buf );
 					return;
 				}
@@ -630,7 +769,13 @@ void SV_SetExpectedHunkUsage( char *mapname ) {
 		Z_Free( buf );
 	}
 	// just set it to a negative number,so the cgame knows not to draw the percent bar
+
+#if !defined RTCW_ET
 	Cvar_Set( "com_expectedhunkusage", "-1" );
+#else
+	com_expectedhunkusage = -1;
+#endif RTCW_XX
+
 }
 
 /*
@@ -667,7 +812,7 @@ void SV_TouchCGame( void ) {
 	}
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 ================
 SV_TouchCGameDLL
@@ -682,6 +827,12 @@ void SV_TouchCGameDLL( void ) {
 	FS_FOpenFileRead_Filtered( filename, &f, qfalse, FS_EXCLUDE_DIR );
 	if ( f ) {
 		FS_FCloseFile( f );
+
+#if defined RTCW_ET
+	} else if ( sv_pure->integer ) { // ydnar: so we can work the damn game
+		Com_Error( ERR_DROP, "Failed to locate cgame DLL for pure server mode" );
+#endif RTCW_XX
+
 	}
 }
 #endif RTCW_XX
@@ -699,7 +850,11 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	int i;
 	int checksum;
 	qboolean isBot;
+
+#if !defined RTCW_ET
 	char systemInfo[MAX_INFO_STRING];
+#endif RTCW_XX
+
 	const char  *p;
 
 #if defined RTCW_SP
@@ -737,6 +892,13 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// done.
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	// ydnar: broadcast a level change to all connected clients
+	if ( svs.clients && !com_errorEntered ) {
+		SV_FinalCommand( "spawnserver", qfalse );
+	}
+#endif RTCW_XX
+
 	// shut down the existing game if it is running
 	SV_ShutdownGameProgs();
 
@@ -756,7 +918,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 #if defined RTCW_SP
 //	// clear collision map data		// (SA) NOTE: TODO: used in missionpack
 //	CM_ClearMap();
-#elif defined RTCW_MP
+#else
 	// clear collision map data		// (SA) NOTE: TODO: used in missionpack
 	CM_ClearMap();
 #endif RTCW_XX
@@ -764,7 +926,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// wipe the entire per-level structure
 	SV_ClearServer();
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// MrE: main zone should be pretty much emtpy at this point
 	// except for file system data and cached renderer data
 	Z_LogHeap();
@@ -773,6 +935,11 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// allocate empty config strings
 	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
 		sv.configstrings[i] = CopyString( "" );
+
+#if defined RTCW_ET
+		sv.configstringsmodified[i] = qfalse;
+#endif RTCW_XX
+
 	}
 
 	// init client structures and svs.numSnapshotEntities
@@ -808,13 +975,25 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 #elif defined RTCW_MP
 	// DHM - Nerve :: We want to use the completion bar in multiplayer as well
 	if ( sv_gametype->integer == GT_SINGLE_PLAYER || sv_gametype->integer >= GT_WOLF ) {
+#else
+	// DHM - Nerve :: We want to use the completion bar in multiplayer as well
+	// Arnout: just always use it
+//	if( !SV_GameIsSinglePlayer() ) {
 #endif RTCW_XX
 
 		SV_SetExpectedHunkUsage( va( "maps/%s.bsp", server ) );
+
+#if !defined RTCW_ET
 	} else {
 		// just set it to a negative number,so the cgame knows not to draw the percent bar
 		Cvar_Set( "com_expectedhunkusage", "-1" );
 	}
+#else
+//	} else {
+	// just set it to a negative number,so the cgame knows not to draw the percent bar
+//		Cvar_Set( "com_expectedhunkusage", "-1" );
+//	}
+#endif RTCW_XX
 
 	// make sure we are not paused
 	Cvar_Set( "cl_paused", "0" );
@@ -823,7 +1002,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// get a new checksum feed and restart the file system
 	srand( Sys_Milliseconds() );
 	sv.checksumFeed = ( ( (int) rand() << 16 ) ^ rand() ) ^ Sys_Milliseconds();
-#elif defined RTCW_MP
+#else
 #if !defined( DO_LIGHT_DEDICATED )
 	// get a new checksum feed and restart the file system
 	srand( Sys_Milliseconds() );
@@ -855,7 +1034,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	sv.serverId = com_frameTime;
 	sv.restartedServerId = sv.serverId;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	sv.checksumFeedServerId = sv.serverId;
 #endif RTCW_XX
 
@@ -869,7 +1048,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// to load during actual gameplay
 	sv.state = SS_LOADING;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	Cvar_Set( "sv_serverRestarting", "1" );
 #endif RTCW_XX
 
@@ -877,13 +1056,31 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	SV_InitGameProgs();
 
 	// don't allow a map_restart if game is modified
+
+#if !defined RTCW_ET
 	sv_gametype->modified = qfalse;
+#else
+	// Arnout: there isn't any check done against this, obsolete
+//	sv_gametype->modified = qfalse;
+#endif RTCW_XX
 
 	// run a few frames to allow everything to settle
+
+#if !defined RTCW_ET
 	for ( i = 0 ; i < 3 ; i++ ) {
+#else
+	for ( i = 0 ; i < GAME_INIT_FRAMES ; i++ ) {
+#endif RTCW_XX
+
 		VM_Call( gvm, GAME_RUN_FRAME, svs.time );
 		SV_BotFrame( svs.time );
+
+#if !defined RTCW_ET
 		svs.time += 100;
+#else
+		svs.time += FRAMETIME;
+#endif RTCW_XX
+
 	}
 
 	// create a baseline for more efficient communications
@@ -895,11 +1092,16 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 			char    *denied;
 
 			if ( svs.clients[i].netchan.remoteAddress.type == NA_BOT ) {
+
+#if !defined RTCW_ET
 				if ( killBots || Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
+#else
+				if ( killBots || SV_GameIsSinglePlayer() || SV_GameIsCoop() ) {
+#endif RTCW_XX
 
 #if defined RTCW_SP
 					SV_DropClient( &svs.clients[i], " gametype is Single Player" );      //DAJ added message
-#elif defined RTCW_MP
+#else
 					SV_DropClient( &svs.clients[i], "" );
 #endif RTCW_XX
 
@@ -943,7 +1145,12 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// run another frame to allow things to look at all the players
 	VM_Call( gvm, GAME_RUN_FRAME, svs.time );
 	SV_BotFrame( svs.time );
+
+#if !defined RTCW_ET
 	svs.time += 100;
+#else
+	svs.time += FRAMETIME;
+#endif RTCW_XX
 
 	if ( sv_pure->integer ) {
 		// the server sends these to the clients so they will only
@@ -971,7 +1178,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// the server sends these to the clients so they can figure
 	// out which pk3s should be auto-downloaded
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// NOTE: we consider the referencedPaks as 'required for operation'
 
 	// we want the server to reference the mp_bin pk3 that the client is expected to load from
@@ -984,14 +1191,26 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	Cvar_Set( "sv_referencedPakNames", p );
 
 	// save systeminfo and serverinfo strings
+
+#if !defined RTCW_ET
 	Q_strncpyz( systemInfo, Cvar_InfoString_Big( CVAR_SYSTEMINFO ), sizeof( systemInfo ) );
+#endif RTCW_XX
+
 	cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
+
+#if !defined RTCW_ET
 	SV_SetConfigstring( CS_SYSTEMINFO, systemInfo );
 
 	SV_SetConfigstring( CS_SERVERINFO, Cvar_InfoString( CVAR_SERVERINFO ) );
+#else
+	SV_SetConfigstring( CS_SYSTEMINFO, Cvar_InfoString_Big( CVAR_SYSTEMINFO ) );
+
+	SV_SetConfigstring( CS_SERVERINFO, Cvar_InfoString( CVAR_SERVERINFO | CVAR_SERVERINFO_NOUPDATE ) );
+#endif RTCW_XX
+
 	cvar_modifiedFlags &= ~CVAR_SERVERINFO;
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	// NERVE - SMF
 	SV_SetConfigstring( CS_WOLFINFO, Cvar_InfoString( CVAR_WOLFINFO ) );
 	cvar_modifiedFlags &= ~CVAR_WOLFINFO;
@@ -1007,6 +1226,10 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 	Hunk_SetMark();
 
+#if defined RTCW_ET
+	SV_UpdateConfigStrings();
+#endif RTCW_XX
+
 #if defined RTCW_SP
 	Com_Printf( "-----------------------------------\n" );
 
@@ -1017,7 +1240,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		CL_StartHunkUsers();
 	}
 	*/
-#elif defined RTCW_MP
+#else
 	Cvar_Set( "sv_serverRestarting", "0" );
 
 	Com_Printf( "-----------------------------------\n" );
@@ -1025,7 +1248,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 }
 
-#ifdef UPDATE_SERVER
+#if !defined RTCW_ET && defined UPDATE_SERVER
 // DHM - Nerve :: Update Server
 /*
 ====================
@@ -1103,7 +1326,7 @@ void SV_ParseVersionMapping( void ) {
 		Com_Error( ERR_FATAL, "Couldn't open versionmap.cfg" );
 	}
 }
-#endif /* UPDATE_SERVER */
+#endif RTCW_XX
 
 /*
 ===============
@@ -1127,15 +1350,24 @@ void SV_Init( void ) {
 
 	// Rafael gameskill
 	sv_gameskill = Cvar_Get( "g_gameskill", "1", CVAR_SERVERINFO | CVAR_LATCH );
-#elif defined RTCW_MP
+#else
 	Cvar_Get( "dmflags", "0", /*CVAR_SERVERINFO*/ 0 );
 	Cvar_Get( "fraglimit", "0", /*CVAR_SERVERINFO*/ 0 );
 	Cvar_Get( "timelimit", "0", CVAR_SERVERINFO );
+
+#if !defined RTCW_ET
 	// DHM - Nerve :: default to GT_WOLF
 	sv_gametype = Cvar_Get( "g_gametype", "5", CVAR_SERVERINFO | CVAR_LATCH );
+#endif RTCW_XX
 
 	// Rafael gameskill
+
+#if !defined RTCW_ET
 	sv_gameskill = Cvar_Get( "g_gameskill", "3", CVAR_SERVERINFO | CVAR_LATCH );
+#else
+//	sv_gameskill = Cvar_Get ("g_gameskill", "3", CVAR_SERVERINFO | CVAR_LATCH );
+#endif RTCW_XX
+
 #endif RTCW_XX
 
 	// done
@@ -1148,8 +1380,15 @@ void SV_Init( void ) {
 #if defined RTCW_SP
 	sv_hostname = Cvar_Get( "sv_hostname", "noname", CVAR_SERVERINFO | CVAR_ARCHIVE );
 	sv_maxclients = Cvar_Get( "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH );
-#elif defined RTCW_MP
+#else
+
+#if !defined RTCW_ET
 	sv_hostname = Cvar_Get( "sv_hostname", "WolfHost", CVAR_SERVERINFO | CVAR_ARCHIVE );
+#else
+	sv_hostname = Cvar_Get( "sv_hostname", "ETHost", CVAR_SERVERINFO | CVAR_ARCHIVE );
+	//
+#endif RTCW_XX
+
 #ifdef __MACOS__
 	sv_maxclients = Cvar_Get( "sv_maxclients", "16", CVAR_SERVERINFO | CVAR_LATCH );               //DAJ HOG
 #else
@@ -1163,11 +1402,20 @@ void SV_Init( void ) {
 	sv_floodProtect = Cvar_Get( "sv_floodProtect", "1", CVAR_ARCHIVE | CVAR_SERVERINFO );
 	sv_allowAnonymous = Cvar_Get( "sv_allowAnonymous", "0", CVAR_SERVERINFO );
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 	sv_friendlyFire = Cvar_Get( "g_friendlyFire", "1", CVAR_SERVERINFO | CVAR_ARCHIVE );           // NERVE - SMF
 	sv_maxlives = Cvar_Get( "g_maxlives", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SERVERINFO );      // NERVE - SMF
+
+#if !defined RTCW_ET
 	sv_tourney = Cvar_Get( "g_noTeamSwitching", "0", CVAR_ARCHIVE );                               // NERVE - SMF
 #endif RTCW_XX
+
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	sv_needpass = Cvar_Get( "g_needpass", "0", CVAR_SERVERINFO | CVAR_ROM );
+#endif RTCW_XX
+
 
 	// systeminfo
 
@@ -1179,8 +1427,15 @@ void SV_Init( void ) {
 //----(SA) the default config.  remember to change this back when shipping!!!
 	sv_pure = Cvar_Get( "sv_pure", "0", CVAR_SYSTEMINFO );
 //	sv_pure = Cvar_Get ("sv_pure", "1", CVAR_SYSTEMINFO );
-#elif defined RTCW_MP
+#else
+
+#if !defined RTCW_ET
 	Cvar_Get( "sv_cheats", "1", CVAR_SYSTEMINFO | CVAR_ROM );
+#else
+	//bani - added cvar_t for sv_cheats so server engine can reference it
+	sv_cheats = Cvar_Get( "sv_cheats", "1", CVAR_SYSTEMINFO | CVAR_ROM );
+#endif RTCW_XX
+
 	sv_serverid = Cvar_Get( "sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM );
 	sv_pure = Cvar_Get( "sv_pure", "1", CVAR_SYSTEMINFO );
 #endif RTCW_XX
@@ -1204,6 +1459,9 @@ void SV_Init( void ) {
 	sv_fps = Cvar_Get( "sv_fps", "60", CVAR_TEMP ); // this allows faster downloads
 #endif
 	sv_timeout = Cvar_Get( "sv_timeout", "240", CVAR_TEMP );
+#else
+	sv_fps = Cvar_Get( "sv_fps", "20", CVAR_TEMP );
+	sv_timeout = Cvar_Get( "sv_timeout", "240", CVAR_TEMP );
 #endif RTCW_XX
 
 	sv_zombietime = Cvar_Get( "sv_zombietime", "2", CVAR_TEMP );
@@ -1214,9 +1472,15 @@ void SV_Init( void ) {
 //----(SA)	heh, whoops.  we've been talking to id masters since we got a connection...
 //	sv_master[0] = Cvar_Get ("sv_master1", "master3.idsoftware.com", 0 );
 	sv_master[0] = Cvar_Get( "sv_master1", "master.gmistudios.com", 0 );
-#elif defined RTCW_MP
+#else
 	sv_allowDownload = Cvar_Get( "sv_allowDownload", "1", CVAR_ARCHIVE );
+
+#if !defined RTCW_ET
 	sv_master[0] = Cvar_Get( "sv_master1", "wolfmaster.idsoftware.com", 0 );      // NERVE - SMF - wolfMP master server
+#else
+	sv_master[0] = Cvar_Get( "sv_master1", MASTER_SERVER_NAME, 0 );
+#endif RTCW_XX
+
 #endif RTCW_XX
 
 	sv_master[1] = Cvar_Get( "sv_master2", "", CVAR_ARCHIVE );
@@ -1224,6 +1488,11 @@ void SV_Init( void ) {
 	sv_master[3] = Cvar_Get( "sv_master4", "", CVAR_ARCHIVE );
 	sv_master[4] = Cvar_Get( "sv_master5", "", CVAR_ARCHIVE );
 	sv_reconnectlimit = Cvar_Get( "sv_reconnectlimit", "3", 0 );
+
+#if defined RTCW_ET
+	sv_tempbanmessage = Cvar_Get( "sv_tempbanmessage", "You have been kicked and are temporarily banned from joining this server.", 0 );
+#endif RTCW_XX
+
 	sv_showloss = Cvar_Get( "sv_showloss", "0", 0 );
 	sv_padPackets = Cvar_Get( "sv_padPackets", "0", 0 );
 	sv_killserver = Cvar_Get( "sv_killserver", "0", 0 );
@@ -1231,8 +1500,11 @@ void SV_Init( void ) {
 
 #if defined RTCW_SP
 	sv_reloading = Cvar_Get( "g_reloading", "0", CVAR_ROM );   //----(SA)	added
+#elif defined RTCW_ET
+	sv_reloading = Cvar_Get( "g_reloading", "0", CVAR_ROM );
+#endif RTCW_XX
 
-#elif defined RTCW_MP
+#if !defined RTCW_SP
 	sv_lanForceRate = Cvar_Get( "sv_lanForceRate", "1", CVAR_ARCHIVE );
 
 	sv_onlyVisibleClients = Cvar_Get( "sv_onlyVisibleClients", "0", 0 );       // DHM - Nerve
@@ -1244,10 +1516,20 @@ void SV_Init( void ) {
 	Cvar_Get( "g_userAlliedRespawnTime", "0", 0 );
 	Cvar_Get( "g_userAxisRespawnTime", "0", 0 );
 	Cvar_Get( "g_maxlives", "0", 0 );
+
+#if !defined RTCW_ET
 	Cvar_Get( "g_noTeamSwitching", "0", CVAR_ARCHIVE );
+#endif RTCW_XX
+
 	Cvar_Get( "g_altStopwatchMode", "0", CVAR_ARCHIVE );
 	Cvar_Get( "g_minGameClients", "8", CVAR_SERVERINFO );
+
+#if !defined RTCW_ET
 	Cvar_Get( "g_complaintlimit", "3", CVAR_ARCHIVE );
+#else
+	Cvar_Get( "g_complaintlimit", "6", CVAR_ARCHIVE );
+#endif RTCW_XX
+
 	Cvar_Get( "gamestate", "-1", CVAR_WOLFINFO | CVAR_ROM );
 	Cvar_Get( "g_currentRound", "0", CVAR_WOLFINFO );
 	Cvar_Get( "g_nextTimeLimit", "0", CVAR_WOLFINFO );
@@ -1261,19 +1543,53 @@ void SV_Init( void ) {
 	Cvar_Get( "g_fastResMsec", "1000", CVAR_ARCHIVE );
 
 	// ATVI Tracker Wolfenstein Misc #273
+
+#if !defined RTCW_ET
 	Cvar_Get( "g_voteFlags", "255", CVAR_ARCHIVE | CVAR_SERVERINFO );
+#else
+	Cvar_Get( "g_voteFlags", "0", CVAR_ROM | CVAR_SERVERINFO );
+#endif RTCW_XX
 
 	// ATVI Tracker Wolfenstein Misc #263
-	Cvar_Get( "g_antilag", "0", CVAR_ARCHIVE | CVAR_SERVERINFO );
 
+#if !defined RTCW_ET
+	Cvar_Get( "g_antilag", "0", CVAR_ARCHIVE | CVAR_SERVERINFO );
+#else
+	Cvar_Get( "g_antilag", "1", CVAR_ARCHIVE | CVAR_SERVERINFO );
+#endif RTCW_XX
+
+#if !defined RTCW_ET
 	// TTimo - autodownload speed tweaks
-#ifndef UPDATE_SERVER
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	Cvar_Get( "g_needpass", "0", CVAR_SERVERINFO );
+
+	g_gameType = Cvar_Get( "g_gametype", va( "%i", com_gameInfo.defaultGameType ), CVAR_SERVERINFO | CVAR_LATCH );
+#endif RTCW_XX
+
+#if (!defined RTCW_ET && !defined UPDATE_SERVER) || defined RTCW_ET
 	// the download netcode tops at 18/20 kb/s, no need to make you think you can go above
 	sv_dl_maxRate = Cvar_Get( "sv_dl_maxRate", "42000", CVAR_ARCHIVE );
 #else
 	// the update server is on steroids, sv_fps 60 and no snapshotMsec limitation, it can go up to 30 kb/s
 	sv_dl_maxRate = Cvar_Get( "sv_dl_maxRate", "60000", CVAR_ARCHIVE );
 #endif
+#endif RTCW_XX
+
+#if defined RTCW_ET
+	sv_wwwDownload = Cvar_Get( "sv_wwwDownload", "0", CVAR_ARCHIVE );
+	sv_wwwBaseURL = Cvar_Get( "sv_wwwBaseURL", "", CVAR_ARCHIVE );
+	sv_wwwDlDisconnected = Cvar_Get( "sv_wwwDlDisconnected", "0", CVAR_ARCHIVE );
+	sv_wwwFallbackURL = Cvar_Get( "sv_wwwFallbackURL", "", CVAR_ARCHIVE );
+
+	//bani
+	sv_packetloss = Cvar_Get( "sv_packetloss", "0", CVAR_CHEAT );
+	sv_packetdelay = Cvar_Get( "sv_packetdelay", "0", CVAR_CHEAT );
+
+	// fretn - note: redirecting of clients to other servers relies on this,
+	// ET://someserver.com
+	sv_fullmsg = Cvar_Get( "sv_fullmsg", "Server is full.", CVAR_ARCHIVE );
 #endif RTCW_XX
 
 	// initialize bot cvars so they are listed and can be set before loading the botlib
@@ -1306,9 +1622,13 @@ void SV_Init( void ) {
 #endif
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	svs.serverLoad = -1;
+#endif RTCW_XX
+
 }
 
-
+#if !defined RTCW_ET
 /*
 ==================
 SV_FinalMessage
@@ -1320,6 +1640,20 @@ to totally exit after returning from this function.
 ==================
 */
 void SV_FinalMessage( char *message ) {
+#else
+/*
+==================
+SV_FinalCommand
+
+Used by SV_Shutdown to send a final message to all
+connected clients before the server goes down.  The messages are sent immediately,
+not just stuck on the outgoing message list, because the server is going
+to totally exit after returning from this function.
+==================
+*/
+void SV_FinalCommand( char *cmd, qboolean disconnect ) {
+#endif RTCW_XX
+
 	int i, j;
 	client_t    *cl;
 
@@ -1329,9 +1663,22 @@ void SV_FinalMessage( char *message ) {
 			if ( cl->state >= CS_CONNECTED ) {
 				// don't send a disconnect to a local client
 				if ( cl->netchan.remoteAddress.type != NA_LOOPBACK ) {
+
+#if !defined RTCW_ET
 					SV_SendServerCommand( cl, "print \"%s\"", message );
 					SV_SendServerCommand( cl, "disconnect" );
 				}
+#else
+					//%	SV_SendServerCommand( cl, "print \"%s\"", message );
+					SV_SendServerCommand( cl, cmd );
+
+					// ydnar: added this so map changes can use this functionality
+					if ( disconnect ) {
+						SV_SendServerCommand( cl, "disconnect" );
+					}
+				}
+#endif RTCW_XX
+
 				// force a snapshot to be sent
 				cl->nextSnapshotTime = -1;
 				SV_SendClientSnapshot( cl );
@@ -1357,7 +1704,13 @@ void SV_Shutdown( char *finalmsg ) {
 	Com_Printf( "----- Server Shutdown -----\n" );
 
 	if ( svs.clients && !com_errorEntered ) {
+
+#if !defined RTCW_ET
 		SV_FinalMessage( finalmsg );
+#else
+		SV_FinalCommand( va( "print \"%s\"", finalmsg ), qtrue );
+#endif RTCW_XX
+
 	}
 
 	SV_RemoveOperatorCommands();
@@ -1373,6 +1726,10 @@ void SV_Shutdown( char *finalmsg ) {
 		free( svs.clients );    // RF, avoid trying to allocate large chunk on a fragmented zone
 	}
 	memset( &svs, 0, sizeof( svs ) );
+
+#if defined RTCW_ET
+	svs.serverLoad = -1;
+#endif RTCW_XX
 
 	Cvar_Set( "sv_running", "0" );
 

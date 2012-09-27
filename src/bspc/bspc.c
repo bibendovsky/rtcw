@@ -75,13 +75,32 @@ void AAS_InitClustering();
 void AAS_ShowTotals();
 #elif defined RTCW_MP
 #define BSPC_VERSION        "2.1c"
+#else
+// Ryan, I changed this from c to d so our designers would know which .exe they had...
+#define BSPC_VERSION        "2.2"
+
+// RF
+#ifndef BSPC
+#define BSPC
+#endif
 #endif RTCW_XX
 
 
 extern int use_nodequeue;       //brushbsp.c
 extern int calcgrapplereach;    //be_aas_reach.c
 
+#if defined RTCW_ET
+//float			subdivide_size = 1024;
+//float			bsp_grid_size = 2048;
+// Gordon: FIXME: test
+#endif RTCW_XX
+
 float subdivide_size = 240;
+
+#if defined RTCW_ET
+float bsp_grid_size = 512;
+#endif RTCW_XX
+
 char source[1024];
 char name[1024];
 vec_t microvolume = 1.0;
@@ -112,12 +131,22 @@ qboolean cancelconversion;      //true if the conversion is being cancelled
 qboolean noliquids;             //no liquids when writing map file
 qboolean forcesidesvisible;     //force all brush sides to be visible when loaded from bsp
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 qboolean writeaasmap;           //
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 // qboolean	capsule_collision = true;	//use capsule collision
 qboolean capsule_collision = false; // capsule collision// Ridah, allow to specify an extension for multiple AAS files per map
+#else
+qboolean groundonly;
+qboolean writebrushmap;
+qboolean noPatches = false;
+//qboolean	capsule_collision = true;	//use capsule collision
+qboolean capsule_collision = false; // capsule collision// Ridah, allow to specify an extension for multiple AAS files per map
+int mingroundarea = 0;          // areas with ground surface area less than this will be removed
+qboolean reachableonly;         // remove areas with no reachability
+#endif RTCW_XX
 
 char aas_extension[64];
 // done.
@@ -448,7 +477,7 @@ void CreateAASFilesForAllBSPFiles( char *quakepath ) {
 
 #if defined RTCW_SP
 	//int done; // TTimo: unused
-#elif defined RTCW_MP
+#else
 	int done;
 #endif RTCW_XX
 
@@ -582,6 +611,10 @@ quakefile_t *GetArgumentFiles( int argc, char *argv[], int *i, char *ext ) {
 #define COMP_AASINFO        6
 #define COMP_TETRA          7
 
+#if defined RTCW_ET
+#define COMP_AASREMOVENONREACHABLE  8
+#endif RTCW_XX
+
 #if defined RTCW_SP
 //#define GTKRADIANT
 
@@ -591,6 +624,13 @@ quakefile_t *GetArgumentFiles( int argc, char *argv[], int *i, char *ext ) {
 #endif
 #endif RTCW_XX
 
+#if defined RTCW_ET
+void AAS_InitBotImport( void );
+void AAS_InitClustering( void );
+void AAS_ShowTotals( void );
+void AAS_InitBSP( void );
+#endif RTCW_XX
+
 int main( int argc, char **argv ) {
 	int i, comp = 0;
 	char outputpath[MAX_PATH] = "";
@@ -598,13 +638,18 @@ int main( int argc, char **argv ) {
 
 #if defined RTCW_SP
 	quakefile_t *qfiles = NULL, *qf; // TTimo: init
-#elif defined RTCW_MP
+#else
 	quakefile_t *qfiles, *qf;
 #endif RTCW_XX
 
 	// Ridah, allow to specify an extension for multiple AAS files per map
 	int has_ext = 0;
 	// done.
+
+#if defined RTCW_ET
+	// Gordon: make sure to memset bspworld, fixes crash after CM_LoadMap
+	AAS_InitBSP();
+#endif RTCW_XX
 
 	// Ridah, set the world pointer up for reachabilities
 	aasworld = aasworlds;
@@ -624,6 +669,11 @@ int main( int argc, char **argv ) {
   #endif
 #elif defined RTCW_MP
 	Log_Print( "BSPC version " BSPC_VERSION ", %s %s by Mr Elusive\n", __DATE__, __TIME__ );
+#else
+	Log_Print( "BSPC version " BSPC_VERSION ", %s %s by Mr Elusive\n", __DATE__, __TIME__ );
+
+	// Ryan, I added this so our designers would know which .exe they had...
+	Log_Print( "Last worked on by Ryan Feltrin\n" );
 #endif RTCW_XX
 
 	DefaultCfg();
@@ -826,6 +876,17 @@ int main( int argc, char **argv ) {
 			comp = COMP_AASOPTIMIZE;
 			qfiles = GetArgumentFiles( argc, argv, &i, "aas" );
 		} //end else if
+
+#if defined RTCW_ET
+		else if ( !stricmp( argv[i], "-aasreachonly" ) ) {
+			if ( i + 1 >= argc ) {
+				i = 0; break;
+			}
+			comp = COMP_AASREMOVENONREACHABLE;
+			qfiles = GetArgumentFiles( argc, argv, &i, "aas" );
+		} //end else if
+#endif RTCW_XX
+
 		else if ( !stricmp( argv[i], "-tetra" ) ) {
 			if ( i + 1 >= argc ) {
 				i = 0; break;
@@ -834,10 +895,32 @@ int main( int argc, char **argv ) {
 			qfiles = GetArgumentFiles( argc, argv, &i, "aas" );
 		} //end else if
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 		else if ( !stricmp( argv[i], "-writeaasmap" ) ) {
 			writeaasmap = true;
 			Log_Print( "writeaasmap = true\n" );
+
+#if defined RTCW_ET
+		} else if ( !stricmp( argv[i], "-groundonly" ) )        {
+			groundonly = true;
+			Log_Print( "groundonly = true\n" );
+		} else if ( !stricmp( argv[i], "-reachableonly" ) )        {
+			reachableonly = true;
+			Log_Print( "reachableonly = true\n" );
+		} else if ( !stricmp( argv[i], "-mingroundarea" ) )        {
+			if ( i + 1 >= argc ) {
+				i = 0; break;
+			}
+			mingroundarea = atoi( argv[++i] );
+			Log_Print( "mingroundvolume = %i\n", mingroundarea );
+		} else if ( !stricmp( argv[i], "-writebrushmap" ) )        {
+			writebrushmap = true;
+			Log_Print( "writebrushmap = %i\n", writebrushmap );
+		} else if ( !stricmp( argv[i], "-noPatches" ) )        {
+			noPatches = true;
+			Log_Print( "noPatches = %i\n", noPatches );
+#endif RTCW_XX
+
 		}
 #endif RTCW_XX
 
@@ -913,6 +996,16 @@ int main( int argc, char **argv ) {
 					AAS_CalcReachAndClusters( qf );
 				}
 				//
+
+#if defined RTCW_ET
+				if ( groundonly ) {
+					AAS_RemoveNonGrounded();
+				}
+				if ( reachableonly ) {
+					AAS_RemoveNonReachability();
+				}
+#endif RTCW_XX
+
 				if ( optimize ) {
 					AAS_Optimize();
 				}
@@ -962,6 +1055,16 @@ int main( int argc, char **argv ) {
 					AAS_CalcReachAndClusters( qf );
 				}     //end if
 					  //
+
+#if defined RTCW_ET
+				if ( groundonly ) {
+					AAS_RemoveNonGrounded();
+				}
+				if ( reachableonly ) {
+					AAS_RemoveNonReachability();
+				}
+#endif RTCW_XX
+
 				if ( optimize ) {
 					AAS_Optimize();
 				}
@@ -1047,7 +1150,53 @@ int main( int argc, char **argv ) {
 				if ( !AAS_LoadAASFile( qf->filename, qf->offset, qf->length ) ) {
 					Error( "error loading aas file %s\n", qf->filename );
 				}     //end if
+
+#if defined RTCW_ET
+				if ( groundonly ) {
+					AAS_RemoveNonGrounded();
+				}
+				if ( reachableonly ) {
+					AAS_RemoveNonReachability();
+				}
+#endif RTCW_XX
+
 				AAS_Optimize();
+
+#if defined RTCW_ET
+				//write out the stored AAS file
+				if ( !AAS_WriteAASFile( filename ) ) {
+					Error( "error writing %s\n", filename );
+				}     //end if
+					  //deallocate memory
+				AAS_FreeMaxAAS();
+			}     //end for
+			break;
+		}     //end case
+		case COMP_AASREMOVENONREACHABLE:
+		{
+			if ( !qfiles ) {
+				Log_Print( "no files found\n" );
+			}
+			for ( qf = qfiles; qf; qf = qf->next )
+			{
+				AASOuputFile( qf, outputpath, filename );
+				//
+				Log_Print( "removing non-reachability areas: %s to %s\n", qf->origname, filename );
+				if ( qf->type != QFILETYPE_AAS ) {
+					Warning( "%s is probably not a AAS file\n", qf->origname );
+				}
+				//
+				AAS_InitBotImport();
+				//
+				if ( !AAS_LoadAASFile( qf->filename, qf->offset, qf->length ) ) {
+					Error( "error loading aas file %s\n", qf->filename );
+				}     //end if
+				AAS_RemoveNonReachability();
+				if ( optimize ) {
+					AAS_Optimize();
+				}
+#endif RTCW_XX
+
 				//write out the stored AAS file
 				if ( !AAS_WriteAASFile( filename ) ) {
 					Error( "error writing %s\n", filename );
@@ -1129,7 +1278,7 @@ int main( int argc, char **argv ) {
 				   "   forcesidesvisible                    = force all sides to be visible\n"
 				   "   grapplereach                         = calculate grapple reachabilities\n"
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 				   "   writeaasmap                          = write the map the AI sees\n"
 #endif RTCW_XX
 

@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 Com_Clamp
 ============
 */
-#elif defined RTCW_MP
+#else
 // os x game bundles have no standard library links, and the defines are not always defined!
 
 #ifdef MACOS_X
@@ -64,6 +64,23 @@ float Com_Clamp( float min, float max, float value ) {
 	return value;
 }
 
+
+#if defined RTCW_ET
+/*
+COM_FixPath()
+unixifies a pathname
+*/
+
+void COM_FixPath( char *pathname ) {
+	while ( *pathname )
+	{
+		if ( *pathname == '\\' ) {
+			*pathname = '/';
+		}
+		pathname++;
+	}
+}
+#endif RTCW_XX
 
 /*
 ============
@@ -96,7 +113,7 @@ void COM_StripExtension( const char *in, char *out ) {
 	*out = 0;
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 /*
 ============
 COM_StripExtension2
@@ -114,15 +131,23 @@ void COM_StripExtension2( const char *in, char *out, int destsize ) {
 #endif RTCW_XX
 
 
+#if !defined RTCW_ET
 /*
 ============
 COM_StripFilename
 ============
 */
+#endif RTCW_XX
 
 void COM_StripFilename( char *in, char *out ) {
 	char *end;
+
+#if !defined RTCW_ET
 	Q_strncpyz( out, in, strlen( in ) );
+#else
+	Q_strncpyz( out, in, strlen( in ) + 1 );
+#endif RTCW_XX
+
 	end = COM_SkipPath( out );
 	*end = 0;
 }
@@ -223,6 +248,8 @@ void COM_BitClear( int array[], int bitNum ) {
 
 // can't just use function pointers, or dll linkage can
 // mess up when qcommon is included in multiple places
+
+#if !defined RTCW_ET
 static short ( *_BigShort )( short l );
 static short ( *_LittleShort )( short l );
 static int ( *_BigLong )( int l );
@@ -231,6 +258,16 @@ static qint64 ( *_BigLong64 )( qint64 l );
 static qint64 ( *_LittleLong64 )( qint64 l );
 static float ( *_BigFloat )( float l );
 static float ( *_LittleFloat )( float l );
+#else
+static short ( *_BigShort )( short l ) = NULL;
+static short ( *_LittleShort )( short l ) = NULL;
+static int ( *_BigLong )( int l ) = NULL;
+static int ( *_LittleLong )( int l ) = NULL;
+static qint64 ( *_BigLong64 )( qint64 l ) = NULL;
+static qint64 ( *_LittleLong64 )( qint64 l ) = NULL;
+static float ( *_BigFloat )( float l ) = NULL;
+static float ( *_LittleFloat )( float l ) = NULL;
+#endif RTCW_XX
 
 #if defined RTCW_SP
 short   BigShort( short l ) {return _BigShort( l );}
@@ -261,6 +298,16 @@ qint64  LittleLong64( qint64 l ) {return _LittleLong64( l );}
 float   BigFloat( float l ) {return _BigFloat( l );}
 float   LittleFloat( float l ) {return _LittleFloat( l );}
 #endif
+#else
+short   LittleShort( short l ) {return _LittleShort( l );}
+int     LittleLong( int l ) {return _LittleLong( l );}
+qint64  LittleLong64( qint64 l ) {return _LittleLong64( l );}
+float   LittleFloat( float l ) {return _LittleFloat( l );}
+
+short   BigShort( short l ) {return _BigShort( l );}
+int     BigLong( int l ) {return _BigLong( l );}
+qint64  BigLong64( qint64 l ) {return _BigLong64( l );}
+float   BigFloat( float l ) {return _BigFloat( l );}
 #endif RTCW_XX
 
 short   ShortSwap( short l ) {
@@ -378,65 +425,83 @@ static int com_lines;
 static int backup_lines;
 static char    *backup_text;
 
+#if !defined RTCW_ET
 /*
 ================
 COM_BeginParseSession
 ================
 */
+#endif RTCW_XX
+
 void COM_BeginParseSession( const char *name ) {
 	com_lines = 0;
 	Com_sprintf( com_parsename, sizeof( com_parsename ), "%s", name );
 }
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 void COM_BackupParseSession( char **data_p ) {
 	backup_lines = com_lines;
 	backup_text = *data_p;
 }
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 /*
 ================
 COM_RestoreParseSession
 ================
 */
+#endif RTCW_XX
+
 void COM_RestoreParseSession( char **data_p ) {
 	com_lines = backup_lines;
 	*data_p = backup_text;
 }
 
+#if !defined RTCW_ET
 /*
 ================
 COM_SetCurrentParseLine
 ================
 */
+#endif RTCW_XX
+
 void COM_SetCurrentParseLine( int line ) {
 	com_lines = line;
 }
 
+#if !defined RTCW_ET
 /*
 ================
 COM_GetCurrentParseLine
 ================
 */
+#endif RTCW_XX
+
 int COM_GetCurrentParseLine( void ) {
 	return com_lines;
 }
 
+#if !defined RTCW_ET
 /*
 ================
 COM_Parse
 ================
 */
+#endif RTCW_XX
+
 char *COM_Parse( char **data_p ) {
 	return COM_ParseExt( data_p, qtrue );
 }
 
+#if !defined RTCW_ET
 /*
 ================
 COM_ParseError
 ================
 */
+#endif RTCW_XX
+
 void COM_ParseError( char *format, ... ) {
 	va_list argptr;
 	static char string[4096];
@@ -445,7 +510,7 @@ void COM_ParseError( char *format, ... ) {
 
 #if defined RTCW_SP
 	vsprintf( string, format, argptr );
-#elif defined RTCW_MP
+#else
 	Q_vsnprintf( string, sizeof( string ), format, argptr );
 #endif RTCW_XX
 
@@ -454,11 +519,14 @@ void COM_ParseError( char *format, ... ) {
 	Com_Printf( "ERROR: %s, line %d: %s\n", com_parsename, com_lines, string );
 }
 
+#if !defined RTCW_ET
 /*
 ================
 COM_ParseWarning
 ================
 */
+#endif RTCW_XX
+
 void COM_ParseWarning( char *format, ... ) {
 	va_list argptr;
 	static char string[4096];
@@ -467,7 +535,7 @@ void COM_ParseWarning( char *format, ... ) {
 
 #if defined RTCW_SP
 	vsprintf( string, format, argptr );
-#elif defined RTCW_MP
+#else
 	Q_vsnprintf( string, sizeof( string ), format, argptr );
 #endif RTCW_XX
 
@@ -491,7 +559,7 @@ a newline.
 
 #if defined RTCW_SP
 char *SkipWhitespace( char *data, qboolean *hasNewLines ) {
-#elif defined RTCW_MP
+#else
 static char *SkipWhitespace( char *data, qboolean *hasNewLines ) {
 #endif RTCW_XX
 
@@ -499,7 +567,7 @@ static char *SkipWhitespace( char *data, qboolean *hasNewLines ) {
 
 	while ( ( c = *data ) <= ' ' ) {
 
-#if defined RTCW_MP
+#if !defined RTCW_SP
 		if ( !c ) {
 			return NULL;
 		}
@@ -521,11 +589,14 @@ static char *SkipWhitespace( char *data, qboolean *hasNewLines ) {
 	return data;
 }
 
+#if !defined RTCW_ET
 /*
 ================
 COM_Compress
 ================
 */
+#endif RTCW_XX
+
 int COM_Compress( char *data_p ) {
 	char *datai, *datao;
 	int c, pc, size;
@@ -551,6 +622,11 @@ int COM_Compress( char *data_p ) {
 				ws = qfalse;
 				// skip /* */ comments
 			} else if ( c == '/' && datai[1] == '*' ) {
+
+#if defined RTCW_ET
+				datai += 2; // Arnout: skip over '/*'
+#endif RTCW_XX
+
 				while ( *datai && ( *datai != '*' || datai[1] != '/' ) ) {
 					datai++;
 				}
@@ -576,11 +652,14 @@ int COM_Compress( char *data_p ) {
 	return size;
 }
 
+#if !defined RTCW_ET
 /*
 ================
 COM_ParseExt
 ================
 */
+#endif RTCW_XX
+
 char *COM_ParseExt( char **data_p, qboolean allowLineBreaks ) {
 	int c = 0, len;
 	qboolean hasNewLines = qfalse;
@@ -601,7 +680,7 @@ char *COM_ParseExt( char **data_p, qboolean allowLineBreaks ) {
 #if defined RTCW_SP
 	backup_lines = com_lines;
 	backup_text = *data_p;
-#elif defined RTCW_MP
+#else
 	COM_BackupParseSession( data_p );
 #endif RTCW_XX
 
@@ -626,6 +705,11 @@ char *COM_ParseExt( char **data_p, qboolean allowLineBreaks ) {
 			while ( *data && *data != '\n' ) {
 				data++;
 			}
+
+#if defined RTCW_ET
+//			com_lines++;
+#endif RTCW_XX
+
 		}
 		// skip /* */ comments
 		else if ( c == '/' && data[1] == '*' ) {
@@ -633,6 +717,13 @@ char *COM_ParseExt( char **data_p, qboolean allowLineBreaks ) {
 			while ( *data && ( *data != '*' || data[1] != '/' ) )
 			{
 				data++;
+
+#if defined RTCW_ET
+				if ( *data == '\n' ) {
+//					com_lines++;
+				}
+#endif RTCW_XX
+
 			}
 			if ( *data ) {
 				data += 2;
@@ -649,6 +740,41 @@ char *COM_ParseExt( char **data_p, qboolean allowLineBreaks ) {
 		while ( 1 )
 		{
 			c = *data++;
+
+#if defined RTCW_ET
+			if ( c == '\\' && *( data ) == '\"' ) {
+				// Arnout: string-in-string
+				if ( len < MAX_TOKEN_CHARS ) {
+					com_token[len] = '\"';
+					len++;
+				}
+				data++;
+
+				while ( 1 ) {
+					c = *data++;
+
+					if ( !c ) {
+						com_token[len] = 0;
+						*data_p = ( char * ) data;
+						break;
+					}
+					if ( ( c == '\\' && *( data ) == '\"' ) ) {
+						if ( len < MAX_TOKEN_CHARS ) {
+							com_token[len] = '\"';
+							len++;
+						}
+						data++;
+						c = *data++;
+						break;
+					}
+					if ( len < MAX_TOKEN_CHARS ) {
+						com_token[len] = c;
+						len++;
+					}
+				}
+			}
+#endif RTCW_XX
+
 			if ( c == '\"' || !c ) {
 				com_token[len] = 0;
 				*data_p = ( char * ) data;
@@ -676,7 +802,7 @@ char *COM_ParseExt( char **data_p, qboolean allowLineBreaks ) {
 
 #if defined RTCW_SP
 	} while ( c > ' ' );
-#elif defined RTCW_MP
+#else
 	} while ( c > 32 );
 #endif RTCW_XX
 
@@ -687,7 +813,7 @@ char *COM_ParseExt( char **data_p, qboolean allowLineBreaks ) {
 
 #if defined RTCW_SP
 	com_token[len] = '\0';
-#elif defined RTCW_MP
+#else
 	com_token[len] = 0;
 #endif RTCW_XX
 
@@ -712,6 +838,28 @@ void COM_MatchToken( char **buf_p, char *match ) {
 	}
 }
 
+#if defined RTCW_ET
+/*
+=================
+SkipBracedSection_Depth
+
+=================
+*/
+void SkipBracedSection_Depth( char **program, int depth ) {
+	char            *token;
+
+	do {
+		token = COM_ParseExt( program, qtrue );
+		if ( token[1] == 0 ) {
+			if ( token[0] == '{' ) {
+				depth++;
+			} else if ( token[0] == '}' )     {
+				depth--;
+			}
+		}
+	} while ( depth && *program );
+}
+#endif RTCW_XX
 
 /*
 =================
@@ -723,15 +871,15 @@ Internal brace depths are properly skipped.
 =================
 */
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 void SkipBracedSection( char **program ) {
-#elif defined RTCW_MP
+#else
 void SkipBracedSection_Depth( char **program, int depth ) {
 #endif RTCW_XX
 
 	char            *token;
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 	int depth;
 
 	depth = 0;
@@ -784,11 +932,14 @@ void SkipRestOfLine( char **data ) {
 	*data = p;
 }
 
+#if !defined RTCW_ET
 /*
 ================
 Parse1DMatrix
 ================
 */
+#endif RTCW_XX
+
 void Parse1DMatrix( char **buf_p, int x, float *m ) {
 	char    *token;
 	int i;
@@ -803,11 +954,14 @@ void Parse1DMatrix( char **buf_p, int x, float *m ) {
 	COM_MatchToken( buf_p, ")" );
 }
 
+#if !defined RTCW_ET
 /*
 ================
 Parse2DMatrix
 ================
 */
+#endif RTCW_XX
+
 void Parse2DMatrix( char **buf_p, int y, int x, float *m ) {
 	int i;
 
@@ -820,11 +974,14 @@ void Parse2DMatrix( char **buf_p, int y, int x, float *m ) {
 	COM_MatchToken( buf_p, ")" );
 }
 
+#if !defined RTCW_ET
 /*
 ================
 Parse3DMatrix
 ================
 */
+#endif RTCW_XX
+
 void Parse3DMatrix( char **buf_p, int z, int y, int x, float *m ) {
 	int i;
 
@@ -837,6 +994,59 @@ void Parse3DMatrix( char **buf_p, int z, int y, int x, float *m ) {
 	COM_MatchToken( buf_p, ")" );
 }
 
+
+#if defined RTCW_ET
+/*
+===============
+Com_ParseInfos
+===============
+*/
+int Com_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] ) {
+	const char  *token;
+	int count;
+	char key[MAX_TOKEN_CHARS];
+
+	count = 0;
+
+	while ( 1 ) {
+		token = COM_Parse( &buf );
+		if ( !token[0] ) {
+			break;
+		}
+		if ( strcmp( token, "{" ) ) {
+			Com_Printf( "Missing { in info file\n" );
+			break;
+		}
+
+		if ( count == max ) {
+			Com_Printf( "Max infos exceeded\n" );
+			break;
+		}
+
+		infos[count][0] = 0;
+		while ( 1 ) {
+			token = COM_Parse( &buf );
+			if ( !token[0] ) {
+				Com_Printf( "Unexpected end of info file\n" );
+				break;
+			}
+			if ( !strcmp( token, "}" ) ) {
+				break;
+			}
+			Q_strncpyz( key, token, sizeof( key ) );
+
+			token = COM_ParseExt( &buf, qfalse );
+			if ( !token[0] ) {
+				token = "<NULL>";
+			}
+			Info_SetValueForKey( infos[count], key, token );
+		}
+		count++;
+	}
+
+	return count;
+}
+#endif RTCW_XX
 
 /*
 ============================================================================
@@ -874,7 +1084,7 @@ int Q_isalpha( int c ) {
 	return ( 0 );
 }
 
-#if defined RTCW_SP
+#if !defined RTCW_MP
 //----(SA)	added
 int Q_isnumeric( int c ) {
 	if ( c >= '0' && c <= '9' ) {
@@ -955,7 +1165,7 @@ int Q_stricmpn( const char *s1, const char *s2, int n ) {
 
 #if defined RTCW_SP
 			if ( Q_islower( c1 ) ) {
-#elif defined RTCW_MP
+#else
 			if ( c1 >= 'a' && c1 <= 'z' ) {
 #endif RTCW_XX
 
@@ -964,7 +1174,7 @@ int Q_stricmpn( const char *s1, const char *s2, int n ) {
 
 #if defined RTCW_SP
 			if ( Q_islower( c2 ) ) {
-#elif defined RTCW_MP
+#else
 			if ( c2 >= 'a' && c2 <= 'z' ) {
 #endif RTCW_XX
 
@@ -1006,15 +1216,25 @@ int Q_stricmp( const char *s1, const char *s2 ) {
 char *Q_strlwr( char *s1 ) {
 	char    *s;
 
+#if !defined RTCW_ET
 	s = s1;
 	while ( *s ) {
 		*s = tolower( *s );
 		s++;
 	}
+#else
+	for ( s = s1; *s; ++s ) {
+		if ( ( 'A' <= *s ) && ( *s <= 'Z' ) ) {
+			*s -= 'A' - 'a';
+		}
+	}
+#endif RTCW_XX
 	return s1;
 }
 
 char *Q_strupr( char *s1 ) {
+
+#if !defined RTCW_ET
 	char    *s;
 
 	s = s1;
@@ -1022,6 +1242,16 @@ char *Q_strupr( char *s1 ) {
 		*s = toupper( *s );
 		s++;
 	}
+#else
+	char* cp;
+
+	for ( cp = s1 ; *cp ; ++cp ) {
+		if ( ( 'a' <= *cp ) && ( *cp <= 'z' ) ) {
+			*cp += 'A' - 'a';
+		}
+	}
+#endif RTCW_XX
+
 	return s1;
 }
 
@@ -1081,8 +1311,53 @@ char *Q_CleanStr( char *string ) {
 	return string;
 }
 
+#if defined RTCW_ET
+// strips whitespaces and bad characters
+qboolean Q_isBadDirChar( char c ) {
+	char badchars[] = { ';', '&', '(', ')', '|', '<', '>', '*', '?', '[', ']', '~', '+', '@', '!', '\\', '/', ' ', '\'', '\"', '\0' };
+	int i;
+
+	for ( i = 0; badchars[i] != '\0'; i++ ) {
+		if ( c == badchars[i] ) {
+			return qtrue;
+		}
+	}
+
+	return qfalse;
+}
+
+char *Q_CleanDirName( char *dirname ) {
+	char*   d;
+	char*   s;
+
+	s = dirname;
+	d = dirname;
+
+	// clear trailing .'s
+	while ( *s == '.' ) {
+		s++;
+	}
+
+	while ( *s != '\0' ) {
+		if ( !Q_isBadDirChar( *s ) ) {
+			*d++ = *s;
+		}
+		s++;
+	}
+	*d = '\0';
+
+	return dirname;
+}
+#endif RTCW_XX
+
 void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... ) {
+
+#if !defined RTCW_ET
 	int len;
+#else
+	int ret;
+#endif RTCW_XX
+
 	va_list argptr;
 
 #if defined RTCW_SP
@@ -1103,6 +1378,8 @@ void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... ) {
 	len = vsprintf( bigbuffer,fmt,argptr );
 #elif defined RTCW_MP
 	len = Q_vsnprintf( dest, size, fmt, argptr );
+#else
+	ret = Q_vsnprintf( dest, size, fmt, argptr );
 #endif RTCW_XX
 
 	va_end( argptr );
@@ -1113,16 +1390,25 @@ void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... ) {
 	}
 #endif RTCW_XX
 
+#if !defined RTCW_ET
 	if ( len >= size ) {
 		Com_Printf( "Com_sprintf: overflow of %i in %i\n", len, size );
 	}
+#endif RTCW_XX
 
 #if defined RTCW_SP
 	Q_strncpyz( dest, bigbuffer, size );
 #endif RTCW_XX
 
+#if defined RTCW_ET
+	if ( ret == -1 ) {
+		Com_Printf( "Com_sprintf: overflow of %i bytes buffer\n", size );
+	}
+#endif RTCW_XX
+
 }
 
+#if !defined RTCW_ET
 // Ridah, ripped from l_bsp.c
 int Q_strncasecmp( char *s1, char *s2, int n ) {
 	int c1, c2;
@@ -1168,6 +1454,7 @@ int Q_strcasecmp( char *s1, char *s2 ) {
 	return Q_strncasecmp( s1, s2, 99999 );
 }
 // done.
+#endif RTCW_XX
 
 /*
 ============
@@ -1267,7 +1554,13 @@ char *Info_ValueForKey( const char *s, const char *key ) {
 	}
 
 	if ( strlen( s ) >= BIG_INFO_STRING ) {
+
+#if !defined RTCW_ET
 		Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring" );
+#else
+		Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring [%s] [%s]", s, key );
+#endif RTCW_XX
+
 	}
 
 	valueindex ^= 1;
@@ -1362,7 +1655,13 @@ void Info_RemoveKey( char *s, const char *key ) {
 	char    *o;
 
 	if ( strlen( s ) >= MAX_INFO_STRING ) {
+
+#if !defined RTCW_ET
 		Com_Error( ERR_DROP, "Info_RemoveKey: oversize infostring" );
+#else
+		Com_Error( ERR_DROP, "Info_RemoveKey: oversize infostring [%s] [%s]", s, key );
+#endif RTCW_XX
+
 	}
 
 	if ( strchr( key, '\\' ) ) {
@@ -1396,8 +1695,16 @@ void Info_RemoveKey( char *s, const char *key ) {
 		}
 		*o = 0;
 
+#if !defined RTCW_ET
 		if ( !strcmp( key, pkey ) ) {
 			strcpy( start, s );  // remove this part
+#else
+		if ( !Q_stricmp( key, pkey ) ) {
+			// rain - arguments to strcpy must not overlap
+			//strcpy (start, s);	// remove this part
+			memmove( start, s, strlen( s ) + 1 ); // remove this part
+#endif RTCW_XX
+
 			return;
 		}
 
@@ -1420,7 +1727,13 @@ void Info_RemoveKey_Big( char *s, const char *key ) {
 	char    *o;
 
 	if ( strlen( s ) >= BIG_INFO_STRING ) {
+
+#if !defined RTCW_ET
 		Com_Error( ERR_DROP, "Info_RemoveKey_Big: oversize infostring" );
+#else
+		Com_Error( ERR_DROP, "Info_RemoveKey_Big: oversize infostring [%s] [%s]", s, key );
+#endif RTCW_XX
+
 	}
 
 	if ( strchr( key, '\\' ) ) {
@@ -1454,7 +1767,12 @@ void Info_RemoveKey_Big( char *s, const char *key ) {
 		}
 		*o = 0;
 
+#if !defined RTCW_ET
 		if ( !strcmp( key, pkey ) ) {
+#else
+		if ( !Q_stricmp( key, pkey ) ) {
+#endif RTCW_XX
+
 			strcpy( start, s );  // remove this part
 			return;
 		}
@@ -1498,7 +1816,13 @@ void Info_SetValueForKey( char *s, const char *key, const char *value ) {
 	char newi[MAX_INFO_STRING];
 
 	if ( strlen( s ) >= MAX_INFO_STRING ) {
+
+#if !defined RTCW_ET
 		Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring" );
+#else
+		Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring [%s] [%s] [%s]", s, key, value );
+#endif RTCW_XX
+
 	}
 
 	if ( strchr( key, '\\' ) || strchr( value, '\\' ) ) {
@@ -1542,7 +1866,13 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 	char newi[BIG_INFO_STRING];
 
 	if ( strlen( s ) >= BIG_INFO_STRING ) {
+
+#if !defined RTCW_ET
 		Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring" );
+#else
+		Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring [%s] [%s] [%s]", s, key, value );
+#endif RTCW_XX
+
 	}
 
 	if ( strchr( key, '\\' ) || strchr( value, '\\' ) ) {

@@ -86,6 +86,7 @@ typedef struct campspot_s
 	struct campspot_s *next;
 } campspot_t;
 
+#if !defined RTCW_ET
 //FIXME: these are game specific
 typedef enum {
 	GT_FFA,             // free for all
@@ -114,6 +115,7 @@ typedef enum {
 #endif RTCW_XX
 
 } gameskill_t;
+#endif RTCW_XX
 
 typedef struct levelitem_s
 {
@@ -199,7 +201,17 @@ maplocation_t *maplocations = NULL;
 //camp spots
 campspot_t *campspots = NULL;
 //the game type
+
+#if !defined RTCW_ET
 int g_gametype;
+#else
+// START	Arnout changes, 28-08-2002.
+// removed gametype, added single player
+//int g_gametype;
+qboolean g_singleplayer;
+// END		Arnout changes, 28-08-2002.
+#endif RTCW_XX
+
 
 // Rafael gameskill
 int g_gameskill;
@@ -774,6 +786,8 @@ int BotGetLevelItemGoal( int index, char *name, bot_goal_t *goal ) {
 			continue;
 		}
 		//
+
+#if !defined RTCW_ET
 		if ( g_gametype == GT_SINGLE_PLAYER ) {
 			if ( li->notsingle ) {
 				continue;
@@ -787,6 +801,26 @@ int BotGetLevelItemGoal( int index, char *name, bot_goal_t *goal ) {
 				continue;
 			}
 		}
+#else
+// START	Arnout changes, 28-08-2002.
+// removed gametype, added single player
+		//if (g_gametype == GT_SINGLE_PLAYER) {
+		if ( g_singleplayer ) {
+			if ( li->notsingle ) {
+				continue;
+			}
+		}
+		// Gordon: GT_TEAM no longer exists, switching for GT_WOLF
+/*		else
+		if (g_gametype >= GT_WOLF) {
+			if (li->notteam) continue;
+		}
+		else {
+			if (li->notfree) continue;
+		}*/
+// END	Arnout changes, 28-08-2002.
+#endif RTCW_XX
+
 		//
 		if ( !Q_stricmp( name, itemconfig->iteminfo[li->iteminfo].name ) ) {
 			goal->areanum = li->goalareanum;
@@ -1151,6 +1185,8 @@ int BotChooseLTGItem( int goalstate, vec3_t origin, int *inventory, int travelfl
 	//go through the items in the level
 	for ( li = levelitems; li; li = li->next )
 	{
+
+#if !defined RTCW_ET
 		if ( g_gametype == GT_SINGLE_PLAYER ) {
 			if ( li->notsingle ) {
 				continue;
@@ -1164,6 +1200,26 @@ int BotChooseLTGItem( int goalstate, vec3_t origin, int *inventory, int travelfl
 				continue;
 			}
 		}
+#else
+// START	Arnout changes, 28-08-2002.
+// removed gametype, added single player
+		//if (g_gametype == GT_SINGLE_PLAYER) {
+		if ( g_singleplayer ) {
+			if ( li->notsingle ) {
+				continue;
+			}
+		}
+		// Gordon: GT_TEAM no longer exists, switching for GT_WOLF
+/*		else
+		if (g_gametype >= GT_WOLF) {
+			if (li->notteam) continue;
+		}
+		else {
+			if (li->notfree) continue;
+		}*/
+// END	Arnout changes, 28-08-2002.
+#endif RTCW_XX
+
 		//if the item is not in a possible goal area
 		if ( !li->goalareanum ) {
 			continue;
@@ -1314,6 +1370,8 @@ int BotChooseNBGItem( int goalstate, vec3_t origin, int *inventory, int travelfl
 	//go through the items in the level
 	for ( li = levelitems; li; li = li->next )
 	{
+
+#if !defined RTCW_ET
 		if ( g_gametype == GT_SINGLE_PLAYER ) {
 			if ( li->notsingle ) {
 				continue;
@@ -1327,6 +1385,25 @@ int BotChooseNBGItem( int goalstate, vec3_t origin, int *inventory, int travelfl
 				continue;
 			}
 		}
+#else
+// START	Arnout changes, 28-08-2002.
+// removed gametype, added single player
+		if ( g_singleplayer ) {
+			if ( li->notsingle ) {
+				continue;
+			}
+		}
+		// Gordon: GT_TEAM no longer exists, switching for GT_WOLF
+/*		else
+		if (g_gametype >= GT_WOLF) {
+			if (li->notteam) continue;
+		}
+		else {
+			if (li->notfree) continue;
+		}*/
+// END	Arnout changes, 28-08-2002.
+#endif RTCW_XX
+
 		//if the item is in a possible goal area
 		if ( !li->goalareanum ) {
 			continue;
@@ -1511,7 +1588,17 @@ int BotLoadItemWeights( int goalstate, char *filename ) {
 		return BLERR_CANNOTLOADITEMWEIGHTS;
 	}
 	//load the weight configuration
+
+#if defined RTCW_ET
+	PS_SetBaseFolder( "botfiles" );
+#endif RTCW_XX
+
 	gs->itemweightconfig = ReadWeightConfig( filename );
+
+#if defined RTCW_ET
+	PS_SetBaseFolder( "" );
+#endif RTCW_XX
+
 	if ( !gs->itemweightconfig ) {
 		botimport.Print( PRT_FATAL, "couldn't load weights\n" );
 		return BLERR_CANNOTLOADITEMWEIGHTS;
@@ -1589,15 +1676,44 @@ void BotFreeGoalState( int handle ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
+
+#if !defined RTCW_ET
 int BotSetupGoalAI( void ) {
+#else
+// START	Arnout changes, 28-08-2002.
+// removed gametype, added single player
+int BotSetupGoalAI( qboolean singleplayer ) {
+// END	Arnout changes, 28-08-2002.
+#endif RTCW_XX
+
 	char *filename;
 
 	//check if teamplay is on
+
+#if !defined RTCW_ET
 	g_gametype = LibVarValue( "g_gametype", "0" );
+#else
+// START	Arnout changes, 28-08-2002.
+// removed gametype, added single player
+//	g_gametype = LibVarValue("g_gametype", "0");
+	g_singleplayer = singleplayer;
+// END	Arnout changes, 28-08-2002.
+#endif RTCW_XX
+
 	//item configuration file
+
+#if defined RTCW_ET
+	PS_SetBaseFolder( "botfiles" );
+#endif RTCW_XX
+
 	filename = LibVarString( "itemconfig", "items.c" );
 	//load the item configuration
 	itemconfig = LoadItemConfig( filename );
+
+#if defined RTCW_ET
+	PS_SetBaseFolder( "" );
+#endif RTCW_XX
+
 	if ( !itemconfig ) {
 		botimport.Print( PRT_FATAL, "couldn't load item config\n" );
 		return BLERR_CANNOTLOADITEMCONFIG;
