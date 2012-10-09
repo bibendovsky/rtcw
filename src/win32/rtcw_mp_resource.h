@@ -27,16 +27,13 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-
 #ifndef RTCW_MP_RESOURCE_H
 #define RTCW_MP_RESOURCE_H
-
 
 
 #if defined RTCW_MP
     #define IDI_ICON1 (1)
 #endif
-
 
 
 #endif // RTCW_MP_RESOURCE_H

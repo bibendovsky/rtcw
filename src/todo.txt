@@ -22,3 +22,10 @@ Merge files:
 splines/qshared.cpp (SP/MP)
 splines/qshared.c (ET)
 
+-----------
+Find a bug (from original sources) which
+causes the engine to crash in full screen
+after finishing a "dam" level.
+
+------------
+Try to make full merge for non engine code (cgame, game, ui).

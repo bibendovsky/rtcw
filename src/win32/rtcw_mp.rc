@@ -27,21 +27,17 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-
 #if defined RTCW_MP
 
 
+#include <windows.h>
 
-#include <Windows.h>
-
-#include "resource.h"
-
+#include "rtcw_mp_resource.h"
 
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
-IDI_ICON1               ICON    DISCARDABLE     "rtcw_mp.ico"
-
+IDI_ICON1 ICON DISCARDABLE "rtcw_mp.ico"
 
 
 #endif // RTCW_MP

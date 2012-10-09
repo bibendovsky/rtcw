@@ -185,6 +185,8 @@ float Com_GetFlamethrowerRange( void );
 
 extern vec3_t playerlegsProneMins;
 extern vec3_t playerlegsProneMaxs;
+
+#define MAX_COMMANDMAP_LAYERS   4
 #endif RTCW_XX
 
 #if defined RTCW_SP
@@ -1333,7 +1335,7 @@ typedef enum {
 
 #if defined RTCW_SP
 	KEY_NUM_KEYS,
-#elif defined RTCW_MP
+#else
 	KEY_NUM_KEYS
 #endif RTCW_XX
 

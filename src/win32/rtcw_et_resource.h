@@ -27,10 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-
-#ifdef RTCW_ET_REOURCE_H
-#define RTCW_ET_REOURCE_H
-
+#ifndef RTCW_ET_RESOURCE_H
+#define RTCW_ET_RESOURCE_H
 
 
 #if defined RTCW_ET
@@ -38,5 +36,4 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 
-
-#endif // RTCW_ET_REOURCE_H
+#endif // RTCW_ET_RESOURCE_H

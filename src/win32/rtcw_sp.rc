@@ -31,17 +31,14 @@ If you have questions concerning this license or the applicable additional terms
 #if defined RTCW_SP
 
 
-
-#include <Windows.h>
+#include <windows.h>
 
 #include "rtcw_sp_resource.h"
 
 
-
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
-IDI_ICON1   ICON    DISCARDABLE "rtcw_sp.ico"
-
+IDI_ICON1 ICON DISCARDABLE "rtcw_sp.ico"
 
 
 #endif // RTCW_SP

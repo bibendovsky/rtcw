@@ -33,8 +33,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "win_local.h"
 
 /* BBi */
-#include "resource.h"
-/*
 #if defined RTCW_SP
     #include "rtcw_sp_resource.h"
 #elif defined RTCW_MP
@@ -42,7 +40,6 @@ If you have questions concerning this license or the applicable additional terms
 #elif defined RTCW_ET
     #include "rtcw_et_resource.h"
 #endif RTCW_XX
-*/
 /* BBi */
 
 #include <errno.h>
