@@ -24,3 +24,6 @@ after finishing a "dam" level.
 
 ------------
 Try to make full merge for non engine code (cgame, game, ui).
+
+------------
+Review ET's win_eh.cpp for exception model.
