@@ -2464,8 +2464,6 @@ static const int R_HUNK_SIZE = R_HUNK_MEGS * 1024 * 1024;
 
 void* R_Hunk_Begin ()
 {
-    int maxsize = R_HUNK_SIZE;
-
 #if defined RTCW_SP
     if (r_cache->integer == 0)
         return 0;
@@ -2473,15 +2471,15 @@ void* R_Hunk_Begin ()
 
     // reserve a huge chunk of memory, but don't commit any yet
     hunkcursize = 0;
-    hunkmaxsize = maxsize;
+    hunkmaxsize = R_HUNK_SIZE;
 
-    if (membase != 0) {
-        membase = new byte[maxsize];
+    if (membase == 0) {
+        membase = new byte[R_HUNK_SIZE];
 
         if (membase == 0)
             ::ri.Error (ERR_DROP, "R_Hunk_Begin: reserve failed");
 
-        ::memset (membase, 0, maxsize);
+        ::memset (membase, 0, R_HUNK_SIZE);
     }
 
     return membase;
@@ -2551,7 +2549,7 @@ void* R_Hunk_Begin ()
 void* R_Hunk_Alloc (
     int size)
 {
-    const int ROUND_MASK = (8 * sizeof (int)) - 1;
+    static const int ROUND_MASK = (8 * sizeof (int)) - 1;
 
     // round to cacheline
     size = (size + ROUND_MASK) & (~ROUND_MASK);

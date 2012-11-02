@@ -1682,9 +1682,15 @@ extern cvar_t   *r_ext_multitexture;
 extern cvar_t   *r_ext_compiled_vertex_array;
 extern cvar_t   *r_ext_texture_env_add;
 
-#if !defined RTCW_SP
+//BBi
+//#if !defined RTCW_SP
+//BBi
+
 extern cvar_t   *r_ext_texture_filter_anisotropic;  //DAJ from EF
-#endif // RTCW_XX
+
+//BBi
+//#endif // RTCW_XX
+//BBi
 
 //----(SA)	added
 
@@ -1694,7 +1700,10 @@ extern cvar_t   *r_ati_truform_tess;
 extern cvar_t   *r_ati_truform_pointmode;   //----(SA)
 extern cvar_t   *r_ati_truform_normalmode;  //----(SA)
 extern cvar_t   *r_ati_fsaa_samples;        //DAJ
-extern cvar_t   *r_ext_texture_filter_anisotropic;
+
+//BBi
+//extern cvar_t   *r_ext_texture_filter_anisotropic;
+//BBi
 #endif // RTCW_XX
 
 #if defined RTCW_ET
@@ -1750,9 +1759,15 @@ extern cvar_t  *r_glIgnoreWicked3D;
 extern cvar_t  *r_swapInterval;
 extern cvar_t  *r_textureMode;
 
-#if defined RTCW_ET
+//BBi
+//#if defined RTCW_ET
+//BBi
+
 extern cvar_t  *r_textureAnisotropy;
-#endif // RTCW_XX
+
+//BBi
+//#endif // RTCW_XX
+//BBi
 
 extern cvar_t  *r_offsetFactor;
 extern cvar_t  *r_offsetUnits;
@@ -1898,9 +1913,15 @@ void    GL_SetDefaultState( void );
 void    GL_SelectTexture( int unit );
 void    GL_TextureMode( const char *string );
 
-#if defined RTCW_ET
+//BBi
+//#if defined RTCW_ET
+//BBi
+
 void    GL_TextureAnisotropy( float anisotropy );
-#endif // RTCW_XX
+
+//BBi
+//#endif // RTCW_XX
+//BBi
 
 void    GL_CheckErrors( void );
 void    GL_State( unsigned long stateVector );

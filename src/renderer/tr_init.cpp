@@ -202,9 +202,15 @@ cvar_t  *r_clear;
 cvar_t  *r_swapInterval;
 cvar_t  *r_textureMode;
 
-#if defined RTCW_ET
+//BBi
+//#if defined RTCW_ET
+//BBi
+
 cvar_t  *r_textureAnisotropy;
-#endif // RTCW_XX
+
+//BBi
+//#endif // RTCW_XX
+//BBi
 
 cvar_t  *r_offsetFactor;
 cvar_t  *r_offsetUnits;
@@ -861,9 +867,15 @@ void GL_SetDefaultState( void ) {
 		GL_SelectTexture( 1 );
 		GL_TextureMode( r_textureMode->string );
 
-#if defined RTCW_ET
+//BBi
+//#if defined RTCW_ET
+//BBi
+
 		GL_TextureAnisotropy( r_textureAnisotropy->value );
-#endif // RTCW_XX
+
+//BBi
+//#endif // RTCW_XX
+//BBi
 
 		GL_TexEnv( GL_MODULATE );
 		::glDisable( GL_TEXTURE_2D );
@@ -873,9 +885,15 @@ void GL_SetDefaultState( void ) {
 	::glEnable( GL_TEXTURE_2D );
 	GL_TextureMode( r_textureMode->string );
 
-#if defined RTCW_ET
+//BBi
+//#if defined RTCW_ET
+//BBi
+
 	GL_TextureAnisotropy( r_textureAnisotropy->value );
-#endif // RTCW_XX
+
+//BBi
+//#endif // RTCW_XX
+//BBi
 
 	GL_TexEnv( GL_MODULATE );
 
@@ -1077,9 +1095,15 @@ void GfxInfo_f( void ) {
 //#endif // RTCW_XX
 //BBi
 
-#if defined RTCW_ET
+//BBi
+//#if defined RTCW_ET
+//BBi
+
 	ri.Printf( PRINT_ALL, "anisotropy: %s\n", r_textureAnisotropy->string );
-#endif // RTCW_XX
+
+//BBi
+//#endif // RTCW_XX
+//BBi
 
 //BBi
 	//ri.Printf( PRINT_ALL, "NV distance fog: %s\n", enablestrings[glConfig.NVFogAvailable != 0] );
@@ -1169,11 +1193,19 @@ void R_Register( void ) {
 #endif // RTCW_XX
 
 #if !defined RTCW_ET
-	r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE );       //DAJ valids are 1, 2, 4
-	r_ext_texture_filter_anisotropic    = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE );
+    //BBi
+	//r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE );       //DAJ valids are 1, 2, 4
+    r_ati_fsaa_samples = ::ri.Cvar_Get ("r_ati_fsaa_samples", "0", CVAR_ARCHIVE);
+	//r_ext_texture_filter_anisotropic    = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE );
+    r_ext_texture_filter_anisotropic = ::ri.Cvar_Get ("r_ext_texture_filter_anisotropic", "1", CVAR_ARCHIVE);
+    //BBi
 #else
-	r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE | CVAR_UNSAFE );        //DAJ valids are 1, 2, 4
-	r_ext_texture_filter_anisotropic    = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+    //BBi
+	//r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE | CVAR_UNSAFE );        //DAJ valids are 1, 2, 4
+    r_ati_fsaa_samples = ::ri.Cvar_Get ("r_ati_fsaa_samples", "0", CVAR_ARCHIVE | CVAR_UNSAFE);
+	//r_ext_texture_filter_anisotropic    = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+    r_ext_texture_filter_anisotropic = ::ri.Cvar_Get ("r_ext_texture_filter_anisotropic", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
+    //BBi
 #endif // RTCW_XX
 
 #if defined RTCW_SP
@@ -1352,16 +1384,18 @@ void R_Register( void ) {
 	r_ignoreFastPath = ri.Cvar_Get( "r_ignoreFastPath", "0", CVAR_ARCHIVE | CVAR_LATCH ); // ydnar: use fast path by default
 #endif // RTCW_XX
 
-#if !defined RTCW_SP
-#if MAC_STVEF_HM || MAC_WOLF2_MP
-
-#if !defined RTCW_ET
-	r_ext_texture_filter_anisotropic = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE | CVAR_LATCH ); //DAJ
-#endif // RTCW_XX
-
-	r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE );       //DAJ valids are 1, 2, 4
-#endif
-#endif // RTCW_XX
+//BBi
+//#if !defined RTCW_SP
+//#if MAC_STVEF_HM || MAC_WOLF2_MP
+//
+//#if !defined RTCW_ET
+//	r_ext_texture_filter_anisotropic = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE | CVAR_LATCH ); //DAJ
+//#endif // RTCW_XX
+//
+//	r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE );       //DAJ valids are 1, 2, 4
+//#endif
+//#endif // RTCW_XX
+//BBi
 
 	//
 	// temporary latched variables that can only change over a restart
@@ -1426,9 +1460,15 @@ void R_Register( void ) {
 	r_finish = ri.Cvar_Get( "r_finish", "0", CVAR_ARCHIVE );
 	r_textureMode = ri.Cvar_Get( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE );
 
-#if defined RTCW_ET
+//BBi
+//#if defined RTCW_ET
+//BBi
+
 	r_textureAnisotropy = ri.Cvar_Get( "r_textureAnisotropy", "1.0", CVAR_ARCHIVE );
-#endif // RTCW_XX
+
+//BBi
+//#endif // RTCW_XX
+//BBi
 
 	r_swapInterval = ri.Cvar_Get( "r_swapInterval", "0", CVAR_ARCHIVE );
 #ifdef __MACOS__

@@ -630,7 +630,10 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 //#endif // RTCW_XX
 //BBi
 
-#if defined RTCW_ET
+//BBi
+//#if defined RTCW_ET
+//BBi
+
 	//
 	// anisotropic filtering stuff
 	//
@@ -639,7 +642,10 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		GL_TextureAnisotropy( r_textureAnisotropy->value );
 		r_textureAnisotropy->modified = qfalse;
 	}
-#endif // RTCW_XX
+
+//BBi
+//#endif // RTCW_XX
+//BBi
 
 	//
 	// NVidia stuff

@@ -58,9 +58,15 @@ static unsigned char s_gammatable[256];
 int gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int gl_filter_max = GL_LINEAR;
 
-#if defined RTCW_ET
-float gl_anisotropy = 1.0;
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_ET
+//BBi
+
+float gl_anisotropy = 1.0F;
+
+//BBi
+//#endif // RTCW_XX
+//BBi
 
 #define FILE_HASH_SIZE      4096
 static image_t*        hashTable[FILE_HASH_SIZE];
@@ -259,7 +265,10 @@ void GL_TextureMode( const char *string ) {
 	}
 }
 
-#if defined RTCW_ET
+//BBi
+//#if defined RTCW_ET
+//BBi
+
 /*
 ===============
 GL_TextureAnisotropy
@@ -289,7 +298,10 @@ void GL_TextureAnisotropy( float anisotropy ) {
 		::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, gl_anisotropy );
 	}
 }
-#endif // RTCW_XX
+
+//BBi
+//#endif // RTCW_XX
+//BBi
 
 /*
 ===============
@@ -1119,11 +1131,17 @@ done:
 
 	}
 
-#if defined RTCW_ET
+//BBi
+//#if defined RTCW_ET
+//BBi
+
 	if ( glConfig.anisotropicAvailable ) {
 		::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, gl_anisotropy );
 	}
-#endif // RTCW_XX
+
+//BBi
+//#endif // RTCW_XX
+//BBi
 
 	GL_CheckErrors();
 

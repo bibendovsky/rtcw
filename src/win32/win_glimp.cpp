@@ -1858,7 +1858,10 @@ static void GLW_InitExtensions( void ) {
 //#endif // RTCW_XX
 //BBi
 
-#if defined RTCW_ET
+//BBi
+//#if defined RTCW_ET
+//BBi
+
     //BBi
 	//// GL_EXT_texture_filter_anisotropic
 	//if ( Q_stristr( glConfig.extensions_string, "GL_EXT_texture_filter_anisotropic" ) ) {
@@ -1877,7 +1880,7 @@ static void GLW_InitExtensions( void ) {
     // GL_EXT_texture_filter_anisotropic
     if (GLEW_EXT_texture_filter_anisotropic != 0) {
         if (r_ext_texture_filter_anisotropic->integer != 0) {
-            glConfig.anisotropicAvailable = qtrue;
+            glConfig.anisotropicAvailable = true;
             ::ri.Printf (PRINT_ALL, "...using GL_EXT_texture_filter_anisotropic\n");
         } else {
             ::ri.Printf (PRINT_ALL, "...ignoring GL_EXT_texture_filter_anisotropic\n");
@@ -1888,7 +1891,10 @@ static void GLW_InitExtensions( void ) {
         ::ri.Cvar_Set ("r_ext_texture_filter_anisotropic", "0");
     }
     //BBi
-#endif // RTCW_XX
+
+//BBi
+//#endif // RTCW_XX
+//BBi
 }
 
 #if defined RTCW_ET
