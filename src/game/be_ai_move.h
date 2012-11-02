@@ -65,7 +65,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #if defined RTCW_ET
 #define MOVERESULT_DIRECTMOVE           512     // direct movement
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //
 #define MAX_AVOIDREACH                  1
@@ -89,7 +89,7 @@ typedef struct bot_initmove_s
 
 #if defined RTCW_ET
 	int areanum;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } bot_initmove_t;
 

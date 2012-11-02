@@ -37,8 +37,8 @@ If you have questions concerning this license or the applicable additional terms
  *****************************************************************************/
 
 #if defined RTCW_ET
-#include "../game/be_aas.h"
-#endif RTCW_XX
+#include "be_aas.h"
+#endif // RTCW_XX
 
 #define BOTLIB_API_VERSION      2
 
@@ -67,7 +67,7 @@ typedef void ( *BotPolyFunc )( int color, int numPoints, float *points );
 #define NUM_BOTGAMEENTITIES 384
 
 #define BLOCKINGFLAG_MOVER  ( ~0x7fffffff )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //debug line colors
 #define LINECOLOR_NONE          -1
@@ -145,7 +145,7 @@ typedef void ( *BotPolyFunc )( int color, int numPoints, float *points );
 // START	xkan, 9/16/2002
 #define ACTION_PRONE            16384
 // END		xkan, 9/16/2002
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //the bot input, will be converted to an usercmd_t
 typedef struct bot_input_s
@@ -187,7 +187,7 @@ typedef struct bsp_trace_s
 
 #define BSPTRACE
 #endif  // BSPTRACE
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //entity state
 typedef struct bot_entitystate_s
@@ -239,7 +239,7 @@ typedef struct botlib_import_s
 
 #if !defined RTCW_SP
 	void ( *FreeZoneMemory )( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	void        *( *HunkAlloc )( int size );
 	//file system access
@@ -257,13 +257,13 @@ typedef struct botlib_import_s
 
 #if defined RTCW_ET
 	bot_debugpoly_t*    ( *DebugPolygonGetFree )( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	void ( *DebugPolygonDelete )( int id );
 
 #if defined RTCW_ET
 	void ( *DebugPolygonDeletePointer )( bot_debugpoly_t* pPoly );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	//
 	// Ridah, Cast AI stuff
@@ -275,7 +275,7 @@ typedef struct botlib_import_s
 #else
 	qboolean ( *BotVisibleFromPos )(   vec3_t srcpos, int srcnum, vec3_t destpos, int destnum, qboolean updateVisPos );
 	qboolean ( *BotCheckAttackAtPos )( int entnum, int enemy, vec3_t pos, qboolean ducking, qboolean allowHitWorld );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// done.
 
@@ -287,7 +287,7 @@ typedef struct botlib_import_s
 
 	// Gordon: direct hookup into rendering, stop using this silly debugpoly faff
 	void ( *BotDrawPolygon )( int color, int numPoints, float *points );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } botlib_import_t;
 
@@ -313,7 +313,7 @@ typedef struct aas_export_s
 	int ( *AAS_BBoxAreas )( vec3_t absmins, vec3_t absmaxs, int *areas, int maxareas );
 	void ( *AAS_AreaCenter )( int areanum, vec3_t center );
 	qboolean ( *AAS_AreaWaypoint )( int areanum, vec3_t center );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	//--------------------------------------------
 	// be_aas_bspq3.c
@@ -331,7 +331,7 @@ typedef struct aas_export_s
 
 #if defined RTCW_ET
 	int ( *AAS_AreaLadder )( int areanum );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	//--------------------------------------------
 	// be_aas_route.c
@@ -359,11 +359,11 @@ typedef struct aas_export_s
 
 #if defined RTCW_SP
 	qboolean ( *AAS_GetRouteFirstVisPos )( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 	void ( *AAS_SetAASBlockingEntity )( vec3_t absmin, vec3_t absmax, qboolean blocking );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	int ( *AAS_ListAreasInRange )( vec3_t srcpos, int srcarea, float range, int travelflags, vec3_t *outareas, int maxareas );
@@ -375,7 +375,7 @@ typedef struct aas_export_s
 	void ( *AAS_SetAASBlockingEntity )( vec3_t absmin, vec3_t absmax, int blocking );
 	int ( *AAS_NearestHideArea )( int srcnum, vec3_t origin, int areanum, int enemynum, vec3_t enemyorigin, int enemyareanum, int travelflags, float maxdist, vec3_t distpos );
 	void ( *AAS_RecordTeamDeathArea )( vec3_t srcpos, int srcarea, int team, int teamCount, int travelflags );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// done.
 
@@ -409,7 +409,7 @@ typedef struct ea_export_s
 
 #if defined RTCW_ET
 	void ( *EA_Walk )( int client );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	void ( *EA_MoveUp )( int client );
 	void ( *EA_MoveDown )( int client );
@@ -422,7 +422,7 @@ typedef struct ea_export_s
 
 #if defined RTCW_ET
 	void ( *EA_Prone )( int client );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	//send regular input to the server
 	void ( *EA_EndRegular )( int client, float thinktime );
@@ -544,7 +544,7 @@ typedef struct botlib_export_s
 	int ( *BotLibSetup )( void );
 #else
 	int ( *BotLibSetup )( qboolean singleplayer );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	//shutdown the bot library, returns BLERR_
 	int ( *BotLibShutdown )( void );
@@ -558,7 +558,7 @@ typedef struct botlib_export_s
 
 #if defined RTCW_ET
 	void ( *PC_RemoveAllGlobalDefines )( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int ( *PC_LoadSourceHandle )( const char *filename );
 	int ( *PC_FreeSourceHandle )( int handle );
@@ -567,7 +567,7 @@ typedef struct botlib_export_s
 
 #if defined RTCW_ET
 	void ( *PC_UnreadLastTokenHandle )( int handle );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 	//start a frame in the bot library

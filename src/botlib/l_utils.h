@@ -43,7 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef MAX_PATH // LBO 1/25/05
 #define MAX_PATH                MAX_QPATH
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define Maximum( x,y )            ( x > y ? x : y )
 #define Minimum( x,y )            ( x < y ? x : y )

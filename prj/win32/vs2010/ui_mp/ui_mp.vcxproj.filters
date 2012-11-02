@@ -15,34 +15,34 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\game_mp\bg_misc.c">
+    <ClCompile Include="..\..\..\..\src\game\q_math.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\game\q_math.c">
+    <ClCompile Include="..\..\..\..\src\game\q_shared.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\game\q_shared.c">
+    <ClCompile Include="..\..\..\..\src\game_mp\bg_misc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ui_mp\ui_atoms.c">
+    <ClCompile Include="..\..\..\..\src\ui_mp\ui_atoms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ui_mp\ui_gameinfo.c">
+    <ClCompile Include="..\..\..\..\src\ui_mp\ui_gameinfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ui_mp\ui_main.c">
+    <ClCompile Include="..\..\..\..\src\ui_mp\ui_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ui_mp\ui_players.c">
+    <ClCompile Include="..\..\..\..\src\ui_mp\ui_players.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ui_mp\ui_shared.c">
+    <ClCompile Include="..\..\..\..\src\ui_mp\ui_shared.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ui_mp\ui_syscalls.c">
+    <ClCompile Include="..\..\..\..\src\ui_mp\ui_syscalls.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ui_mp\ui_util.c">
+    <ClCompile Include="..\..\..\..\src\ui_mp\ui_util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

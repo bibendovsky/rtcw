@@ -48,7 +48,7 @@ If you have questions concerning this license or the applicable additional terms
 //#define	CS_SCORES			32
 //#define	CS_MODELS			(CS_SCORES+MAX_CLIENTS)
 //#define	CS_SOUNDS			(CS_MODELS+MAX_MODELS)
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define DF_AASENTNUMBER( x )      ( x - ( *aasworlds ).entities )
 #define DF_NUMBERAASENT( x )      ( &( *aasworlds ).entities[x] )
@@ -127,7 +127,7 @@ typedef struct aas_settings_s
 
 #if !defined RTCW_MP
 	qboolean sv_allowladders;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } aas_settings_t;
 
@@ -277,7 +277,7 @@ typedef struct aas_s
 
 	// How many items are in the PQ
 	int PQ_size;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	//vis data
 	byte *decompressedvis;
@@ -298,7 +298,7 @@ typedef struct aas_s
 	byte    *teamDeathCount;
 	// RF, areas that are influenced by a death count
 	byte    *teamDeathAvoid;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } aas_t;
 

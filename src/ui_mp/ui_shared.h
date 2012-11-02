@@ -30,16 +30,12 @@ If you have questions concerning this license or the applicable additional terms
 #define __UI_SHARED_H
 
 
-#include "../game/q_shared.h"
-#include "../cgame/tr_types.h"
+#include "q_shared.h"
+#include "tr_types.h"
 #include "keycodes.h"
-
 // TTimo case sensitivity
+#include "menudef.h"
 
-/* BBi */
-/* #include "../../MAIN/ui_mp/menudef.h" */
-#include "../ui_mp/menudef.h"
-/* BBi */
 
 #define MAX_MENUNAME 32
 #define MAX_ITEMTEXT 64

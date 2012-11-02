@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #if defined RTCW_SP
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // g_public.h -- game module information visible to server
 
@@ -47,11 +47,11 @@ If you have questions concerning this license or the applicable additional terms
 // Wolfenstein
 #define SVF_CASTAI              0x00000010
 // done.
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 #define SVF_POW                 0x00000010  // Gordon: stole SVF_CASTAI as it's no longer used
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define SVF_BROADCAST           0x00000020  // send to all connected clients
 #define SVF_PORTAL              0x00000040  // merge a second pvs at origin2 into snapshots
@@ -59,11 +59,11 @@ If you have questions concerning this license or the applicable additional terms
 #if !defined RTCW_ET
 #define SVF_USE_CURRENT_ORIGIN  0x00000080  // entity->r.currentOrigin instead of entity->s.origin
 											// for link position (missiles and movers)
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 #define SVF_BLANK               0x00000080  // Gordon: removed SVF_USE_CURRENT_ORIGIN as it plain doesnt do anything
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // Ridah
 #define SVF_NOFOOTSTEPS         0x00000100
@@ -86,7 +86,7 @@ If you have questions concerning this license or the applicable additional terms
 #define SVF_IGNOREBMODELEXTENTS     0x00004000  // just use origin for in pvs check for snapshots, ignore the bmodel extents
 #define SVF_SELF_PORTAL             0x00008000  // use self->origin2 as portal
 #define SVF_SELF_PORTAL_EXCLUSIVE   0x00010000  // use self->origin2 as portal and DONT add self->origin PVS ents
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //===============================================================
 
@@ -94,7 +94,7 @@ If you have questions concerning this license or the applicable additional terms
 #define MAX_TEAM_LANDMINES  10
 
 typedef qboolean ( *addToSnapshotCallback )( int entityNum, int clientNum );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef struct {
 
@@ -102,7 +102,7 @@ typedef struct {
 	entityState_t s;                // communicated by server to clients
 #else
 //	entityState_t	s;				// communicated by server to clients
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	qboolean linked;                // qfalse if not in any good cluster
 	int linkcount;
@@ -135,11 +135,11 @@ typedef struct {
 
 #if !defined RTCW_SP
 	int worldflags;             // DHM - Nerve
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	qboolean snapshotCallback;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } entityShared_t;
 
@@ -170,7 +170,7 @@ typedef enum {
 #if defined RTCW_SP
 	G_ENDGAME,      // ( void );	//----(SA)	added
 	// exit to main menu and start "endgame" menu
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	G_MILLISECONDS, // ( void );
 	// get current time for profiling reasons
@@ -187,7 +187,7 @@ typedef enum {
 
 #if defined RTCW_ET
 	G_CVAR_LATCHEDVARIABLESTRINGBUFFER,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	G_ARGC,         // ( void );
 	// ClientCommand and ServerCommand parameter access
@@ -276,7 +276,7 @@ typedef enum {
 	G_BOT_ALLOCATE_CLIENT,  // ( void );
 #else
 	G_BOT_ALLOCATE_CLIENT,  // ( int clientNum );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	G_BOT_FREE_CLIENT,  // ( int clientNum );
 
@@ -309,7 +309,7 @@ typedef enum {
 
 	G_REGISTERSOUND,    // xkan, 10/28/2002 - register the sound
 	G_GET_SOUND_LENGTH, // xkan, 10/28/2002 - get the length of the sound
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	BOTLIB_SETUP = 200,             // ( void );
 	BOTLIB_SHUTDOWN,                // ( void );
@@ -345,7 +345,7 @@ typedef enum {
 	BOTLIB_AAS_BBOX_AREAS,
 	BOTLIB_AAS_AREA_CENTER,
 	BOTLIB_AAS_AREA_WAYPOINT,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	BOTLIB_AAS_POINT_CONTENTS,
 	BOTLIB_AAS_NEXT_BSP_ENTITY,
@@ -358,7 +358,7 @@ typedef enum {
 
 #if defined RTCW_ET
 	BOTLIB_AAS_AREA_LADDER,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	BOTLIB_AAS_AREA_TRAVEL_TIME_TO_GOAL_AREA,
 
@@ -374,11 +374,11 @@ typedef enum {
 #else
 	//BOTLIB_AAS_RT_GETHIDEPOS,
 	//BOTLIB_AAS_FINDATTACKSPOTWITHINRANGE,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 	BOTLIB_AAS_GETROUTEFIRSTVISPOS,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	BOTLIB_AAS_NEARESTHIDEAREA,
@@ -386,13 +386,13 @@ typedef enum {
 	BOTLIB_AAS_AVOIDDANGERAREA,
 	BOTLIB_AAS_RETREAT,
 	BOTLIB_AAS_ALTROUTEGOALS,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	BOTLIB_AAS_SETAASBLOCKINGENTITY,
 
 #if defined RTCW_ET
 	BOTLIB_AAS_RECORDTEAMDEATHAREA,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// done.
 
@@ -417,7 +417,7 @@ typedef enum {
 
 #if defined RTCW_ET
 	BOTLIB_EA_WALK,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	BOTLIB_EA_MOVE_UP,
 	BOTLIB_EA_MOVE_DOWN,
@@ -432,7 +432,7 @@ typedef enum {
 	// START	xkan, 9/16/2002
 	BOTLIB_EA_PRONE,
 	// END		xkan, 9/16/2002
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	BOTLIB_EA_END_REGULAR,
 	BOTLIB_EA_GET_INPUT,
@@ -539,7 +539,7 @@ typedef enum {
 	BOTLIB_PC_SOURCE_FILE_AND_LINE
 #else
 	BOTLIB_PC_SOURCE_FILE_AND_LINE,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	BOTLIB_PC_UNREAD_TOKEN,
@@ -550,7 +550,7 @@ typedef enum {
 	G_SENDMESSAGE,
 	G_MESSAGESTATUS,
 	// -zinx
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } gameImport_t;
 
@@ -620,7 +620,7 @@ typedef enum {
 	// zinx
 	GAME_MESSAGERECEIVED,           // ( int cno, const char *buf, int buflen, int commandTime );
 	// -zinx
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } gameExport_t;
 

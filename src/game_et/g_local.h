@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "bg_public.h"
 #include "g_public.h"
 
-#include "../game/be_aas.h"
+#include "be_aas.h"
 
 //==================================================================
 

@@ -42,7 +42,7 @@ void S_UpdateThread( void );
 
 #if defined RTCW_ET
 void S_Reload( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // if origin is NULL, the sound will be dynamically sourced from the entity
 
@@ -54,13 +54,13 @@ void S_StartLocalSound( sfxHandle_t sfx, int channelNum );
 void S_StartSound( vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx, int volume );
 void S_StartSoundEx( vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx, int flags, int volume );
 void S_StartLocalSound( sfxHandle_t sfx, int channelNum, int volume );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_MP
 void S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime );
 #else
 void S_StartBackgroundTrack( const char *intro, const char *loop );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void S_StopBackgroundTrack( void );
 
@@ -72,26 +72,26 @@ void S_FadeStreamingSound( float targetvol, int time, int ssNum );  //----(SA)	a
 void S_FadeAllSounds( float targetvol, int time );    //----(SA)	added
 #else
 void S_FadeAllSounds( float targetvol, int time, qboolean stopsounds );   //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 #if !defined RTCW_ET
 void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int channel, int attenuation );
 #else
 float S_StartStreamingSound( const char *intro, const char *loop, int entnum, int channel, int attenuation );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void S_StopStreamingSound( int index );
 
 #if !defined RTCW_MP
 void S_StopEntStreamingSound( int entNum ); //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 void S_AddLoopSounds( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // cinematics and voice-over-network will send raw samples
 // 1.0 volume will be direct output of source samples
@@ -106,7 +106,7 @@ void S_ClearLoopingSounds( void );
 
 #if !defined RTCW_MP
 void S_ClearSounds( qboolean clearStreaming, qboolean clearMusic ); //----(SA)	modified
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, const int range, sfxHandle_t sfxHandle, int volume );
@@ -115,7 +115,7 @@ void S_StopLoopingSound( int entityNum );
 #else
 void S_AddLoopingSound( const vec3_t origin, const vec3_t velocity, const int range, sfxHandle_t sfxHandle, int volume, int soundTime );
 void S_AddRealLoopingSound( const vec3_t origin, const vec3_t velocity, const int range, sfxHandle_t sfxHandle, int volume, int soundTime );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #ifdef DOOMSOUND    ///// (SA) DOOMSOUND
 void S_ClearSoundBuffer( void );
@@ -129,7 +129,7 @@ void S_UpdateEntityPosition( int entityNum, const vec3_t origin );
 
 #if defined RTCW_ET
 void S_Update_Debug( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void S_Update( void );
 
@@ -156,12 +156,12 @@ typedef struct {
 	int left;           // the final values will be clamped to +/- 0x00ffff00 and shifted down
 	int right;
 } portable_samplepair_t;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 int S_GetSoundLength( sfxHandle_t sfxHandle );
 int S_GetCurrentSoundTime( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #endif  // __snd_public_h__
 

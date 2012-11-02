@@ -65,11 +65,11 @@ If you have questions concerning this license or the applicable additional terms
 											// animation without needing to know the frame count
 #define RF_HILIGHT          0x000100        // more than RF_MINLIGHT.  For when an object is "Highlighted" (looked at/training identification/etc)
 #define RF_BLINK            0x000200        // eyes in 'blink' state
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 #define RF_FORCENOLOD       0x000400
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // refdef flags
 #define RDF_NOWORLDMODEL    1       // used for player configuration screen
@@ -80,7 +80,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #if defined RTCW_SP
 #define RDF_DRAWSKYBOX      16      // the above marks a scene as being a 'portal sky'.  this flag says to draw it or not
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //----(SA)
 #define RDF_UNDERWATER      ( 1 << 4 )  // so the renderer knows to use underwater fog when the player is underwater
@@ -122,7 +122,7 @@ typedef enum {
 #if defined RTCW_SP
 #define REFLAG_ZOMBIEFX     2   // special post-tesselation processing for zombie skin
 #define REFLAG_ZOMBIEFX2    4   // special post-tesselation processing for zombie skin
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define REFLAG_FORCE_LOD    8   // force a low lod
 #define REFLAG_ORIENT_LOD   16  // on LOD switch, align the model to the player's camera
@@ -131,7 +131,7 @@ typedef enum {
 #if defined RTCW_SP
 #define REFLAG_SCALEDSPHERECULL 64  // on LOD switch, align the model to the player's camera
 #define REFLAG_FULL_LOD     8   // force a FULL lod
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef struct {
 	refEntityType_t reType;
@@ -151,17 +151,17 @@ typedef struct {
 
 #if defined RTCW_ET
 	qhandle_t frameModel;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int torsoFrame;                 // skeletal torso can have frame independant of legs frame
 
 #if defined RTCW_ET
 	qhandle_t torsoFrameModel;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 	vec3_t scale;       //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// previous data for frame interpolation
 	float oldorigin[3];             // also used as MODEL_BEAM's "to"
@@ -169,13 +169,13 @@ typedef struct {
 
 #if defined RTCW_ET
 	qhandle_t oldframeModel;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int oldTorsoFrame;
 
 #if defined RTCW_ET
 	qhandle_t oldTorsoFrameModel;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	float backlerp;                 // 0.0 = current, 1.0 = old
 	float torsoBacklerp;
@@ -252,7 +252,7 @@ typedef struct {
 
 #if defined RTCW_SP
 	int dirty;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } glfog_t;
 
@@ -338,7 +338,7 @@ typedef struct {
 
 #else
 	char extensions_string[MAX_STRING_CHARS * 4];                  // TTimo - bumping, some cards have a big extension string
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int maxTextureSize;                             // queried from GL
 	int maxActiveTextures;                          // multitexture ability
@@ -382,7 +382,7 @@ typedef struct {
 
 #if !defined RTCW_ET
 	qboolean textureFilterAnisotropicAvailable;                 //DAJ
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } glconfig_t;
 
@@ -393,7 +393,7 @@ typedef struct {
 
 #if defined RTCW_MP
 // show_bug.cgi?id=524
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define OPENGL_DRIVER_NAME  "libGL.so.1"
 
@@ -425,6 +425,6 @@ typedef struct polyBuffer_s {
 	qhandle_t shader;
 } polyBuffer_t;
 // =========================================
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #endif  // __TR_TYPES_H

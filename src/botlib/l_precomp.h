@@ -174,7 +174,7 @@ typedef struct pc_token_s
 } pc_token_t;
 #endif //!_Q_SHARED_H
 #endif //BSPC
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //
 int PC_LoadSourceHandle( const char *filename );
@@ -185,5 +185,5 @@ void PC_CheckOpenSourceHandles( void );
 
 #if defined RTCW_ET
 void PC_UnreadLastTokenHandle( int handle );
-#endif RTCW_XX
+#endif // RTCW_XX
 

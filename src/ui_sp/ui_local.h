@@ -33,11 +33,11 @@ If you have questions concerning this license or the applicable additional terms
 //#include <ctype.h>
 //#include <limits.h>
 
-#include "../game/q_shared.h"
-#include "../cgame/tr_types.h"
+#include "q_shared.h"
+#include "tr_types.h"
 #include "ui_public.h"
 #include "keycodes.h"
-#include "../game/bg_public.h"
+#include "bg_public.h"
 #include "ui_shared.h"
 
 extern vmCvar_t ui_ffa_fraglimit;

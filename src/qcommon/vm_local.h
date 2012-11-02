@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "../game/q_shared.h"
+#include "q_shared.h"
 #include "qcommon.h"
 
 typedef enum {
@@ -143,7 +143,7 @@ struct vm_s {
 #if !defined RTCW_SP
 // fqpath member added 2/15/02 by T.Ray
 	char fqpath[MAX_QPATH + 1] ;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// for dynamic linked modules
 	void        *dllHandle;

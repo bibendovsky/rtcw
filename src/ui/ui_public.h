@@ -50,7 +50,7 @@ typedef enum {
 
 #if defined RTCW_ET
 	UI_CVAR_LATCHEDVARIABLESTRINGBUFFER,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	UI_CVAR_SETVALUE,
 	UI_CVAR_RESET,
@@ -62,14 +62,14 @@ typedef enum {
 
 #if defined RTCW_ET
 	UI_ADDCOMMAND,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	UI_FS_FOPENFILE,
 	UI_FS_READ,
 
 #if defined RTCW_SP
 	UI_FS_SEEK, //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	UI_FS_WRITE,
 	UI_FS_FCLOSEFILE,
@@ -78,7 +78,7 @@ typedef enum {
 
 #if defined RTCW_ET
 	UI_FS_COPYFILE,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	UI_R_REGISTERMODEL,
 	UI_R_REGISTERSKIN,
@@ -98,13 +98,13 @@ typedef enum {
 
 #if defined RTCW_ET
 	UI_R_DRAW2DPOLYS,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	UI_R_DRAWSTRETCHPIC,
 
 #if defined RTCW_ET
 	UI_R_DRAWROTATEDPIC,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	UI_UPDATESCREEN,        // 30
 	UI_CM_LERPTAG,
@@ -115,7 +115,7 @@ typedef enum {
 #if !defined RTCW_MP
 	UI_S_FADESTREAMINGSOUND,    //----(SA)	added
 	UI_S_FADEALLSOUNDS,         //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	UI_KEY_KEYNUMTOSTRINGBUF,
 	UI_KEY_GETBINDINGBUF,
@@ -123,7 +123,7 @@ typedef enum {
 
 #if defined RTCW_ET
 	UI_KEY_BINDINGTOKEYS,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	UI_KEY_ISDOWN,
 	UI_KEY_GETOVERSTRIKEMODE,
@@ -155,7 +155,7 @@ typedef enum {
 
 #if defined RTCW_ET
 	UI_PC_REMOVE_ALL_GLOBAL_DEFINES,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	UI_PC_LOAD_SOURCE,
 	UI_PC_FREE_SOURCE,
@@ -164,7 +164,7 @@ typedef enum {
 
 #if defined RTCW_ET
 	UI_PC_UNREAD_TOKEN,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	UI_S_STOPBACKGROUNDTRACK,
 	UI_S_STARTBACKGROUNDTRACK,
@@ -193,7 +193,7 @@ typedef enum {
 
 #if defined RTCW_ET
 	UI_LAN_SERVERISINFAVORITELIST,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	UI_CL_GETLIMBOSTRING,           // NERVE - SMF
 
@@ -204,13 +204,13 @@ typedef enum {
 	UI_CL_TRANSLATE_STRING,
 	UI_OPENURL,
 	UI_SET_PBSVSTATUS,              // TTimo
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 	UI_MEMSET = 100,
 #else
 	UI_MEMSET = 200,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	UI_MEMCPY,
 	UI_STRNCPY,
@@ -224,11 +224,11 @@ typedef enum {
 	UI_CEIL
 #else
 	UI_CEIL,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	UI_GETHUNKDATA
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } uiImport_t;
 
@@ -241,14 +241,14 @@ typedef enum {
 
 #if defined RTCW_SP
 	UIMENU_ENDGAME, //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	UIMENU_BAD_CD_KEY,
 	UIMENU_TEAM,
 
 #if defined RTCW_SP
 	UIMENU_PREGAME, //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	UIMENU_POSTGAME,
 	UIMENU_NOTEBOOK,
@@ -263,20 +263,20 @@ typedef enum {
 
 #if defined RTCW_MP
 	UIMENU_WM_QUICKMESSAGEALT,  // NERVE - SMF
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	UIMENU_WM_LIMBO,        // NERVE - SMF
 
 #if defined RTCW_SP
 	UIMENU_BRIEFING         //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_MP
 	UIMENU_WM_AUTOUPDATE        // NERVE - DHM
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } uiMenuCommand_t;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define SORT_HOST           0
 #define SORT_MAP            1
@@ -286,17 +286,17 @@ typedef enum {
 
 #if defined RTCW_MP
 #define SORT_PUNKBUSTER     5
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 #define SORT_SAVENAME       0
 #define SORT_SAVETIME       1
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 #define SORT_FILTERS        5
 #define SORT_FAVOURITES     6
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef enum {
 	UI_GETAPIVERSION = 0,   // system reserved
@@ -335,7 +335,7 @@ typedef enum {
 	UI_HASUNIQUECDKEY
 #else
 	UI_HASUNIQUECDKEY,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // if !overlay, the background will be drawn, otherwise it will be
 // overlayed over whatever the cgame has drawn.
@@ -345,11 +345,11 @@ typedef enum {
 	UI_CHECKEXECKEY     // NERVE - SMF
 #elif defined RTCW_ET
 	UI_CHECKEXECKEY,        // NERVE - SMF
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	UI_WANTSBINDKEYS,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 } uiExport_t;

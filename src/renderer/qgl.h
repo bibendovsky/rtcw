@@ -46,7 +46,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma warning (disable: 4032)
 #pragma warning (disable: 4201)
 #pragma warning (disable: 4214)
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #include <windows.h>
 #include <gl/gl.h>
@@ -69,7 +69,7 @@ If you have questions concerning this license or the applicable additional terms
 // some GL headers define that, but only partially
 // define and undefine so GL doesn't attempt anything
 #define GL_ARB_multitexture
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #include <GL/gl.h>
 #include <GL/glx.h>
@@ -79,12 +79,12 @@ If you have questions concerning this license or the applicable additional terms
 #if defined( __FX__ )
 #include <GL/fxmesa.h>
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 #undef GL_ARB_multitexture
 #include "glext.h"
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #elif defined( __FreeBSD__ ) // rb010123
 
@@ -181,7 +181,7 @@ typedef void ( APIENTRY * PFNGLCLIENTACTIVETEXTUREARBPROC )( GLenum target );
 #define GL_PN_TRIANGLES_POINT_MODE_CUBIC_ATI        0x87F6
 #define GL_PN_TRIANGLES_NORMAL_MODE_LINEAR_ATI      0x87F7
 #define GL_PN_TRIANGLES_NORMAL_MODE_QUADRATIC_ATI   0x87F8
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_MP
 #ifndef __MACOS__   //DAJ BUGFIX changed the numbers
@@ -205,7 +205,7 @@ typedef void ( APIENTRY * PFNGLCLIENTACTIVETEXTUREARBPROC )( GLenum target );
 #define GL_PN_TRIANGLES_NORMAL_MODE_LINEAR_ATI      0x87F7
 #define GL_PN_TRIANGLES_NORMAL_MODE_QUADRATIC_ATI   0x87F8
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 #define GL_PN_TRIANGLES_ATI                         0x6090
@@ -217,7 +217,7 @@ typedef void ( APIENTRY * PFNGLCLIENTACTIVETEXTUREARBPROC )( GLenum target );
 #define GL_PN_TRIANGLES_POINT_MODE_CUBIC_ATI        0x6096
 #define GL_PN_TRIANGLES_NORMAL_MODE_LINEAR_ATI      0x6097
 #define GL_PN_TRIANGLES_NORMAL_MODE_QUADRATIC_ATI   0x6098
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef void ( APIENTRY * PFNGLPNTRIANGLESIATIPROC )( GLenum pname, GLint param );
 typedef void ( APIENTRY * PFNGLPNTRIANGLESFATIPROC )( GLenum pname, GLfloat param );
@@ -253,7 +253,7 @@ typedef void ( APIENTRY * PFNGLPNTRIANGLESFATIPROC )( GLenum pname, GLfloat para
 #define GL_GENERATE_MIPMAP_SGIS           0x8191
 #define GL_GENERATE_MIPMAP_HINT_SGIS      0x8192
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // extensions will be function pointers on all platforms
 
@@ -686,7 +686,7 @@ extern int ( *qglXSwapIntervalSGI )( int interval );
 extern int ( *qglXGetVideoSyncSGI )( unsigned int *count );
 extern int ( *qglXWaitVideoSyncSGI )( int divisor, int remainder, unsigned int *count );
 extern const char * ( *qglXQueryExtensionsString )( Display * dpy, int screen );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #endif // __linux__ || __FreeBSD__ // rb010123
 

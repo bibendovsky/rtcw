@@ -42,7 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 #define SHADER_MAX_VERTEXES 1000 // JPW NERVE was 4000, 1000 in q3ta
 #else
 #define SHADER_MAX_VERTEXES 1025 // Arnout: 1024+1 (1 buffer for RB_EndSurface overflow check) // JPW NERVE was 4000, 1000 in q3ta
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define SHADER_MAX_INDEXES  ( 6 * SHADER_MAX_VERTEXES )
 
@@ -136,7 +136,7 @@ typedef struct _TargaHeader {
 #define MD3_MAX_LODS        1
 #else
 #define MD3_MAX_LODS        4
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define MD3_MAX_TRIANGLES   8192    // per surface
 #define MD3_MAX_VERTS       4096    // per surface
@@ -257,7 +257,7 @@ typedef struct {
 	int start;
 	int count;
 } tagHeaderExt_t;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // Ridah, mesh compression
 /*
@@ -779,7 +779,7 @@ typedef struct {
 
 	int ofsEnd;                     // end of file
 } mdxHeader_t;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 /*
 ==============================================================================
@@ -807,7 +807,7 @@ typedef struct {
 #else
 #define MAX_MAP_BRUSHES     16384
 #define MAX_MAP_ENTITIES    4096
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define MAX_MAP_ENTSTRING   0x40000
 #define MAX_MAP_SHADERS     0x400
@@ -819,7 +819,7 @@ typedef struct {
 #define MAX_MAP_PLANES      0x20000
 #else
 #define MAX_MAP_PLANES      0x40000
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define MAX_MAP_NODES       0x20000
 
@@ -827,7 +827,7 @@ typedef struct {
 #define MAX_MAP_BRUSHSIDES  0x20000
 #else
 #define MAX_MAP_BRUSHSIDES  0x100000
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define MAX_MAP_LEAFS       0x20000
 #define MAX_MAP_LEAFFACES   0x20000
@@ -966,7 +966,7 @@ typedef enum {
 #else
 	MST_FLARE,
 	MST_FOLIAGE
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } mapSurfaceType_t;
 

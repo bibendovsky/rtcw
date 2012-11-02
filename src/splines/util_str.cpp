@@ -40,14 +40,14 @@ If you have questions concerning this license or the applicable additional terms
 #undef tolower
 #undef toupper
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #ifdef _WIN32
 
 #if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
 #pragma warning(disable : 4244) // 'conversion' conversion from 'type1' to 'type2', possible loss of data
 #pragma warning(disable : 4710) // function 'blah' not inlined
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #endif
 
@@ -462,7 +462,7 @@ void idStr::snprintf
 
 #if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
 #pragma warning(disable : 4189) // local variable is initialized but not referenced
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #endif
 
@@ -815,13 +815,13 @@ void TestStringClass
 }
 
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #ifdef _WIN32
 
 #if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
 #pragma warning(default : 4189) // local variable is initialized but not referenced
 #pragma warning(disable : 4514) // unreferenced inline function has been removed
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #endif

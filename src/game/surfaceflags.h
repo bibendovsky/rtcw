@@ -59,7 +59,7 @@ If you have questions concerning this license or the applicable additional terms
 #define CONTENTS_AI_NOSIGHT     0x1000  // AI cannot see through this
 #define CONTENTS_CLIPSHOT       0x2000  // bullets hit this
 // RF, end
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define CONTENTS_MOVER          0x4000
 #define CONTENTS_AREAPORTAL     0x8000
@@ -89,7 +89,7 @@ If you have questions concerning this license or the applicable additional terms
 #define CONTENTS_NODROP         0x80000000  // don't leave bodies or items (death fog, lava)zz
 #elif defined RTCW_MP
 #define CONTENTS_NODROP         0x80000000  // don't leave bodies or items (death fog, lava)
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define SURF_NODAMAGE           0x1     // never give falling damage
 #define SURF_SLICK              0x2     // effects game physics
@@ -197,5 +197,5 @@ If you have questions concerning this license or the applicable additional terms
 #define SURF_MONSLICK_S         0x40000000
 
 #define SURF_LANDMINE           0x80000000  // ydnar: ok to place landmines on this surface
-#endif RTCW_XX
+#endif // RTCW_XX
 

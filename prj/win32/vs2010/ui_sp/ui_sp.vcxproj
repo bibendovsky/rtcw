@@ -40,9 +40,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">uix86</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
+    <ClCompile />
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
@@ -57,9 +55,7 @@
     <Bscmake />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
+    <ClCompile />
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
@@ -70,19 +66,19 @@
     <Bscmake />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\game_sp\bg_lib.c">
+    <ClCompile Include="..\..\..\..\src\game\q_math.cpp" />
+    <ClCompile Include="..\..\..\..\src\game\q_shared.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_sp\bg_lib.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\game_sp\bg_misc.c" />
-    <ClCompile Include="..\..\..\..\src\game\q_math.c" />
-    <ClCompile Include="..\..\..\..\src\game\q_shared.c" />
-    <ClCompile Include="..\..\..\..\src\ui_sp\ui_atoms.c" />
-    <ClCompile Include="..\..\..\..\src\ui_sp\ui_gameinfo.c" />
-    <ClCompile Include="..\..\..\..\src\ui_sp\ui_main.c" />
-    <ClCompile Include="..\..\..\..\src\ui_sp\ui_players.c" />
-    <ClCompile Include="..\..\..\..\src\ui_sp\ui_shared.c" />
-    <ClCompile Include="..\..\..\..\src\ui_sp\ui_syscalls.c" />
-    <ClCompile Include="..\..\..\..\src\ui_sp\ui_util.c" />
+    <ClCompile Include="..\..\..\..\src\game_sp\bg_misc.cpp" />
+    <ClCompile Include="..\..\..\..\src\ui_sp\ui_atoms.cpp" />
+    <ClCompile Include="..\..\..\..\src\ui_sp\ui_gameinfo.cpp" />
+    <ClCompile Include="..\..\..\..\src\ui_sp\ui_main.cpp" />
+    <ClCompile Include="..\..\..\..\src\ui_sp\ui_players.cpp" />
+    <ClCompile Include="..\..\..\..\src\ui_sp\ui_shared.cpp" />
+    <ClCompile Include="..\..\..\..\src\ui_sp\ui_syscalls.cpp" />
+    <ClCompile Include="..\..\..\..\src\ui_sp\ui_util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ui_sp.def" />

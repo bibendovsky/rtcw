@@ -41,7 +41,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;CGAMEDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CGAMEDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -59,7 +59,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;CGAMEDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CGAMEDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -70,38 +70,38 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\game_mp\bg_animation.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\bg_misc.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\bg_pmove.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\bg_slidemove.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_consolecmds.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_draw.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_drawtools.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_effects.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_ents.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_event.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_flamethrower.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_info.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_localents.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_main.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_marks.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_newDraw.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_particles.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_players.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_playerstate.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_predict.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_scoreboard.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_servercmds.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_snapshot.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_sound.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_spawn.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_syscalls.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_trails.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_view.c" />
-    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_weapons.c" />
-    <ClCompile Include="..\..\..\..\src\game\q_math.c" />
-    <ClCompile Include="..\..\..\..\src\game\q_shared.c" />
-    <ClCompile Include="..\..\..\..\src\ui_mp\ui_shared.c" />
+    <ClCompile Include="..\..\..\..\src\game\q_math.cpp" />
+    <ClCompile Include="..\..\..\..\src\game\q_shared.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\bg_animation.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\bg_misc.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\bg_pmove.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_consolecmds.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_draw.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_drawtools.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_effects.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_ents.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_event.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_flamethrower.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_info.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_localents.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_main.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_marks.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_newDraw.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_particles.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_players.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_playerstate.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_predict.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_scoreboard.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_servercmds.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_snapshot.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_sound.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_spawn.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_syscalls.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_trails.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_view.cpp" />
+    <ClCompile Include="..\..\..\..\src\cgame_mp\cg_weapons.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\bg_slidemove.cpp" />
+    <ClCompile Include="..\..\..\..\src\ui_mp\ui_shared.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\game_mp\bg_local.h" />

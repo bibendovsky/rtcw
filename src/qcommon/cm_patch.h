@@ -110,5 +110,5 @@ typedef struct {
 struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t *points );
 #else
 struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t *points, qboolean addBevels );
-#endif RTCW_XX
+#endif // RTCW_XX
 

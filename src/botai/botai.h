@@ -124,4 +124,4 @@ qboolean trap_InPVS( const vec3_t p1, const vec3_t p2 );
 int		trap_BotAllocateClient( int clientNum );
 void	trap_BotFreeClient( int clientNum );
 */
-#endif RTCW_XX
+#endif // RTCW_XX

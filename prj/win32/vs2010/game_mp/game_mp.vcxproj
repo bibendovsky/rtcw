@@ -41,7 +41,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;BUILDING_REF_GL;DEBUG;GAMEDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BUILDING_REF_GL;DEBUG;GAMEDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -60,7 +60,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;GAMEDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GAMEDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -72,58 +72,58 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_characters.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_debug.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_events.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_fight.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_func_attack.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_func_boss1.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_funcs.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_script.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_script_actions.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_script_ents.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_sight.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_think.c" />
-    <ClCompile Include="..\..\..\..\src\botai_mp\ai_chat.c" />
-    <ClCompile Include="..\..\..\..\src\botai_mp\ai_cmd.c" />
-    <ClCompile Include="..\..\..\..\src\botai_mp\ai_dmnet.c" />
-    <ClCompile Include="..\..\..\..\src\botai_mp\ai_dmq3.c" />
-    <ClCompile Include="..\..\..\..\src\botai_mp\ai_main.c" />
-    <ClCompile Include="..\..\..\..\src\botai_mp\ai_team.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\bg_animation.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\bg_misc.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\bg_pmove.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\bg_slidemove.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_active.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_alarm.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_antilag.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_bot.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_client.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_cmds.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_combat.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_items.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_main.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_mem.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_misc.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_missile.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_mover.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_props.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_save.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_script.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_script_actions.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_session.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_spawn.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_svcmds.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_syscalls.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_target.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_team.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_tramcar.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_trigger.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_utils.c" />
-    <ClCompile Include="..\..\..\..\src\game_mp\g_weapon.c" />
-    <ClCompile Include="..\..\..\..\src\game\q_math.c" />
-    <ClCompile Include="..\..\..\..\src\game\q_shared.c" />
+    <ClCompile Include="..\..\..\..\src\game\q_math.cpp" />
+    <ClCompile Include="..\..\..\..\src\game\q_shared.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_characters.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_debug.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_events.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_fight.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_func_attack.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_func_boss1.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_funcs.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_script.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_script_actions.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_script_ents.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_sight.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\ai_cast_think.cpp" />
+    <ClCompile Include="..\..\..\..\src\botai_mp\ai_chat.cpp" />
+    <ClCompile Include="..\..\..\..\src\botai_mp\ai_cmd.cpp" />
+    <ClCompile Include="..\..\..\..\src\botai_mp\ai_dmnet.cpp" />
+    <ClCompile Include="..\..\..\..\src\botai_mp\ai_dmq3.cpp" />
+    <ClCompile Include="..\..\..\..\src\botai_mp\ai_main.cpp" />
+    <ClCompile Include="..\..\..\..\src\botai_mp\ai_team.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\bg_animation.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\bg_misc.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\bg_pmove.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\bg_slidemove.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_active.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_alarm.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_antilag.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_bot.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_client.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_cmds.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_combat.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_items.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_main.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_mem.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_misc.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_missile.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_mover.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_props.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_save.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_script.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_script_actions.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_session.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_spawn.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_svcmds.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_syscalls.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_target.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_team.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_tramcar.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_trigger.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_utils.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\g_weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="game_mp.def" />

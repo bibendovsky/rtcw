@@ -65,7 +65,7 @@ If you have questions concerning this license or the applicable additional terms
 	#define _MAX_PATH               1024
 #else
 	#define _MAX_PATH               MAX_QPATH
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #endif
 

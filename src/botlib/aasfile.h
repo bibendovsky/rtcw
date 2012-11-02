@@ -107,7 +107,7 @@ If you have questions concerning this license or the applicable additional terms
 #define AREA_TEAM_ALLIES            64
 #define AREA_TEAM_AXIS_DISGUISED    128
 #define AREA_TEAM_ALLIES_DISGUISED  256
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define AREA_USEFORROUTING          1024
 
@@ -116,7 +116,7 @@ If you have questions concerning this license or the applicable additional terms
 #define AREA_AVOID_ALLIES           4096    // death area
 
 #define AREA_TEAM_FLAGS             ( AREA_TEAM_AXIS | AREA_TEAM_ALLIES | AREA_TEAM_AXIS_DISGUISED | AREA_TEAM_ALLIES_DISGUISED | AREA_AVOID_AXIS | AREA_AVOID_ALLIES )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //aas file header lumps
 #define AAS_LUMPS                   14

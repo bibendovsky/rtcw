@@ -15,43 +15,43 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\game_et\bg_campaign.c">
+    <ClCompile Include="..\..\..\..\src\game\q_math.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\game_et\bg_classes.c">
+    <ClCompile Include="..\..\..\..\src\game\q_shared.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\game_et\bg_misc.c">
+    <ClCompile Include="..\..\..\..\src\game_et\bg_campaign.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\game\q_math.c">
+    <ClCompile Include="..\..\..\..\src\game_et\bg_classes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\game\q_shared.c">
+    <ClCompile Include="..\..\..\..\src\game_et\bg_misc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ui_et\ui_atoms.c">
+    <ClCompile Include="..\..\..\..\src\ui_et\ui_atoms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ui_et\ui_gameinfo.c">
+    <ClCompile Include="..\..\..\..\src\ui_et\ui_gameinfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ui_et\ui_loadpanel.c">
+    <ClCompile Include="..\..\..\..\src\ui_et\ui_loadpanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ui_et\ui_main.c">
+    <ClCompile Include="..\..\..\..\src\ui_et\ui_util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ui_et\ui_players.c">
+    <ClCompile Include="..\..\..\..\src\ui_et\ui_syscalls.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ui_et\ui_shared.c">
+    <ClCompile Include="..\..\..\..\src\ui_et\ui_shared.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ui_et\ui_syscalls.c">
+    <ClCompile Include="..\..\..\..\src\ui_et\ui_players.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ui_et\ui_util.c">
+    <ClCompile Include="..\..\..\..\src\ui_et\ui_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

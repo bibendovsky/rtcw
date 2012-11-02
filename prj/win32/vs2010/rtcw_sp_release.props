@@ -1,11 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
-  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="UserMacros">
+    <VSID>vs2010</VSID>
+    <RootDir>$(SolutionDir)..\..\..\</RootDir>
+    <BinDir>$(RootDir)bin\win32\$(VSID)\</BinDir>
+    <LibDir>$(RootDir)lib\win32\$(VSID)\</LibDir>
+    <ObjDir>$(RootDir)obj\win32\$(VSID)\</ObjDir>
+    <SrcDir>$(RootDir)src\</SrcDir>
+  </PropertyGroup>
   <PropertyGroup>
-    <OutDir>$(SolutionDir)..\..\..\bin\win32\vs2010\sp_release\</OutDir>
+    <OutDir>$(BinDir)sp_release\</OutDir>
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(SolutionDir)..\..\..\obj\win32\vs2010\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>$(ObjDir)$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -14,7 +21,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>_WIN32;WINVER=0x0501;_WIN32_WINNT=0x0501;NTDDI_VERSION=NTDDI_WINXPSP2;NDEBUG;DIRECTINPUT_VERSION=0x0800;RTCW_SP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32;WIN32;NDEBUG;WINVER=0x0501;_WIN32_WINNT=0x0501;NTDDI_VERSION=NTDDI_WINXPSP3;DIRECTINPUT_VERSION=0x0800;DIRECTSOUND_VERSION=0x0900;RTCW_SP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -25,7 +32,7 @@
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>
       </PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>..\..\..\..\src\cgame;..\..\..\..\src\game;..\..\..\..\src\ui;..\..\..\..\src\game_sp;..\..\..\..\src\cgame_sp;..\..\..\..\src\ui_sp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SrcDir)botai;$(SrcDir)botai_sp;$(SrcDir)botlib;$(SrcDir)cgame;$(SrcDir)cgame_sp;$(SrcDir)client;$(SrcDir)game;$(SrcDir)game_sp;$(SrcDir)null;$(SrcDir)qcommon;$(SrcDir)renderer;$(SrcDir)server;$(SrcDir)splines;$(SrcDir)ui;$(SrcDir)ui_sp;$(SrcDir)win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
@@ -36,11 +43,30 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>..\..\..\..\lib\win32\vs2010;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(LibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;RTCW_SP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <BuildMacro Include="VSID">
+      <Value>$(VSID)</Value>
+    </BuildMacro>
+    <BuildMacro Include="RootDir">
+      <Value>$(RootDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BinDir">
+      <Value>$(BinDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LibDir">
+      <Value>$(LibDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ObjDir">
+      <Value>$(ObjDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="SrcDir">
+      <Value>$(SrcDir)</Value>
+    </BuildMacro>
+  </ItemGroup>
 </Project>

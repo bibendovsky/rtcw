@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #if defined RTCW_SP
 #define DIRECTINPUT_VERSION 0x0800
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #ifdef DOOMSOUND    ///// (SA) DOOMSOUND
 #include "../mssdk/include/dinput.h"
@@ -49,11 +49,11 @@ If you have questions concerning this license or the applicable additional terms
 #if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
 #include <dinput.h>
 #include <dsound.h>
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET && defined __GNUC__
 #include <directx.h>
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #endif  ///// (SA) DOOMSOUND
 
@@ -145,5 +145,5 @@ extern WinVars_t g_wv;
 void WinSetExceptionWnd( HWND wnd );
 void WinSetExceptionVersion( const char* version );
 void Com_FrameExt( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 

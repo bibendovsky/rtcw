@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 #define MAX_ENTITIES_IN_SNAPSHOT    256
 #else
 #define MAX_ENTITIES_IN_SNAPSHOT    512
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // snapshots are a view of the server at a given time
 
@@ -79,7 +79,7 @@ typedef enum cgameEvent_e {
 	CGAME_EVENT_DEMO,               // OSP
 	CGAME_EVENT_FIRETEAMMSG,
 } cgameEvent_t;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 /*
@@ -103,7 +103,7 @@ typedef enum {
 
 #if defined RTCW_ET
 	CG_CVAR_LATCHEDVARIABLESTRINGBUFFER,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_ARGC,
 	CG_ARGV,
@@ -116,7 +116,7 @@ typedef enum {
 #if defined RTCW_ET
 	CG_FS_GETFILELIST,
 	CG_FS_DELETEFILE,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_SENDCONSOLECOMMAND,
 	CG_ADDCOMMAND,
@@ -141,7 +141,7 @@ typedef enum {
 #if defined RTCW_ET
 	CG_R_PROJECTDECAL,          // ydnar: projects a decal onto brush models
 	CG_R_CLEARDECALS,           // ydnar: clears world/entity decals
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_S_STARTSOUND,
 	CG_S_STARTSOUNDEX,  //----(SA)	added
@@ -150,7 +150,7 @@ typedef enum {
 
 #if defined RTCW_ET
 	CG_S_CLEARSOUNDS,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_S_ADDLOOPINGSOUND,
 	CG_S_UPDATEENTITYPOSITION,
@@ -164,14 +164,14 @@ typedef enum {
 #if !defined RTCW_MP
 	CG_S_FADESTREAMINGSOUND,    //----(SA)	modified
 	CG_S_FADEALLSOUNDS,         //----(SA)	added for fading out everything
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_S_STARTSTREAMINGSOUND,
 
 #if defined RTCW_ET
 	CG_S_GETSOUNDLENGTH,        // xkan - get the length (in milliseconds) of the sound
 	CG_S_GETCURRENTSOUNDTIME,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_R_LOADWORLDMAP,
 	CG_R_REGISTERMODEL,
@@ -191,13 +191,13 @@ typedef enum {
 
 #if defined RTCW_SP
 	CG_RB_ZOMBIEFXADDNEWHIT,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // done.
 
 #if defined RTCW_ET
 	CG_R_ADDPOLYBUFFERTOSCENE,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_R_ADDLIGHTTOSCENE,
 
@@ -206,7 +206,7 @@ typedef enum {
 
 #if defined RTCW_ET
 	CG_R_SETGLOBALFOG,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 	CG_R_RENDERSCENE,
@@ -214,7 +214,7 @@ typedef enum {
 #if defined RTCW_ET
 	CG_R_SAVEVIEWPARMS,
 	CG_R_RESTOREVIEWPARMS,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_R_SETCOLOR,
 	CG_R_DRAWSTRETCHPIC,
@@ -232,7 +232,7 @@ typedef enum {
 
 #if !defined RTCW_SP
 	CG_SETCLIENTLERPORIGIN,         // DHM - Nerve
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_R_REGISTERSHADERNOMIP,
 	CG_MEMORY_REMAINING,
@@ -245,7 +245,7 @@ typedef enum {
 #if defined RTCW_ET
 	CG_KEY_GETOVERSTRIKEMODE,
 	CG_KEY_SETOVERSTRIKEMODE,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_PC_ADD_GLOBAL_DEFINE,
 	CG_PC_LOAD_SOURCE,
@@ -255,7 +255,7 @@ typedef enum {
 
 #if defined RTCW_ET
 	CG_PC_UNREAD_TOKEN,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_S_STOPBACKGROUNDTRACK,
 	CG_REAL_TIME,
@@ -266,11 +266,11 @@ typedef enum {
 //	CG_R_LIGHTFORPOINT,	// not currently used (sorry, trying to keep CG_MEMSET @ 100)
 #else
 	CG_R_LIGHTFORPOINT,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 	CG_SENDMOVESPEEDSTOGAME,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_CIN_PLAYCINEMATIC,
 	CG_CIN_STOPCINEMATIC,
@@ -283,22 +283,22 @@ typedef enum {
 //	CG_S_ADDREALLOOPINGSOUND,	// not currently used (sorry, trying to keep CG_MEMSET @ 100)
 #else
 	CG_S_ADDREALLOOPINGSOUND,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 	CG_S_STOPLOOPINGSOUND,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_MP
 	CG_S_STOPSTREAMINGSOUND,    //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_LOADCAMERA,
 	CG_STARTCAMERA,
 
 #if !defined RTCW_MP
 	CG_STOPCAMERA,  //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_GETCAMERAINFO,
 
@@ -308,7 +308,7 @@ typedef enum {
 	CG_MEMSET = 100,
 #else
 	CG_MEMSET = 150,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_MEMCPY,
 	CG_STRNCPY,
@@ -333,36 +333,36 @@ typedef enum {
 #else
 	// NERVE - SMF
 	CG_INGAME_CLOSEPOPUP,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_MP
 	CG_LIMBOCHAT,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_SP
 	CG_R_DRAWROTATEDPIC,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	CG_R_DRAW2DPOLYS,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_SP
 	CG_KEY_GETBINDINGBUF,
 	CG_KEY_SETBINDING,
 	CG_KEY_KEYNUMTOSTRINGBUF,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	CG_KEY_BINDINGTOKEYS,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 #if defined RTCW_MP
 	CG_TRANSLATE_STRING
 #elif defined RTCW_ET
 	CG_TRANSLATE_STRING,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// -NERVE - SMF
 
@@ -390,7 +390,7 @@ typedef enum {
 	// bani
 	CG_R_FINISH,
 	// -bani
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } cgameImport_t;
 
@@ -446,19 +446,19 @@ typedef enum {
 //	void (*CG_EventHandling)(int type);
 #else
 //	void (*CG_EventHandling)(int type, qboolean fForced);
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CG_GET_TAG,
 //	qboolean CG_GetTag( int clientNum, char *tagname, orientation_t *or );
 
 #if defined RTCW_SP
 	MAX_CGAME_EXPORT
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_MP
 	CG_CHECKCENTERVIEW,
 //	qboolean CG_CheckCenterView();
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	CG_CHECKEXECKEY,
@@ -469,7 +469,7 @@ typedef enum {
 	CG_MESSAGERECEIVED,
 //	void (*CG_MessageReceived)( const char *buf, int buflen, int serverTime );
 	// -zinx
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } cgameExport_t;
 

@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-#include "../game/q_shared.h"
+#include "q_shared.h"
 #include "qcommon.h"
 #include "cm_polylib.h"
 
@@ -43,7 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 #if defined RTCW_ET
 // enable to make the collision detection a bunch faster
 #define MRE_OPTIMIZE
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef struct {
 	cplane_t    *plane;
@@ -158,7 +158,7 @@ extern cvar_t      *cm_playerCurveClip;
 
 #if defined RTCW_ET
 extern cvar_t      *cm_optimize;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // cm_test.c
 
@@ -193,7 +193,7 @@ typedef struct {
 	float traceDist2;
 	vec3_t dir;
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } traceWork_t;
 
@@ -223,7 +223,7 @@ cmodel_t    *CM_ClipHandleToModel( clipHandle_t handle );
 struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t *points );
 #else
 struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t *points, qboolean addBevels );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
 qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );

@@ -29,8 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 // snd_local.h -- private sound definations
 
 
-#include "../game/q_shared.h"
-#include "../qcommon/qcommon.h"
+#include "q_shared.h"
+#include "qcommon.h"
 #include "snd_public.h"
 
 #define PAINTBUFFER_SIZE        4096                    // this is in samples
@@ -43,14 +43,14 @@ If you have questions concerning this license or the applicable additional terms
 #define TALKANIM
 #else
 //#define TALKANIM			// NERVE - SMF - we don't want this for multiplayer
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_MP
 typedef struct {
 	int left;           // the final values will be clamped to +/- 0x00ffff00 and shifted down
 	int right;
 } portable_samplepair_t;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef struct adpcm_state {
 	short sample;       /* Previous output value */
@@ -60,7 +60,7 @@ typedef struct adpcm_state {
 #if defined( __MACOS__ )
 	char pad;           /* //DAJ added pad for alignment */
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } adpcm_state_t;
 
@@ -101,7 +101,7 @@ typedef struct loopSound_s {
 
 #if !defined RTCW_ET
 	float range;            //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	sfx_t       *sfx;
 	int mergeFrame;
@@ -114,7 +114,7 @@ typedef struct loopSound_s {
 	float oldDopplerScale;
 	int framenum;
 	float range;            //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int vol;
 	qboolean loudUnderWater;    // (SA) set if this sound should be played at full vol even when under water (under water loop sound for ex.)
@@ -124,11 +124,11 @@ typedef struct loopSound_s {
 	float dopplerScale;
 	float oldDopplerScale;
 	int framenum;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	int startTime, startSample;         // ydnar: so looping sounds can be out of phase
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } loopSound_t;
 
@@ -139,7 +139,7 @@ typedef struct
 	int         *ptr;           //DAJ BUGFIX for freelist/endlist pointer
 #else
 	int         *prt;           //DAJ BUGFIX for freelist/endlist pointer
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int allocTime;
 	int startSample;            // START_SAMPLE_IMMEDIATE = set immediately on next mix
@@ -207,7 +207,7 @@ void    SNDDMA_Submit( void );
 #else
 #define MAX_CHANNELS 96
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 extern channel_t s_channels[MAX_CHANNELS];
 extern channel_t loop_channels[MAX_CHANNELS];
@@ -229,7 +229,7 @@ extern unsigned char s_entityTalkAmplitude[MAX_CLIENTS];
 #define QUEUED_PLAY_LOOPED  -2
 #define QUEUED_PLAY_ONCE_SILENT -3  // when done it goes quiet
 //----(SA)	end
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // Ridah, streaming sounds
 typedef struct {
@@ -239,13 +239,13 @@ typedef struct {
 
 #if !defined RTCW_MP
 	char name[MAX_QPATH];           //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	char loop[MAX_QPATH];
 
 #if !defined RTCW_MP
 	int looped;                 //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int entnum;
 	int channel;
@@ -260,7 +260,7 @@ typedef struct {
 	float fadeTargetVol;        //----(SA)	added
 #elif defined RTCW_MP
 	qboolean kill;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } streamingSound_t;
 
@@ -277,7 +277,7 @@ typedef struct {
 
 #if defined RTCW_ET
 	int volume;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } s_pushStack;
 
@@ -288,7 +288,7 @@ typedef struct {
 #define MAX_LOOP_SOUNDS 128
 #else
 #define MAX_LOOP_SOUNDS 1024
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 // removed many statics into a common sound struct
@@ -306,7 +306,7 @@ typedef struct {
 
 #if defined RTCW_ET
 	qboolean stopSounds;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	channel_t   *freelist;
 	channel_t   *endflist;
@@ -323,7 +323,7 @@ typedef struct {
 
 #if !defined RTCW_ET
 //	qboolean	s_soundMute;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int s_soundMute;                // 0 - not muted, 1 - muted, 2 - no new sounds, but play out remaining sounds (so they can die if necessary)
 
@@ -334,7 +334,7 @@ typedef struct {
 } snd_t;
 
 extern snd_t snd;   // globals for sound
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 
@@ -346,7 +346,7 @@ extern snd_t snd;   // globals for sound
 #else
 #define MAX_STREAMING_SOUNDS    24  // need to keep it low, or the rawsamples will get too big
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define MAX_RAW_SAMPLES         16384
 
@@ -369,13 +369,13 @@ extern cvar_t   *s_separation;
 #if !defined RTCW_MP
 extern cvar_t   *s_currentMusic;    //----(SA)	added
 extern cvar_t   *s_debugMusic;      //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 // fretn
 extern cvar_t   *s_bits;
 extern cvar_t   *s_numchannels;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 qboolean S_LoadSound( sfx_t *sfx );
 
@@ -419,5 +419,5 @@ extern int sfxScratchIndex;
 extern unsigned char s_entityTalkAmplitude[MAX_CLIENTS];
 
 extern float S_GetStreamingFade( streamingSound_t *ss );    //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 

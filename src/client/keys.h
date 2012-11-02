@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "../ui/keycodes.h"
+#include "keycodes.h"
 
 #define MAX_KEYS        256
 
@@ -37,7 +37,7 @@ typedef struct {
 
 #if defined RTCW_ET
 	int hash;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } qkey_t;
 
@@ -62,18 +62,18 @@ extern qboolean chat_team;
 #if !defined RTCW_ET
 extern qboolean chat_limbo;             // NERVE - SMF
 extern int chat_playerNum;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 extern qboolean chat_buddy;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void Key_WriteBindings( fileHandle_t f );
 void Key_SetBinding( int keynum, const char *binding );
 
 #if defined RTCW_ET
 void Key_GetBindingByString( const char* binding, int* key1, int* key2 );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 char *Key_GetBinding( int keynum );
 qboolean Key_IsDown( int keynum );

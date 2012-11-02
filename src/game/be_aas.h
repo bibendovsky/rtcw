@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 #define MAX_AAS_WORLDS      2   // one for each bounding box type
 #else
 #define MAX_AAS_WORLDS      1   // one for each bounding box type
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #ifndef MAX_STRINGFIELD
 #define MAX_STRINGFIELD             80
@@ -81,7 +81,7 @@ If you have questions concerning this license or the applicable additional terms
 #define TFL_TEAM_ALLIES_DISGUISED   0x2000000   //travel through allies+DISGUISED areas
 
 #define TFL_TEAM_FLAGS      ( TFL_TEAM_AXIS | TFL_TEAM_ALLIES | TFL_TEAM_AXIS_DISGUISED | TFL_TEAM_ALLIES_DISGUISED )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //default travel flags
 
@@ -103,7 +103,7 @@ If you have questions concerning this license or the applicable additional terms
 					  TFL_TELEPORT | TFL_ELEVATOR | TFL_AIR | \
 					  TFL_WATER | TFL_SLIME | \
 					  TFL_JUMPPAD | TFL_FUNCBOB )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef enum
 {
@@ -242,7 +242,7 @@ typedef struct bsp_trace_s
 
 #define BSPTRACE
 #endif  // BSPTRACE
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef struct aas_clientmove_s
 {
@@ -253,7 +253,7 @@ typedef struct aas_clientmove_s
 	aas_trace_t trace;      //last trace
 #else
 	struct bsp_trace_s trace;       //last trace
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int presencetype;       //presence type at end of movement prediction
 	int stopevent;          //event that made the prediction stop
@@ -271,5 +271,5 @@ typedef struct aas_altroutegoal_s
 	unsigned short extratraveltime;
 } aas_altroutegoal_t;
 
-#endif RTCW_XX
+#endif // RTCW_XX
 

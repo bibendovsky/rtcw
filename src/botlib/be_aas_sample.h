@@ -72,5 +72,5 @@ int AAS_BBoxAreas( vec3_t absmins, vec3_t absmaxs, int *areas, int maxareas );
 #if defined RTCW_ET
 void AAS_AreaCenter( int areanum, vec3_t center );
 qboolean AAS_AreaWaypoint( int areanum, vec3_t center );
-#endif RTCW_XX
+#endif // RTCW_XX
 

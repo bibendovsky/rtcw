@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __TR_PUBLIC_H
 #define __TR_PUBLIC_H
 
-#include "../cgame/tr_types.h"
+#include "tr_types.h"
 
 #define REF_API_VERSION     8
 
@@ -56,7 +56,7 @@ typedef struct {
 
 #if defined RTCW_ET
 	qhandle_t ( *RegisterModelAllLODs )( const char *name );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	qhandle_t ( *RegisterSkin )( const char *name );
 	qhandle_t ( *RegisterShader )( const char *name );
@@ -64,7 +64,7 @@ typedef struct {
 
 #if !defined RTCW_SP
 	void ( *RegisterFont )( const char *fontName, int pointSize, fontInfo_t *font );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	void ( *LoadWorld )( const char *name );
 	qboolean ( *GetSkinModel )( qhandle_t skinid, const char *type, char *name );    //----(SA)	added
@@ -92,7 +92,7 @@ typedef struct {
 	void ( *AddLightToScene )( const vec3_t org, float intensity, float r, float g, float b, int overdraw );
 #else
 	void ( *AddLightToScene )( const vec3_t org, float radius, float intensity, float r, float g, float b, qhandle_t hShader, int flags );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //----(SA)
 
@@ -100,7 +100,7 @@ typedef struct {
 	void ( *AddCoronaToScene )( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
 #else
 	void ( *AddCoronaToScene )( const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	void ( *SetFog )( int fogvar, int var1, int var2, float r, float g, float b, float density );
 //----(SA)
@@ -109,7 +109,7 @@ typedef struct {
 #if defined RTCW_ET
 	void ( *SaveViewParms )();
 	void ( *RestoreViewParms )();
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	void ( *SetColor )( const float *rgba );    // NULL = 1,1,1,1
 
@@ -118,25 +118,25 @@ typedef struct {
 							  float s1, float t1, float s2, float t2, qhandle_t hShader ); // 0 = white
 #else
 	void ( *DrawStretchPic )( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );      // 0 = white
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_MP
 	void ( *DrawRotatedPic )( float x, float y, float w, float h,
 							  float s1, float t1, float s2, float t2, qhandle_t hShader, float angle ); // NERVE - SMF
 #elif defined RTCW_ET
 	void ( *DrawRotatedPic )( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader, float angle );     // NERVE - SMF
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 	void ( *DrawStretchPicGradient )( float x, float y, float w, float h,
 									  float s1, float t1, float s2, float t2, qhandle_t hShader, const float *gradientColor, int gradientType );
 #else
 	void ( *DrawStretchPicGradient )( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader, const float *gradientColor, int gradientType );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	void ( *Add2dPolys )( polyVert_t* polys, int numverts, qhandle_t hShader );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// Draw images for cinematic rendering, pass as 32 bit rgba
 	void ( *DrawStretchRaw )( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty );
@@ -154,7 +154,7 @@ typedef struct {
 #if defined RTCW_ET
 	void ( *ProjectDecal )( qhandle_t hShader, int numPoints, vec3_t *points, vec4_t projection, vec4_t color, int lifeTime, int fadeTime );
 	void ( *ClearDecals )( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int ( *LerpTag )( orientation_t *tag,  const refEntity_t *refent, const char *tagName, int startIndex );
 	void ( *ModelBounds )( qhandle_t model, vec3_t mins, vec3_t maxs );
@@ -165,20 +165,20 @@ typedef struct {
 #endif
 
 	void ( *RegisterFont )( const char *fontName, int pointSize, fontInfo_t *font );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	void ( *RemapShader )( const char *oldShader, const char *newShader, const char *offsetTime );
 
 #if defined RTCW_SP
 	// RF
 	void ( *ZombieFXAddNewHit )( int entityNum, const vec3_t hitPos, const vec3_t hitDir );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	void ( *DrawDebugPolygon )( int color, int numpoints, float* points );
 
 	void ( *DrawDebugText )( const vec3_t org, float r, float g, float b, const char *text, qboolean neverOcclude );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	qboolean ( *GetEntityToken )( char *buffer, int size );
 
@@ -198,7 +198,7 @@ typedef struct {
 	//bani
 	int ( *GetTextureId )( const char *imagename );
 	void ( *Finish )( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } refexport_t;
 
@@ -236,7 +236,7 @@ typedef struct {
 #endif
 	void ( *Free )( void *buf );
 	void ( *Tag_Free )( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	cvar_t  *( *Cvar_Get )( const char *name, const char *value, int flags );
 	void ( *Cvar_Set )( const char *name, const char *value );

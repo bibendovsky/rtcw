@@ -28,14 +28,14 @@ If you have questions concerning this license or the applicable additional terms
 
 // client.h -- primary header for client
 
-#include "../game/q_shared.h"
-#include "../qcommon/qcommon.h"
-#include "../renderer/tr_public.h"
-#include "../ui/ui_public.h"
+#include "q_shared.h"
+#include "qcommon.h"
+#include "tr_public.h"
+#include "ui_public.h"
 #include "keys.h"
 #include "snd_public.h"
-#include "../cgame/cg_public.h"
-#include "../game/bg_public.h"
+#include "cg_public.h"
+#include "bg_public.h"
 
 #define RETRANSMIT_TIMEOUT  3000    // time between connection packet retransmits
 
@@ -72,7 +72,7 @@ typedef struct {
 
 	int lastdoubleTap;
 } doubleTap_t;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 /*
@@ -128,7 +128,7 @@ typedef struct {
 	int cgameUserHoldableValue;         // current holdable item to add to usercmd_t	//----(SA)	added
 #else
 	int cgameFlags;                     // flags that can be set by the gamecode
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	float cgameSensitivity;
 
@@ -138,11 +138,11 @@ typedef struct {
 
 #if !defined RTCW_ET
 	int cgameMpSetup;                   // NERVE - SMF
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int cgameMpIdentClient;             // NERVE - SMF
 	vec3_t cgameClientLerpOrigin;       // DHM - Nerve
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// cmds[cmdNumber] is the predicted command, [cmdNumber-1] is the last
 	// properly generated command
@@ -152,7 +152,7 @@ typedef struct {
 #if defined RTCW_ET
 	// Arnout: double tapping
 	doubleTap_t doubleTap;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	outPacket_t outPackets[PACKET_BACKUP];  // information about each packet we have sent out
 
@@ -177,7 +177,7 @@ typedef struct {
 #if !defined RTCW_SP
 	// NOTE TTimo - UI uses LIMBOCHAT_WIDTH strings (140),
 	// but for the processing in CL_AddToLimboChat we need some safe room
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	char limboChatMsgs[LIMBOCHAT_HEIGHT][LIMBOCHAT_WIDTH * 3 + 1];
 	int limboChatPos;
@@ -190,11 +190,11 @@ typedef struct {
 	qboolean corruptedTranslationFile;
 	char translationVersion[MAX_STRING_TOKENS];
 	// -NERVE - SMF
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	qboolean cameraMode;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } clientActive_t;
 
@@ -229,7 +229,7 @@ typedef struct {
 
 #if !defined RTCW_SP
 	int onlyVisibleClients;                 // DHM - Nerve
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// these are our reliable messages that go to the server
 	int reliableSequence;
@@ -237,7 +237,7 @@ typedef struct {
 
 #if !defined RTCW_SP
 	// TTimo - NOTE: incidentally, reliableCommands[0] is never used (always start at reliableAcknowledge+1)
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	char reliableCommands[MAX_RELIABLE_COMMANDS][MAX_TOKEN_CHARS];
 
@@ -246,7 +246,7 @@ typedef struct {
 	int binaryMessageLength;
 	char binaryMessage[MAX_BINARY_MESSAGE];
 	qboolean binaryMessageOverflowed;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// server message (unreliable) and command (reliable) sequence
 	// numbers are NOT cleared at level changes, but continue to
@@ -267,7 +267,7 @@ typedef struct {
 #if !defined RTCW_ET
 	char downloadTempName[MAX_OSPATH];
 	char downloadName[MAX_OSPATH];
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int downloadNumber;
 	int downloadBlock;          // block we are waiting for
@@ -276,7 +276,7 @@ typedef struct {
 
 #if defined RTCW_ET
 	int downloadFlags;         // misc download behaviour flags sent by the server
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	char downloadList[MAX_INFO_STRING];        // list of paks we need to download
 
@@ -288,7 +288,7 @@ typedef struct {
 	qboolean bWWWDlAborting;    // disable the CL_WWWDownload until server gets us a gamestate (used for aborts)
 	char redirectedList[MAX_INFO_STRING];        // list of files that we downloaded through a redirect since last FS_ComparePaks
 	char badChecksumList[MAX_INFO_STRING];        // list of files for which wwwdl redirect is broken (wrong checksum)
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 	// demo information
@@ -303,7 +303,7 @@ typedef struct {
 	qboolean waverecording;
 	fileHandle_t wavefile;
 	int wavetime;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int timeDemoFrames;             // counter of rendered frames
 	int timeDemoStart;              // cls.realtime before first frame
@@ -337,7 +337,7 @@ typedef struct {
 
 #if defined RTCW_ET
 	int load;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	char mapName[MAX_NAME_LENGTH];
 	char game[MAX_NAME_LENGTH];
@@ -367,7 +367,7 @@ typedef struct {
 	int weaprestrict;
 	int balancedteams;
 	char gameName[MAX_NAME_LENGTH];         // Arnout
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } serverInfo_t;
 
@@ -378,7 +378,7 @@ typedef struct {
 
 #if defined RTCW_MP
 #define MAX_AUTOUPDATE_SERVERS  5
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef struct {
 	connstate_t state;              // connection status
@@ -388,11 +388,11 @@ typedef struct {
 
 #if defined RTCW_SP
 	qboolean endgamemenu;           // bring up the end game credits menu next frame
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	qboolean doCachePurge;          // Arnout: empty the renderer cache as soon as possible
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	char servername[MAX_OSPATH];            // name of server from original connect (used by reconnect)
 
@@ -424,7 +424,7 @@ typedef struct {
 #if !defined RTCW_ET
 	int nummplayerservers;
 	serverInfo_t mplayerServers[MAX_OTHER_SERVERS];
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int pingUpdateSource;       // source currently pinging or updating
 
@@ -441,13 +441,13 @@ typedef struct {
 	// DHM - Nerve :: Auto-update Info
 	char autoupdateServerNames[MAX_AUTOUPDATE_SERVERS][MAX_QPATH];
 	netadr_t autoupdateServer;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	qboolean autoUpdateServerChecked[MAX_AUTOUPDATE_SERVERS];
 	int autoupdatServerFirstIndex;          // to know when we went through all of them
 	int autoupdatServerIndex;               // to cycle through them
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 	// rendering info
@@ -460,7 +460,7 @@ typedef struct {
 	qhandle_t consoleShader2;   //----(SA)	added
 #else
 	qhandle_t consoleShader2;       // NERVE - SMF - merged from WolfSP
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	// www downloading
@@ -471,7 +471,7 @@ typedef struct {
 	char downloadTempName[MAX_OSPATH];    // in wwwdl mode, this is OS path (it's a qpath otherwise)
 	char originalDownloadName[MAX_QPATH];    // if we get a redirect, keep a copy of the original file path
 	qboolean downloadRestart; // if true, we need to do another FS_Restart because we downloaded a pak
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } clientStatic_t;
 
@@ -498,13 +498,13 @@ extern cvar_t  *cl_shownet;
 #if !defined RTCW_SP
 extern cvar_t  *cl_shownuments;             // DHM - Nerve
 extern cvar_t  *cl_visibleClients;          // DHM - Nerve
-#endif RTCW_XX
+#endif // RTCW_XX
 
 extern cvar_t  *cl_showSend;
 
 #if !defined RTCW_SP
 extern cvar_t  *cl_showServerCommands;      // NERVE - SMF
-#endif RTCW_XX
+#endif // RTCW_XX
 
 extern cvar_t  *cl_timeNudge;
 extern cvar_t  *cl_showTimeDelta;
@@ -519,11 +519,11 @@ extern cvar_t  *cl_recoilPitch;     // RF
 
 #if !defined RTCW_SP
 extern cvar_t  *cl_bypassMouseInput;    // NERVE - SMF
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 extern cvar_t  *cl_doubletapdelay;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 extern cvar_t  *cl_sensitivity;
@@ -544,7 +544,7 @@ extern cvar_t  *cl_activeAction;
 
 #if defined RTCW_ET
 extern cvar_t  *cl_autorecord;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 extern cvar_t  *cl_allowDownload;
 extern cvar_t  *cl_conXOffset;
@@ -562,8 +562,9 @@ extern cvar_t  *cl_profile;
 extern cvar_t  *cl_defaultProfile;
 
 //bani
-extern qboolean sv_cheats;
-#endif RTCW_XX
+//FIXME WTF?!? boolean and cvar_t variables with a same name
+//extern qboolean sv_cheats;
+#endif // RTCW_XX
 
 //=================================================
 
@@ -587,7 +588,7 @@ void CL_GetAutoUpdate( void );
 void CL_CheckAutoUpdate( void );
 qboolean CL_NextUpdateServer( void );
 void CL_GetAutoUpdate( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void CL_Disconnect_f( void );
 void CL_GetChallengePacket( void );
@@ -596,7 +597,7 @@ void CL_Snd_Restart_f( void );
 
 #if !defined RTCW_ET
 void CL_StartDemoLoop( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void CL_NextDemo( void );
 void CL_ReadDemoMessage( void );
@@ -620,18 +621,21 @@ qboolean CL_GetLimboString( int index, char *buf );         // NERVE - SMF
 #if !defined RTCW_SP
 // NERVE - SMF - localization
 void CL_InitTranslation();
-void CL_SaveTransTable();
+
+//void CL_SaveTransTable();
+void CL_SaveTransTable (const char* fileName, qboolean newOnly);
+
 void CL_ReloadTranslation();
 void CL_TranslateString( const char *string, char *dest_buffer );
 const char* CL_TranslateStringBuf( const char *string ); // TTimo
 // -NERVE - SMF
 
 void CL_OpenURL( const char *url ); // TTimo
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 void CL_Record( const char* name );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 //
@@ -678,7 +682,7 @@ typedef enum {
 
 #if !defined RTCW_ET
 	KB_KICK,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	NUM_BUTTONS
 } kbuttons_t;
@@ -697,7 +701,7 @@ void CL_WritePacket( void );
 void IN_CenterView( void );
 #else
 //void IN_CenterView (void);
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void IN_Notebook( void );
 void IN_Help( void );
@@ -723,7 +727,7 @@ void CL_ParseServerMessage( msg_t *msg );
 
 #if !defined RTCW_SP
 void    CL_UpdateInfoPacket( netadr_t from );       // DHM - Nerve
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void    CL_ServerInfoPacket( netadr_t from, msg_t *msg );
 void    CL_LocalServers_f( void );
@@ -770,7 +774,7 @@ typedef struct {
 } console_t;
 
 extern console_t con;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void Con_DrawCharacter( int cx, int line, int num );
 
@@ -842,7 +846,7 @@ void CL_UpdateLevelHunkUsage( void );
 
 #if defined RTCW_ET
 void CL_CGameBinaryMessageReceived( const char *buf, int buflen, int serverTime );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //
 // cl_ui.c

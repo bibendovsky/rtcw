@@ -30,11 +30,11 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef _QCOMMON_H_
 #define _QCOMMON_H_
 
-#include "../qcommon/cm_public.h"
+#include "cm_public.h"
 
 #if defined RTCW_MP
 //#define	PRE_RELEASE_DEMO
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 //bani
@@ -48,7 +48,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifdef PRE_RELEASE_DEMO
 #define PRE_RELEASE_DEMO_NODEVMAP
 #endif // PRE_RELEASE_DEMO
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //============================================================================
 
@@ -65,7 +65,7 @@ typedef struct {
 
 #if !defined RTCW_SP
 	int uncompsize;             // NERVE - SMF - net debugging
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int readcount;
 	int bit;                    // for bitwise reads and writes
@@ -80,7 +80,7 @@ void MSG_Bitstream( msg_t *buf );
 
 #if defined RTCW_ET
 void MSG_Uncompressed( msg_t *buf );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_SP
 // TTimo
@@ -88,7 +88,7 @@ void MSG_Uncompressed( msg_t *buf );
 // (as I needed this to keep an msg_t from a static var for later use)
 // sets data buffer as MSG_Init does prior to do the copy
 void MSG_Copy( msg_t *buf, byte *data, int length, msg_t *src );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 struct usercmd_s;
 struct entityState_s;
@@ -110,7 +110,7 @@ void    MSG_BeginReadingOOB( msg_t *sb );
 
 #if defined RTCW_ET
 void    MSG_BeginReadingUncompressed( msg_t *msg );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 int     MSG_ReadBits( msg_t *msg, int bits );
 
@@ -166,7 +166,7 @@ NET
 // single player game with no networking doesn't need encoding
 // show_bug.cgi?id=404
 #define DO_NET_ENCODE 0
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define PACKET_BACKUP   32  // number of old messages that must be kept on client and
 							// server for delta comrpession and ping estimation
@@ -217,7 +217,7 @@ void QDECL NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *fo
 
 #if !defined RTCW_SP
 void QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 qboolean    NET_CompareAdr( netadr_t a, netadr_t b );
 qboolean    NET_CompareBaseAdr( netadr_t a, netadr_t b );
@@ -225,7 +225,7 @@ qboolean    NET_IsLocalAddress( netadr_t adr );
 
 #if defined RTCW_ET
 qboolean    NET_IsIPXAddress( const char *buf );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 const char  *NET_AdrToString( netadr_t a );
 qboolean    NET_StringToAdr( const char *s, netadr_t *a );
@@ -363,7 +363,7 @@ You or the server may be running older versions of the game. Press the auto-upda
 // FIXME: not planning to support more than 1 auto update server
 // see cons -- update_server=myhost
 #define MAX_AUTOUPDATE_SERVERS  5
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined( AUTOUPDATE_SERVER_NAME )
   #define AUTOUPDATE_SERVER1_NAME   "au2rtcw1.activision.com"            // DHM - Nerve
@@ -378,7 +378,7 @@ You or the server may be running older versions of the game. Press the auto-upda
   #define AUTOUPDATE_SERVER4_NAME   AUTOUPDATE_SERVER_NAME
   #define AUTOUPDATE_SERVER5_NAME   AUTOUPDATE_SERVER_NAME
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define PORT_MASTER         27950
 
@@ -390,7 +390,7 @@ You or the server may be running older versions of the game. Press the auto-upda
 #ifdef AUTHORIZE_SUPPORT
 #define PORT_AUTHORIZE      27952
 #endif // AUTHORIZE_SUPPORT
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define PORT_SERVER         27960
 #define NUM_SERVER_PORTS    4       // broadcast scan this many ports after
@@ -544,7 +544,7 @@ void    Cmd_ArgsBuffer( char *buffer, int bufferLength );
 
 #if !defined RTCW_SP
 char    *Cmd_Cmd( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // The functions that execute commands get their parameters with these
 // functions. Cmd_Argv () will return an empty string, not a NULL
@@ -618,7 +618,7 @@ void    Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsi
 #if defined RTCW_ET
 void    Cvar_LatchedVariableStringBuffer( const char *var_name, char *buffer, int bufsize );
 // Gordon: returns the latched value if there is one, else the normal one, empty string if not defined as usual
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void Cvar_CommandCompletion( void ( *callback )( const char *s ) );
 // callback with each valid string
@@ -674,7 +674,7 @@ issues.
 #else
 #define BASEGAME "ettest"
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // referenced flags
 // these are in loop specific order so don't change the order
@@ -693,7 +693,7 @@ issues.
 #else
 	#define Q_rmdir rmdir
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 qboolean FS_Initialized();
 
@@ -715,7 +715,7 @@ qboolean FS_FileExists( const char *file );
 
 #if defined RTCW_ET
 qboolean FS_OS_FileExists( const char *file ); // TTimo - test file existence given OS path
-#endif RTCW_XX
+#endif // RTCW_XX
 
 int     FS_LoadStack();
 
@@ -754,7 +754,7 @@ but that's a C++ construct ..
 #define FS_EXCLUDE_DIR 0x1
 #define FS_EXCLUDE_PK3 0x2
 int FS_FOpenFileRead_Filtered( const char *qpath, fileHandle_t *file, qboolean uniqueFILE, int filter_flag );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 int     FS_FileIsInPAK( const char *filename, int *pChecksum );
 // returns 1 if a file is in the PAK file, otherwise -1
@@ -835,7 +835,7 @@ qboolean FS_idPak( char *pak, char *base );
 
 #if defined RTCW_ET
 qboolean FS_VerifyOfficialPaks( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring );
 
@@ -862,10 +862,10 @@ void FS_CopyFile( char *fromOSPath, char *toOSPath );
 
 #if defined RTCW_ET
 int FS_CreatePath( const char *OSPath );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 qboolean FS_VerifyPak( const char *pak );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 qboolean FS_IsPure( void );
@@ -881,7 +881,7 @@ DOWNLOAD
 */
 
 #include "dl_public.h"
-#endif RTCW_XX
+#endif // RTCW_XX
 
 /*
 ==============================================================
@@ -916,7 +916,7 @@ MISC
 extern char cl_cdkey[34];
 void Com_AppendCDKey( const char *filename );
 void Com_ReadCDKey( const char *filename );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 typedef struct gameInfo_s {
@@ -930,7 +930,7 @@ typedef struct gameInfo_s {
 } gameInfo_t;
 
 extern gameInfo_t com_gameInfo;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // returnbed by Sys_GetProcessorId
 #define CPUID_GENERIC           0           // any unrecognized processor
@@ -948,7 +948,7 @@ extern gameInfo_t com_gameInfo;
 // TTimo
 // centralized and cleaned, that's the max string you can send to a Com_Printf / Com_DPrintf (above gets truncated)
 #define MAXPRINTMSG 4096
-#endif RTCW_XX
+#endif // RTCW_XX
 
 char        *CopyString( const char *in );
 void        Info_Print( const char *s );
@@ -965,7 +965,7 @@ int QDECL Com_VPrintf( const char *fmt, va_list argptr ) _attribute( ( format( p
 void QDECL Com_Printf( const char *fmt, ... ) _attribute( ( format( printf,1,2 ) ) ); // this one calls to Com_VPrintf now
 void QDECL Com_DPrintf( const char *fmt, ... ) _attribute( ( format( printf,1,2 ) ) );
 void QDECL Com_Error( int code, const char *fmt, ... ) _attribute( ( format( printf,2,3 ) ) );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void        Com_Quit_f( void );
 int         Com_EventLoop( void );
@@ -984,7 +984,7 @@ void        Com_StartupVariable( const char *match );
 void        Com_SetRecommended( qboolean vid_restart );
 #else
 void        Com_SetRecommended();
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // checks for and removes command line "+set var arg" constructs
 // if match is NULL, all set commands will be executed, otherwise
@@ -1001,7 +1001,7 @@ extern cvar_t  *com_crashed;
 extern cvar_t  *com_ignorecrash;    //bani
 
 extern cvar_t  *com_pid;    //bani
-#endif RTCW_XX
+#endif // RTCW_XX
 
 extern cvar_t  *com_developer;
 extern cvar_t  *com_dedicated;
@@ -1016,7 +1016,7 @@ extern cvar_t  *com_version;
 extern cvar_t  *com_blood;
 #else
 //extern	cvar_t	*com_blood;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 extern cvar_t  *com_buildScript;        // for building release pak files
 extern cvar_t  *com_journal;
@@ -1028,7 +1028,7 @@ extern cvar_t  *com_logosPlaying;
 // watchdog
 extern cvar_t  *com_watchdog;
 extern cvar_t  *com_watchdog_cmd;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // both client and server must agree to pause
 extern cvar_t  *cl_paused;
@@ -1045,7 +1045,7 @@ extern int com_frameMsec;
 #if defined RTCW_ET
 extern int com_expectedhunkusage;
 extern int com_hunkusedvalue;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 extern qboolean com_errorEntered;
 
@@ -1105,7 +1105,7 @@ void *S_Malloc( int size );         // NOT 0 filled memory only for small alloca
 void Z_Free( void *ptr );
 void Z_FreeTags( int tag );
 void Z_LogHeap( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void Hunk_Clear( void );
 void Hunk_ClearToMark( void );
@@ -1130,7 +1130,7 @@ void Com_Frame( void );
 void Com_Shutdown( void );
 #else
 void Com_Shutdown( qboolean badProfile );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 /*
 ==============================================================
@@ -1151,7 +1151,7 @@ void CL_Init( void );
 
 #if defined RTCW_ET
 void CL_ClearStaticDownload( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void CL_Disconnect( qboolean showMainMenu );
 void CL_Shutdown( void );
@@ -1189,7 +1189,7 @@ void CL_CDDialog( void );
 void CL_EndgameMenu( void );
 // bring up the "need a cd to play" dialog
 //----(SA)	end
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void CL_ShutdownAll( void );
 // shutdown all the client stuff
@@ -1205,13 +1205,13 @@ void CL_StartHunkUsers( void );
 void CL_CheckAutoUpdate( void );
 // Send a message to auto-update server
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 void CL_CheckAutoUpdate( void );
 qboolean CL_NextUpdateServer( void );
 void CL_GetAutoUpdate( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void Key_WriteBindings( fileHandle_t f );
 // for writing the config files
@@ -1220,7 +1220,7 @@ void Key_WriteBindings( fileHandle_t f );
 void S_ClearSoundBuffer( qboolean killStreaming );  //----(SA)	modified
 #else
 void S_ClearSoundBuffer( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // call before filesystem access
 
@@ -1286,7 +1286,7 @@ void    Sys_Init( void );
 
 #if defined RTCW_ET
 qboolean Sys_IsNumLockDown( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void *Sys_InitializeCriticalSection();
 void Sys_EnterCriticalSection( void *ptr );
@@ -1300,7 +1300,7 @@ void    * QDECL Sys_LoadDll( const char *name, int( QDECL * *entryPoint ) ( int,
 char* Sys_GetDLLName( const char *name );
 // fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
 void    * QDECL Sys_LoadDll( const char *name, char *fqpath, int( QDECL * *entryPoint ) ( int, ... ),
-#endif RTCW_XX
+#endif // RTCW_XX
 
 							 int ( QDECL * systemcalls )( int, ... ) );
 void    Sys_UnloadDll( void *dllHandle );
@@ -1374,7 +1374,7 @@ unsigned int Sys_ProcessorCount();
 
 #if !defined RTCW_SP
 // NOTE TTimo - on win32 the cwd is prepended .. non portable behaviour
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void Sys_StartProcess( char *exeName, qboolean doexit );            // NERVE - SMF
 
@@ -1385,13 +1385,13 @@ void Sys_StartProcess( char *exeName, qboolean doexit );            // NERVE - S
 void Sys_OpenURL( char *url, qboolean doexit );                     // NERVE - SMF
 #else
 void Sys_OpenURL( const char *url, qboolean doexit );                       // NERVE - SMF
-#endif RTCW_XX
+#endif // RTCW_XX
 
 int Sys_GetHighQualityCPU();
 
 #if defined RTCW_ET
 float Sys_GetCPUSpeed( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_SP
 #ifdef __linux__
@@ -1399,7 +1399,7 @@ float Sys_GetCPUSpeed( void );
 // will OR with the existing mode (chmod ..+..)
 void Sys_Chmod( char *file, int mode );
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
  * Compression book.  The ranks are not actually stored, but implicitly defined
@@ -1457,7 +1457,7 @@ extern huffman_t clientHuffTables;
 
 #if defined RTCW_ET
 void Com_GetHunkInfo( int* hunkused, int* hunkexpected );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_SP
 // TTimo
@@ -1547,12 +1547,12 @@ void Com_GetHunkInfo( int* hunkused, int* hunkexpected );
 	#define SYS_DLLNAME_UI_SHIFT 5
 	#define SYS_DLLNAME_UI "zndrfh"
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #else
 #error unknown OS
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #endif // _QCOMMON_H_
 

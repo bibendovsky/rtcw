@@ -59,7 +59,7 @@ int AAS_AreaCrouch( int areanum );
 #else
 //int AAS_AreaCrouch(int areanum);
 #define AAS_AreaCrouch( areanum )   ( ( !( aasworld->areasettings[areanum].presencetype & PRESENCE_NORMAL ) ) ? qtrue : qfalse )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //returns true if a player can swim in this area
 
@@ -68,7 +68,7 @@ int AAS_AreaSwim( int areanum );
 #else
 //int AAS_AreaSwim(int areanum);
 #define AAS_AreaSwim( areanum )      ( ( aasworld->areasettings[areanum].areaflags & AREA_LIQUID ) ? qtrue : qfalse )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //returns true if the area is filled with a liquid
 int AAS_AreaLiquid( int areanum );

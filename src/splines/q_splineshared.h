@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 #define Q3_VERSION      "DOOM 0.01"
 #else
 #define Q3_VERSION      "ET"
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // alignment macros for SIMD
 #define ALIGN_ON
@@ -64,7 +64,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma warning(disable : 4514)
 #pragma warning(disable : 4711) // selected for automatic inline expansion
 #pragma warning(disable : 4220) // varargs matches remaining parameters
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #include <assert.h>
 #include <math.h>
@@ -88,7 +88,7 @@ If you have questions concerning this license or the applicable additional terms
 // this is the define for determining if we have an asm version of a C function
 #else
 // use MSVC inline asm version of C functions
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if (!defined RTCW_ET && ((defined _M_IX86 || defined __i386__) && !defined __sun__  && !defined __LCC__)) || (defined RTCW_ET && defined _M_IX86)
 #define id386   1
@@ -168,7 +168,7 @@ void osxFreeMemory( void *pointer );
 #endif
 
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //======================= MAC DEFINES =================================
 
@@ -225,7 +225,10 @@ void Sys_PumpEvents( void );
 
 
 
-typedef enum {qfalse, qtrue}    qboolean;
+//typedef enum {qfalse, qtrue}    qboolean;
+typedef int qboolean;
+#define qfalse (0)
+#define qtrue (1)
 
 typedef unsigned char byte;
 
@@ -281,7 +284,7 @@ typedef enum {
 // rain - increased to 36 to match MAX_NETNAME, fixes #13 - UI stuff breaks
 // with very long names
 #define MAX_NAME_LENGTH     36      // max length of a client name
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // paramters for command buffer stuffing
 typedef enum {
@@ -334,7 +337,7 @@ typedef enum {
 #if defined RTCW_ET
 #define Q_COLOR_ESCAPE  '^'
 #define Q_IsColorString( p )  ( p && *( p ) == Q_COLOR_ESCAPE && *( ( p ) + 1 ) && *( ( p ) + 1 ) != Q_COLOR_ESCAPE )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 /*
 ==============================================================
@@ -408,7 +411,7 @@ extern idVec4 colorDkGrey;
 #if !defined RTCW_ET
 #define Q_COLOR_ESCAPE  '^'
 #define Q_IsColorString( p )  ( p && *( p ) == Q_COLOR_ESCAPE && *( ( p ) + 1 ) && *( ( p ) + 1 ) != Q_COLOR_ESCAPE )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define COLOR_BLACK     '0'
 #define COLOR_RED       '1'
@@ -457,7 +460,7 @@ extern mat3_t axisDefault;
 #define CHECK_NAN
 #define CHECK_NAN_VEC
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 float Q_fabs( float f );
 float Q_rsqrt( float f );       // reciprocal square root
@@ -626,9 +629,9 @@ void Com_Parse2DMatrix( const char *( *buf_p ), int y, int x, float *m );
 void Com_Parse3DMatrix( const char *( *buf_p ), int z, int y, int x, float *m );
 
 //=====================================================================================
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... );
 
@@ -675,7 +678,7 @@ char *Q_CleanStr( char *string );
 #define _vsnprintf use_Q_vsnprintf
 #define vsnprintf use_Q_vsnprintf
 extern int Q_vsnprintf( char *dest, int size, const char *fmt, va_list argptr );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 int         Com_Filter( const char *filter, const char *name, int casesensitive );
@@ -683,7 +686,7 @@ const char *Com_StringContains( const char *str1, const char *str2, int casesens
 #else
 //int			Com_Filter( const char *filter, const char *name, int casesensitive );
 //const char *Com_StringContains( const char *str1, const char *str2, int casesensitive );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 //=============================================
@@ -698,9 +701,9 @@ float   LittleFloat( float l );
 void    Swap_Init( void );
 char    * QDECL va( char *format, ... );
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 
 //=============================================
@@ -795,17 +798,17 @@ drawVertMesh_t *SubdivideMapPatch( const mapPatch_t *patch, float maxError );
 
 //=========================================
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 void QDECL Com_Error( int level, const char *error, ... );
 void QDECL Com_Printf( const char *msg, ... );
 void QDECL Com_DPrintf( const char *msg, ... );
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #if !defined RTCW_ET
 typedef struct {
@@ -821,7 +824,7 @@ void        Com_InitGrowList( growList_t *list, int maxElements );
 int         Com_AddToGrowList( growList_t *list, void *data );
 void        *Com_GrowListElement( const growList_t *list, int index );
 int         Com_IndexForGrowListElement( const growList_t *list, const void *element );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //
 // key / value info strings

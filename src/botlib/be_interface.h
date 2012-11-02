@@ -86,7 +86,7 @@ typedef struct botlib_globals_s
 	int runai;
 	qboolean lastsuccess;
 //#endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } botlib_globals_t;
 

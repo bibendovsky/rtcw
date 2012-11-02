@@ -63,7 +63,7 @@ If you have questions concerning this license or the applicable additional terms
 #define BGU_MEDIUM              1
 #define BGU_HIGH                2
 #define BGU_MAXIMUM             3
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //a bot goal
 typedef struct bot_goal_s
@@ -79,7 +79,7 @@ typedef struct bot_goal_s
 #if defined RTCW_ET
 	int urgency;                //how urgent is the goal? should we be allowed to exit autonomy range to reach the goal?
 	int goalEndTime;            // When is the shortest time this can end?
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } bot_goal_t;
 
@@ -148,7 +148,7 @@ int BotSetupGoalAI( void );
 // single player
 int BotSetupGoalAI( qboolean singleplayer );
 // END	Arnout changes, 28-08-2002.
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //shut down the goal AI
 void BotShutdownGoalAI( void );

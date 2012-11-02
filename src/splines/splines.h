@@ -29,13 +29,13 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SPLINES_H
 #define __SPLINES_H
 
-extern "C" {
+//extern "C" {
 #ifdef Q3RADIANT
   #include "../qgl.h"
 #else
-  #include "../renderer/qgl.h"
+  #include "qgl.h"
 #endif
-}
+//}
 #include "util_list.h"
 #include "util_str.h"
 #include "math_vector.h"
@@ -382,7 +382,7 @@ virtual void clearVelocities() {
 	}
 	velocities.Clear();
 }
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_MP
 virtual void clear() {
@@ -398,7 +398,7 @@ virtual void clear() {
 	}
 	velocities.Clear();
 }
-#endif RTCW_XX
+#endif // RTCW_XX
 
 idCameraPosition( const char *p ) {
 	name = p;
@@ -681,13 +681,13 @@ virtual void start( long t ) {
 //virtual const idVec3 *getPosition(long t) {
 //	return target.getPosition(t);
 //}
-#endif RTCW_XX
+#endif // RTCW_XX
 
 virtual const idVec3 *getPosition( long t );
 
 #if !defined RTCW_SP
 //virtual const idVec3 *getPosition(long t) const {
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void addControlPoint( idVec3 &v ) {
 	target.addPoint( v );
@@ -807,7 +807,7 @@ class idCameraEvent {
 public:                     // parameters
 #else
 public:
-#endif RTCW_XX
+#endif // RTCW_XX
 
 enum eventType {
 	EVENT_NA = 0x00,
@@ -838,11 +838,11 @@ enum eventType {
 	EVENT_CAMERA,
 	EVENT_FADEOUT,
 	EVENT_FADEIN,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_MP
 	EVENT_FEATHER,          //
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EVENT_COUNT
 };
@@ -973,7 +973,7 @@ void buildCamera();
 //idSplineList *getcameraPosition() {
 //	return &cameraPosition;
 //}
-#endif RTCW_XX
+#endif // RTCW_XX
 
 static idCameraPosition *newFromType( idCameraPosition::positionType t ) {
 	switch ( t ) {
@@ -1045,6 +1045,7 @@ void stopCamera() {
 void getActiveSegmentInfo( int segment, idVec3 &origin, idVec3 &direction, float *fv );
 
 bool getCameraInfo( long time, idVec3 &origin, idVec3 &direction, float *fv );
+qboolean getCameraInfo( int camNum, int time, float *origin, float *angles, float *fov );
 bool getCameraInfo( long time, float *origin, float *direction, float *fv ) {
 	idVec3 org, dir;
 	org[0] = origin[0];
@@ -1099,7 +1100,7 @@ void draw( bool editMode ) {
 		}
 	}
 */
-#endif RTCW_XX
+#endif // RTCW_XX
 
 int numPoints() {
 	if ( cameraEdit ) {

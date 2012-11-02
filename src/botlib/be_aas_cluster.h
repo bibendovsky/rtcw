@@ -41,7 +41,7 @@ void AAS_InitClustering( void );
 
 #if defined RTCW_SP
 void AAS_SetViewPortalsAsClusterPortals( void );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #endif //AASINTERN
 

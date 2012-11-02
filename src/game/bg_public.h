@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #if defined RTCW_ET
 #define __BG_PUBLIC_H__
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 #define GAME_VERSION        "baseq3-1"
@@ -48,7 +48,7 @@ If you have questions concerning this license or the applicable additional terms
 #define GAME_VERSION        "RTCW-MP"
 #else
 #define GAME_VERSION    "Enemy Territory"
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 #if defined( _DEBUG )
@@ -70,7 +70,7 @@ If you have questions concerning this license or the applicable additional terms
 #define SPRINTTIME 20000.0f
 
 #define DEBUG_BOT_RETREATBEHAVIOR 1
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define DEFAULT_GRAVITY     800
 
@@ -78,19 +78,19 @@ If you have questions concerning this license or the applicable additional terms
 #define FORCE_LIMBO_HEALTH  -150 // JPW NERVE
 #elif defined RTCW_ET
 #define FORCE_LIMBO_HEALTH  -75 // JPW NERVE
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 #define GIB_HEALTH          -40
 #else
 #define GIB_HEALTH          -175 // JPW NERVE
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define ARMOR_PROTECTION    0.66
 
 #if defined RTCW_ET
 #define HOLDBREATHTIME      12000
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define MAX_ITEMS           256
 
@@ -102,7 +102,7 @@ If you have questions concerning this license or the applicable additional terms
 #else
 //#define DEFAULT_SHOTGUN_SPREAD	700
 //#define DEFAULT_SHOTGUN_COUNT	11
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //#define	ITEM_RADIUS			15		// item sizes are needed for client side pickup detection
 #define ITEM_RADIUS     10 // Rafael changed the radius so that the items would fit in the 3 new containers
@@ -119,11 +119,11 @@ If you have questions concerning this license or the applicable additional terms
 
 //#define	LIGHTNING_RANGE		600
 //#define	TESLA_RANGE			800
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 #define TESLA_SUPERSOLDIER_RANGE    2000
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 // JPW NERVE -- make flamethrower range variable with single/multiplayer -- actual routine is in bg_pmove.c
@@ -133,19 +133,19 @@ float Com_GetFlamethrowerRange( void );
 // jpw
 #else
 #define FLAMETHROWER_RANGE  2500        // DHM - Nerve :: multiplayer range, was 850 in SP
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 #define ZOMBIE_FLAME_SCALE  0.3
 #elif defined RTCW_ET
 //#define ZOMBIE_FLAME_RADIUS 300
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 #define ZOMBIE_FLAME_RADIUS ( FLAMETHROWER_RANGE * ZOMBIE_FLAME_SCALE )
 #elif defined RTCW_MP
 #define ZOMBIE_FLAME_RADIUS 300
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // RF, AI effects
 
@@ -155,7 +155,7 @@ float Com_GetFlamethrowerRange( void );
 #else
 //#define	PORTAL_ZOMBIE_SPAWNTIME		3000
 //#define	PORTAL_FEMZOMBIE_SPAWNTIME	3000
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define SCORE_NOT_PRESENT   -9999   // for the CS_SCORES[12] when only one player is present
 
@@ -164,7 +164,7 @@ float Com_GetFlamethrowerRange( void );
 #if defined RTCW_SP
 #define DEAD_SINK_DURATION  12000
 #define DEAD_SINK_DEPTH     64
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // Ridah, disabled these
 //#define	MINS_Z				-24
@@ -187,7 +187,7 @@ extern vec3_t playerlegsProneMins;
 extern vec3_t playerlegsProneMaxs;
 
 #define MAX_COMMANDMAP_LAYERS   4
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 // RF, temp only, use infantryss so we can test new anim system
@@ -195,7 +195,7 @@ extern vec3_t playerlegsProneMaxs;
 #define DEFAULT_MODEL       "bj2"
 #else
 #define DEFAULT_MODEL       "multi"
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define DEFAULT_HEAD        "default"    // technically the default head skin.  this means "head_default.skin" for the head
 
@@ -209,7 +209,7 @@ extern vec3_t playerlegsProneMaxs;
 #define MG42_SPREAD_MP      100
 #define MG42_RATE_OF_FIRE   100         // DHM - Nerve :: delay between firings // JPW NERVE was 150
 #define MG42_YAWSPEED       300.f       // degrees per second
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 #define AAGUN_DAMAGE        25
@@ -232,7 +232,7 @@ extern vec3_t playerlegsProneMaxs;
 #define SAY_TEAM    1
 #define SAY_BUDDY   2
 #define SAY_TEAMNL  3
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // RF, client damage identifiers
 
@@ -245,11 +245,11 @@ typedef enum {
 
 #if defined RTCW_SP
 	CLDMG_DEBRIS,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	CLDMG_MAX
 } clientDamage_t;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 // Arnout: different entity states
@@ -312,7 +312,7 @@ typedef enum
 	BOT_ACTION_MAX
 } botAction_t;
 // END - TAT 10/21/2002
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 // RF
@@ -321,7 +321,7 @@ typedef enum
 #define MAX_TAGCONNECTS     32
 #else
 #define MAX_TAGCONNECTS     64
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // (SA) zoom sway values
 #define ZOOM_PITCH_AMPLITUDE        0.13f
@@ -338,13 +338,13 @@ typedef enum
 #define MAX_OBJECTIVES      6
 #else
 #define MAX_OBJECTIVES      8
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_MP
 #define MAX_OID_TRIGGERS    16
 #elif defined RTCW_ET
 #define MAX_OID_TRIGGERS    18
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // dhm
 
@@ -463,7 +463,7 @@ extern const unsigned int aReinfSeeds[MAX_REINFSEEDS];
 #define MV_SCOREUPDATE_INTERVAL     5000    // in msec
 
 #define MAX_CHARACTERS  16
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 //
@@ -498,7 +498,7 @@ extern const unsigned int aReinfSeeds[MAX_REINFSEEDS];
 #define CS_VOTE_YES                     8
 #define CS_VOTE_NO                      9
 #define CS_GAME_VERSION                 10
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 #define CS_MULTI_INFO       15
@@ -635,11 +635,11 @@ extern const unsigned int aReinfSeeds[MAX_REINFSEEDS];
 #define CS_CUSTMOTD                     ( CS_FIRETEAMS +            MAX_FIRETEAMS               )
 #define CS_STRINGS                      ( CS_CUSTMOTD +             MAX_MOTDLINES               )
 #define CS_MAX                          ( CS_STRINGS +              MAX_CSSTRINGS               )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 #define CS_MAX              ( CS_TAGCONNECTS + MAX_TAGCONNECTS )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if ( CS_MAX ) > MAX_CONFIGSTRINGS
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
@@ -648,7 +648,7 @@ extern const unsigned int aReinfSeeds[MAX_REINFSEEDS];
 #if defined RTCW_ET
 //#ifndef GAMETYPES
 //#define GAMETYPES
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef enum {
 
@@ -667,7 +667,7 @@ typedef enum {
 	GT_WOLF_STOPWATCH,  // NERVE - SMF - stopwatch gametype
 	GT_WOLF_CP,         // NERVE - SMF - checkpoint gametype
 	GT_WOLF_CPH,        // JPW NERVE - Capture & Hold gametype
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #else
 	GT_SINGLE_PLAYER,
@@ -676,14 +676,14 @@ typedef enum {
 	GT_WOLF_STOPWATCH,
 	GT_WOLF_CAMPAIGN,   // Exactly the same as GT_WOLF, but uses campaign roulation (multiple maps form one virtual map)
 	GT_WOLF_LMS,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	GT_MAX_GAME_TYPE
 } gametype_t;
 
 #if defined RTCW_ET
 //#define GAMETYPES
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // Rafael gameskill
 
@@ -694,19 +694,19 @@ typedef enum {
 	GSKILL_EASY,
 #elif defined RTCW_MP
 	GSKILL_EASY = 1,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	GSKILL_MEDIUM,
 
 #if defined RTCW_MP
 	GSKILL_MEDIUMHARD, // normal default level
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	GSKILL_HARD,
 
 #if defined RTCW_MP
 	GSKILL_VERYHARD,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	GSKILL_MAX      // must always be last
 } gameskill_t;
@@ -721,7 +721,7 @@ typedef enum {
 } gameskill_t;*/
 
 //#endif // ifndef GAMETYPES
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef enum { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER } gender_t;
 
@@ -753,7 +753,7 @@ typedef enum {
 	WEAPON_RAISING_TORELOAD,    //----(SA)	added
 #elif defined RTCW_ET
 	WEAPON_RAISING_TORELOAD,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	WEAPON_DROPPING,
 
@@ -761,27 +761,27 @@ typedef enum {
 	WEAPON_DROPPING_TORELOAD,   //----(SA)	added.  will reload upon completion of weapon switch
 #elif defined RTCW_ET
 	WEAPON_DROPPING_TORELOAD,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	WEAPON_READYING,    // getting from 'ready' to 'firing'
 	WEAPON_RELAXING,    // weapon is ready, but since not firing, it's on it's way to a "relaxed" stance
 
 #if !defined RTCW_ET
 	WEAPON_VENOM_REST,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	WEAPON_FIRING,
 	WEAPON_FIRINGALT,
 
 #if defined RTCW_SP
 	WEAPON_WAITING,     //----(SA)	added.  player allowed to switch/reload, but not fire
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 	WEAPON_RELOADING    //----(SA)	added
 #else
 	WEAPON_RELOADING,   //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } weaponstate_t;
 
@@ -792,7 +792,7 @@ typedef enum {
 	WSTATE_FIRE,
 	WSTATE_RELOAD
 } weaponstateCompact_t;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // pmove->pm_flags	(sent as max 16 bits in msg.c)
 #define PMF_DUCKED          1
@@ -809,42 +809,42 @@ typedef enum {
 #define PMF_USE_ITEM_HELD   1024
 #else
 //#define PMF_PRONE_BIPOD		1024	// prone with a bipod set
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 #define PMF_FLAILING        2048
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 // RF, removed since it's not used
 //#define PMF_GRAPPLE_PULL	2048	// pull towards grapple location
 #elif defined RTCW_MP
 #define PMF_GRAPPLE_PULL    2048    // pull towards grapple location
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 #define PMF_IGNORE_INPUT    2048    // no movement/firing commands allowed
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define PMF_FOLLOW          4096    // spectate following another player
 
 #if !defined RTCW_ET
 #define PMF_SCOREBOARD      8192    // spectate as a scoreboard
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 #define PMF_TIME_LOAD       8192    // hold for this time after a load game, and prevent large thinks
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define PMF_LIMBO           16384   // JPW NERVE limbo state, pm_time is time until reinforce
 
 #if defined RTCW_SP
 #define PMF_TIME_LOAD       32768   // hold for this time after a load game, and prevent large thinks
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_SP
 #define PMF_TIME_LOCKPLAYER 32768   // DHM - Nerve :: Lock all movement and view changes
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 #define PMF_ALL_TIMES   ( PMF_TIME_WATERJUMP | PMF_TIME_LAND | PMF_TIME_KNOCKBACK | PMF_TIME_LOAD )
@@ -852,7 +852,7 @@ typedef enum {
 #define PMF_ALL_TIMES   ( PMF_TIME_WATERJUMP | PMF_TIME_LAND | PMF_TIME_KNOCKBACK | PMF_TIME_LOCKPLAYER )
 #else
 #define PMF_ALL_TIMES   ( PMF_TIME_WATERJUMP | PMF_TIME_LAND | PMF_TIME_KNOCKBACK | PMF_TIME_LOCKPLAYER /*|PMF_TIME_LOAD*/ )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_SP
 typedef struct {
@@ -860,7 +860,7 @@ typedef struct {
 
 #if !defined RTCW_ET
 	int blockCenterViewTime; // don't let centerview happen for a little while
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	int jumpTime;                   // used in MP to prevent jump accel
@@ -870,7 +870,7 @@ typedef struct {
 	int sprintTime;
 
 	int airleft;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// Arnout: MG42 aiming
 	float varc, harc;
@@ -894,12 +894,12 @@ typedef struct {
 	int lastRecoilDeltaTime;
 
 	qboolean releasedFire;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } pmoveExt_t;   // data used both in client and server - store it here
 // generally useful for data you want to manipulate in bg_* and cgame, or bg_* and game
 // instead of playerstate to prevent different engine versions of playerstate between XP and MP
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define MAXTOUCH    32
 typedef struct {
@@ -908,11 +908,11 @@ typedef struct {
 
 #if !defined RTCW_SP
 	pmoveExt_t      *pmext;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	struct bg_character_s   *character;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// command (in)
 	usercmd_t cmd, oldcmd;
@@ -930,11 +930,11 @@ typedef struct {
 	int engineerChargeTime;
 	int medicChargeTime;
 	// -NERVE - SMF
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	int covertopsChargeTime;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// results (out)
 	int numtouch;
@@ -957,7 +957,7 @@ typedef struct {
 #ifdef GAMEDLL  // the whole stamina thing is only in qagame
 	qboolean leadership;            // within 512 units of a player with level 5 Signals skill (that player has to be in PVS as well to make sue we can predict it)
 #endif // GAMEDLL
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// for fixed msec Pmove
 	int pmove_fixed;
@@ -975,7 +975,7 @@ typedef struct {
 void PM_UpdateViewAngles( playerState_t * ps, usercmd_t * cmd, void( trace ) ( trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask ) );
 #else
 void PM_UpdateViewAngles( playerState_t * ps, pmoveExt_t * pmext, usercmd_t * cmd, void( trace ) ( trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask ), int tracemask );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 int Pmove( pmove_t *pmove );
 
@@ -983,7 +983,7 @@ int Pmove( pmove_t *pmove );
 
 #if !defined RTCW_ET
 // JPW NERVE
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define PC_SOLDIER              0   //	shoot stuff
 #define PC_MEDIC                1   //	heal stuff
@@ -992,7 +992,7 @@ int Pmove( pmove_t *pmove );
 #if !defined RTCW_ET
 #define PC_LT                   3   //	bomb stuff
 #define PC_MEDIC_CHARGETIME     30000   // FIXME just for testing, this will change to server cvars for each class
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 #define PC_FIELDOPS             3   //	bomb stuff
@@ -1003,7 +1003,7 @@ int Pmove( pmove_t *pmove );
 // JPW NERVE
 #define MAX_WEAPS_IN_BANK_MP    12
 #define MAX_WEAP_BANKS_MP       10
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // jpw
 
@@ -1016,13 +1016,13 @@ typedef enum {
 //	STAT_WEAPONS,					// 16 bit fields
 	STAT_ARMOR,
 //----(SA) Keys for Wolf
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	STAT_KEYS,                      // 16 bit fields
 
 #if !defined RTCW_ET
 //----(SA) end
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	STAT_DEAD_YAW,                  // look this direction when dead (FIXME: get rid of?)
 	STAT_CLIENTS_READY,             // bit mask of clients wishing to exit the intermission (FIXME: configstring?)
@@ -1032,7 +1032,7 @@ typedef enum {
 	STAT_PLAYER_CLASS               // DHM - Nerve :: player class in multiplayer
 #else
 	STAT_PLAYER_CLASS,              // DHM - Nerve :: player class in multiplayer
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_MP
 	STAT_CAPTUREHOLD_RED,           // JPW NERVE - red team score
@@ -1041,7 +1041,7 @@ typedef enum {
 	STAT_CAPTUREHOLD_RED,           // JPW NERVE - red team score
 	STAT_CAPTUREHOLD_BLUE,          // JPW NERVE - blue team score
 	STAT_XP,                        // Gordon: "realtime" version of xp that doesnt need to go thru the scoreboard
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } statIndex_t;
 
@@ -1059,7 +1059,7 @@ typedef enum {
 #if !defined RTCW_ET
 	PERS_REWARD_COUNT,              // incremented for each reward sound
 	PERS_REWARD,                    // a reward_t
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	PERS_ATTACKER,                  // clientnum of last damage inflicter
 	PERS_KILLED,                    // count of the number of times you died
@@ -1069,16 +1069,16 @@ typedef enum {
 	PERS_IMPRESSIVE_COUNT,
 	PERS_EXCELLENT_COUNT,
 	PERS_GAUNTLET_FRAG_COUNT,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_SP
 	PERS_RESPAWNS_LEFT,             // DHM - Nerve :: number of remaining respawns
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 	PERS_ACCURACY_SHOTS,
 	PERS_ACCURACY_HITS,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	PERS_RESPAWNS_PENALTY,          // how many respawns you have to sit through before respawning again
@@ -1086,7 +1086,7 @@ typedef enum {
 	PERS_REVIVE_COUNT,
 	PERS_BLEH_2,
 	PERS_BLEH_3,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// Rafael - mg42		// (SA) I don't understand these here.  can someone explain?
 	PERS_HWEAPON_USE,
@@ -1102,7 +1102,7 @@ typedef enum {
 
 #if !defined RTCW_MP
 #define EF_FORCE_END_FRAME  EF_NONSOLID_BMODEL  // force client to end of current animation (after loading a savegame)
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define EF_TELEPORT_BIT     0x00000004      // toggled every time the origin abruptly changes
 
@@ -1123,14 +1123,14 @@ typedef enum {
 
 #if defined RTCW_MP
 #define EF_SMOKING          EF_MONSTER_EFFECT3  // DHM - Nerve :: ET_GENERAL ents will emit smoke if set // JPW switched to this after my code change
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define EF_CONNECTION       0x00002000      // draw a connection trouble sprite
 #define EF_MONSTER_EFFECT2  0x00004000      // show the secondary special effect for this character
 
 #if defined RTCW_MP
 #define EF_SMOKINGBLACK     EF_MONSTER_EFFECT2  // JPW NERVE -- like EF_SMOKING only darker & bigger
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define EF_HEADSHOT         0x00008000      // last hit to player was head shot
 #define EF_MONSTER_EFFECT3  0x00010000      // show the third special effect for this character
@@ -1138,7 +1138,7 @@ typedef enum {
 
 #if defined RTCW_MP
 #define EF_VOTED            EF_HEADLOOK     // already cast a vote
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define EF_STAND_IDLE2      0x00040000      // when standing, play idle2 instead of the default
 #define EF_VIEWING_CAMERA   EF_STAND_IDLE2  // NOTE: REMOVE STAND_IDLE2 !!
@@ -1149,11 +1149,11 @@ typedef enum {
 //#define EF_MOVER_BLOCKED	0x00100000		// mover was blocked dont lerp on the client
 #elif defined RTCW_MP
 #define EF_MOVER_BLOCKED    0x00100000      // mover was blocked dont lerp on the client
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 #define EF_NO_TURN_ANIM     0x00100000      // dont play turning anims in the cgame
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define EF_FORCED_ANGLES    0x00200000  // enforce all body parts to use these angles
 
@@ -1190,30 +1190,30 @@ typedef enum {
 #define EF_VIEWING_CAMERA   0x00200000      // player is viewing a camera
 #define EF_AAGUN_ACTIVE     0x00400000      // Gordon: player is manning an AA gun
 #define EF_SPARE0           0x00800000      // Gordon: freed
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_SP
 // !! NOTE: only place flags that don't need to go to the client beyond 0x00800000
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 #define EF_DUMMY_PMOVE      0x01000000
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 #define EF_SPARE1           0x01000000      // Gordon: freed
 #define EF_SPARE2           0x02000000      // Gordon: freed
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 #define EF_VOTED            0x02000000      // already cast a vote
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define EF_BOUNCE           0x04000000      // for missiles
 
 #if defined RTCW_SP
 #define EF_CIG              EF_BOUNCE       // players should never use bounce, hijack for cigarette
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define EF_BOUNCE_HALF      0x08000000      // for missiles
 #define EF_MOVER_STOP       0x10000000      // will push otherwise	// (SA) moved down to make space for one more client flag
@@ -1222,17 +1222,17 @@ typedef enum {
 #define EF_MOVER_BLOCKED    0x20000000      // mover was blocked dont lerp on the client // xkan, moved down to make space for client flag
 
 #define BG_PlayerMounted( eFlags ) ( ( eFlags & EF_MG42_ACTIVE ) || ( eFlags & EF_MOUNTEDTANK ) || ( eFlags & EF_AAGUN_ACTIVE ) )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 // !! NOTE: only place flags that don't need to go to the client beyond 0x00800000
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 #define EF_MOVER_ANIMATE    0x20000000      // interpolate animation
 #define EF_DEATH_FRAME      EF_MOVER_ANIMATE    // hijack to stick death at last frame after vid_restart
 #define EF_RECENTLY_FIRING  0x40000000      // fired recently, lock torso angles, etc
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef enum {
 	PW_NONE,
@@ -1244,7 +1244,7 @@ typedef enum {
 	PW_INVIS,
 	PW_REGEN,
 	PW_FLIGHT,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// (SA) for Wolf
 	PW_INVULNERABLE,
@@ -1257,7 +1257,7 @@ typedef enum {
 	PW_FIRE,            //----(SA)
 	PW_ELECTRIC,        //----(SA)
 	PW_BREATHER,        //----(SA)
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	PW_NOFATIGUE,       //----(SA)
 
@@ -1266,7 +1266,7 @@ typedef enum {
 
 #if !defined RTCW_ET
 	PW_BALL,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	PW_OPS_DISGUISED,
@@ -1278,7 +1278,7 @@ typedef enum {
 
 	PW_BLACKOUT = 14,       // OSP - spec blackouts. FIXME: we don't need 32bits here...relocate
 	PW_MVCLIENTLIST = 15,   // OSP - MV client info.. need a full 32 bits
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	PW_NUM_POWERUPS
 } powerup_t;
@@ -1301,7 +1301,7 @@ typedef enum {
 	KEY_3,      // eye
 	KEY_4,      // field radio
 	KEY_5,      // satchel charge
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	INV_BINOCS, // binoculars
 
@@ -1327,7 +1327,7 @@ typedef enum {
 	KEY_14,
 	KEY_15,
 	KEY_16,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	KEY_LOCKED_PICKABLE, // Mad Doc - TDF: ent can be unlocked with the WP_LOCKPICK.
@@ -1337,14 +1337,14 @@ typedef enum {
 	KEY_NUM_KEYS,
 #else
 	KEY_NUM_KEYS
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 	KEY_UNLOCKED_ENT,       // ent is unlocked (will be replaced by KEY_NONE after checks for all manners of being locked)
 	KEY_LOCKED_TARGET,      // ent is locked by virtue of being the target of another ent
 	KEY_LOCKED_ENT,         // ent has key set to -1 in entity
 	KEY_LOCKED_TRIGGERED    // locked by a target_lock
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } wkey_t;                   // key_t conflicted with <types.h>
 
@@ -1357,7 +1357,7 @@ typedef enum {
 //	HI_MEDKIT,
 #else
 	HI_MEDKIT,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// new for Wolf
 	HI_WINE,
@@ -1372,7 +1372,7 @@ typedef enum {
 	HI_WATER,
 	HI_ELECTRIC,
 	HI_FIRE,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	HI_STAMINA,
 	HI_BOOK1,   //----(SA)	added
@@ -1404,14 +1404,14 @@ typedef enum
 	AICHAR_FEMZOMBIE,
 
 	AICHAR_UNDEAD,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	AICHAR_VENOM,
 	AICHAR_LOPER,
 
 #if defined RTCW_MP
 	AICHAR_SEALOPER,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	AICHAR_ELITEGUARD,
 	AICHAR_STIMSOLDIER1,    // dual machineguns
@@ -1423,7 +1423,7 @@ typedef enum
 
 #if defined RTCW_MP
 	AICHAR_REJECTX,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	AICHAR_FROGMAN,
 	AICHAR_HELGA,
@@ -1434,12 +1434,12 @@ typedef enum
 
 #if defined RTCW_MP
 	AICHAR_CHIMP,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	NUM_CHARACTERS
 } AICharacters_t;
 // done.
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 #ifdef KITS
@@ -1454,14 +1454,14 @@ typeef enum {
 } kit_t;
 // END Mad Doc - TDF
 #endif
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // NOTE: we can only use up to 15 in the client-server stream
 // SA NOTE: should be 31 now (I added 1 bit in msg.c)
 
 #if defined RTCW_ET
 // RF NOTE: if this changes, please update etmain\botfiles\inv.h
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef enum {
 	WP_NONE,                // 0
@@ -1484,7 +1484,7 @@ typedef enum {
 //	WP_SPEARGUN,			// 11
 #elif defined RTCW_MP
 	WP_SPEARGUN,            // 11
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // weapon keys only go 1-0, so put the alternates above that (since selection will be a double click on the german weapon key)
 
@@ -1494,7 +1494,7 @@ typedef enum {
 //	WP_KNIFE2,				// 12
 #elif defined RTCW_MP
 	WP_KNIFE2,              // 12
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	WP_COLT,                // 11	equivalent american weapon to german luger
 	WP_THOMPSON,            // 12	equivalent american weapon to german mp40
@@ -1504,7 +1504,7 @@ typedef enum {
 //	WP_BAR,					// 16	equivalent american weapon to german fg42
 #elif defined RTCW_MP
 	WP_BAR,                 // 16	equivalent american weapon to german fg42
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	WP_GRENADE_PINEAPPLE,   // 14
 
@@ -1512,7 +1512,7 @@ typedef enum {
 //	WP_ROCKET_LAUNCHER,		// 18	equivalent american weapon to german panzerfaust
 #elif defined RTCW_MP
 	WP_ROCKET_LAUNCHER,     // 18	equivalent american weapon to german panzerfaust
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// secondary fire weapons
 	WP_SNIPERRIFLE,         // 15
@@ -1524,7 +1524,7 @@ typedef enum {
 #elif defined RTCW_MP
 	WP_VENOM_FULL,          // 21
 	WP_SPEARGUN_CO2,        // 22
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	WP_FG42SCOPE,           // 17	fg42 alt fire
 
@@ -1532,21 +1532,21 @@ typedef enum {
 //	WP_BAR2,				// 24
 #elif defined RTCW_MP
 	WP_BAR2,                // 24
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// more weapons
 	WP_STEN,                // 18	silenced sten sub-machinegun
 
 #if defined RTCW_SP
 	WP_SILENCER,            // 19	// used to be sp5
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_MP
 	WP_MEDIC_SYRINGE,       // 26	// JPW NERVE -- broken out from CLASS_SPECIAL per Id request
 	WP_AMMO,                // 27	// JPW NERVE likewise
 	WP_ARTY,                // 28
 	WP_SILENCER,            // 29	// used to be sp5
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	WP_AKIMBO,              // 20	//----(SA)	added
 
@@ -1556,7 +1556,7 @@ typedef enum {
 	WP_CLASS_SPECIAL,       // 21	// class-specific multiplayer weapon (airstrike, engineer, or medpack)
 	// (SA) go ahead and take the 'freezeray' spot.  it ain't happenin
 	//      (I checked for instances of WP_CLASS_SPECIAL and I don't think this'll cause you a problem.  however, if it does, move it where you need to. ) (SA)
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // jpw
 
@@ -1564,7 +1564,7 @@ typedef enum {
 //	WP_CROSS,				// 29
 #elif defined RTCW_MP
 	WP_CROSS,               // 31
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	WP_DYNAMITE,            // 22
 
@@ -1574,7 +1574,7 @@ typedef enum {
 #elif defined RTCW_MP
 	WP_DYNAMITE2,           // 33
 	WP_PROX,                // 34
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	WP_MONSTER_ATTACK1,     // 23	// generic monster attack, slot 1
 	WP_MONSTER_ATTACK2,     // 24	// generic monster attack, slot 2
@@ -1582,7 +1582,7 @@ typedef enum {
 
 #if defined RTCW_MP
 	WP_SMOKETRAIL,          // 38
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	WP_GAUNTLET,            // 26
 
@@ -1591,7 +1591,7 @@ typedef enum {
 #if defined RTCW_SP
 	WP_GRENADE_SMOKE,       // 28	// smoke grenade for LT multiplayer
 	WP_MEDIC_HEAL,          // 29	// DHM - Nerve :: Medic special weapon
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	WP_MORTAR,              // 30
 
@@ -1604,7 +1604,7 @@ typedef enum {
 	WP_SMOKE_GRENADE,       // 45
 	// -NERVE - SMF
 	WP_BINOCULARS,          // 46
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	WP_NUM_WEAPONS          // 32   NOTE: this cannot be larger than 64 for AI/player weapons!
 #else
@@ -1665,7 +1665,7 @@ typedef enum {
 
 	WP_NUM_WEAPONS          // WolfMP: 32 WolfXP: 50
 							// NOTE: this cannot be larger than 64 for AI/player weapons!
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } weapon_t;
 
@@ -1673,7 +1673,7 @@ typedef enum {
 // JPW NERVE moved from cg_weapons (now used in g_active) for drop command, actual array in bg_misc.c
 extern int weapBanksMultiPlayer[MAX_WEAP_BANKS_MP][MAX_WEAPS_IN_BANK_MP];
 // jpw
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 // TAT 10/4/2002
@@ -1718,7 +1718,7 @@ typedef struct {
 	int hitRegions[HR_NUM_HITREGIONS];
 	int objectiveStats[MAX_OBJECTIVES];
 } playerStats_t;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 typedef struct ammotable_s {
@@ -1729,7 +1729,7 @@ typedef struct ammotable_s {
 #if defined RTCW_ET
 	int defaultStartingAmmo;        // Mad Doc - TDF
 	int defaultStartingClip;        // Mad Doc - TDF
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int reloadTime;         //
 	int fireDelayTime;      //
@@ -1746,7 +1746,7 @@ extern ammotable_t ammoTable[];     // defined in bg_misc.c
 #else
 // Lookup table to find ammo table entry
 extern ammotable_t *GetAmmoTableData( int ammoIndex );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 extern int weapAlts[];  // defined in bg_misc.c
 
@@ -1761,12 +1761,12 @@ extern int weapAlts[];  // defined in bg_misc.c
 #if defined RTCW_SP
 #define WP_LASTGERMAN       WP_TESLA
 #define WP_BEGINAMERICAN    WP_COLT
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_MP
 #define WP_LASTGERMAN       WP_SPEARGUN
 #define WP_BEGINAMERICAN    WP_KNIFE2
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define WP_LASTAMERICAN     WP_GRENADE_PINEAPPLE
 #define WP_BEGINSECONDARY   WP_SNIPERRIFLE
@@ -1775,20 +1775,20 @@ extern int weapAlts[];  // defined in bg_misc.c
 #define WP_LASTSECONDARY    WP_FG42SCOPE
 #elif defined RTCW_MP
 #define WP_LASTSECONDARY    WP_SPEARGUN_CO2
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 #define WEAPS_ONE_HANDED    ( ( 1 << WP_KNIFE ) | ( 1 << WP_LUGER ) | ( 1 << WP_COLT ) | ( 1 << WP_SILENCER ) | ( 1 << WP_GRENADE_LAUNCHER ) | ( 1 << WP_GRENADE_PINEAPPLE ) )
 #elif defined RTCW_MP
 #define WEAPS_ONE_HANDED    ( ( 1 << WP_KNIFE ) | ( 1 << WP_KNIFE2 ) | ( 1 << WP_LUGER ) | ( 1 << WP_COLT ) | ( 1 << WP_SILENCER ) | ( 1 << WP_GRENADE_LAUNCHER ) | ( 1 << WP_GRENADE_PINEAPPLE ) )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_MP
 // TTimo
 // NOTE: what about WP_MAUSER WP_GARAND WP_VENOM
 #define IS_AUTORELOAD_WEAPON( weapon ) ( ( weapon ) == WP_LUGER || ( weapon ) == WP_COLT || ( weapon ) == WP_MP40 \
 										 || ( weapon ) == WP_THOMPSON || ( weapon ) == WP_STEN )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //----(SA)	end
 
@@ -1801,7 +1801,7 @@ typedef enum {
 	WPOS_THROW,
 	WPOS_NUM_POSITIONS
 } pose_t;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 #define WP_BEGINSECONDARY   WP_GPG40
@@ -1821,7 +1821,7 @@ typedef enum {
 		weapon == WP_GARAND   || weapon == WP_K43_SCOPE     || weapon == WP_FG42SCOPE     || \
 		BG_IsAkimboWeapon( weapon ) || weapon == WP_MOBILE_MG42_SET	\
 	)
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 /*
@@ -1842,7 +1842,7 @@ typedef enum {
 } weapon_t;
 
 */
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 // reward sounds
@@ -1854,7 +1854,7 @@ typedef enum {
 	REWARD_DENIED,
 	REWARD_GAUNTLET
 } reward_t;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // entityState_t->event values
 // entity events are for effects that take place reletive
@@ -1897,7 +1897,7 @@ typedef enum {
 
 #if !defined RTCW_ET
 	EV_JUMP_PAD,            // boing sound at origin, jump sound on player
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_JUMP,
 	EV_WATER_TOUCH, // foot touches
@@ -1910,27 +1910,27 @@ typedef enum {
 
 #if !defined RTCW_ET
 	EV_NOITEM,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_NOAMMO,
 
 #if defined RTCW_ET
 	EV_WEAPONSWITCHED,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_EMPTYCLIP,
 	EV_FILL_CLIP,
 
 #if !defined RTCW_SP
 	EV_MG42_FIXED, // JPW NERVE
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_WEAP_OVERHEAT,
 	EV_CHANGE_WEAPON,
 
 #if defined RTCW_ET
 	EV_CHANGE_WEAPON_2,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_FIRE_WEAPON,
 	EV_FIRE_WEAPONB,
@@ -1938,7 +1938,7 @@ typedef enum {
 
 #if !defined RTCW_ET
 	EV_FIRE_QUICKGREN,  // "Quickgrenade"
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_NOFIRE_UNDERWATER,
 	EV_FIRE_WEAPON_MG42,
@@ -1946,11 +1946,11 @@ typedef enum {
 #if defined RTCW_SP
 	EV_SUGGESTWEAP,     //----(SA)	added
 	EV_GRENADE_SUICIDE, //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	EV_FIRE_WEAPON_MOUNTEDMG42,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 	EV_USE_ITEM0,
@@ -1969,7 +1969,7 @@ typedef enum {
 	EV_USE_ITEM13,
 	EV_USE_ITEM14,
 	EV_USE_ITEM15,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_ITEM_RESPAWN,
 	EV_ITEM_POP,
@@ -1980,18 +1980,18 @@ typedef enum {
 
 #if defined RTCW_ET
 	EV_GENERAL_SOUND_VOLUME,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_GLOBAL_SOUND,        // no attenuation
 
 #if !defined RTCW_SP
 	EV_GLOBAL_CLIENT_SOUND, // DHM - Nerve :: no attenuation, only plays for specified client
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	EV_GLOBAL_TEAM_SOUND,   // no attenuation, team only
 	EV_FX_SOUND,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_BULLET_HIT_FLESH,
 	EV_BULLET_HIT_WALL,
@@ -2002,14 +2002,14 @@ typedef enum {
 
 #if !defined RTCW_ET
 	EV_VENOMFULL,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_BULLET,              // otherEntity is the shooter
 	EV_LOSE_HAT,            //----(SA)
 
 #if !defined RTCW_ET
 	EV_GIB_HEAD,            // only blow off the head
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_PAIN,
 	EV_CROUCH_PAIN,
@@ -2019,13 +2019,13 @@ typedef enum {
 
 #if defined RTCW_SP
 	EV_ENTDEATH,    //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_OBITUARY,
 
 #if !defined RTCW_SP
 	EV_STOPSTREAMINGSOUND, // JPW NERVE swiped from sherman
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_POWERUP_QUAD,
 	EV_POWERUP_BATTLESUIT,
@@ -2036,7 +2036,7 @@ typedef enum {
 
 #if defined RTCW_SP
 	EV_STOPSTREAMINGSOUND,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_TAUNT,
 	EV_SMOKE,
@@ -2047,20 +2047,20 @@ typedef enum {
 	EV_BATS,
 	EV_BATS_UPDATEPOSITION,
 	EV_BATS_DEATH,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_EXPLODE,     // func_explosive
 
 #if defined RTCW_ET
 	EV_RUBBLE,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_EFFECT,      // target_effect
 	EV_MORTAREFX,   // mortar firing
 
 #if defined RTCW_MP
 // JPW NERVE
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_SPINUP,  // JPW NERVE panzerfaust preamble
 
@@ -2069,7 +2069,7 @@ typedef enum {
 	EV_TESTID2,
 	EV_ENDTEST,
 // jpw
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_SNOW_ON,
 	EV_SNOW_OFF,
@@ -2080,12 +2080,12 @@ typedef enum {
 	EV_WOLFKICK_HIT_FLESH,
 	EV_WOLFKICK_HIT_WALL,
 	EV_WOLFKICK_MISS,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	EV_MORTAR_IMPACT,
 	EV_MORTAR_MISS,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_SPIT_HIT,
 	EV_SPIT_MISS,
@@ -2099,7 +2099,7 @@ typedef enum {
 
 #if !defined RTCW_ET
 	EV_FLAMEBARREL_BOUNCE,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_FLAKGUN1,
 	EV_FLAKGUN2,
@@ -2117,7 +2117,7 @@ typedef enum {
 
 #if !defined RTCW_ET
 	EV_SNIPER_SOUND,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_POPUP,
 	EV_POPUPBOOK,
@@ -2126,12 +2126,12 @@ typedef enum {
 #if defined RTCW_SP
 	EV_CLOSEMENU,   //----(SA)	added
 	EV_SPAWN_SPIRIT,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_SP
 	EV_MG42BULLET_HIT_FLESH,    // Arnout: these two send the seed as well
 	EV_MG42BULLET_HIT_WALL,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	EV_SHAKE,
@@ -2144,7 +2144,7 @@ typedef enum {
 	EV_ARTYMESSAGE,
 	EV_AIRSTRIKEMESSAGE,
 	EV_MEDIC_CALL,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	EV_MAX_EVENTS   // just added as an 'endcap'
 
@@ -2192,11 +2192,11 @@ typedef enum {
 	MAX_ANIMATIONS
 } animNumber_t;
 */
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 // NOTE: this must be synched with the text list below
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // new (10/18/00)
 typedef enum {
@@ -2378,7 +2378,7 @@ typedef enum {
 
 #if defined RTCW_ET
 	WEAP_DROP2,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	MAX_WP_ANIMATIONS
 } weapAnimNumber_t;
@@ -2403,7 +2403,7 @@ typedef enum hudHeadAnimNumber_s {
 	HD_PAIN,
 	MAX_HD_ANIMATIONS
 } hudHeadAnimNumber_t;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 #define ANIMFL_LADDERANIM   0x1
@@ -2411,7 +2411,7 @@ typedef enum hudHeadAnimNumber_s {
 
 #if defined RTCW_ET
 #define ANIMFL_REVERSED     0x4
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef struct animation_s {
 
@@ -2421,7 +2421,7 @@ typedef struct animation_s {
 #else
 	char mdxFileName[MAX_QPATH];
 #endif // CGAMEDLL
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	char name[MAX_QPATH];
 	int firstFrame;
@@ -2434,7 +2434,7 @@ typedef struct animation_s {
 
 #if defined RTCW_SP
 	int priority;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	//
 	// derived
@@ -2446,7 +2446,7 @@ typedef struct animation_s {
 
 #if defined RTCW_SP
 	float stepGap;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } animation_t;
 
@@ -2483,7 +2483,7 @@ typedef struct headAnimation_s {
 
 #if defined RTCW_ET
 // Gordon: renamed these to team_axis/allies, it really was awful....
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef enum {
 	TEAM_FREE,
@@ -2491,12 +2491,12 @@ typedef enum {
 #if !defined RTCW_ET
 	TEAM_RED,
 	TEAM_BLUE,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	TEAM_AXIS,
 	TEAM_ALLIES,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	TEAM_SPECTATOR,
 
@@ -2509,7 +2509,7 @@ typedef enum {
 #if !defined RTCW_ET
 // How many players on the overlay
 #define TEAM_MAXOVERLAY     8
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 // OSP - weapon stat info: mapping between MOD_ and WP_ types (FIXME for new ET weapons)
@@ -2550,7 +2550,7 @@ typedef struct {
 
 extern const weap_ws_t aWeaponInfo[WS_MAX];
 // OSP
-#endif RTCW_XX
+#endif // RTCW_XX
 
 
 // means of death
@@ -2560,20 +2560,20 @@ typedef enum {
 #if !defined RTCW_ET
 	MOD_SHOTGUN,
 	MOD_GAUNTLET,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	MOD_MACHINEGUN,
 
 #if defined RTCW_ET
 	MOD_BROWNING,
 	MOD_MG42,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	MOD_GRENADE,
 
 #if !defined RTCW_ET
 	MOD_GRENADE_SPLASH,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	MOD_ROCKET,
 
@@ -2583,18 +2583,18 @@ typedef enum {
 	MOD_LIGHTNING,
 	MOD_BFG,
 	MOD_BFG_SPLASH,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_SP
 	// (SA) modified wolf weap mods
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	MOD_KNIFE,
 
 #if !defined RTCW_ET
 	MOD_KNIFE2,
 	MOD_KNIFE_STEALTH,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	MOD_LUGER,
 	MOD_COLT,
@@ -2605,7 +2605,7 @@ typedef enum {
 #if !defined RTCW_ET
 	MOD_MAUSER,
 	MOD_SNIPERRIFLE,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	MOD_GARAND,
 	MOD_SNOOPERSCOPE,
@@ -2614,7 +2614,7 @@ typedef enum {
 #if !defined RTCW_ET
 	MOD_AKIMBO,     //----(SA)
 	MOD_BAR,    //----(SA)
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	MOD_FG42,
 	MOD_FG42SCOPE,
@@ -2622,14 +2622,14 @@ typedef enum {
 
 #if !defined RTCW_ET
 	MOD_ROCKET_LAUNCHER,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	MOD_GRENADE_LAUNCHER,
 
 #if !defined RTCW_ET
 	MOD_VENOM,
 	MOD_VENOM_FULL,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	MOD_FLAMETHROWER,
 
@@ -2637,24 +2637,24 @@ typedef enum {
 	MOD_TESLA,
 	MOD_SPEARGUN,
 	MOD_SPEARGUN_CO2,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	MOD_GRENADE_PINEAPPLE,
 	MOD_CROSS,
 
 #if !defined RTCW_ET
 	// end
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 	MOD_MORTAR,
 	MOD_MORTAR_SPLASH,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	MOD_MAPMORTAR,
 	MOD_MAPMORTAR_SPLASH,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	MOD_KICKED,
 	MOD_GRABBER,
@@ -2662,7 +2662,7 @@ typedef enum {
 
 #if !defined RTCW_ET
 	MOD_DYNAMITE_SPLASH,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	MOD_AIRSTRIKE, // JPW NERVE
 
@@ -2670,7 +2670,7 @@ typedef enum {
 	MOD_SYRINGE,    // JPW NERVE
 	MOD_AMMO,   // JPW NERVE
 	MOD_ARTY,   // JPW NERVE
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	MOD_WATER,
 	MOD_SLIME,
@@ -2684,17 +2684,17 @@ typedef enum {
 
 #if !defined RTCW_ET
 	MOD_GRAPPLE,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	MOD_EXPLOSIVE,
 
 #if !defined RTCW_ET
 	MOD_POISONGAS,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_MP
 	// RF, AI attacks
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 	MOD_ZOMBIESPIT,
@@ -2706,15 +2706,15 @@ typedef enum {
 	MOD_LOPER_HIT,
 
 // JPW NERVE multiplayer class-specific MODs
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 	MOD_LT_ARTILLERY,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_MP
 	MOD_LT_AMMO,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 	MOD_LT_AIRSTRIKE,
@@ -2722,7 +2722,7 @@ typedef enum {
 	MOD_MEDIC,      // these like this or not
 //
 	MOD_BAT
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	MOD_CARBINE,
@@ -2760,7 +2760,7 @@ typedef enum {
 	MOD_SWITCHTEAM,
 
 	MOD_NUM_MODS
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } meansOfDeath_t;
 
@@ -2779,7 +2779,7 @@ typedef enum {
 #if !defined RTCW_ET
 	IT_POWERUP,             // instant on, timer based
 							// EFX: rotate + external ring that rotates
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	IT_HOLDABLE,            // single use, holdable item
 							// EFX: rotate + bob
@@ -2788,13 +2788,13 @@ typedef enum {
 
 #if !defined RTCW_ET
 	IT_CLIPBOARD,           // 'clipboard' used as a general term for 'popup' items where you pick up the item and it pauses and opens a menu
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 	IT_TEAM
 #else
 	IT_TEAM,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } itemType_t;
 
@@ -2802,7 +2802,7 @@ typedef enum {
 #define MAX_ITEM_MODELS 5
 #else
 #define MAX_ITEM_MODELS 3
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define MAX_ITEM_ICONS 4
 
@@ -2833,7 +2833,7 @@ typedef struct gitem_s {
 	int gameskillnumber[5];
 #else
 //	int			gameskillnumber[5];
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } gitem_t;
 // END JOSEPH
@@ -2846,11 +2846,11 @@ gitem_t *BG_FindItem( const char *pickupName );
 
 #if defined RTCW_SP
 gitem_t *BG_FindItem2( const char *name );  //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 gitem_t *BG_FindItemForClassName( const char *className );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 gitem_t *BG_FindItemForWeapon( weapon_t weapon );
 gitem_t *BG_FindItemForPowerup( powerup_t pw );
@@ -2860,13 +2860,13 @@ gitem_t *BG_FindItemForHoldable( holdable_t pw );
 gitem_t *BG_FindItemForAmmo( int ammo );        //----(SA)	modified
 #elif defined RTCW_MP
 gitem_t *BG_FindItemForAmmo( int weapon );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 gitem_t *BG_FindItemForKey( wkey_t k, int *index );
 #else
 //gitem_t *BG_FindItemForKey		( wkey_t k, int *index );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 weapon_t BG_FindAmmoForWeapon( weapon_t weapon );
 weapon_t BG_FindClipForWeapon( weapon_t weapon );
@@ -2881,19 +2881,19 @@ qboolean BG_AkimboFireSequence( int weapon, int akimboClip, int mainClip );
 qboolean BG_IsAkimboWeapon( int weaponNum );
 qboolean BG_IsAkimboSideArm( int weaponNum, playerState_t *ps );
 int BG_AkimboSidearm( int weaponNum );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define ITEM_INDEX( x ) ( ( x ) - bg_itemlist )
 
 #if defined RTCW_ET
 qboolean BG_CanUseWeapon( int classNum, int teamNum, weapon_t weapon );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 qboolean    BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps );
 #else
 qboolean    BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps, int *skill, int teamNum );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 // g_dmflags->integer flags
@@ -2901,7 +2901,7 @@ qboolean    BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *
 #define DF_FIXED_FOV            16
 #define DF_NO_FOOTSTEPS         32
 #define DF_NO_WEAPRELOAD        64
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // content masks
 #define MASK_ALL                ( -1 )
@@ -2916,13 +2916,13 @@ qboolean    BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *
 #define MASK_SHOT               ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_CLIPSHOT )
 #else
 #define MASK_SHOT               ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define MASK_MISSILESHOT        ( MASK_SHOT | CONTENTS_MISSILECLIP )
 
 #if defined RTCW_SP
 #define MASK_AISIGHT            ( CONTENTS_SOLID | CONTENTS_AI_NOSIGHT )
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //
 // entityState_t->eType
@@ -2947,7 +2947,7 @@ typedef enum {
 	ET_CONCUSSIVE_TRIGGER,  // JPW NERVE trigger for concussive dust particles
 	ET_OID_TRIGGER,         // DHM - Nerve :: Objective Info Display
 	ET_EXPLOSIVE_INDICATOR, // NERVE - SMF
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	//---- (SA) Wolf
 	ET_EXPLOSIVE,           // brush that will break into smaller bits when damaged
@@ -2958,7 +2958,7 @@ typedef enum {
 #elif defined RTCW_MP
 	ET_EF_TESLA,
 	ET_EF_SPOTLIGHT,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	ET_EFFECT3,
 	ET_ALARMBOX,
@@ -2971,19 +2971,19 @@ typedef enum {
 #if defined RTCW_SP
 	ET_LEAKY,       //----(SA)	added
 	ET_MG42,        //----(SA)	why didn't we do /this/ earlier...
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	//---- end
 
 #if defined RTCW_SP
 	ET_ZOMBIESPIT,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	ET_FLAMEBARREL,
 
 #if defined RTCW_SP
 	ET_ZOMBIESPIRIT,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	ET_FP_PARTS,
 
@@ -2994,13 +2994,13 @@ typedef enum {
 
 #if defined RTCW_MP
 	ET_FLAMETHROWER_CHUNK,      // DHM - NERVE :: Used in server side collision detection for flamethrower
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	ET_EXPLO_PART,
 
 #if defined RTCW_SP
 	ET_CROWBAR,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	ET_PROP,
 	ET_BAT,
@@ -3016,7 +3016,7 @@ typedef enum {
 	ET_SPIRIT_SPAWNER,
 
 	ET_FLAMETHROWER_PROP,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_MP
 	ET_CORPSE,              // Arnout: dead player
@@ -3025,13 +3025,13 @@ typedef enum {
 	ET_TEMPHEAD,            // Gordon: temporary head for clients for bullet traces
 
 	ET_MG42_BARREL,         // Arnout: MG42 barrel
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	ET_EVENTS               // any of the EV_* events can be added freestanding
 							// by setting eType to ET_EVENTS + eventNum
 							// this avoids having to set eFlags and eventNum
 } entityType_t;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // cursorhints (stored in ent->s.dmgFlags since that's only used for players at the moment)
 typedef enum {
@@ -3042,7 +3042,7 @@ typedef enum {
 
 #if defined RTCW_SP
 	HINT_NOACTIVATE,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	HINT_DOOR,
 	HINT_DOOR_ROTATING,
@@ -3076,12 +3076,12 @@ typedef enum {
 
 #if !defined RTCW_MP
 	HINT_NOEXIT,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 	HINT_EXIT_FAR,
 	HINT_NOEXIT_FAR,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	HINT_PLYR_FRIEND,
 	HINT_PLYR_NEUTRAL,
@@ -3093,7 +3093,7 @@ typedef enum {
 	HINT_DISARM,            // DHM - Nerve
 	HINT_REVIVE,            // DHM - Nerve
 	HINT_DYNAMITE,          // DHM - Nerve
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	HINT_CONSTRUCTIBLE,
@@ -3102,7 +3102,7 @@ typedef enum {
 	HINT_TANK,
 	HINT_SATCHELCHARGE,
 	HINT_LOCKPICK,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	HINT_BAD_USER,  // invisible user with no target
 
@@ -3116,7 +3116,7 @@ void    BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t r
 #else
 void    BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result, qboolean isAngle, int splinePath );
 void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result, qboolean isAngle, int splineData );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 void    BG_GetMarkDir( const vec3_t dir, const vec3_t normal, vec3_t out );
 
@@ -3131,11 +3131,11 @@ void    BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t
 weapon_t BG_DuplicateWeapon( weapon_t weap );
 gitem_t* BG_ValidStatWeapon( weapon_t weap );
 weapon_t BG_WeaponForMOD( int MOD );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_SP
 qboolean    BG_WeaponInWolfMP( int weapon );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 qboolean    BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
 qboolean    BG_PlayerSeesItem( playerState_t *ps, entityState_t *item, int atTime );
@@ -3144,7 +3144,7 @@ qboolean    BG_PlayerSeesItem( playerState_t *ps, entityState_t *item, int atTim
 qboolean    BG_AddMagicAmmo( playerState_t *ps, int *skill, int teamNum, int numOfClips );
 
 #define OVERCLIP        1.001
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //----(SA)	removed PM_ammoNeeded 11/27/00
 void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce );
@@ -3153,7 +3153,7 @@ void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce );
 #define ARENAS_PER_TIER     4
 #else
 //#define ARENAS_PER_TIER		4
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #define MAX_ARENAS          64
 #define MAX_ARENAS_TEXT     8192
@@ -3163,7 +3163,7 @@ void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce );
 
 #if defined RTCW_ET
 #define MAX_CAMPAIGNS_TEXT  8192
-#endif RTCW_XX
+#endif // RTCW_XX
 
 typedef enum {
 	FOOTSTEP_NORMAL,
@@ -3173,7 +3173,7 @@ typedef enum {
 	FOOTSTEP_FLESH,
 	FOOTSTEP_MECH,
 	FOOTSTEP_ENERGY,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	FOOTSTEP_METAL,
 	FOOTSTEP_WOOD,
@@ -3182,7 +3182,7 @@ typedef enum {
 
 #if !defined RTCW_ET
 	// END JOSEPH
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	FOOTSTEP_SPLASH,
 
@@ -3202,7 +3202,7 @@ typedef enum {
 	FOOTSTEP_SUPERSOLDIER_GRAVEL,
 	FOOTSTEP_SUPERSOLDIER_STEP,
 	FOOTSTEP_SUPERSOLDIER_WOOD,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 	FOOTSTEP_PROTOSOLDIER_METAL,
@@ -3210,7 +3210,7 @@ typedef enum {
 	FOOTSTEP_PROTOSOLDIER_GRAVEL,
 	FOOTSTEP_PROTOSOLDIER_STEP,
 	FOOTSTEP_PROTOSOLDIER_WOOD,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 	FOOTSTEP_LOPER_METAL,
@@ -3220,13 +3220,13 @@ typedef enum {
 	FOOTSTEP_ZOMBIE_GRAVEL,
 	FOOTSTEP_ZOMBIE_STEP,
 	FOOTSTEP_ZOMBIE_WOOD,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 	FOOTSTEP_BEAST,
 
 	FOOTSTEP_HEINRICH,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	FOOTSTEP_TOTAL
 } footstep_t;
@@ -3241,7 +3241,7 @@ typedef enum {
 	GRENBOUNCE_TOTAL
 } grenbounde_t;
 //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 typedef enum {
@@ -3260,7 +3260,7 @@ typedef enum {
 	FXTYPE_BRICK,
 	FXTYPE_STONE
 } fxType_t;
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //==================================================================
 // New Animation Scripting Defines
@@ -3291,7 +3291,7 @@ typedef enum {
 #define MAX_MODEL_ANIMATIONS                512     // animations per model
 #define MAX_ANIMSCRIPT_ANIMCOMMANDS         8
 #define MAX_ANIMSCRIPT_ITEMS                128
-#endif RTCW_XX
+#endif // RTCW_XX
 
 // NOTE: these must all be in sync with string tables in bg_animation.c
 
@@ -3317,7 +3317,7 @@ typedef enum
 
 #if !defined RTCW_SP
 	ANIM_MT_FALLEN,                 // DHM - Nerve :: dead, before limbo
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	ANIM_MT_PRONE,
@@ -3327,7 +3327,7 @@ typedef enum
 //	ANIM_MT_TALK,
 	ANIM_MT_SNEAK,
 	ANIM_MT_AFTERBATTLE,            // xkan, 1/8/2003, just finished battle
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	NUM_ANIM_MOVETYPES
 } scriptAnimMoveTypes_t;
@@ -3340,7 +3340,7 @@ typedef enum
 
 #if defined RTCW_ET
 	ANIM_ET_FIREWEAPON2,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	ANIM_ET_JUMP,
 	ANIM_ET_JUMPBK,
@@ -3376,7 +3376,7 @@ typedef enum
 	ANIM_ET_RELOADPRONE,
 	ANIM_ET_TALK,
 	ANIM_ET_NOPOWER,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	NUM_ANIM_EVENTTYPES
 } scriptAnimEventTypes_t;
@@ -3415,13 +3415,13 @@ typedef enum
 #if defined RTCW_SP
 	ANIM_COND_DEFENSE,
 	ANIM_COND_SPECIAL_CONDITION,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	ANIM_COND_FLAILING_TYPE,
 	ANIM_COND_GEN_BITFLAG,      // xkan 1/15/2003 - general bit flags (to save some space)
 	ANIM_COND_AISTATE,          // xkan 1/17/2003 - our current ai state (sometimes more convenient than creating a separate section)
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	NUM_ANIM_CONDITIONS
 } scriptAnimConditions_t;
@@ -3450,7 +3450,7 @@ typedef struct
 #if defined RTCW_SP
 	short int accShowBits;      //----(SA)	added
 	short int accHideBits;      //----(SA)	added
-#endif RTCW_XX
+#endif // RTCW_XX
 
 } animScriptCommand_t;
 
@@ -3473,12 +3473,12 @@ typedef struct
 
 #if !defined RTCW_ET
 	char modelname[MAX_QPATH];                              // name of the model
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 	char animationGroup[MAX_QPATH];
 	char animationScript[MAX_QPATH];
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	// parsed from the start of the cfg file
 	gender_t gender;
@@ -3493,7 +3493,7 @@ typedef struct
 #else
 	// parsed from animgroup file
 	animation_t         *animations[MAX_MODEL_ANIMATIONS];      // anim names, frame ranges, etc
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	headAnimation_t headAnims[MAX_HEAD_ANIMS];
 	int numAnimations, numHeadAnims;
@@ -3505,11 +3505,11 @@ typedef struct
 	animScript_t scriptCannedAnims[MAX_AISTATES][NUM_ANIM_MOVETYPES];       // played randomly
 #else
 	animScript_t scriptCannedAnims[NUM_ANIM_MOVETYPES];                         // played randomly
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if !defined RTCW_ET
 	animScript_t scriptStateChange[MAX_AISTATES][MAX_AISTATES];             // state change events
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	animScript_t scriptEvents[NUM_ANIM_EVENTTYPES];                         // events that trigger special anims
 
@@ -3527,13 +3527,13 @@ typedef struct
 	int clientModels[MAX_CLIENTS];                      // so we know which model each client is using
 #else
 //	int					clientModels[MAX_CLIENTS];		// so we know which model each client is using
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_SP
 	animModelInfo_t     *modelInfo[MAX_ANIMSCRIPT_MODELS];
 #else
 	animModelInfo_t modelInfo[MAX_ANIMSCRIPT_MODELS];
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int clientConditions[MAX_CLIENTS][NUM_ANIM_CONDITIONS][2];
 	//
@@ -3542,7 +3542,7 @@ typedef struct
 
 #if !defined RTCW_SP
 	// TTimo: constify the arg
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	int ( *soundIndex )( const char *name );
 	void ( *playSound )( int soundIndex, vec3_t org, int clientNum );
@@ -3569,7 +3569,7 @@ typedef enum
 
 #if defined RTCW_ET
 	MOUNTED_AAGUN,
-#endif RTCW_XX
+#endif // RTCW_XX
 
 	NUM_ANIM_COND_MOUNTED
 } animScriptMounted_t;
@@ -3698,7 +3698,7 @@ SAVE
 
 #define SAVE_VERSION            31
 #define SAVE_INFOSTRING_LENGTH  256
-#endif RTCW_XX
+#endif // RTCW_XX
 
 //------------------------------------------------------------------
 // Global Function Decs
@@ -3727,11 +3727,11 @@ int BG_GetAnimScriptEvent( playerState_t *ps, scriptAnimEventTypes_t event );
 #if defined RTCW_SP
 void BG_UpdateConditionValueStrings( int client, char *conditionStr, char *valueStr );
 float BG_AnimGetFootstepGap( playerState_t *ps, float xyspeed );
-#endif RTCW_XX
+#endif // RTCW_XX
 
 extern animStringItem_t animStateStr[];
 extern animStringItem_t animBodyPartsStr[];
-#endif RTCW_XX
+#endif // RTCW_XX
 
 #if defined RTCW_ET
 //animModelInfo_t *BG_ModelInfoForModelname( char *modelname );
@@ -4104,7 +4104,7 @@ int PM_AltSwitchToForWeapon( int weapon );
 void PM_TraceLegs( trace_t * trace, float *legsOffset, vec3_t start, vec3_t end, trace_t * bodytrace, vec3_t viewangles, void( tracefunc ) ( trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask ), int ignoreent, int tracemask );
 void PM_TraceAllLegs( trace_t *trace, float *legsOffset, vec3_t start, vec3_t end );
 void PM_TraceAll( trace_t *trace, vec3_t start, vec3_t end );
-#endif RTCW_XX
+#endif // RTCW_XX
 
-#endif RTCW_XX
+#endif // RTCW_XX
 

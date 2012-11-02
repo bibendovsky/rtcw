@@ -40,9 +40,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_mp_x86</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
+    <ClCompile />
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
@@ -56,9 +54,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
+    <ClCompile />
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
@@ -68,16 +64,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\game_mp\bg_misc.c" />
-    <ClCompile Include="..\..\..\..\src\game\q_math.c" />
-    <ClCompile Include="..\..\..\..\src\game\q_shared.c" />
-    <ClCompile Include="..\..\..\..\src\ui_mp\ui_atoms.c" />
-    <ClCompile Include="..\..\..\..\src\ui_mp\ui_gameinfo.c" />
-    <ClCompile Include="..\..\..\..\src\ui_mp\ui_main.c" />
-    <ClCompile Include="..\..\..\..\src\ui_mp\ui_players.c" />
-    <ClCompile Include="..\..\..\..\src\ui_mp\ui_shared.c" />
-    <ClCompile Include="..\..\..\..\src\ui_mp\ui_syscalls.c" />
-    <ClCompile Include="..\..\..\..\src\ui_mp\ui_util.c" />
+    <ClCompile Include="..\..\..\..\src\game\q_math.cpp" />
+    <ClCompile Include="..\..\..\..\src\game\q_shared.cpp" />
+    <ClCompile Include="..\..\..\..\src\game_mp\bg_misc.cpp" />
+    <ClCompile Include="..\..\..\..\src\ui_mp\ui_atoms.cpp" />
+    <ClCompile Include="..\..\..\..\src\ui_mp\ui_gameinfo.cpp" />
+    <ClCompile Include="..\..\..\..\src\ui_mp\ui_main.cpp" />
+    <ClCompile Include="..\..\..\..\src\ui_mp\ui_players.cpp" />
+    <ClCompile Include="..\..\..\..\src\ui_mp\ui_shared.cpp" />
+    <ClCompile Include="..\..\..\..\src\ui_mp\ui_syscalls.cpp" />
+    <ClCompile Include="..\..\..\..\src\ui_mp\ui_util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ui_mp.def" />
