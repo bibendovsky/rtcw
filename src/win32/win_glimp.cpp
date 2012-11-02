@@ -1503,7 +1503,9 @@ static rserr_t GLW_SetMode (
 */
 static void GLW_InitExtensions( void ) {
 
-#if defined RTCW_SP
+//BBi
+//#if defined RTCW_SP
+//BBi
 //----(SA)	moved these up
 	glConfig.textureCompression = TC_NONE;
 	glConfig.textureEnvAddAvailable = qfalse;
@@ -1524,7 +1526,14 @@ static void GLW_InitExtensions( void ) {
 	glConfig.NVFogAvailable = qfalse;
 	glConfig.NVFogMode = 0;
 //----(SA)	end
-#endif // RTCW_XX
+
+//BBi
+//#endif // RTCW_XX
+//BBi
+
+    //BBi
+    glConfigEx.reset ();
+    //BBi
 
 	if ( !r_allowExtensions->integer ) {
 		ri.Printf( PRINT_ALL, "*** IGNORING OPENGL EXTENSIONS ***\n" );
@@ -1535,46 +1544,71 @@ static void GLW_InitExtensions( void ) {
 
 	// GL_S3_s3tc
 
-#if !defined RTCW_SP
-	glConfig.textureCompression = TC_NONE;
-#endif // RTCW_XX
+//BBi
+//#if !defined RTCW_SP
+//	glConfig.textureCompression = TC_NONE;
+//#endif // RTCW_XX
+//
+//	// RF, check for GL_EXT_texture_compression_s3tc
+//	if ( strstr( glConfig.extensions_string, "GL_EXT_texture_compression_s3tc" ) ) {
+//		if ( r_ext_compressed_textures->integer ) {
+//			glConfig.textureCompression = TC_EXT_COMP_S3TC;
+//			ri.Printf( PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n" );
+//		} else
+//		{
+//			glConfig.textureCompression = TC_NONE;
+//			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_compression_s3tc\n" );
+//		}
+//	}
+//	/* RF, disabled this section, since this method produces very ugly results on nvidia hardware
+//	else if ( strstr( glConfig.extensions_string, "GL_S3_s3tc" ) )
+//	{
+//		if ( r_ext_compressed_textures->integer )
+//		{
+//			glConfig.textureCompression = TC_S3TC;
+//			ri.Printf( PRINT_ALL, "...using GL_S3_s3tc\n" );
+//		}
+//		else
+//		{
+//			glConfig.textureCompression = TC_NONE;
+//			ri.Printf( PRINT_ALL, "...ignoring GL_S3_s3tc\n" );
+//		}
+//	}
+//	*/
+//	else
+//	{
+//		ri.Printf( PRINT_ALL, "...GL_EXT_texture_compression_s3tc not found\n" );
+//	}
 
-	// RF, check for GL_EXT_texture_compression_s3tc
-	if ( strstr( glConfig.extensions_string, "GL_EXT_texture_compression_s3tc" ) ) {
-		if ( r_ext_compressed_textures->integer ) {
-			glConfig.textureCompression = TC_EXT_COMP_S3TC;
-			ri.Printf( PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n" );
-		} else
-		{
-			glConfig.textureCompression = TC_NONE;
-			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_compression_s3tc\n" );
-		}
-	}
-	/* RF, disabled this section, since this method produces very ugly results on nvidia hardware
-	else if ( strstr( glConfig.extensions_string, "GL_S3_s3tc" ) )
-	{
-		if ( r_ext_compressed_textures->integer )
-		{
-			glConfig.textureCompression = TC_S3TC;
-			ri.Printf( PRINT_ALL, "...using GL_S3_s3tc\n" );
-		}
-		else
-		{
-			glConfig.textureCompression = TC_NONE;
-			ri.Printf( PRINT_ALL, "...ignoring GL_S3_s3tc\n" );
-		}
-	}
-	*/
-	else
-	{
-		ri.Printf( PRINT_ALL, "...GL_EXT_texture_compression_s3tc not found\n" );
-	}
+    if (GLEW_ARB_texture_compression != 0) {
+        if (r_ext_compressed_textures->integer != 0) {
+            glConfig.textureCompression = TC_ARB;
+            ::ri.Printf (PRINT_ALL, "...using GL_ARB_texture_compression\n");
+        } else
+            ::ri.Printf (PRINT_ALL, "...ignoring GL_ARB_texture_compression\n");
+    } else if (GLEW_EXT_texture_compression_s3tc != 0) {
+        if (r_ext_compressed_textures->integer != 0) {
+            glConfig.textureCompression = TC_EXT_COMP_S3TC;
+            ::ri.Printf (PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n");
+        } else
+            ::ri.Printf (PRINT_ALL, "...ignoring GL_EXT_texture_compression_s3tc\n");
+    } else if (GLEW_S3_s3tc != 0) {
+        if (r_ext_compressed_textures->integer != 0) {
+            glConfig.textureCompression = TC_S3TC;
+            ::ri.Printf (PRINT_ALL, "...using GL_S3_s3tc\n");
+        } else
+            ::ri.Printf (PRINT_ALL, "...ignoring GL_S3_s3tc\n");
+    } else
+        ::ri.Printf (PRINT_ALL, "...texture compression not found\n");
+//BBi
 
 	// GL_EXT_texture_env_add
 
-#if !defined RTCW_SP
-	glConfig.textureEnvAddAvailable = qfalse;
-#endif // RTCW_XX
+//BBi
+//#if !defined RTCW_SP
+//	glConfig.textureEnvAddAvailable = qfalse;
+//#endif // RTCW_XX
+//BBi
 
 	if ( strstr( glConfig.extensions_string, "EXT_texture_env_add" ) ) {
 		if ( r_ext_texture_env_add->integer ) {
@@ -1604,7 +1638,7 @@ static void GLW_InitExtensions( void ) {
 
     if (WGLEW_EXT_swap_control != 0) {
         ::ri.Printf (PRINT_ALL, "...using WGL_EXT_swap_control\n");
-        r_swapInterval->modified = qtrue;   // force a set next frame
+        r_swapInterval->modified = true;   // force a set next frame
     } else
         ::ri.Printf (PRINT_ALL, "...WGL_EXT_swap_control not found\n");
     //BBi
@@ -1645,8 +1679,6 @@ static void GLW_InitExtensions( void ) {
 //	{
 //		ri.Printf( PRINT_ALL, "...GL_ARB_multitexture not found\n" );
 //	}
-
-    glConfigEx.useArbMultitexture = false;
 
     if (GLEW_ARB_multitexture != 0) {
         if (r_ext_multitexture->integer != 0) {
@@ -1694,8 +1726,6 @@ static void GLW_InitExtensions( void ) {
 //	{
 //		ri.Printf( PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n" );
 //	}
-
-    glConfigEx.useExtCompiledVertexArray = false;
 
     if (GLEW_EXT_compiled_vertex_array != 0) {
         if (r_ext_compiled_vertex_array->integer != 0) {
@@ -1850,6 +1880,21 @@ static void GLW_InitExtensions( void ) {
 //BBi
 //#endif // RTCW_XX
 //BBi
+
+    //BBi
+    if (GLEW_ARB_framebuffer_object != 0) {
+        glConfigEx.useArbFramebufferObject = true;
+        ::ri.Printf (PRINT_ALL, "...using GL_ARB_framebuffer_object\n");
+    } else
+        ::ri.Printf (PRINT_ALL, "...GL_ARB_framebuffer_object not found\n");
+
+
+    if (GLEW_ARB_texture_non_power_of_two != 0) {
+        glConfigEx.useArbTextureNonPowerOfTwo = true;
+        ::ri.Printf (PRINT_ALL, "...using GL_ARB_texture_non_power_of_two\n");
+    } else
+        ::ri.Printf (PRINT_ALL, "...GL_ARB_texture_non_power_of_two not found\n");
+    //BBi
 }
 
 #if defined RTCW_ET

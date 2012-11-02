@@ -305,7 +305,11 @@ typedef enum {
 typedef enum {
 	TC_NONE,
 	TC_S3TC,
-	TC_EXT_COMP_S3TC
+	TC_EXT_COMP_S3TC,
+
+//BBi
+    TC_ARB,
+//BBi
 } textureCompression_t;
 
 typedef enum {
@@ -406,6 +410,17 @@ public:
     bool useExtCompiledVertexArray;
     bool useExtBgra;
     bool useArbFramebufferObject; // glGenerateMipmap, etc.
+    bool useArbTextureNonPowerOfTwo;
+
+    void reset ()
+    {
+        isNativeResolution = false;
+        useArbMultitexture = false;
+        useExtCompiledVertexArray = false;
+        useExtBgra = false;
+        useArbFramebufferObject = false;
+        useArbTextureNonPowerOfTwo = false;
+    }
 }; // class GlConfigEx
 //BBi
 

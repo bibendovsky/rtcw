@@ -100,7 +100,12 @@ LONG WINAPI MainWndProc(
 
 void Conbuf_AppendText( const char *msg );
 
-void SNDDMA_Activate( void );
+//BBi
+//void SNDDMA_Activate( void );
+void SNDDMA_Activate (
+    bool isActive);
+//BBi
+
 int  SNDDMA_InitDS();
 
 typedef struct

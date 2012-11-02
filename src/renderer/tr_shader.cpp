@@ -664,13 +664,23 @@ static qboolean ParseStage( shaderStage_t *stage, char **text ) {
 				return qfalse;
 			}
 
+//BBi
+//#if defined RTCW_SP
+//			stage->bundle[0].image[0] = R_FindImageFileExt( token, !shader.noMipMaps, !shader.noPicMip, shader.characterMip, GL_CLAMP );
+//#elif defined RTCW_MP
+//			stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_CLAMP );
+//#else
+//			stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_CLAMP, qfalse );
+//#endif // RTCW_XX
+
 #if defined RTCW_SP
-			stage->bundle[0].image[0] = R_FindImageFileExt( token, !shader.noMipMaps, !shader.noPicMip, shader.characterMip, GL_CLAMP );
+			stage->bundle[0].image[0] = ::R_FindImageFileExt (token, !shader.noMipMaps, !shader.noPicMip, shader.characterMip, ::R_GetBestWrapClamp ());
 #elif defined RTCW_MP
-			stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_CLAMP );
+			stage->bundle[0].image[0] = ::R_FindImageFile (token, !shader.noMipMaps, !shader.noPicMip, ::R_GetBestWrapClamp ());
 #else
-			stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_CLAMP, qfalse );
+			stage->bundle[0].image[0] = ::R_FindImageFile (token, !shader.noMipMaps, !shader.noPicMip, ::R_GetBestWrapClamp (), false);
 #endif // RTCW_XX
+//BBi
 
 			if ( !stage->bundle[0].image[0] ) {
 				ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
@@ -710,7 +720,11 @@ static qboolean ParseStage( shaderStage_t *stage, char **text ) {
 				}
 				continue;
 			} else {
-				stage->bundle[0].image[0] = R_FindImageFile( token, qfalse, qfalse, GL_CLAMP, qtrue );
+                //BBi
+				//stage->bundle[0].image[0] = R_FindImageFile( token, qfalse, qfalse, GL_CLAMP, qtrue );
+                stage->bundle[0].image[0] = ::R_FindImageFile (token, false, false, ::R_GetBestWrapClamp (), true);
+                //BBi
+
 				if ( !stage->bundle[0].image[0] ) {
 					ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
 					return qfalse;
@@ -1256,11 +1270,20 @@ static void ParseSkyParms( char **text ) {
 			Com_sprintf( pathname, sizeof( pathname ), "%s_%s.tga"
 						 , token, suf[i] );
 
-#if !defined RTCW_ET
-			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP );
-#else
-			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP, qfalse );
+//BBi
+//#if !defined RTCW_ET
+//			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP );
+//#else
+//			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP, qfalse );
+//#endif // RTCW_XX
+
+            shader.sky.outerbox[i] = ::R_FindImageFile (
+                pathname, true, true, ::R_GetBestWrapClamp ()
+#if defined RTCW_ET
+            , false
 #endif // RTCW_XX
+                );
+//BBi
 
 			if ( !shader.sky.outerbox[i] ) {
 				shader.sky.outerbox[i] = tr.defaultImage;
@@ -1293,7 +1316,10 @@ static void ParseSkyParms( char **text ) {
 						 , token, suf[i] );
 
 #if !defined RTCW_ET
-			shader.sky.innerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP );
+            //BBi
+			//shader.sky.innerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP );
+            shader.sky.innerbox[i] = ::R_FindImageFile (pathname, true, true, GL_REPEAT);
+            //BBi
 #else
 			shader.sky.innerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_REPEAT, qfalse );
 #endif // RTCW_XX
@@ -3229,7 +3255,12 @@ void R_FindLightmap( int *lightmapIndex ) {
 
 	// attempt to load an external lightmap
 	sprintf( fileName, "%s/" EXTERNAL_LIGHTMAP, tr.worldDir, *lightmapIndex );
-	image = R_FindImageFile( fileName, qfalse, qfalse, GL_CLAMP, qtrue );
+
+    //BBi
+	//image = R_FindImageFile( fileName, qfalse, qfalse, GL_CLAMP, qtrue );
+    image = ::R_FindImageFile (fileName, false, false, ::R_GetBestWrapClamp (), true);
+    //BBi
+
 	if ( image == NULL ) {
 		*lightmapIndex = LIGHTMAP_BY_VERTEX;
 		return;
@@ -3463,7 +3494,13 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 	//
 	Q_strncpyz( fileName, name, sizeof( fileName ) );
 	COM_DefaultExtension( fileName, sizeof( fileName ), ".tga" );
-	image = R_FindImageFile( fileName, mipRawImage, mipRawImage, mipRawImage ? GL_REPEAT : GL_CLAMP );
+
+    //BBi
+	//image = R_FindImageFile( fileName, mipRawImage, mipRawImage, mipRawImage ? GL_REPEAT : GL_CLAMP );
+    image = ::R_FindImageFile (fileName, mipRawImage, mipRawImage,
+        mipRawImage ? GL_REPEAT : ::R_GetBestWrapClamp ());
+    //BBi
+
 	if ( !image ) {
 		ri.Printf( PRINT_DEVELOPER, "Couldn't find image for shader %s\n", name );
 		shader.defaultShader = qtrue;
@@ -3537,7 +3574,13 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 
 	// if not defined in the in-memory shader descriptions,
 	// look for a single TGA, BMP, or PCX
-	image = R_FindImageFile( fileName, !shader.noMipMaps, !shader.noPicMip, mipRawImage ? GL_REPEAT : GL_CLAMP, qfalse );
+
+    //BBi
+	//image = R_FindImageFile( fileName, !shader.noMipMaps, !shader.noPicMip, mipRawImage ? GL_REPEAT : GL_CLAMP, qfalse );
+    image = ::R_FindImageFile (fileName, !shader.noMipMaps, !shader.noPicMip,
+        mipRawImage ? GL_REPEAT : ::R_GetBestWrapClamp (), false);
+    //BBi
+
 	if ( !image ) {
 		//ri.Printf( PRINT_DEVELOPER, "Couldn't find image for shader %s\n", name );
 		ri.Printf( PRINT_WARNING, "WARNING: Couldn't find image for shader %s\n", name );

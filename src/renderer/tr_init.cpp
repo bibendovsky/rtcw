@@ -350,6 +350,41 @@ static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean sh
 	}
 }
 
+//BBi
+static int R_GetMaxTextureSize ()
+{
+    int result = 0;
+
+    ::glGetIntegerv (GL_MAX_TEXTURE_SIZE, &result);
+
+    if (result > 0) {
+        while (true) {
+            ::glTexImage2D (
+                GL_PROXY_TEXTURE_2D,
+                0,
+                GL_RGBA,
+                result,
+                result,
+                0,
+                GL_RGBA,
+                GL_UNSIGNED_BYTE,
+                NULL);
+
+
+            int width = 0;
+
+            ::glGetTexLevelParameteriv (GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+
+            if (width > 0)
+                break;
+            else
+                result /= 2;
+        }
+    }
+
+    return result;
+}
+//BBi
 
 /*
 ** InitOpenGL
@@ -375,16 +410,22 @@ static void InitOpenGL( void ) {
 	//
 
 	if ( glConfig.vidWidth == 0 ) {
-		GLint temp;
+        //BBi
+		//GLint temp;
+        //BBi
 
 		GLimp_Init();
 
 		strcpy( renderer_buffer, glConfig.renderer_string );
 		Q_strlwr( renderer_buffer );
 
-		// OpenGL driver constants
-		::glGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );
-		glConfig.maxTextureSize = temp;
+        //BBi
+		//// OpenGL driver constants
+		//::glGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );
+		//glConfig.maxTextureSize = temp;
+
+        glConfig.maxTextureSize = ::R_GetMaxTextureSize ();
+        //BBi
 
 		// stubbed or broken drivers may have reported 0...
 		if ( glConfig.maxTextureSize <= 0 ) {

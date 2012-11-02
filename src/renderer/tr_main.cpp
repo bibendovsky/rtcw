@@ -2409,3 +2409,13 @@ void R_RenderView( viewParms_t *parms ) {
 	R_FogOn();
 
 }
+
+//BBi
+GLenum R_GetBestWrapClamp ()
+{
+    if (glConfigEx.useArbFramebufferObject)
+        return GL_CLAMP_TO_EDGE;
+    else
+        return GL_CLAMP;
+}
+//BBi

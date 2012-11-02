@@ -353,6 +353,14 @@ void SNDDMA_Submit ()
     dma.buffer = 0;
 }
 
-void SNDDMA_Activate ()
+void SNDDMA_Activate (
+    bool isActive)
 {
+    if (!fmodIsInitialized)
+        return;
+
+
+    FMOD_RESULT fmodResult = FMOD_OK;
+
+    fmodResult = fmodDmaChannel->setMute (!isActive);
 }

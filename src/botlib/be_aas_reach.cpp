@@ -2487,18 +2487,17 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 		VectorMA( area2point, 32, dir, area2point );
 		//
 
-//BBi Must be float-point abs
-//#if !defined RTCW_ET
-//		ladderface1vertical = abs( DotProduct( plane1->normal, up ) ) < 0.1;
-//		ladderface2vertical = abs( DotProduct( plane2->normal, up ) ) < 0.1;
-//#else
-//		ladderface1vertical = Q_fabs( DotProduct( plane1->normal, up ) ) < 0.1;
-//		ladderface2vertical = Q_fabs( DotProduct( plane2->normal, up ) ) < 0.1;
-//#endif // RTCW_XX
-
-        ladderface1vertical = (::fabs (DotProduct (plane1->normal, up)) < 0.1F);
-        ladderface2vertical = (::fabs (DotProduct (plane2->normal, up)) < 0.1F);
-//BBi
+#if !defined RTCW_ET
+        //BBi See #BUG0002
+		//ladderface1vertical = abs( DotProduct( plane1->normal, up ) ) < 0.1;
+		//ladderface2vertical = abs( DotProduct( plane2->normal, up ) ) < 0.1;
+        ladderface1vertical = (::abs (static_cast<int> (DotProduct (plane1->normal, up))) < 0.1F);
+		ladderface2vertical = (::abs (static_cast<int> (DotProduct (plane2->normal, up))) < 0.1F);
+        //BBi
+#else
+		ladderface1vertical = Q_fabs( DotProduct( plane1->normal, up ) ) < 0.1;
+		ladderface2vertical = Q_fabs( DotProduct( plane2->normal, up ) ) < 0.1;
+#endif // RTCW_XX
 
 		//there's only reachability between vertical ladder faces
 		if ( !ladderface1vertical && !ladderface2vertical ) {
@@ -2510,15 +2509,14 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 			 && DotProduct( plane1->normal, plane2->normal ) > 0.7
 			 //and the shared edge is not too vertical
 
-//BBi Must be float-point abs
-//#if !defined RTCW_ET
-//			 && abs( DotProduct( sharededgevec, up ) ) < 0.7 ) {
-//#else
-//			 && Q_fabs( DotProduct( sharededgevec, up ) ) < 0.7 ) {
-//#endif // RTCW_XX
-
-            && ::fabs (DotProduct (sharededgevec, up)) < 0.7F) {
-//BBi
+#if !defined RTCW_ET
+            //BBi See #BUG0002
+			// && abs( DotProduct( sharededgevec, up ) ) < 0.7 ) {
+            && (::abs (static_cast<int> (DotProduct (sharededgevec, up))) < 0.7F)) {
+            //BBi
+#else
+			 && Q_fabs( DotProduct( sharededgevec, up ) ) < 0.7 ) {
+#endif // RTCW_XX
 
 			//create a new reachability link
 			lreach = AAS_AllocReachability();
@@ -2672,15 +2670,14 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 				if ( face2->faceflags & FACE_LADDER ) {
 					plane2 = &( *aasworld ).planes[face2->planenum];
 
-//BBi Must be float-point abs
-//#if !defined RTCW_ET
-//					if ( abs( DotProduct( plane2->normal, up ) ) < 0.1 ) {
-//#else
-//					if ( Q_fabs( DotProduct( plane2->normal, up ) ) < 0.1 ) {
-//#endif // RTCW_XX
-
-                    if (::fabs (DotProduct (plane2->normal, up)) < 0.1F) {
-//BBi
+#if !defined RTCW_ET
+                    //BBi See #BUG0002
+					//if ( abs( DotProduct( plane2->normal, up ) ) < 0.1 ) {
+                    if (::abs (static_cast<int> (DotProduct (plane2->normal, up))) < 0.1F) {
+                    //BBi
+#else
+					if ( Q_fabs( DotProduct( plane2->normal, up ) ) < 0.1 ) {
+#endif // RTCW_XX
 
 						break;
 					}

@@ -2773,4 +2773,8 @@ void R_FreeImageBuffer( void );
 qboolean R_inPVS( const vec3_t p1, const vec3_t p2 );
 #endif // RTCW_XX
 
+//BBi
+GLenum R_GetBestWrapClamp ();
+//BBi
+
 #endif //TR_LOCAL_H (THIS MUST BE LAST!!)

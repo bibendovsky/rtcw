@@ -744,7 +744,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 //#endif // RTCW_XX
 
 #if !defined RTCW_ET
-    if (r_vertexLight != 0) {
+    if (r_vertexLight->integer != 0) {
 #else
     if (false) {
 #endif // RTCW_XX

@@ -248,18 +248,33 @@ void GL_TextureMode( const char *string ) {
 
 		if ( glt->mipmap ) {
 
+//BBi
+//#if !defined RTCW_ET
+//			GL_Bind( glt );
+//			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
+//			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+//#else
+//			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
+//			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+//		} else
+//		{
+//			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+//			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+//#endif // RTCW_XX
+
 #if !defined RTCW_ET
-			GL_Bind( glt );
-			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
-			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+            ::GL_Bind (glt);
+            ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+            ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 #else
-			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
-			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
-		} else
-		{
-			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+            ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+            ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+        } else
+        {
+            ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 #endif // RTCW_XX
+//BBi
 
 		}
 	}
@@ -422,6 +437,13 @@ void R_ImageList_f( void ) {
 		case GL_CLAMP:
 			ri.Printf( PRINT_ALL, "clmp " );
 			break;
+
+        //BBi
+        case GL_CLAMP_TO_EDGE:
+            ri.Printf( PRINT_ALL, "clmpe" );
+            break;
+        //BBi
+
 		default:
 			ri.Printf( PRINT_ALL, "%4i ", image->wrapClampMode );
 			break;
@@ -818,62 +840,73 @@ static void Upload32(   unsigned *data,
 	byte        *scan;
 	GLenum internalFormat = GL_RGB;
 
-#if !defined RTCW_ET
-	float rMax = 0, gMax = 0, bMax = 0;
-	static int rmse_saved = 0;
-#else
-// rain - unused
-//	static		int rmse_saved = 0;
-#endif // RTCW_XX
+//BBi
+//#if !defined RTCW_ET
+//	float rMax = 0, gMax = 0, bMax = 0;
+//	static int rmse_saved = 0;
+//#else
+//// rain - unused
+////	static		int rmse_saved = 0;
+//#endif // RTCW_XX
+//
+//#if defined RTCW_SP
+//	float rmse;
+//#endif // RTCW_XX
+//
+//	// do the root mean square error stuff first
+//
+//#if !defined RTCW_ET
+//	if ( r_rmse->value ) {
+//		while ( R_RMSE( (byte *)data, width, height ) < r_rmse->value ) {
+//			rmse_saved += ( height * width * 4 ) - ( ( width >> 1 ) * ( height >> 1 ) * 4 );
+//			resampledBuffer = static_cast<unsigned*> (R_GetImageBuffer( ( width >> 1 ) * ( height >> 1 ) * 4, BUFFER_RESAMPLED ));
+//			ResampleTexture( data, width, height, resampledBuffer, width >> 1, height >> 1 );
+//			data = resampledBuffer;
+//			width = width >> 1;
+//			height = height >> 1;
+//			ri.Printf( PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, ( rmse_saved / 1024 ) );
+//		}
+//#else
+///*	if (r_rmse->value) {
+//		while (R_RMSE((byte *)data, width, height) < r_rmse->value) {
+//			rmse_saved += (height*width*4)-((width>>1)*(height>>1)*4);
+//			resampledBuffer = R_GetImageBuffer( (width>>1) * (height>>1) * 4, BUFFER_RESAMPLED );
+//			ResampleTexture (data, width, height, resampledBuffer, width>>1, height>>1);
+//			data = resampledBuffer;
+//			width = width>>1;
+//			height = height>>1;
+//			ri.Printf (PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, (rmse_saved/1024));
+//		}
+//	}*/
+//#endif // RTCW_XX
+//
+//#if defined RTCW_SP
+//	} else {
+//		// just do the RMSE of 1 (reduce perfect)
+//		while ( R_RMSE( (byte *)data, width, height ) < 1.0 ) {
+//			rmse_saved += ( height * width * 4 ) - ( ( width >> 1 ) * ( height >> 1 ) * 4 );
+//			resampledBuffer = static_cast<unsigned*> (R_GetImageBuffer( ( width >> 1 ) * ( height >> 1 ) * 4, BUFFER_RESAMPLED ));
+//			ResampleTexture( data, width, height, resampledBuffer, width >> 1, height >> 1 );
+//			data = resampledBuffer;
+//			width = width >> 1;
+//			height = height >> 1;
+//			ri.Printf( PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, ( rmse_saved / 1024 ) );
+//		}
+//#endif // RTCW_XX
+//
+//#if !defined RTCW_ET
+//	}
+//#endif // RTCW_XX
+//BBi
 
-#if defined RTCW_SP
-	float rmse;
-#endif // RTCW_XX
+    //BBi
+    bool canUseNpotTexture = (glConfigEx.useArbTextureNonPowerOfTwo && (!picmip));
 
-	// do the root mean square error stuff first
-
-#if !defined RTCW_ET
-	if ( r_rmse->value ) {
-		while ( R_RMSE( (byte *)data, width, height ) < r_rmse->value ) {
-			rmse_saved += ( height * width * 4 ) - ( ( width >> 1 ) * ( height >> 1 ) * 4 );
-			resampledBuffer = static_cast<unsigned*> (R_GetImageBuffer( ( width >> 1 ) * ( height >> 1 ) * 4, BUFFER_RESAMPLED ));
-			ResampleTexture( data, width, height, resampledBuffer, width >> 1, height >> 1 );
-			data = resampledBuffer;
-			width = width >> 1;
-			height = height >> 1;
-			ri.Printf( PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, ( rmse_saved / 1024 ) );
-		}
-#else
-/*	if (r_rmse->value) {
-		while (R_RMSE((byte *)data, width, height) < r_rmse->value) {
-			rmse_saved += (height*width*4)-((width>>1)*(height>>1)*4);
-			resampledBuffer = R_GetImageBuffer( (width>>1) * (height>>1) * 4, BUFFER_RESAMPLED );
-			ResampleTexture (data, width, height, resampledBuffer, width>>1, height>>1);
-			data = resampledBuffer;
-			width = width>>1;
-			height = height>>1;
-			ri.Printf (PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, (rmse_saved/1024));
-		}
-	}*/
-#endif // RTCW_XX
-
-#if defined RTCW_SP
-	} else {
-		// just do the RMSE of 1 (reduce perfect)
-		while ( R_RMSE( (byte *)data, width, height ) < 1.0 ) {
-			rmse_saved += ( height * width * 4 ) - ( ( width >> 1 ) * ( height >> 1 ) * 4 );
-			resampledBuffer = static_cast<unsigned*> (R_GetImageBuffer( ( width >> 1 ) * ( height >> 1 ) * 4, BUFFER_RESAMPLED ));
-			ResampleTexture( data, width, height, resampledBuffer, width >> 1, height >> 1 );
-			data = resampledBuffer;
-			width = width >> 1;
-			height = height >> 1;
-			ri.Printf( PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, ( rmse_saved / 1024 ) );
-		}
-#endif // RTCW_XX
-
-#if !defined RTCW_ET
-	}
-#endif // RTCW_XX
+    if (canUseNpotTexture) {
+        scaled_width = width;
+        scaled_height = height;
+    } else {
+    //BBi
 
 	//
 	// convert to exact power of 2 sizes
@@ -928,6 +961,10 @@ static void Upload32(   unsigned *data,
 
 	}
 
+//BBi
+    }
+//BBi
+
 	//
 	// clamp to the current upper OpenGL limit
 	// scale both axis down equally so we don't have to
@@ -939,42 +976,44 @@ static void Upload32(   unsigned *data,
 		scaled_height >>= 1;
 	}
 
-#if defined RTCW_SP
-	rmse = R_RMSE( (byte *)data, width, height );
-
-	if ( r_lowMemTextureSize->integer && ( scaled_width > r_lowMemTextureSize->integer || scaled_height > r_lowMemTextureSize->integer ) && rmse < r_lowMemTextureThreshold->value ) {
-		int scale;
-
-		for ( scale = 1 ; scale < r_lowMemTextureSize->integer; scale <<= 1 ) {
-			;
-		}
-
-		while ( scaled_width > scale || scaled_height > scale ) {
-			scaled_width >>= 1;
-			scaled_height >>= 1;
-		}
-
-		ri.Printf( PRINT_ALL, "r_lowMemTextureSize forcing reduction from %i x %i to %i x %i\n", width, height, scaled_width, scaled_height );
-
-		resampledBuffer = static_cast<unsigned*> (R_GetImageBuffer( scaled_width * scaled_height * 4, BUFFER_RESAMPLED ));
-		ResampleTexture( data, width, height, resampledBuffer, scaled_width, scaled_height );
-		data = resampledBuffer;
-		width = scaled_width;
-		height = scaled_height;
-
-	}
-
-
-	//
-	// clamp to minimum size
-	//
-	if ( scaled_width < 1 ) {
-		scaled_width = 1;
-	}
-	if ( scaled_height < 1 ) {
-		scaled_height = 1;
-	}
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//	rmse = R_RMSE( (byte *)data, width, height );
+//
+//	if ( r_lowMemTextureSize->integer && ( scaled_width > r_lowMemTextureSize->integer || scaled_height > r_lowMemTextureSize->integer ) && rmse < r_lowMemTextureThreshold->value ) {
+//		int scale;
+//
+//		for ( scale = 1 ; scale < r_lowMemTextureSize->integer; scale <<= 1 ) {
+//			;
+//		}
+//
+//		while ( scaled_width > scale || scaled_height > scale ) {
+//			scaled_width >>= 1;
+//			scaled_height >>= 1;
+//		}
+//
+//		ri.Printf( PRINT_ALL, "r_lowMemTextureSize forcing reduction from %i x %i to %i x %i\n", width, height, scaled_width, scaled_height );
+//
+//		resampledBuffer = static_cast<unsigned*> (R_GetImageBuffer( scaled_width * scaled_height * 4, BUFFER_RESAMPLED ));
+//		ResampleTexture( data, width, height, resampledBuffer, scaled_width, scaled_height );
+//		data = resampledBuffer;
+//		width = scaled_width;
+//		height = scaled_height;
+//
+//	}
+//
+//
+//	//
+//	// clamp to minimum size
+//	//
+//	if ( scaled_width < 1 ) {
+//		scaled_width = 1;
+//	}
+//	if ( scaled_height < 1 ) {
+//		scaled_height = 1;
+//	}
+//#endif // RTCW_XX
+//BBi
 
 	//scaledBuffer = ri.Hunk_AllocateTempMemory( sizeof( unsigned ) * scaled_width * scaled_height );
 	scaledBuffer = static_cast<unsigned*> (R_GetImageBuffer( sizeof( unsigned ) * scaled_width * scaled_height, BUFFER_SCALED ));
@@ -990,17 +1029,19 @@ static void Upload32(   unsigned *data,
 		for ( i = 0; i < c; i++ )
 		{
 
-#if !defined RTCW_ET
-			if ( scan[i * 4 + 0] > rMax ) {
-				rMax = scan[i * 4 + 0];
-			}
-			if ( scan[i * 4 + 1] > gMax ) {
-				gMax = scan[i * 4 + 1];
-			}
-			if ( scan[i * 4 + 2] > bMax ) {
-				bMax = scan[i * 4 + 2];
-			}
-#endif // RTCW_XX
+//BBi
+//#if !defined RTCW_ET
+//			if ( scan[i * 4 + 0] > rMax ) {
+//				rMax = scan[i * 4 + 0];
+//			}
+//			if ( scan[i * 4 + 1] > gMax ) {
+//				gMax = scan[i * 4 + 1];
+//			}
+//			if ( scan[i * 4 + 2] > bMax ) {
+//				bMax = scan[i * 4 + 2];
+//			}
+//#endif // RTCW_XX
+//BBi
 
 			if ( scan[i * 4 + 3] != 255 ) {
 				samples = 4;
@@ -1009,6 +1050,11 @@ static void Upload32(   unsigned *data,
 		}
 		// select proper internal format
 		if ( samples == 3 ) {
+//BBi
+            if ((!noCompress) && (glConfig.textureCompression == TC_ARB))
+                internalFormat = GL_COMPRESSED_RGB;
+            else
+//BBi
 			if ( !noCompress && glConfig.textureCompression == TC_EXT_COMP_S3TC ) {
 				// TODO: which format is best for which textures?
 
@@ -1018,16 +1064,29 @@ static void Upload32(   unsigned *data,
 
 				internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 			} else if ( !noCompress && glConfig.textureCompression == TC_S3TC )   {
-				internalFormat = GL_RGB4_S3TC;
+                //BBi
+				//internalFormat = GL_RGB4_S3TC;
+                internalFormat = GL_RGB_S3TC;
+                //BBi
 			} else if ( r_texturebits->integer == 16 )   {
 				internalFormat = GL_RGB5;
 			} else if ( r_texturebits->integer == 32 )   {
 				internalFormat = GL_RGB8;
 			} else
 			{
-				internalFormat = 3;
+                //BBi Numeric value not valid anymore
+				//internalFormat = 3;
+                internalFormat = GL_RGB;
+                //BBi
 			}
 		} else if ( samples == 4 )   {
+
+//BBi
+            if ((!noCompress) && (glConfig.textureCompression == TC_ARB))
+                internalFormat = GL_COMPRESSED_RGBA;
+            else
+//BBi
+
 			if ( !noCompress && glConfig.textureCompression == TC_EXT_COMP_S3TC ) {
 				// TODO: which format is best for which textures?
 
@@ -1036,17 +1095,29 @@ static void Upload32(   unsigned *data,
 #endif // RTCW_XX
 
 				internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+
+            //BBi
+            } else if ((!noCompress) && (glConfig.textureCompression == TC_S3TC)) {
+                internalFormat = GL_RGBA_DXT5_S3TC;
+            //BBi
+
 			} else if ( r_texturebits->integer == 16 )   {
 				internalFormat = GL_RGBA4;
 			} else if ( r_texturebits->integer == 32 )   {
 				internalFormat = GL_RGBA8;
 			} else
 			{
-				internalFormat = 4;
+                //BBi Numeric value not valid anymore
+				//internalFormat = 4;
+                internalFormat = GL_RGBA;
+                //BBi
 			}
 		}
 	} else {
-		internalFormat = 3;
+        //BBi Numeric value not valid anymore
+		//internalFormat = 3;
+        internalFormat = GL_RGB;
+        //BBi
 	}
 	// copy or resample data as appropriate for first MIP level
 	if ( ( scaled_width == width ) &&
@@ -1085,7 +1156,10 @@ static void Upload32(   unsigned *data,
 
 	::glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
 
-	if ( mipmap ) {
+    //BBi
+	//if ( mipmap ) {
+    if ((mipmap) && (!glConfigEx.useArbFramebufferObject)) {
+    //BBi
 		int miplevel;
 
 		miplevel = 0;
@@ -1112,8 +1186,17 @@ static void Upload32(   unsigned *data,
 done:
 
 	if ( mipmap ) {
-		::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
-		::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+        //BBi
+        if (glConfigEx.useArbFramebufferObject)
+            ::glGenerateMipmap (GL_TEXTURE_2D);
+        //BBi
+
+        //BBi
+		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
+		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+        //BBi
 	} else
 	{
 
@@ -1121,13 +1204,23 @@ done:
 		// ydnar: for allowing lightmap debugging
 #endif // RTCW_XX
 
-		::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+//BBi
+//		::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+//
+//#if !defined RTCW_ET
+//		::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+//#else
+//		::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+//#endif // RTCW_XX
+
+        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 #if !defined RTCW_ET
-		::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 #else
-		::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 #endif // RTCW_XX
+//BBi
 
 	}
 
@@ -1253,6 +1346,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 
 	image->width = width;
 	image->height = height;
+
 	image->wrapClampMode = glWrapClampMode;
 
 	// lightmaps are always allocated on TMU 1
@@ -1283,17 +1377,23 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 			  &image->uploadHeight,
 			  noCompress );
 
-#if defined RTCW_ET
-	// ydnar: opengl 1.2 GL_CLAMP_TO_EDGE SUPPORT
-	// only 1.1 headers, joy
-	#define GL_CLAMP_TO_EDGE    0x812F
-	if ( r_clampToEdge->integer && glWrapClampMode == GL_CLAMP ) {
-		glWrapClampMode = GL_CLAMP_TO_EDGE;
-	}
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_ET
+//	// ydnar: opengl 1.2 GL_CLAMP_TO_EDGE SUPPORT
+//	// only 1.1 headers, joy
+//	#define GL_CLAMP_TO_EDGE    0x812F
+//	if ( r_clampToEdge->integer && glWrapClampMode == GL_CLAMP ) {
+//		glWrapClampMode = GL_CLAMP_TO_EDGE;
+//	}
+//#endif // RTCW_XX
+//BBi
 
-	::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode );
-	::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode );
+    //BBi
+	//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode );
+	//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode );
+	::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode);
+	::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode);
+    //BBi
 
 	::glBindTexture( GL_TEXTURE_2D, 0 );
 
@@ -2826,7 +2926,11 @@ static void R_CreateDlightImage( void ) {
 			data[y][x][3] = 255;
 		}
 	}
-	tr.dlightImage = R_CreateImage( "*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, GL_CLAMP );
+
+    //BBi
+	//tr.dlightImage = R_CreateImage( "*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, GL_CLAMP );
+    tr.dlightImage = ::R_CreateImage ("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, false, false, ::R_GetBestWrapClamp ());
+    //BBi
 }
 
 
@@ -2903,111 +3007,181 @@ R_CreateFogImage
 ================
 */
 
+//BBi
+//#if !defined RTCW_ET
+//#define FOG_S   256
+//#define FOG_T   32
+//#else
+//#define FOG_S       16
+//#define FOG_T       16  // ydnar: used to be 32
+//						// arnout: yd changed it to 256, changing to 16
+//#endif // RTCW_XX
+//
+//static void R_CreateFogImage( void ) {
+//
+//#if !defined RTCW_ET
+//	int x,y;
+//	byte    *data;
+//	float g;
+//	float d;
+//	float borderColor[4];
+//
+//	data = static_cast<byte*> (ri.Hunk_AllocateTempMemory( FOG_S * FOG_T * 4 ));
+//
+//	g = 2.0;
+//
+//	// S is distance, T is depth
+//	for ( x = 0 ; x < FOG_S ; x++ ) {
+//		for ( y = 0 ; y < FOG_T ; y++ ) {
+//			d = R_FogFactor( ( x + 0.5f ) / FOG_S, ( y + 0.5f ) / FOG_T );
+//
+//			data[( y * FOG_S + x ) * 4 + 0] =
+//				data[( y * FOG_S + x ) * 4 + 1] =
+//					data[( y * FOG_S + x ) * 4 + 2] = 255;
+//			data[( y * FOG_S + x ) * 4 + 3] = 255 * d;
+//		}
+//	}
+//#else
+//	int x, y, alpha;
+//	byte    *data;
+//	//float	d;
+//	float borderColor[4];
+//
+//
+//	// allocate table for image
+//	data = static_cast<byte*> (ri.Hunk_AllocateTempMemory( FOG_S * FOG_T * 4 ));
+//
+//	// ydnar: old fog texture generating algo
+//
+//	// S is distance, T is depth
+//	/*for (x=0 ; x<FOG_S ; x++) {
+//		for (y=0 ; y<FOG_T ; y++) {
+//			d = R_FogFactor( ( x + 0.5f ) / FOG_S, ( y + 0.5f ) / FOG_T );
+//
+//			data[(y*FOG_S+x)*4+0] =
+//			data[(y*FOG_S+x)*4+1] =
+//			data[(y*FOG_S+x)*4+2] = 255;
+//			data[(y*FOG_S+x)*4+3] = 255 * d;
+//		}
+//	}*/
+//
+//	//%	SaveTGAAlpha( "fog_q3.tga", &data, FOG_S, FOG_T );
+//
+//	// ydnar: new, linear fog texture generating algo for GL_CLAMP_TO_EDGE (OpenGL 1.2+)
+//
+//	// S is distance, T is depth
+//	for ( x = 0 ; x < FOG_S ; x++ ) {
+//		for ( y = 0 ; y < FOG_T ; y++ ) {
+//			alpha = 270 * ( (float) x / FOG_S ) * ( (float) y / FOG_T );    // need slop room for fp round to 0
+//			if ( alpha < 0 ) {
+//				alpha = 0;
+//			} else if ( alpha > 255 ) {
+//				alpha = 255;
+//			}
+//
+//			// ensure edge/corner cases are fully transparent (at 0,0) or fully opaque (at 1,N where N is 0-1.0)
+//			if ( x == 0 ) {
+//				alpha = 0;
+//			} else if ( x == ( FOG_S - 1 ) ) {
+//				alpha = 255;
+//			}
+//
+//			data[( y * FOG_S + x ) * 4 + 0] =
+//				data[( y * FOG_S + x ) * 4 + 1] =
+//					data[( y * FOG_S + x ) * 4 + 2] = 255;
+//			data[( y * FOG_S + x ) * 4 + 3] = alpha;  //%	255*d;
+//		}
+//	}
+//
+//	//%	SaveTGAAlpha( "fog_yd.tga", &data, FOG_S, FOG_T );
+//#endif // RTCW_XX
+//
+//	// standard openGL clamping doesn't really do what we want -- it includes
+//	// the border color at the edges.  OpenGL 1.2 has clamp-to-edge, which does
+//	// what we want.
+//	tr.fogImage = R_CreateImage( "*fog", (byte *)data, FOG_S, FOG_T, qfalse, qfalse, GL_CLAMP );
+//	ri.Hunk_FreeTempMemory( data );
+//
+//#if defined RTCW_ET
+//	// ydnar: the following lines are unecessary for new GL_CLAMP_TO_EDGE fog
+//#endif // RTCW_XX
+//
+//	borderColor[0] = 1.0;
+//	borderColor[1] = 1.0;
+//	borderColor[2] = 1.0;
+//	borderColor[3] = 1;
+//
+//	::glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
+//}
+
+static void R_CreateFogImage ()
+{
 #if !defined RTCW_ET
-#define FOG_S   256
-#define FOG_T   32
+    const int FOG_S = 256;
+    const int FOG_T = 32;
 #else
-#define FOG_S       16
-#define FOG_T       16  // ydnar: used to be 32
-						// arnout: yd changed it to 256, changing to 16
+    const int FOG_S = 16;
+    const int FOG_T = 16;
 #endif // RTCW_XX
 
-static void R_CreateFogImage( void ) {
+    byte* data = 0;
 
 #if !defined RTCW_ET
-	int x,y;
-	byte    *data;
-	float g;
-	float d;
-	float borderColor[4];
+    data = static_cast<byte*> (::ri.Hunk_AllocateTempMemory (FOG_S * FOG_T * 4));
 
-	data = static_cast<byte*> (ri.Hunk_AllocateTempMemory( FOG_S * FOG_T * 4 ));
+    const float g = 2.0F;
 
-	g = 2.0;
+    // S is distance, T is depth
+    for (int x = 0; x < FOG_S; ++x) {
+        for (int y = 0; y < FOG_T; ++y) {
+            float d = ::R_FogFactor ((x + 0.5F) / FOG_S, (y + 0.5F) / FOG_T);
 
-	// S is distance, T is depth
-	for ( x = 0 ; x < FOG_S ; x++ ) {
-		for ( y = 0 ; y < FOG_T ; y++ ) {
-			d = R_FogFactor( ( x + 0.5f ) / FOG_S, ( y + 0.5f ) / FOG_T );
-
-			data[( y * FOG_S + x ) * 4 + 0] =
-				data[( y * FOG_S + x ) * 4 + 1] =
-					data[( y * FOG_S + x ) * 4 + 2] = 255;
-			data[( y * FOG_S + x ) * 4 + 3] = 255 * d;
-		}
-	}
+            data[(((y * FOG_S) + x) * 4) + 0] = 255;
+            data[(((y * FOG_S) + x) * 4) + 1] = 255;
+            data[(((y * FOG_S) + x) * 4) + 2] = 255;
+            data[(((y * FOG_S) + x) * 4) + 3] = 255 * d;
+        }
+    }
 #else
-	int x, y, alpha;
-	byte    *data;
-	//float	d;
-	float borderColor[4];
+    // allocate table for image
+    data = static_cast<byte*> (::ri.Hunk_AllocateTempMemory (FOG_S * FOG_T * 4));
 
+    // ydnar: new, linear fog texture generating algo for GL_CLAMP_TO_EDGE (OpenGL 1.2+)
 
-	// allocate table for image
-	data = static_cast<byte*> (ri.Hunk_AllocateTempMemory( FOG_S * FOG_T * 4 ));
+    // S is distance, T is depth
+    for (int x = 0; x < FOG_S; ++x) {
+        for (int y = 0; y < FOG_T; ++y) {
+            int alpha = int (270.0F * (float (x) / FOG_S) * (float (y) / FOG_T)); // need slop room for fp round to 0
 
-	// ydnar: old fog texture generating algo
+            if (alpha > 255)
+                alpha = 255;
 
-	// S is distance, T is depth
-	/*for (x=0 ; x<FOG_S ; x++) {
-		for (y=0 ; y<FOG_T ; y++) {
-			d = R_FogFactor( ( x + 0.5f ) / FOG_S, ( y + 0.5f ) / FOG_T );
+            // ensure edge/corner cases are fully transparent (at 0,0) or fully opaque (at 1,N where N is 0-1.0)
+            if (x == 0)
+                alpha = 0;
+            else if (x == (FOG_S - 1))
+                alpha = 255;
 
-			data[(y*FOG_S+x)*4+0] =
-			data[(y*FOG_S+x)*4+1] =
-			data[(y*FOG_S+x)*4+2] = 255;
-			data[(y*FOG_S+x)*4+3] = 255 * d;
-		}
-	}*/
-
-	//%	SaveTGAAlpha( "fog_q3.tga", &data, FOG_S, FOG_T );
-
-	// ydnar: new, linear fog texture generating algo for GL_CLAMP_TO_EDGE (OpenGL 1.2+)
-
-	// S is distance, T is depth
-	for ( x = 0 ; x < FOG_S ; x++ ) {
-		for ( y = 0 ; y < FOG_T ; y++ ) {
-			alpha = 270 * ( (float) x / FOG_S ) * ( (float) y / FOG_T );    // need slop room for fp round to 0
-			if ( alpha < 0 ) {
-				alpha = 0;
-			} else if ( alpha > 255 ) {
-				alpha = 255;
-			}
-
-			// ensure edge/corner cases are fully transparent (at 0,0) or fully opaque (at 1,N where N is 0-1.0)
-			if ( x == 0 ) {
-				alpha = 0;
-			} else if ( x == ( FOG_S - 1 ) ) {
-				alpha = 255;
-			}
-
-			data[( y * FOG_S + x ) * 4 + 0] =
-				data[( y * FOG_S + x ) * 4 + 1] =
-					data[( y * FOG_S + x ) * 4 + 2] = 255;
-			data[( y * FOG_S + x ) * 4 + 3] = alpha;  //%	255*d;
-		}
-	}
-
-	//%	SaveTGAAlpha( "fog_yd.tga", &data, FOG_S, FOG_T );
+            data[(((y * FOG_S) + x) * 4) + 0] = 255;
+            data[(((y * FOG_S) + x) * 4) + 1] = 255;
+            data[(((y * FOG_S) + x) * 4) + 2] = 255;
+            data[(((y * FOG_S) + x) * 4) + 3] = alpha;  //% 255*d;
+        }
+    }
 #endif // RTCW_XX
 
-	// standard openGL clamping doesn't really do what we want -- it includes
-	// the border color at the edges.  OpenGL 1.2 has clamp-to-edge, which does
-	// what we want.
-	tr.fogImage = R_CreateImage( "*fog", (byte *)data, FOG_S, FOG_T, qfalse, qfalse, GL_CLAMP );
-	ri.Hunk_FreeTempMemory( data );
+    tr.fogImage = ::R_CreateImage ("*fog", data, FOG_S, FOG_T, false, false, ::R_GetBestWrapClamp ());
+    ::ri.Hunk_FreeTempMemory (data);
 
-#if defined RTCW_ET
-	// ydnar: the following lines are unecessary for new GL_CLAMP_TO_EDGE fog
+#if !defined RTCW_ET
+    if (!glConfigEx.useArbFramebufferObject) {
+        float borderColor[4] = { 1.0F, 1.0F, 1.0F, 1.0F, };
+
+        ::glTexParameterfv (GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    }
 #endif // RTCW_XX
-
-	borderColor[0] = 1.0;
-	borderColor[1] = 1.0;
-	borderColor[2] = 1.0;
-	borderColor[3] = 1;
-
-	::glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
 }
+//BBi
 
 /*
 ==================
@@ -3108,7 +3282,11 @@ void R_CreateBuiltinImages( void ) {
 
 	for ( x = 0; x < 32; x++ ) {
 		// scratchimage is usually used for cinematic drawing
-		tr.scratchImage[x] = R_CreateImage( "*scratch", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, GL_CLAMP );
+
+        //BBi
+		//tr.scratchImage[x] = R_CreateImage( "*scratch", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, GL_CLAMP );
+        tr.scratchImage[x] = ::R_CreateImage ("*scratch", (byte*) data, DEFAULT_SIZE, DEFAULT_SIZE, false, true, ::R_GetBestWrapClamp ());
+        //BBi
 	}
 
 	R_CreateDlightImage();

@@ -316,8 +316,12 @@ static void R_LoadLightmaps( lump_t *l ) {
 		}
 #endif // RTCW_XX
 
-		tr.lightmaps[i] = R_CreateImage( va( "*lightmap%d",i ), image,
-										 LIGHTMAP_SIZE, LIGHTMAP_SIZE, qfalse, qfalse, GL_CLAMP );
+        //BBi
+		//tr.lightmaps[i] = R_CreateImage( va( "*lightmap%d",i ), image,
+		//								 LIGHTMAP_SIZE, LIGHTMAP_SIZE, qfalse, qfalse, GL_CLAMP );
+        tr.lightmaps[i] = ::R_CreateImage (::va ("*lightmap%d", i), image,
+            LIGHTMAP_SIZE, LIGHTMAP_SIZE, false, false, ::R_GetBestWrapClamp ());
+        //BBi
 	}
 
 #if !defined RTCW_ET
