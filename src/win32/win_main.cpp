@@ -458,7 +458,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	char        **listCopy;
 	char        *list[MAX_FOUND_FILES];
 	struct _finddata_t findinfo;
-	int findhandle;
+	intptr_t findhandle;
 	int flag;
 	int i;
 
@@ -709,26 +709,56 @@ extern int cl_connectedToPureServer;
 
 #if !defined RTCW_SP
 char* Sys_GetDLLName( const char *name ) {
-	return va( "%s_mp_x86.dll", name );
+//BBi FIXME
+	//return va( "%s_mp_x86.dll", name );
+#ifdef _WIN64
+    return va ("%s_mp_x64.dll", name);
+#else
+    return va ("%s_mp_x86.dll", name);
+#endif
+//BBi
 }
 #endif // RTCW_XX
 
+//BBi
+//#if defined RTCW_SP
+//void * QDECL Sys_LoadDll( const char *name, int( QDECL **entryPoint ) ( int, ... ),
+//#else
+//// fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
+//// fqpath will be empty if dll not loaded, otherwise will hold fully qualified path of dll module loaded
+//// fqpath buffersize must be at least MAX_QPATH+1 bytes long
+//void * QDECL Sys_LoadDll( const char *name, char *fqpath, int( QDECL **entryPoint ) ( int, ... ),
+//#endif // RTCW_XX
+//						  int ( QDECL *systemcalls )( int, ... ) ) {
+
 #if defined RTCW_SP
-void * QDECL Sys_LoadDll( const char *name, int( QDECL **entryPoint ) ( int, ... ),
+void* QDECL Sys_LoadDll (
+    const char* name,
+    intptr_t (QDECL** entryPoint) (intptr_t, ...),
 #else
 // fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
 // fqpath will be empty if dll not loaded, otherwise will hold fully qualified path of dll module loaded
 // fqpath buffersize must be at least MAX_QPATH+1 bytes long
-void * QDECL Sys_LoadDll( const char *name, char *fqpath, int( QDECL **entryPoint ) ( int, ... ),
+void* QDECL Sys_LoadDll (
+    const char* name,
+    char* fqpath,
+    intptr_t (QDECL** entryPoint) (intptr_t, ...),
 #endif // RTCW_XX
-						  int ( QDECL *systemcalls )( int, ... ) ) {
+    intptr_t (QDECL* systemcalls) (intptr_t, ...))
+{
+//BBi
 
 #if !defined RTCW_ET
 	static int lastWarning = 0;
 #endif // RTCW_XX
 
 	HINSTANCE libHandle;
-	void ( QDECL * dllEntry )( int ( QDECL *syscallptr )( int, ... ) );
+
+    //BBi
+	//void ( QDECL * dllEntry )( int ( QDECL *syscallptr )( int, ... ) );
+    void (QDECL* dllEntry) (intptr_t (QDECL* syscallptr) (intptr_t, ...));
+    //BBi
+
 	char    *basepath;
 	char    *cdpath;
 	char    *gamedir;
@@ -747,7 +777,13 @@ void * QDECL Sys_LoadDll( const char *name, char *fqpath, int( QDECL **entryPoin
 #ifdef WOLF_SP_DEMO
 	Com_sprintf( filename, sizeof( filename ), "%sx86_d.dll", name );
 #else
-	Com_sprintf( filename, sizeof( filename ), "%sx86.dll", name );
+	Com_sprintf( filename, sizeof( filename ),
+#ifdef _WIN64
+        "%sx64.dll",
+#else
+        "%sx86.dll",
+#endif
+        name );
 #endif
 
 
@@ -855,8 +891,13 @@ found_dll:
 	}
 #endif // RTCW_XX
 
-	dllEntry = ( void ( QDECL * )( int ( QDECL * )( int, ... ) ) )GetProcAddress( libHandle, "dllEntry" );
-	*entryPoint = ( int ( QDECL * )( int,... ) )GetProcAddress( libHandle, "vmMain" );
+    //BBi
+	//dllEntry = ( void ( QDECL * )( int ( QDECL * )( int, ... ) ) )GetProcAddress( libHandle, "dllEntry" );
+	//*entryPoint = ( int ( QDECL * )( int,... ) )GetProcAddress( libHandle, "vmMain" );
+    dllEntry = reinterpret_cast<void (QDECL*) (intptr_t (QDECL*) (intptr_t, ...))> (::GetProcAddress (libHandle, "dllEntry"));
+	*entryPoint = reinterpret_cast <intptr_t (QDECL*) (intptr_t, ...)> (::GetProcAddress (libHandle, "vmMain"));
+    //BBi
+
 	if ( !*entryPoint || !dllEntry ) {
 		FreeLibrary( libHandle );
 		return NULL;
@@ -1737,8 +1778,19 @@ void Sys_Init( void ) {
 	}
 
 	// save out a couple things in rom cvars for the renderer to access
-	Cvar_Get( "win_hinstance", va( "%i", (int)g_wv.hInstance ), CVAR_ROM );
-	Cvar_Get( "win_wndproc", va( "%i", (int)MainWndProc ), CVAR_ROM );
+
+    //BBi
+	//Cvar_Get( "win_hinstance", va( "%i", (int)g_wv.hInstance ), CVAR_ROM );
+	//Cvar_Get( "win_wndproc", va( "%i", (int)MainWndProc ), CVAR_ROM );
+
+    char valueBuffer[21];
+
+    ::sprintf (valueBuffer, "%lli", reinterpret_cast<intptr_t> (g_wv.hInstance));
+    ::Cvar_Get ("win_hinstance", valueBuffer, CVAR_ROM );
+
+    ::sprintf (valueBuffer, "%lli", reinterpret_cast<intptr_t> (MainWndProc));
+    ::Cvar_Get ("win_wndproc", valueBuffer, CVAR_ROM );
+    //BBi
 
 	//
 	// figure out our CPU

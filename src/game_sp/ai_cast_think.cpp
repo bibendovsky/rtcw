@@ -1245,7 +1245,14 @@ qboolean AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, qbo
 	usercmd_t ucmd;
 	qboolean enemyVisible;
 	float angleDiff;
-	int starttraveltime = 0, besttraveltime, traveltime;         // TTimo: init
+
+    //BBi Uninitialized vars
+	//int starttraveltime = 0, besttraveltime, traveltime;         // TTimo: init
+    int starttraveltime = 0;
+    int besttraveltime = 0;
+    int traveltime = 0;
+    //BBi
+
 	int invert;
 	float inc;
 	qboolean averting = qfalse;

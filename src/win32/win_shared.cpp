@@ -63,81 +63,88 @@ int Sys_Milliseconds( void ) {
 	return sys_curtime;
 }
 
-/*
-================
-Sys_SnapVector
-================
-*/
-long fastftol( float f ) {
-
-#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
-	static int tmp;
-	__asm fld f
-	__asm fistp tmp
-
-#if defined RTCW_ET
-	// rain - WTF - why do they set the return this way?
-#endif // RTCW_XX
-
-	__asm mov eax, tmp
-#endif // RTCW_XX
-
-#if defined RTCW_ET && defined __GNUC__
-	// rain - gcc-style inline asm
-	// zinx - meh, gcc's lrint is sane, so use that. fixed inline asm too, though.
-	/*
-	asm(
-		"fld %1\n\t"
-		"fistp %0\n"
-		: "=m" (tmp) // outputs
-		: "f" (f) // inputs
-	);
-	return tmp;
-	*/
-	return lrint( f );
-#endif // RTCW_XX
-
-}
+//BBi
+///*
+//================
+//Sys_SnapVector
+//================
+//*/
+//long fastftol( float f ) {
+//
+//#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
+//	static int tmp;
+//	__asm fld f
+//	__asm fistp tmp
+//
+//#if defined RTCW_ET
+//	// rain - WTF - why do they set the return this way?
+//#endif // RTCW_XX
+//
+//	__asm mov eax, tmp
+//#endif // RTCW_XX
+//
+//#if defined RTCW_ET && defined __GNUC__
+//	// rain - gcc-style inline asm
+//	// zinx - meh, gcc's lrint is sane, so use that. fixed inline asm too, though.
+//	/*
+//	asm(
+//		"fld %1\n\t"
+//		"fistp %0\n"
+//		: "=m" (tmp) // outputs
+//		: "f" (f) // inputs
+//	);
+//	return tmp;
+//	*/
+//	return lrint( f );
+//#endif // RTCW_XX
+//
+//}
+//BBi
 
 void Sys_SnapVector( float *v ) {
 
-#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
-	int i;
-	float f;
+//BBi Make it portable
+//#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
+//	int i;
+//	float f;
+//
+//	f = *v;
+//	__asm fld f;
+//	__asm fistp i;
+//	*v = i;
+//	v++;
+//	f = *v;
+//	__asm fld f;
+//	__asm fistp i;
+//	*v = i;
+//	v++;
+//	f = *v;
+//	__asm fld f;
+//	__asm fistp i;
+//	*v = i;
+//	/*
+//	*v = fastftol(*v);
+//	v++;
+//	*v = fastftol(*v);
+//	v++;
+//	*v = fastftol(*v);
+//	*/
+//#endif // RTCW_XX
+//
+//#if defined RTCW_ET && defined __GNUC__
+//	// rain - gcc has different inline asm, but I'm not going to emulate
+//	// that here for now...
+//	*v = (float)fastftol( *v );
+//	v++;
+//	*v = (float)fastftol( *v );
+//	v++;
+//	*v = (float)fastftol( *v );
+//#endif // RTCW_XX
 
-	f = *v;
-	__asm fld f;
-	__asm fistp i;
-	*v = i;
-	v++;
-	f = *v;
-	__asm fld f;
-	__asm fistp i;
-	*v = i;
-	v++;
-	f = *v;
-	__asm fld f;
-	__asm fistp i;
-	*v = i;
-	/*
-	*v = fastftol(*v);
-	v++;
-	*v = fastftol(*v);
-	v++;
-	*v = fastftol(*v);
-	*/
-#endif // RTCW_XX
-
-#if defined RTCW_ET && defined __GNUC__
-	// rain - gcc has different inline asm, but I'm not going to emulate
-	// that here for now...
-	*v = (float)fastftol( *v );
-	v++;
-	*v = (float)fastftol( *v );
-	v++;
-	*v = (float)fastftol( *v );
-#endif // RTCW_XX
-
+    v[0] = static_cast<float> (static_cast<int> (v[0]));
+    v[1] = static_cast<float> (static_cast<int> (v[1]));
+    v[2] = static_cast<float> (static_cast<int> (v[2]));
+//BBi
 }
 
 /*
@@ -159,241 +166,269 @@ void Sys_SnapVector( float *v ) {
 */
 static void CPUID( int func, unsigned regs[4] ) {
 
-#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
-	unsigned regEAX, regEBX, regECX, regEDX;
+//BBi FIXME Implement
+//#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
+//	unsigned regEAX, regEBX, regECX, regEDX;
+//
+//	__asm mov eax, func
+//
+//#if !defined RTCW_ET
+//	__asm __emit 00fh
+//	__asm __emit 0a2h
+//#else
+//	__asm cpuid
+//#endif // RTCW_XX
+//
+//	__asm mov regEAX, eax
+//	__asm mov regEBX, ebx
+//	__asm mov regECX, ecx
+//	__asm mov regEDX, edx
+//
+//	regs[0] = regEAX;
+//	regs[1] = regEBX;
+//	regs[2] = regECX;
+//	regs[3] = regEDX;
+//#endif // RTCW_XX
+//
+//#if defined RTCW_ET && defined __GNUC__
+//	// rain - gcc style inline asm
+//	asm (
+//		"cpuid\n"
+//		: "=a" ( regs[0] ), "=b" ( regs[1] ), "=c" ( regs[2] ), "=d" ( regs[3] ) // outputs
+//		: "a" ( func ) // inputs
+//		);
+//#endif // RTCW_XX
 
-	__asm mov eax, func
-
-#if !defined RTCW_ET
-	__asm __emit 00fh
-	__asm __emit 0a2h
-#else
-	__asm cpuid
-#endif // RTCW_XX
-
-	__asm mov regEAX, eax
-	__asm mov regEBX, ebx
-	__asm mov regECX, ecx
-	__asm mov regEDX, edx
-
-	regs[0] = regEAX;
-	regs[1] = regEBX;
-	regs[2] = regECX;
-	regs[3] = regEDX;
-#endif // RTCW_XX
-
-#if defined RTCW_ET && defined __GNUC__
-	// rain - gcc style inline asm
-	asm (
-		"cpuid\n"
-		: "=a" ( regs[0] ), "=b" ( regs[1] ), "=c" ( regs[2] ), "=d" ( regs[3] ) // outputs
-		: "a" ( func ) // inputs
-		);
-#endif // RTCW_XX
+    regs[0] = 0;
+    regs[1] = 0;
+    regs[2] = 0;
+    regs[3] = 0;
+//BBi
 
 }
 
 static int IsPentium( void ) {
 
-#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
-	__asm
-	{
-		pushfd                      // save eflags
-		pop eax
-		test eax, 0x00200000        // check ID bit
-		jz set21                    // bit 21 is not set, so jump to set_21
-		and     eax, 0xffdfffff     // clear bit 21
-		push eax                    // save new value in register
-		popfd                       // store new value in flags
-		pushfd
-		pop eax
-		test eax, 0x00200000        // check ID bit
-		jz good
-		jmp err                     // cpuid not supported
-set21:
-		or      eax, 0x00200000     // set ID bit
-		push eax                    // store new value
-		popfd                       // store new value in EFLAGS
-		pushfd
-		pop eax
-		test eax, 0x00200000        // if bit 21 is on
-		jnz good
-		jmp err
-	}
+//BBi
+//#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
+//	__asm
+//	{
+//		pushfd                      // save eflags
+//		pop eax
+//		test eax, 0x00200000        // check ID bit
+//		jz set21                    // bit 21 is not set, so jump to set_21
+//		and     eax, 0xffdfffff     // clear bit 21
+//		push eax                    // save new value in register
+//		popfd                       // store new value in flags
+//		pushfd
+//		pop eax
+//		test eax, 0x00200000        // check ID bit
+//		jz good
+//		jmp err                     // cpuid not supported
+//set21:
+//		or      eax, 0x00200000     // set ID bit
+//		push eax                    // store new value
+//		popfd                       // store new value in EFLAGS
+//		pushfd
+//		pop eax
+//		test eax, 0x00200000        // if bit 21 is on
+//		jnz good
+//		jmp err
+//	}
+//
+//err:
+//	return qfalse;
+//good:
+//	return qtrue;
+//#endif // RTCW_XX
+//
+//#if defined RTCW_ET && defined __GNUC__
+//	// rain - gcc-style inline asm
+//	// rain - FIXME: I'm too tired to do this one right now
+//	return qtrue;
+//#endif // RTCW_XX
 
-err:
-	return qfalse;
-good:
-	return qtrue;
-#endif // RTCW_XX
-
-#if defined RTCW_ET && defined __GNUC__
-	// rain - gcc-style inline asm
-	// rain - FIXME: I'm too tired to do this one right now
-	return qtrue;
-#endif // RTCW_XX
+    return false;
+//BBi
 
 }
 
 static int Is3DNOW( void ) {
-	unsigned regs[4];
-	char pstring[16];
-	char processorString[13];
 
-	// get name of processor
-	CPUID( 0, ( unsigned int * ) pstring );
-	processorString[0] = pstring[4];
-	processorString[1] = pstring[5];
-	processorString[2] = pstring[6];
-	processorString[3] = pstring[7];
-	processorString[4] = pstring[12];
-	processorString[5] = pstring[13];
-	processorString[6] = pstring[14];
-	processorString[7] = pstring[15];
-	processorString[8] = pstring[8];
-	processorString[9] = pstring[9];
-	processorString[10] = pstring[10];
-	processorString[11] = pstring[11];
-	processorString[12] = 0;
-
-//  REMOVED because you can have 3DNow! on non-AMD systems
-//	if ( strcmp( processorString, "AuthenticAMD" ) )
+//BBi
+//	unsigned regs[4];
+//	char pstring[16];
+//	char processorString[13];
+//
+//	// get name of processor
+//	CPUID( 0, ( unsigned int * ) pstring );
+//	processorString[0] = pstring[4];
+//	processorString[1] = pstring[5];
+//	processorString[2] = pstring[6];
+//	processorString[3] = pstring[7];
+//	processorString[4] = pstring[12];
+//	processorString[5] = pstring[13];
+//	processorString[6] = pstring[14];
+//	processorString[7] = pstring[15];
+//	processorString[8] = pstring[8];
+//	processorString[9] = pstring[9];
+//	processorString[10] = pstring[10];
+//	processorString[11] = pstring[11];
+//	processorString[12] = 0;
+//
+////  REMOVED because you can have 3DNow! on non-AMD systems
+////	if ( strcmp( processorString, "AuthenticAMD" ) )
+////		return qfalse;
+//
+//	// check AMD-specific functions
+//	CPUID( 0x80000000, regs );
+//	if ( regs[0] < 0x80000000 ) {
 //		return qfalse;
-
-	// check AMD-specific functions
-	CPUID( 0x80000000, regs );
-	if ( regs[0] < 0x80000000 ) {
-		return qfalse;
-	}
-
-	// bit 31 of EDX denotes 3DNOW! support
-	CPUID( 0x80000001, regs );
-	if ( regs[3] & ( 1 << 31 ) ) {
-		return qtrue;
-	}
+//	}
+//
+//	// bit 31 of EDX denotes 3DNOW! support
+//	CPUID( 0x80000001, regs );
+//	if ( regs[3] & ( 1 << 31 ) ) {
+//		return qtrue;
+//	}
+//BBi
 
 	return qfalse;
 }
 
 static int IsKNI( void ) {
-	unsigned regs[4];
 
-	// get CPU feature bits
-	CPUID( 1, regs );
+    //BBi
+	//unsigned regs[4];
 
-	// bit 25 of EDX denotes KNI existence
-	if ( regs[3] & ( 1 << 25 ) ) {
-		return qtrue;
-	}
+	//// get CPU feature bits
+	//CPUID( 1, regs );
+
+	//// bit 25 of EDX denotes KNI existence
+	//if ( regs[3] & ( 1 << 25 ) ) {
+	//	return qtrue;
+	//}
+    //BBi
 
 	return qfalse;
 }
 
 static int IsMMX( void ) {
-	unsigned regs[4];
+    //BBi
+	//unsigned regs[4];
 
-	// get CPU feature bits
-	CPUID( 1, regs );
+	//// get CPU feature bits
+	//CPUID( 1, regs );
 
-	// bit 23 of EDX denotes MMX existence
-	if ( regs[3] & ( 1 << 23 ) ) {
-		return qtrue;
-	}
+	//// bit 23 of EDX denotes MMX existence
+	//if ( regs[3] & ( 1 << 23 ) ) {
+	//	return qtrue;
+	//}
+    //BBi
+
 	return qfalse;
 }
 
 static int IsP3() {
-	unsigned regs[4];
+    //BBi
+	//unsigned regs[4];
 
-	// get CPU feature bits
-	CPUID( 1, regs );
-	if ( regs[0] < 6 ) {
-		return qfalse;
-	}
+	//// get CPU feature bits
+	//CPUID( 1, regs );
+	//if ( regs[0] < 6 ) {
+	//	return qfalse;
+	//}
 
-	if ( !( regs[3] & 0x1 ) ) {
-		return qfalse;    // fp
-	}
+	//if ( !( regs[3] & 0x1 ) ) {
+	//	return qfalse;    // fp
+	//}
 
-	if ( !( regs[3] & 0x8000 ) ) { // cmov
-		return qfalse;
-	}
+	//if ( !( regs[3] & 0x8000 ) ) { // cmov
+	//	return qfalse;
+	//}
 
-	if ( !( regs[3] & 0x800000 ) ) { // mmx
-		return qfalse;
-	}
+	//if ( !( regs[3] & 0x800000 ) ) { // mmx
+	//	return qfalse;
+	//}
 
-	if ( !( regs[3] & 0x2000000 ) ) { // simd
-		return qfalse;
-	}
+	//if ( !( regs[3] & 0x2000000 ) ) { // simd
+	//	return qfalse;
+	//}
 
-	return qtrue;
+	//return qtrue;
+
+    return false;
+    //BBi
 }
 
 static int IsAthlon() {
-	unsigned regs[4];
-	char pstring[16];
-	char processorString[13];
+    //BBi
+	//unsigned regs[4];
+	//char pstring[16];
+	//char processorString[13];
 
-	// get name of processor
-	CPUID( 0, ( unsigned int * ) pstring );
-	processorString[0] = pstring[4];
-	processorString[1] = pstring[5];
-	processorString[2] = pstring[6];
-	processorString[3] = pstring[7];
-	processorString[4] = pstring[12];
-	processorString[5] = pstring[13];
-	processorString[6] = pstring[14];
-	processorString[7] = pstring[15];
-	processorString[8] = pstring[8];
-	processorString[9] = pstring[9];
-	processorString[10] = pstring[10];
-	processorString[11] = pstring[11];
-	processorString[12] = 0;
+	//// get name of processor
+	//CPUID( 0, ( unsigned int * ) pstring );
+	//processorString[0] = pstring[4];
+	//processorString[1] = pstring[5];
+	//processorString[2] = pstring[6];
+	//processorString[3] = pstring[7];
+	//processorString[4] = pstring[12];
+	//processorString[5] = pstring[13];
+	//processorString[6] = pstring[14];
+	//processorString[7] = pstring[15];
+	//processorString[8] = pstring[8];
+	//processorString[9] = pstring[9];
+	//processorString[10] = pstring[10];
+	//processorString[11] = pstring[11];
+	//processorString[12] = 0;
 
-	if ( strcmp( processorString, "AuthenticAMD" ) ) {
-		return qfalse;
-	}
+	//if ( strcmp( processorString, "AuthenticAMD" ) ) {
+	//	return qfalse;
+	//}
 
-	CPUID( 0x80000000, regs );
+	//CPUID( 0x80000000, regs );
 
-	if ( regs[0] < 0x80000001 ) {
-		return qfalse;
-	}
+	//if ( regs[0] < 0x80000001 ) {
+	//	return qfalse;
+	//}
 
-	// get CPU feature bits
-	CPUID( 1, regs );
-	if ( regs[0] < 6 ) {
-		return qfalse;
-	}
+	//// get CPU feature bits
+	//CPUID( 1, regs );
+	//if ( regs[0] < 6 ) {
+	//	return qfalse;
+	//}
 
-	CPUID( 0x80000001, regs );
+	//CPUID( 0x80000001, regs );
 
-	if ( !( regs[3] & 0x1 ) ) {
-		return qfalse;    // fp
-	}
+	//if ( !( regs[3] & 0x1 ) ) {
+	//	return qfalse;    // fp
+	//}
 
-	if ( !( regs[3] & 0x8000 ) ) { // cmov
-		return qfalse;
-	}
+	//if ( !( regs[3] & 0x8000 ) ) { // cmov
+	//	return qfalse;
+	//}
 
-	if ( !( regs[3] & 0x800000 ) ) { // mmx
-		return qfalse;
-	}
+	//if ( !( regs[3] & 0x800000 ) ) { // mmx
+	//	return qfalse;
+	//}
 
-	if ( !( regs[3] & 0x400000 ) ) { // k7 mmx
-		return qfalse;
-	}
+	//if ( !( regs[3] & 0x400000 ) ) { // k7 mmx
+	//	return qfalse;
+	//}
 
-	if ( !( regs[3] & 0x80000000 ) ) { // 3dnow
-		return qfalse;
-	}
+	//if ( !( regs[3] & 0x80000000 ) ) { // 3dnow
+	//	return qfalse;
+	//}
 
-	if ( !( regs[3] & 0x40000000 ) ) { // advanced 3dnow
-		return qfalse;
-	}
+	//if ( !( regs[3] & 0x40000000 ) ) { // advanced 3dnow
+	//	return qfalse;
+	//}
 
-	return qtrue;
+	//return qtrue;
+
+    return false;
+    //BBi
 }
 
 int Sys_GetProcessorId( void ) {
@@ -431,7 +466,11 @@ int Sys_GetProcessorId( void ) {
 }
 
 int Sys_GetHighQualityCPU() {
-	return ( !IsP3() && !IsAthlon() ) ? 0 : 1;
+    //BBi
+	//return ( !IsP3() && !IsAthlon() ) ? 0 : 1;
+
+    return 1;
+    //BBi
 }
 
 #if defined RTCW_ET
@@ -461,132 +500,143 @@ static void GetClockTicks( double *t ) {
 }
 #endif
 
-float Sys_RealGetCPUSpeed( void ) {
-	LARGE_INTEGER c0, c1, freq;
-	unsigned int stamp0, stamp1, cycles, ticks, tries;
-	unsigned int freq1, freq2, freq3, total;
-	unsigned int priorityClass;
-	int threadPriority;
+//BBi
+//float Sys_RealGetCPUSpeed( void ) {
+//	LARGE_INTEGER c0, c1, freq;
+//	unsigned int stamp0, stamp1, cycles, ticks, tries;
+//	unsigned int freq1, freq2, freq3, total;
+//	unsigned int priorityClass;
+//	int threadPriority;
+//
+//	freq1 = freq2 = freq3 = tries = 0;
+//
+//	if ( !QueryPerformanceFrequency( &freq ) ) {
+//		return .0f;
+//	}
+//
+//	priorityClass = GetPriorityClass( GetCurrentProcess() );
+//	threadPriority = GetThreadPriority( GetCurrentThread() );
+//
+//	SetPriorityClass( GetCurrentProcess(), REALTIME_PRIORITY_CLASS );
+//	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
+//
+//	do {
+//		tries++;
+//
+//		freq3 = freq2;
+//		freq2 = freq1;
+//
+//		QueryPerformanceCounter( &c0 );
+//
+//		c1.LowPart = c0.LowPart;
+//		c1.HighPart = c0.HighPart;
+//
+//		while ( (int)c1.LowPart - (int)c0.LowPart < 50 ) {
+//			QueryPerformanceCounter( &c1 );
+//		}
+//
+//#ifndef __GNUC__
+//		_asm
+//		{
+//			rdtsc
+//			mov stamp0, eax
+//		}
+//#else
+//		// rain - gcc-style inline asm
+//		asm (
+//			"rdtsc\n"
+//			: "=a" ( stamp0 ) // outputs
+//			:
+//			: "edx"
+//			);
+//#endif
+//
+//		c0.LowPart = c1.LowPart;
+//		c0.HighPart = c1.HighPart;
+//
+//		while ( (int)c1.LowPart - (int)c0.LowPart < 1000 ) {
+//			QueryPerformanceCounter( &c1 );
+//		}
+//
+//#ifndef __GNUC__
+//		_asm
+//		{
+//			rdtsc
+//			mov stamp1, eax
+//		}
+//#else
+//		// rain - gcc-style inline asm
+//		asm (
+//			"rdtsc\n"
+//			: "=a" ( stamp1 ) // outputs
+//			:
+//			: "edx"
+//			);
+//#endif
+//
+//		cycles = stamp1 - stamp0;
+//		ticks = (int)c1.LowPart - (int)c0.LowPart;
+//
+//		ticks *= 100000;
+//		ticks /= ( freq.LowPart / 10 );
+//
+//		if ( ticks % freq.LowPart > freq.LowPart * .5f ) {
+//			ticks++;
+//		}
+//
+//		freq1 = cycles / ticks;
+//
+//		if ( cycles % ticks > ticks * .5f ) {
+//			freq1++;
+//		}
+//
+//		total = freq1 + freq2 + freq3;
+//
+//	} while ( ( tries < 3 || tries < 20 ) &&
+//			  ( ( c::abs( int (3 * freq1 - total) ) > 3 ) || ( c::abs( int (3 * freq2 - total) ) > 3 ) || ( c::abs( int (3 * freq3 - total) ) > 3 ) ) );
+//
+//	if ( total / 3 != ( total + 1 ) / 3 ) {
+//		total++;
+//	}
+//
+//	SetPriorityClass( GetCurrentProcess(), priorityClass );
+//	SetThreadPriority( GetCurrentThread(), threadPriority );
+//
+//	return( (float)total / 3.f );
+//}
+//BBi
 
-	freq1 = freq2 = freq3 = tries = 0;
+//BBi
+//float Sys_GetCPUSpeed( void ) {
+//	float cpuSpeed;
+//
+//#ifndef __GNUC__
+//	__try
+//#else
+//	if ( 1 )
+//#endif
+//	{
+//		cpuSpeed = Sys_RealGetCPUSpeed();
+//	}
+//#ifndef __GNUC__
+//	__except( EXCEPTION_EXECUTE_HANDLER )
+//#else
+//	if ( 0 )
+//#endif
+//	{
+//		cpuSpeed = 100.f;
+//	}
+//
+//	return cpuSpeed;
+//}
 
-	if ( !QueryPerformanceFrequency( &freq ) ) {
-		return .0f;
-	}
-
-	priorityClass = GetPriorityClass( GetCurrentProcess() );
-	threadPriority = GetThreadPriority( GetCurrentThread() );
-
-	SetPriorityClass( GetCurrentProcess(), REALTIME_PRIORITY_CLASS );
-	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
-
-	do {
-		tries++;
-
-		freq3 = freq2;
-		freq2 = freq1;
-
-		QueryPerformanceCounter( &c0 );
-
-		c1.LowPart = c0.LowPart;
-		c1.HighPart = c0.HighPart;
-
-		while ( (int)c1.LowPart - (int)c0.LowPart < 50 ) {
-			QueryPerformanceCounter( &c1 );
-		}
-
-#ifndef __GNUC__
-		_asm
-		{
-			rdtsc
-			mov stamp0, eax
-		}
-#else
-		// rain - gcc-style inline asm
-		asm (
-			"rdtsc\n"
-			: "=a" ( stamp0 ) // outputs
-			:
-			: "edx"
-			);
-#endif
-
-		c0.LowPart = c1.LowPart;
-		c0.HighPart = c1.HighPart;
-
-		while ( (int)c1.LowPart - (int)c0.LowPart < 1000 ) {
-			QueryPerformanceCounter( &c1 );
-		}
-
-#ifndef __GNUC__
-		_asm
-		{
-			rdtsc
-			mov stamp1, eax
-		}
-#else
-		// rain - gcc-style inline asm
-		asm (
-			"rdtsc\n"
-			: "=a" ( stamp1 ) // outputs
-			:
-			: "edx"
-			);
-#endif
-
-		cycles = stamp1 - stamp0;
-		ticks = (int)c1.LowPart - (int)c0.LowPart;
-
-		ticks *= 100000;
-		ticks /= ( freq.LowPart / 10 );
-
-		if ( ticks % freq.LowPart > freq.LowPart * .5f ) {
-			ticks++;
-		}
-
-		freq1 = cycles / ticks;
-
-		if ( cycles % ticks > ticks * .5f ) {
-			freq1++;
-		}
-
-		total = freq1 + freq2 + freq3;
-
-	} while ( ( tries < 3 || tries < 20 ) &&
-			  ( ( c::abs( int (3 * freq1 - total) ) > 3 ) || ( c::abs( int (3 * freq2 - total) ) > 3 ) || ( c::abs( int (3 * freq3 - total) ) > 3 ) ) );
-
-	if ( total / 3 != ( total + 1 ) / 3 ) {
-		total++;
-	}
-
-	SetPriorityClass( GetCurrentProcess(), priorityClass );
-	SetThreadPriority( GetCurrentThread(), threadPriority );
-
-	return( (float)total / 3.f );
+//FIXME
+float Sys_GetCPUSpeed ()
+{
+    return 2000.0F;
 }
+//BBi
 
-float Sys_GetCPUSpeed( void ) {
-	float cpuSpeed;
-
-#ifndef __GNUC__
-	__try
-#else
-	if ( 1 )
-#endif
-	{
-		cpuSpeed = Sys_RealGetCPUSpeed();
-	}
-#ifndef __GNUC__
-	__except( EXCEPTION_EXECUTE_HANDLER )
-#else
-	if ( 0 )
-#endif
-	{
-		cpuSpeed = 100.f;
-	}
-
-	return cpuSpeed;
-}
 #endif // RTCW_XX
 
 /*

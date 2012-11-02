@@ -462,20 +462,41 @@ typedef enum {
 } sharedTraps_t;
 
 void    VM_Init( void );
-vm_t    *VM_Create( const char *module, int ( *systemCalls )( int * ),
-					vmInterpret_t interpret );
+
+//BBi
+//vm_t    *VM_Create( const char *module, int ( *systemCalls )( int * ),
+//					vmInterpret_t interpret );
+vm_t* VM_Create (
+    const char* module,
+    intptr_t (*systemCalls) (intptr_t*));
+//BBi
+
 // module should be bare: "cgame", not "cgame.dll" or "vm/cgame.qvm"
 
 void    VM_Free( vm_t *vm );
 void    VM_Clear( void );
 vm_t    *VM_Restart( vm_t *vm );
 
-int QDECL VM_Call( vm_t *vm, int callNum, ... );
+//BBi
+//int QDECL VM_Call( vm_t *vm, int callNum, ... );
+intptr_t QDECL VM_Call (
+    vm_t* vm,
+    intptr_t callNum,
+    ...);
+//BBi
 
 void    VM_Debug( int level );
 
-void    *VM_ArgPtr( int intValue );
-void    *VM_ExplicitArgPtr( vm_t *vm, int intValue );
+//BBi
+//void    *VM_ArgPtr( int intValue );
+void* VM_ArgPtr (
+    intptr_t intValue);
+
+//void    *VM_ExplicitArgPtr( vm_t *vm, int intValue );
+void* VM_ExplicitArgPtr (
+    vm_t* vm,
+    intptr_t intValue);
+//BBi
 
 /*
 ==============================================================
@@ -1292,17 +1313,38 @@ void *Sys_InitializeCriticalSection();
 void Sys_EnterCriticalSection( void *ptr );
 void Sys_LeaveCriticalSection( void *ptr );
 
+//BBi
+//#if defined RTCW_SP
+//// general development dll loading for virtual machine testing
+//void    * QDECL Sys_LoadDll( const char *name, int( QDECL * *entryPoint ) ( int, ... ),
+//#else
+//// FIXME: wants win32 implementation
+//char* Sys_GetDLLName( const char *name );
+//// fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
+//void    * QDECL Sys_LoadDll( const char *name, char *fqpath, int( QDECL * *entryPoint ) ( int, ... ),
+//#endif // RTCW_XX
+//
+//							 int ( QDECL * systemcalls )( int, ... ) );
+
 #if defined RTCW_SP
-// general development dll loading for virtual machine testing
-void    * QDECL Sys_LoadDll( const char *name, int( QDECL * *entryPoint ) ( int, ... ),
+void* QDECL Sys_LoadDll (
+    const char* name,
+    intptr_t (QDECL** entryPoint) (intptr_t, ...),
 #else
 // FIXME: wants win32 implementation
-char* Sys_GetDLLName( const char *name );
+char* Sys_GetDLLName (
+    const char* name);
+
 // fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
-void    * QDECL Sys_LoadDll( const char *name, char *fqpath, int( QDECL * *entryPoint ) ( int, ... ),
+void* QDECL Sys_LoadDll (
+    const char* name,
+    char* fqpath,
+    intptr_t (QDECL** entryPoint) (intptr_t, ...),
 #endif // RTCW_XX
 
-							 int ( QDECL * systemcalls )( int, ... ) );
+    intptr_t (QDECL* systemcalls) (intptr_t, ...));
+//BBi
+
 void    Sys_UnloadDll( void *dllHandle );
 
 void    Sys_UnloadGame( void );

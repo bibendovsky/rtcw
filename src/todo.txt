@@ -2,7 +2,7 @@
 Check for FIXME and TODO
 
 -----------------------
-Merge licenses an update all source files.
+Change licenses for merged code.
 
 
 -----------------------
@@ -16,11 +16,6 @@ game/ai_cast_func_boss1.c
 
 qcommon/files.c
 	FS_ReferencedPakNames
-
------------
-Find a bug (from original sources) which
-causes the engine to crash in full screen
-after finishing a "dam" level.
 
 ------------
 Try to make full merge for non engine code (cgame, game, ui).

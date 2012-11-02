@@ -1442,8 +1442,12 @@ extern void ReadEntity ( fileHandle_t f , gentity_t * ent , int size ) ;
 extern void WriteEntity ( fileHandle_t f , gentity_t * ent ) ;
 extern void ReadClient ( fileHandle_t f , gclient_t * client , int size ) ;
 extern void WriteClient ( fileHandle_t f , gclient_t * cl ) ;
-extern void G_Save_Decode ( byte * in , int insize , byte * out , int outsize ) ;
-extern int G_Save_Encode ( byte * raw , byte * out , int rawsize , int outsize ) ;
+
+//BBi
+//extern void G_Save_Decode ( byte * in , int insize , byte * out , int outsize ) ;
+//extern int G_Save_Encode ( byte * raw , byte * out , int rawsize , int outsize ) ;
+//BBi
+
 extern void ReadField ( fileHandle_t f , saveField_t * field , byte * base ) ;
 extern void WriteField2 ( fileHandle_t f , saveField_t * field , byte * base ) ;
 extern void WriteField1 ( saveField_t * field , byte * base ) ;

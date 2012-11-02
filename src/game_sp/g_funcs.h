@@ -1442,8 +1442,12 @@ If you have questions concerning this license or the applicable additional terms
 {"WriteEntity", (byte *)WriteEntity},
 {"ReadClient", (byte *)ReadClient},
 {"WriteClient", (byte *)WriteClient},
-{"G_Save_Decode", (byte *)G_Save_Decode},
-{"G_Save_Encode", (byte *)G_Save_Encode},
+
+//BBi
+//{"G_Save_Decode", (byte *)G_Save_Decode},
+//{"G_Save_Encode", (byte *)G_Save_Encode},
+//BBi
+
 {"ReadField", (byte *)ReadField},
 {"WriteField2", (byte *)WriteField2},
 {"WriteField1", (byte *)WriteField1},

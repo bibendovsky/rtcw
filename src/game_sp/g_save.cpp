@@ -31,6 +31,10 @@ If you have questions concerning this license or the applicable additional terms
  *
  */
 
+//BBi
+#include <algorithm>
+#include <vector>
+//BBi
 
 #include "g_local.h"
 #include "q_shared.h"
@@ -63,6 +67,846 @@ saveField structures below.
 NOTE TTimo: see show_bug.cgi?id=434 for v17 -> v18 savegames
 */
 
+
+//BBi
+static const int MAX_ENCODER_BUFFER_SIZE = 2 * sizeof (CastState32);
+
+
+static std::vector<byte> gEncoderBuffer;
+
+
+void cast_state_t::convertFrom32 (
+    const Struct32& struct32)
+{
+    const Struct32& src = struct32;
+    Struct& dst = *this;
+
+    dst.bs = reinterpret_cast<bot_state_t*> (src.bs);
+    dst.entityNum = src.entityNum;
+    dst.aasWorldIndex = src.aasWorldIndex;
+    dst.aiCharacter = src.aiCharacter;
+    dst.aiFlags = src.aiFlags;
+    dst.lastThink = src.lastThink;
+    dst.actionFlags = src.actionFlags;
+    dst.lastPain = src.lastPain;
+    dst.lastPainDamage = src.lastPainDamage;
+    dst.travelflags = src.travelflags;
+    dst.thinkFuncChangeTime = src.thinkFuncChangeTime;
+    dst.aiState = src.aiState;
+    dst.movestate = src.movestate;
+    dst.movestateType = src.movestateType;
+    std::uninitialized_copy_n (src.attributes, AICAST_MAX_ATTRIBUTES, dst.attributes);
+    dst.numCastScriptEvents = src.numCastScriptEvents;
+    dst.castScriptEvents = reinterpret_cast<cast_script_event_t*> (src.castScriptEvents);
+    dst.castScriptStatus = src.castScriptStatus;
+    dst.castScriptStatusCurrent = src.castScriptStatusCurrent;
+    dst.castScriptStatusBackup = src.castScriptStatusBackup;
+    dst.scriptCallIndex = src.scriptCallIndex;
+    dst.scriptAnimTime = src.scriptAnimTime;
+    dst.scriptAnimNum = src.scriptAnimNum;
+    std::uninitialized_copy_n (src.scriptAccumBuffer, MAX_SCRIPT_ACCUM_BUFFERS, dst.scriptAccumBuffer);
+    dst.weaponInfo = reinterpret_cast<cast_weapon_info_t*> (src.weaponInfo);
+    std::uninitialized_copy_n (src.vislist, MAX_CLIENTS, dst.vislist);
+    std::uninitialized_copy_n (src.weaponFireTimes, MAX_WEAPONS, dst.weaponFireTimes);
+    dst.aifunc = reinterpret_cast<char* (*) (cast_state_s*)> (src.aifunc);
+    dst.oldAifunc = reinterpret_cast<char* (*) (cast_state_s*)> (src.oldAifunc);
+    dst.aifuncAttack1 = reinterpret_cast<char* (*) (cast_state_s*)> (src.aifuncAttack1);
+    dst.aifuncAttack2 = reinterpret_cast<char* (*) (cast_state_s*)> (src.aifuncAttack2);
+    dst.aifuncAttack3 = reinterpret_cast<char* (*) (cast_state_s*)> (src.aifuncAttack3);
+    dst.painfunc = reinterpret_cast<void (*) (gentity_t*, gentity_t*, int, vec_t*)> (src.painfunc);
+    dst.deathfunc = reinterpret_cast<void (*) (gentity_t*, gentity_t*, int, int)> (src.deathfunc);
+    dst.sightfunc = reinterpret_cast<void (*) (gentity_t*, gentity_t*, int)> (src.sightfunc);
+    dst.sightEnemy = reinterpret_cast<void (*) (gentity_t*, gentity_t*)> (src.sightEnemy);
+    dst.sightFriend = reinterpret_cast<void (*) (gentity_t*, gentity_t*)> (src.sightFriend);
+    dst.activate = reinterpret_cast<void (*) (int, int)> (src.activate);
+    dst.followEntity = src.followEntity;
+    dst.followDist = src.followDist;
+    dst.followIsGoto = src.followIsGoto;
+    dst.followTime = src.followTime;
+    dst.followSlowApproach = src.followSlowApproach;
+    dst.leaderNum = src.leaderNum;
+    dst.speedScale = src.speedScale;
+    dst.combatGoalTime = src.combatGoalTime;
+    VectorCopy (src.combatGoalOrigin, dst.combatGoalOrigin);
+    dst.lastGetHidePos = src.lastGetHidePos;
+    dst.startAttackCount = src.startAttackCount;
+    dst.combatSpotAttackCount = src.combatSpotAttackCount;
+    dst.combatSpotDelayTime = src.combatSpotDelayTime;
+    dst.startBattleChaseTime = src.startBattleChaseTime;
+    dst.blockedTime = src.blockedTime;
+    dst.obstructingTime = src.obstructingTime;
+    VectorCopy (src.obstructingPos, dst.obstructingPos);
+    dst.blockedAvoidTime = src.blockedAvoidTime;
+    dst.blockedAvoidYaw = src.blockedAvoidYaw;
+    dst.deathTime = src.deathTime;
+    dst.rebirthTime = src.rebirthTime;
+    dst.revivingTime = src.revivingTime;
+    dst.enemyHeight = src.enemyHeight;
+    dst.enemyDist = src.enemyDist;
+    VectorCopy (src.takeCoverPos, dst.takeCoverPos);
+    VectorCopy (src.takeCoverEnemyPos, dst.takeCoverEnemyPos);
+    dst.takeCoverTime = src.takeCoverTime;
+    dst.attackSpotTime = src.attackSpotTime;
+    dst.triggerReleaseTime = src.triggerReleaseTime;
+    dst.lastWeaponFired = src.lastWeaponFired;
+    VectorCopy (src.lastWeaponFiredPos, dst.lastWeaponFiredPos);
+    dst.lastWeaponFiredWeaponNum = src.lastWeaponFiredWeaponNum;
+    dst.lastEnemy = src.lastEnemy;
+    dst.nextIdleAngleChange = src.nextIdleAngleChange;
+    dst.idleYawChange = src.idleYawChange;
+    dst.idleYaw = src.idleYaw;
+    dst.crouchHideFlag = src.crouchHideFlag;
+    dst.doorMarker = src.doorMarker;
+    dst.doorEntNum = src.doorEntNum;
+    dst.attackSNDtime = src.attackSNDtime;
+    dst.attacksnd = src.attacksnd;
+    dst.painSoundTime = src.painSoundTime;
+    dst.firstSightTime = src.firstSightTime;
+    dst.secondDeadTime = src.secondDeadTime;
+    dst.startGrenadeFlushTime = src.startGrenadeFlushTime;
+    dst.lockViewAnglesTime = src.lockViewAnglesTime;
+    dst.grenadeFlushEndTime = src.grenadeFlushEndTime;
+    dst.grenadeFlushFiring = src.grenadeFlushFiring;
+    dst.dangerEntity = src.dangerEntity;
+    dst.dangerEntityValidTime = src.dangerEntityValidTime;
+    VectorCopy (src.dangerEntityPos, dst.dangerEntityPos);
+    dst.dangerEntityTimestamp = src.dangerEntityTimestamp;
+    dst.dangerDist = src.dangerDist;
+    dst.mountedEntity = src.mountedEntity;
+    dst.inspectBodyTime = src.inspectBodyTime;
+    VectorCopy (src.startOrigin, dst.startOrigin);
+    dst.damageQuota = src.damageQuota;
+    dst.damageQuotaTime = src.damageQuotaTime;
+    dst.dangerLastGetAvoid = src.dangerLastGetAvoid;
+    dst.lastAvoid = src.lastAvoid;
+    dst.doorMarkerTime = src.doorMarkerTime;
+    dst.doorMarkerNum = src.doorMarkerNum;
+    dst.doorMarkerDoor = src.doorMarkerDoor;
+    dst.pauseTime = src.pauseTime;
+    dst.checkAttackCache = src.checkAttackCache;
+    dst.secretsFound = src.secretsFound;
+    dst.attempts = src.attempts;
+    dst.grenadeGrabFlag = src.grenadeGrabFlag;
+    VectorCopy (src.lastMoveToPosGoalOrg, dst.lastMoveToPosGoalOrg);
+    dst.noAttackTime = src.noAttackTime;
+    dst.lastRollMove = src.lastRollMove;
+    dst.lastFlipMove = src.lastFlipMove;
+    VectorCopy (src.stimFlyAttackPos, dst.stimFlyAttackPos);
+    dst.lastDodgeRoll = src.lastDodgeRoll;
+    dst.battleRollTime = src.battleRollTime;
+    VectorCopy (src.viewlock_viewangles, dst.viewlock_viewangles);
+    dst.grenadeKickWeapon = src.grenadeKickWeapon;
+    dst.animHitCount = src.animHitCount;
+    dst.totalPlayTime = src.totalPlayTime;
+    dst.lastLoadTime = src.lastLoadTime;
+    dst.queryStartTime = src.queryStartTime;
+    dst.queryCountValidTime = src.queryCountValidTime;
+    dst.queryCount = src.queryCount;
+    dst.queryAlertSightTime = src.queryAlertSightTime;
+    dst.lastScriptSound = src.lastScriptSound;
+    dst.inspectNum = src.inspectNum;
+    dst.scriptPauseTime = src.scriptPauseTime;
+    dst.bulletImpactEntity = src.bulletImpactEntity;
+    dst.bulletImpactTime = src.bulletImpactTime;
+    dst.bulletImpactIgnoreTime = src.bulletImpactIgnoreTime;
+    VectorCopy (src.bulletImpactStart, dst.bulletImpactStart);
+    VectorCopy (src.bulletImpactEnd, dst.bulletImpactEnd);
+    dst.audibleEventTime = src.audibleEventTime;
+    VectorCopy (src.audibleEventOrg, dst.audibleEventOrg);
+    dst.audibleEventEnt = src.audibleEventEnt;
+    dst.battleChaseMarker = src.battleChaseMarker;
+    dst.battleChaseMarkerDir = src.battleChaseMarkerDir;
+    dst.lastBattleHunted = src.lastBattleHunted;
+    dst.battleHuntPauseTime = src.battleHuntPauseTime;
+    dst.battleHuntViewTime = src.battleHuntViewTime;
+    dst.lastAttackCrouch = src.lastAttackCrouch;
+    dst.lastMoveThink = src.lastMoveThink;
+    dst.numEnemies = src.numEnemies;
+    dst.noReloadTime = src.noReloadTime;
+    std::uninitialized_copy_n (src.lastValidAreaNum, 2, dst.lastValidAreaNum);
+    std::uninitialized_copy_n (src.lastValidAreaTime, 2, dst.lastValidAreaTime);
+    dst.weaponNum = src.weaponNum;
+    dst.enemyNum = src.enemyNum;
+    VectorCopy (src.ideal_viewangles, dst.ideal_viewangles);
+    VectorCopy (src.viewangles, dst.viewangles);
+    dst.lastucmd = src.lastucmd;
+    dst.attackcrouch_time = src.attackcrouch_time;
+    dst.bFlags = src.bFlags;
+    dst.deadSinkStartTime = src.deadSinkStartTime;
+    dst.lastActivate = src.lastActivate;
+    VectorCopy (src.loperLeapVel, dst.loperLeapVel);
+}
+
+//FIXME Check for "int" pointer overflow?
+void cast_state_t::convertTo32 (
+    Struct32& struct32) const
+{
+    const Struct& src = *this;
+    Struct32& dst = struct32;
+
+    dst.bs = reinterpret_cast<int> (src.bs);
+    dst.entityNum = src.entityNum;
+    dst.aasWorldIndex = src.aasWorldIndex;
+    dst.aiCharacter = src.aiCharacter;
+    dst.aiFlags = src.aiFlags;
+    dst.lastThink = src.lastThink;
+    dst.actionFlags = src.actionFlags;
+    dst.lastPain = src.lastPain;
+    dst.lastPainDamage = src.lastPainDamage;
+    dst.travelflags = src.travelflags;
+    dst.thinkFuncChangeTime = src.thinkFuncChangeTime;
+    dst.aiState = src.aiState;
+    dst.movestate = src.movestate;
+    dst.movestateType = src.movestateType;
+    std::uninitialized_copy_n (src.attributes, AICAST_MAX_ATTRIBUTES, dst.attributes);
+    dst.numCastScriptEvents = src.numCastScriptEvents;
+    dst.castScriptEvents = reinterpret_cast<int> (src.castScriptEvents);
+    dst.castScriptStatus = src.castScriptStatus;
+    dst.castScriptStatusCurrent = src.castScriptStatusCurrent;
+    dst.castScriptStatusBackup = src.castScriptStatusBackup;
+    dst.scriptCallIndex = src.scriptCallIndex;
+    dst.scriptAnimTime = src.scriptAnimTime;
+    dst.scriptAnimNum = src.scriptAnimNum;
+    std::uninitialized_copy_n (src.scriptAccumBuffer, MAX_SCRIPT_ACCUM_BUFFERS, dst.scriptAccumBuffer);
+    dst.weaponInfo = reinterpret_cast<int> (src.weaponInfo);
+    std::uninitialized_copy_n (src.vislist, MAX_CLIENTS, dst.vislist);
+    std::uninitialized_copy_n (src.weaponFireTimes, MAX_WEAPONS, dst.weaponFireTimes);
+    dst.aifunc = reinterpret_cast<int> (src.aifunc);
+    dst.oldAifunc = reinterpret_cast<int> (src.oldAifunc);
+    dst.aifuncAttack1 = reinterpret_cast<int> (src.aifuncAttack1);
+    dst.aifuncAttack2 = reinterpret_cast<int> (src.aifuncAttack2);
+    dst.aifuncAttack3 = reinterpret_cast<int> (src.aifuncAttack3);
+    dst.painfunc = reinterpret_cast<int> (src.painfunc);
+    dst.deathfunc = reinterpret_cast<int> (src.deathfunc);
+    dst.sightfunc = reinterpret_cast<int> (src.sightfunc);
+    dst.sightEnemy = reinterpret_cast<int> (src.sightEnemy);
+    dst.sightFriend = reinterpret_cast<int> (src.sightFriend);
+    dst.activate = reinterpret_cast<int> (src.activate);
+    dst.followEntity = src.followEntity;
+    dst.followDist = src.followDist;
+    dst.followIsGoto = src.followIsGoto;
+    dst.followTime = src.followTime;
+    dst.followSlowApproach = src.followSlowApproach;
+    dst.leaderNum = src.leaderNum;
+    dst.speedScale = src.speedScale;
+    dst.combatGoalTime = src.combatGoalTime;
+    VectorCopy (src.combatGoalOrigin, dst.combatGoalOrigin);
+    dst.lastGetHidePos = src.lastGetHidePos;
+    dst.startAttackCount = src.startAttackCount;
+    dst.combatSpotAttackCount = src.combatSpotAttackCount;
+    dst.combatSpotDelayTime = src.combatSpotDelayTime;
+    dst.startBattleChaseTime = src.startBattleChaseTime;
+    dst.blockedTime = src.blockedTime;
+    dst.obstructingTime = src.obstructingTime;
+    VectorCopy (src.obstructingPos, dst.obstructingPos);
+    dst.blockedAvoidTime = src.blockedAvoidTime;
+    dst.blockedAvoidYaw = src.blockedAvoidYaw;
+    dst.deathTime = src.deathTime;
+    dst.rebirthTime = src.rebirthTime;
+    dst.revivingTime = src.revivingTime;
+    dst.enemyHeight = src.enemyHeight;
+    dst.enemyDist = src.enemyDist;
+    VectorCopy (src.takeCoverPos, dst.takeCoverPos);
+    VectorCopy (src.takeCoverEnemyPos, dst.takeCoverEnemyPos);
+    dst.takeCoverTime = src.takeCoverTime;
+    dst.attackSpotTime = src.attackSpotTime;
+    dst.triggerReleaseTime = src.triggerReleaseTime;
+    dst.lastWeaponFired = src.lastWeaponFired;
+    VectorCopy (src.lastWeaponFiredPos, dst.lastWeaponFiredPos);
+    dst.lastWeaponFiredWeaponNum = src.lastWeaponFiredWeaponNum;
+    dst.lastEnemy = src.lastEnemy;
+    dst.nextIdleAngleChange = src.nextIdleAngleChange;
+    dst.idleYawChange = src.idleYawChange;
+    dst.idleYaw = src.idleYaw;
+    dst.crouchHideFlag = src.crouchHideFlag;
+    dst.doorMarker = src.doorMarker;
+    dst.doorEntNum = src.doorEntNum;
+    dst.attackSNDtime = src.attackSNDtime;
+    dst.attacksnd = src.attacksnd;
+    dst.painSoundTime = src.painSoundTime;
+    dst.firstSightTime = src.firstSightTime;
+    dst.secondDeadTime = src.secondDeadTime;
+    dst.startGrenadeFlushTime = src.startGrenadeFlushTime;
+    dst.lockViewAnglesTime = src.lockViewAnglesTime;
+    dst.grenadeFlushEndTime = src.grenadeFlushEndTime;
+    dst.grenadeFlushFiring = src.grenadeFlushFiring;
+    dst.dangerEntity = src.dangerEntity;
+    dst.dangerEntityValidTime = src.dangerEntityValidTime;
+    VectorCopy (src.dangerEntityPos, dst.dangerEntityPos);
+    dst.dangerEntityTimestamp = src.dangerEntityTimestamp;
+    dst.dangerDist = src.dangerDist;
+    dst.mountedEntity = src.mountedEntity;
+    dst.inspectBodyTime = src.inspectBodyTime;
+    VectorCopy (src.startOrigin, dst.startOrigin);
+    dst.damageQuota = src.damageQuota;
+    dst.damageQuotaTime = src.damageQuotaTime;
+    dst.dangerLastGetAvoid = src.dangerLastGetAvoid;
+    dst.lastAvoid = src.lastAvoid;
+    dst.doorMarkerTime = src.doorMarkerTime;
+    dst.doorMarkerNum = src.doorMarkerNum;
+    dst.doorMarkerDoor = src.doorMarkerDoor;
+    dst.pauseTime = src.pauseTime;
+    dst.checkAttackCache = src.checkAttackCache;
+    dst.secretsFound = src.secretsFound;
+    dst.attempts = src.attempts;
+    dst.grenadeGrabFlag = src.grenadeGrabFlag;
+    VectorCopy (src.lastMoveToPosGoalOrg, dst.lastMoveToPosGoalOrg);
+    dst.noAttackTime = src.noAttackTime;
+    dst.lastRollMove = src.lastRollMove;
+    dst.lastFlipMove = src.lastFlipMove;
+    VectorCopy (src.stimFlyAttackPos, dst.stimFlyAttackPos);
+    dst.lastDodgeRoll = src.lastDodgeRoll;
+    dst.battleRollTime = src.battleRollTime;
+    VectorCopy (src.viewlock_viewangles, dst.viewlock_viewangles);
+    dst.grenadeKickWeapon = src.grenadeKickWeapon;
+    dst.animHitCount = src.animHitCount;
+    dst.totalPlayTime = src.totalPlayTime;
+    dst.lastLoadTime = src.lastLoadTime;
+    dst.queryStartTime = src.queryStartTime;
+    dst.queryCountValidTime = src.queryCountValidTime;
+    dst.queryCount = src.queryCount;
+    dst.queryAlertSightTime = src.queryAlertSightTime;
+    dst.lastScriptSound = src.lastScriptSound;
+    dst.inspectNum = src.inspectNum;
+    dst.scriptPauseTime = src.scriptPauseTime;
+    dst.bulletImpactEntity = src.bulletImpactEntity;
+    dst.bulletImpactTime = src.bulletImpactTime;
+    dst.bulletImpactIgnoreTime = src.bulletImpactIgnoreTime;
+    VectorCopy (src.bulletImpactStart, dst.bulletImpactStart);
+    VectorCopy (src.bulletImpactEnd, dst.bulletImpactEnd);
+    dst.audibleEventTime = src.audibleEventTime;
+    VectorCopy (src.audibleEventOrg, dst.audibleEventOrg);
+    dst.audibleEventEnt = src.audibleEventEnt;
+    dst.battleChaseMarker = src.battleChaseMarker;
+    dst.battleChaseMarkerDir = src.battleChaseMarkerDir;
+    dst.lastBattleHunted = src.lastBattleHunted;
+    dst.battleHuntPauseTime = src.battleHuntPauseTime;
+    dst.battleHuntViewTime = src.battleHuntViewTime;
+    dst.lastAttackCrouch = src.lastAttackCrouch;
+    dst.lastMoveThink = src.lastMoveThink;
+    dst.numEnemies = src.numEnemies;
+    dst.noReloadTime = src.noReloadTime;
+    std::uninitialized_copy_n (src.lastValidAreaNum, 2, dst.lastValidAreaNum);
+    std::uninitialized_copy_n (src.lastValidAreaTime, 2, dst.lastValidAreaTime);
+    dst.weaponNum = src.weaponNum;
+    dst.enemyNum = src.enemyNum;
+    VectorCopy (src.ideal_viewangles, dst.ideal_viewangles);
+    VectorCopy (src.viewangles, dst.viewangles);
+    dst.lastucmd = src.lastucmd;
+    dst.attackcrouch_time = src.attackcrouch_time;
+    dst.bFlags = src.bFlags;
+    dst.deadSinkStartTime = src.deadSinkStartTime;
+    dst.lastActivate = src.lastActivate;
+    VectorCopy (src.loperLeapVel, dst.loperLeapVel);
+}
+
+void gclient_t::convertFrom32 (
+    const Struct32& struct32)
+{
+    const Struct32& src = struct32;
+    Struct& dst = *this;
+
+    dst.ps = src.ps;
+    dst.pers = src.pers;
+    dst.sess = src.sess;
+    dst.readyToExit = src.readyToExit;
+    dst.noclip = src.noclip;
+    dst.lastCmdTime = src.lastCmdTime;
+    dst.buttons = src.buttons;
+    dst.oldbuttons = src.oldbuttons;
+    dst.latched_buttons = src.latched_buttons;
+    dst.wbuttons = src.wbuttons;
+    dst.oldwbuttons = src.oldwbuttons;
+    dst.latched_wbuttons = src.latched_wbuttons;
+    VectorCopy (src.oldOrigin, dst.oldOrigin);
+    dst.damage_armor = src.damage_armor;
+    dst.damage_blood = src.damage_blood;
+    dst.damage_knockback = src.damage_knockback;
+    VectorCopy (src.damage_from, dst.damage_from);
+    dst.damage_fromWorld = src.damage_fromWorld;
+    dst.accurateCount = src.accurateCount;
+    dst.accuracy_shots = src.accuracy_shots;
+    dst.accuracy_hits = src.accuracy_hits;
+    dst.lastkilled_client = src.lastkilled_client;
+    dst.lasthurt_client = src.lasthurt_client;
+    dst.lasthurt_mod = src.lasthurt_mod;
+    dst.respawnTime = src.respawnTime;
+    dst.inactivityTime = src.inactivityTime;
+    dst.inactivityWarning = src.inactivityWarning;
+    dst.rewardTime = src.rewardTime;
+    dst.airOutTime = src.airOutTime;
+    dst.lastKillTime = src.lastKillTime;
+    dst.fireHeld = src.fireHeld;
+    dst.hook = reinterpret_cast<gentity_t*> (src.hook);
+    dst.switchTeamTime = src.switchTeamTime;
+    dst.timeResidual = src.timeResidual;
+    dst.currentAimSpreadScale = src.currentAimSpreadScale;
+    dst.medicHealAmt = src.medicHealAmt;
+    dst.modelInfo = reinterpret_cast<animModelInfo_t*> (src.modelInfo);
+    dst.persistantPowerup = reinterpret_cast<gentity_t*> (src.persistantPowerup);
+    dst.portalID = src.portalID;
+    std::uninitialized_copy_n (src.ammoTimes, WP_NUM_WEAPONS, dst.ammoTimes);
+    dst.invulnerabilityTime = src.invulnerabilityTime;
+    dst.cameraPortal = reinterpret_cast<gentity_t*> (src.cameraPortal);
+    VectorCopy (src.cameraOrigin, dst.cameraOrigin);
+    dst.limboDropWeapon = src.limboDropWeapon;
+    dst.deployQueueNumber = src.deployQueueNumber;
+    dst.sniperRifleFiredTime = src.sniperRifleFiredTime;
+    dst.sniperRifleMuzzleYaw = src.sniperRifleMuzzleYaw;
+    dst.sniperRifleMuzzlePitch = src.sniperRifleMuzzlePitch;
+    std::uninitialized_copy_n (src.saved_persistant, MAX_PERSISTANT, dst.saved_persistant);
+}
+
+//FIXME Check for "int" pointer overflow?
+void gclient_t::convertTo32 (
+    Struct32& struct32) const
+{
+    const Struct& src = *this;
+    Struct32& dst = struct32;
+
+    dst.ps = src.ps;
+    dst.pers = src.pers;
+    dst.sess = src.sess;
+    dst.readyToExit = src.readyToExit;
+    dst.noclip = src.noclip;
+    dst.lastCmdTime = src.lastCmdTime;
+    dst.buttons = src.buttons;
+    dst.oldbuttons = src.oldbuttons;
+    dst.latched_buttons = src.latched_buttons;
+    dst.wbuttons = src.wbuttons;
+    dst.oldwbuttons = src.oldwbuttons;
+    dst.latched_wbuttons = src.latched_wbuttons;
+    VectorCopy (src.oldOrigin, dst.oldOrigin);
+    dst.damage_armor = src.damage_armor;
+    dst.damage_blood = src.damage_blood;
+    dst.damage_knockback = src.damage_knockback;
+    VectorCopy (src.damage_from, dst.damage_from);
+    dst.damage_fromWorld = src.damage_fromWorld;
+    dst.accurateCount = src.accurateCount;
+    dst.accuracy_shots = src.accuracy_shots;
+    dst.accuracy_hits = src.accuracy_hits;
+    dst.lastkilled_client = src.lastkilled_client;
+    dst.lasthurt_client = src.lasthurt_client;
+    dst.lasthurt_mod = src.lasthurt_mod;
+    dst.respawnTime = src.respawnTime;
+    dst.inactivityTime = src.inactivityTime;
+    dst.inactivityWarning = src.inactivityWarning;
+    dst.rewardTime = src.rewardTime;
+    dst.airOutTime = src.airOutTime;
+    dst.lastKillTime = src.lastKillTime;
+    dst.fireHeld = src.fireHeld;
+    dst.hook = reinterpret_cast<int> (src.hook);
+    dst.switchTeamTime = src.switchTeamTime;
+    dst.timeResidual = src.timeResidual;
+    dst.currentAimSpreadScale = src.currentAimSpreadScale;
+    dst.medicHealAmt = src.medicHealAmt;
+    dst.modelInfo = reinterpret_cast<int> (src.modelInfo);
+    dst.persistantPowerup = reinterpret_cast<int> (src.persistantPowerup);
+    dst.portalID = src.portalID;
+    std::uninitialized_copy_n (src.ammoTimes, WP_NUM_WEAPONS, dst.ammoTimes);
+    dst.invulnerabilityTime = src.invulnerabilityTime;
+    dst.cameraPortal = reinterpret_cast<int> (src.cameraPortal);
+    VectorCopy (src.cameraOrigin, dst.cameraOrigin);
+    dst.limboDropWeapon = src.limboDropWeapon;
+    dst.deployQueueNumber = src.deployQueueNumber;
+    dst.sniperRifleFiredTime = src.sniperRifleFiredTime;
+    dst.sniperRifleMuzzleYaw = src.sniperRifleMuzzleYaw;
+    dst.sniperRifleMuzzlePitch = src.sniperRifleMuzzlePitch;
+    std::uninitialized_copy_n (src.saved_persistant, MAX_PERSISTANT, dst.saved_persistant);
+}
+
+void g_script_status_t::convertFrom32 (
+    const Struct32& refStruct32)
+{
+    const Struct32& src = refStruct32;
+    Struct& dst = *this;
+
+    dst.scriptStackHead = src.scriptStackHead;
+    dst.scriptStackChangeTime = src.scriptStackChangeTime;
+    dst.scriptEventIndex = src.scriptEventIndex;
+    dst.scriptId = src.scriptId;
+    dst.scriptFlags = src.scriptFlags;
+    dst.animatingParams = reinterpret_cast<char*> (src.animatingParams);
+}
+
+//FIXME Check for "int" pointer overflow?
+void g_script_status_t::convertTo32 (
+    Struct32& struct32) const
+{
+    const Struct& src = *this;
+    Struct32& dst = struct32;
+
+    dst.scriptStackHead = src.scriptStackHead;
+    dst.scriptStackChangeTime = src.scriptStackChangeTime;
+    dst.scriptEventIndex = src.scriptEventIndex;
+    dst.scriptId = src.scriptId;
+    dst.scriptFlags = src.scriptFlags;
+    dst.animatingParams = reinterpret_cast<int> (src.animatingParams);
+}
+
+void gentity_t::convertFrom32 (
+    const Struct32& refStruct32)
+{
+    const Struct32& src = refStruct32;
+    gentity_t& dst = *this;
+
+    dst.s = src.s;
+    dst.r = src.r;
+    dst.client = reinterpret_cast<gclient_s*> (src.client);
+    dst.inuse = src.inuse;
+    dst.classname = reinterpret_cast<char*> (src.classname);
+    dst.spawnflags = src.spawnflags;
+    dst.neverFree = src.neverFree;
+    dst.flags = src.flags;
+    dst.model = reinterpret_cast<char*> (src.model);
+    dst.model2 = reinterpret_cast<char*> (src.model2);
+    dst.freetime = src.freetime;
+    dst.eventTime = src.eventTime;
+    dst.freeAfterEvent = src.freeAfterEvent;
+    dst.unlinkAfterEvent = src.unlinkAfterEvent;
+    dst.physicsObject = src.physicsObject;
+    dst.physicsBounce = src.physicsBounce;
+    dst.clipmask = src.clipmask;
+    dst.moverState = src.moverState;
+    dst.soundPos1 = src.soundPos1;
+    dst.sound1to2 = src.sound1to2;
+    dst.sound2to1 = src.sound2to1;
+    dst.soundPos2 = src.soundPos2;
+    dst.soundLoop = src.soundLoop;
+    dst.sound2to3 = src.sound2to3;
+    dst.sound3to2 = src.sound3to2;
+    dst.soundPos3 = src.soundPos3;
+    dst.soundKicked = src.soundKicked;
+    dst.soundKickedEnd = src.soundKickedEnd;
+    dst.soundSoftopen = src.soundSoftopen;
+    dst.soundSoftendo = src.soundSoftendo;
+    dst.soundSoftclose = src.soundSoftclose;
+    dst.soundSoftendc = src.soundSoftendc;
+    dst.parent = reinterpret_cast<gentity_t*> (src.parent);
+    dst.nextTrain = reinterpret_cast<gentity_t*> (src.nextTrain);
+    dst.prevTrain = reinterpret_cast<gentity_t*> (src.prevTrain);
+    VectorCopy (src.pos1, dst.pos1);
+    VectorCopy (src.pos2, dst.pos2);
+    VectorCopy (src.pos3, dst.pos3);
+    dst.message = reinterpret_cast<char*> (src.message);
+    dst.timestamp = src.timestamp;
+    dst.angle = src.angle;
+    dst.target = reinterpret_cast<char*> (src.target);
+    dst.targetdeath = reinterpret_cast<char*> (src.targetdeath);
+    dst.targetname = reinterpret_cast<char*> (src.targetname);
+    dst.team = reinterpret_cast<char*> (src.team);
+    dst.targetShaderName = reinterpret_cast<char*> (src.targetShaderName);
+    dst.targetShaderNewName = reinterpret_cast<char*> (src.targetShaderNewName);
+    dst.target_ent = reinterpret_cast<gentity_t*> (src.target_ent);
+    dst.speed = src.speed;
+    dst.closespeed = src.closespeed;
+    VectorCopy (src.movedir, dst.movedir);
+    dst.gDuration = src.gDuration;
+    dst.gDurationBack = src.gDurationBack;
+    VectorCopy (src.gDelta, dst.gDelta);
+    VectorCopy (src.gDeltaBack, dst.gDeltaBack);
+    dst.nextthink = src.nextthink;
+    dst.think = reinterpret_cast<void (*) (gentity_t*)> (src.think);
+    dst.reached = reinterpret_cast<void (*) (gentity_t*)> (src.reached);
+    dst.blocked = reinterpret_cast<void (*) (gentity_t*, gentity_t*)> (src.blocked);
+    dst.touch = reinterpret_cast<void (*) (gentity_t*, gentity_t*, trace_t*)> (src.touch);
+    dst.use = reinterpret_cast<void (*) (gentity_t*, gentity_t*, gentity_t*)> (src.use);
+    dst.pain = reinterpret_cast<void (*) (gentity_t*, gentity_t*, int, vec_t*)> (src.pain);
+    dst.die = reinterpret_cast<void (*) (gentity_t*, gentity_t*, gentity_t*, int, int)> (src.die);
+    dst.pain_debounce_time = src.pain_debounce_time;
+    dst.fly_sound_debounce_time = src.fly_sound_debounce_time;
+    dst.last_move_time = src.last_move_time;
+    dst.health = src.health;
+    dst.takedamage = src.takedamage;
+    dst.damage = src.damage;
+    dst.splashDamage = src.splashDamage;
+    dst.splashRadius = src.splashRadius;
+    dst.methodOfDeath = src.methodOfDeath;
+    dst.splashMethodOfDeath = src.splashMethodOfDeath;
+    dst.count = src.count;
+    dst.chain = reinterpret_cast<gentity_t*> (src.chain);
+    dst.enemy = reinterpret_cast<gentity_t*> (src.enemy);
+    dst.activator = reinterpret_cast<gentity_t*> (src.activator);
+    dst.teamchain = reinterpret_cast<gentity_t*> (src.teamchain);
+    dst.teammaster = reinterpret_cast<gentity_t*> (src.teammaster);
+    dst.watertype = src.watertype;
+    dst.waterlevel = src.waterlevel;
+    dst.noise_index = src.noise_index;
+    dst.wait = src.wait;
+    dst.random = src.random;
+    dst.radius = src.radius;
+    dst.delay = src.delay;
+    dst.TargetFlag = src.TargetFlag;
+    dst.duration = src.duration;
+    VectorCopy (src.rotate, dst.rotate);
+    VectorCopy (src.TargetAngles, dst.TargetAngles);
+    dst.item = reinterpret_cast<gitem_t*> (src.item);
+    dst.aiAttributes = reinterpret_cast<char*> (src.aiAttributes);
+    dst.aiName = reinterpret_cast<char*> (src.aiName);
+    dst.aiTeam = src.aiTeam;
+    dst.AIScript_AlertEntity = reinterpret_cast<void (*) (gentity_t*)> (src.AIScript_AlertEntity);
+    dst.aiInactive = src.aiInactive;
+    dst.aiCharacter = src.aiCharacter;
+    dst.aiSkin = reinterpret_cast<char*> (src.aiSkin);
+    dst.aihSkin = reinterpret_cast<char*> (src.aihSkin);
+    VectorCopy (src.dl_color, dst.dl_color);
+    dst.dl_stylestring = reinterpret_cast<char*> (src.dl_stylestring);
+    dst.dl_shader = reinterpret_cast<char*> (src.dl_shader);
+    dst.dl_atten = src.dl_atten;
+    dst.key = src.key;
+    dst.active = src.active;
+    dst.botDelayBegin = src.botDelayBegin;
+    dst.harc = src.harc;
+    dst.varc = src.varc;
+    dst.activateArc = src.activateArc;
+    dst.props_frame_state = src.props_frame_state;
+    dst.missionLevel = src.missionLevel;
+    dst.missionObjectives = src.missionObjectives;
+    dst.numSecretsFound = src.numSecretsFound;
+    dst.numTreasureFound = src.numTreasureFound;
+    dst.is_dead = src.is_dead;
+    dst.start_size = src.start_size;
+    dst.end_size = src.end_size;
+    dst.isProp = src.isProp;
+    dst.mg42BaseEnt = src.mg42BaseEnt;
+    dst.melee = reinterpret_cast<gentity_t*> (src.melee);
+    dst.spawnitem = reinterpret_cast<char*> (src.spawnitem);
+    dst.nopickup = src.nopickup;
+    dst.flameQuota = src.flameQuota;
+    dst.flameQuotaTime = src.flameQuotaTime;
+    dst.flameBurnEnt = src.flameBurnEnt;
+    dst.count2 = src.count2;
+    dst.grenadeExplodeTime = src.grenadeExplodeTime;
+    dst.grenadeFired = src.grenadeFired;
+    dst.mg42ClampTime = src.mg42ClampTime;
+    dst.track = reinterpret_cast<char*> (src.track);
+    dst.scriptName = reinterpret_cast<char*> (src.scriptName);
+    dst.numScriptEvents = src.numScriptEvents;
+    dst.scriptEvents = reinterpret_cast<g_script_event_t*> (src.scriptEvents);
+    dst.scriptStatus.convertFrom32 (src.scriptStatus);
+    dst.scriptStatusBackup.convertFrom32 (src.scriptStatusBackup);
+    std::uninitialized_copy_n (src.scriptAccumBuffer, G_MAX_SCRIPT_ACCUM_BUFFERS, dst.scriptAccumBuffer);
+    dst.AASblocking = src.AASblocking;
+    dst.accuracy = src.accuracy;
+    dst.tagName = reinterpret_cast<char*> (src.tagName);
+    dst.tagParent = reinterpret_cast<gentity_t*> (src.tagParent);
+    dst.headshotDamageScale = src.headshotDamageScale;
+    dst.scriptStatusCurrent.convertFrom32 (src.scriptStatusCurrent);
+    dst.emitID = src.emitID;
+    dst.emitNum = src.emitNum;
+    dst.emitPressure = src.emitPressure;
+    dst.emitTime = src.emitTime;
+}
+
+//FIXME Check for "int" pointer overflow?
+void gentity_t::convertTo32 (
+    Struct32& struct32) const
+{
+    const Struct& src = *this;
+    Struct32& dst = struct32;
+
+    dst.s = src.s;
+    dst.r = src.r;
+    dst.client = reinterpret_cast<int> (src.client);
+    dst.inuse = src.inuse;
+    dst.classname = reinterpret_cast<int> (src.classname);
+    dst.spawnflags = src.spawnflags;
+    dst.neverFree = src.neverFree;
+    dst.flags = src.flags;
+    dst.model = reinterpret_cast<int> (src.model);
+    dst.model2 = reinterpret_cast<int> (src.model2);
+    dst.freetime = src.freetime;
+    dst.eventTime = src.eventTime;
+    dst.freeAfterEvent = src.freeAfterEvent;
+    dst.unlinkAfterEvent = src.unlinkAfterEvent;
+    dst.physicsObject = src.physicsObject;
+    dst.physicsBounce = src.physicsBounce;
+    dst.clipmask = src.clipmask;
+    dst.moverState = src.moverState;
+    dst.soundPos1 = src.soundPos1;
+    dst.sound1to2 = src.sound1to2;
+    dst.sound2to1 = src.sound2to1;
+    dst.soundPos2 = src.soundPos2;
+    dst.soundLoop = src.soundLoop;
+    dst.sound2to3 = src.sound2to3;
+    dst.sound3to2 = src.sound3to2;
+    dst.soundPos3 = src.soundPos3;
+    dst.soundKicked = src.soundKicked;
+    dst.soundKickedEnd = src.soundKickedEnd;
+    dst.soundSoftopen = src.soundSoftopen;
+    dst.soundSoftendo = src.soundSoftendo;
+    dst.soundSoftclose = src.soundSoftclose;
+    dst.soundSoftendc = src.soundSoftendc;
+    dst.parent = reinterpret_cast<int> (src.parent);
+    dst.nextTrain = reinterpret_cast<int> (src.nextTrain);
+    dst.prevTrain = reinterpret_cast<int> (src.prevTrain);
+    VectorCopy (src.pos1, dst.pos1);
+    VectorCopy (src.pos2, dst.pos2);
+    VectorCopy (src.pos3, dst.pos3);
+    dst.message = reinterpret_cast<int> (src.message);
+    dst.timestamp = src.timestamp;
+    dst.angle = src.angle;
+    dst.target = reinterpret_cast<int> (src.target);
+    dst.targetdeath = reinterpret_cast<int> (src.targetdeath);
+    dst.targetname = reinterpret_cast<int> (src.targetname);
+    dst.team = reinterpret_cast<int> (src.team);
+    dst.targetShaderName = reinterpret_cast<int> (src.targetShaderName);
+    dst.targetShaderNewName = reinterpret_cast<int> (src.targetShaderNewName);
+    dst.target_ent = reinterpret_cast<int> (src.target_ent);
+    dst.speed = src.speed;
+    dst.closespeed = src.closespeed;
+    VectorCopy (src.movedir, dst.movedir);
+    dst.gDuration = src.gDuration;
+    dst.gDurationBack = src.gDurationBack;
+    VectorCopy (src.gDelta, dst.gDelta);
+    VectorCopy (src.gDeltaBack, dst.gDeltaBack);
+    dst.nextthink = src.nextthink;
+    dst.think = reinterpret_cast<int> (src.think);
+    dst.reached = reinterpret_cast<int> (src.reached);
+    dst.blocked = reinterpret_cast<int> (src.blocked);
+    dst.touch = reinterpret_cast<int> (src.touch);
+    dst.use = reinterpret_cast<int> (src.use);
+    dst.pain = reinterpret_cast<int> (src.pain);
+    dst.die = reinterpret_cast<int> (src.die);
+    dst.pain_debounce_time = src.pain_debounce_time;
+    dst.fly_sound_debounce_time = src.fly_sound_debounce_time;
+    dst.last_move_time = src.last_move_time;
+    dst.health = src.health;
+    dst.takedamage = src.takedamage;
+    dst.damage = src.damage;
+    dst.splashDamage = src.splashDamage;
+    dst.splashRadius = src.splashRadius;
+    dst.methodOfDeath = src.methodOfDeath;
+    dst.splashMethodOfDeath = src.splashMethodOfDeath;
+    dst.count = src.count;
+    dst.chain = reinterpret_cast<int> (src.chain);
+    dst.enemy = reinterpret_cast<int> (src.enemy);
+    dst.activator = reinterpret_cast<int> (src.activator);
+    dst.teamchain = reinterpret_cast<int> (src.teamchain);
+    dst.teammaster = reinterpret_cast<int> (src.teammaster);
+    dst.watertype = src.watertype;
+    dst.waterlevel = src.waterlevel;
+    dst.noise_index = src.noise_index;
+    dst.wait = src.wait;
+    dst.random = src.random;
+    dst.radius = src.radius;
+    dst.delay = src.delay;
+    dst.TargetFlag = src.TargetFlag;
+    dst.duration = src.duration;
+    VectorCopy (src.rotate, dst.rotate);
+    VectorCopy (src.TargetAngles, dst.TargetAngles);
+    dst.item = reinterpret_cast<int> (src.item);
+    dst.aiAttributes = reinterpret_cast<int> (src.aiAttributes);
+    dst.aiName = reinterpret_cast<int> (src.aiName);
+    dst.aiTeam = src.aiTeam;
+    dst.AIScript_AlertEntity = reinterpret_cast<int> (src.AIScript_AlertEntity);
+    dst.aiInactive = src.aiInactive;
+    dst.aiCharacter = src.aiCharacter;
+    dst.aiSkin = reinterpret_cast<int> (src.aiSkin);
+    dst.aihSkin = reinterpret_cast<int> (src.aihSkin);
+    VectorCopy (src.dl_color, dst.dl_color);
+    dst.dl_stylestring = reinterpret_cast<int> (src.dl_stylestring);
+    dst.dl_shader = reinterpret_cast<int> (src.dl_shader);
+    dst.dl_atten = src.dl_atten;
+    dst.key = src.key;
+    dst.active = src.active;
+    dst.botDelayBegin = src.botDelayBegin;
+    dst.harc = src.harc;
+    dst.varc = src.varc;
+    dst.activateArc = src.activateArc;
+    dst.props_frame_state = src.props_frame_state;
+    dst.missionLevel = src.missionLevel;
+    dst.missionObjectives = src.missionObjectives;
+    dst.numSecretsFound = src.numSecretsFound;
+    dst.numTreasureFound = src.numTreasureFound;
+    dst.is_dead = src.is_dead;
+    dst.start_size = src.start_size;
+    dst.end_size = src.end_size;
+    dst.isProp = src.isProp;
+    dst.mg42BaseEnt = src.mg42BaseEnt;
+    dst.melee = reinterpret_cast<int> (src.melee);
+    dst.spawnitem = reinterpret_cast<int> (src.spawnitem);
+    dst.nopickup = src.nopickup;
+    dst.flameQuota = src.flameQuota;
+    dst.flameQuotaTime = src.flameQuotaTime;
+    dst.flameBurnEnt = src.flameBurnEnt;
+    dst.count2 = src.count2;
+    dst.grenadeExplodeTime = src.grenadeExplodeTime;
+    dst.grenadeFired = src.grenadeFired;
+    dst.mg42ClampTime = src.mg42ClampTime;
+    dst.track = reinterpret_cast<int> (src.track);
+    dst.scriptName = reinterpret_cast<int> (src.scriptName);
+    dst.numScriptEvents = src.numScriptEvents;
+    dst.scriptEvents = reinterpret_cast<int> (src.scriptEvents);
+    src.scriptStatus.convertTo32 (dst.scriptStatus);
+    src.scriptStatusBackup.convertTo32 (dst.scriptStatusBackup);
+    std::uninitialized_copy_n (src.scriptAccumBuffer, G_MAX_SCRIPT_ACCUM_BUFFERS, dst.scriptAccumBuffer);
+    dst.AASblocking = src.AASblocking;
+    dst.accuracy = src.accuracy;
+    dst.tagName = reinterpret_cast<int> (src.tagName);
+    dst.tagParent = reinterpret_cast<int> (src.tagParent);
+    dst.headshotDamageScale = src.headshotDamageScale;
+    src.scriptStatusCurrent.convertTo32 (dst.scriptStatusCurrent);
+    dst.emitID = src.emitID;
+    dst.emitNum = src.emitNum;
+    dst.emitPressure = src.emitPressure;
+    dst.emitTime = src.emitTime;
+}
+
+template<class T>
+static void G_ReadStructVer10 (
+    T& outStruct,
+    int size,
+    fileHandle_t fileHandle)
+{
+        static typename T::Struct32 tmpStruct;
+        const bool isStruct32 = (sizeof (T) == sizeof (typename T::Struct32));
+        void* out = isStruct32 ? static_cast<void*> (&outStruct) : static_cast<void*> (&tmpStruct);
+
+        ::trap_FS_Read (out, size, fileHandle);
+
+        if (!isStruct32)
+            outStruct.convertFrom32 (tmpStruct);
+}
+
+template<class T>
+static void G_ReadStruct (
+    T& outStruct,
+    int size,
+    fileHandle_t fileHandle)
+{
+    if (ver == 10)
+        ::G_ReadStructVer10 (outStruct, size, fileHandle);
+    else {
+        int decodedSize;
+
+        if (gEncoderBuffer.empty ())
+            gEncoderBuffer.resize (MAX_ENCODER_BUFFER_SIZE);
+
+        ::trap_FS_Read (&decodedSize, sizeof (int), fileHandle);
+
+        if (decodedSize > MAX_ENCODER_BUFFER_SIZE)
+            ::G_Error ("G_LoadGame: encoded chunk is greater than buffer");
+
+        ::trap_FS_Read (&gEncoderBuffer[0], decodedSize, fileHandle);
+        ::G_Save_Decode (&gEncoderBuffer[0], decodedSize, outStruct);
+    }
+}
+
+template<class T>
+static void G_WriteStruct (
+    const T& inStruct,
+    fileHandle_t fileHandle)
+{
+    int length = ::G_Save_Encode (inStruct);
+
+    if (::G_SaveWrite (&length, sizeof (length), fileHandle) == 0)
+        ::G_SaveWriteError ();
+
+    if (::G_SaveWrite (&gEncoderBuffer[0], length, fileHandle) == 0)
+        ::G_SaveWriteError ();
+}
+//BBi
 
 vmCvar_t musicCvar;
 char musicString[MAX_STRING_CHARS];
@@ -322,8 +1166,14 @@ byte *G_FindFuncByName( char *name ) {
 
 void WriteField1( saveField_t *field, byte *base ) {
 	void        *p;
-	int len;
-	int index;
+
+    //BBi
+	//int len;
+	//int index;
+    intptr_t len;
+    intptr_t index;
+    //BBi
+
 	funcList_t  *func;
 
 	p = ( void * )( base + field->ofs );
@@ -335,7 +1185,12 @@ void WriteField1( saveField_t *field, byte *base ) {
 		} else {
 			len = 0;
 		}
-		*(int *)p = len;
+
+        //BBi
+		//*(int *)p = len;
+        *static_cast<intptr_t*> (p) = len;
+        //BBi
+
 		break;
 	case F_ENTITY:
 		if ( *(gentity_t **)p == NULL ) {
@@ -346,7 +1201,12 @@ void WriteField1( saveField_t *field, byte *base ) {
 		if ( index >= MAX_GENTITIES || index < -1 ) {
 			G_Error( "WriteField1: entity out of range (%i)", index );
 		}
-		*(int *)p = index;
+
+        //BBi
+		//*(int *)p = index;
+        *static_cast<intptr_t*> (p) = index;
+        //BBi
+
 		break;
 	case F_CLIENT:
 		if ( *(gclient_t **)p == NULL ) {
@@ -357,7 +1217,12 @@ void WriteField1( saveField_t *field, byte *base ) {
 		if ( index >= MAX_CLIENTS || index < -1 ) {
 			G_Error( "WriteField1: client out of range (%i)", index );
 		}
-		*(int *)p = index;
+
+        //BBi
+		//*(int *)p = index;
+        *static_cast<intptr_t*> (p) = index;
+        //BBi
+
 		break;
 	case F_ITEM:
 		if ( *(gitem_t **)p == NULL ) {
@@ -365,7 +1230,12 @@ void WriteField1( saveField_t *field, byte *base ) {
 		} else {
 			index = *(gitem_t **)p - bg_itemlist;
 		}
-		*(int *)p = index;
+
+        //BBi
+		//*(int *)p = index;
+        *static_cast<intptr_t*> (p) = index;
+        //BBi
+
 		break;
 
 		//	match this with a function address in the function list, which is built using the
@@ -381,7 +1251,12 @@ void WriteField1( saveField_t *field, byte *base ) {
 			}
 			len = strlen( func->funcStr ) + 1;
 		}
-		*(int *)p = len;
+
+        //BBi
+		//*(int *)p = len;
+        *static_cast<intptr_t*> (p) = len;
+        //BBi
+
 		break;
 
 	default:
@@ -391,7 +1266,11 @@ void WriteField1( saveField_t *field, byte *base ) {
 
 
 void WriteField2( fileHandle_t f, saveField_t *field, byte *base ) {
-	int len;
+    //BBi
+	//int len;
+    intptr_t len;
+    //BBi
+
 	void        *p;
 	funcList_t  *func;
 
@@ -425,15 +1304,25 @@ void WriteField2( fileHandle_t f, saveField_t *field, byte *base ) {
 
 void ReadField( fileHandle_t f, saveField_t *field, byte *base ) {
 	void        *p;
-	int len;
-	int index;
+
+    //BBi
+	//int len;
+	//int index;
+    intptr_t len;
+	intptr_t index;
+    //BBi
+
 	char funcStr[512];
 
 	p = ( void * )( base + field->ofs );
 	switch ( field->type )
 	{
 	case F_STRING:
-		len = *(int *)p;
+        //BBi
+		//len = *(int *)p;
+        len = *static_cast<intptr_t*> (p);
+        //BBi
+
 		if ( !len ) {
 			*(char **)p = NULL;
 		} else
@@ -443,7 +1332,11 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base ) {
 		}
 		break;
 	case F_ENTITY:
-		index = *(int *)p;
+        //BBi
+		//index = *(int *)p;
+        index = *static_cast<intptr_t*> (p);
+        //BBi
+
 		if ( index >= MAX_GENTITIES || index < -1 ) {
 			G_Error( "ReadField: entity out of range (%i)", index );
 		}
@@ -454,7 +1347,11 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base ) {
 		}
 		break;
 	case F_CLIENT:
-		index = *(int *)p;
+		//BBi
+		//index = *(int *)p;
+        index = *static_cast<intptr_t*> (p);
+        //BBi
+
 		if ( index >= MAX_CLIENTS || index < -1 ) {
 			G_Error( "ReadField: client out of range (%i)", index );
 		}
@@ -465,7 +1362,11 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base ) {
 		}
 		break;
 	case F_ITEM:
-		index = *(int *)p;
+		//BBi
+		//index = *(int *)p;
+        index = *static_cast<intptr_t*> (p);
+        //BBi
+
 		if ( index == -1 ) {
 			*(gitem_t **)p = NULL;
 		} else {
@@ -475,7 +1376,11 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base ) {
 
 		//relative to code segment
 	case F_FUNCTION:
-		len = *(int *)p;
+		//BBi
+		//len = *(int *)p;
+        len = *static_cast<intptr_t*> (p);
+        //BBi
+
 		if ( !len ) {
 			*(byte **)p = NULL;
 		} else
@@ -498,7 +1403,11 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base ) {
 
 //=========================================================
 
-#define SAVE_ENCODE_COUNT_BYTES     1
+//BBi
+//#define SAVE_ENCODE_COUNT_BYTES     1
+static const int SAVE_ENCODE_COUNT_BYTES = 1;
+static const byte SAVE_ENCODE_COUNT_MASK = 1 << ((SAVE_ENCODE_COUNT_BYTES * 8) - 1);
+//BBi
 
 /*
 ===============
@@ -507,77 +1416,182 @@ G_Save_Encode
   returns the number of bytes written to "out"
 ===============
 */
-int G_Save_Encode( byte *raw, byte *out, int rawsize, int outsize ) {
-	int rawcount, oldrawcount, outcount;
-	int mode;
-	byte count;     //DAJ was int but caused endian bugs
 
-	rawcount = 0;
-	outcount = 0;
-	while ( rawcount < rawsize ) {
-		oldrawcount = rawcount;
-		// is this a non-zero?
-		if ( raw[rawcount] ) {
-			mode = 1;
-		} else {
-			mode = 0;
-		}
-		// calc the count
-		count = 0;
-		while ( rawcount < rawsize && ( raw[rawcount] != 0 ) == mode && count < ( ( ( 1 << ( SAVE_ENCODE_COUNT_BYTES * 8 - 1 ) ) - 1 ) ) ) {
-			rawcount++;
-			count++;
-		}
-		// write the count, followed by data if required
-		memcpy( out + outcount, &count, SAVE_ENCODE_COUNT_BYTES );
-		// switch the sign bit if zeros
-		if ( !mode ) {
-			out[outcount + SAVE_ENCODE_COUNT_BYTES - 1] |= ( 1 << 7 );
-			outcount += SAVE_ENCODE_COUNT_BYTES;
-		} else {
-			outcount += SAVE_ENCODE_COUNT_BYTES;
-			// write the data
-			memcpy( out + outcount, raw + oldrawcount, count );
-			outcount += count;
-		}
-	}
+//BBi
+//int G_Save_Encode( byte *raw, byte *out, int rawsize, int outsize ) {
+//	int rawcount, oldrawcount, outcount;
+//	int mode;
+//	byte count;     //DAJ was int but caused endian bugs
+//
+//	rawcount = 0;
+//	outcount = 0;
+//	while ( rawcount < rawsize ) {
+//		oldrawcount = rawcount;
+//		// is this a non-zero?
+//		if ( raw[rawcount] ) {
+//			mode = 1;
+//		} else {
+//			mode = 0;
+//		}
+//		// calc the count
+//		count = 0;
+//		while ( rawcount < rawsize && ( raw[rawcount] != 0 ) == mode && count < ( ( ( 1 << ( SAVE_ENCODE_COUNT_BYTES * 8 - 1 ) ) - 1 ) ) ) {
+//			rawcount++;
+//			count++;
+//		}
+//		// write the count, followed by data if required
+//		memcpy( out + outcount, &count, SAVE_ENCODE_COUNT_BYTES );
+//		// switch the sign bit if zeros
+//		if ( !mode ) {
+//			out[outcount + SAVE_ENCODE_COUNT_BYTES - 1] |= ( 1 << 7 );
+//			outcount += SAVE_ENCODE_COUNT_BYTES;
+//		} else {
+//			outcount += SAVE_ENCODE_COUNT_BYTES;
+//			// write the data
+//			memcpy( out + outcount, raw + oldrawcount, count );
+//			outcount += count;
+//		}
+//	}
+//
+//	return outcount;
+//}
 
-	return outcount;
+template<class T>
+int G_Save_Encode (
+    const T& inStruct)
+{
+    const int rawSize = sizeof (typename T::Struct32);
+    static typename T::Struct32 tmpStruct;
+    const bool isStruct32 = (sizeof (T) == rawSize);
+
+    if (!isStruct32)
+        inStruct.convertTo32 (tmpStruct);
+
+    const byte* inBytes =
+        isStruct32 ?
+        reinterpret_cast<const byte*> (&inStruct) :
+        reinterpret_cast<const byte*> (&tmpStruct);
+
+    if (gEncoderBuffer.empty ())
+        gEncoderBuffer.resize (MAX_ENCODER_BUFFER_SIZE);
+
+    byte* outBytes = &gEncoderBuffer[0];
+
+    int rawCount = 0;
+    int outCount = 0;
+
+    while (rawCount < rawSize) {
+        int oldRawCount = rawCount;
+
+        // is this a non-zero?
+        int mode = (inBytes[rawCount] != 0) ? 1 : 0;
+
+        // calc the count
+        byte count = 0;
+
+        while ((rawCount < rawSize) &&
+            ((inBytes[rawCount] != 0) == mode) &&
+            (count < (SAVE_ENCODE_COUNT_MASK - 1)))
+        {
+            ++rawCount;
+            ++count;
+        }
+
+        // write the count, followed by data if required
+        ::memcpy (outBytes + outCount, &count, SAVE_ENCODE_COUNT_BYTES);
+
+        // switch the sign bit if zeros
+        if (mode == 0) {
+            outBytes[outCount + SAVE_ENCODE_COUNT_BYTES - 1] |= 1 << 7;
+            outCount += SAVE_ENCODE_COUNT_BYTES;
+        } else {
+            outCount += SAVE_ENCODE_COUNT_BYTES;
+
+            // write the data
+            ::memcpy (outBytes + outCount, inBytes + oldRawCount, count);
+            outCount += count;
+        }
+    }
+
+    return outCount;
 }
+//BBi
 
 /*
 ===============
 G_Save_Decode
 ===============
 */
-void G_Save_Decode( byte *in, int insize, byte *out, int outsize ) {
-	int incount, outcount;
-	byte count;     //DAJ was in but caused endian bugs
-	//
-	incount = 0;
-	outcount = 0;
-	while ( incount < insize ) {
-		// read the count
-		count = 0;
-		memcpy( &count, in + incount, SAVE_ENCODE_COUNT_BYTES );
-		incount += SAVE_ENCODE_COUNT_BYTES;
-		// if it's negative, zero it out
-		if ( count & ( 1 << ( ( SAVE_ENCODE_COUNT_BYTES * 8 ) - 1 ) ) ) {
-			count &= ~( 1 << ( ( SAVE_ENCODE_COUNT_BYTES * 8 ) - 1 ) );
-			memset( out + outcount, 0, count );
-			outcount += count;
-		} else {
-			// copy the data from "in"
-			memcpy( out + outcount, in + incount, count );
-			outcount += count;
-			incount += count;
-		}
-	}
+
+//BBi
+//void G_Save_Decode( byte *in, int insize, byte *out, int outsize ) {
+//	int incount, outcount;
+//	byte count;     //DAJ was in but caused endian bugs
+//	//
+//	incount = 0;
+//	outcount = 0;
+//	while ( incount < insize ) {
+//		// read the count
+//		count = 0;
+//		memcpy( &count, in + incount, SAVE_ENCODE_COUNT_BYTES );
+//		incount += SAVE_ENCODE_COUNT_BYTES;
+//		// if it's negative, zero it out
+//		if ( count & ( 1 << ( ( SAVE_ENCODE_COUNT_BYTES * 8 ) - 1 ) ) ) {
+//			count &= ~( 1 << ( ( SAVE_ENCODE_COUNT_BYTES * 8 ) - 1 ) );
+//			memset( out + outcount, 0, count );
+//			outcount += count;
+//		} else {
+//			// copy the data from "in"
+//			memcpy( out + outcount, in + incount, count );
+//			outcount += count;
+//			incount += count;
+//		}
+//	}
+//}
+
+template<class T>
+void G_Save_Decode (
+    const byte* inBytes,
+    int inSize,
+    T& outStruct)
+{
+    static typename T::Struct32 tmpStruct;
+    const bool isStruct32 = (sizeof (T) == sizeof (typename T::Struct32));
+    byte* outBytes = isStruct32 ? reinterpret_cast<byte*> (&outStruct) : reinterpret_cast<byte*> (&tmpStruct);
+
+    byte count; //DAJ was in but caused endian bugs
+    int inCount = 0;
+    int outCount = 0;
+
+    while (inCount < inSize) {
+        // read the count
+        count = 0;
+        ::memcpy (&count, inBytes + inCount, SAVE_ENCODE_COUNT_BYTES);
+        inCount += SAVE_ENCODE_COUNT_BYTES;
+
+        // if it's negative, zero it out
+        if ((count & SAVE_ENCODE_COUNT_MASK) != 0) {
+            count &= ~SAVE_ENCODE_COUNT_MASK;
+            ::memset (outBytes + outCount, 0, count);
+            outCount += count;
+        } else {
+            // copy the data from "in"
+            ::memcpy (outBytes + outCount, inBytes + inCount, count);
+            outCount += count;
+            inCount += count;
+        }
+    }
+
+    if (!isStruct32)
+        outStruct.convertFrom32 (tmpStruct);
 }
+//BBi
 
 //=========================================================
 
-byte clientBuf[ 2 * sizeof( gentity_t ) ];
+//BBi
+//byte clientBuf[ 2 * sizeof( gentity_t ) ];
+//BBi
 
 /*
 ===============
@@ -587,7 +1601,10 @@ WriteClient
 void WriteClient( fileHandle_t f, gclient_t *cl ) {
 	saveField_t *field;
 	gclient_t temp;
-	int length;
+
+    //BBi
+	//int length;
+    //BBi
 
 	// copy the structure across, then process the fields
 	temp = *cl;
@@ -606,14 +1623,19 @@ void WriteClient( fileHandle_t f, gclient_t *cl ) {
 	}
 
 	// write the block
-	//if (!G_SaveWrite (&temp, sizeof(temp), f)) G_SaveWriteError();
-	length = G_Save_Encode( (byte *)&temp, clientBuf, sizeof( temp ), sizeof( clientBuf ) );
-	if ( !G_SaveWrite( &length, sizeof( length ), f ) ) {
-		G_SaveWriteError();
-	}
-	if ( !G_SaveWrite( &clientBuf, length, f ) ) {
-		G_SaveWriteError();
-	}
+
+    //BBi
+	////if (!G_SaveWrite (&temp, sizeof(temp), f)) G_SaveWriteError();
+	//length = G_Save_Encode( (byte *)&temp, clientBuf, sizeof( temp ), sizeof( clientBuf ) );
+	//if ( !G_SaveWrite( &length, sizeof( length ), f ) ) {
+	//	G_SaveWriteError();
+	//}
+	//if ( !G_SaveWrite( &clientBuf, length, f ) ) {
+	//	G_SaveWriteError();
+	//}
+
+    ::G_WriteStruct (temp, f);
+    //BBi
 
 	// now write any allocated data following the edict
 	for ( field = gclientFields ; field->type ; field++ )
@@ -633,20 +1655,27 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size ) {
 	ignoreField_t *ifield;
 	gclient_t temp;
 	gentity_t   *ent;
-	int decodedSize;
 
-	if ( ver == 10 ) {
-		trap_FS_Read( &temp, size, f );
-	} else {
-		// read the encoded chunk
-		trap_FS_Read( &decodedSize, sizeof( int ), f );
-		if ( decodedSize > sizeof( clientBuf ) ) {
-			G_Error( "G_LoadGame: encoded chunk is greater than buffer" );
-		}
-		trap_FS_Read( clientBuf, decodedSize, f ); \
-		// decode it
-		G_Save_Decode( clientBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
-	}
+    //BBi
+	//int decodedSize;
+    //BBi
+
+    //BBi
+	//if ( ver == 10 ) {
+	//	trap_FS_Read( &temp, size, f );
+	//} else {
+	//	// read the encoded chunk
+	//	trap_FS_Read( &decodedSize, sizeof( int ), f );
+	//	if ( decodedSize > sizeof( clientBuf ) ) {
+	//		G_Error( "G_LoadGame: encoded chunk is greater than buffer" );
+	//	}
+	//	trap_FS_Read( clientBuf, decodedSize, f ); \
+	//	// decode it
+	//	G_Save_Decode( clientBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
+	//}
+
+    ::G_ReadStruct (temp, size, f);
+    //BBi
 
 	// convert any feilds back to the correct data
 	for ( field = gclientFields ; field->type ; field++ )
@@ -731,7 +1760,9 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size ) {
 
 //=========================================================
 
-byte entityBuf[ 2 * sizeof( gentity_t ) ];
+//BBi
+//byte entityBuf[ 2 * sizeof( gentity_t ) ];
+//BBi
 
 /*
 ===============
@@ -741,7 +1772,10 @@ WriteEntity
 void WriteEntity( fileHandle_t f, gentity_t *ent ) {
 	saveField_t *field;
 	gentity_t temp;
-	int length;
+
+    //BBi
+	//int length;
+    //BBi
 
 	// copy the structure across, then process the fields
 	temp = *ent;
@@ -761,14 +1795,19 @@ void WriteEntity( fileHandle_t f, gentity_t *ent ) {
 	WriteField1( gentityFields_18, (byte *)&temp );
 
 	// write the block
-	//if (!G_SaveWrite (&temp, sizeof(temp), f)) G_SaveWriteError();
-	length = G_Save_Encode( (byte *)&temp, entityBuf, sizeof( temp ), sizeof( entityBuf ) );
-	if ( !G_SaveWrite( &length, sizeof( length ), f ) ) {
-		G_SaveWriteError();
-	}
-	if ( !G_SaveWrite( &entityBuf, length, f ) ) {
-		G_SaveWriteError();
-	}
+
+    //BBi
+	////if (!G_SaveWrite (&temp, sizeof(temp), f)) G_SaveWriteError();
+	//length = G_Save_Encode( (byte *)&temp, entityBuf, sizeof( temp ), sizeof( entityBuf ) );
+	//if ( !G_SaveWrite( &length, sizeof( length ), f ) ) {
+	//	G_SaveWriteError();
+	//}
+	//if ( !G_SaveWrite( &entityBuf, length, f ) ) {
+	//	G_SaveWriteError();
+	//}
+
+    ::G_WriteStruct (temp, f);
+    //BBi
 
 	// now write any allocated data following the edict
 	for ( field = gentityFields_17 ; field->type ; field++ )
@@ -791,22 +1830,29 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size ) {
 	ignoreField_t *ifield;
 	gentity_t temp, backup, backup2;
 	vmCvar_t cvar;
-	int decodedSize;
+
+    //BBi
+	//int decodedSize;
+    //BBi
 
 	backup = *ent;
 
-	if ( ver == 10 ) {
-		trap_FS_Read( &temp, size, f );
-	} else {
-		// read the encoded chunk
-		trap_FS_Read( &decodedSize, sizeof( int ), f );
-		if ( decodedSize > sizeof( entityBuf ) ) {
-			G_Error( "G_LoadGame: encoded chunk is greater than buffer" );
-		}
-		trap_FS_Read( entityBuf, decodedSize, f );
-		// decode it
-		G_Save_Decode( entityBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
-	}
+    //BBi
+	//if ( ver == 10 ) {
+	//	trap_FS_Read( &temp, size, f );
+	//} else {
+	//	// read the encoded chunk
+	//	trap_FS_Read( &decodedSize, sizeof( int ), f );
+	//	if ( decodedSize > sizeof( entityBuf ) ) {
+	//		G_Error( "G_LoadGame: encoded chunk is greater than buffer" );
+	//	}
+	//	trap_FS_Read( entityBuf, decodedSize, f );
+	//	// decode it
+	//	G_Save_Decode( entityBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
+	//}
+
+    ::G_ReadStruct (temp, size, f);
+    //BBi
 
 	// convert any fields back to the correct data
 	for ( field = gentityFields_17 ; field->type ; field++ )
@@ -907,7 +1953,9 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size ) {
 
 //=========================================================
 
-byte castStateBuf[ 2 * sizeof( cast_state_t ) ];
+//BBi
+//byte castStateBuf[ 2 * sizeof( cast_state_t ) ];
+//BBi
 
 /*
 ===============
@@ -917,7 +1965,10 @@ WriteCastState
 void WriteCastState( fileHandle_t f, cast_state_t *cs ) {
 	saveField_t *field;
 	cast_state_t temp;
-	int length;
+
+    //BBi
+	//int length;
+    //BBi
 
 	// copy the structure across, then process the fields
 	temp = *cs;
@@ -929,14 +1980,19 @@ void WriteCastState( fileHandle_t f, cast_state_t *cs ) {
 	}
 
 	// write the block
-	//if (!G_SaveWrite (&temp, sizeof(temp), f)) G_SaveWriteError();
-	length = G_Save_Encode( (byte *)&temp, castStateBuf, sizeof( temp ), sizeof( castStateBuf ) );
-	if ( !G_SaveWrite( &length, sizeof( length ), f ) ) {
-		G_SaveWriteError();
-	}
-	if ( !G_SaveWrite( &castStateBuf, length, f ) ) {
-		G_SaveWriteError();
-	}
+
+    //BBi
+	////if (!G_SaveWrite (&temp, sizeof(temp), f)) G_SaveWriteError();
+	//length = G_Save_Encode( (byte *)&temp, castStateBuf, sizeof( temp ), sizeof( castStateBuf ) );
+	//if ( !G_SaveWrite( &length, sizeof( length ), f ) ) {
+	//	G_SaveWriteError();
+	//}
+	//if ( !G_SaveWrite( &castStateBuf, length, f ) ) {
+	//	G_SaveWriteError();
+	//}
+
+    ::G_WriteStruct (temp, f);
+    //BBi
 
 	// now write any allocated data following the edict
 	for ( field = castStateFields ; field->type ; field++ )
@@ -955,20 +2011,28 @@ void ReadCastState( fileHandle_t f, cast_state_t *cs, int size ) {
 	saveField_t *field;
 	ignoreField_t *ifield;
 	cast_state_t temp;
-	int decodedSize;
 
-	if ( ver == 10 ) {
-		trap_FS_Read( &temp, size, f );
-	} else {
-		// read the encoded chunk
-		trap_FS_Read( &decodedSize, sizeof( int ), f );
-		if ( decodedSize > sizeof( castStateBuf ) ) {
-			G_Error( "G_LoadGame: encoded chunk is greater than buffer" );
-		}
-		trap_FS_Read( castStateBuf, decodedSize, f ); \
-		// decode it
-		G_Save_Decode( castStateBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
-	}
+    //BBi
+	//int decodedSize;
+    //BBi
+
+    //BBi
+	//if ( ver == 10 ) {
+	//	trap_FS_Read( &temp, size, f );
+	//} else {
+	//	// read the encoded chunk
+	//	trap_FS_Read( &decodedSize, sizeof( int ), f );
+	//	if ( decodedSize > sizeof( castStateBuf ) ) {
+	//		G_Error( "G_LoadGame: encoded chunk is greater than buffer" );
+	//	}
+	//	trap_FS_Read( castStateBuf, decodedSize, f ); \
+	//	// decode it
+
+	//	G_Save_Decode( castStateBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
+	//}
+
+    ::G_ReadStruct (temp, size, f);
+    //BBi
 
 	// convert any feilds back to the correct data
 	for ( field = castStateFields ; field->type ; field++ )
@@ -1284,7 +2348,12 @@ qboolean G_SaveGame( char *username ) {
 
 
 	// write out the entity structures
-	i = sizeof( gentity_t );
+
+    //BBi
+	//i = sizeof( gentity_t );
+    i = sizeof (GEntity32);
+    //BBi
+
 	if ( !G_SaveWrite( &i, sizeof( i ), f ) ) {
 		G_SaveWriteError();
 	}
@@ -1305,7 +2374,12 @@ qboolean G_SaveGame( char *username ) {
 	}
 
 	// write out the client structures
-	i = sizeof( gclient_t );
+
+    //BBi
+	//i = sizeof( gclient_t );
+    i = sizeof (GClient32);
+    //BBi
+
 	if ( !G_SaveWrite( &i, sizeof( i ), f ) ) {
 		G_SaveWriteError();
 	}
@@ -1326,7 +2400,12 @@ qboolean G_SaveGame( char *username ) {
 	}
 
 	// write out the cast_state structures
-	i = sizeof( cast_state_t );
+
+    //BBi
+	//i = sizeof( cast_state_t );
+    i = sizeof (CastState32);
+    //BBi
+
 	if ( !G_SaveWrite( &i, sizeof( i ), f ) ) {
 		G_SaveWriteError();
 	}
@@ -1528,9 +2607,6 @@ void G_LoadGame( char *filename ) {
 			aicast_skillscale = (float)i / (float)GSKILL_MAX;
 		}
 	}
-
-
-
 
 	// reset all AAS blocking entities
 	trap_AAS_SetAASBlockingEntity( vec3_origin, vec3_origin, -1 );

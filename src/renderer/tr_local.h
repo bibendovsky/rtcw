@@ -40,14 +40,16 @@ If you have questions concerning this license or the applicable additional terms
 #define GL_INDEX_TYPE       GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;
 
-#if !defined RTCW_ET
-// fast float to int conversion
-#if id386 && !( ( defined __linux__ || defined __FreeBSD__ ) && ( defined __i386__ ) ) // rb010123
-long myftol( float f );
-#else
-#define myftol( x ) ( (int)( x ) )
-#endif
-#endif // RTCW_XX
+//BBi
+//#if !defined RTCW_ET
+//// fast float to int conversion
+//#if id386 && !( ( defined __linux__ || defined __FreeBSD__ ) && ( defined __i386__ ) ) // rb010123
+//long myftol( float f );
+//#else
+//#define myftol( x ) ( (int)( x ) )
+//#endif
+//#endif // RTCW_XX
+//BBi
 
 // everything that is needed by the backend needs
 // to be double buffered to allow it to run in

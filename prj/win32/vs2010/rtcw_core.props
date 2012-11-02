@@ -25,12 +25,10 @@
     <rtcw_zlib_lib_base_name>libz</rtcw_zlib_lib_base_name>
     <rtcw_zlib_dir>$(rtcw_src_dir)zlib-$(rtcw_zlib_version)\</rtcw_zlib_dir>
   </PropertyGroup>
-  <PropertyGroup>
-    <IntDir>$(rtcw_obj_dir)$(ProjectName)\$(Configuration)\</IntDir>
-  </PropertyGroup>
+  <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>_WIN32;WIN32;WINVER=0x0501;_WIN32_WINNT=0x0501;NTDDI_VERSION=NTDDI_WINXPSP3;DIRECTINPUT_VERSION=0x0800;DIRECTSOUND_VERSION=0x0900;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINVER=0x0501;_WIN32_WINNT=0x0501;NTDDI_VERSION=NTDDI_WINXPSP3;DIRECTINPUT_VERSION=0x0800;DIRECTSOUND_VERSION=0x0900;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeaderFile>

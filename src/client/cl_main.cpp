@@ -940,7 +940,10 @@ void CL_WriteWaveClose() {
 extern int s_soundtime;
 
 #if !defined RTCW_ET
-extern portable_samplepair_t *paintbuffer;
+//BBi
+//extern portable_samplepair_t *paintbuffer;
+extern portable_samplepair_t paintbuffer[];
+//BBi
 #else
 extern int s_paintedtime;
 extern portable_samplepair_t paintbuffer[PAINTBUFFER_SIZE];

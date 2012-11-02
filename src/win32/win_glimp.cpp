@@ -2280,10 +2280,22 @@ void GLimp_Init( void ) {
 
 	// save off hInstance and wndproc
 	cv = ri.Cvar_Get( "win_hinstance", "", 0 );
-	sscanf( cv->string, "%i", (int *)&g_wv.hInstance );
+
+    //BBi
+    const char* const scanFormat = (sizeof (size_t) == 4) ? "%i" : "%lli";
+    //BBi
+
+    //BBi
+	//sscanf( cv->string, "%i", (int *)&g_wv.hInstance );
+    ::sscanf (cv->string, scanFormat, reinterpret_cast<intptr_t*> (&g_wv.hInstance));
+    //BBi
 
 	cv = ri.Cvar_Get( "win_wndproc", "", 0 );
-	sscanf( cv->string, "%i", (int *)&glw_state.wndproc );
+
+    //bbI
+	//sscanf( cv->string, "%i", (int *)&glw_state.wndproc );
+    ::sscanf (cv->string, scanFormat, reinterpret_cast<intptr_t*> (&glw_state.wndproc));
+    //bbI
 
 	r_allowSoftwareGL = ri.Cvar_Get( "r_allowSoftwareGL", "0", CVAR_LATCH );
 	r_maskMinidriver = ri.Cvar_Get( "r_maskMinidriver", "0", CVAR_LATCH );

@@ -155,9 +155,23 @@ typedef struct
 #define SCFL_GOING_TO_MARKER    0x1
 #define SCFL_ANIMATING          0x2
 #define SCFL_WAITING_RESTORE    0x4
+
+//BBi Reference structure for x64 code.
+//BBi All pointers replaced with 4-byte integers.
+//BBi Of course this structure must be identical to original one (g_script_status_t).
+//BBi FIXME Use fixed size types (int32, etc.)
+struct GScriptStatus32 {
+    int scriptStackHead;
+    int scriptStackChangeTime;
+    int scriptEventIndex;
+    int scriptId;
+    int scriptFlags;
+    int animatingParams; // pointer
+}; // struct GScriptStatus32
+
 //
 // Scripting Status (NOTE: this MUST NOT contain any pointer vars)
-typedef struct
+struct g_script_status_t
 {
 	int scriptStackHead, scriptStackChangeTime;
 	int scriptEventIndex;       // current event containing stack of actions to perform
@@ -165,7 +179,19 @@ typedef struct
 	int scriptId;                   // incremented each time the script changes
 	int scriptFlags;
 	char    *animatingParams;
-} g_script_status_t;
+
+
+    //BBi
+    typedef g_script_status_t Struct;
+    typedef GScriptStatus32 Struct32;
+
+    void convertFrom32 (
+        const Struct32& struct32);
+
+    void convertTo32 (
+        Struct32& struct32) const;
+    //BBi
+};
 //
 #define G_MAX_SCRIPT_ACCUM_BUFFERS  8
 //
@@ -174,6 +200,160 @@ void G_Script_ScriptEvent( gentity_t *ent, char *eventStr, char *params );
 
 
 #define CFOFS( x ) ( (int)&( ( (gclient_t *)0 )->x ) )
+
+//BBi Reference structure for x64 code.
+//BBi All pointers replaced with 4-byte integers.
+//BBi Of course this structure must be identical to original one (gentity_s).
+//BBi FIXME Use fixed size types (int32, etc.)
+struct GEntity32 {
+    entityState_t s;
+    entityShared_t r;
+    int client; // pointer
+    qboolean inuse;
+    int classname; // pointer
+    int spawnflags;
+    qboolean neverFree;
+    int flags;
+    int model; // pointer
+    int model2; // pointer
+    int freetime;
+    int eventTime;
+    qboolean freeAfterEvent;
+    qboolean unlinkAfterEvent;
+    qboolean physicsObject;
+    float physicsBounce;
+    int clipmask;
+    moverState_t moverState;
+    int soundPos1;
+    int sound1to2;
+    int sound2to1;
+    int soundPos2;
+    int soundLoop;
+    int sound2to3;
+    int sound3to2;
+    int soundPos3;
+    int soundKicked;
+    int soundKickedEnd;
+    int soundSoftopen;
+    int soundSoftendo;
+    int soundSoftclose;
+    int soundSoftendc;
+    int parent; // pointer
+    int nextTrain; // pointer
+    int prevTrain; // pointer
+    vec3_t pos1;
+    vec3_t pos2;
+    vec3_t pos3;
+    int message; // pointer
+    int timestamp;
+    float angle;
+    int target; // pointer
+    int targetdeath; // pointer
+    int targetname; // pointer
+    int team; // pointer
+    int targetShaderName; // pointer
+    int targetShaderNewName; // pointer
+    int target_ent; // pointer
+    float speed;
+    float closespeed;
+    vec3_t movedir;
+    int gDuration;
+    int gDurationBack;
+    vec3_t gDelta;
+    vec3_t gDeltaBack;
+    int nextthink;
+    int think; // pointer
+    int reached; // pointer
+    int blocked; // pointer
+    int touch; // pointer
+    int use; // pointer
+    int pain; // pointer
+    int die; // pointer
+    int pain_debounce_time;
+    int fly_sound_debounce_time;
+    int last_move_time;
+    int health;
+    qboolean takedamage;
+    int damage;
+    int splashDamage;
+    int splashRadius;
+    int methodOfDeath;
+    int splashMethodOfDeath;
+    int count;
+    int chain; // pointer
+    int enemy; // pointer
+    int activator; // pointer
+    int teamchain; // pointer
+    int teammaster; // pointer
+    int watertype;
+    int waterlevel;
+    int noise_index;
+    float wait;
+    float random;
+    int radius;
+    float delay;
+    int TargetFlag;
+    float duration;
+    vec3_t rotate;
+    vec3_t TargetAngles;
+    int item; // pointer
+    int aiAttributes; // pointer
+    int aiName; // pointer
+    int aiTeam;
+    int AIScript_AlertEntity; // pointer
+    qboolean aiInactive;
+    int aiCharacter;
+    int aiSkin; // pointer
+    int aihSkin; // pointer
+    vec3_t dl_color;
+    int dl_stylestring; // pointer
+    int dl_shader; // pointer
+    int dl_atten;
+    int key;
+    qboolean active;
+    qboolean botDelayBegin;
+    float harc;
+    float varc;
+    float activateArc;
+    int props_frame_state;
+    int missionLevel;
+    int missionObjectives;
+    int numSecretsFound;
+    int numTreasureFound;
+    qboolean is_dead;
+    int start_size;
+    int end_size;
+    qboolean isProp;
+    int mg42BaseEnt;
+    int melee; // pointer
+    int spawnitem; // pointer
+    qboolean nopickup;
+    int flameQuota;
+    int flameQuotaTime;
+    int flameBurnEnt;
+    int count2;
+    int grenadeExplodeTime;
+    int grenadeFired;
+    int mg42ClampTime;
+    int track; // pointer
+    int scriptName; // pointer
+    int numScriptEvents;
+    int scriptEvents; // pointer
+    GScriptStatus32 scriptStatus; // struct
+    GScriptStatus32 scriptStatusBackup; // struct
+    int scriptAccumBuffer[G_MAX_SCRIPT_ACCUM_BUFFERS];
+    qboolean AASblocking;
+    float accuracy;
+    int tagName; // pointer
+    int tagParent; // pointer
+    float headshotDamageScale;
+    GScriptStatus32 scriptStatusCurrent; // struct
+    int emitID;
+    int emitNum;
+    int emitPressure;
+    int emitTime;
+}; // struct GEntity32
+//BBi
 
 struct gentity_s {
 	entityState_t s;                // communicated by server to clients
@@ -413,6 +593,18 @@ struct gentity_s {
 
 	// -------------------------------------------------------------------------------------------
 	// if working on a post release patch, new variables should ONLY be inserted after this point
+
+
+    //BBi
+    typedef gentity_s Struct;
+    typedef GEntity32 Struct32;
+
+    void convertFrom32 (
+        const Struct32& struct32);
+
+    void convertTo32 (
+        Struct32& struct32) const;
+    //BBi
 };
 
 // Ridah
@@ -511,6 +703,64 @@ typedef struct {
 
 // this structure is cleared on each ClientSpawn(),
 // except for 'client->pers' and 'client->sess'
+
+//BBi Reference structure for x64 code.
+//BBi All pointers replaced with 4-byte integers.
+//BBi Of course this structure must be identical to original one (gclient_s).
+//BBi FIXME Use fixed size types (int32, etc.)
+struct GClient32 {
+    playerState_t ps;
+    clientPersistant_t pers;
+    clientSession_t sess;
+    qboolean readyToExit;
+    qboolean noclip;
+    int lastCmdTime;
+    int buttons;
+    int oldbuttons;
+    int latched_buttons;
+    int wbuttons;
+    int oldwbuttons;
+    int latched_wbuttons;
+    vec3_t oldOrigin;
+    int damage_armor;
+    int damage_blood;
+    int damage_knockback;
+    vec3_t damage_from;
+    qboolean damage_fromWorld;
+    int accurateCount;
+    int accuracy_shots;
+    int accuracy_hits;
+    int lastkilled_client;
+    int lasthurt_client;
+    int lasthurt_mod;
+    int respawnTime;
+    int inactivityTime;
+    qboolean inactivityWarning;
+    int rewardTime;
+    int airOutTime;
+    int lastKillTime;
+    qboolean fireHeld;
+    int hook; // pointer
+    int switchTeamTime;
+    int timeResidual;
+    float currentAimSpreadScale;
+    int medicHealAmt;
+    int modelInfo; // pointer
+    int persistantPowerup; // pointer
+    int portalID;
+    int ammoTimes[WP_NUM_WEAPONS];
+    int invulnerabilityTime;
+    int cameraPortal; // pointer
+    vec3_t cameraOrigin;
+    int limboDropWeapon;
+    int deployQueueNumber;
+    int sniperRifleFiredTime;
+    float sniperRifleMuzzleYaw;
+    float sniperRifleMuzzlePitch;
+    int saved_persistant[MAX_PERSISTANT];
+}; // struct GClient32
+//BBi
+
 struct gclient_s {
 	// ps MUST be the first element, because the server expects it
 	playerState_t ps;               // communicated by server to clients
@@ -597,6 +847,17 @@ struct gclient_s {
 	float sniperRifleMuzzlePitch;       // (SA) added
 
 	int saved_persistant[MAX_PERSISTANT];           // DHM - Nerve :: Save ps->persistant here during Limbo
+
+    //BBi
+    typedef gclient_s Struct;
+    typedef GClient32 Struct32;
+
+    void convertFrom32 (
+        const Struct32& struct32);
+
+    void convertTo32 (
+        Struct32& struct32) const;
+    //BBi
 };
 
 

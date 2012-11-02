@@ -1037,17 +1037,33 @@ static int GetConfigString( int index, char *buf, int size ) {
 FloatAsInt
 ====================
 */
-static int FloatAsInt( float f ) {
-	int temp;
 
-	*(float *)&temp = f;
+//BBi
+//static int FloatAsInt( float f ) {
+//	int temp;
+//
+//	*(float *)&temp = f;
+//
+//	return temp;
+//}
+static intptr_t FloatAsInt (
+    float x)
+{
+    intptr_t result;
 
-	return temp;
+    *reinterpret_cast<float*> (&result) = x;
+
+    return result;
 }
+//BBi
 
 void *VM_ArgPtr( int intValue );
 #define VMA( x ) VM_ArgPtr( args[x] )
-#define VMF( x )  ( (float *)args )[x]
+
+//BBi
+//#define VMF( x )  ( (float *)args )[x]
+#define VMF(x) (*reinterpret_cast<const float*> (args + x))
+//BBi
 
 /*
 ====================
@@ -1056,7 +1072,13 @@ CL_UISystemCalls
 The ui module is making a system call
 ====================
 */
-int CL_UISystemCalls( int *args ) {
+
+//BBi
+//int CL_UISystemCalls( int *args ) {
+intptr_t CL_UISystemCalls (
+    intptr_t* args)
+{
+//BBi
 	switch ( args[0] ) {
 	case UI_ERROR:
 
@@ -1595,27 +1617,31 @@ CL_InitUI
 void CL_InitUI( void ) {
 	int v;
 
-#if defined RTCW_SP
-	vmInterpret_t interpret;
+//BBi
+//#if defined RTCW_SP
+//	vmInterpret_t interpret;
+//
+//	// load the dll or bytecode
+//	if ( cl_connectedToPureServer != 0 ) {
+//		// if sv_pure is set we only allow qvms to be loaded
+//		interpret = VMI_COMPILED;
+//	} else {
+//		interpret = vmInterpret_t (int (Cvar_VariableValue( "vm_ui" )));
+//	}
+//
+////----(SA)	always dll
+//
+//#ifdef WOLF_SP_DEMO
+//	uivm = VM_Create( "ui", CL_UISystemCalls, VMI_NATIVE );
+//#else
+//	uivm = VM_Create( "ui", CL_UISystemCalls, vmInterpret_t (int (Cvar_VariableValue( "vm_ui" ))) );
+//#endif
+//#else
+//	uivm = VM_Create( "ui", CL_UISystemCalls, VMI_NATIVE );
+//#endif // RTCW_XX
 
-	// load the dll or bytecode
-	if ( cl_connectedToPureServer != 0 ) {
-		// if sv_pure is set we only allow qvms to be loaded
-		interpret = VMI_COMPILED;
-	} else {
-		interpret = vmInterpret_t (int (Cvar_VariableValue( "vm_ui" )));
-	}
-
-//----(SA)	always dll
-
-#ifdef WOLF_SP_DEMO
-	uivm = VM_Create( "ui", CL_UISystemCalls, VMI_NATIVE );
-#else
-	uivm = VM_Create( "ui", CL_UISystemCalls, vmInterpret_t (int (Cvar_VariableValue( "vm_ui" ))) );
-#endif
-#else
-	uivm = VM_Create( "ui", CL_UISystemCalls, VMI_NATIVE );
-#endif // RTCW_XX
+    uivm = ::VM_Create ("ui", CL_UISystemCalls);
+//BBi
 
 	if ( !uivm ) {
 		Com_Error( ERR_FATAL, "VM_Create on UI failed" );

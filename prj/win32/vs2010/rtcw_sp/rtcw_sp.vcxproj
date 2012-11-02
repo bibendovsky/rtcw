@@ -47,25 +47,17 @@
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ResourceCompile />
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
     </Link>
-    <Bscmake />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ResourceCompile />
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
     </Link>
-    <Bscmake />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\botlib\be_aas_bspq3.cpp" />
@@ -162,8 +154,6 @@
     <ClCompile Include="..\..\..\..\src\server\sv_snapshot.cpp" />
     <ClCompile Include="..\..\..\..\src\server\sv_world.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\vm.cpp" />
-    <ClCompile Include="..\..\..\..\src\qcommon\vm_interpreted.cpp" />
-    <ClCompile Include="..\..\..\..\src\qcommon\vm_x86.cpp" />
     <ClCompile Include="..\..\..\..\src\splines\math_angles.cpp" />
     <ClCompile Include="..\..\..\..\src\splines\math_matrix.cpp" />
     <ClCompile Include="..\..\..\..\src\splines\math_quaternion.cpp" />

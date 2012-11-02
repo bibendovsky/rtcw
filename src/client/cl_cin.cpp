@@ -113,7 +113,11 @@ typedef struct {
 	byte file[65536];
 	short sqrTable[256];
 
-	unsigned int mcomp[256];
+    //BBi
+	//unsigned int mcomp[256];
+    int mcomp[256];
+    //BBi
+
 	byte                *qStatus[2][32768];
 
 	long oldXOff, oldYOff, oldysize, oldxsize;
@@ -1208,8 +1212,12 @@ static void readQuadInfo( byte *qData ) {
 	cinTable[currentHandle].VQ0 = cinTable[currentHandle].VQNormal;
 	cinTable[currentHandle].VQ1 = cinTable[currentHandle].VQBuffer;
 
-	cinTable[currentHandle].t[0] = ( 0 - (unsigned int)cin.linbuf ) + (unsigned int)cin.linbuf + cinTable[currentHandle].screenDelta;
-	cinTable[currentHandle].t[1] = ( 0 - ( (unsigned int)cin.linbuf + cinTable[currentHandle].screenDelta ) ) + (unsigned int)cin.linbuf;
+    //BBi
+	//cinTable[currentHandle].t[0] = ( 0 - (unsigned int)cin.linbuf ) + (unsigned int)cin.linbuf + cinTable[currentHandle].screenDelta;
+    cinTable[currentHandle].t[0] = ( 0 - reinterpret_cast<uintptr_t> (cin.linbuf) ) + reinterpret_cast<uintptr_t> (cin.linbuf) + cinTable[currentHandle].screenDelta;
+	//cinTable[currentHandle].t[1] = ( 0 - ( (unsigned int)cin.linbuf + cinTable[currentHandle].screenDelta ) ) + (unsigned int)cin.linbuf;
+    cinTable[currentHandle].t[1] = ( 0 - ( reinterpret_cast<uintptr_t> (cin.linbuf) + cinTable[currentHandle].screenDelta ) ) + reinterpret_cast<uintptr_t> (cin.linbuf);
+    //BBi
 
 	cinTable[currentHandle].drawX = cinTable[currentHandle].CIN_WIDTH;
 	cinTable[currentHandle].drawY = cinTable[currentHandle].CIN_HEIGHT;
@@ -1225,9 +1233,12 @@ static void readQuadInfo( byte *qData ) {
 		if ( cinTable[currentHandle].drawY > 256 ) {
 			cinTable[currentHandle].drawY = 256;
 		}
-		if ( cinTable[currentHandle].CIN_WIDTH != 256 || cinTable[currentHandle].CIN_HEIGHT != 256 ) {
-			Com_Printf( "HACK: approxmimating cinematic for Rage Pro or Voodoo\n" );
-		}
+
+        //BBi
+		//if ( cinTable[currentHandle].CIN_WIDTH != 256 || cinTable[currentHandle].CIN_HEIGHT != 256 ) {
+		//	Com_Printf( "HACK: approxmimating cinematic for Rage Pro or Voodoo\n" );
+		//}
+        //BBi
 	}
 
 #if defined RTCW_SP

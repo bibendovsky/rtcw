@@ -628,13 +628,25 @@ void CL_ShutdownCGame( void ) {
 	cgvm = NULL;
 }
 
-static int  FloatAsInt( float f ) {
-	int temp;
+//BBi
+//static int  FloatAsInt( float f ) {
+//	int temp;
+//
+//	*(float *)&temp = f;
+//
+//	return temp;
+//}
 
-	*(float *)&temp = f;
+static intptr_t FloatAsInt (
+    float x)
+{
+    intptr_t result;
 
-	return temp;
+    *reinterpret_cast<float*> (&result) = x;
+
+    return result;
 }
+//BBi
 
 #if defined RTCW_ET
 //static int numtraces = 0;
@@ -647,9 +659,20 @@ CL_CgameSystemCalls
 The cgame module is making a system call
 ====================
 */
+
 #define VMA( x ) VM_ArgPtr( args[x] )
-#define VMF( x )  ( (float *)args )[x]
-int CL_CgameSystemCalls( int *args ) {
+
+//BBi FIXME Use portable defines
+//#define VMF( x )  ( (float *)args )[x]
+#define VMF(x) (*reinterpret_cast<const float*> (args + x))
+//BBi
+
+//BBi
+//int CL_CgameSystemCalls( int *args ) {
+intptr_t CL_CgameSystemCalls (
+    intptr_t* args)
+{
+//BBi
 	switch ( args[0] ) {
 	case CG_PRINT:
 
@@ -1580,9 +1603,11 @@ void CL_InitCGame( void ) {
 	const char          *mapname;
 	int t1, t2;
 
-#if defined RTCW_SP
-	vmInterpret_t interpret;
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//	vmInterpret_t interpret;
+//#endif // RTCW_XX
+//BBi
 
 	t1 = Sys_Milliseconds();
 
@@ -1594,20 +1619,24 @@ void CL_InitCGame( void ) {
 	mapname = Info_ValueForKey( info, "mapname" );
 	Com_sprintf( cl.mapname, sizeof( cl.mapname ), "maps/%s.bsp", mapname );
 
-#if defined RTCW_SP
-	// load the dll or bytecode
-	if ( cl_connectedToPureServer != 0 ) {
-		// if sv_pure is set we only allow qvms to be loaded
-		interpret = VMI_COMPILED;
-	} else {
-		interpret = vmInterpret_t (int (Cvar_VariableValue( "vm_cgame" )));
-	}
-	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, interpret );
-//	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, Cvar_VariableValue( "vm_cgame" ) );
-#else
-	// load the dll
-	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, VMI_NATIVE );
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//	// load the dll or bytecode
+//	if ( cl_connectedToPureServer != 0 ) {
+//		// if sv_pure is set we only allow qvms to be loaded
+//		interpret = VMI_COMPILED;
+//	} else {
+//		interpret = vmInterpret_t (int (Cvar_VariableValue( "vm_cgame" )));
+//	}
+//	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, interpret );
+////	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, Cvar_VariableValue( "vm_cgame" ) );
+//#else
+//	// load the dll
+//	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, VMI_NATIVE );
+//#endif // RTCW_XX
+
+    cgvm = ::VM_Create ("cgame", CL_CgameSystemCalls);
+//BBi
 
 	if ( !cgvm ) {
 		Com_Error( ERR_DROP, "VM_Create on cgame failed" );

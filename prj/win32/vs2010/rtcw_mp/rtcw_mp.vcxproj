@@ -78,53 +78,33 @@
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ResourceCompile />
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ResourceCompile />
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;DEDICATED;DO_LIGHT_DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ResourceCompile />
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;DEBUG;DO_LIGHT_DEDICATED;DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ResourceCompile />
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\botlib\be_aas_bspq3.cpp" />
@@ -354,8 +334,6 @@
     <ClCompile Include="..\..\..\..\src\server\sv_snapshot.cpp" />
     <ClCompile Include="..\..\..\..\src\server\sv_world.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\vm.cpp" />
-    <ClCompile Include="..\..\..\..\src\qcommon\vm_interpreted.cpp" />
-    <ClCompile Include="..\..\..\..\src\qcommon\vm_x86.cpp" />
     <ClCompile Include="..\..\..\..\src\splines\math_angles.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>

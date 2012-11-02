@@ -2137,6 +2137,10 @@ int FS_Read( void *buffer, int len, fileHandle_t f ) {
 //			read = fread (buf, block, 1, fsh[f].handleFiles.file.o);
 #endif // RTCW_XX
 
+            //BBi DEBUG
+            long curFilePos = ::ftell (fsh[f].handleFiles.file.o);
+            //BBi
+
 			read = fread( buf, 1, block, fsh[f].handleFiles.file.o );
 			if ( read == 0 ) {
 				// we might have been trying to read from a CD, which
@@ -3410,7 +3414,7 @@ void FS_TouchFile_f( void ) {
 //===========================================================================
 
 
-static int QDECL paksort( const void *a, const void *b ) {
+static int paksort( const void *a, const void *b ) {
 	char    *aa, *bb;
 
 	aa = *(char **)a;
@@ -3513,7 +3517,7 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 
 	}
 
-	qsort( sorted, numfiles, 4, paksort );
+	qsort( sorted, numfiles, sizeof (size_t), paksort );
 
 	for ( i = 0 ; i < numfiles ; i++ ) {
 

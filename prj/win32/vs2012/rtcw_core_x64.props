@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <rtcw_platform>x64</rtcw_platform>
+    <rtcw_curl_lib>$(rtcw_curl_lib_base_name)_$(rtcw_curl_version)_$(rtcw_lib_type)_$(rtcw_platform).lib</rtcw_curl_lib>
+    <rtcw_fmodex_lib>fmodex64_vc.lib</rtcw_fmodex_lib>
+    <rtcw_glew_lib>$(rtcw_glew_lib_base_name)_$(rtcw_glew_version)_$(rtcw_lib_type)_$(rtcw_platform).lib</rtcw_glew_lib>
+    <rtcw_jpeg_lib>$(rtcw_jpeg_lib_base_name)_$(rtcw_jpeg_version)_$(rtcw_lib_type)_$(rtcw_platform).lib</rtcw_jpeg_lib>
+    <rtcw_zlib_lib>$(rtcw_zlib_lib_base_name)_$(rtcw_zlib_version)_$(rtcw_lib_type)_$(rtcw_platform).lib</rtcw_zlib_lib>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile />
+    <Lib>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies>$(rtcw_curl_lib);$(rtcw_fmodex_lib);$(rtcw_glew_lib);$(rtcw_jpeg_lib);$(rtcw_zlib_lib);%(AdditionalDependencies)</AdditionalDependencies>
+      <TargetMachine>MachineX64</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="rtcw_platform">
+      <Value>$(rtcw_platform)</Value>
+    </BuildMacro>
+    <BuildMacro Include="rtcw_curl_lib">
+      <Value>$(rtcw_curl_lib)</Value>
+    </BuildMacro>
+    <BuildMacro Include="rtcw_fmodex_lib">
+      <Value>$(rtcw_fmodex_lib)</Value>
+    </BuildMacro>
+    <BuildMacro Include="rtcw_glew_lib">
+      <Value>$(rtcw_glew_lib)</Value>
+    </BuildMacro>
+    <BuildMacro Include="rtcw_jpeg_lib">
+      <Value>$(rtcw_jpeg_lib)</Value>
+    </BuildMacro>
+    <BuildMacro Include="rtcw_zlib_lib">
+      <Value>$(rtcw_zlib_lib)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

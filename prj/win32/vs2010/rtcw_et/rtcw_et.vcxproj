@@ -77,26 +77,15 @@
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ResourceCompile />
-    <PreLinkEvent />
     <Link>
-      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
       <StackReserveSize>8388608</StackReserveSize>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;DEBUG;DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ResourceCompile />
     <Link>
-      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
@@ -104,10 +93,7 @@
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ResourceCompile />
-    <PreLinkEvent />
     <Link>
-      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
@@ -115,9 +101,7 @@
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ResourceCompile />
     <Link>
-      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
@@ -356,8 +340,6 @@
     <ClCompile Include="..\..\..\..\src\server\sv_snapshot.cpp" />
     <ClCompile Include="..\..\..\..\src\server\sv_world.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\vm.cpp" />
-    <ClCompile Include="..\..\..\..\src\qcommon\vm_interpreted.cpp" />
-    <ClCompile Include="..\..\..\..\src\qcommon\vm_x86.cpp" />
     <ClCompile Include="..\..\..\..\src\splines\math_angles.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
@@ -386,7 +368,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\win32\win_eh.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_gamma.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>

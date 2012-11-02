@@ -56,7 +56,7 @@ extern cvar_t* r_fullscreen;
 
 #define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
 
-LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+LRESULT CALLBACK MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
 static qboolean s_alttab_disabled;
 
@@ -365,7 +365,7 @@ qboolean directInput = qfalse;
 #endif
 #endif // RTCW_XX
 
-LONG WINAPI MainWndProc(
+LRESULT CALLBACK MainWndProc(
 	HWND hWnd,
 	UINT uMsg,
 	WPARAM wParam,

@@ -200,7 +200,7 @@ If you have questions concerning this license or the applicable additional terms
 
 //======================= WIN32 DEFINES =================================
 
-#ifdef WIN32
+#ifdef _WIN32
 
 #define MAC_STATIC
 
@@ -211,12 +211,16 @@ If you have questions concerning this license or the applicable additional terms
 #ifdef NDEBUG
 #ifdef _M_IX86
 #define CPUSTRING   "win-x86"
+#elif defined _M_X64
+#define CPUSTRING   "win-x64"
 #elif defined _M_ALPHA
 #define CPUSTRING   "win-AXP"
 #endif
 #else
 #ifdef _M_IX86
 #define CPUSTRING   "win-x86-debug"
+#elif defined _M_X64
+#define CPUSTRING   "win-x64-debug"
 #elif defined _M_ALPHA
 #define CPUSTRING   "win-AXP-debug"
 #endif
@@ -839,17 +843,21 @@ float Q_rsqrt( float f );       // reciprocal square root
 
 #define SQRTFAST( x ) ( 1.0f / Q_rsqrt( x ) )
 
-#if defined RTCW_ET
-// fast float to int conversion
-#if id386 && !( ( defined __linux__ || defined __FreeBSD__ || defined __GNUC__ ) && ( defined __i386__ ) ) // rb010123
-long myftol( float f );
-#elif defined( __MACOS__ )
-#define myftol( x ) (long)( x )
-#else
-extern long int lrintf( float x );
-#define myftol( x ) lrintf( x )
-#endif
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_ET
+//// fast float to int conversion
+//#if id386 && !( ( defined __linux__ || defined __FreeBSD__ || defined __GNUC__ ) && ( defined __i386__ ) ) // rb010123
+//long myftol( float f );
+//#elif defined( __MACOS__ )
+//#define myftol( x ) (long)( x )
+//#else
+//extern long int lrintf( float x );
+//#define myftol( x ) lrintf( x )
+//#endif
+//#endif // RTCW_XX
+
+#define myftol(x) (static_cast<int> (x))
+//BBi
 
 signed char ClampChar( int i );
 signed short ClampShort( int i );
@@ -1184,7 +1192,7 @@ char *Q_CleanDirName( char *dirname );
 // TTimo
 // vsnprintf is ISO/IEC 9899:1999
 // abstracting this to make it portable
-#ifdef WIN32
+#ifdef _WIN32
 #define Q_vsnprintf _vsnprintf
 #else
 // TODO: Mac define?

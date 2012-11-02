@@ -33,6 +33,10 @@ If you have questions concerning this license or the applicable additional terms
  *
 */
 
+//BBi
+#include <algorithm>
+//BBi
+
 #include "tr_local.h"
 
 trGlobals_t tr;
@@ -1724,7 +1728,23 @@ qsort replacement
 
 =================
 */
-#define SWAP_DRAW_SURF( a,b ) temp = ( (int *)a )[0]; ( (int *)a )[0] = ( (int *)b )[0]; ( (int *)b )[0] = temp; temp = ( (int *)a )[1]; ( (int *)a )[1] = ( (int *)b )[1]; ( (int *)b )[1] = temp;
+
+//BBi
+//#define SWAP_DRAW_SURF( a,b ) temp = ( (int *)a )[0]; ( (int *)a )[0] = ( (int *)b )[0]; ( (int *)b )[0] = temp; temp = ( (int *)a )[1]; ( (int *)a )[1] = ( (int *)b )[1]; ( (int *)b )[1] = temp;
+static inline void SWAP_DRAW_SURF (
+    drawSurf_t* a,
+    drawSurf_t* b)
+{
+    std::swap (*a, *b);
+}
+
+static inline void SWAP_DRAW_SURF (
+    char* a,
+    char* b)
+{
+    std::swap_ranges (a, a + sizeof (drawSurf_t), b);
+}
+//BBi
 
 /* this parameter defines the cutoff between using quick sort and
    insertion sort for arrays; arrays with lengths shorter or equal to the
@@ -1766,9 +1786,11 @@ void qsortFast(
 	int stkptr;                 /* stack for saving sub-array to be processed */
 	int temp;
 
-	if ( sizeof( drawSurf_t ) != 8 ) {
-		ri.Error( ERR_DROP, "change SWAP_DRAW_SURF macro" );
-	}
+    //BBi
+	//if ( sizeof( drawSurf_t ) != 8 ) {
+	//	ri.Error( ERR_DROP, "change SWAP_DRAW_SURF macro" );
+	//}
+    //BBi
 
 	/* Note: the number of stack entries required is no more than
 	   1 + log2(size), so 30 is sufficient for any array */
@@ -1909,7 +1931,6 @@ recurse:
 	}
 }
 
-
 //==========================================================================================
 
 /*
@@ -2007,6 +2028,7 @@ void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader, int *fog
 #endif // RTCW_XX
 
 }
+
 
 /*
 =================

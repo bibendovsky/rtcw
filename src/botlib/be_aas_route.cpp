@@ -35,6 +35,11 @@ If you have questions concerning this license or the applicable additional terms
  *
  *****************************************************************************/
 
+//BBi
+#include <algorithm>
+#include <vector>
+//BBi
+
 #include "q_shared.h"
 #include "l_utils.h"
 #include "l_memory.h"
@@ -50,6 +55,104 @@ If you have questions concerning this license or the applicable additional terms
 #include "be_aas_funcs.h"
 #include "be_interface.h"
 #include "be_aas_def.h"
+
+//BBi
+namespace {
+
+
+    const bool aasIs32 = (sizeof (size_t) == 4);
+    const size_t AAS_RCS_SIZE = sizeof (aas_routingcache_t);
+    const size_t AAS_RCS32_SIZE = sizeof (aas_routingcache_t::Struct32);
+    const size_t AAS_RCS_DIFF = AAS_RCS_SIZE - AAS_RCS32_SIZE;
+    const size_t AAS_RCS_TT_SIZE = AAS_RCS_SIZE - reinterpret_cast<size_t> (
+        &static_cast<const aas_routingcache_t*> (0)->traveltimes);
+    const size_t AAS_RCS_TT32_SIZE = AAS_RCS32_SIZE - reinterpret_cast<size_t> (
+        &static_cast<const aas_routingcache_t::Struct32*> (0)->traveltimes);
+    const size_t AAS_RCS_TT_DIFF = AAS_RCS_TT_SIZE - AAS_RCS_TT32_SIZE;
+
+    std::vector<byte> aasRcsBuffer;
+
+
+    void aasWriteRcStruct (
+        aas_routingcache_t* rcStruct,
+        fileHandle_t fileHandle)
+    {
+        if (aasIs32)
+            botimport.FS_Write (rcStruct, rcStruct->size, fileHandle);
+        else {
+            aasRcsBuffer.resize (rcStruct->size);
+            aas_routingcache_t::Struct32* struct32 =
+                reinterpret_cast<aas_routingcache_t::Struct32*> (&aasRcsBuffer[0]);
+            rcStruct->convertTo32 (struct32);
+
+            botimport.FS_Write (struct32, struct32->size, fileHandle);
+        }
+    }
+
+} // namespace
+
+
+// (static)
+aas_routingcache_t::Struct* aas_routingcache_t::convertFrom32 (
+    const Struct32* struct32)
+{
+    int newSize = struct32->size + (AAS_RCS_DIFF - AAS_RCS_TT_DIFF);
+
+    Struct* result = static_cast<Struct*> (::GetClearedMemory (newSize));
+
+    const Struct32& src = *struct32;
+    Struct& dst = *result;
+
+    dst.size = newSize;
+    dst.time = src.time;
+    dst.cluster = src.cluster;
+    dst.areanum = src.areanum;
+    VectorCopy (src.origin, dst.origin);
+    dst.starttraveltime = src.starttraveltime;
+    dst.travelflags = src.travelflags;
+    dst.prev = 0;
+    dst.next = 0;
+
+    dst.reachabilities = reinterpret_cast<byte*> (result) +
+        AAS_RCS_SIZE - AAS_RCS_TT_DIFF + (((src.size - AAS_RCS32_SIZE) / 3) * 2);
+
+    int extraSize = src.size - AAS_RCS32_SIZE + AAS_RCS_TT32_SIZE;
+
+    std::uninitialized_copy_n (
+        reinterpret_cast<const byte*> (&src.traveltimes),
+        extraSize,
+        reinterpret_cast<byte*> (&dst.traveltimes));
+
+    return result;
+}
+
+void aas_routingcache_t::convertTo32 (
+    aas_routingcache_t::Struct32* struct32) const
+{
+    int oldSize = size - AAS_RCS_DIFF;
+
+    const Struct& src = *this;
+    Struct32& dst = *struct32;
+
+    dst.size = oldSize;
+    dst.time = src.time;
+    dst.cluster = src.cluster;
+    dst.areanum = src.areanum;
+    VectorCopy (src.origin, dst.origin);
+    dst.starttraveltime = src.starttraveltime;
+    dst.travelflags = src.travelflags;
+    dst.prev = 0;
+    dst.next = 0;
+    dst.reachabilities = 0;
+
+    int extraSize = oldSize - AAS_RCS32_SIZE + AAS_RCS_TT32_SIZE;
+
+    std::uninitialized_copy_n (
+        reinterpret_cast<const byte*> (&src.traveltimes),
+        extraSize,
+        reinterpret_cast<byte*> (&dst.traveltimes));
+}
+//BBi
 
 #define ROUTING_DEBUG
 
@@ -1113,8 +1216,14 @@ aas_routingcache_t *AAS_AllocRoutingCache( int numtraveltimes ) {
 	routingcachesize += size;
 	//
 	cache = (aas_routingcache_t *) AAS_RoutingGetMemory( size );
-	cache->reachabilities = (unsigned char *) cache + sizeof( aas_routingcache_t )
-							+ numtraveltimes * sizeof( unsigned short int );
+
+    //BBi
+	//cache->reachabilities = (unsigned char *) cache + sizeof( aas_routingcache_t )
+	//						+ numtraveltimes * sizeof( unsigned short int );
+    cache->reachabilities = reinterpret_cast<byte*> (cache) + sizeof (aas_routingcache_t) +
+        (numtraveltimes * sizeof (unsigned short)) - AAS_RCS_TT_DIFF;
+
+    //BBi
 #else
 	size = sizeof( aas_routingcache_t ) + numtraveltimes * sizeof( unsigned short int ) + numtraveltimes * sizeof( unsigned char );
 
@@ -1534,6 +1643,7 @@ typedef struct routecacheheader_s
 void AAS_DecompressVis( byte *in, int numareas, byte *decompressed );
 int AAS_CompressVis( byte *vis, int numareas, byte *dest );
 
+
 void AAS_WriteRouteCache( void ) {
 	int i, j, numportalcache, numareacache, size;
 	aas_routingcache_t *cache;
@@ -1590,7 +1700,10 @@ void AAS_WriteRouteCache( void ) {
 	{
 		for ( cache = ( *aasworld ).portalcache[i]; cache; cache = cache->next )
 		{
-			botimport.FS_Write( cache, cache->size, fp );
+            //BBi
+			//botimport.FS_Write( cache, cache->size, fp );
+            ::aasWriteRcStruct (cache, fp);
+            //BBi
 		} //end for
 	} //end for
 	for ( i = 0; i < ( *aasworld ).numclusters; i++ )
@@ -1600,7 +1713,10 @@ void AAS_WriteRouteCache( void ) {
 		{
 			for ( cache = ( *aasworld ).clusterareacache[i][j]; cache; cache = cache->next )
 			{
-				botimport.FS_Write( cache, cache->size, fp );
+                //BBi
+				//botimport.FS_Write( cache, cache->size, fp );
+                ::aasWriteRcStruct (cache, fp);
+                //BBi
 			} //end for
 		} //end for
 	} //end for
@@ -1707,51 +1823,87 @@ void AAS_WriteRouteCache( void ) {
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-aas_routingcache_t *AAS_ReadCache( fileHandle_t fp ) {
 
-#if defined RTCW_SP
-	int i, size;
-#else
-	int size, i;
-#endif // RTCW_XX
+//BBi
+//aas_routingcache_t *AAS_ReadCache( fileHandle_t fp ) {
+//
+//#if defined RTCW_SP
+//	int i, size;
+//#else
+//	int size, i;
+//#endif // RTCW_XX
+//
+//	aas_routingcache_t *cache;
+//
+//	botimport.FS_Read( &size, sizeof( size ), fp );
+//
+//#if !defined RTCW_MP
+//	size = LittleLong( size );
+//#endif // RTCW_XX
+//
+//	cache = (aas_routingcache_t *) AAS_RoutingGetMemory( size );
+//	cache->size = size;
+//	botimport.FS_Read( (unsigned char *)cache + sizeof( size ), size - sizeof( size ), fp );
+//
+//#if !defined RTCW_MP
+//	if ( 1 != LittleLong( 1 ) ) {
+//		cache->time = LittleFloat( cache->time );
+//		cache->cluster = LittleLong( cache->cluster );
+//		cache->areanum = LittleLong( cache->areanum );
+//		cache->origin[0] = LittleFloat( cache->origin[0] );
+//		cache->origin[1] = LittleFloat( cache->origin[1] );
+//		cache->origin[2] = LittleFloat( cache->origin[2] );
+//		cache->starttraveltime = LittleFloat( cache->starttraveltime );
+//		cache->travelflags = LittleLong( cache->travelflags );
+//	}
+//#endif // RTCW_XX
+//
+////	cache->reachabilities = (unsigned char *) cache + sizeof(aas_routingcache_t) - sizeof(unsigned short) +
+////		(size - sizeof(aas_routingcache_t) + sizeof(unsigned short)) / 3 * 2;
+//	cache->reachabilities = (unsigned char *) cache + sizeof( aas_routingcache_t ) +
+//							( ( size - sizeof( aas_routingcache_t ) ) / 3 ) * 2;
+//
+//	//DAJ BUGFIX for missing byteswaps for traveltimes
+//	size = ( size - sizeof( aas_routingcache_t ) ) / 3 + 1;
+//	for ( i = 0; i < size; i++ ) {
+//		cache->traveltimes[i] = LittleShort( cache->traveltimes[i] );
+//	}
+//	return cache;
+//} //end of the function AAS_ReadCache
 
-	aas_routingcache_t *cache;
+aas_routingcache_t* AAS_ReadCache (
+    fileHandle_t fp)
+{
+    if (aasIs32) {
+        aas_routingcache_t* cache;
 
-	botimport.FS_Read( &size, sizeof( size ), fp );
+        int size;
+        botimport.FS_Read (&size, sizeof (size), fp);
 
-#if !defined RTCW_MP
-	size = LittleLong( size );
-#endif // RTCW_XX
+        cache = static_cast<aas_routingcache_t*> (AAS_RoutingGetMemory (size));
+        cache->size = size;
+        botimport.FS_Read (reinterpret_cast<byte*> (cache) + sizeof (size), size - sizeof (size), fp);
 
-	cache = (aas_routingcache_t *) AAS_RoutingGetMemory( size );
-	cache->size = size;
-	botimport.FS_Read( (unsigned char *)cache + sizeof( size ), size - sizeof( size ), fp );
+        cache->reachabilities = reinterpret_cast<byte*> (cache) + sizeof (aas_routingcache_t) +
+            ((size - sizeof (aas_routingcache_t)) / 3) * 2;
 
-#if !defined RTCW_MP
-	if ( 1 != LittleLong( 1 ) ) {
-		cache->time = LittleFloat( cache->time );
-		cache->cluster = LittleLong( cache->cluster );
-		cache->areanum = LittleLong( cache->areanum );
-		cache->origin[0] = LittleFloat( cache->origin[0] );
-		cache->origin[1] = LittleFloat( cache->origin[1] );
-		cache->origin[2] = LittleFloat( cache->origin[2] );
-		cache->starttraveltime = LittleFloat( cache->starttraveltime );
-		cache->travelflags = LittleLong( cache->travelflags );
-	}
-#endif // RTCW_XX
+        return cache;
+    } else {
+        int size;
+        botimport.FS_Read (&size, sizeof (size), fp);
 
-//	cache->reachabilities = (unsigned char *) cache + sizeof(aas_routingcache_t) - sizeof(unsigned short) +
-//		(size - sizeof(aas_routingcache_t) + sizeof(unsigned short)) / 3 * 2;
-	cache->reachabilities = (unsigned char *) cache + sizeof( aas_routingcache_t ) +
-							( ( size - sizeof( aas_routingcache_t ) ) / 3 ) * 2;
+        aasRcsBuffer.resize (size);
 
-	//DAJ BUGFIX for missing byteswaps for traveltimes
-	size = ( size - sizeof( aas_routingcache_t ) ) / 3 + 1;
-	for ( i = 0; i < size; i++ ) {
-		cache->traveltimes[i] = LittleShort( cache->traveltimes[i] );
-	}
-	return cache;
-} //end of the function AAS_ReadCache
+        aas_routingcache_t::Struct32* cache = reinterpret_cast<aas_routingcache_t::Struct32*> (&aasRcsBuffer[0]);
+
+        cache->size = size;
+        botimport.FS_Read (&aasRcsBuffer[0] + sizeof (size), size - sizeof (size), fp);
+
+        return aas_routingcache_t::convertFrom32 (cache);
+    }
+}
+//BBi
+
 //===========================================================================
 //
 // Parameter:			-
@@ -1912,6 +2064,12 @@ int AAS_ReadRouteCache( void ) {
 	for ( i = 0; i < routecacheheader.numportalcache; i++ )
 	{
 		cache = AAS_ReadCache( fp );
+
+        //BBi DEBUG
+        aasRcsBuffer.resize (cache->size);
+        aas_routingcache_t::Struct32* struct32 = reinterpret_cast<aas_routingcache_t::Struct32*> (&aasRcsBuffer[0]);
+        cache->convertTo32 (struct32);
+        //BBi DEBUG
 
 #if !defined RTCW_ET
 		cache->next = ( *aasworld ).portalcache[cache->areanum];
@@ -3334,7 +3492,11 @@ void AAS_DecompressVis( byte *in, int numareas, byte *decompressed ) {
 
 	//row = (numareas+7)>>3;
 	out = decompressed;
-	end = ( byte * )( (int)decompressed + numareas );
+
+    //BBi
+	//end = ( byte * )( (int)decompressed + numareas );
+    end = decompressed + numareas;
+    //BBi
 
 	do
 	{

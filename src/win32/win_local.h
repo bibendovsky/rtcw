@@ -37,9 +37,11 @@ If you have questions concerning this license or the applicable additional terms
 #pragma warning( pop )
 #endif
 
-#if defined RTCW_SP
-#define DIRECTINPUT_VERSION 0x0800
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//#define DIRECTINPUT_VERSION 0x0800
+//#endif // RTCW_XX
+//BBi
 
 #ifdef DOOMSOUND    ///// (SA) DOOMSOUND
 #include "../mssdk/include/dinput.h"
@@ -92,7 +94,7 @@ void    IN_Activate( qboolean active );
 void    IN_Frame( void );
 
 // window procedure
-LONG WINAPI MainWndProc(
+LRESULT CALLBACK MainWndProc(
 	HWND hWnd,
 	UINT uMsg,
 	WPARAM wParam,
