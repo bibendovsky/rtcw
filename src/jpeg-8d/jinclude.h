@@ -15,35 +15,10 @@
  */
 
 
-#if (!defined RTCW_ET && defined _WIN32) || (defined RTCW_ET && defined _WIN32 && !defined __GNUC__)
-
-#pragma warning(disable : 4018) // signed/unsigned mismatch
-#pragma warning(disable : 4032)
-#pragma warning(disable : 4051)
-#pragma warning(disable : 4057) // slightly different base types
-#pragma warning(disable : 4100) // unreferenced formal parameter
-#pragma warning(disable : 4115)
-#pragma warning(disable : 4125) // decimal digit terminates octal escape sequence
-#pragma warning(disable : 4127) // conditional expression is constant
-#pragma warning(disable : 4136)
-#pragma warning(disable : 4152) // nonstandard extension, function/data pointer conversion in expression
-#pragma warning(disable : 4201)
-#pragma warning(disable : 4214)
-#pragma warning(disable : 4244)
-#pragma warning(disable : 4305) // truncation from const double to float
-#pragma warning(disable : 4310) // cast truncates constant value
-#pragma warning(disable:  4505) // unreferenced local function has been removed
-#pragma warning(disable : 4514)
-#pragma warning(disable : 4702) // unreachable code
-#pragma warning(disable : 4711) // selected for automatic inline expansion
-#pragma warning(disable : 4220) // varargs matches remaining parameters
-#pragma warning(disable : 4761) // integral size mismatch
-#endif
-
 /* Include auto-config file to find out which system include files we need. */
 
-#include "../jpeg-6/jconfig.h"       /* auto configuration options */
-#define JCONFIG_INCLUDED    /* so that jpeglib.h doesn't do it again */
+#include "jconfig.h"		/* auto configuration options */
+#define JCONFIG_INCLUDED	/* so that jpeglib.h doesn't do it again */
 
 /*
  * We need the NULL macro and size_t typedef.
@@ -83,14 +58,14 @@
 #ifdef NEED_BSD_STRINGS
 
 #include <strings.h>
-#define MEMZERO( target,size )    bzero( (void *)( target ), (size_t)( size ) )
-#define MEMCOPY( dest,src,size )  bcopy( (const void *)( src ), (void *)( dest ), (size_t)( size ) )
+#define MEMZERO(target,size)	bzero((void *)(target), (size_t)(size))
+#define MEMCOPY(dest,src,size)	bcopy((const void *)(src), (void *)(dest), (size_t)(size))
 
 #else /* not BSD, assume ANSI/SysV string lib */
 
 #include <string.h>
-#define MEMZERO( target,size )    memset( (void *)( target ), 0, (size_t)( size ) )
-#define MEMCOPY( dest,src,size )  memcpy( (void *)( dest ), (const void *)( src ), (size_t)( size ) )
+#define MEMZERO(target,size)	memset((void *)(target), 0, (size_t)(size))
+#define MEMCOPY(dest,src,size)	memcpy((void *)(dest), (const void *)(src), (size_t)(size))
 
 #endif
 
@@ -102,7 +77,7 @@
  * we always use this SIZEOF() macro in place of using sizeof() directly.
  */
 
-#define SIZEOF( object )  ( (size_t) sizeof( object ) )
+#define SIZEOF(object)	((size_t) sizeof(object))
 
 /*
  * The modules that use fread() and fwrite() always invoke them through
@@ -110,7 +85,7 @@
  * CAUTION: argument order is different from underlying functions!
  */
 
-#define JFREAD( file,buf,sizeofbuf )  \
-	( (size_t) fread( (void *) ( buf ), (size_t) 1, (size_t) ( sizeofbuf ), ( file ) ) )
-#define JFWRITE( file,buf,sizeofbuf )  \
-	( (size_t) fwrite( (const void *) ( buf ), (size_t) 1, (size_t) ( sizeofbuf ), ( file ) ) )
+#define JFREAD(file,buf,sizeofbuf)  \
+  ((size_t) fread((void *) (buf), (size_t) 1, (size_t) (sizeofbuf), (file)))
+#define JFWRITE(file,buf,sizeofbuf)  \
+  ((size_t) fwrite((const void *) (buf), (size_t) 1, (size_t) (sizeofbuf), (file)))

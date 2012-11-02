@@ -40,10 +40,11 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;wsock32.lib;libjpeg_8d_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>8388608</StackReserveSize>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
@@ -54,10 +55,11 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;wsock32.lib;libjpeg_8d_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>8388608</StackReserveSize>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
@@ -104,42 +106,6 @@
     <ClCompile Include="..\..\..\..\src\client\cl_parse.cpp" />
     <ClCompile Include="..\..\..\..\src\client\cl_scrn.cpp" />
     <ClCompile Include="..\..\..\..\src\client\cl_ui.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jcapimin.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jccoefct.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jccolor.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jcdctmgr.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jchuff.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jcinit.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jcmainct.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jcmarker.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jcmaster.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jcomapi.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jcparam.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jcphuff.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jcprepct.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jcsample.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jctrans.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jdapimin.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jdapistd.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jdatadst.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jdatasrc.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jdcoefct.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jdcolor.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jddctmgr.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jdhuff.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jdinput.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jdmainct.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jdmarker.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jdmaster.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jdpostct.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jdsample.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jdtrans.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jerror.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jfdctflt.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jidctflt.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jmemmgr.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jmemnobs.cpp" />
-    <ClCompile Include="..\..\..\..\src\jpeg-6\jutils.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\cm_load.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\cm_patch.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\cm_polylib.cpp" />
@@ -256,16 +222,6 @@
     <ClInclude Include="..\..\..\..\src\cgame\cg_public.h" />
     <ClInclude Include="..\..\..\..\src\client\client.h" />
     <ClInclude Include="..\..\..\..\src\jpeg-6\jchuff.h" />
-    <ClInclude Include="..\..\..\..\src\jpeg-6\jconfig.h" />
-    <ClInclude Include="..\..\..\..\src\jpeg-6\jdct.h" />
-    <ClInclude Include="..\..\..\..\src\jpeg-6\jdhuff.h" />
-    <ClInclude Include="..\..\..\..\src\jpeg-6\jerror.h" />
-    <ClInclude Include="..\..\..\..\src\jpeg-6\jinclude.h" />
-    <ClInclude Include="..\..\..\..\src\jpeg-6\jmemsys.h" />
-    <ClInclude Include="..\..\..\..\src\jpeg-6\jmorecfg.h" />
-    <ClInclude Include="..\..\..\..\src\jpeg-6\jpegint.h" />
-    <ClInclude Include="..\..\..\..\src\jpeg-6\jpeglib.h" />
-    <ClInclude Include="..\..\..\..\src\jpeg-6\jversion.h" />
     <ClInclude Include="..\..\..\..\src\qcommon\cm_local.h" />
     <ClInclude Include="..\..\..\..\src\qcommon\cm_patch.h" />
     <ClInclude Include="..\..\..\..\src\qcommon\cm_polylib.h" />
