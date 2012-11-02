@@ -28,6 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 
 // tr_shade.c
 
+//BBi
+#include <windows.h>
+//BBi
+
 #include "tr_local.h"
 
 /*
@@ -45,18 +49,18 @@ This is just for OpenGL conformance testing, it should never be the fastest
 ================
 */
 static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
-	qglColor4ubv( tess.svars.colors[ index ] );
+	::glColor4ubv( tess.svars.colors[ index ] );
 	if ( glState.currenttmu ) {
-		qglMultiTexCoord2fARB( 0, tess.svars.texcoords[ 0 ][ index ][0], tess.svars.texcoords[ 0 ][ index ][1] );
-		qglMultiTexCoord2fARB( 1, tess.svars.texcoords[ 1 ][ index ][0], tess.svars.texcoords[ 1 ][ index ][1] );
+		::glMultiTexCoord2fARB( 0, tess.svars.texcoords[ 0 ][ index ][0], tess.svars.texcoords[ 0 ][ index ][1] );
+		::glMultiTexCoord2fARB( 1, tess.svars.texcoords[ 1 ][ index ][0], tess.svars.texcoords[ 1 ][ index ][1] );
 	} else {
-		qglTexCoord2fv( tess.svars.texcoords[ 0 ][ index ] );
+		::glTexCoord2fv( tess.svars.texcoords[ 0 ][ index ] );
 	}
 
 #if !defined RTCW_ET
-	qglVertex3fv( tess.xyz[ index ] );
+	::glVertex3fv( tess.xyz[ index ] );
 #else
-	qglVertex3fv( tess.xyz[ index ].v );
+	::glVertex3fv( tess.xyz[ index ].v );
 #endif // RTCW_XX
 
 }
@@ -80,7 +84,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 		return;
 	}
 
-	qglBegin( GL_TRIANGLE_STRIP );
+	::glBegin( GL_TRIANGLE_STRIP );
 
 	// prime the strip
 	element( indexes[0] );
@@ -109,9 +113,9 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 			// a new one
 			else
 			{
-				qglEnd();
+				::glEnd();
 
-				qglBegin( GL_TRIANGLE_STRIP );
+				::glBegin( GL_TRIANGLE_STRIP );
 				c_begins++;
 
 				element( indexes[i + 0] );
@@ -135,9 +139,9 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 			// a new one
 			else
 			{
-				qglEnd();
+				::glEnd();
 
-				qglBegin( GL_TRIANGLE_STRIP );
+				::glBegin( GL_TRIANGLE_STRIP );
 				c_begins++;
 
 				element( indexes[i + 0] );
@@ -155,7 +159,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 		last[2] = indexes[i + 2];
 	}
 
-	qglEnd();
+	::glEnd();
 }
 
 
@@ -176,7 +180,7 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 
 	// default is to use triangles if compiled vertex arrays are present
 	if ( primitives == 0 ) {
-		if ( qglLockArraysEXT ) {
+		if ( glConfigEx.useExtCompiledVertexArray ) {
 			primitives = 2;
 		} else {
 			primitives = 1;
@@ -185,7 +189,7 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 
 
 	if ( primitives == 2 ) {
-		qglDrawElements( GL_TRIANGLES,
+		::glDrawElements( GL_TRIANGLES,
 						 numIndexes,
 						 GL_INDEX_TYPE,
 						 indexes );
@@ -193,7 +197,7 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 	}
 
 	if ( primitives == 1 ) {
-		R_DrawStripElements( numIndexes,  indexes, qglArrayElement );
+		R_DrawStripElements( numIndexes,  indexes, ::glArrayElement );
 		return;
 	}
 
@@ -269,16 +273,16 @@ static void DrawTris( shaderCommands_t *input ) {
 
 #if !defined RTCW_ET
 	GL_Bind( tr.whiteImage );
-	qglColor3f( 1,1,1 );
+	::glColor3f( 1,1,1 );
 
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
 
 #if !defined RTCW_MP
 	if ( r_showtris->integer == 1 ) {
-		qglDepthRange( 0, 0 );
+		::glDepthRange( 0, 0 );
 	}
 #else
-	qglDepthRange( 0, 0 );
+	::glDepthRange( 0, 0 );
 #endif // RTCW_XX
 #else
 	char            *s = r_trisColor->string;
@@ -320,52 +324,52 @@ static void DrawTris( shaderCommands_t *input ) {
 		stateBits |= ( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 	}
 
-	qglColor4fv( trisColor );
+	::glColor4fv( trisColor );
 
 	// ydnar r_showtris 2
 	if ( r_showtris->integer == 2 ) {
 		stateBits |= ( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
 		GL_State( stateBits );
-		qglDepthRange( 0, 0 );
+		::glDepthRange( 0, 0 );
 	}
 	#ifdef CELSHADING_HACK
 	else if ( r_showtris->integer == 3 ) {
 		stateBits |= ( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
 		GL_State( stateBits );
-		qglEnable( GL_POLYGON_OFFSET_LINE );
-		qglPolygonOffset( 4.0, 0.5 );
-		qglLineWidth( 5.0 );
+		::glEnable( GL_POLYGON_OFFSET_LINE );
+		::glPolygonOffset( 4.0, 0.5 );
+		::glLineWidth( 5.0 );
 	}
 	#endif
 	else
 	{
 		stateBits |= ( GLS_POLYMODE_LINE );
 		GL_State( stateBits );
-		qglEnable( GL_POLYGON_OFFSET_LINE );
-		qglPolygonOffset( r_offsetFactor->value, r_offsetUnits->value );
+		::glEnable( GL_POLYGON_OFFSET_LINE );
+		::glPolygonOffset( r_offsetFactor->value, r_offsetUnits->value );
 	}
 #endif // RTCW_XX
 
-	qglDisableClientState( GL_COLOR_ARRAY );
-	qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	::glDisableClientState( GL_COLOR_ARRAY );
+	::glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 
-	qglVertexPointer( 3, GL_FLOAT, 16, input->xyz ); // padded for SIMD
+	::glVertexPointer( 3, GL_FLOAT, 16, input->xyz ); // padded for SIMD
 
-	if ( qglLockArraysEXT ) {
-		qglLockArraysEXT( 0, input->numVertexes );
-		GLimp_LogComment( "glLockArraysEXT\n" );
+	if ( glConfigEx.useExtCompiledVertexArray ) {
+		::glLockArraysEXT( 0, input->numVertexes );
+		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
 
 	R_DrawElements( input->numIndexes, input->indexes );
 
-	if ( qglUnlockArraysEXT ) {
-		qglUnlockArraysEXT();
-		GLimp_LogComment( "glUnlockArraysEXT\n" );
+	if ( glConfigEx.useExtCompiledVertexArray ) {
+		::glUnlockArraysEXT();
+		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
-	qglDepthRange( 0, 1 );
+	::glDepthRange( 0, 1 );
 
 #if defined RTCW_ET
-	qglDisable( GL_POLYGON_OFFSET_LINE );
+	::glDisable( GL_POLYGON_OFFSET_LINE );
 #endif // RTCW_XX
 
 }
@@ -383,14 +387,14 @@ static void DrawNormals( shaderCommands_t *input ) {
 	vec3_t temp;
 
 	GL_Bind( tr.whiteImage );
-	qglColor3f( 1,1,1 );
+	::glColor3f( 1,1,1 );
 
 #if defined RTCW_SP
 	if ( r_shownormals->integer == 1 ) {
-		qglDepthRange( 0, 0 );  // never occluded
+		::glDepthRange( 0, 0 );  // never occluded
 	}
 #else
-	qglDepthRange( 0, 0 );  // never occluded
+	::glDepthRange( 0, 0 );  // never occluded
 #endif // RTCW_XX
 
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
@@ -410,51 +414,51 @@ static void DrawNormals( shaderCommands_t *input ) {
 		temp[ 1 ] = DotProduct( temp2, backEnd.orientation.axis[ 1 ] );
 		temp[ 2 ] = DotProduct( temp2, backEnd.orientation.axis[ 2 ] );
 
-		qglColor3f( ent->ambientLight[ 0 ] / 255, ent->ambientLight[ 1 ] / 255, ent->ambientLight[ 2 ] / 255 );
-		qglPointSize( 5 );
-		qglBegin( GL_POINTS );
-		qglVertex3fv( temp );
-		qglEnd();
-		qglPointSize( 1 );
+		::glColor3f( ent->ambientLight[ 0 ] / 255, ent->ambientLight[ 1 ] / 255, ent->ambientLight[ 2 ] / 255 );
+		::glPointSize( 5 );
+		::glBegin( GL_POINTS );
+		::glVertex3fv( temp );
+		::glEnd();
+		::glPointSize( 1 );
 
 		if ( fabs( VectorLengthSquared( ent->lightDir ) - 1.0f ) > 0.2f ) {
-			qglColor3f( 1, 0, 0 );
+			::glColor3f( 1, 0, 0 );
 		} else {
-			qglColor3f( ent->directedLight[ 0 ] / 255, ent->directedLight[ 1 ] / 255, ent->directedLight[ 2 ] / 255 );
+			::glColor3f( ent->directedLight[ 0 ] / 255, ent->directedLight[ 1 ] / 255, ent->directedLight[ 2 ] / 255 );
 		}
-		qglLineWidth( 3 );
-		qglBegin( GL_LINES );
-		qglVertex3fv( temp );
+		::glLineWidth( 3 );
+		::glBegin( GL_LINES );
+		::glVertex3fv( temp );
 		VectorMA( temp, 32, ent->lightDir, temp );
-		qglVertex3fv( temp );
-		qglEnd();
-		qglLineWidth( 1 );
+		::glVertex3fv( temp );
+		::glEnd();
+		::glLineWidth( 1 );
 	}
 	// ydnar: normals drawing
 	else
 	{
 #endif // RTCW_XX
 
-	qglBegin( GL_LINES );
+	::glBegin( GL_LINES );
 	for ( i = 0 ; i < input->numVertexes ; i++ ) {
 
 #if !defined RTCW_ET
-		qglVertex3fv( input->xyz[i] );
+		::glVertex3fv( input->xyz[i] );
 		VectorMA( input->xyz[i], 2, input->normal[i], temp );
 #else
-			qglVertex3fv( input->xyz[i].v );
+			::glVertex3fv( input->xyz[i].v );
 			VectorMA( input->xyz[i].v, r_normallength->value, input->normal[i].v, temp );
 #endif // RTCW_XX
 
-		qglVertex3fv( temp );
+		::glVertex3fv( temp );
 	}
-	qglEnd();
+	::glEnd();
 
 #if defined RTCW_ET
 	}
 #endif // RTCW_XX
 
-	qglDepthRange( 0, 1 );
+	::glDepthRange( 0, 1 );
 }
 
 /*
@@ -520,22 +524,22 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	// this is an ugly hack to work around a GeForce driver
 	// bug with multitexture and clip planes
 	if ( backEnd.viewParms.isPortal ) {
-		qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+		::glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 	}
 
 	//
 	// base
 	//
 	GL_SelectTexture( 0 );
-	qglTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
+	::glTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
 	R_BindAnimatedImage( &pStage->bundle[0] );
 
 	//
 	// lightmap/secondary pass
 	//
 	GL_SelectTexture( 1 );
-	qglEnable( GL_TEXTURE_2D );
-	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	::glEnable( GL_TEXTURE_2D );
+	::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
 	if ( r_lightmap->integer ) {
 		GL_TexEnv( GL_REPLACE );
@@ -543,7 +547,7 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 		GL_TexEnv( tess.shader->multitextureEnv );
 	}
 
-	qglTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[1] );
+	::glTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[1] );
 
 	R_BindAnimatedImage( &pStage->bundle[1] );
 
@@ -552,8 +556,8 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	//
 	// disable texturing on TEXTURE1, then select TEXTURE0
 	//
-	//qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
-	qglDisable( GL_TEXTURE_2D );
+	//::glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	::glDisable( GL_TEXTURE_2D );
 
 	GL_SelectTexture( 0 );
 }
@@ -707,17 +711,17 @@ static void ProjectDlightTexture( void ) {
 			continue;
 		}
 
-		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		qglTexCoordPointer( 2, GL_FLOAT, 0, texCoordsArray[0] );
+		::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		::glTexCoordPointer( 2, GL_FLOAT, 0, texCoordsArray[0] );
 
-		qglEnableClientState( GL_COLOR_ARRAY );
-		qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, colorArray );
+		::glEnableClientState( GL_COLOR_ARRAY );
+		::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, colorArray );
 
 		//----(SA) creating dlight shader to allow for special blends or alternate dlight texture
 		{
 			shader_t *dls = dl->dlshader;
 			if ( dls ) {
-//				if (!qglActiveTextureARB || dls->numUnfoggedPasses < 2) {
+//				if (!::glActiveTextureARB || dls->numUnfoggedPasses < 2) {
 				for ( i = 0; i < dls->numUnfoggedPasses; i++ )
 				{
 					shaderStage_t *stage = dls->stages[i];
@@ -742,7 +746,7 @@ static void ProjectDlightTexture( void ) {
 							GL_SelectTexture( tmu );
 
 							if (tmu) {
-								qglEnable( GL_TEXTURE_2D );
+								::glEnable( GL_TEXTURE_2D );
 							}
 
 							R_BindAnimatedImage( &dls->stages[i]->bundle[0] );
@@ -758,7 +762,7 @@ static void ProjectDlightTexture( void ) {
 					for (tmu=1; tmu<glConfig.maxActiveTextures; tmu++) {
 						// set back to default state
 						GL_SelectTexture( tmu );
-						qglDisable( GL_TEXTURE_2D );
+						::glDisable( GL_TEXTURE_2D );
 					}
 
 					// return to TEXTURE0
@@ -769,7 +773,7 @@ static void ProjectDlightTexture( void ) {
 			{
 				R_FogOff();
 
-//				if (!dl->overdraw || !qglActiveTextureARB) {
+//				if (!dl->overdraw || !::glActiveTextureARB) {
 				GL_Bind( tr.dlightImage );
 				// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
 				// where they aren't rendered
@@ -794,13 +798,13 @@ static void ProjectDlightTexture( void ) {
 					for (tmu=0; tmu<glConfig.maxActiveTextures && tmu<(dl->overdraw+1); tmu++) {
 						GL_SelectTexture( tmu );
 						if (tmu) {
-							qglEnable( GL_TEXTURE_2D );
+							::glEnable( GL_TEXTURE_2D );
 							GL_TexEnv( GL_ADD );
 							GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
-							qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
-							qglTexCoordPointer( 2, GL_FLOAT, 0, texCoordsArray[0] );
-							qglEnableClientState( GL_COLOR_ARRAY );
-							qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, colorArray );
+							::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+							::glTexCoordPointer( 2, GL_FLOAT, 0, texCoordsArray[0] );
+							::glEnableClientState( GL_COLOR_ARRAY );
+							::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, colorArray );
 						}
 						GL_Bind( tr.dlightImage );
 					}
@@ -813,7 +817,7 @@ static void ProjectDlightTexture( void ) {
 							for (tmu=0; tmu<glConfig.maxActiveTextures; tmu++) {
 								if (tmu+i>=(dl->overdraw+1)) {
 									GL_SelectTexture( tmu );
-									qglDisable( GL_TEXTURE_2D );
+									::glDisable( GL_TEXTURE_2D );
 								}
 							}
 						}
@@ -827,7 +831,7 @@ static void ProjectDlightTexture( void ) {
 					for (tmu=1; tmu<glConfig.maxActiveTextures; tmu++) {
 						// set back to default state
 						GL_SelectTexture( tmu );
-						qglDisable( GL_TEXTURE_2D );
+						::glDisable( GL_TEXTURE_2D );
 					}
 
 					// return to TEXTURE0
@@ -967,8 +971,8 @@ static void DynamicLightSinglePass( void ) {
 	//%	for( i = 0; i < numIndexes; i++ )
 	//%		intColors[ hitIndexes[ i ] ] = 0x000000FF;
 
-	qglEnableClientState( GL_COLOR_ARRAY );
-	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
+	::glEnableClientState( GL_COLOR_ARRAY );
+	::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
 
 	// render the dynamic light pass
 	R_FogOff();
@@ -1106,8 +1110,8 @@ static void DynamicLightPass( void ) {
 		//%	for( i = 0; i < numIndexes; i++ )
 		//%		intColors[ hitIndexes[ i ] ] = 0x000000FF;
 
-		qglEnableClientState( GL_COLOR_ARRAY );
-		qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
+		::glEnableClientState( GL_COLOR_ARRAY );
+		::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
 
 		R_FogOff();
 		GL_Bind( tr.whiteImage );
@@ -1148,11 +1152,11 @@ static void RB_FogPass( void ) {
 	}
 #endif // RTCW_XX
 
-	qglEnableClientState( GL_COLOR_ARRAY );
-	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
+	::glEnableClientState( GL_COLOR_ARRAY );
+	::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
 
-	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	qglTexCoordPointer( 2, GL_FLOAT, 0, tess.svars.texcoords[0] );
+	::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	::glTexCoordPointer( 2, GL_FLOAT, 0, tess.svars.texcoords[0] );
 
 	fog = tr.world->fogs + tess.fogNum;
 
@@ -1698,8 +1702,8 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input ) {
 		ComputeTexCoords( pStage );
 
 		if ( !setArraysOnce ) {
-			qglEnableClientState( GL_COLOR_ARRAY );
-			qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, input->svars.colors );
+			::glEnableClientState( GL_COLOR_ARRAY );
+			::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, input->svars.colors );
 		}
 
 		//
@@ -1712,7 +1716,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input ) {
 			int fadeStart, fadeEnd;
 
 			if ( !setArraysOnce ) {
-				qglTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
+				::glTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
 			}
 
 			//
@@ -1720,7 +1724,15 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input ) {
 			//
 
 #if !defined RTCW_ET
-			if ( pStage->bundle[0].vertexLightmap && ( ( r_vertexLight->integer && !r_uiFullScreen->integer ) || glConfig.hardwareType == GLHW_PERMEDIA2 ) && r_lightmap->integer ) {
+
+            //BBi
+			//if ( pStage->bundle[0].vertexLightmap && ( ( r_vertexLight->integer && !r_uiFullScreen->integer ) || glConfig.hardwareType == GLHW_PERMEDIA2 ) && r_lightmap->integer ) {
+            if ((pStage->bundle[0].vertexLightmap) &&
+                (r_vertexLight->integer != 0) &&
+                (r_uiFullScreen->integer == 0) &&
+                (r_lightmap->integer != 0))
+            {
+            //BBi
 				GL_Bind( tr.whiteImage );
 			} else {
 #endif // RTCW_XX
@@ -1827,29 +1839,33 @@ void RB_StageIteratorGeneric( void ) {
 
 	RB_DeformTessGeometry();
 
-	//
-	// log this call
-	//
-	if ( r_logFile->integer ) {
-		// don't just call LogComment, or we will get
-		// a call to va() every frame!
-		GLimp_LogComment( va( "--- RB_StageIteratorGeneric( %s ) ---\n", tess.shader->name ) );
-	}
+    //BBi
+	////
+	//// log this call
+	////
+	//if ( r_logFile->integer ) {
+	//	// don't just call LogComment, or we will get
+	//	// a call to va() every frame!
+	//	GLimp_LogComment( va( "--- RB_StageIteratorGeneric( %s ) ---\n", tess.shader->name ) );
+	//}
+    //BBi
 
 	// set GL fog
 	SetIteratorFog();
 
-#if defined RTCW_SP
-	if ( qglPNTrianglesiATI && tess.ATI_tess ) {
-		// RF< so we can send the normals as an array
-		qglEnableClientState( GL_NORMAL_ARRAY );
-#ifdef __MACOS__    //DAJ ATI
-		qglPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 1 );
-#else
-		qglEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
-#endif
-	}
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//	if ( ::glPNTrianglesiATI && tess.ATI_tess ) {
+//		// RF< so we can send the normals as an array
+//		::glEnableClientState( GL_NORMAL_ARRAY );
+//#ifdef __MACOS__    //DAJ ATI
+//		::glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 1 );
+//#else
+//		::glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
+//#endif
+//	}
+//#endif // RTCW_XX
+//BBi
 
 	//
 	// set face culling appropriately
@@ -1858,8 +1874,8 @@ void RB_StageIteratorGeneric( void ) {
 
 	// set polygon offset if necessary
 	if ( input->shader->polygonOffset ) {
-		qglEnable( GL_POLYGON_OFFSET_FILL );
-		qglPolygonOffset( r_offsetFactor->value, r_offsetUnits->value );
+		::glEnable( GL_POLYGON_OFFSET_FILL );
+		::glPolygonOffset( r_offsetFactor->value, r_offsetUnits->value );
 	}
 
 	//
@@ -1870,43 +1886,45 @@ void RB_StageIteratorGeneric( void ) {
 	//
 	if ( tess.numPasses > 1 || input->shader->multitextureEnv ) {
 		setArraysOnce = qfalse;
-		qglDisableClientState( GL_COLOR_ARRAY );
-		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		::glDisableClientState( GL_COLOR_ARRAY );
+		::glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	} else
 	{
 		setArraysOnce = qtrue;
 
-		qglEnableClientState( GL_COLOR_ARRAY );
-		qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
+		::glEnableClientState( GL_COLOR_ARRAY );
+		::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
 
-		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		qglTexCoordPointer( 2, GL_FLOAT, 0, tess.svars.texcoords[0] );
+		::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		::glTexCoordPointer( 2, GL_FLOAT, 0, tess.svars.texcoords[0] );
 	}
 
-#if defined RTCW_SP
-	// RF, send normals only if required
-	// This must be done first, since we can't change the arrays once they have been
-	// locked
-	if ( qglPNTrianglesiATI && tess.ATI_tess ) {
-		qglNormalPointer( GL_FLOAT, 16, input->normal );
-	}
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//	// RF, send normals only if required
+//	// This must be done first, since we can't change the arrays once they have been
+//	// locked
+//	if ( ::glPNTrianglesiATI && tess.ATI_tess ) {
+//		::glNormalPointer( GL_FLOAT, 16, input->normal );
+//	}
+//#endif // RTCW_XX
+//BBi
 
 	//
 	// lock XYZ
 	//
-	qglVertexPointer( 3, GL_FLOAT, 16, input->xyz ); // padded for SIMD
-	if ( qglLockArraysEXT ) {
-		qglLockArraysEXT( 0, input->numVertexes );
-		GLimp_LogComment( "glLockArraysEXT\n" );
+	::glVertexPointer( 3, GL_FLOAT, 16, input->xyz ); // padded for SIMD
+	if ( glConfigEx.useExtCompiledVertexArray ) {
+		::glLockArraysEXT( 0, input->numVertexes );
+		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
 
 	//
 	// enable color and texcoord arrays after the lock if necessary
 	//
 	if ( !setArraysOnce ) {
-		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		qglEnableClientState( GL_COLOR_ARRAY );
+		::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		::glEnableClientState( GL_COLOR_ARRAY );
 	}
 
 	//
@@ -1946,29 +1964,31 @@ void RB_StageIteratorGeneric( void ) {
 	//
 	// unlock arrays
 	//
-	if ( qglUnlockArraysEXT ) {
-		qglUnlockArraysEXT();
-		GLimp_LogComment( "glUnlockArraysEXT\n" );
+	if ( glConfigEx.useExtCompiledVertexArray ) {
+		::glUnlockArraysEXT();
+		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 
 	//
 	// reset polygon offset
 	//
 	if ( input->shader->polygonOffset ) {
-		qglDisable( GL_POLYGON_OFFSET_FILL );
+		::glDisable( GL_POLYGON_OFFSET_FILL );
 	}
 
-#if defined RTCW_SP
-	// turn truform back off
-	if ( qglPNTrianglesiATI && tess.ATI_tess ) {
-#ifdef __MACOS__    //DAJ ATI
-		qglPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 0 );
-#else
-		qglDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
-#endif
-		qglDisableClientState( GL_NORMAL_ARRAY );
-	}
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//	// turn truform back off
+//	if ( ::glPNTrianglesiATI && tess.ATI_tess ) {
+//#ifdef __MACOS__    //DAJ ATI
+//		::glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 0 );
+//#else
+//		::glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
+//#endif
+//		::glDisableClientState( GL_NORMAL_ARRAY );
+//	}
+//#endif // RTCW_XX
+//BBi
 
 }
 
@@ -1989,14 +2009,16 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	//
 	RB_CalcDiffuseColor( ( unsigned char * ) tess.svars.colors );
 
-	//
-	// log this call
-	//
-	if ( r_logFile->integer ) {
-		// don't just call LogComment, or we will get
-		// a call to va() every frame!
-		GLimp_LogComment( va( "--- RB_StageIteratorVertexLitTexturedUnfogged( %s ) ---\n", tess.shader->name ) );
-	}
+    //BBi
+	////
+	//// log this call
+	////
+	//if ( r_logFile->integer ) {
+	//	// don't just call LogComment, or we will get
+	//	// a call to va() every frame!
+	//	GLimp_LogComment( va( "--- RB_StageIteratorVertexLitTexturedUnfogged( %s ) ---\n", tess.shader->name ) );
+	//}
+    //BBi
 
 
 	// set GL fog
@@ -2010,34 +2032,36 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	//
 	// set arrays and lock
 	//
-	qglEnableClientState( GL_COLOR_ARRAY );
-	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	::glEnableClientState( GL_COLOR_ARRAY );
+	::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-#if defined RTCW_SP
-	if ( qglPNTrianglesiATI && tess.ATI_tess ) {
-#ifdef __MACOS__    //DAJ ATI
-		qglPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 1 );
-#else
-		qglEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
-#endif
-		qglEnableClientState( GL_NORMAL_ARRAY );         // RF< so we can send the normals as an array
-		qglNormalPointer( GL_FLOAT, 16, input->normal );
-	}
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//	if ( ::glPNTrianglesiATI && tess.ATI_tess ) {
+//#ifdef __MACOS__    //DAJ ATI
+//		::glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 1 );
+//#else
+//		::glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
+//#endif
+//		::glEnableClientState( GL_NORMAL_ARRAY );         // RF< so we can send the normals as an array
+//		::glNormalPointer( GL_FLOAT, 16, input->normal );
+//	}
+//#endif // RTCW_XX
+//BBi
 
-	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
+	::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
 
 #if !defined RTCW_ET
-	qglTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][0] );
+	::glTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][0] );
 #else
-	qglTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords0 );
+	::glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords0 );
 #endif // RTCW_XX
 
-	qglVertexPointer( 3, GL_FLOAT, 16, input->xyz );
+	::glVertexPointer( 3, GL_FLOAT, 16, input->xyz );
 
-	if ( qglLockArraysEXT ) {
-		qglLockArraysEXT( 0, input->numVertexes );
-		GLimp_LogComment( "glLockArraysEXT\n" );
+	if ( glConfigEx.useExtCompiledVertexArray ) {
+		::glLockArraysEXT( 0, input->numVertexes );
+		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
 
 	//
@@ -2077,21 +2101,23 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	//
 	// unlock arrays
 	//
-	if ( qglUnlockArraysEXT ) {
-		qglUnlockArraysEXT();
-		GLimp_LogComment( "glUnlockArraysEXT\n" );
+	if ( glConfigEx.useExtCompiledVertexArray ) {
+		::glUnlockArraysEXT();
+		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 
-#if defined RTCW_SP
-	if ( qglPNTrianglesiATI && tess.ATI_tess )
-#ifdef __MACOS__ //DAJ ATI{
-		qglPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 0 );
-	}
-#else
-	{ qglDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
-	}
-#endif
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//	if ( ::glPNTrianglesiATI && tess.ATI_tess )
+//#ifdef __MACOS__ //DAJ ATI{
+//		::glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 0 );
+//	}
+//#else
+//	{ ::glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
+//	}
+//#endif
+//#endif // RTCW_XX
+//BBi
 
 }
 
@@ -2102,14 +2128,16 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 
 	input = &tess;
 
-	//
-	// log this call
-	//
-	if ( r_logFile->integer ) {
-		// don't just call LogComment, or we will get
-		// a call to va() every frame!
-		GLimp_LogComment( va( "--- RB_StageIteratorLightmappedMultitexture( %s ) ---\n", tess.shader->name ) );
-	}
+    //BBi
+	////
+	//// log this call
+	////
+	//if ( r_logFile->integer ) {
+	//	// don't just call LogComment, or we will get
+	//	// a call to va() every frame!
+	//	GLimp_LogComment( va( "--- RB_StageIteratorLightmappedMultitexture( %s ) ---\n", tess.shader->name ) );
+	//}
+    //BBi
 
 	// set GL fog
 	SetIteratorFog();
@@ -2123,26 +2151,28 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	// set color, pointers, and lock
 	//
 	GL_State( GLS_DEFAULT );
-	qglVertexPointer( 3, GL_FLOAT, 16, input->xyz );
+	::glVertexPointer( 3, GL_FLOAT, 16, input->xyz );
 
-#if defined RTCW_SP
-	if ( qglPNTrianglesiATI && tess.ATI_tess ) {
-#ifdef __MACOS__    //DAJ ATI
-		qglPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 1 );
-#else
-		qglEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
-#endif
-		qglNormalPointer( GL_FLOAT, 16, input->normal );
-	}
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//	if ( ::glPNTrianglesiATI && tess.ATI_tess ) {
+//#ifdef __MACOS__    //DAJ ATI
+//		::glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 1 );
+//#else
+//		::glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
+//#endif
+//		::glNormalPointer( GL_FLOAT, 16, input->normal );
+//	}
+//#endif // RTCW_XX
+//BBi
 
 #ifdef REPLACE_MODE
-	qglDisableClientState( GL_COLOR_ARRAY );
-	qglColor3f( 1, 1, 1 );
-	qglShadeModel( GL_FLAT );
+	::glDisableClientState( GL_COLOR_ARRAY );
+	::glColor3f( 1, 1, 1 );
+	::glShadeModel( GL_FLAT );
 #else
-	qglEnableClientState( GL_COLOR_ARRAY );
-	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.constantColor255 );
+	::glEnableClientState( GL_COLOR_ARRAY );
+	::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.constantColor255 );
 #endif
 
 	//
@@ -2150,20 +2180,20 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	//
 	GL_SelectTexture( 0 );
 
-	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	R_BindAnimatedImage( &tess.xstages[0]->bundle[0] );
 
 #if !defined RTCW_ET
-	qglTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][0] );
+	::glTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][0] );
 #else
-	qglTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords0 );
+	::glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords0 );
 #endif // RTCW_XX
 
 	//
 	// configure second stage
 	//
 	GL_SelectTexture( 1 );
-	qglEnable( GL_TEXTURE_2D );
+	::glEnable( GL_TEXTURE_2D );
 	if ( r_lightmap->integer ) {
 		GL_TexEnv( GL_REPLACE );
 	} else {
@@ -2177,20 +2207,20 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 		R_BindAnimatedImage( &tess.xstages[0]->bundle[1] );
 	}
 
-	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
 #if !defined RTCW_ET
-	qglTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][1] );
+	::glTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][1] );
 #else
-	qglTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords1 );
+	::glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords1 );
 #endif // RTCW_XX
 
 	//
 	// lock arrays
 	//
-	if ( qglLockArraysEXT ) {
-		qglLockArraysEXT( 0, input->numVertexes );
-		GLimp_LogComment( "glLockArraysEXT\n" );
+	if ( glConfigEx.useExtCompiledVertexArray ) {
+		::glLockArraysEXT( 0, input->numVertexes );
+		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
 
 	R_DrawElements( input->numIndexes, input->indexes );
@@ -2198,13 +2228,13 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	//
 	// disable texturing on TEXTURE1, then select TEXTURE0
 	//
-	qglDisable( GL_TEXTURE_2D );
-	qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	::glDisable( GL_TEXTURE_2D );
+	::glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 
 	GL_SelectTexture( 0 );
 #ifdef REPLACE_MODE
 	GL_TexEnv( GL_MODULATE );
-	qglShadeModel( GL_SMOOTH );
+	::glShadeModel( GL_SMOOTH );
 #endif
 
 	//
@@ -2237,21 +2267,23 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	//
 	// unlock arrays
 	//
-	if ( qglUnlockArraysEXT ) {
-		qglUnlockArraysEXT();
-		GLimp_LogComment( "glUnlockArraysEXT\n" );
+	if ( glConfigEx.useExtCompiledVertexArray ) {
+		::glUnlockArraysEXT();
+		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 
-#if defined RTCW_SP
-	if ( qglPNTrianglesiATI && tess.ATI_tess )
-#ifdef __MACOS__ //DAJ ATI{
-		qglPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 0 );
-	}
-#else
-	{ qglDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
-	}
-#endif
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//	if ( ::glPNTrianglesiATI && tess.ATI_tess )
+//#ifdef __MACOS__ //DAJ ATI{
+//		::glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 0 );
+//	}
+//#else
+//	{ ::glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
+//	}
+//#endif
+//#endif // RTCW_XX
+//BBi
 
 }
 
@@ -2341,6 +2373,6 @@ void RB_EndSurface( void ) {
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;
 
-	GLimp_LogComment( "----------\n" );
+	//GLimp_LogComment( "----------\n" );
 }
 

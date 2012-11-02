@@ -5856,8 +5856,11 @@ void CG_VenomFire( entityState_t *es, qboolean fullmode ) {
 	VectorNormalize( v );
 	VectorScale( v, 32, v );
 	VectorAdd( es->pos.trBase, v, v );
-	if ( cgs.glconfig.hardwareType != GLHW_RAGEPRO ) {
-		// ragepro can't alpha fade, so don't even bother with smoke
+
+    //BBi
+	//if ( cgs.glconfig.hardwareType != GLHW_RAGEPRO ) {
+	//	// ragepro can't alpha fade, so don't even bother with smoke
+    //BBi
 		vec3_t up;
 
 		contents = trap_CM_PointContents( es->pos.trBase, 0 );
@@ -5870,7 +5873,11 @@ void CG_VenomFire( entityState_t *es, qboolean fullmode ) {
 //			else
 //				CG_SmokePuff( v, up, 4, 1, 1, 1, 0.33, 700, cg.time, 0, cgs.media.shotgunSmokePuffShader );
 		}
-	}
+
+    //BBi
+	//}
+    //BBi
+
 	if ( fullmode ) {
 		CG_VenomPattern( es->pos.trBase, es->origin2, es->otherEntityNum );
 	}

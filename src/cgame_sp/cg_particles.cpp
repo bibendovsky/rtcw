@@ -510,9 +510,11 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 			invratio = 1 * p->alpha;
 		}
 
-		if ( cgs.glconfig.hardwareType == GLHW_RAGEPRO ) {
-			invratio = 1;
-		}
+        //BBi
+		//if ( cgs.glconfig.hardwareType == GLHW_RAGEPRO ) {
+		//	invratio = 1;
+		//}
+        //BBi
 
 		if ( invratio > 1 ) {
 			invratio = 1;
@@ -651,9 +653,11 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 
 		alpha = p->alpha;
 
-		if ( cgs.glconfig.hardwareType == GLHW_RAGEPRO ) {
-			alpha = 1;
-		}
+        //BBi
+		//if ( cgs.glconfig.hardwareType == GLHW_RAGEPRO ) {
+		//	alpha = 1;
+		//}
+        //BBi
 
 		if ( p->roll ) {
 			vectoangles( cg.refdef.viewaxis[0], rotate_ang );

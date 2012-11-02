@@ -314,20 +314,31 @@ typedef enum {
 								// > GLDRV_ICD for minidriverness, so this
 								// should always be the lowest value in this
 								// enum set
-	GLDRV_STANDALONE,           // driver is a non-3Dfx standalone driver
-	GLDRV_VOODOO                // driver is a 3Dfx standalone driver
+
+    //BBi
+	//GLDRV_STANDALONE,           // driver is a non-3Dfx standalone driver
+	//GLDRV_VOODOO                // driver is a 3Dfx standalone driver
+    //BBi
 } glDriverType_t;
 
 typedef enum {
 	GLHW_GENERIC,           // where everthing works the way it should
-	GLHW_3DFX_2D3D,         // Voodoo Banshee or Voodoo3, relevant since if this is
-							// the hardware type then there can NOT exist a secondary
-							// display adapter
-	GLHW_RIVA128,           // where you can't interpolate alpha
-	GLHW_RAGEPRO,           // where you can't modulate alpha on alpha textures
-	GLHW_PERMEDIA2          // where you don't have src*dst
+
+    //BBi
+	//GLHW_3DFX_2D3D,         // Voodoo Banshee or Voodoo3, relevant since if this is
+	//						// the hardware type then there can NOT exist a secondary
+	//						// display adapter
+	//GLHW_RIVA128,           // where you can't interpolate alpha
+	//GLHW_RAGEPRO,           // where you can't modulate alpha on alpha textures
+	//GLHW_PERMEDIA2          // where you don't have src*dst
+    //BBi
+
 } glHardwareType_t;
 
+
+//BBi
+// For your mental safety do not touch this cursed structure.
+//BBi
 typedef struct {
 	char renderer_string[MAX_STRING_CHARS];
 	char vendor_string[MAX_STRING_CHARS];
@@ -386,6 +397,18 @@ typedef struct {
 
 } glconfig_t;
 
+//BBi
+// Extends glconfig_t structure.
+class GlConfigEx {
+public:
+    bool useArbMultitexture;
+    bool useExtCompiledVertexArray;
+    bool useExtBgra;
+    bool useArbFramebufferObject; // glGenerateMipmap, etc.
+
+    float anisotropicLevel;
+}; // class GlConfigEx
+//BBi
 
 #if !defined _WIN32
 

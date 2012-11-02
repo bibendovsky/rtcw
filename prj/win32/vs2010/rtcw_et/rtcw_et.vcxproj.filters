@@ -273,9 +273,6 @@
     <ClCompile Include="..\..\..\..\src\botlib\l_script.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\win32\win_qgl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\win32\win_glimp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

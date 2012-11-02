@@ -2077,7 +2077,7 @@ static qboolean CollapseMultitexture( void ) {
 	int i;
 	textureBundle_t tmpBundle;
 
-	if ( !qglActiveTextureARB ) {
+	if ( !glConfigEx.useArbMultitexture ) {
 		return qfalse;
 	}
 
@@ -2086,13 +2086,15 @@ static qboolean CollapseMultitexture( void ) {
 		return qfalse;
 	}
 
-	// on voodoo2, don't combine different tmus
-	if ( glConfig.driverType == GLDRV_VOODOO ) {
-		if ( stages[0].bundle[0].image[0]->TMU ==
-			 stages[1].bundle[0].image[0]->TMU ) {
-			return qfalse;
-		}
-	}
+    //BBi
+	//// on voodoo2, don't combine different tmus
+	//if ( glConfig.driverType == GLDRV_VOODOO ) {
+	//	if ( stages[0].bundle[0].image[0]->TMU ==
+	//		 stages[1].bundle[0].image[0]->TMU ) {
+	//		return qfalse;
+	//	}
+	//}
+    //BBi
 
 	abits = stages[0].stateBits;
 	bbits = stages[1].stateBits;
@@ -2781,15 +2783,27 @@ static shader_t *FinishShader( void ) {
 	// if we are in r_vertexLight mode, never use a lightmap texture
 	//
 
+//BBi
+//#if defined RTCW_SP
+//	if ( stage > 1 && ( ( r_vertexLight->integer && !r_uiFullScreen->integer ) || glConfig.hardwareType == GLHW_PERMEDIA2 ) ) {
+//#elif defined RTCW_MP
+//	// NERVE - SMF - temp fix, terrain is having problems with lighting collapse
+//	if ( 0 && ( stage > 1 && ( ( r_vertexLight->integer && !r_uiFullScreen->integer ) || glConfig.hardwareType == GLHW_PERMEDIA2 ) ) ) {
+//#else
+//	// NERVE - SMF - temp fix, terrain is having problems with lighting collapse
+//	if ( 0 && ( stage > 1 && ( glConfig.hardwareType == GLHW_PERMEDIA2 ) ) ) {
+//#endif // RTCW_XX
+
 #if defined RTCW_SP
-	if ( stage > 1 && ( ( r_vertexLight->integer && !r_uiFullScreen->integer ) || glConfig.hardwareType == GLHW_PERMEDIA2 ) ) {
+	if ((stage > 1) && (r_vertexLight->integer != 0) && (r_uiFullScreen->integer == 0)) {
 #elif defined RTCW_MP
 	// NERVE - SMF - temp fix, terrain is having problems with lighting collapse
-	if ( 0 && ( stage > 1 && ( ( r_vertexLight->integer && !r_uiFullScreen->integer ) || glConfig.hardwareType == GLHW_PERMEDIA2 ) ) ) {
+	if (false) {
 #else
 	// NERVE - SMF - temp fix, terrain is having problems with lighting collapse
-	if ( 0 && ( stage > 1 && ( glConfig.hardwareType == GLHW_PERMEDIA2 ) ) ) {
+	if (false) {
 #endif // RTCW_XX
+//BBi
 
 		VertexLightingCollapse();
 		stage = 1;

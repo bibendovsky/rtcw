@@ -38,6 +38,11 @@ If you have questions concerning this license or the applicable additional terms
 #endif // RTCW_XX
 
 glconfig_t glConfig;
+
+//BBi
+GlConfigEx glConfigEx;
+//BBi
+
 glstate_t glState;
 
 static void GfxInfo_f( void );
@@ -271,16 +276,19 @@ glIndex_t tess_indexes[SHADER_MAX_INDEXES];
 color4ubhack_t tess_vertexColors[SHADER_MAX_VERTEXES];
 #endif // RTCW_XX
 
-void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
-void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
-void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
+//BBi
+//void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
+//void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
+//void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
+//
+//void ( APIENTRY * qglLockArraysEXT )( GLint, GLint );
+//void ( APIENTRY * qglUnlockArraysEXT )( void );
+//
+////----(SA)	added
+//void ( APIENTRY * qglPNTrianglesiATI )( GLenum pname, GLint param );
+//void ( APIENTRY * qglPNTrianglesfATI )( GLenum pname, GLfloat param );
+//BBi
 
-void ( APIENTRY * qglLockArraysEXT )( GLint, GLint );
-void ( APIENTRY * qglUnlockArraysEXT )( void );
-
-//----(SA)	added
-void ( APIENTRY * qglPNTrianglesiATI )( GLenum pname, GLint param );
-void ( APIENTRY * qglPNTrianglesfATI )( GLenum pname, GLfloat param );
 /*
 The tessellation level and normal generation mode are specified with:
 
@@ -369,7 +377,7 @@ static void InitOpenGL( void ) {
 		Q_strlwr( renderer_buffer );
 
 		// OpenGL driver constants
-		qglGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );
+		::glGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );
 		glConfig.maxTextureSize = temp;
 
 		// stubbed or broken drivers may have reported 0...
@@ -397,7 +405,7 @@ void GL_CheckErrors( void ) {
 	int err;
 	char s[64];
 
-	err = qglGetError();
+	err = ::glGetError();
 	if ( err == GL_NO_ERROR ) {
 		return;
 	}
@@ -539,7 +547,7 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 	buffer[15] = height >> 8;
 	buffer[16] = 24;    // pixel size
 
-	qglReadPixels( x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer + 18 );
+	::glReadPixels( x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer + 18 );
 
 	// swap rgb to bgr
 	c = 18 + width * height * 3;
@@ -569,7 +577,7 @@ void R_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName )
 
 	buffer = static_cast<byte*> (ri.Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 4 ));
 
-	qglReadPixels( x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer );
+	::glReadPixels( x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer );
 
 	// gamma correct
 	if ( ( tr.overbrightBits > 0 ) && glConfig.deviceSupportsGamma ) {
@@ -677,7 +685,7 @@ void R_LevelShot( void ) {
 	buffer[14] = 128;
 	buffer[16] = 24;    // pixel size
 
-	qglReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGB, GL_UNSIGNED_BYTE, source );
+	::glReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGB, GL_UNSIGNED_BYTE, source );
 
 	// resample from source
 	xScale = glConfig.vidWidth / 512.0f;
@@ -841,15 +849,15 @@ void R_ScreenShotJPEG_f( void ) {
 ** GL_SetDefaultState
 */
 void GL_SetDefaultState( void ) {
-	qglClearDepth( 1.0f );
+	::glClearDepth( 1.0f );
 
-	qglCullFace( GL_FRONT );
+	::glCullFace( GL_FRONT );
 
-	qglColor4f( 1,1,1,1 );
+	::glColor4f( 1,1,1,1 );
 
 	// initialize downstream texture unit if we're running
 	// in a multitexture environment
-	if ( qglActiveTextureARB ) {
+	if (glConfigEx.useArbMultitexture) {
 		GL_SelectTexture( 1 );
 		GL_TextureMode( r_textureMode->string );
 
@@ -858,11 +866,11 @@ void GL_SetDefaultState( void ) {
 #endif // RTCW_XX
 
 		GL_TexEnv( GL_MODULATE );
-		qglDisable( GL_TEXTURE_2D );
+		::glDisable( GL_TEXTURE_2D );
 		GL_SelectTexture( 0 );
 	}
 
-	qglEnable( GL_TEXTURE_2D );
+	::glEnable( GL_TEXTURE_2D );
 	GL_TextureMode( r_textureMode->string );
 
 #if defined RTCW_ET
@@ -871,49 +879,52 @@ void GL_SetDefaultState( void ) {
 
 	GL_TexEnv( GL_MODULATE );
 
-	qglShadeModel( GL_SMOOTH );
-	qglDepthFunc( GL_LEQUAL );
+	::glShadeModel( GL_SMOOTH );
+	::glDepthFunc( GL_LEQUAL );
 
 	// the vertex array is always enabled, but the color and texture
 	// arrays are enabled and disabled around the compiled vertex array call
-	qglEnableClientState( GL_VERTEX_ARRAY );
+	::glEnableClientState( GL_VERTEX_ARRAY );
 
 	//
 	// make sure our GL state vector is set correctly
 	//
 	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;
 
-	qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-	qglDepthMask( GL_TRUE );
-	qglDisable( GL_DEPTH_TEST );
-	qglEnable( GL_SCISSOR_TEST );
-	qglDisable( GL_CULL_FACE );
-	qglDisable( GL_BLEND );
+	::glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+	::glDepthMask( GL_TRUE );
+	::glDisable( GL_DEPTH_TEST );
+	::glEnable( GL_SCISSOR_TEST );
+	::glDisable( GL_CULL_FACE );
+	::glDisable( GL_BLEND );
 
 //----(SA)	added.
-	// ATI pn_triangles
-	if ( qglPNTrianglesiATI ) {
-		int maxtess;
-		// get max supported tesselation
-		qglGetIntegerv( GL_MAX_PN_TRIANGLES_TESSELATION_LEVEL_ATI, (GLint*)&maxtess );
-#ifdef __MACOS__
-		glConfig.ATIMaxTruformTess = 7;
-#else
-		glConfig.ATIMaxTruformTess = maxtess;
-#endif
-		// cap if necessary
-		if ( r_ati_truform_tess->value > maxtess ) {
-			ri.Cvar_Set( "r_ati_truform_tess", va( "%d", maxtess ) );
-		}
 
-		// set Wolf defaults
-		qglPNTrianglesiATI( GL_PN_TRIANGLES_TESSELATION_LEVEL_ATI, r_ati_truform_tess->value );
-	}
+//BBi
+//	// ATI pn_triangles
+//	if ( qglPNTrianglesiATI ) {
+//		int maxtess;
+//		// get max supported tesselation
+//		qglGetIntegerv( GL_MAX_PN_TRIANGLES_TESSELATION_LEVEL_ATI, (GLint*)&maxtess );
+//#ifdef __MACOS__
+//		glConfig.ATIMaxTruformTess = 7;
+//#else
+//		glConfig.ATIMaxTruformTess = maxtess;
+//#endif
+//		// cap if necessary
+//		if ( r_ati_truform_tess->value > maxtess ) {
+//			ri.Cvar_Set( "r_ati_truform_tess", va( "%d", maxtess ) );
+//		}
+//
+//		// set Wolf defaults
+//		qglPNTrianglesiATI( GL_PN_TRIANGLES_TESSELATION_LEVEL_ATI, r_ati_truform_tess->value );
+//	}
+//BBi
 
 	if ( glConfig.anisotropicAvailable ) {
 		float maxAnisotropy;
 
-		qglGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy );
+		::glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy );
 		glConfig.maxAnisotropy = maxAnisotropy;
 
 		// set when rendering
@@ -984,7 +995,7 @@ void GfxInfo_f( void ) {
 		ri.Printf( PRINT_ALL, "rendering primitives: " );
 		primitives = r_primitives->integer;
 		if ( primitives == 0 ) {
-			if ( qglLockArraysEXT ) {
+			if (glConfigEx.useExtCompiledVertexArray) {
 				primitives = 2;
 			} else {
 				primitives = 1;
@@ -1009,44 +1020,51 @@ void GfxInfo_f( void ) {
 #endif // RTCW_XX
 
 	ri.Printf( PRINT_ALL, "texture bits: %d\n", r_texturebits->integer );
-	ri.Printf( PRINT_ALL, "multitexture: %s\n", enablestrings[qglActiveTextureARB != 0] );
-	ri.Printf( PRINT_ALL, "compiled vertex arrays: %s\n", enablestrings[qglLockArraysEXT != 0 ] );
+	ri.Printf( PRINT_ALL, "multitexture: %s\n", enablestrings[glConfigEx.useArbMultitexture] );
+	ri.Printf( PRINT_ALL, "compiled vertex arrays: %s\n", enablestrings[glConfigEx.useExtCompiledVertexArray] );
 	ri.Printf( PRINT_ALL, "texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0] );
 	ri.Printf( PRINT_ALL, "compressed textures: %s\n", enablestrings[glConfig.textureCompression != TC_NONE] );
 
-#if defined RTCW_SP
-	ri.Printf( PRINT_ALL, "ATI truform: %s\n", enablestrings[qglPNTrianglesiATI != 0] );
-	if ( qglPNTrianglesiATI ) {
-//DAJ bogus at this point		ri.Printf( PRINT_ALL, "MAX_PN_TRIANGLES_TESSELATION_LEVEL_ATI: %d\n", glConfig.ATIMaxTruformTess );
-		ri.Printf( PRINT_ALL, "Truform Tess: %d\n", r_ati_truform_tess->integer );
-		ri.Printf( PRINT_ALL, "Truform Point Mode: %s\n", r_ati_truform_pointmode->string );
-		ri.Printf( PRINT_ALL, "Truform Normal Mode: %s\n", r_ati_truform_normalmode->string );
-	}
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//	ri.Printf( PRINT_ALL, "ATI truform: %s\n", enablestrings[qglPNTrianglesiATI != 0] );
+//	if ( qglPNTrianglesiATI ) {
+////DAJ bogus at this point		ri.Printf( PRINT_ALL, "MAX_PN_TRIANGLES_TESSELATION_LEVEL_ATI: %d\n", glConfig.ATIMaxTruformTess );
+//		ri.Printf( PRINT_ALL, "Truform Tess: %d\n", r_ati_truform_tess->integer );
+//		ri.Printf( PRINT_ALL, "Truform Point Mode: %s\n", r_ati_truform_pointmode->string );
+//		ri.Printf( PRINT_ALL, "Truform Normal Mode: %s\n", r_ati_truform_normalmode->string );
+//	}
+//#endif // RTCW_XX
+//BBi
 
 #if defined RTCW_ET
 	ri.Printf( PRINT_ALL, "anisotropy: %s\n", r_textureAnisotropy->string );
 #endif // RTCW_XX
 
-	ri.Printf( PRINT_ALL, "NV distance fog: %s\n", enablestrings[glConfig.NVFogAvailable != 0] );
-	if ( glConfig.NVFogAvailable ) {
-		ri.Printf( PRINT_ALL, "Fog Mode: %s\n", r_nv_fogdist_mode->string );
-	}
+//BBi
+	//ri.Printf( PRINT_ALL, "NV distance fog: %s\n", enablestrings[glConfig.NVFogAvailable != 0] );
+	//if ( glConfig.NVFogAvailable ) {
+	//	ri.Printf( PRINT_ALL, "Fog Mode: %s\n", r_nv_fogdist_mode->string );
+	//}
+//BBi
 
-#if !defined RTCW_ET
-	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
-#else
-	if ( glConfig.hardwareType == GLHW_PERMEDIA2 ) {
-#endif // RTCW_XX
+//BBi
+//#if !defined RTCW_ET
+//	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+//#else
+//	if ( glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+//#endif // RTCW_XX
+//
+//		ri.Printf( PRINT_ALL, "HACK: using vertex lightmap approximation\n" );
+//	}
+//	if ( glConfig.hardwareType == GLHW_RAGEPRO ) {
+//		ri.Printf( PRINT_ALL, "HACK: ragePro approximations\n" );
+//	}
+//	if ( glConfig.hardwareType == GLHW_RIVA128 ) {
+//		ri.Printf( PRINT_ALL, "HACK: riva128 approximations\n" );
+//	}
+//BBi
 
-		ri.Printf( PRINT_ALL, "HACK: using vertex lightmap approximation\n" );
-	}
-	if ( glConfig.hardwareType == GLHW_RAGEPRO ) {
-		ri.Printf( PRINT_ALL, "HACK: ragePro approximations\n" );
-	}
-	if ( glConfig.hardwareType == GLHW_RIVA128 ) {
-		ri.Printf( PRINT_ALL, "HACK: riva128 approximations\n" );
-	}
 	if ( glConfig.smpActive ) {
 		ri.Printf( PRINT_ALL, "Using dual processor acceleration\n" );
 	}
@@ -1654,7 +1672,7 @@ void R_Init( void ) {
 	RB_ZombieFXInit();
 #endif // RTCW_XX
 
-	err = qglGetError();
+	err = ::glGetError();
 	if ( err != GL_NO_ERROR ) {
 		ri.Printf( PRINT_ALL, "glGetError() = 0x%x\n", err );
 	}

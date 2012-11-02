@@ -95,31 +95,31 @@ void R_Fog( glfog_t *curfog ) {
 	// only send changes if necessary
 
 //	if(curfog->mode != setfog.mode || !setfog.registered) {
-	qglFogi( GL_FOG_MODE, curfog->mode );
+	::glFogi( GL_FOG_MODE, curfog->mode );
 //		setfog.mode = curfog->mode;
 //	}
 //	if(curfog->color[0] != setfog.color[0] || curfog->color[1] != setfog.color[1] || curfog->color[2] != setfog.color[2] || !setfog.registered) {
-	qglFogfv( GL_FOG_COLOR, curfog->color );
+	::glFogfv( GL_FOG_COLOR, curfog->color );
 //		VectorCopy(setfog.color, curfog->color);
 //	}
 //	if(curfog->density != setfog.density || !setfog.registered) {
-	qglFogf( GL_FOG_DENSITY, curfog->density );
+	::glFogf( GL_FOG_DENSITY, curfog->density );
 //		setfog.density = curfog->density;
 //	}
 //	if(curfog->hint != setfog.hint || !setfog.registered) {
-	qglHint( GL_FOG_HINT, curfog->hint );
+	::glHint( GL_FOG_HINT, curfog->hint );
 //		setfog.hint = curfog->hint;
 //	}
 //	if(curfog->start != setfog.start || !setfog.registered) {
 
 #if defined RTCW_SP
 	if ( backEnd.refdef.rdflags & RDF_SNOOPERVIEW ) {
-		qglFogf( GL_FOG_START, curfog->end );       // snooper starts GL fog out further
+		::glFogf( GL_FOG_START, curfog->end );       // snooper starts GL fog out further
 	} else {
-		qglFogf( GL_FOG_START, curfog->start );
+		::glFogf( GL_FOG_START, curfog->start );
 	}
 #else
-	qglFogf( GL_FOG_START, curfog->start );
+	::glFogf( GL_FOG_START, curfog->start );
 #endif // RTCW_XX
 
 //		setfog.start = curfog->start;
@@ -127,7 +127,7 @@ void R_Fog( glfog_t *curfog ) {
 
 	if ( r_zfar->value ) {             // (SA) allow override for helping level designers test fog distances
 //		if(setfog.end != r_zfar->value || !setfog.registered) {
-		qglFogf( GL_FOG_END, r_zfar->value );
+		::glFogf( GL_FOG_END, r_zfar->value );
 //			setfog.end = r_zfar->value;
 //		}
 	} else {
@@ -135,14 +135,14 @@ void R_Fog( glfog_t *curfog ) {
 
 #if defined RTCW_SP
 		if ( backEnd.refdef.rdflags & RDF_SNOOPERVIEW ) {
-			qglFogf( GL_FOG_END, curfog->end + 1000 );      // snooper ends GL fog out further.  this works fine with our maps, but could be 'funky' with later maps
+			::glFogf( GL_FOG_END, curfog->end + 1000 );      // snooper ends GL fog out further.  this works fine with our maps, but could be 'funky' with later maps
 		}
-//				qglFogf (GL_FOG_END, curfog->end);
+//				::glFogf (GL_FOG_END, curfog->end);
 		else {
-			qglFogf( GL_FOG_END, curfog->end );
+			::glFogf( GL_FOG_END, curfog->end );
 		}
 #else
-		qglFogf( GL_FOG_END, curfog->end );
+		::glFogf( GL_FOG_END, curfog->end );
 #endif // RTCW_XX
 
 //			setfog.end = curfog->end;
@@ -157,7 +157,7 @@ void R_Fog( glfog_t *curfog ) {
 
 	// NV fog mode
 	if ( glConfig.NVFogAvailable ) {
-		qglFogi( GL_FOG_DISTANCE_MODE_NV, glConfig.NVFogMode );
+		::glFogi( GL_FOG_DISTANCE_MODE_NV, glConfig.NVFogMode );
 	}
 
 #if defined RTCW_SP
@@ -168,7 +168,7 @@ void R_Fog( glfog_t *curfog ) {
 
 	setfog.registered = qtrue;
 
-	qglClearColor( curfog->color[0], curfog->color[1], curfog->color[2], curfog->color[3] );
+	::glClearColor( curfog->color[0], curfog->color[1], curfog->color[2], curfog->color[3] );
 
 
 }
@@ -178,7 +178,7 @@ void R_FogOff( void ) {
 	if ( !fogIsOn ) {
 		return;
 	}
-	qglDisable( GL_FOG );
+	::glDisable( GL_FOG );
 	fogIsOn = qfalse;
 }
 
@@ -224,7 +224,7 @@ void R_FogOn( void ) {
 		return;
 	}
 
-	qglEnable( GL_FOG );
+	::glEnable( GL_FOG );
 	fogIsOn = qtrue;
 }
 // done.
@@ -2280,23 +2280,23 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 
 	// draw solid shade
 
-	qglColor3f( color & 1, ( color >> 1 ) & 1, ( color >> 2 ) & 1 );
-	qglBegin( GL_POLYGON );
+	::glColor3f( color & 1, ( color >> 1 ) & 1, ( color >> 2 ) & 1 );
+	::glBegin( GL_POLYGON );
 	for ( i = 0 ; i < numPoints ; i++ ) {
-		qglVertex3fv( points + i * 3 );
+		::glVertex3fv( points + i * 3 );
 	}
-	qglEnd();
+	::glEnd();
 
 	// draw wireframe outline
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
-	qglDepthRange( 0, 0 );
-	qglColor3f( 1, 1, 1 );
-	qglBegin( GL_POLYGON );
+	::glDepthRange( 0, 0 );
+	::glColor3f( 1, 1, 1 );
+	::glBegin( GL_POLYGON );
 	for ( i = 0 ; i < numPoints ; i++ ) {
-		qglVertex3fv( points + i * 3 );
+		::glVertex3fv( points + i * 3 );
 	}
-	qglEnd();
-	qglDepthRange( 0, 1 );
+	::glEnd();
+	::glDepthRange( 0, 1 );
 }
 
 #if defined RTCW_ET
@@ -2308,19 +2308,19 @@ R_DebugText
 void R_DebugText( const vec3_t org, float r, float g, float b, const char *text, qboolean neverOcclude ) {
 
 	if ( neverOcclude ) {
-		qglDepthRange( 0, 0 );  // never occluded
+		::glDepthRange( 0, 0 );  // never occluded
 
 	}
-	qglColor3f( r, g, b );
-	qglRasterPos3fv( org );
-	qglPushAttrib( GL_LIST_BIT );
-	qglListBase( gl_NormalFontBase );
-	qglCallLists( strlen( text ), GL_UNSIGNED_BYTE, text );
-	qglListBase( 0 );
-	qglPopAttrib();
+	::glColor3f( r, g, b );
+	::glRasterPos3fv( org );
+	::glPushAttrib( GL_LIST_BIT );
+	::glListBase( gl_NormalFontBase );
+	::glCallLists( strlen( text ), GL_UNSIGNED_BYTE, text );
+	::glListBase( 0 );
+	::glPopAttrib();
 
 	if ( neverOcclude ) {
-		qglDepthRange( 0, 1 );
+		::glDepthRange( 0, 1 );
 	}
 }
 #endif // RTCW_XX

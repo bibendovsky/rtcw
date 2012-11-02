@@ -247,13 +247,21 @@ static void R_LoadLightmaps( lump_t *l ) {
 		tr.numLightmaps++;
 	}
 
+//BBi
+//#if !defined RTCW_ET
+//	// if we are in r_vertexLight mode, we don't need the lightmaps at all
+//	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+//#else
+//	// permedia doesn't support lightmaps
+//	if ( glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+//#endif // RTCW_XX
+
 #if !defined RTCW_ET
-	// if we are in r_vertexLight mode, we don't need the lightmaps at all
-	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+    if (r_vertexLight->integer != 0) {
 #else
-	// permedia doesn't support lightmaps
-	if ( glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+    if (false) {
 #endif // RTCW_XX
+//BBi
 
 		return;
 	}
@@ -389,11 +397,19 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
 	}
 	dsh = &s_worldData.shaders[ shaderNum ];
 
+//BBi
+//#if !defined RTCW_ET
+//	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+//#else
+//	if ( glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+//#endif // RTCW_XX
+
 #if !defined RTCW_ET
-	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+    if (r_vertexLight->integer != 0) {
 #else
-	if ( glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+    if (false) {
 #endif // RTCW_XX
+//BBi
 
 		lightmapNum = LIGHTMAP_BY_VERTEX;
 	}

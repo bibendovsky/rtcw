@@ -209,14 +209,18 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 	poly->verts = &backEndData[tr.smpFrame]->polyVerts[r_numpolyverts];
 
 	memcpy( poly->verts, verts, numVerts * sizeof( *verts ) );
-	// Ridah
-	if ( glConfig.hardwareType == GLHW_RAGEPRO ) {
-		poly->verts->modulate[0] = 255;
-		poly->verts->modulate[1] = 255;
-		poly->verts->modulate[2] = 255;
-		poly->verts->modulate[3] = 255;
-	}
-	// done.
+
+    //BBi
+	//// Ridah
+	//if ( glConfig.hardwareType == GLHW_RAGEPRO ) {
+	//	poly->verts->modulate[0] = 255;
+	//	poly->verts->modulate[1] = 255;
+	//	poly->verts->modulate[2] = 255;
+	//	poly->verts->modulate[3] = 255;
+	//}
+	//// done.
+    //BBi
+
 	r_numpolys++;
 	r_numpolyverts += numVerts;
 
@@ -285,14 +289,18 @@ void RE_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *vert
 		poly->verts = &backEndData[tr.smpFrame]->polyVerts[r_numpolyverts];
 
 		memcpy( poly->verts, &verts[numVerts * j], numVerts * sizeof( *verts ) );
-		// Ridah
-		if ( glConfig.hardwareType == GLHW_RAGEPRO ) {
-			poly->verts->modulate[0] = 255;
-			poly->verts->modulate[1] = 255;
-			poly->verts->modulate[2] = 255;
-			poly->verts->modulate[3] = 255;
-		}
-		// done.
+
+        //BBi
+		//// Ridah
+		//if ( glConfig.hardwareType == GLHW_RAGEPRO ) {
+		//	poly->verts->modulate[0] = 255;
+		//	poly->verts->modulate[1] = 255;
+		//	poly->verts->modulate[2] = 255;
+		//	poly->verts->modulate[3] = 255;
+		//}
+		//// done.
+        //BBi
+
 		r_numpolys++;
 		r_numpolyverts += numVerts;
 
@@ -473,10 +481,13 @@ void RE_AddLightToScene( const vec3_t org, float radius, float intensity, float 
 	}
 #endif // RTCW_XX
 
-	// these cards don't have the correct blend mode
-	if ( glConfig.hardwareType == GLHW_RIVA128 || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
-		return;
-	}
+    //BBi
+	//// these cards don't have the correct blend mode
+	//if ( glConfig.hardwareType == GLHW_RIVA128 || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+	//	return;
+	//}
+    //BBi
+
 	// RF, allow us to force some dlights under all circumstances
 
 #if !defined RTCW_ET
@@ -616,7 +627,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	if ( !tr.registered ) {
 		return;
 	}
-	GLimp_LogComment( "====== RE_RenderScene =====\n" );
+	//GLimp_LogComment( "====== RE_RenderScene =====\n" );
 
 	if ( r_norefresh->integer ) {
 		return;
@@ -714,22 +725,30 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	// turn off dynamic lighting globally by clearing all the
 
+//BBi
+//#if !defined RTCW_ET
+//	// dlights if it needs to be disabled or if vertex lighting is enabled
+//
+//#if defined RTCW_SP
+//	if ( /*r_dynamiclight->integer == 0 ||*/    // RF, disabled so we can force things like lightning dlights
+//		r_vertexLight->integer == 1 ||
+//#elif defined RTCW_MP
+//	if ( /*r_dynamiclight->integer == 0 ||	// RF, disabled so we can force things like lightning dlights
+//		 r_vertexLight->integer == 1 ||*/
+//#endif // RTCW_XX
+//
+//		glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+//#else
+//	// dlights if using permedia hw
+//	if ( glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+//#endif // RTCW_XX
+
 #if !defined RTCW_ET
-	// dlights if it needs to be disabled or if vertex lighting is enabled
-
-#if defined RTCW_SP
-	if ( /*r_dynamiclight->integer == 0 ||*/    // RF, disabled so we can force things like lightning dlights
-		r_vertexLight->integer == 1 ||
-#elif defined RTCW_MP
-	if ( /*r_dynamiclight->integer == 0 ||	// RF, disabled so we can force things like lightning dlights
-		 r_vertexLight->integer == 1 ||*/
-#endif // RTCW_XX
-
-		glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+    if (r_vertexLight != 0) {
 #else
-	// dlights if using permedia hw
-	if ( glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+    if (false) {
 #endif // RTCW_XX
+//BBi
 
 		tr.refdef.num_dlights = 0;
 	}
