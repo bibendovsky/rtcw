@@ -86,7 +86,7 @@ void AAS_AltRoutingFloodCluster_r( int areanum ) {
 	area = &( *aasworld ).areas[areanum];
 	for ( i = 0; i < area->numfaces; i++ )
 	{
-		face = &( *aasworld ).faces[abs( ( *aasworld ).faceindex[area->firstface + i] )];
+		face = &( *aasworld ).faces[c::abs( ( *aasworld ).faceindex[area->firstface + i] )];
 		//get the area at the other side of the face
 		if ( face->frontarea == areanum ) {
 			otherareanum = face->backarea;

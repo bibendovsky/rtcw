@@ -253,7 +253,7 @@ void CG_CalcMoveSpeeds( clientInfo_t *ci ) {
 				} else {
 					low = 1;
 				}
-				totalSpeed += fabs( oldPos[low][2] - o[low].origin[2] );
+				totalSpeed += c::fabs( oldPos[low][2] - o[low].origin[2] );
 			} else {
 				if ( o[0].origin[2] < o[1].origin[2] ) {
 					low = 0;
@@ -261,9 +261,9 @@ void CG_CalcMoveSpeeds( clientInfo_t *ci ) {
 					low = 1;
 				}
 				if ( !isStrafe ) {
-					totalSpeed += fabs( oldPos[low][0] - o[low].origin[0] );
+					totalSpeed += c::fabs( oldPos[low][0] - o[low].origin[0] );
 				} else {
-					totalSpeed += fabs( oldPos[low][1] - o[low].origin[1] );
+					totalSpeed += c::fabs( oldPos[low][1] - o[low].origin[1] );
 				}
 				//
 				// set the numSteps
@@ -2198,7 +2198,7 @@ static void CG_SwingAngles( float destination, float swingTolerance, float clamp
 	// modify the speed depending on the delta
 	// so it doesn't seem so linear
 	swing = AngleSubtract( destination, *angle );
-	scale = fabs( swing );
+	scale = c::fabs( swing );
 	scale *= 0.05;
 	if ( scale < 0.5 ) {
 		scale = 0.5;
@@ -2309,11 +2309,11 @@ static void CG_AddPainTwitch( centity_t *cent, vec3_t torsoAngles ) {
 		f = (float)t / duration;
 		if ( f < FADEIN_RATIO ) {
 			torsoAngles[ROLL] += ( 0.5 * direction * ( f * ( 1.0 / FADEIN_RATIO ) ) );
-			torsoAngles[PITCH] -= ( fabs( direction ) * ( f * ( 1.0 / FADEIN_RATIO ) ) );
+			torsoAngles[PITCH] -= ( c::fabs( direction ) * ( f * ( 1.0 / FADEIN_RATIO ) ) );
 			torsoAngles[YAW] += ( direction * ( f * ( 1.0 / FADEIN_RATIO ) ) );
 		} else {
 			torsoAngles[ROLL] += ( 0.5 * direction * ( 1.0 - ( f - FADEIN_RATIO ) ) * ( 1.0 / FADEOUT_RATIO ) );
-			torsoAngles[PITCH] -= ( fabs( direction ) * ( 1.0 - ( f - FADEIN_RATIO ) ) * ( 1.0 / FADEOUT_RATIO ) );
+			torsoAngles[PITCH] -= ( c::fabs( direction ) * ( 1.0 - ( f - FADEIN_RATIO ) ) * ( 1.0 / FADEOUT_RATIO ) );
 			torsoAngles[YAW] += ( direction * ( 1.0 - ( f - FADEIN_RATIO ) ) * ( 1.0 / FADEOUT_RATIO ) );
 		}
 	} else {    // fast, Q3 style
@@ -2358,8 +2358,8 @@ static void CG_IdleHeadMovement( centity_t *cent, const vec3_t torsoAngles, vec3
 	// move towards ideal position
 	if ( cent->pe.headLookStopTime < cg.time && !VectorCompare( cent->pe.headLookIdeal, cent->pe.headLookOffset ) ) {
 		// slow down as we get closer
-		if ( fabs( cent->pe.headLookOffset[YAW] - cent->pe.headLookIdeal[YAW] ) < angleSpeedMax * 1.2 ) {
-			cent->pe.headLookSpeedMax = angleSpeedMax * ( 0.1 + 0.9 * ( fabs( cent->pe.headLookOffset[YAW] - cent->pe.headLookIdeal[YAW] ) / ( angleSpeedMax * 1.2 ) ) );
+		if ( c::fabs( cent->pe.headLookOffset[YAW] - cent->pe.headLookIdeal[YAW] ) < angleSpeedMax * 1.2 ) {
+			cent->pe.headLookSpeedMax = angleSpeedMax * ( 0.1 + 0.9 * ( c::fabs( cent->pe.headLookOffset[YAW] - cent->pe.headLookIdeal[YAW] ) / ( angleSpeedMax * 1.2 ) ) );
 		}
 		// accelerate angle speed
 		if ( cent->pe.headLookSpeed < cent->pe.headLookSpeedMax ) {
@@ -2402,7 +2402,7 @@ static void CG_IdleHeadMovement( centity_t *cent, const vec3_t torsoAngles, vec3
 /*
 	// make sure these angles don't place us too far from the torso angles
 	for (i=0; i<3; i++) {
-		if (fabs(cent->pe.headLookOffset[i] + headAngles[i] - torsoAngles[i]) > diffThreshold) {
+		if (c::fabs(cent->pe.headLookOffset[i] + headAngles[i] - torsoAngles[i]) > diffThreshold) {
 			if (cent->pe.headLookOffset[i] + headAngles[i] - torsoAngles[i] > 0)
 				cent->pe.headLookOffset[i] = diffThreshold - (headAngles[i] - torsoAngles[i]);
 			else
@@ -2492,7 +2492,7 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 			clampTolerance = 60;
 		} else {    // must be firing
 			torsoAngles[YAW] = headAngles[YAW]; // always face firing direction
-			//if (fabs(cent->currentState.angles2[YAW]) > 30)
+			//if (c::fabs(cent->currentState.angles2[YAW]) > 30)
 			//	legsAngles[YAW] = headAngles[YAW];
 			clampTolerance = 40;
 		}
@@ -2723,7 +2723,7 @@ static void CG_PlayerPowerups( centity_t *cent ) {
 	int powerups;
 
 	if ( cent->pe.teslaDamagedTime > cg.time - 400 ) {
-		trap_R_AddLightToScene( cent->lerpOrigin, 128 + 128 * sin( float (cg.time * cg.time) ), 0.2, 0.6, 1, 0 );
+		trap_R_AddLightToScene( cent->lerpOrigin, 128 + 128 * c::sin( float (cg.time * cg.time) ), 0.2, 0.6, 1, 0 );
 	}
 
 	// RF, AI don't use these effects, they are generally added manually by the game
@@ -3279,12 +3279,12 @@ void CG_AddZombieSpiritEffect( centity_t *cent ) {
 				rotationTime = cent->pe.zombieSpiritRotationTimes[i];
 				radiusCycleTime = cent->pe.zombieSpiritRadiusCycleTimes[i];
 
-				radius = ( minDist + sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( radiusCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % radiusCycleTime ) / (float)radiusCycleTime ) ) * ( maxDist - minDist ) );
+				radius = ( minDist + c::sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( radiusCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % radiusCycleTime ) / (float)radiusCycleTime ) ) * ( maxDist - minDist ) );
 
 				// get the position
-				v[0] = ( 0.5 + 0.5 * fadeRatio ) * sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
-				v[1] = ( 0.5 + 0.5 * fadeRatio ) * cos( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
-				v[2] = 12 + 36 * ( 0.5 + 0.5 * fadeRatio ) * sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( zCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % zCycleTime ) / (float)zCycleTime ) );
+				v[0] = ( 0.5 + 0.5 * fadeRatio ) * c::sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
+				v[1] = ( 0.5 + 0.5 * fadeRatio ) * c::cos( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
+				v[2] = 12 + 36 * ( 0.5 + 0.5 * fadeRatio ) * c::sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( zCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % zCycleTime ) / (float)zCycleTime ) );
 				v[2] -= ( 1.0 - fadeRatio ) * 32;
 
 				VectorAdd( cent->lerpOrigin, v, p[i] );
@@ -3293,12 +3293,12 @@ void CG_AddZombieSpiritEffect( centity_t *cent ) {
 				rotationTime = cent->pe.zombieSpiritRotationTimes[i];
 				radiusCycleTime = cent->pe.zombieSpiritRadiusCycleTimes[i];
 
-				radius = pow( 1.0 - fadeRatio, 2 ) * fadeDist + ( 1.0 - pow( 1.0 - fadeRatio, 2 ) ) * ( minDist + sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( radiusCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % radiusCycleTime ) / (float)radiusCycleTime ) ) * ( maxDist - minDist ) );
+				radius = c::pow( 1.0 - fadeRatio, 2 ) * fadeDist + ( 1.0 - c::pow( 1.0 - fadeRatio, 2 ) ) * ( minDist + c::sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( radiusCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % radiusCycleTime ) / (float)radiusCycleTime ) ) * ( maxDist - minDist ) );
 
 				// get the position
-				v[0] = sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
-				v[1] = cos( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
-				v[2] = 12 + 36 * sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( zCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % zCycleTime ) / (float)zCycleTime ) );
+				v[0] = c::sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
+				v[1] = c::cos( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
+				v[2] = 12 + 36 * c::sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( zCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % zCycleTime ) / (float)zCycleTime ) );
 				v[2] -= ( 1.0 - fadeRatio ) * 32;
 
 				VectorAdd( cent->lerpOrigin, v, p[i] );
@@ -3669,7 +3669,7 @@ void CG_AddLoperLightningEffect( centity_t *cent ) {
 
 	// show a dlight
 	// color
-	colTake = 0.8 - fabs( sin( float (cg.time) ) ) * 0.3;
+	colTake = 0.8 - c::fabs( c::sin( float (cg.time) ) ) * 0.3;
 	c[0] = 1.0 - colTake;
 	c[1] = 1.0 - 0.7 * colTake;
 	c[2] = 1.0; //c[1] + 0.2;
@@ -3678,7 +3678,7 @@ void CG_AddLoperLightningEffect( centity_t *cent ) {
 	}
 	//VectorScale( c, alpha, c );
 	// add the light
-	trap_R_AddLightToScene( tagPos, LOPER_LIGHTNING_NORMAL_DIST * ( 2.5 + ( 1.0 + sin( float (cg.time) ) ) / 4.0 ), c[0], c[1], c[2], 1 );
+	trap_R_AddLightToScene( tagPos, LOPER_LIGHTNING_NORMAL_DIST * ( 2.5 + ( 1.0 + c::sin( float (cg.time) ) ) / 4.0 ), c[0], c[1], c[2], 1 );
 
 	for ( i = 0; i < numPoints; i++ ) {
 		// if this point has timed out, find a new spot
@@ -3815,7 +3815,7 @@ void CG_AddLoperGroundEffect( centity_t *cent ) {
 
 	// show a dlight
 	// color
-	colTake = 0.8 - fabs( sin( float (cg.time) ) ) * 0.3;
+	colTake = 0.8 - c::fabs( c::sin( float (cg.time) ) ) * 0.3;
 	c[0] = 1.0 - colTake;
 	c[1] = 1.0 - 0.8 * colTake;
 	c[2] = 1.0; //c[1] + 0.2;
@@ -3824,8 +3824,8 @@ void CG_AddLoperGroundEffect( centity_t *cent ) {
 	}
 	VectorScale( c, alpha, c );
 	// add the light
-	trap_R_AddLightToScene( cent->lerpOrigin, LOPER_GROUNDCHARGE_RADIUS * ( 3.0 + 2.0 * ( 1.0 + sin( 0.001 * ( ( cg.time ) % ( 1000 * ( 2 + cent->currentState.number ) ) ) ) ) / 2.0 ), c[0], c[1], c[2], 1 );
-	//trap_R_AddLightToScene( cent->lerpOrigin, LOPER_GROUNDCHARGE_RADIUS*(2.0 + 1.0*(1.0+cos(0.001343*((cg.time)%(1000*(2+cent->currentState.number)))))/2.0), c[0], c[1], c[2], 0 );
+	trap_R_AddLightToScene( cent->lerpOrigin, LOPER_GROUNDCHARGE_RADIUS * ( 3.0 + 2.0 * ( 1.0 + c::sin( 0.001 * ( ( cg.time ) % ( 1000 * ( 2 + cent->currentState.number ) ) ) ) ) / 2.0 ), c[0], c[1], c[2], 1 );
+	//trap_R_AddLightToScene( cent->lerpOrigin, LOPER_GROUNDCHARGE_RADIUS*(2.0 + 1.0*(1.0+c::cos(0.001343*((cg.time)%(1000*(2+cent->currentState.number)))))/2.0), c[0], c[1], c[2], 0 );
 
 	if ( !alpha ) {
 		return;
@@ -4016,12 +4016,12 @@ void CG_AddHelgaSpiritEffect( centity_t *cent ) {
 				rotationTime = cent->pe.zombieSpiritRotationTimes[i];
 				radiusCycleTime = cent->pe.zombieSpiritRadiusCycleTimes[i];
 
-				radius = ( minDist + sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( radiusCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % radiusCycleTime ) / (float)radiusCycleTime ) ) * ( maxDist - minDist ) );
+				radius = ( minDist + c::sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( radiusCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % radiusCycleTime ) / (float)radiusCycleTime ) ) * ( maxDist - minDist ) );
 
 				// get the position
-				v[0] = ( 0.5 + 0.5 * fadeRatio ) * sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
-				v[1] = ( 0.5 + 0.5 * fadeRatio ) * cos( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
-				v[2] = 12 + 36 * ( 0.5 + 0.5 * fadeRatio ) * sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( zCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % zCycleTime ) / (float)zCycleTime ) );
+				v[0] = ( 0.5 + 0.5 * fadeRatio ) * c::sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
+				v[1] = ( 0.5 + 0.5 * fadeRatio ) * c::cos( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
+				v[2] = 12 + 36 * ( 0.5 + 0.5 * fadeRatio ) * c::sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( zCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % zCycleTime ) / (float)zCycleTime ) );
 				v[2] -= ( 1.0 - fadeRatio ) * 32;
 
 				VectorAdd( cent->lerpOrigin, v, p[i] );
@@ -4030,12 +4030,12 @@ void CG_AddHelgaSpiritEffect( centity_t *cent ) {
 				rotationTime = cent->pe.zombieSpiritRotationTimes[i];
 				radiusCycleTime = cent->pe.zombieSpiritRadiusCycleTimes[i];
 
-				radius = pow( 1.0 - fadeRatio, 2 ) * fadeDist + ( 1.0 - pow( 1.0 - fadeRatio, 2 ) ) * ( minDist + sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( radiusCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % radiusCycleTime ) / (float)radiusCycleTime ) ) * ( maxDist - minDist ) );
+				radius = c::pow( 1.0 - fadeRatio, 2 ) * fadeDist + ( 1.0 - c::pow( 1.0 - fadeRatio, 2 ) ) * ( minDist + c::sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( radiusCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % radiusCycleTime ) / (float)radiusCycleTime ) ) * ( maxDist - minDist ) );
 
 				// get the position
-				v[0] = sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
-				v[1] = cos( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
-				v[2] = 12 + 36 * sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( zCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % zCycleTime ) / (float)zCycleTime ) );
+				v[0] = c::sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
+				v[1] = c::cos( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( rotationTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % rotationTime ) / (float)rotationTime ) ) * radius;
+				v[2] = 12 + 36 * c::sin( M_PI * 2 * (float)( (float)( (int)( t + ( (float)( zCycleTime * i ) / MAX_ZOMBIE_SPIRITS ) ) % zCycleTime ) / (float)zCycleTime ) );
 				v[2] -= ( 1.0 - fadeRatio ) * 32;
 
 				VectorAdd( cent->lerpOrigin, v, p[i] );
@@ -4367,7 +4367,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, int team, enti
 				if (cent->pe.zombieDeathFadeStart > cg.time) {
 					ent->shaderRGBA[3] = 128;
 				} else {
-					ent->shaderRGBA[3] = 128 - (unsigned char)(128.0*pow(((float)(cg.time - cent->pe.zombieDeathFadeStart) / (float)(cent->pe.zombieDeathFadeEnd - cent->pe.zombieDeathFadeStart)), 2));
+					ent->shaderRGBA[3] = 128 - (unsigned char)(128.0*c::pow(((float)(cg.time - cent->pe.zombieDeathFadeStart) / (float)(cent->pe.zombieDeathFadeEnd - cent->pe.zombieDeathFadeStart)), 2));
 				}
 				ent->shaderTime = 1.0;
 
@@ -4895,7 +4895,7 @@ void CG_Player( centity_t *cent ) {
 		int emotion = 0;  // this should default to the entity's current emotion
 
 		gumsflappin = (float)trap_S_GetVoiceAmplitude( clientNum );
-		talk_frame = (int)floor( ( HEAD_EMOTION_SUBTYPES - 1 ) * ( gumsflappin / 256.0 ) );
+		talk_frame = (int)c::floor( ( HEAD_EMOTION_SUBTYPES - 1 ) * ( gumsflappin / 256.0 ) );
 
 		// add the current frame to the total, so when it comes to pick a new frame, we choose the average
 		// of those we missed over the last frame

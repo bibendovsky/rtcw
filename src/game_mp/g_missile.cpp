@@ -1643,8 +1643,8 @@ gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t righ
 	VectorCopy( start, bolt->s.pos.trBase );
 
 	r = random() * M_PI * 2.0f;
-	u = sin( r ) * crandom() * NAILGUN_SPREAD * 16;
-	r = cos( r ) * crandom() * NAILGUN_SPREAD * 16;
+	u = c::sin( r ) * crandom() * NAILGUN_SPREAD * 16;
+	r = c::cos( r ) * crandom() * NAILGUN_SPREAD * 16;
 	VectorMA( start, 8192 * 16, forward, end );
 	VectorMA( end, r, right, end );
 	VectorMA( end, u, up, end );

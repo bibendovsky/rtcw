@@ -133,7 +133,7 @@ void AICast_ChangeViewAngles( cast_state_t *cs, float thinktime ) {
 	if ( cs->lockViewAnglesTime < level.time ) {
 		maxchange *= thinktime;
 		for ( i = 0; i < 3; i++ ) {
-			diff = fabs( AngleDifference( cs->viewangles[i], cs->ideal_viewangles[i] ) );
+			diff = c::fabs( AngleDifference( cs->viewangles[i], cs->ideal_viewangles[i] ) );
 			anglespeed = diff * factor;
 			if ( cs->aiState >= AISTATE_COMBAT ) {
 				if ( anglespeed < cs->attributes[YAW_SPEED] ) {
@@ -199,7 +199,7 @@ void AICast_InputToUserCommand( cast_state_t *cs, bot_input_t *bi, usercmd_t *uc
 		// don't fire if we are not facing the right direction yet
 		if ( ( cs->triggerReleaseTime < level.time ) &&
 			 (   ( cs->lockViewAnglesTime >= level.time ) ||
-				 ( fabs( AngleDifference( cs->ideal_viewangles[YAW], cs->viewangles[YAW] ) ) < 20 ) ) &&
+				 ( c::fabs( AngleDifference( cs->ideal_viewangles[YAW], cs->viewangles[YAW] ) ) < 20 ) ) &&
 			 // check for radid luger firing by skilled users (release fire between shots)
 			 ( ( ( level.time + cs->entityNum * 500 ) / 2000 ) % 2 || !( rand() % ( 1 + g_gameskill.integer ) ) || ( cs->attributes[ATTACK_SKILL] < 0.5 ) || ( cs->weaponNum != WP_LUGER ) || ( cs->bs->cur_ps.weaponTime == 0 ) || ( cs->bs->cur_ps.releasedFire ) ) ) {
 			ucmd->buttons |= BUTTON_ATTACK;
@@ -254,7 +254,7 @@ void AICast_InputToUserCommand( cast_state_t *cs, bot_input_t *bi, usercmd_t *uc
 	//
 	// if viewlock, wait until we are facing ideal angles before we move
 	if ( cs->aiFlags & AIFL_VIEWLOCKED ) {
-		if ( fabs( AngleDifference( cs->ideal_viewangles[YAW], cs->viewangles[YAW] ) ) > 10 ) {
+		if ( c::fabs( AngleDifference( cs->ideal_viewangles[YAW], cs->viewangles[YAW] ) ) > 10 ) {
 			return;
 		}
 	}
@@ -266,7 +266,7 @@ void AICast_InputToUserCommand( cast_state_t *cs, bot_input_t *bi, usercmd_t *uc
 	//
 	// only move if we are in combat or we are facing where our ideal angles
 	if ( bi->speed ) {
-		if ( ( !( cs->aiFlags & AIFL_WALKFORWARD ) && cs->enemyNum >= 0 ) || ( ( ucmd->forwardmove >= 0 ) && fabs( AngleNormalize180( AngleDifference( cs->ideal_viewangles[YAW], cs->viewangles[YAW] ) ) ) < 60 ) ) {
+		if ( ( !( cs->aiFlags & AIFL_WALKFORWARD ) && cs->enemyNum >= 0 ) || ( ( ucmd->forwardmove >= 0 ) && c::fabs( AngleNormalize180( AngleDifference( cs->ideal_viewangles[YAW], cs->viewangles[YAW] ) ) ) < 60 ) ) {
 			//NOTE: movement is relative to the REAL view angles
 			//get the horizontal forward and right vector
 			//get the pitch in the range [-180, 180]
@@ -287,7 +287,7 @@ void AICast_InputToUserCommand( cast_state_t *cs, bot_input_t *bi, usercmd_t *uc
 				ucmd->upmove = DotProduct( up, bi->dir ) * bi->speed;
 			}
 			//if (!ucmd->upmove)	// only change it if we don't already have an upmove set
-			//	ucmd->upmove = abs(forward[2]) * bi->dir[2] * bi->speed;
+			//	ucmd->upmove = c::abs(forward[2]) * bi->dir[2] * bi->speed;
 		}
 	}
 	//

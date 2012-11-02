@@ -527,7 +527,7 @@ void CG_DrawMapEntity( mapEntityData_t *mEnt, float x, float y, float w, float h
 				msec = 0;
 			}
 
-			reviveClr[3] = .5f + .5f * ( ( sin( sqrt( msec ) * 25 * 2 * M_PI ) + 1 ) * .5f );
+			reviveClr[3] = .5f + .5f * ( ( c::sin( c::sqrt( msec ) * 25 * 2 * M_PI ) + 1 ) * .5f );
 
 			trap_R_SetColor( reviveClr );
 			CG_DrawPic( icon_pos[0] + 3, icon_pos[1] + 3, icon_extends[0] - 3, icon_extends[1] - 3, cgs.media.medicIcon );

@@ -2406,7 +2406,7 @@ static void UI_DrawServerRefreshDate( rectDef_t *rect, float scale, vec4_t color
 		lowLight[1] = 0.8 * color[1];
 		lowLight[2] = 0.8 * color[2];
 		lowLight[3] = 0.8 * color[3];
-		LerpColor( color,lowLight,newColor,0.5F + 0.5F * sin( float (uiInfo.uiDC.realTime) / PULSE_DIVISOR ) );
+		LerpColor( color,lowLight,newColor,0.5F + 0.5F * c::sin( float (uiInfo.uiDC.realTime) / PULSE_DIVISOR ) );
 		// NERVE - SMF
 		serverCount = trap_LAN_GetServerCount( ui_netSource.integer );
 		if ( serverCount >= 0 ) {
@@ -6727,7 +6727,7 @@ static void UI_StopCinematic( int handle ) {
 	if ( handle >= 0 ) {
 		trap_CIN_StopCinematic( handle );
 	} else {
-		handle = abs( handle );
+		handle = c::abs( handle );
 		if ( handle == UI_MAPCINEMATIC ) {
 			if ( uiInfo.mapList[ui_currentMap.integer].cinematic >= 0 ) {
 				trap_CIN_StopCinematic( uiInfo.mapList[ui_currentMap.integer].cinematic );

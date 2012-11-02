@@ -447,11 +447,11 @@ static float sp, sy, cp, cy;
 
 static __inline void LocalAngleVector( vec3_t angles, vec3_t forward ) {
 	LAVangle = angles[YAW] * ( M_PI * 2 / 360 );
-	sy = sin( LAVangle );
-	cy = cos( LAVangle );
+	sy = c::sin( LAVangle );
+	cy = c::cos( LAVangle );
 	LAVangle = angles[PITCH] * ( M_PI * 2 / 360 );
-	sp = sin( LAVangle );
-	cp = cos( LAVangle );
+	sp = c::sin( LAVangle );
+	cp = c::cos( LAVangle );
 
 	forward[0] = cp * cy;
 	forward[1] = cp * sy;

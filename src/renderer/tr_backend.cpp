@@ -743,7 +743,7 @@ void RB_ZombieFXProcessNewHits( trZombieFleshHitverts_t *fleshHitVerts, int oldN
 			if ( thisDist < ZOMBIEFX_HIT_OKRANGE_SQR ) {
 				goto hitCheckDone;
 			}
-			thisDist = sqrt( thisDist );
+			thisDist = c::sqrt( thisDist );
 			// check for the projection being inside range
 			VectorMA( hitPos, thisDist, hitDir, v );
 			VectorSubtract( xyzTrav, v, testDir );
@@ -1614,32 +1614,32 @@ const void *RB_RotatedPic( const void *data ) {
 				*(int *)tess.vertexColors[ numVerts + 3 ] = *(int *)backEnd.color2D;
 
 	angle = cmd->angle * pi2;
-	tess.xyz[ numVerts ][0] = cmd->x + ( cos( angle ) * cmd->w );
-	tess.xyz[ numVerts ][1] = cmd->y + ( sin( angle ) * cmd->h );
+	tess.xyz[ numVerts ][0] = cmd->x + ( c::cos( angle ) * cmd->w );
+	tess.xyz[ numVerts ][1] = cmd->y + ( c::sin( angle ) * cmd->h );
 	tess.xyz[ numVerts ][2] = 0;
 
 	tess.texCoords[ numVerts ][0][0] = cmd->s1;
 	tess.texCoords[ numVerts ][0][1] = cmd->t1;
 
 	angle = cmd->angle * pi2 + 0.25 * pi2;
-	tess.xyz[ numVerts + 1 ][0] = cmd->x + ( cos( angle ) * cmd->w );
-	tess.xyz[ numVerts + 1 ][1] = cmd->y + ( sin( angle ) * cmd->h );
+	tess.xyz[ numVerts + 1 ][0] = cmd->x + ( c::cos( angle ) * cmd->w );
+	tess.xyz[ numVerts + 1 ][1] = cmd->y + ( c::sin( angle ) * cmd->h );
 	tess.xyz[ numVerts + 1 ][2] = 0;
 
 	tess.texCoords[ numVerts + 1 ][0][0] = cmd->s2;
 	tess.texCoords[ numVerts + 1 ][0][1] = cmd->t1;
 
 	angle = cmd->angle * pi2 + 0.50 * pi2;
-	tess.xyz[ numVerts + 2 ][0] = cmd->x + ( cos( angle ) * cmd->w );
-	tess.xyz[ numVerts + 2 ][1] = cmd->y + ( sin( angle ) * cmd->h );
+	tess.xyz[ numVerts + 2 ][0] = cmd->x + ( c::cos( angle ) * cmd->w );
+	tess.xyz[ numVerts + 2 ][1] = cmd->y + ( c::sin( angle ) * cmd->h );
 	tess.xyz[ numVerts + 2 ][2] = 0;
 
 	tess.texCoords[ numVerts + 2 ][0][0] = cmd->s2;
 	tess.texCoords[ numVerts + 2 ][0][1] = cmd->t2;
 
 	angle = cmd->angle * pi2 + 0.75 * pi2;
-	tess.xyz[ numVerts + 3 ][0] = cmd->x + ( cos( angle ) * cmd->w );
-	tess.xyz[ numVerts + 3 ][1] = cmd->y + ( sin( angle ) * cmd->h );
+	tess.xyz[ numVerts + 3 ][0] = cmd->x + ( c::cos( angle ) * cmd->w );
+	tess.xyz[ numVerts + 3 ][1] = cmd->y + ( c::sin( angle ) * cmd->h );
 	tess.xyz[ numVerts + 3 ][2] = 0;
 
 	tess.texCoords[ numVerts + 3 ][0][0] = cmd->s1;
@@ -1651,32 +1651,32 @@ const void *RB_RotatedPic( const void *data ) {
 				*(int *)tess.vertexColors[ numVerts + 3 ].v = *(int *)backEnd.color2D;
 
 	angle = cmd->angle * pi2;
-	tess.xyz[ numVerts ].v[0] = cmd->x + ( cos( angle ) * cmd->w );
-	tess.xyz[ numVerts ].v[1] = cmd->y + ( sin( angle ) * cmd->h );
+	tess.xyz[ numVerts ].v[0] = cmd->x + ( c::cos( angle ) * cmd->w );
+	tess.xyz[ numVerts ].v[1] = cmd->y + ( c::sin( angle ) * cmd->h );
 	tess.xyz[ numVerts ].v[2] = 0;
 
 	tess.texCoords0[ numVerts ].v[0] = cmd->s1;
 	tess.texCoords0[ numVerts ].v[1] = cmd->t1;
 
 	angle = cmd->angle * pi2 + 0.25 * pi2;
-	tess.xyz[ numVerts + 1 ].v[0] = cmd->x + ( cos( angle ) * cmd->w );
-	tess.xyz[ numVerts + 1 ].v[1] = cmd->y + ( sin( angle ) * cmd->h );
+	tess.xyz[ numVerts + 1 ].v[0] = cmd->x + ( c::cos( angle ) * cmd->w );
+	tess.xyz[ numVerts + 1 ].v[1] = cmd->y + ( c::sin( angle ) * cmd->h );
 	tess.xyz[ numVerts + 1 ].v[2] = 0;
 
 	tess.texCoords0[ numVerts + 1 ].v[0] = cmd->s2;
 	tess.texCoords0[ numVerts + 1 ].v[1] = cmd->t1;
 
 	angle = cmd->angle * pi2 + 0.50 * pi2;
-	tess.xyz[ numVerts + 2 ].v[0] = cmd->x + ( cos( angle ) * cmd->w );
-	tess.xyz[ numVerts + 2 ].v[1] = cmd->y + ( sin( angle ) * cmd->h );
+	tess.xyz[ numVerts + 2 ].v[0] = cmd->x + ( c::cos( angle ) * cmd->w );
+	tess.xyz[ numVerts + 2 ].v[1] = cmd->y + ( c::sin( angle ) * cmd->h );
 	tess.xyz[ numVerts + 2 ].v[2] = 0;
 
 	tess.texCoords0[ numVerts + 2 ].v[0] = cmd->s2;
 	tess.texCoords0[ numVerts + 2 ].v[1] = cmd->t2;
 
 	angle = cmd->angle * pi2 + 0.75 * pi2;
-	tess.xyz[ numVerts + 3 ].v[0] = cmd->x + ( cos( angle ) * cmd->w );
-	tess.xyz[ numVerts + 3 ].v[1] = cmd->y + ( sin( angle ) * cmd->h );
+	tess.xyz[ numVerts + 3 ].v[0] = cmd->x + ( c::cos( angle ) * cmd->w );
+	tess.xyz[ numVerts + 3 ].v[1] = cmd->y + ( c::sin( angle ) * cmd->h );
 	tess.xyz[ numVerts + 3 ].v[2] = 0;
 
 	tess.texCoords0[ numVerts + 3 ].v[0] = cmd->s1;

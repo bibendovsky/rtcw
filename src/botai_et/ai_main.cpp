@@ -376,7 +376,7 @@ void BotChangeViewAngles( bot_state_t *bs, float thinktime ) {
 	}
 	maxchange *= thinktime;
 	for ( i = 0; i < 2; i++ ) {
-		diff = fabs( AngleDifference( bs->viewangles[i], bs->ideal_viewangles[i] ) );
+		diff = c::fabs( AngleDifference( bs->viewangles[i], bs->ideal_viewangles[i] ) );
 		anglespeed = diff * factor;
 		if ( anglespeed > maxchange ) {
 			anglespeed = maxchange;
@@ -536,11 +536,7 @@ void BotInputToUserCommand( bot_state_t *bs, bot_input_t *bi, usercmd_t *ucmd, i
 	//set the view independent movement
 	ucmd->forwardmove = DotProduct( forward, bi->dir ) * bi->speed;
 	ucmd->rightmove = DotProduct( right, bi->dir ) * bi->speed;
-
-    //BBi See #BUG0002
-	//ucmd->upmove = abs( forward[2] ) * bi->dir[2] * bi->speed;
-    ucmd->upmove = static_cast<float> (::abs (static_cast<int> (forward[2]))) * bi->dir[2] * bi->speed;
-    //BBi
+	ucmd->upmove = c::abs( forward[2] ) * bi->dir[2] * bi->speed;
 
 	//normal keyboard movement
 	if ( bi->actionflags & ACTION_MOVEFORWARD ) {

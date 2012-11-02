@@ -165,7 +165,7 @@ int AAS_AgainstLadder( vec3_t origin, int ms_areanum ) {
 	{
 		facenum = ( *aasworld ).faceindex[area->firstface + i];
 		side = facenum < 0;
-		face = &( *aasworld ).faces[abs( facenum )];
+		face = &( *aasworld ).faces[c::abs( facenum )];
 		//if the face isn't a ladder face
 		if ( !( face->faceflags & FACE_LADDER ) ) {
 			continue;
@@ -174,27 +174,15 @@ int AAS_AgainstLadder( vec3_t origin, int ms_areanum ) {
 		plane = &( *aasworld ).planes[face->planenum ^ side];
 		//if the origin is pretty close to the plane
 
-//BBi See #BUG0002
-//#if !defined RTCW_ET
-//		if ( abs( DotProduct( plane->normal, origin ) - plane->dist ) < 3 ) {
-//			if ( AAS_PointInsideFace( abs( facenum ), origin, 0.1 ) ) {
-//#else
-//		if ( abs( DotProduct( plane->normal, origin ) - plane->dist ) < 7 ) {
-//			// RF, if hanging on to the edge of a ladder, we have to account for bounding box touching
-//			//if (AAS_PointInsideFace(abs(facenum), origin, 0.1)) return qtrue;
-//			if ( AAS_PointInsideFace( abs( facenum ), origin, 2.0 ) ) {
-//#endif // RTCW_XX
-
 #if !defined RTCW_ET
-        if (::abs (static_cast<int> (DotProduct (plane->normal, origin) - plane->dist)) < 3) {
-            if (::AAS_PointInsideFace (::abs (facenum ), origin, 0.1F)) {
+		if ( c::abs( DotProduct( plane->normal, origin ) - plane->dist ) < 3 ) {
+			if ( AAS_PointInsideFace( c::abs( facenum ), origin, 0.1 ) ) {
 #else
-        if (::abs (static_cast<int> (DotProduct (plane->normal, origin) - plane->dist)) < 7) {
-            // RF, if hanging on to the edge of a ladder, we have to account for bounding box touching
-            //if (AAS_PointInsideFace(abs(facenum), origin, 0.1)) return qtrue;
-            if (::AAS_PointInsideFace (::abs (facenum), origin, 2.0F)) {
+		if ( c::abs( DotProduct( plane->normal, origin ) - plane->dist ) < 7 ) {
+			// RF, if hanging on to the edge of a ladder, we have to account for bounding box touching
+			//if (AAS_PointInsideFace(c::abs(facenum), origin, 0.1)) return qtrue;
+			if ( AAS_PointInsideFace( c::abs( facenum ), origin, 2.0 ) ) {
 #endif // RTCW_XX
-//BBi
 
 				return qtrue;
 			}
@@ -467,7 +455,7 @@ void AAS_ApplyFriction( vec3_t vel, float friction, float stopspeed,
 	float speed, control, newspeed;
 
 	//horizontal speed
-	speed = sqrt( vel[0] * vel[0] + vel[1] * vel[1] );
+	speed = c::sqrt( vel[0] * vel[0] + vel[1] * vel[1] );
 	if ( speed ) {
 		control = speed < stopspeed ? stopspeed : speed;
 		newspeed = speed - frametime * control * friction;
@@ -1251,11 +1239,11 @@ int AAS_HorizontalVelocityForJump( float zvel, vec3_t start, vec3_t end, float *
 		return 0;
 	} //end if
 	  //time a player takes to fall the height
-	t = sqrt( height2fall / ( 0.5 * sv_gravity ) );
+	t = c::sqrt( height2fall / ( 0.5 * sv_gravity ) );
 	//direction from start to end
 	VectorSubtract( end, start, dir );
 	//calculate horizontal speed
-	*velocity = sqrt( dir[0] * dir[0] + dir[1] * dir[1] ) / ( t + zvel / sv_gravity );
+	*velocity = c::sqrt( dir[0] * dir[0] + dir[1] * dir[1] ) / ( t + zvel / sv_gravity );
 	//the horizontal speed must be lower than the max speed
 	if ( *velocity > sv_maxvelocity ) {
 		*velocity = sv_maxvelocity;

@@ -4368,7 +4368,7 @@ the msvc acos doesn't always return a value between -PI and PI:
 
 int i;
 i = 1065353246;
-acos(*(float*) &i) == -1.#IND0
+c::acos(*(float*) &i) == -1.#IND0
 
 	This should go in q_math but it is too late to add new traps
 	to game and ui
@@ -4377,7 +4377,7 @@ acos(*(float*) &i) == -1.#IND0
 float Q_acos( float c ) {
 	float angle;
 
-	angle = acos( c );
+	angle = c::acos( c );
 
 	if ( angle > M_PI ) {
 		return (float)M_PI;

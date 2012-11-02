@@ -398,10 +398,10 @@ void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point,
 	zrot[0][0] = zrot[1][1] = zrot[2][2] = 1.0F;
 
 	rad = DEG2RAD( degrees );
-	zrot[0][0] = cos( rad );
-	zrot[0][1] = sin( rad );
-	zrot[1][0] = -sin( rad );
-	zrot[1][1] = cos( rad );
+	zrot[0][0] = c::cos( rad );
+	zrot[0][1] = c::sin( rad );
+	zrot[1][0] = -c::sin( rad );
+	zrot[1][1] = c::cos( rad );
 
 	MatrixMultiply( m, zrot, tmpmat );
 	MatrixMultiply( tmpmat, im, rot );
@@ -431,12 +431,12 @@ void RotatePointAroundVertex( vec3_t pnt, float rot_x, float rot_y, float rot_z,
 	VectorSubtract( pnt, origin, pnt );
 
 	// init temp values
-	tmp[0] = sin( rot_x );
-	tmp[1] = cos( rot_x );
-	tmp[2] = sin( rot_y );
-	tmp[3] = cos( rot_y );
-	tmp[4] = sin( rot_z );
-	tmp[5] = cos( rot_z );
+	tmp[0] = c::sin( rot_x );
+	tmp[1] = c::cos( rot_x );
+	tmp[2] = c::sin( rot_y );
+	tmp[3] = c::cos( rot_y );
+	tmp[4] = c::sin( rot_z );
+	tmp[5] = c::cos( rot_z );
 	tmp[6] = pnt[1] * tmp[5];
 	tmp[7] = pnt[0] * tmp[4];
 	tmp[8] = pnt[0] * tmp[5];
@@ -490,7 +490,7 @@ void vectoangles( const vec3_t value1, vec3_t angles ) {
 		}
 	} else {
 		if ( value1[0] ) {
-			yaw = ( atan2( value1[1], value1[0] ) * 180 / M_PI );
+			yaw = ( c::atan2( value1[1], value1[0] ) * 180 / M_PI );
 		} else if ( value1[1] > 0 )   {
 			yaw = 90;
 		} else {
@@ -500,8 +500,8 @@ void vectoangles( const vec3_t value1, vec3_t angles ) {
 			yaw += 360;
 		}
 
-		forward = sqrt( value1[0] * value1[0] + value1[1] * value1[1] );
-		pitch = ( atan2( value1[2], forward ) * 180 / M_PI );
+		forward = c::sqrt( value1[0] * value1[0] + value1[1] * value1[1] );
+		pitch = ( c::atan2( value1[2], forward ) * 180 / M_PI );
 		if ( pitch < 0 ) {
 			pitch += 360;
 		}
@@ -1185,8 +1185,8 @@ float RadiusFromBounds( const vec3_t mins, const vec3_t maxs ) {
 	for ( i = 0 ; i < 3 ; i++ ) {
 
 #if !defined RTCW_ET
-		a = fabs( mins[i] );
-		b = fabs( maxs[i] );
+		a = c::fabs( mins[i] );
+		b = c::fabs( maxs[i] );
 #else
 		a = Q_fabs( mins[i] );
 		b = Q_fabs( maxs[i] );
@@ -1267,7 +1267,7 @@ vec_t VectorNormalize( vec3_t v ) {
 	float length, ilength;
 
 	length = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
-	length = sqrt( length );
+	length = c::sqrt( length );
 
 	if ( length ) {
 		ilength = 1 / length;
@@ -1297,7 +1297,7 @@ vec_t VectorNormalize2( const vec3_t v, vec3_t out ) {
 	float length, ilength;
 
 	length = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
-	length = sqrt( length );
+	length = c::sqrt( length );
 
 	if ( length ) {
 		ilength = 1 / length;
@@ -1354,7 +1354,7 @@ void CrossProduct( const vec3_t v1, const vec3_t v2, vec3_t cross ) {
 }
 
 vec_t VectorLength( const vec3_t v ) {
-	return sqrt( v[0] * v[0] + v[1] * v[1] + v[2] * v[2] );
+	return c::sqrt( v[0] * v[0] + v[1] * v[1] + v[2] * v[2] );
 }
 
 vec_t VectorLengthSquared( const vec3_t v ) {
@@ -1468,14 +1468,14 @@ void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up 
 	// static to help MS compiler fp bugs
 
 	angle = angles[YAW] * ( M_PI * 2 / 360 );
-	sy = sin( angle );
-	cy = cos( angle );
+	sy = c::sin( angle );
+	cy = c::cos( angle );
 	angle = angles[PITCH] * ( M_PI * 2 / 360 );
-	sp = sin( angle );
-	cp = cos( angle );
+	sp = c::sin( angle );
+	cp = c::cos( angle );
 	angle = angles[ROLL] * ( M_PI * 2 / 360 );
-	sr = sin( angle );
-	cr = cos( angle );
+	sr = c::sin( angle );
+	cr = c::cos( angle );
 
 	if ( forward ) {
 		forward[0] = cp * cy;
@@ -1510,7 +1510,7 @@ void PerpendicularVector( vec3_t dst, const vec3_t src ) {
 	{
 
 #if !defined RTCW_ET
-		if ( fabs( src[i] ) < minelem ) {
+		if ( c::fabs( src[i] ) < minelem ) {
 #else
 		if ( Q_fabs( src[i] ) < minelem ) {
 #endif // RTCW_XX
@@ -1518,7 +1518,7 @@ void PerpendicularVector( vec3_t dst, const vec3_t src ) {
 			pos = i;
 
 #if !defined RTCW_ET
-			minelem = fabs( src[i] );
+			minelem = c::fabs( src[i] );
 #else
 			minelem = Q_fabs( src[i] );
 #endif // RTCW_XX
@@ -1653,7 +1653,7 @@ float vectoyaw( const vec3_t vec ) {
 		yaw = 0;
 	} else {
 		if ( vec[PITCH] ) {
-			yaw = ( atan2( vec[YAW], vec[PITCH] ) * 180 / M_PI );
+			yaw = ( c::atan2( vec[YAW], vec[PITCH] ) * 180 / M_PI );
 		} else if ( vec[YAW] > 0 ) {
 			yaw = 90;
 		} else {

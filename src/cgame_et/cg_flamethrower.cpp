@@ -383,7 +383,7 @@ void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float sp
 			if (dot >= 0.99) {
 				dot -= 0.99;
 				dot *= (1.0/(1.0-0.99));
-				CG_FlameAdjustSpeed( f, 0.5 * frametime * FLAME_FRICTION_PER_SEC * pow(dot,4) );
+				CG_FlameAdjustSpeed( f, 0.5 * frametime * FLAME_FRICTION_PER_SEC * c::pow(dot,4) );
 			}
 		}
 
@@ -725,7 +725,7 @@ void CG_AddFlameSpriteToScene( flameChunk_t *f, float lifeFrac, float alpha ) {
 	rST[1] = radius * 1.0 / 1.481;
 	alphaChar = ( unsigned char )( 255.0 * alpha );
 
-	frameNum = (int)floor( lifeFrac * NUM_FLAME_SPRITES );
+	frameNum = (int)c::floor( lifeFrac * NUM_FLAME_SPRITES );
 	if ( frameNum < 0 ) {
 		frameNum = 0;
 	} else if ( frameNum > NUM_FLAME_SPRITES - 1 ) {
@@ -995,8 +995,8 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 			// should we merge it with the next sprite?
 			while ( fNext && !droppedTrail ) {
 				if ( ( Distance( f->org, fNext->org ) < ( ( 0.1 + 0.9 * f->lifeFrac ) * f->size * 0.35 ) )
-					 &&  ( fabs( f->size - fNext->size ) < ( 40.0 ) )
-					 &&  ( abs( f->timeStart - fNext->timeStart ) < 100 )
+					 &&  ( c::fabs( f->size - fNext->size ) < ( 40.0 ) )
+					 &&  ( c::abs( f->timeStart - fNext->timeStart ) < 100 )
 					 &&  ( DotProduct( f->velDir, fNext->velDir ) > 0.99 )
 					 ) {
 					if ( !droppedTrail ) {
@@ -1045,7 +1045,7 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 	if ( lightSize > 500 ) {
 		lightSize = 500;
 	}
-	lightSize *= 1.0 + 0.2 * ( sin( 1.0 * cg.time / 50.0 ) * cos( 1.0 * cg.time / 43.0 ) );
+	lightSize *= 1.0 + 0.2 * ( c::sin( 1.0 * cg.time / 50.0 ) * c::cos( 1.0 * cg.time / 43.0 ) );
 	// set the alpha
 	//%	alpha = lightSize / 500.0;
 	alpha = lightSize * 0.005;  // ydnar

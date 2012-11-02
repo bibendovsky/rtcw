@@ -977,7 +977,7 @@ qboolean AAS_InsideFace( aas_face_t *face, vec3_t pnormal, vec3_t point, float e
 	for ( i = 0; i < face->numedges; i++ )
 	{
 		edgenum = ( *aasworld ).edgeindex[face->firstedge + i];
-		edge = &( *aasworld ).edges[abs( edgenum )];
+		edge = &( *aasworld ).edges[c::abs( edgenum )];
 		//get the first vertex of the edge
 		firstvertex = edgenum < 0;
 		VectorCopy( ( *aasworld ).vertexes[edge->v[firstvertex]], v0 );
@@ -1033,7 +1033,7 @@ qboolean AAS_PointInsideFace( int facenum, vec3_t point, float epsilon ) {
 	for ( i = 0; i < face->numedges; i++ )
 	{
 		edgenum = ( *aasworld ).edgeindex[face->firstedge + i];
-		edge = &( *aasworld ).edges[abs( edgenum )];
+		edge = &( *aasworld ).edges[c::abs( edgenum )];
 		//get the first vertex of the edge
 		firstvertex = edgenum < 0;
 		v1 = ( *aasworld ).vertexes[edge->v[firstvertex]];
@@ -1073,7 +1073,7 @@ aas_face_t *AAS_AreaGroundFace( int areanum, vec3_t point ) {
 	for ( i = 0; i < area->numfaces; i++ )
 	{
 		facenum = ( *aasworld ).faceindex[area->firstface + i];
-		face = &( *aasworld ).faces[abs( facenum )];
+		face = &( *aasworld ).faces[c::abs( facenum )];
 		//if this is a ground face
 		if ( face->faceflags & FACE_GROUND ) {
 			//get the up or down normal
@@ -1128,7 +1128,7 @@ aas_face_t *AAS_TraceEndFace( aas_trace_t *trace ) {
 	for ( i = 0; i < area->numfaces; i++ )
 	{
 		facenum = ( *aasworld ).faceindex[area->firstface + i];
-		face = &( *aasworld ).faces[abs( facenum )];
+		face = &( *aasworld ).faces[c::abs( facenum )];
 		//if the face is in the same plane as the trace end point
 		if ( ( face->planenum & ~1 ) == ( trace->planenum & ~1 ) ) {
 			//firstface is used for optimization, if theres only one

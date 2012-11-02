@@ -567,7 +567,7 @@ void CG_DrawCursorhint( rectDef_t *rect ) {
 	}
 
 	if ( cg_cursorHints.integer == 3 ) {
-		color[3] *= 0.5 + 0.5 * sin( (float)cg.time / 150.0 );
+		color[3] *= 0.5 + 0.5 * c::sin( (float)cg.time / 150.0 );
 	}
 
 
@@ -578,7 +578,7 @@ void CG_DrawCursorhint( rectDef_t *rect ) {
 		if ( cg_cursorHints.integer == 2 ) {
 			scale = (float)( ( cg.cursorHintTime ) % 1000 ) / 100.0f; // one way size pulse
 		} else {
-			scale = CURSORHINT_SCALE * ( 0.5 + 0.5 * sin( (float)cg.time / 150.0 ) ); // sin pulse
+			scale = CURSORHINT_SCALE * ( 0.5 + 0.5 * c::sin( (float)cg.time / 150.0 ) ); // sin pulse
 
 		}
 		halfscale = scale * 0.5f;

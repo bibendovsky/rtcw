@@ -1073,16 +1073,16 @@ int SV_GameSystemCalls( int *args ) {
 		return (int)strncpy( static_cast<char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), args[3] );
 
 	case TRAP_SIN:
-		return FloatAsInt( sin( VMF( 1 ) ) );
+		return FloatAsInt( c::sin( VMF( 1 ) ) );
 
 	case TRAP_COS:
-		return FloatAsInt( cos( VMF( 1 ) ) );
+		return FloatAsInt( c::cos( VMF( 1 ) ) );
 
 	case TRAP_ATAN2:
-		return FloatAsInt( atan2( VMF( 1 ), VMF( 2 ) ) );
+		return FloatAsInt( c::atan2( VMF( 1 ), VMF( 2 ) ) );
 
 	case TRAP_SQRT:
-		return FloatAsInt( sqrt( VMF( 1 ) ) );
+		return FloatAsInt( c::sqrt( VMF( 1 ) ) );
 
 	case TRAP_MATRIXMULTIPLY:
 		MatrixMultiply( static_cast<float(*)[3]> (VMA( 1 )), static_cast<float(*)[3]> (VMA( 2 )), static_cast<float(*)[3]> (VMA( 3 )) );
@@ -1097,10 +1097,10 @@ int SV_GameSystemCalls( int *args ) {
 		return 0;
 
 	case TRAP_FLOOR:
-		return FloatAsInt( floor( VMF( 1 ) ) );
+		return FloatAsInt( c::floor( VMF( 1 ) ) );
 
 	case TRAP_CEIL:
-		return FloatAsInt( ceil( VMF( 1 ) ) );
+		return FloatAsInt( c::ceil( VMF( 1 ) ) );
 
 
 #if defined RTCW_ET

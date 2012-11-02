@@ -2551,7 +2551,7 @@ int PC_Directive_eval( source_t *source ) {
 	token.whitespace_p = source->scriptstack->script_p;
 	token.endwhitespace_p = source->scriptstack->script_p;
 	token.linescrossed = 0;
-	sprintf( token.string, "%d", abs( value ) );
+	sprintf( token.string, "%d", c::abs( value ) );
 	token.type = TT_NUMBER;
 	token.subtype = TT_INTEGER | TT_LONG | TT_DECIMAL;
 	PC_UnreadSourceToken( source, &token );
@@ -2579,7 +2579,7 @@ int PC_Directive_evalfloat( source_t *source ) {
 	token.linescrossed = 0;
 
 #if !defined RTCW_ET
-	sprintf( token.string, "%1.2f", fabs( value ) );
+	sprintf( token.string, "%1.2f", c::fabs( value ) );
 #else
 	sprintf( token.string, "%1.2f", Q_fabs( value ) );
 #endif // RTCW_XX
@@ -2663,7 +2663,7 @@ int PC_DollarDirective_evalint( source_t *source ) {
 	token.whitespace_p = source->scriptstack->script_p;
 	token.endwhitespace_p = source->scriptstack->script_p;
 	token.linescrossed = 0;
-	sprintf( token.string, "%d", abs( value ) );
+	sprintf( token.string, "%d", c::abs( value ) );
 	token.type = TT_NUMBER;
 	token.subtype = TT_INTEGER | TT_LONG | TT_DECIMAL;
 #ifdef NUMBERVALUE
@@ -2695,7 +2695,7 @@ int PC_DollarDirective_evalfloat( source_t *source ) {
 	token.linescrossed = 0;
 
 #if !defined RTCW_ET
-	sprintf( token.string, "%1.2f", fabs( value ) );
+	sprintf( token.string, "%1.2f", c::fabs( value ) );
 #else
 	sprintf( token.string, "%1.2f", Q_fabs( value ) );
 #endif // RTCW_XX

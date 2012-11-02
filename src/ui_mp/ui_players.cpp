@@ -315,7 +315,7 @@ static void UI_LegsSequencing( playerInfo_t *pi ) {
 
 	if ( pi->legsAnimationTimer > 0 ) {
 		if ( currentAnim == LEGS_JUMP ) {
-			jumpHeight = JUMP_HEIGHT * sin( M_PI * ( UI_TIMER_JUMP - pi->legsAnimationTimer ) / UI_TIMER_JUMP );
+			jumpHeight = JUMP_HEIGHT * c::sin( M_PI * ( UI_TIMER_JUMP - pi->legsAnimationTimer ) / UI_TIMER_JUMP );
 		}
 		return;
 	}
@@ -541,7 +541,7 @@ static void UI_SwingAngles( float destination, float swingTolerance, float clamp
 	// modify the speed depending on the delta
 	// so it doesn't seem so linear
 	swing = AngleSubtract( destination, *angle );
-	scale = fabs( swing );
+	scale = c::fabs( swing );
 	if ( scale < swingTolerance * 0.5 ) {
 		scale = 0.5;
 	} else if ( scale < swingTolerance ) {
@@ -818,13 +818,13 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	refdef.height = h;
 
 	refdef.fov_x = (int)( (float)refdef.width / 640.0f * 90.0f );
-	xx = refdef.width / tan( refdef.fov_x / 360 * M_PI );
-	refdef.fov_y = atan2( refdef.height, xx );
+	xx = refdef.width / c::tan( refdef.fov_x / 360 * M_PI );
+	refdef.fov_y = c::atan2( refdef.height, xx );
 	refdef.fov_y *= ( 360 / M_PI );
 
 	// calculate distance so the player nearly fills the box
 	len = 1.01 * ( maxs[2] - mins[2] );                         // NERVE - SMF - changed from 0.7
-	origin[0] = len / tan( DEG2RAD( refdef.fov_x ) * 0.5 );
+	origin[0] = len / c::tan( DEG2RAD( refdef.fov_x ) * 0.5 );
 	origin[1] = 0.5 * ( mins[1] + maxs[1] );
 	origin[2] = -0.5 * ( mins[2] + maxs[2] );
 

@@ -648,7 +648,7 @@ int R_MarkFragments( int orientation, const vec3_t *points, const vec3_t project
 				dot -= surf->plane.dist;
 				if (!bestdist) {
 					if (dot < 0)
-						bestdist = fabs(dot) + 1000;	// avoid this surface, since the point is behind it
+						bestdist = c::fabs(dot) + 1000;	// avoid this surface, since the point is behind it
 					else
 						bestdist = dot;
 					VectorCopy( surf->plane.normal, bestnormal );
@@ -836,7 +836,7 @@ Com_Printf("bestnormal: %1.1f %1.1f %1.1f \n", bestnormal[0], bestnormal[1], bes
 					continue;
 
 #if !defined RTCW_ET
-				} else if ( fabs( dot ) > radius ) {
+				} else if ( c::fabs( dot ) > radius ) {
 #else
 					} else if ( Q_fabs( dot ) > radius ) {
 #endif // RTCW_XX

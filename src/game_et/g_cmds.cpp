@@ -1088,7 +1088,7 @@ qboolean G_IsWeaponDisabled( gentity_t* ent, weapon_t weapon ) {
 	count =     G_TeamCount( ent, weapon_t (-1) );
 	wcount =    G_TeamCount( ent, weapon );
 
-	if ( wcount >= ceil( count * g_heavyWeaponRestriction.integer * 0.01f ) ) {
+	if ( wcount >= c::ceil( count * g_heavyWeaponRestriction.integer * 0.01f ) ) {
 		return qtrue;
 	}
 

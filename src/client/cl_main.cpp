@@ -3678,7 +3678,7 @@ static void CL_Cache_EndGather_f( void ) {
 	int i, j, handle, cachePass;
 	char filename[MAX_QPATH];
 
-	cachePass = (int)floor( (float)cacheIndex * CACHE_HIT_RATIO );
+	cachePass = (int)c::floor( (float)cacheIndex * CACHE_HIT_RATIO );
 
 #if defined RTCW_MP
 #ifdef __MACOS__    //DAJ MacOS file typing

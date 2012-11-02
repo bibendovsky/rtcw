@@ -411,7 +411,7 @@ static void CG_DrawPlayerAmmoIcon( rectDef_t *rect, qboolean draw2D ) {
 			origin[0] = 70;
 			origin[1] = 0;
 			origin[2] = 0;
-			angles[YAW] = 90 + 20 * sin( cg.time / 1000.0 );
+			angles[YAW] = 90 + 20 * c::sin( cg.time / 1000.0 );
 			CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, cg_weapons[ cent->currentState.weapon ].ammoModel, 0, origin, angles );
 		}
 	}
@@ -595,7 +595,7 @@ static void CG_DrawCursorhint( rectDef_t *rect ) {
 	}
 
 	if ( cg_cursorHints.integer == 3 ) {
-		color[3] *= 0.5 + 0.5 * sin( (float)cg.time / 150.0 );
+		color[3] *= 0.5 + 0.5 * c::sin( (float)cg.time / 150.0 );
 	}
 
 
@@ -606,7 +606,7 @@ static void CG_DrawCursorhint( rectDef_t *rect ) {
 		if ( cg_cursorHints.integer == 2 ) {
 			scale = (float)( ( cg.cursorHintTime ) % 1000 ) / 100.0f; // one way size pulse
 		} else {
-			scale = CURSORHINT_SCALE * ( 0.5 + 0.5 * sin( (float)cg.time / 150.0 ) ); // sin pulse
+			scale = CURSORHINT_SCALE * ( 0.5 + 0.5 * c::sin( (float)cg.time / 150.0 ) ); // sin pulse
 
 		}
 		halfscale = scale * 0.5f;
@@ -760,8 +760,8 @@ static void CG_DrawPlayerHead( rectDef_t *rect, qboolean draw2D ) {
 
 		cg.headStartYaw = 180 + cg.damageX * 45;
 
-		cg.headEndYaw = 180 + 20 * cos( crandom() * M_PI );
-		cg.headEndPitch = 5 * cos( crandom() * M_PI );
+		cg.headEndYaw = 180 + 20 * c::cos( crandom() * M_PI );
+		cg.headEndPitch = 5 * c::cos( crandom() * M_PI );
 
 		cg.headStartTime = cg.time;
 		cg.headEndTime = cg.time + 100 + random() * 2000;
@@ -773,8 +773,8 @@ static void CG_DrawPlayerHead( rectDef_t *rect, qboolean draw2D ) {
 			cg.headStartTime = cg.headEndTime;
 			cg.headEndTime = cg.time + 100 + random() * 2000;
 
-			cg.headEndYaw = 180 + 20 * cos( crandom() * M_PI );
-			cg.headEndPitch = 5 * cos( crandom() * M_PI );
+			cg.headEndYaw = 180 + 20 * c::cos( crandom() * M_PI );
+			cg.headEndPitch = 5 * c::cos( crandom() * M_PI );
 		}
 
 		size = rect->w * 1.25;
@@ -1226,7 +1226,7 @@ static void CG_DrawBlueFlagHead( rectDef_t *rect ) {
 		if ( cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == TEAM_RED  && cgs.clientinfo[i].powerups & ( 1 << PW_BLUEFLAG ) ) {
 			vec3_t angles;
 			VectorClear( angles );
-			angles[YAW] = 180 + 20 * sin( cg.time / 650.0 );;
+			angles[YAW] = 180 + 20 * c::sin( cg.time / 650.0 );;
 			CG_DrawHead( rect->x, rect->y, rect->w, rect->h, 0,angles );
 			return;
 		}
@@ -1282,7 +1282,7 @@ static void CG_DrawRedFlagHead( rectDef_t *rect ) {
 		if ( cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == TEAM_BLUE  && cgs.clientinfo[i].powerups & ( 1 << PW_REDFLAG ) ) {
 			vec3_t angles;
 			VectorClear( angles );
-			angles[YAW] = 180 + 20 * sin( cg.time / 650.0 );;
+			angles[YAW] = 180 + 20 * c::sin( cg.time / 650.0 );;
 			CG_DrawHead( rect->x, rect->y, rect->w, rect->h, 0,angles );
 			return;
 		}

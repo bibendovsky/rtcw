@@ -1598,7 +1598,7 @@ qboolean sEntWillTriggerMine( gentity_t *ent, gentity_t *mine ) {
 		VectorSubtract( mine->r.currentOrigin, ent->r.currentOrigin, dist );
 		// have to be within the trigger distance AND on the ground -- if we jump over a mine, we don't set it off
 		//		(or if we fly by after setting one off)
-		if ( ( VectorLengthSquared( dist ) <= SQR( LANDMINE_TRIGGER_DIST ) ) && ( fabs( dist[2] ) < 45.f ) ) {
+		if ( ( VectorLengthSquared( dist ) <= SQR( LANDMINE_TRIGGER_DIST ) ) && ( c::fabs( dist[2] ) < 45.f ) ) {
 			return qtrue;
 		}
 	}

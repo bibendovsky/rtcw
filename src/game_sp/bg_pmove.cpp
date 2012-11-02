@@ -395,18 +395,18 @@ static float PM_CmdScale( usercmd_t *cmd ) {
 		}
 	}
 
-	max = abs( cmd->forwardmove );
-	if ( abs( cmd->rightmove ) > max ) {
-		max = abs( cmd->rightmove );
+	max = c::abs( cmd->forwardmove );
+	if ( c::abs( cmd->rightmove ) > max ) {
+		max = c::abs( cmd->rightmove );
 	}
-	if ( abs( cmd->upmove ) > max ) {
-		max = abs( cmd->upmove );
+	if ( c::abs( cmd->upmove ) > max ) {
+		max = c::abs( cmd->upmove );
 	}
 	if ( !max ) {
 		return 0;
 	}
 
-	total = sqrt( float (cmd->forwardmove * cmd->forwardmove
+	total = c::sqrt( float (cmd->forwardmove * cmd->forwardmove
 				  + cmd->rightmove * cmd->rightmove + cmd->upmove * cmd->upmove) );
 	scale = (float)pm->ps->speed * max / ( 127.0 * total );
 
@@ -477,7 +477,7 @@ static void PM_SetMovementDir( void ) {
 			moveyaw = (int)AngleNormalize180( moveyaw + 180 );
 		}
 
-		if ( abs( moveyaw ) > 75 ) {
+		if ( c::abs( moveyaw ) > 75 ) {
 			if ( moveyaw > 0 ) {
 				moveyaw = 75;
 			} else
@@ -1269,7 +1269,7 @@ static void PM_CrashLand( void ) {
 	if ( den < 0 ) {
 		return;
 	}
-	t = ( -b - sqrt( den ) ) / ( 2 * a );
+	t = ( -b - c::sqrt( den ) ) / ( 2 * a );
 
 	delta = vel + t * acc;
 	delta = delta * delta * 0.0001;
@@ -1681,7 +1681,7 @@ static void PM_Footsteps( void ) {
 	// calculate speed and cycle to be used for
 	// all cyclic walking effects
 	//
-	pm->xyspeed = sqrt( pm->ps->velocity[0] * pm->ps->velocity[0]
+	pm->xyspeed = c::sqrt( pm->ps->velocity[0] * pm->ps->velocity[0]
 						+  pm->ps->velocity[1] * pm->ps->velocity[1] );
 
 	// mg42, always idle
@@ -2630,7 +2630,7 @@ void PM_AdjustAimSpreadScale( void ) {
 		viewchange = 0;
 		// take player view rotation into account
 		for ( i = 0; i < 2; i++ )
-			viewchange += fabs( SHORT2ANGLE( pm->cmd.angles[i] ) - SHORT2ANGLE( pm->oldcmd.angles[i] ) );
+			viewchange += c::fabs( SHORT2ANGLE( pm->cmd.angles[i] ) - SHORT2ANGLE( pm->oldcmd.angles[i] ) );
 
 		// take player movement into account (even if only for the scoped weapons)
 		// TODO: also check for jump/crouch and adjust accordingly
@@ -2639,11 +2639,11 @@ void PM_AdjustAimSpreadScale( void ) {
 		case WP_SNOOPERSCOPE:
 		case WP_FG42SCOPE:
 			for ( i = 0; i < 2; i++ )
-				viewchange += fabs( pm->ps->velocity[i] );
+				viewchange += c::fabs( pm->ps->velocity[i] );
 			break;
 		case WP_PANZERFAUST:        // don't take movement into account as much
 			for ( i = 0; i < 2; i++ )
-				viewchange += ( 0.01f * fabs( pm->ps->velocity[i] ) );
+				viewchange += ( 0.01f * c::fabs( pm->ps->velocity[i] ) );
 			break;
 		default:
 			break;
@@ -4072,7 +4072,7 @@ void PmoveSingle( pmove_t *pmove ) {
 	// make sure walking button is clear if they are running, to avoid
 	// proxy no-footsteps cheats
 	if ( !pm->ps->aiChar ) {
-		if ( abs( pm->cmd.forwardmove ) > 64 || abs( pm->cmd.rightmove ) > 64 ) {
+		if ( c::abs( pm->cmd.forwardmove ) > 64 || c::abs( pm->cmd.rightmove ) > 64 ) {
 			pm->cmd.buttons &= ~BUTTON_WALKING;
 		}
 	}

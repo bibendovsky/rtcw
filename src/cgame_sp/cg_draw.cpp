@@ -428,7 +428,7 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team ) {
 	len = 0.5 * ( maxs[2] - mins[2] );
 	origin[0] = len / 0.268;    // len / tan( fov/2 )
 
-	angles[YAW] = 60 * sin( cg.time / 2000.0 );;
+	angles[YAW] = 60 * c::sin( cg.time / 2000.0 );;
 
 	CG_Draw3DModel( x, y, w, h,
 					team == TEAM_RED ? cgs.media.redFlagModel : cgs.media.blueFlagModel,
@@ -461,7 +461,7 @@ void CG_DrawKeyModel( int keynum, float x, float y, float w, float h, int fadeti
 	len = 0.75 * ( maxs[2] - mins[2] );
 	origin[0] = len / 0.268;    // len / tan( fov/2 )
 
-	angles[YAW] = 30 * sin( cg.time / 2000.0 );;
+	angles[YAW] = 30 * c::sin( cg.time / 2000.0 );;
 
 	CG_Draw3DModel( x, y, w, h, cg_items[keynum].models[0], 0, origin, angles );
 }
@@ -490,8 +490,8 @@ static void CG_DrawStatusBarHead( float x ) {
 
 		cg.headStartYaw = 180 + cg.viewDamage[cg.damageIndex].damageX * 45;
 
-		cg.headEndYaw = 180 + 20 * cos( crandom() * M_PI );
-		cg.headEndPitch = 5 * cos( crandom() * M_PI );
+		cg.headEndYaw = 180 + 20 * c::cos( crandom() * M_PI );
+		cg.headEndPitch = 5 * c::cos( crandom() * M_PI );
 
 		cg.headStartTime = cg.time;
 		cg.headEndTime = cg.time + 100 + random() * 2000;
@@ -503,8 +503,8 @@ static void CG_DrawStatusBarHead( float x ) {
 			cg.headStartTime = cg.headEndTime;
 			cg.headEndTime = cg.time + 100 + random() * 2000;
 
-			cg.headEndYaw = 180 + 20 * cos( crandom() * M_PI );
-			cg.headEndPitch = 5 * cos( crandom() * M_PI );
+			cg.headEndYaw = 180 + 20 * c::cos( crandom() * M_PI );
+			cg.headEndPitch = 5 * c::cos( crandom() * M_PI );
 		}
 
 		size = ICON_SIZE * 1.25;
@@ -678,7 +678,7 @@ static void CG_DrawStatusBar( void ) {
 		origin[0] = 70;
 		origin[1] = 0;
 		origin[2] = 0;
-		angles[YAW] = 90 + 20 * sin( cg.time / 1000.0 );;
+		angles[YAW] = 90 + 20 * c::sin( cg.time / 1000.0 );;
 //----(SA) Wolf statusbar change
 		CG_Draw3DModel( CHAR_WIDTH*3 + TEXT_ICON_SPACE, STATUSBARHEIGHT -20, ICON_SIZE, ICON_SIZE,
 					   cg_weapons[ cent->currentState.weapon ].ammoModel, 0, origin, angles );
@@ -2945,7 +2945,7 @@ static void CG_DrawFlashDamage( void ) {
 	}
 
 	if ( cg.v_dmg_time > cg.time ) {
-		redFlash = fabs( cg.v_dmg_pitch * ( ( cg.v_dmg_time - cg.time ) / DAMAGE_TIME ) );
+		redFlash = c::fabs( cg.v_dmg_pitch * ( ( cg.v_dmg_time - cg.time ) / DAMAGE_TIME ) );
 
 		// blend the entire screen red
 		if ( redFlash > 5 ) {
@@ -2998,7 +2998,7 @@ static void CG_DrawFlashFire( void ) {
 			alpha = f;
 		}
 
-		max = 0.5 + 0.5 * sin( (float)( ( cg.time / 10 ) % 1000 ) / 1000.0 );
+		max = 0.5 + 0.5 * c::sin( (float)( ( cg.time / 10 ) % 1000 ) / 1000.0 );
 		if ( alpha > max ) {
 			alpha = max;
 		}
@@ -3495,17 +3495,17 @@ void CG_CalcShakeCamera() {
 	}
 
 	// up/down
-	val = sin( M_PI * 8 * sx + cg.cameraShakePhase ) * bx * 18.0f * scale;
+	val = c::sin( M_PI * 8 * sx + cg.cameraShakePhase ) * bx * 18.0f * scale;
 	cg.cameraShakeAngles[0] = val;
 	//cg.refdefViewAngles[0] += val;
 
 	// left/right
-	val = sin( M_PI * 15 * sx + cg.cameraShakePhase ) * bx * 16.0f * scale;
+	val = c::sin( M_PI * 15 * sx + cg.cameraShakePhase ) * bx * 16.0f * scale;
 	cg.cameraShakeAngles[1] = val;
 	//cg.refdefViewAngles[1] += val;
 
 	// roll
-	val = sin( M_PI * 12 * sx + cg.cameraShakePhase ) * bx * 10.0f * scale;
+	val = c::sin( M_PI * 12 * sx + cg.cameraShakePhase ) * bx * 10.0f * scale;
 	cg.cameraShakeAngles[2] = val;
 	//cg.refdefViewAngles[2] += val;
 }

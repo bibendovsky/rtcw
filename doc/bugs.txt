@@ -37,12 +37,14 @@ Symptoms:
     Scripted sequences (mostly in cutscenes) may behave incorrectly.
 
 Reason:
-    Improper call of overloaded "abs" function.
+    Call of a not appropriate overloaded math function.
 
 Solution:
-    Cast "abs"'s parameter to correct type.
+    a) Cast function's parameter to correct type.
+    b) Make a set of wrappers for problematic functions with only
+       one type of parameter(s).
 
 Additional information.
-    Standard headers for C defines only integral parameter for function
-"abs", while in C++ there are also overloaded versions with float-point
-parameter.
+    C++ provides overloaded versions for some functions (abs, fabs, etc.)
+which can change a program's flow. For example, an "abs" function in C can
+take only integral parameter, while C++ also supports float-point one.

@@ -1272,7 +1272,7 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t
 		drawcolor[0] = color[0];
 		drawcolor[1] = color[1];
 		drawcolor[2] = color[2];
-		drawcolor[3] = 0.5F + 0.5F * sin( float (cg.time / PULSE_DIVISOR) );
+		drawcolor[3] = 0.5F + 0.5F * c::sin( float (cg.time / PULSE_DIVISOR) );
 		UI_DrawProportionalString2( x, y, str, drawcolor, sizeScale, cgs.media.charsetPropGlow );
 		return;
 	}

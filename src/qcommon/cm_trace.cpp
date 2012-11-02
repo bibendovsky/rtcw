@@ -113,16 +113,16 @@ void CreateRotationMatrix( const vec3_t angles, vec3_t matrix[3] ) {
 	// static to help MS compiler fp bugs
 
 	angle = angles[YAW] * ( M_PI * 2 / 360 );
-	sy = sin( angle );
-	cy = cos( angle );
+	sy = c::sin( angle );
+	cy = c::cos( angle );
 
 	angle = angles[PITCH] * ( M_PI * 2 / 360 );
-	sp = sin( angle );
-	cp = cos( angle );
+	sp = c::sin( angle );
+	cp = c::cos( angle );
 
 	angle = angles[ROLL] * ( M_PI * 2 / 360 );
-	sr = sin( angle );
-	cr = cos( angle );
+	sr = c::sin( angle );
+	cr = c::cos( angle );
 
 	matrix[0][0] = cp * cy;
 	matrix[0][1] = cp * sy;
@@ -170,7 +170,7 @@ float CM_DistanceFromLineSquared( vec3_t p, vec3_t lp1, vec3_t lp2, vec3_t dir )
 	if ( j < 3 ) {
 
 #if !defined RTCW_ET
-		if ( fabs( proj[j] - lp1[j] ) < fabs( proj[j] - lp2[j] ) ) {
+		if ( c::fabs( proj[j] - lp1[j] ) < c::fabs( proj[j] - lp2[j] ) ) {
 #else
 		if ( Q_fabs( proj[j] - lp1[j] ) < Q_fabs( proj[j] - lp2[j] ) ) {
 #endif // RTCW_XX
@@ -1371,9 +1371,9 @@ static void CM_TraceThroughTree( traceWork_t *tw, int num, float p1f, float p2f,
 			// by sqrt(3)
 
 #if !defined RTCW_ET
-			offset = fabs(tw->extents[0]*plane->normal[0]) +
-				fabs(tw->extents[1]*plane->normal[1]) +
-				fabs(tw->extents[2]*plane->normal[2]);
+			offset = c::fabs(tw->extents[0]*plane->normal[0]) +
+				c::fabs(tw->extents[1]*plane->normal[1]) +
+				c::fabs(tw->extents[2]*plane->normal[2]);
 #else
 			offset = Q_fabs(tw->extents[0]*plane->normal[0]) +
 				Q_fabs(tw->extents[1]*plane->normal[1]) +
@@ -1587,11 +1587,11 @@ void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end,
 	if ( tw.sphere.use ) {
 		for ( i = 0 ; i < 3 ; i++ ) {
 			if ( tw.start[i] < tw.end[i] ) {
-				tw.bounds[0][i] = tw.start[i] - fabs( tw.sphere.offset[i] ) - tw.sphere.radius;
-				tw.bounds[1][i] = tw.end[i] + fabs( tw.sphere.offset[i] ) + tw.sphere.radius;
+				tw.bounds[0][i] = tw.start[i] - c::fabs( tw.sphere.offset[i] ) - tw.sphere.radius;
+				tw.bounds[1][i] = tw.end[i] + c::fabs( tw.sphere.offset[i] ) + tw.sphere.radius;
 			} else {
-				tw.bounds[0][i] = tw.end[i] - fabs( tw.sphere.offset[i] ) - tw.sphere.radius;
-				tw.bounds[1][i] = tw.start[i] + fabs( tw.sphere.offset[i] ) + tw.sphere.radius;
+				tw.bounds[0][i] = tw.end[i] - c::fabs( tw.sphere.offset[i] ) - tw.sphere.radius;
+				tw.bounds[1][i] = tw.start[i] + c::fabs( tw.sphere.offset[i] ) + tw.sphere.radius;
 			}
 		}
 	} else {

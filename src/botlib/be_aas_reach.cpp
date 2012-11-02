@@ -404,7 +404,7 @@ float AAS_FaceArea( aas_face_t *face ) {
 
 	edgenum = ( *aasworld ).edgeindex[face->firstedge];
 	side = edgenum < 0;
-	edge = &( *aasworld ).edges[abs( edgenum )];
+	edge = &( *aasworld ).edges[c::abs( edgenum )];
 	v = ( *aasworld ).vertexes[edge->v[side]];
 
 	total = 0;
@@ -412,7 +412,7 @@ float AAS_FaceArea( aas_face_t *face ) {
 	{
 		edgenum = ( *aasworld ).edgeindex[face->firstedge + i];
 		side = edgenum < 0;
-		edge = &( *aasworld ).edges[abs( edgenum )];
+		edge = &( *aasworld ).edges[c::abs( edgenum )];
 		VectorSubtract( ( *aasworld ).vertexes[edge->v[side]], v, d1 );
 		VectorSubtract( ( *aasworld ).vertexes[edge->v[!side]], v, d2 );
 		CrossProduct( d1, d2, cross );
@@ -438,9 +438,9 @@ float AAS_AreaVolume( int areanum ) {
 
 	area = &( *aasworld ).areas[areanum];
 	facenum = ( *aasworld ).faceindex[area->firstface];
-	face = &( *aasworld ).faces[abs( facenum )];
+	face = &( *aasworld ).faces[c::abs( facenum )];
 	edgenum = ( *aasworld ).edgeindex[face->firstedge];
-	edge = &( *aasworld ).edges[abs( edgenum )];
+	edge = &( *aasworld ).edges[c::abs( edgenum )];
 	//
 	VectorCopy( ( *aasworld ).vertexes[edge->v[0]], corner );
 
@@ -448,7 +448,7 @@ float AAS_AreaVolume( int areanum ) {
 	volume = 0;
 	for ( i = 0; i < area->numfaces; i++ )
 	{
-		facenum = abs( ( *aasworld ).faceindex[area->firstface + i] );
+		facenum = c::abs( ( *aasworld ).faceindex[area->firstface + i] );
 		face = &( *aasworld ).faces[facenum];
 		plane = &( *aasworld ).planes[face->planenum];
 		d = -( DotProduct( corner, plane->normal ) - plane->dist );
@@ -476,7 +476,7 @@ float AAS_AreaGroundFaceArea( int areanum ) {
 	area = &( *aasworld ).areas[areanum];
 	for ( i = 0; i < area->numfaces; i++ )
 	{
-		face = &( *aasworld ).faces[abs( ( *aasworld ).faceindex[area->firstface + i] )];
+		face = &( *aasworld ).faces[c::abs( ( *aasworld ).faceindex[area->firstface + i] )];
 		if ( !( face->faceflags & FACE_GROUND ) ) {
 			continue;
 		}
@@ -503,7 +503,7 @@ void AAS_FaceCenter( int facenum, vec3_t center ) {
 	VectorClear( center );
 	for ( i = 0; i < face->numedges; i++ )
 	{
-		edge = &( *aasworld ).edges[abs( ( *aasworld ).edgeindex[face->firstedge + i] )];
+		edge = &( *aasworld ).edges[c::abs( ( *aasworld ).edgeindex[face->firstedge + i] )];
 		VectorAdd( center, ( *aasworld ).vertexes[edge->v[0]], center );
 		VectorAdd( center, ( *aasworld ).vertexes[edge->v[1]], center );
 	} //end for
@@ -521,7 +521,7 @@ void AAS_FaceCenter( int facenum, vec3_t center ) {
 int AAS_FallDamageDistance( void ) {
 	float maxzvelocity, gravity, t;
 
-	maxzvelocity = sqrt( 30.0F * 10000.0F );
+	maxzvelocity = c::sqrt( 30.0F * 10000.0F );
 	gravity = aassettings.sv_gravity;
 	t = maxzvelocity / gravity;
 	return 0.5 * gravity * t * t;
@@ -541,9 +541,9 @@ float AAS_FallDelta( float distance ) {
 	gravity = aassettings.sv_gravity;
 
 #if !defined RTCW_ET
-	t = sqrt( fabs( distance ) * 2 / gravity );
+	t = c::sqrt( c::fabs( distance ) * 2 / gravity );
 #else
-	t = sqrt( Q_fabs( distance ) * 2 / gravity );
+	t = c::sqrt( Q_fabs( distance ) * 2 / gravity );
 #endif // RTCW_XX
 
 	delta = t * gravity;
@@ -575,7 +575,7 @@ float AAS_MaxJumpDistance( float sv_jumpvel ) {
 	sv_gravity = aassettings.sv_gravity;
 	sv_maxvelocity = aassettings.sv_maxvelocity;
 	//time a player takes to fall the height
-	t = sqrt( MAX_JUMPFALLHEIGHT / ( 0.5 * sv_gravity ) );
+	t = c::sqrt( MAX_JUMPFALLHEIGHT / ( 0.5 * sv_gravity ) );
 	//maximum distance
 	return sv_maxvelocity * ( t + sv_jumpvel / sv_gravity );
 } //end of the function AAS_MaxJumpDistance
@@ -817,11 +817,11 @@ int AAS_Reachability_Swim( int area1num, int area2num ) {
 	{
 		face1num = ( *aasworld ).faceindex[area1->firstface + i];
 		side1 = face1num < 0;
-		face1num = abs( face1num );
+		face1num = c::abs( face1num );
 		//
 		for ( j = 0; j < area2->numfaces; j++ )
 		{
-			face2num = abs( ( *aasworld ).faceindex[area2->firstface + j] );
+			face2num = c::abs( ( *aasworld ).faceindex[area2->firstface + j] );
 			//
 			if ( face1num == face2num ) {
 				AAS_FaceCenter( face1num, start );
@@ -911,14 +911,14 @@ int AAS_Reachability_EqualFloorHeight( int area1num, int area2num ) {
 	//if existing use the lowest common edge for a reachability link
 	for ( i = 0; i < area1->numfaces; i++ )
 	{
-		face1 = &( *aasworld ).faces[abs( ( *aasworld ).faceindex[area1->firstface + i] )];
+		face1 = &( *aasworld ).faces[c::abs( ( *aasworld ).faceindex[area1->firstface + i] )];
 		if ( !( face1->faceflags & FACE_GROUND ) ) {
 			continue;
 		}
 		//
 		for ( j = 0; j < area2->numfaces; j++ )
 		{
-			face2 = &( *aasworld ).faces[abs( ( *aasworld ).faceindex[area2->firstface + j] )];
+			face2 = &( *aasworld ).faces[c::abs( ( *aasworld ).faceindex[area2->firstface + j] )];
 			if ( !( face2->faceflags & FACE_GROUND ) ) {
 				continue;
 			}
@@ -927,13 +927,13 @@ int AAS_Reachability_EqualFloorHeight( int area1num, int area2num ) {
 			{
 				for ( edgenum2 = 0; edgenum2 < face2->numedges; edgenum2++ )
 				{
-					if ( abs( ( *aasworld ).edgeindex[face1->firstedge + edgenum1] ) !=
-						 abs( ( *aasworld ).edgeindex[face2->firstedge + edgenum2] ) ) {
+					if ( c::abs( ( *aasworld ).edgeindex[face1->firstedge + edgenum1] ) !=
+						 c::abs( ( *aasworld ).edgeindex[face2->firstedge + edgenum2] ) ) {
 						continue;
 					}
 					edgenum = ( *aasworld ).edgeindex[face1->firstedge + edgenum1];
 					side = edgenum < 0;
-					edge = &( *aasworld ).edges[abs( edgenum )];
+					edge = &( *aasworld ).edges[c::abs( edgenum )];
 					//get the length of the edge
 					VectorSubtract( ( *aasworld ).vertexes[edge->v[1]],
 									( *aasworld ).vertexes[edge->v[0]], dir );
@@ -1083,7 +1083,7 @@ int AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge( int area1num, int area
 	{
 		groundface1num = ( *aasworld ).faceindex[area1->firstface + i];
 		faceside1 = groundface1num < 0;
-		groundface1 = &( *aasworld ).faces[abs( groundface1num )];
+		groundface1 = &( *aasworld ).faces[c::abs( groundface1num )];
 		//if this isn't a ground face
 		if ( !( groundface1->faceflags & FACE_GROUND ) ) {
 			//if we can swim in the first area
@@ -1111,7 +1111,7 @@ int AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge( int area1num, int area
 			if ( !( groundface1->faceflags & FACE_GROUND ) ) {
 				side1 = ( side1 == faceside1 );
 			}
-			edge1num = abs( edge1num );
+			edge1num = c::abs( edge1num );
 			edge1 = &( *aasworld ).edges[edge1num];
 			//vertexes of the edge
 			VectorCopy( ( *aasworld ).vertexes[edge1->v[!side1]], v1 );
@@ -1126,7 +1126,7 @@ int AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge( int area1num, int area
 			//check the faces from the second area
 			for ( j = 0; j < area2->numfaces; j++ )
 			{
-				groundface2 = &( *aasworld ).faces[abs( ( *aasworld ).faceindex[area2->firstface + j] )];
+				groundface2 = &( *aasworld ).faces[c::abs( ( *aasworld ).faceindex[area2->firstface + j] )];
 				//must be a ground face
 				if ( !( groundface2->faceflags & FACE_GROUND ) ) {
 					continue;
@@ -1134,7 +1134,7 @@ int AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge( int area1num, int area
 				//check the edges of this ground face
 				for ( l = 0; l < groundface2->numedges; l++ )
 				{
-					edge2num = abs( ( *aasworld ).edgeindex[groundface2->firstedge + l] );
+					edge2num = c::abs( ( *aasworld ).edgeindex[groundface2->firstedge + l] );
 					edge2 = &( *aasworld ).edges[edge2num];
 					//vertexes of the edge
 					VectorCopy( ( *aasworld ).vertexes[edge2->v[0]], v3 );
@@ -1532,7 +1532,7 @@ int AAS_Reachability_Step_Barrier_WaterJump_WalkOffLedge( int area1num, int area
 					lreach->traveltype = TRAVEL_WALKOFFLEDGE;
 
 #if !defined RTCW_ET
-					lreach->traveltime = STARTWALKOFFLEDGE_TIME + fabs( ground_bestdist ) * 50 / aassettings.sv_gravity;
+					lreach->traveltime = STARTWALKOFFLEDGE_TIME + c::fabs( ground_bestdist ) * 50 / aassettings.sv_gravity;
 #else
 					lreach->traveltime = STARTWALKOFFLEDGE_TIME + Q_fabs( ground_bestdist ) * 50 / aassettings.sv_gravity;
 #endif // RTCW_XX
@@ -2161,7 +2161,7 @@ int AAS_Reachability_Jump( int area1num, int area2num ) {
 	for ( i = 0; i < area1->numfaces; i++ )
 	{
 		face1num = ( *aasworld ).faceindex[area1->firstface + i];
-		face1 = &( *aasworld ).faces[abs( face1num )];
+		face1 = &( *aasworld ).faces[c::abs( face1num )];
 		//if not a ground face
 		if ( !( face1->faceflags & FACE_GROUND ) ) {
 			continue;
@@ -2170,7 +2170,7 @@ int AAS_Reachability_Jump( int area1num, int area2num ) {
 		for ( j = 0; j < area2->numfaces; j++ )
 		{
 			face2num = ( *aasworld ).faceindex[area2->firstface + j];
-			face2 = &( *aasworld ).faces[abs( face2num )];
+			face2 = &( *aasworld ).faces[c::abs( face2num )];
 			//if not a ground face
 			if ( !( face2->faceflags & FACE_GROUND ) ) {
 				continue;
@@ -2178,11 +2178,11 @@ int AAS_Reachability_Jump( int area1num, int area2num ) {
 			//
 			for ( k = 0; k < face1->numedges; k++ )
 			{
-				edge1num = abs( ( *aasworld ).edgeindex[face1->firstedge + k] );
+				edge1num = c::abs( ( *aasworld ).edgeindex[face1->firstedge + k] );
 				edge1 = &( *aasworld ).edges[edge1num];
 				for ( l = 0; l < face2->numedges; l++ )
 				{
-					edge2num = abs( ( *aasworld ).edgeindex[face2->firstedge + l] );
+					edge2num = c::abs( ( *aasworld ).edgeindex[face2->firstedge + l] );
 					edge2 = &( *aasworld ).edges[edge2num];
 					//calculate the minimum distance between the two edges
 					v1 = ( *aasworld ).vertexes[edge1->v[0]];
@@ -2213,7 +2213,7 @@ int AAS_Reachability_Jump( int area1num, int area2num ) {
 		} //end if
 
 #if !defined RTCW_ET
-		else if ( bestdist <= 48 && fabs( beststart[2] - bestend[2] ) < 8 ) {
+		else if ( bestdist <= 48 && c::fabs( beststart[2] - bestend[2] ) < 8 ) {
 #else
 		else if ( bestdist <= 48 && Q_fabs( beststart[2] - bestend[2] ) < 8 ) {
 #endif // RTCW_XX
@@ -2419,7 +2419,7 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 	for ( i = 0; i < area1->numfaces; i++ )
 	{
 		face1num = ( *aasworld ).faceindex[area1->firstface + i];
-		face1 = &( *aasworld ).faces[abs( face1num )];
+		face1 = &( *aasworld ).faces[c::abs( face1num )];
 		//if not a ladder face
 		if ( !( face1->faceflags & FACE_LADDER ) ) {
 			continue;
@@ -2428,7 +2428,7 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 		for ( j = 0; j < area2->numfaces; j++ )
 		{
 			face2num = ( *aasworld ).faceindex[area2->firstface + j];
-			face2 = &( *aasworld ).faces[abs( face2num )];
+			face2 = &( *aasworld ).faces[c::abs( face2num )];
 			//if not a ladder face
 			if ( !( face2->faceflags & FACE_LADDER ) ) {
 				continue;
@@ -2440,7 +2440,7 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 				for ( l = 0; l < face2->numedges; l++ )
 				{
 					edge2num = ( *aasworld ).edgeindex[face2->firstedge + l];
-					if ( abs( edge1num ) == abs( edge2num ) ) {
+					if ( c::abs( edge1num ) == c::abs( edge2num ) ) {
 						//get the face with the largest area
 						face1area = AAS_FaceArea( face1 );
 						face2area = AAS_FaceArea( face2 );
@@ -2465,7 +2465,7 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 	  //
 	if ( ladderface1 && ladderface2 ) {
 		//get the middle of the shared edge
-		sharededge = &( *aasworld ).edges[abs( sharededgenum )];
+		sharededge = &( *aasworld ).edges[c::abs( sharededgenum )];
 		firstv = sharededgenum < 0;
 		//
 		VectorCopy( ( *aasworld ).vertexes[sharededge->v[firstv]], v1 );
@@ -2488,12 +2488,8 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 		//
 
 #if !defined RTCW_ET
-        //BBi See #BUG0002
-		//ladderface1vertical = abs( DotProduct( plane1->normal, up ) ) < 0.1;
-		//ladderface2vertical = abs( DotProduct( plane2->normal, up ) ) < 0.1;
-        ladderface1vertical = (::abs (static_cast<int> (DotProduct (plane1->normal, up))) < 0.1F);
-		ladderface2vertical = (::abs (static_cast<int> (DotProduct (plane2->normal, up))) < 0.1F);
-        //BBi
+		ladderface1vertical = c::abs( DotProduct( plane1->normal, up ) ) < 0.1;
+		ladderface2vertical = c::abs( DotProduct( plane2->normal, up ) ) < 0.1;
 #else
 		ladderface1vertical = Q_fabs( DotProduct( plane1->normal, up ) ) < 0.1;
 		ladderface2vertical = Q_fabs( DotProduct( plane2->normal, up ) ) < 0.1;
@@ -2510,10 +2506,7 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 			 //and the shared edge is not too vertical
 
 #if !defined RTCW_ET
-            //BBi See #BUG0002
-			// && abs( DotProduct( sharededgevec, up ) ) < 0.7 ) {
-            && (::abs (static_cast<int> (DotProduct (sharededgevec, up))) < 0.7F)) {
-            //BBi
+			 && c::abs( DotProduct( sharededgevec, up ) ) < 0.7 ) {
 #else
 			 && Q_fabs( DotProduct( sharededgevec, up ) ) < 0.7 ) {
 #endif // RTCW_XX
@@ -2525,7 +2518,7 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 			}
 			lreach->areanum = area2num;
 			lreach->facenum = ladderface1num;
-			lreach->edgenum = abs( sharededgenum );
+			lreach->edgenum = c::abs( sharededgenum );
 			VectorCopy( area1point, lreach->start );
 			//VectorCopy(area2point, lreach->end);
 			VectorMA( area2point, -3, plane1->normal, lreach->end );
@@ -2542,7 +2535,7 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 			}
 			lreach->areanum = area1num;
 			lreach->facenum = ladderface2num;
-			lreach->edgenum = abs( sharededgenum );
+			lreach->edgenum = c::abs( sharededgenum );
 			VectorCopy( area2point, lreach->start );
 			//VectorCopy(area1point, lreach->end);
 
@@ -2572,7 +2565,7 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 			}
 			lreach->areanum = area2num;
 			lreach->facenum = ladderface1num;
-			lreach->edgenum = abs( sharededgenum );
+			lreach->edgenum = c::abs( sharededgenum );
 			VectorCopy( area1point, lreach->start );
 			VectorCopy( area2point, lreach->end );
 			lreach->end[2] += 16;
@@ -2595,7 +2588,7 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 			}
 			lreach->areanum = area1num;
 			lreach->facenum = ladderface2num;
-			lreach->edgenum = abs( sharededgenum );
+			lreach->edgenum = c::abs( sharededgenum );
 			VectorCopy( area2point, lreach->start );
 			VectorCopy( area1point, lreach->end );
 
@@ -2627,7 +2620,7 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 			lowestpoint[2] = 99999;
 			for ( i = 0; i < ladderface1->numedges; i++ )
 			{
-				edge1num = abs( ( *aasworld ).edgeindex[ladderface1->firstedge + i] );
+				edge1num = c::abs( ( *aasworld ).edgeindex[ladderface1->firstedge + i] );
 				edge1 = &( *aasworld ).edges[edge1num];
 				//
 				VectorCopy( ( *aasworld ).vertexes[edge1->v[0]], v1 );
@@ -2665,16 +2658,13 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 			for ( i = 0; i < area2->numfaces; i++ )
 			{
 				face2num = ( *aasworld ).faceindex[area2->firstface + i];
-				face2 = &( *aasworld ).faces[abs( face2num )];
+				face2 = &( *aasworld ).faces[c::abs( face2num )];
 				//
 				if ( face2->faceflags & FACE_LADDER ) {
 					plane2 = &( *aasworld ).planes[face2->planenum];
 
 #if !defined RTCW_ET
-                    //BBi See #BUG0002
-					//if ( abs( DotProduct( plane2->normal, up ) ) < 0.1 ) {
-                    if (::abs (static_cast<int> (DotProduct (plane2->normal, up))) < 0.1F) {
-                    //BBi
+					if ( c::abs( DotProduct( plane2->normal, up ) ) < 0.1 ) {
 #else
 					if ( Q_fabs( DotProduct( plane2->normal, up ) ) < 0.1 ) {
 #endif // RTCW_XX
@@ -3220,7 +3210,7 @@ aas_lreachability_t *AAS_FindFaceReachabilities( vec3_t *facepoints, int numpoin
 		for ( j = 0; j < area->numfaces; j++ )
 		{
 			facenum = ( *aasworld ).faceindex[area->firstface + j];
-			face = &( *aasworld ).faces[abs( facenum )];
+			face = &( *aasworld ).faces[c::abs( facenum )];
 			//if not a ground face
 			if ( !( face->faceflags & FACE_GROUND ) ) {
 				continue;
@@ -3230,7 +3220,7 @@ aas_lreachability_t *AAS_FindFaceReachabilities( vec3_t *facepoints, int numpoin
 			//
 			for ( k = 0; k < face->numedges; k++ )
 			{
-				edgenum = abs( ( *aasworld ).edgeindex[face->firstedge + k] );
+				edgenum = c::abs( ( *aasworld ).edgeindex[face->firstedge + k] );
 				edge = &( *aasworld ).edges[edgenum];
 				//calculate the minimum distance between the two edges
 				v1 = ( *aasworld ).vertexes[edge->v[0]];
@@ -3639,7 +3629,7 @@ void AAS_Reachability_JumpPad( void ) {
 		//
 		height = ent2origin[2] - origin[2];
 		gravity = aassettings.sv_gravity;
-		time = sqrt( height / ( 0.5 * gravity ) );
+		time = c::sqrt( height / ( 0.5 * gravity ) );
 		if ( !time ) {
 			botimport.Print( PRT_MESSAGE, "trigger_push without time\n" );
 			continue;
@@ -3722,7 +3712,7 @@ void AAS_Reachability_JumpPad( void ) {
 					//NOTE: the facenum is the Z velocity
 					lreach->facenum = velocity[2];
 					//NOTE: the edgenum is the horizontal velocity
-					lreach->edgenum = sqrt( velocity[0] * velocity[0] + velocity[1] * velocity[1] );
+					lreach->edgenum = c::sqrt( velocity[0] * velocity[0] + velocity[1] * velocity[1] );
 					VectorCopy( areastart, lreach->start );
 					VectorCopy( move.endpos, lreach->end );
 					lreach->traveltype = TRAVEL_JUMPPAD;
@@ -3737,7 +3727,7 @@ void AAS_Reachability_JumpPad( void ) {
 		  //
 
 #if !defined RTCW_ET
-		if ( fabs( velocity[0] ) > 100 || fabs( velocity[1] ) > 100 ) {
+		if ( c::fabs( velocity[0] ) > 100 || c::fabs( velocity[1] ) > 100 ) {
 #else
 		if ( Q_fabs( velocity[0] ) > 100 || Q_fabs( velocity[1] ) > 100 ) {
 #endif // RTCW_XX
@@ -3781,7 +3771,7 @@ void AAS_Reachability_JumpPad( void ) {
 			for ( i = 0; i < area2->numfaces; i++ )
 			{
 				face2num = ( *aasworld ).faceindex[area2->firstface + i];
-				face2 = &( *aasworld ).faces[abs( face2num )];
+				face2 = &( *aasworld ).faces[c::abs( face2num )];
 				//if it is not a ground face
 				if ( !( face2->faceflags & FACE_GROUND ) ) {
 					continue;
@@ -3835,7 +3825,7 @@ void AAS_Reachability_JumpPad( void ) {
 								//NOTE: the facenum is the Z velocity
 								lreach->facenum = velocity[2];
 								//NOTE: the edgenum is the horizontal velocity
-								lreach->edgenum = sqrt( cmdmove[0] * cmdmove[0] + cmdmove[1] * cmdmove[1] );
+								lreach->edgenum = c::sqrt( cmdmove[0] * cmdmove[0] + cmdmove[1] * cmdmove[1] );
 								VectorCopy( areastart, lreach->start );
 								VectorCopy( facecenter, lreach->end );
 								lreach->traveltype = TRAVEL_JUMPPAD;
@@ -3919,13 +3909,13 @@ int AAS_Reachability_Grapple( int area1num, int area2num ) {
 	for ( i = 0; i < area2->numfaces; i++ )
 	{
 		face2num = ( *aasworld ).faceindex[area2->firstface + i];
-		face2 = &( *aasworld ).faces[abs( face2num )];
+		face2 = &( *aasworld ).faces[c::abs( face2num )];
 		//if it is not a solid face
 		if ( !( face2->faceflags & FACE_SOLID ) ) {
 			continue;
 		}
 		//direction towards the first vertex of the face
-		v = ( *aasworld ).vertexes[( *aasworld ).edges[abs( ( *aasworld ).edgeindex[face2->firstedge] )].v[0]];
+		v = ( *aasworld ).vertexes[( *aasworld ).edges[c::abs( ( *aasworld ).edgeindex[face2->firstedge] )].v[0]];
 		VectorSubtract( v, areastart, dir );
 		//if the face plane is facing away
 		if ( DotProduct( ( *aasworld ).planes[face2->planenum].normal, dir ) > 0 ) {
@@ -3956,7 +3946,7 @@ int AAS_Reachability_Grapple( int area1num, int area2num ) {
 		}
 		//check the minimal angle of the movement
 		mingrappleangle = 15; //15 degrees
-		if ( z / hordist < tan( 2 * M_PI * mingrappleangle / 360 ) ) {
+		if ( z / hordist < c::tan( 2 * M_PI * mingrappleangle / 360 ) ) {
 			continue;
 		}
 		//
@@ -4321,7 +4311,7 @@ int AAS_Reachability_WeaponJump( int area1num, int area2num ) {
 	for ( i = 0; i < area2->numfaces; i++ )
 	{
 		face2num = ( *aasworld ).faceindex[area2->firstface + i];
-		face2 = &( *aasworld ).faces[abs( face2num )];
+		face2 = &( *aasworld ).faces[c::abs( face2num )];
 		//if it is not a solid face
 		if ( !( face2->faceflags & FACE_GROUND ) ) {
 			continue;
@@ -4425,7 +4415,7 @@ void AAS_Reachability_WalkOffLedge( int areanum ) {
 	for ( i = 0; i < area->numfaces; i++ )
 	{
 		face1num = ( *aasworld ).faceindex[area->firstface + i];
-		face1 = &( *aasworld ).faces[abs( face1num )];
+		face1 = &( *aasworld ).faces[c::abs( face1num )];
 		//face 1 must be a ground face
 		if ( !( face1->faceflags & FACE_GROUND ) ) {
 			continue;
@@ -4438,7 +4428,7 @@ void AAS_Reachability_WalkOffLedge( int areanum ) {
 			for ( j = 0; j < area->numfaces; j++ )
 			{
 				face2num = ( *aasworld ).faceindex[area->firstface + j];
-				face2 = &( *aasworld ).faces[abs( face2num )];
+				face2 = &( *aasworld ).faces[c::abs( face2num )];
 				//face 2 may not be a ground face
 				if ( face2->faceflags & FACE_GROUND ) {
 					continue;
@@ -4447,7 +4437,7 @@ void AAS_Reachability_WalkOffLedge( int areanum ) {
 				for ( l = 0; l < face2->numedges; l++ )
 				{
 					edge2num = ( *aasworld ).edgeindex[face2->firstedge + l];
-					if ( abs( edge1num ) == abs( edge2num ) ) {
+					if ( c::abs( edge1num ) == c::abs( edge2num ) ) {
 						//get the area at the other side of the face
 						if ( face2->frontarea == areanum ) {
 							otherareanum = face2->backarea;
@@ -4462,17 +4452,17 @@ void AAS_Reachability_WalkOffLedge( int areanum ) {
 							{
 								face3num = ( *aasworld ).faceindex[area2->firstface + n];
 								//may not be the shared face of the two areas
-								if ( abs( face3num ) == abs( face2num ) ) {
+								if ( c::abs( face3num ) == c::abs( face2num ) ) {
 									continue;
 								}
 								//
-								face3 = &( *aasworld ).faces[abs( face3num )];
+								face3 = &( *aasworld ).faces[c::abs( face3num )];
 								//find an edge shared by all three faces
 								for ( m = 0; m < face3->numedges; m++ )
 								{
 									edge3num = ( *aasworld ).edgeindex[face3->firstedge + m];
 									//but the edge should be shared by all three faces
-									if ( abs( edge3num ) == abs( edge1num ) ) {
+									if ( c::abs( edge3num ) == c::abs( edge1num ) ) {
 										if ( !( face3->faceflags & FACE_SOLID ) ) {
 											gap = qtrue;
 											break;
@@ -4496,7 +4486,7 @@ void AAS_Reachability_WalkOffLedge( int areanum ) {
 							}
 						} //end if
 						  //check for a walk off ledge reachability
-						edge = &( *aasworld ).edges[abs( edge1num )];
+						edge = &( *aasworld ).edges[c::abs( edge1num )];
 						side = edge1num < 0;
 						//
 						v1 = ( *aasworld ).vertexes[edge->v[side]];
@@ -4551,7 +4541,7 @@ void AAS_Reachability_WalkOffLedge( int areanum ) {
 						lreach->traveltype = TRAVEL_WALKOFFLEDGE;
 
 #if !defined RTCW_ET
-						lreach->traveltime = STARTWALKOFFLEDGE_TIME + fabs( mid[2] - trace.endpos[2] ) * 50 / aassettings.sv_gravity;
+						lreach->traveltime = STARTWALKOFFLEDGE_TIME + c::fabs( mid[2] - trace.endpos[2] ) * 50 / aassettings.sv_gravity;
 #else
 						lreach->traveltime = STARTWALKOFFLEDGE_TIME + Q_fabs( mid[2] - trace.endpos[2] ) * 50 / aassettings.sv_gravity;
 #endif // RTCW_XX

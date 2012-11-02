@@ -564,7 +564,7 @@ int CheckArmor( gentity_t *ent, int damage, int dflags ) {
 
 	// armor
 	count = client->ps.stats[STAT_ARMOR];
-	save = ceil( damage * ARMOR_PROTECTION );
+	save = c::ceil( damage * ARMOR_PROTECTION );
 	if ( save >= count ) {
 		save = count;
 	}

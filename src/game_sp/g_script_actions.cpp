@@ -551,7 +551,7 @@ qboolean G_ScriptAction_PlayAnim( gentity_t *ent, char *params ) {
 		}
 	}
 
-	idealframe = startframe + (int)floor( (float)( level.time - ent->scriptStatus.scriptStackChangeTime ) / ( 1000.0 / (float)rate ) );
+	idealframe = startframe + (int)c::floor( (float)( level.time - ent->scriptStatus.scriptStackChangeTime ) / ( 1000.0 / (float)rate ) );
 	if ( looping ) {
 		ent->s.frame = startframe + ( idealframe - startframe ) % ( endframe - startframe );
 		ent->s.eFlags |= EF_MOVER_ANIMATE;

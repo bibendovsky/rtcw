@@ -249,8 +249,8 @@ static qboolean CG_RainParticleGenerate( cg_atmosphericParticle_t *particle, vec
 	angle = random() * 2 * M_PI;
 	distance = 20 + MAX_ATMOSPHERIC_DISTANCE * random();
 
-	particle->pos[0] = cg.refdef_current->vieworg[0] + sin( angle ) * distance;
-	particle->pos[1] = cg.refdef_current->vieworg[1] + cos( angle ) * distance;
+	particle->pos[0] = cg.refdef_current->vieworg[0] + c::sin( angle ) * distance;
+	particle->pos[1] = cg.refdef_current->vieworg[1] + c::cos( angle ) * distance;
 
 	// ydnar: choose a spawn point randomly between sky and ground
 	skyHeight = BG_GetSkyHeightAtPoint( particle->pos );
@@ -456,8 +456,8 @@ static qboolean CG_SnowParticleGenerate( cg_atmosphericParticle_t *particle, vec
 	angle = random() * 2 * M_PI;
 	distance = 20 + MAX_ATMOSPHERIC_DISTANCE * random();
 
-	particle->pos[0] = cg.refdef_current->vieworg[0] + sin( angle ) * distance;
-	particle->pos[1] = cg.refdef_current->vieworg[1] + cos( angle ) * distance;
+	particle->pos[0] = cg.refdef_current->vieworg[0] + c::sin( angle ) * distance;
+	particle->pos[1] = cg.refdef_current->vieworg[1] + c::cos( angle ) * distance;
 
 	// ydnar: choose a spawn point randomly between sky and ground
 	skyHeight = BG_GetSkyHeightAtPoint( particle->pos );
@@ -567,8 +567,8 @@ static void CG_SnowParticleRender( cg_atmosphericParticle_t *particle ) {
 
 	VectorCopy( particle->pos, start );
 
-	sinTumbling = sin( particle->pos[2] * 0.03125f * ( 0.5f * particle->weight ) );
-	cosTumbling = cos( ( particle->pos[2] + particle->pos[1] ) * 0.03125f * ( 0.5f * particle->weight ) );
+	sinTumbling = c::sin( particle->pos[2] * 0.03125f * ( 0.5f * particle->weight ) );
+	cosTumbling = c::cos( ( particle->pos[2] + particle->pos[1] ) * 0.03125f * ( 0.5f * particle->weight ) );
 	start[0] += 24 * ( 1 - particle->deltaNormalized[2] ) * sinTumbling;
 	start[1] += 24 * ( 1 - particle->deltaNormalized[2] ) * cosTumbling;
 

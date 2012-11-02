@@ -1721,7 +1721,7 @@ void BotAimAtEnemy( bot_state_t *bs ) {
 				//trace a line from projectile start to ground target
 				BotAI_Trace( &trace, start, NULL, NULL, groundtarget, bs->entitynum, MASK_SHOT );
 				//if hitpoint is not vertically too far from the ground target
-				if ( fabs( trace.endpos[2] - groundtarget[2] ) < 50 ) {
+				if ( c::fabs( trace.endpos[2] - groundtarget[2] ) < 50 ) {
 					VectorSubtract( trace.endpos, groundtarget, dir );
 					//if the hitpoint is near anough the ground target
 					if ( VectorLength( dir ) < 60 ) {
@@ -2046,7 +2046,7 @@ void CheckButtons(void)
 			VectorAdd(mins, maxs, origin);
 			VectorScale(origin, 0.5, origin);
 			//touch distance of the button
-			dist = fabs(movedir[0]) * size[0] + fabs(movedir[1]) * size[1] + fabs(movedir[2]) * size[2];// - lip;
+			dist = c::fabs(movedir[0]) * size[0] + c::fabs(movedir[1]) * size[1] + c::fabs(movedir[2]) * size[2];// - lip;
 			dist *= 0.5;
 			//
 			health = AAS_FloatForBSPEpairKey(ent, "health");
@@ -2063,8 +2063,8 @@ void CheckButtons(void)
 				AAS_PresenceTypeBoundingBox(PRESENCE_CROUCH, bboxmins, bboxmaxs);
 				for (i = 0; i < 3; i++)
 				{
-					if (movedir[i] < 0) dist += fabs(movedir[i]) * fabs(bboxmaxs[i]);
-					else dist += fabs(movedir[i]) * fabs(bboxmins[i]);
+					if (movedir[i] < 0) dist += c::fabs(movedir[i]) * c::fabs(bboxmaxs[i]);
+					else dist += c::fabs(movedir[i]) * c::fabs(bboxmins[i]);
 				} //end for
 				//calculate the goal origin
 				VectorMA(origin, -dist, movedir, goalorigin);
@@ -2326,7 +2326,7 @@ void BotAIBlocked( bot_state_t *bs, bot_moveresult_t *moveresult, int activate )
 			VectorAdd( mins, maxs, origin );
 			VectorScale( origin, 0.5, origin );
 			//touch distance of the button
-			dist = fabs( movedir[0] ) * size[0] + fabs( movedir[1] ) * size[1] + fabs( movedir[2] ) * size[2];
+			dist = c::fabs( movedir[0] ) * size[0] + c::fabs( movedir[1] ) * size[1] + c::fabs( movedir[2] ) * size[2];
 			dist *= 0.5;
 			//
 			trap_AAS_FloatForBSPEpairKey( ent, "health", &health );
@@ -2354,8 +2354,8 @@ void BotAIBlocked( bot_state_t *bs, bot_moveresult_t *moveresult, int activate )
 				for ( i = 0; i < 3; i++ )
 				{
 					if ( movedir[i] < 0 ) {
-						dist += fabs( movedir[i] ) * fabs( bboxmaxs[i] );
-					} else { dist += fabs( movedir[i] ) * fabs( bboxmins[i] );}
+						dist += c::fabs( movedir[i] ) * c::fabs( bboxmaxs[i] );
+					} else { dist += c::fabs( movedir[i] ) * c::fabs( bboxmins[i] );}
 				} //end for
 				  //calculate the goal origin
 				VectorMA( origin, -dist, movedir, goalorigin );

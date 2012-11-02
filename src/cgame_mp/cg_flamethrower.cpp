@@ -382,7 +382,7 @@ void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float sp
 			if (dot >= 0.99) {
 				dot -= 0.99;
 				dot *= (1.0/(1.0-0.99));
-				CG_FlameAdjustSpeed( f, 0.5 * frametime * FLAME_FRICTION_PER_SEC * pow(dot,4) );
+				CG_FlameAdjustSpeed( f, 0.5 * frametime * FLAME_FRICTION_PER_SEC * c::pow(dot,4) );
 			}
 		}
 
@@ -771,13 +771,13 @@ void CG_AddFlameSpriteToScene( flameChunk_t *f, float lifeFrac, float alpha ) {
 		rdist[0] = -1.0 * DotProduct( rright, projVec );
 		rdist[1] = -1.0 * DotProduct( rup, projVec );
 
-		if ( fabs( rdist[0] ) > radius || fabs( rdist[1] ) > radius ) {
+		if ( c::fabs( rdist[0] ) > radius || c::fabs( rdist[1] ) > radius ) {
 			return; // completely off-screen
 
 		}
 		// now set the bounds for clipping
-		fovRadius[0] = tan( DEG2RAD( ( rollAngleClamped % 2 == 0 ? cg.refdef.fov_x : cg.refdef.fov_x ) * 0.52 ) ) * sdist;
-		fovRadius[1] = tan( DEG2RAD( ( rollAngleClamped % 2 == 0 ? cg.refdef.fov_x : cg.refdef.fov_x ) * 0.52 ) ) * sdist;
+		fovRadius[0] = c::tan( DEG2RAD( ( rollAngleClamped % 2 == 0 ? cg.refdef.fov_x : cg.refdef.fov_x ) * 0.52 ) ) * sdist;
+		fovRadius[1] = c::tan( DEG2RAD( ( rollAngleClamped % 2 == 0 ? cg.refdef.fov_x : cg.refdef.fov_x ) * 0.52 ) ) * sdist;
 
 		// BOTTOM LEFT
 		x = ( -radius + rdist[0] );
@@ -888,7 +888,7 @@ void CG_AddFlameSpriteToScene( flameChunk_t *f, float lifeFrac, float alpha ) {
 		verts[3].st[1] = 0;
 	}
 
-	frameNum = (int)floor( lifeFrac * NUM_FLAME_SPRITES );
+	frameNum = (int)c::floor( lifeFrac * NUM_FLAME_SPRITES );
 	if ( frameNum < 0 ) {
 		frameNum = 0;
 	} else if ( frameNum > NUM_FLAME_SPRITES - 1 )  {
@@ -1103,8 +1103,8 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 			// should we merge it with the next sprite?
 			while ( fNext && !droppedTrail ) {
 				if ( ( Distance( f->org, fNext->org ) < ( ( 0.1 + 0.9 * f->lifeFrac ) * f->size * 0.35 ) )
-					 &&  ( fabs( f->size - fNext->size ) < ( 40.0 ) )
-					 &&  ( abs( f->timeStart - fNext->timeStart ) < 100 )
+					 &&  ( c::fabs( f->size - fNext->size ) < ( 40.0 ) )
+					 &&  ( c::abs( f->timeStart - fNext->timeStart ) < 100 )
 					 &&  ( DotProduct( f->velDir, fNext->velDir ) > 0.99 )
 					 ) {
 					if ( !droppedTrail ) {
@@ -1153,7 +1153,7 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 	if ( lightSize > 500 ) {
 		lightSize = 500;
 	}
-	lightSize *= 1.0 + 0.2 * ( sin( 1.0 * cg.time / 50.0 ) * cos( 1.0 * cg.time / 43.0 ) );
+	lightSize *= 1.0 + 0.2 * ( c::sin( 1.0 * cg.time / 50.0 ) * c::cos( 1.0 * cg.time / 43.0 ) );
 	// set the alpha
 	alpha = lightSize / 500.0;
 	if ( alpha > 1.0 ) {

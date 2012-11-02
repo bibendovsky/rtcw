@@ -1578,9 +1578,9 @@ static qboolean ParseShader( char **text ) {
 			b = atof( token );
 			b = b / 180 * M_PI;
 
-			tr.sunDirection[0] = cos( a ) * cos( b );
-			tr.sunDirection[1] = sin( a ) * cos( b );
-			tr.sunDirection[2] = sin( b );
+			tr.sunDirection[0] = c::cos( a ) * c::cos( b );
+			tr.sunDirection[1] = c::sin( a ) * c::cos( b );
+			tr.sunDirection[2] = c::sin( b );
 		} else if ( !Q_stricmp( token, "deformVertexes" ) )    {
 			ParseDeform( text );
 			continue;

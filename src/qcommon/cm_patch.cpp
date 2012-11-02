@@ -495,10 +495,10 @@ int CM_PlaneEqual( patchPlane_t *p, float plane[4], int *flipped ) {
 	if (
 
 #if !defined RTCW_ET
-		fabs( p->plane[0] - plane[0] ) < NORMAL_EPSILON
-		&& fabs( p->plane[1] - plane[1] ) < NORMAL_EPSILON
-		&& fabs( p->plane[2] - plane[2] ) < NORMAL_EPSILON
-		&& fabs( p->plane[3] - plane[3] ) < DIST_EPSILON ) {
+		c::fabs( p->plane[0] - plane[0] ) < NORMAL_EPSILON
+		&& c::fabs( p->plane[1] - plane[1] ) < NORMAL_EPSILON
+		&& c::fabs( p->plane[2] - plane[2] ) < NORMAL_EPSILON
+		&& c::fabs( p->plane[3] - plane[3] ) < DIST_EPSILON ) {
 #else
 		Q_fabs( p->plane[0] - plane[0] ) < NORMAL_EPSILON
 		&& Q_fabs( p->plane[1] - plane[1] ) < NORMAL_EPSILON
@@ -516,10 +516,10 @@ int CM_PlaneEqual( patchPlane_t *p, float plane[4], int *flipped ) {
 	if (
 
 #if !defined RTCW_ET
-		fabs( p->plane[0] - invplane[0] ) < NORMAL_EPSILON
-		&& fabs( p->plane[1] - invplane[1] ) < NORMAL_EPSILON
-		&& fabs( p->plane[2] - invplane[2] ) < NORMAL_EPSILON
-		&& fabs( p->plane[3] - invplane[3] ) < DIST_EPSILON ) {
+		c::fabs( p->plane[0] - invplane[0] ) < NORMAL_EPSILON
+		&& c::fabs( p->plane[1] - invplane[1] ) < NORMAL_EPSILON
+		&& c::fabs( p->plane[2] - invplane[2] ) < NORMAL_EPSILON
+		&& c::fabs( p->plane[3] - invplane[3] ) < DIST_EPSILON ) {
 #else
 		Q_fabs( p->plane[0] - invplane[0] ) < NORMAL_EPSILON
 		&& Q_fabs( p->plane[1] - invplane[1] ) < NORMAL_EPSILON
@@ -546,7 +546,7 @@ void CM_SnapVector( vec3_t normal ) {
 	{
 
 #if !defined RTCW_ET
-		if ( fabs( normal[i] - 1 ) < NORMAL_EPSILON ) {
+		if ( c::fabs( normal[i] - 1 ) < NORMAL_EPSILON ) {
 #else
 		if ( Q_fabs( normal[i] - 1 ) < NORMAL_EPSILON ) {
 #endif // RTCW_XX
@@ -557,7 +557,7 @@ void CM_SnapVector( vec3_t normal ) {
 		}
 
 #if !defined RTCW_ET
-		if ( fabs( normal[i] - -1 ) < NORMAL_EPSILON ) {
+		if ( c::fabs( normal[i] - -1 ) < NORMAL_EPSILON ) {
 #else
 		if ( Q_fabs( normal[i] - -1 ) < NORMAL_EPSILON ) {
 #endif // RTCW_XX
@@ -1860,7 +1860,7 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 				offset = DotProduct( tw->offsets[ planes->signbits ], plane );
 
 #if !defined RTCW_ET
-				plane[3] += fabs( offset );
+				plane[3] += c::fabs( offset );
 #else
 				plane[3] += Q_fabs( offset );
 #endif // RTCW_XX
@@ -2004,7 +2004,7 @@ qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchColli
 				offset = DotProduct( tw->offsets[ planes->signbits ], plane );
 
 #if !defined RTCW_ET
-				plane[3] += fabs( offset );
+				plane[3] += c::fabs( offset );
 #else
 				plane[3] += Q_fabs( offset );
 #endif // RTCW_XX
@@ -2045,7 +2045,7 @@ qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchColli
 	planes = pc->planes;
 	for ( i = 0 ; i < pc->numPlanes ; i++, planes++ ) {
 		d = DotProduct( tw->start, planes->plane ) - planes->plane[3];
-		offset = fabs( DotProduct( tw->offsets[ planes->signbits ], planes->plane ) );
+		offset = c::fabs( DotProduct( tw->offsets[ planes->signbits ], planes->plane ) );
 		if ( d < -offset ) {
 			cross[i] = BOX_FRONT;
 		} else if ( d > offset ) {
@@ -2181,7 +2181,7 @@ void CM_DrawDebugSurface( void ( *drawPoly )( int color, int numPoints, float *p
 			VectorNegate( plane, v2 );
 
 #if !defined RTCW_ET
-			plane[3] += fabs( DotProduct( v1, v2 ) );
+			plane[3] += c::fabs( DotProduct( v1, v2 ) );
 #else
 			plane[3] += Q_fabs( DotProduct( v1, v2 ) );
 #endif // RTCW_XX
@@ -2221,7 +2221,7 @@ void CM_DrawDebugSurface( void ( *drawPoly )( int color, int numPoints, float *p
 				VectorNegate( plane, v2 );
 
 #if !defined RTCW_ET
-				plane[3] -= fabs( DotProduct( v1, v2 ) );
+				plane[3] -= c::fabs( DotProduct( v1, v2 ) );
 #else
 				plane[3] -= Q_fabs( DotProduct( v1, v2 ) );
 #endif // RTCW_XX

@@ -1861,7 +1861,7 @@ int AINode_MP_FixMG42( bot_state_t *bs ) {
 	ent->botIgnoreTime = level.time + 5000;
 
 	VectorSubtract( bs->origin, goal.origin, dir );
-	if ( fabs( dir[2] ) < 100 ) {
+	if ( c::fabs( dir[2] ) < 100 ) {
 		dir[2] = 0;
 	}
 
@@ -2114,7 +2114,7 @@ int AINode_MP_Battle_MobileMG42( bot_state_t *bs ) {
 
 	BotAimAtEnemy( bs );
 	// wait until we are facing them correctly before going prone
-	if ( !( bs->cur_ps.eFlags & EF_PRONE ) && ( fabs( AngleDifference( bs->ideal_viewangles[YAW], bs->viewangles[YAW] ) ) > 5.0f ) ) {
+	if ( !( bs->cur_ps.eFlags & EF_PRONE ) && ( c::fabs( AngleDifference( bs->ideal_viewangles[YAW], bs->viewangles[YAW] ) ) > 5.0f ) ) {
 		return qtrue;
 	}
 
@@ -2377,8 +2377,8 @@ int AINode_MP_MG42Scan( bot_state_t *bs ) {
 			vectoangles( dir, ang );
 			if ( BotEntityVisible( bs->entitynum, bs->eye, bs->viewangles, 120, bs->enemy, NULL ) ) {
 
-				if (    ( fabs( AngleDifference( ang[PITCH], mg42->s.angles[PITCH] ) ) >= mg42->varc )
-						||  ( fabs( AngleDifference( ang[YAW], mg42->s.angles[YAW] ) ) >= mg42->harc ) ) {
+				if (    ( c::fabs( AngleDifference( ang[PITCH], mg42->s.angles[PITCH] ) ) >= mg42->varc )
+						||  ( c::fabs( AngleDifference( ang[YAW], mg42->s.angles[YAW] ) ) >= mg42->harc ) ) {
 					ent->botIgnoreTime = level.time + 5000;
 					AIEnter_MP_Battle_Fight( bs );
 					return qfalse;
@@ -2545,7 +2545,7 @@ int AINode_MP_MG42Mount( bot_state_t *bs ) {
 	ent->botIgnoreTime = level.time + 5000;
 	//
 	VectorSubtract( bs->origin, goal.origin, dir );
-	if ( fabs( dir[2] ) < 100 ) {
+	if ( c::fabs( dir[2] ) < 100 ) {
 		dir[2] = 0;
 	}
 	// is the destination blocked?
@@ -2790,7 +2790,7 @@ int AINode_MP_ScanForLandmines( bot_state_t *bs ) {
 	}
 
 	VectorSubtract( bs->origin, goal.origin, dir );
-	if ( fabs( dir[2] ) < 16 ) {
+	if ( c::fabs( dir[2] ) < 16 ) {
 		dir[2] = 0;
 	}
 
@@ -2935,7 +2935,7 @@ int AINode_MP_ScanForLandmines( bot_state_t *bs ) {
 			VectorNormalize( dir );
 			vectoangles( dir, bs->ideal_viewangles );
 
-			bs->altenemy = AngleNormalize360( RAD2DEG( 2 * tan( DETECT_RADIUS / VectorDistance( bs->eye, target ) ) ) );
+			bs->altenemy = AngleNormalize360( RAD2DEG( 2 * c::tan( DETECT_RADIUS / VectorDistance( bs->eye, target ) ) ) );
 
 			// set the time of our next view update
 			bs->viewchangetime = level.time + 100 + rand() % 150;
@@ -3068,7 +3068,7 @@ int AINode_MP_SniperSpot( bot_state_t *bs ) {
 	}
 
 	VectorSubtract( bs->origin, goal.origin, dir );
-	if ( fabs( dir[2] ) < 100 ) {
+	if ( c::fabs( dir[2] ) < 100 ) {
 		dir[2] = 0;
 	}
 
@@ -3833,7 +3833,7 @@ int AINode_MP_DefendTarget( bot_state_t *bs ) {
 				// face the current aimtarget
 				VectorSubtract( bs->aimtarget, bs->origin, dir );
 				if ( VectorNormalize( dir ) ) {
-					if ( fabs( dir[2] ) < 0.8 ) {
+					if ( c::fabs( dir[2] ) < 0.8 ) {
 						vectoangles( dir, bs->ideal_viewangles );
 					}
 					bs->ideal_viewangles[PITCH] = 0;
@@ -4013,7 +4013,7 @@ int AINode_MP_TouchTarget( bot_state_t *bs ) {
 	}
 	//
 	VectorCopy( goal.origin, target );
-	if ( fabs( target[2] - bs->origin[2] ) < 80 ) {
+	if ( c::fabs( target[2] - bs->origin[2] ) < 80 ) {
 		target[2] = bs->origin[2];
 	}
 	if ( altroute && VectorDistanceSquared( goal.origin, bs->origin ) < SQR( 80 ) ) {
@@ -4338,7 +4338,7 @@ int AINode_MP_SatchelChargeTarget( bot_state_t *bs ) {
 	}
 
 	VectorSubtract( bs->origin, goal.origin, dir );
-	if ( fabs( dir[2] ) < 128 ) {
+	if ( c::fabs( dir[2] ) < 128 ) {
 		dir[2] = 0;
 	}
 
@@ -4381,7 +4381,7 @@ int AINode_MP_SatchelChargeTarget( bot_state_t *bs ) {
 				bs->weaponnum = WP_SATCHEL;
 				trap_EA_SelectWeapon( bs->client, bs->weaponnum );
 				// hold fire
-				if ( !VectorLengthSquared( bs->velocity ) && fabs( bs->viewangles[PITCH] - bs->ideal_viewangles[PITCH] ) < 2 && bs->cur_ps.weapon == WP_SATCHEL && !bs->cur_ps.grenadeTimeLeft ) {
+				if ( !VectorLengthSquared( bs->velocity ) && c::fabs( bs->viewangles[PITCH] - bs->ideal_viewangles[PITCH] ) < 2 && bs->cur_ps.weapon == WP_SATCHEL && !bs->cur_ps.grenadeTimeLeft ) {
 					trap_EA_Attack( bs->client );
 				}
 				return qtrue;
@@ -4628,7 +4628,7 @@ int AINode_MP_DynamiteTarget( bot_state_t *bs ) {
 	BotMapScripts( bs );
 	//
 	VectorSubtract( bs->origin, goal.origin, dir );
-	if ( fabs( dir[2] ) < 128 ) {
+	if ( c::fabs( dir[2] ) < 128 ) {
 		dir[2] = 0;
 	}
 	goalDist = VectorLengthSquared( dir );
@@ -4674,7 +4674,7 @@ int AINode_MP_DynamiteTarget( bot_state_t *bs ) {
 				bs->weaponnum = WP_DYNAMITE;
 				trap_EA_SelectWeapon( bs->client, bs->weaponnum );
 				// hold fire
-				if ( rand() % 2 && !VectorLengthSquared( bs->velocity ) && fabs( bs->viewangles[PITCH] - bs->ideal_viewangles[PITCH] ) < 2 && bs->cur_ps.weapon == WP_DYNAMITE && !bs->cur_ps.grenadeTimeLeft ) {
+				if ( rand() % 2 && !VectorLengthSquared( bs->velocity ) && c::fabs( bs->viewangles[PITCH] - bs->ideal_viewangles[PITCH] ) < 2 && bs->cur_ps.weapon == WP_DYNAMITE && !bs->cur_ps.grenadeTimeLeft ) {
 					trap_EA_Attack( bs->client );
 				}
 				return qtrue;
@@ -5206,7 +5206,7 @@ int AINode_MP_PlantMine( bot_state_t *bs ) {
 			bs->weaponnum = WP_LANDMINE;
 			trap_EA_SelectWeapon( bs->client, bs->weaponnum );
 			// hold fire
-			if ( !VectorLengthSquared( bs->velocity ) && fabs( bs->viewangles[PITCH] - bs->ideal_viewangles[PITCH] ) < 2 && bs->cur_ps.weapon == bs->weaponnum && !bs->cur_ps.grenadeTimeLeft ) {
+			if ( !VectorLengthSquared( bs->velocity ) && c::fabs( bs->viewangles[PITCH] - bs->ideal_viewangles[PITCH] ) < 2 && bs->cur_ps.weapon == bs->weaponnum && !bs->cur_ps.grenadeTimeLeft ) {
 				trap_EA_Attack( bs->client );
 			}
 		} else if ( trav->s.teamNum >= 4 ) {  // the dynamite is not armed
@@ -5582,7 +5582,7 @@ int AINode_MP_Battle_Fight( bot_state_t *bs ) {
 				AxisToAngles( axis, mountedWeaponAngles );
 
 				// make sure these angles are within view limits towards the enemy
-				if ( fabs( AngleDifference( mountedWeaponAngles[PITCH], ang[PITCH] ) ) < 15.f ) {
+				if ( c::fabs( AngleDifference( mountedWeaponAngles[PITCH], ang[PITCH] ) ) < 15.f ) {
 					int oldviewheight;
 					// check for obstruction at feet
 					oldviewheight = level.clients[bs->client].ps.viewheight;
@@ -6154,7 +6154,7 @@ int AINode_MP_Script_MoveToMarker( bot_state_t *bs ) {
 	}
 	//
 	VectorCopy( goal.origin, target );
-	if ( fabs( target[2] - bs->origin[2] ) < 80 ) {
+	if ( c::fabs( target[2] - bs->origin[2] ) < 80 ) {
 		target[2] = bs->origin[2];
 	}
 	//
@@ -6383,7 +6383,7 @@ int AINode_MP_MoveToAutonomyRange( bot_state_t *bs ) {
 	//}
 	//
 	VectorCopy( goal.origin, target );
-	if ( fabs( target[2] - bs->origin[2] ) < 80 ) {
+	if ( c::fabs( target[2] - bs->origin[2] ) < 80 ) {
 		target[2] = bs->origin[2];
 	}
 	//

@@ -1495,19 +1495,10 @@ void Menu_TransitionItemByName( menuDef_t *menu, const char *p, rectDef_t rectFr
 			item->window.offsetTime = time;
 			memcpy( &item->window.rectClient, &rectFrom, sizeof( rectDef_t ) );
 			memcpy( &item->window.rectEffects, &rectTo, sizeof( rectDef_t ) );
-
-            //BBi See #BUG0002
-			//item->window.rectEffects2.x = abs( rectTo.x - rectFrom.x ) / amt;
-			//item->window.rectEffects2.y = abs( rectTo.y - rectFrom.y ) / amt;
-			//item->window.rectEffects2.w = abs( rectTo.w - rectFrom.w ) / amt;
-			//item->window.rectEffects2.h = abs( rectTo.h - rectFrom.h ) / amt;
-
-            item->window.rectEffects2.x = ::abs (static_cast<int> (rectTo.x - rectFrom.x)) / amt;
-            item->window.rectEffects2.y = ::abs (static_cast<int> (rectTo.y - rectFrom.y)) / amt;
-            item->window.rectEffects2.w = ::abs (static_cast<int> (rectTo.w - rectFrom.w)) / amt;
-            item->window.rectEffects2.h = ::abs (static_cast<int> (rectTo.h - rectFrom.h)) / amt;
-            //BBi
-
+			item->window.rectEffects2.x = c::abs( rectTo.x - rectFrom.x ) / amt;
+			item->window.rectEffects2.y = c::abs( rectTo.y - rectFrom.y ) / amt;
+			item->window.rectEffects2.w = c::abs( rectTo.w - rectFrom.w ) / amt;
+			item->window.rectEffects2.h = c::abs( rectTo.h - rectFrom.h ) / amt;
 			Item_UpdatePosition( item );
 		}
 	}
@@ -3703,13 +3694,13 @@ void Item_TextColor( itemDef_t *item, vec4_t *newColor ) {
 		lowLight[1] = 0.8 * parent->focusColor[1];
 		lowLight[2] = 0.8 * parent->focusColor[2];
 		lowLight[3] = 0.8 * parent->focusColor[3];
-		LerpColor( parent->focusColor,lowLight,*newColor,0.5F + 0.5F * sin( float (DC->realTime / PULSE_DIVISOR) ) );
+		LerpColor( parent->focusColor,lowLight,*newColor,0.5F + 0.5F * c::sin( float (DC->realTime / PULSE_DIVISOR) ) );
 	} else if ( item->textStyle == ITEM_TEXTSTYLE_BLINK && !( ( DC->realTime / BLINK_DIVISOR ) & 1 ) ) {
 		lowLight[0] = 0.8 * item->window.foreColor[0];
 		lowLight[1] = 0.8 * item->window.foreColor[1];
 		lowLight[2] = 0.8 * item->window.foreColor[2];
 		lowLight[3] = 0.8 * item->window.foreColor[3];
-		LerpColor( item->window.foreColor,lowLight,*newColor,0.5F + 0.5F * sin( float (DC->realTime / PULSE_DIVISOR )) );
+		LerpColor( item->window.foreColor,lowLight,*newColor,0.5F + 0.5F * c::sin( float (DC->realTime / PULSE_DIVISOR )) );
 	} else {
 		memcpy( newColor, &item->window.foreColor, sizeof( vec4_t ) );
 		// items can be enabled and disabled based on cvars
@@ -3972,7 +3963,7 @@ void Item_TextField_Paint( itemDef_t *item ) {
 		lowLight[1] = 0.8 * parent->focusColor[1];
 		lowLight[2] = 0.8 * parent->focusColor[2];
 		lowLight[3] = 0.8 * parent->focusColor[3];
-		LerpColor( parent->focusColor,lowLight,newColor,0.5F + 0.5F * sin( float (DC->realTime / PULSE_DIVISOR) ) );
+		LerpColor( parent->focusColor,lowLight,newColor,0.5F + 0.5F * c::sin( float (DC->realTime / PULSE_DIVISOR) ) );
 	} else {
 		memcpy( &newColor, &item->window.foreColor, sizeof( vec4_t ) );
 	}
@@ -4026,7 +4017,7 @@ void Item_CheckBox_Paint( itemDef_t *item ) {
 		lowLight[1] = 0.8 * parent->focusColor[1];
 		lowLight[2] = 0.8 * parent->focusColor[2];
 		lowLight[3] = 0.8 * parent->focusColor[3];
-		LerpColor( parent->focusColor,lowLight,newColor,0.5F + 0.5F * sin( float (DC->realTime / PULSE_DIVISOR) ) );
+		LerpColor( parent->focusColor,lowLight,newColor,0.5F + 0.5F * c::sin( float (DC->realTime / PULSE_DIVISOR) ) );
 	} else {
 		memcpy( &newColor, &item->window.foreColor, sizeof( vec4_t ) );
 	}
@@ -4083,7 +4074,7 @@ void Item_YesNo_Paint( itemDef_t *item ) {
 		lowLight[1] = 0.8 * parent->focusColor[1];
 		lowLight[2] = 0.8 * parent->focusColor[2];
 		lowLight[3] = 0.8 * parent->focusColor[3];
-		LerpColor( parent->focusColor,lowLight,newColor,0.5F + 0.5F * sin( float (DC->realTime / PULSE_DIVISOR) ) );
+		LerpColor( parent->focusColor,lowLight,newColor,0.5F + 0.5F * c::sin( float (DC->realTime / PULSE_DIVISOR) ) );
 	} else {
 		memcpy( &newColor, &item->window.foreColor, sizeof( vec4_t ) );
 	}
@@ -4107,7 +4098,7 @@ void Item_Multi_Paint( itemDef_t *item ) {
 		lowLight[1] = 0.8 * parent->focusColor[1];
 		lowLight[2] = 0.8 * parent->focusColor[2];
 		lowLight[3] = 0.8 * parent->focusColor[3];
-		LerpColor( parent->focusColor,lowLight,newColor,0.5F + 0.5F * sin( float (DC->realTime / PULSE_DIVISOR )) );
+		LerpColor( parent->focusColor,lowLight,newColor,0.5F + 0.5F * c::sin( float (DC->realTime / PULSE_DIVISOR )) );
 	} else {
 		memcpy( &newColor, &item->window.foreColor, sizeof( vec4_t ) );
 	}
@@ -4444,7 +4435,7 @@ void Item_Slider_Paint( itemDef_t *item ) {
 		lowLight[1] = 0.8 * parent->focusColor[1];
 		lowLight[2] = 0.8 * parent->focusColor[2];
 		lowLight[3] = 0.8 * parent->focusColor[3];
-		LerpColor( parent->focusColor,lowLight,newColor,0.5F + 0.5F * sin( float (DC->realTime / PULSE_DIVISOR) ) );
+		LerpColor( parent->focusColor,lowLight,newColor,0.5F + 0.5F * c::sin( float (DC->realTime / PULSE_DIVISOR) ) );
 	} else {
 		memcpy( &newColor, &item->window.foreColor, sizeof( vec4_t ) );
 	}
@@ -4489,14 +4480,14 @@ void Item_Bind_Paint( itemDef_t *item ) {
 			lowLight[2] = 0.8f * parent->focusColor[2];
 			lowLight[3] = 0.8f * parent->focusColor[3];
 		}
-		LerpColor( parent->focusColor,lowLight,newColor,0.5F + 0.5F * sin( float (DC->realTime / PULSE_DIVISOR) ) );
+		LerpColor( parent->focusColor,lowLight,newColor,0.5F + 0.5F * c::sin( float (DC->realTime / PULSE_DIVISOR) ) );
 	} else {
 		if ( g_bindItem == item ) {
 			lowLight[0] = 0.8f * 1.0f;
 			lowLight[1] = 0.8f * 0.0f;
 			lowLight[2] = 0.8f * 0.0f;
 			lowLight[3] = 0.8f * 1.0f;
-			LerpColor( item->window.foreColor, lowLight, newColor, 0.5F + 0.5F * sin( float (DC->realTime / PULSE_DIVISOR) ) );
+			LerpColor( item->window.foreColor, lowLight, newColor, 0.5F + 0.5F * c::sin( float (DC->realTime / PULSE_DIVISOR) ) );
 		} else {
 			memcpy( &newColor, &item->window.foreColor, sizeof( vec4_t ) );
 		}
@@ -4663,7 +4654,7 @@ void Item_Model_Paint( itemDef_t *item ) {
 	if ( qtrue ) {
 		float len = 0.5 * ( maxs[2] - mins[2] );
 		origin[0] = len / 0.268;    // len / tan( fov/2 )
-		//origin[0] = len / tan(w/2);
+		//origin[0] = len / c::tan(w/2);
 	} else {
 		origin[0] = item->textscale;
 	}
@@ -4674,8 +4665,8 @@ void Item_Model_Paint( itemDef_t *item ) {
 	refdef.fov_y = ( modelPtr->fov_y ) ? modelPtr->fov_y : h;
 #else
 	refdef.fov_x = (int)( (float)refdef.width / 640.0f * 90.0f );
-	xx = refdef.width / tan( refdef.fov_x / 360 * M_PI );
-	refdef.fov_y = atan2( refdef.height, xx );
+	xx = refdef.width / c::tan( refdef.fov_x / 360 * M_PI );
+	refdef.fov_y = c::atan2( refdef.height, xx );
 	refdef.fov_y *= ( 360 / M_PI );
 #endif
 	DC->clearScene();
@@ -4686,7 +4677,7 @@ void Item_Model_Paint( itemDef_t *item ) {
 
 	memset( &ent, 0, sizeof( ent ) );
 
-	//adjust = 5.0 * sin( (float)uis.realtime / 500 );
+	//adjust = 5.0 * c::sin( (float)uis.realtime / 500 );
 	//adjust = 360 % (int)((float)uis.realtime / 1000);
 	//VectorSet( angles, 0, 0, 1 );
 
@@ -4708,7 +4699,7 @@ void Item_Model_Paint( itemDef_t *item ) {
 	}
 
 	if ( modelPtr->backlerp > 1 ) {
-		backLerpWhole = floor( modelPtr->backlerp );
+		backLerpWhole = c::floor( modelPtr->backlerp );
 
 		modelPtr->frame += ( backLerpWhole );
 		if ( ( modelPtr->frame - modelPtr->startframe ) > modelPtr->numframes ) {
@@ -4951,13 +4942,13 @@ void Item_OwnerDraw_Paint( itemDef_t *item ) {
 			lowLight[1] = 0.8 * parent->focusColor[1];
 			lowLight[2] = 0.8 * parent->focusColor[2];
 			lowLight[3] = 0.8 * parent->focusColor[3];
-			LerpColor( parent->focusColor,lowLight,color,0.5F + 0.5F * sin( float (DC->realTime / PULSE_DIVISOR) ) );
+			LerpColor( parent->focusColor,lowLight,color,0.5F + 0.5F * c::sin( float (DC->realTime / PULSE_DIVISOR) ) );
 		} else if ( item->textStyle == ITEM_TEXTSTYLE_BLINK && !( ( DC->realTime / BLINK_DIVISOR ) & 1 ) ) {
 			lowLight[0] = 0.8 * item->window.foreColor[0];
 			lowLight[1] = 0.8 * item->window.foreColor[1];
 			lowLight[2] = 0.8 * item->window.foreColor[2];
 			lowLight[3] = 0.8 * item->window.foreColor[3];
-			LerpColor( item->window.foreColor,lowLight,color,0.5F + 0.5F * sin( float (DC->realTime / PULSE_DIVISOR) ) );
+			LerpColor( item->window.foreColor,lowLight,color,0.5F + 0.5F * c::sin( float (DC->realTime / PULSE_DIVISOR) ) );
 		}
 
 		if ( item->cvarFlags & ( CVAR_ENABLE | CVAR_DISABLE ) && !Item_EnableShowViaCvar( item, CVAR_ENABLE ) ) {
@@ -5007,8 +4998,8 @@ void Item_Paint( itemDef_t *item ) {
 			rx = item->window.rectClient.x + w - item->window.rectEffects.x;
 			ry = item->window.rectClient.y + h - item->window.rectEffects.y;
 			a = 3 * M_PI / 180;
-			c = cos( a );
-			s = sin( a );
+			c = c::cos( a );
+			s = c::sin( a );
 			item->window.rectClient.x = ( rx * c - ry * s ) + item->window.rectEffects.x - w;
 			item->window.rectClient.y = ( rx * s + ry * c ) + item->window.rectEffects.y - h;
 			Item_UpdatePosition( item );

@@ -359,12 +359,7 @@ void BotChangeViewAngles( bot_state_t *bs, float thinktime ) {
 	}
 	maxchange *= thinktime;
 	for ( i = 0; i < 2; i++ ) {
-
-        //BBi See #BUG0002
-		//diff = abs( AngleDifference( bs->viewangles[i], bs->ideal_viewangles[i] ) );
-        diff = ::abs (static_cast<int> (::AngleDifference (bs->viewangles[i], bs->ideal_viewangles[i])));
-        //BBi
-
+		diff = c::abs( AngleDifference( bs->viewangles[i], bs->ideal_viewangles[i] ) );
 		anglespeed = diff * factor;
 		if ( anglespeed > maxchange ) {
 			anglespeed = maxchange;
@@ -453,11 +448,7 @@ void BotInputToUserCommand( bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3
 	//set the view independent movement
 	ucmd->forwardmove = DotProduct( forward, bi->dir ) * bi->speed;
 	ucmd->rightmove = DotProduct( right, bi->dir ) * bi->speed;
-
-    //BBi See #BUG0002
-	//ucmd->upmove = abs( forward[2] ) * bi->dir[2] * bi->speed;
-    ucmd->upmove = ::abs (static_cast<int> (forward[2])) * bi->dir[2] * bi->speed;
-    //BBi
+	ucmd->upmove = c::abs( forward[2] ) * bi->dir[2] * bi->speed;
 
 	//normal keyboard movement
 	if ( bi->actionflags & ACTION_MOVEFORWARD ) {

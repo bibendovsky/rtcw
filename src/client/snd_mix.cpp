@@ -283,12 +283,12 @@ void S_TransferPaintBuffer( int endtime ) {
 #if defined RTCW_SP
 		for ( i = 0 ; i < count ; i++ ) {
 			float v;
-			v = sin( M_PI * 2 * i / 64 );
+			v = c::sin( M_PI * 2 * i / 64 );
 			paintbuffer[i].left = paintbuffer[i].right = v * 0x400000;
 		}
 #else
 		for ( i = 0 ; i < count ; i++ )
-			paintbuffer[i].left = paintbuffer[i].right = sin( ( s_paintedtime + i ) * 0.1 ) * 20000 * 256;
+			paintbuffer[i].left = paintbuffer[i].right = c::sin( ( s_paintedtime + i ) * 0.1 ) * 20000 * 256;
 #endif // RTCW_XX
 
 	}
@@ -380,13 +380,13 @@ void S_SetVoiceAmplitudeFrom16( const sfx_t *sc, int sampleOffset, int count, in
 			sampleOffset = 0;
 		}
 		data  = samples[sampleOffset++];
-		if ( abs( data ) > 5000 ) {
+		if ( c::abs( data ) > 5000 ) {
 			sfx_count += ( data * 255 ) >> 8;
 		}
 	}
 	//Com_Printf("Voice sfx_count = %d, count = %d\n", sfx_count, count );
 	// adjust the sfx_count according to the frametime (scale down for longer frametimes)
-	sfx_count = abs( sfx_count );
+	sfx_count = c::abs( sfx_count );
 	sfx_count = (int)( (float)sfx_count / ( 2.0 * (float)count ) );
 	if ( sfx_count > 255 ) {
 		sfx_count = 255;
@@ -436,13 +436,13 @@ void S_SetVoiceAmplitudeFromADPCM( const sfx_t *sc, int sampleOffset, int count,
 			sfxScratchIndex++;
 		}
 		data  = samples[sampleOffset++];
-		if ( abs( data ) > 5000 ) {
+		if ( c::abs( data ) > 5000 ) {
 			sfx_count += ( data * 255 ) >> 8;
 		}
 	}
 	//Com_Printf("Voice sfx_count = %d, count = %d\n", sfx_count, count );
 	// adjust the sfx_count according to the frametime (scale down for longer frametimes)
-	sfx_count = abs( sfx_count );
+	sfx_count = c::abs( sfx_count );
 	sfx_count = (int)( (float)sfx_count / ( 2.0 * (float)count ) );
 	if ( sfx_count > 255 ) {
 		sfx_count = 255;
@@ -490,14 +490,14 @@ void S_SetVoiceAmplitudeFromWavelet( const sfx_t *sc, int sampleOffset, int coun
 			sampleOffset = 0;
 		}
 		data = samples[sampleOffset++];
-		if ( abs( data ) > 5000 ) {
+		if ( c::abs( data ) > 5000 ) {
 			sfx_count += ( data * 255 ) >> 8;
 		}
 	}
 
 	//Com_Printf("Voice sfx_count = %d, count = %d\n", sfx_count, count );
 	// adjust the sfx_count according to the frametime (scale down for longer frametimes)
-	sfx_count = abs( sfx_count );
+	sfx_count = c::abs( sfx_count );
 	sfx_count = (int)( (float)sfx_count / ( 2.0 * (float)count ) );
 	if ( sfx_count > 255 ) {
 		sfx_count = 255;
@@ -539,14 +539,14 @@ void S_SetVoiceAmplitudeFromMuLaw( const sfx_t *sc, int sampleOffset, int count,
 			samples = (byte *)chunk->sndChunk;
 		}
 		data  = mulawToShort[*samples];
-		if ( abs( data ) > 5000 ) {
+		if ( c::abs( data ) > 5000 ) {
 			sfx_count += ( data * 255 ) >> 8;
 		}
 		samples++;
 	}
 	//Com_Printf("Voice sfx_count = %d, count = %d\n", sfx_count, count );
 	// adjust the sfx_count according to the frametime (scale down for longer frametimes)
-	sfx_count = abs( sfx_count );
+	sfx_count = c::abs( sfx_count );
 	sfx_count = (int)( (float)sfx_count / ( 2.0 * (float)count ) );
 	if ( sfx_count > 255 ) {
 		sfx_count = 255;
@@ -930,7 +930,7 @@ void S_PaintChannels( int endtime ) {
 
 					for ( i = talktime ; i < vstop ; i++ ) {
 						s = i & ( MAX_RAW_SAMPLES - 1 );
-						data = abs( ( s_rawsamples[si][s].left ) / 8000 );
+						data = c::abs( ( s_rawsamples[si][s].left ) / 8000 );
 						if ( data > sfx_count ) {
 							sfx_count = data;
 						}

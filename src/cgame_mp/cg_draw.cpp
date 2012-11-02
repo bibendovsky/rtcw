@@ -456,7 +456,7 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team ) {
 	len = 0.5 * ( maxs[2] - mins[2] );
 	origin[0] = len / 0.268;    // len / tan( fov/2 )
 
-	angles[YAW] = 60 * sin( cg.time / 2000.0 );;
+	angles[YAW] = 60 * c::sin( cg.time / 2000.0 );;
 
 	CG_Draw3DModel( x, y, w, h,
 					team == TEAM_RED ? cgs.media.redFlagModel : cgs.media.blueFlagModel,
@@ -489,7 +489,7 @@ void CG_DrawKeyModel( int keynum, float x, float y, float w, float h, int fadeti
 	len = 0.75 * ( maxs[2] - mins[2] );
 	origin[0] = len / 0.268;    // len / tan( fov/2 )
 
-	angles[YAW] = 30 * sin( cg.time / 2000.0 );;
+	angles[YAW] = 30 * c::sin( cg.time / 2000.0 );;
 
 	CG_Draw3DModel( x, y, w, h, cg_items[keynum].models[0], 0, origin, angles );
 }
@@ -2673,7 +2673,7 @@ static void CG_DrawFlashDamage( void ) {
 	}
 
 	if ( cg.v_dmg_time > cg.time ) {
-		redFlash = fabs( cg.v_dmg_pitch * ( ( cg.v_dmg_time - cg.time ) / DAMAGE_TIME ) );
+		redFlash = c::fabs( cg.v_dmg_pitch * ( ( cg.v_dmg_time - cg.time ) / DAMAGE_TIME ) );
 
 		// blend the entire screen red
 		if ( redFlash > 5 ) {
@@ -2722,7 +2722,7 @@ static void CG_DrawFlashFire( void ) {
 			alpha = f;
 		}
 
-		max = 0.5 + 0.5 * sin( (float)( ( cg.time / 10 ) % 1000 ) / 1000.0 );
+		max = 0.5 + 0.5 * c::sin( (float)( ( cg.time / 10 ) % 1000 ) / 1000.0 );
 		if ( alpha > max ) {
 			alpha = max;
 		}
@@ -3004,7 +3004,7 @@ void CG_DrawObjectiveIcons() {
 	tens = seconds / 10;
 	seconds -= tens * 10;
 	if ( msec < 0 ) {
-		fade = fabs( sin( cg.time * 0.002 ) ) * cg_hudAlpha.value;
+		fade = c::fabs( c::sin( cg.time * 0.002 ) ) * cg_hudAlpha.value;
 		s = va( "0:00" );
 	} else {
 		s = va( "%i:%i%i", mins, tens, seconds ); // float cast to line up with reinforce time
@@ -3292,10 +3292,10 @@ void CG_DrawCompassIcon( int x, int y, int w, int h, vec3_t origin, vec3_t dest,
 	x += w;
 	y += h;
 
-	w = sqrt( float (( w * w ) + ( h * h )) ) / 3.0F * 2.0F * 0.9F;
+	w = c::sqrt( float (( w * w ) + ( h * h )) ) / 3.0F * 2.0F * 0.9F;
 
-	x = x + ( cos( angle ) * w );
-	y = y + ( sin( angle ) * w );
+	x = x + ( c::cos( angle ) * w );
+	y = y + ( c::sin( angle ) * w );
 
 	len = 1 - min( 1.f, len / 2000.f );
 
@@ -3534,11 +3534,11 @@ void CG_ShakeCamera() {
 	x = ( cg.cameraShakeTime - cg.time ) / cg.cameraShakeLength;
 
 	// up/down
-	val = sin( M_PI * 8 * x + cg.cameraShakePhase ) * x * 18.0f * cg.cameraShakeScale;
+	val = c::sin( M_PI * 8 * x + cg.cameraShakePhase ) * x * 18.0f * cg.cameraShakeScale;
 	cg.refdefViewAngles[0] += val;
 
 	// left/right
-	val = sin( M_PI * 15 * x + cg.cameraShakePhase ) * x * 16.0f * cg.cameraShakeScale;
+	val = c::sin( M_PI * 15 * x + cg.cameraShakePhase ) * x * 16.0f * cg.cameraShakeScale;
 	cg.refdefViewAngles[1] += val;
 
 	AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );

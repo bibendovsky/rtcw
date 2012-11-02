@@ -631,8 +631,8 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 			height = p->endheight;
 		}
 
-		sinR = height * sin( DEG2RAD( p->roll ) ) * ROOT_2;
-		cosR = width * cos( DEG2RAD( p->roll ) ) * ROOT_2;
+		sinR = height * c::sin( DEG2RAD( p->roll ) ) * ROOT_2;
+		cosR = width * c::cos( DEG2RAD( p->roll ) ) * ROOT_2;
 
 		VectorCopy( org, verts[0].xyz );
 		verts[0].xyz[0] -= sinR;
@@ -749,7 +749,7 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 		}
 
 		i = p->shaderAnim;
-		j = (int)floor( ratio * shaderAnimCounts[p->shaderAnim] );
+		j = (int)c::floor( ratio * shaderAnimCounts[p->shaderAnim] );
 		p->pshader = shaderAnims[i][j];
 
 		// JPW NERVE more particle testing

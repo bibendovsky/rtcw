@@ -411,7 +411,7 @@ void RE_RotatedPic( float x, float y, float w, float h,
 	cmd->h /= 2;
 	cmd->x += cmd->w;
 	cmd->y += cmd->h;
-	cmd->w = sqrt( ( cmd->w * cmd->w ) + ( cmd->h * cmd->h ) );
+	cmd->w = c::sqrt( ( cmd->w * cmd->w ) + ( cmd->h * cmd->h ) );
 	cmd->h = cmd->w;
 
 	cmd->angle = angle;

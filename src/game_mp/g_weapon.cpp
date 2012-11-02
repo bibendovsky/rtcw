@@ -1121,10 +1121,10 @@ void SnapVectorTowards( vec3_t v, vec3_t to ) {
 	for ( i = 0 ; i < 3 ; i++ ) {
 		if ( to[i] <= v[i] ) {
 //			v[i] = (int)v[i];
-			v[i] = floor( v[i] );
+			v[i] = c::floor( v[i] );
 		} else {
 //			v[i] = (int)v[i] + 1;
-			v[i] = ceil( v[i] );
+			v[i] = c::ceil( v[i] );
 		}
 	}
 }
@@ -2283,10 +2283,10 @@ void CalcMuzzlePoints( gentity_t *ent, int weapon ) {
 
 			// rotate 'forward' vector by the sway
 			phase = level.time / 1000.0 * ZOOM_PITCH_FREQUENCY * M_PI * 2;
-			viewang[PITCH] += ZOOM_PITCH_AMPLITUDE * sin( phase ) * ( spreadfrac + ZOOM_PITCH_MIN_AMPLITUDE );
+			viewang[PITCH] += ZOOM_PITCH_AMPLITUDE * c::sin( phase ) * ( spreadfrac + ZOOM_PITCH_MIN_AMPLITUDE );
 
 			phase = level.time / 1000.0 * ZOOM_YAW_FREQUENCY * M_PI * 2;
-			viewang[YAW] += ZOOM_YAW_AMPLITUDE * sin( phase ) * ( spreadfrac + ZOOM_YAW_MIN_AMPLITUDE );
+			viewang[YAW] += ZOOM_YAW_AMPLITUDE * c::sin( phase ) * ( spreadfrac + ZOOM_YAW_MIN_AMPLITUDE );
 		}
 	}
 

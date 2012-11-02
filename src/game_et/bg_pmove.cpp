@@ -335,8 +335,8 @@ void PM_TraceLegs( trace_t *trace, float *legsOffset, vec3_t start, vec3_t end, 
 	}
 
 	angle = DEG2RAD( viewangles[YAW] );
-	flatforward[0] = cos( angle );
-	flatforward[1] = sin( angle );
+	flatforward[0] = c::cos( angle );
+	flatforward[1] = c::sin( angle );
 	flatforward[2] = 0;
 
 	VectorScale( flatforward, -32, ofs );
@@ -613,18 +613,18 @@ static float PM_CmdScale( usercmd_t *cmd ) {
 	int movespeed = g_movespeed.integer;
 #endif
 
-	max = abs( cmd->forwardmove );
-	if ( abs( cmd->rightmove ) > max ) {
-		max = abs( cmd->rightmove );
+	max = c::abs( cmd->forwardmove );
+	if ( c::abs( cmd->rightmove ) > max ) {
+		max = c::abs( cmd->rightmove );
 	}
-	if ( abs( cmd->upmove ) > max ) {
-		max = abs( cmd->upmove );
+	if ( c::abs( cmd->upmove ) > max ) {
+		max = c::abs( cmd->upmove );
 	}
 	if ( !max ) {
 		return 0;
 	}
 
-	total = sqrt( float (cmd->forwardmove * cmd->forwardmove
+	total = c::sqrt( float (cmd->forwardmove * cmd->forwardmove
 				  + cmd->rightmove * cmd->rightmove + cmd->upmove * cmd->upmove) );
 	scale = (float)pm->ps->speed * max / ( 127.0 * total );
 
@@ -704,7 +704,7 @@ static void PM_SetMovementDir( void ) {
 			moveyaw = (int)AngleNormalize180( moveyaw + 180 );
 		}
 
-		if ( abs( moveyaw ) > 75 ) {
+		if ( c::abs( moveyaw ) > 75 ) {
 			if ( moveyaw > 0 ) {
 				moveyaw = 75;
 			} else
@@ -977,7 +977,7 @@ static qboolean PM_CheckProne( void ) {
 
 		// See if we are moving
 		float spd = VectorLength( pm->ps->velocity );
-		qboolean userinput = abs( pm->cmd.forwardmove ) + abs( pm->cmd.rightmove ) > 10 ? qtrue : qfalse;
+		qboolean userinput = c::abs( pm->cmd.forwardmove ) + c::abs( pm->cmd.rightmove ) > 10 ? qtrue : qfalse;
 
 		if ( userinput && spd > 40.f && !( pm->ps->eFlags & EF_PRONE_MOVING ) ) {
 			pm->ps->eFlags |= EF_PRONE_MOVING;
@@ -1644,7 +1644,7 @@ static void PM_CrashLand( void ) {
 	if ( den < 0 ) {
 		return;
 	}
-	t = ( -b - sqrt( den ) ) / ( 2 * a );
+	t = ( -b - c::sqrt( den ) ) / ( 2 * a );
 
 	delta = vel + t * acc;
 	delta = delta * delta * 0.0001;
@@ -2072,7 +2072,7 @@ static void PM_Footsteps( void ) {
 	// calculate speed and cycle to be used for
 	// all cyclic walking effects
 	//
-	pm->xyspeed = sqrt( pm->ps->velocity[0] * pm->ps->velocity[0] +  pm->ps->velocity[1] * pm->ps->velocity[1] );
+	pm->xyspeed = c::sqrt( pm->ps->velocity[0] * pm->ps->velocity[0] +  pm->ps->velocity[1] * pm->ps->velocity[1] );
 
 	// mg42, always idle
 	if ( pm->ps->persistant[PERS_HWEAPON_USE] ) {
@@ -3062,14 +3062,14 @@ void PM_CoolWeapons( void ) {
 	if ( pm->ps->weapon ) {
 		if ( pm->ps->persistant[PERS_HWEAPON_USE] || pm->ps->eFlags & EF_MOUNTEDTANK ) {
 			// rain - floor to prevent 8-bit wrap
-			pm->ps->curWeapHeat = floor( ( ( (float)pm->ps->weapHeat[WP_DUMMY_MG42] / MAX_MG42_HEAT ) ) * 255.0f );
+			pm->ps->curWeapHeat = c::floor( ( ( (float)pm->ps->weapHeat[WP_DUMMY_MG42] / MAX_MG42_HEAT ) ) * 255.0f );
 		} else {
 			// rain - #172 - don't divide by 0
 			maxHeat = GetAmmoTableData( pm->ps->weapon )->maxHeat;
 
 			// rain - floor to prevent 8-bit wrap
 			if ( maxHeat != 0 ) {
-				pm->ps->curWeapHeat = floor( ( ( (float)pm->ps->weapHeat[pm->ps->weapon] / (float)maxHeat ) ) * 255.0f );
+				pm->ps->curWeapHeat = c::floor( ( ( (float)pm->ps->weapHeat[pm->ps->weapon] / (float)maxHeat ) ) * 255.0f );
 			} else {
 				pm->ps->curWeapHeat = 0;
 			}
@@ -3173,12 +3173,12 @@ void PM_AdjustAimSpreadScale( void ) {
 		// TODO: also check for jump/crouch and adjust accordingly
 		if ( BG_IsScopedWeapon( pm->ps->weapon ) ) {
 			for ( i = 0; i < 2; i++ ) {
-				viewchange += fabs( pm->ps->velocity[i] );
+				viewchange += c::fabs( pm->ps->velocity[i] );
 			}
 		} else {
 			// take player view rotation into account
 			for ( i = 0; i < 2; i++ ) {
-				viewchange += fabs( SHORT2ANGLE( pm->cmd.angles[i] ) - SHORT2ANGLE( pm->oldcmd.angles[i] ) );
+				viewchange += c::fabs( SHORT2ANGLE( pm->cmd.angles[i] ) - SHORT2ANGLE( pm->oldcmd.angles[i] ) );
 			}
 		}
 
@@ -3277,7 +3277,7 @@ static void PM_Weapon( void ) {
 			}
 
 			// rain - floor() to prevent 8-bit wrap
-			pm->ps->curWeapHeat = floor( ( ( (float)pm->ps->weapHeat[WP_DUMMY_MG42] / MAX_MG42_HEAT ) ) * 255.0f );
+			pm->ps->curWeapHeat = c::floor( ( ( (float)pm->ps->weapHeat[WP_DUMMY_MG42] / MAX_MG42_HEAT ) ) * 255.0f );
 		}
 
 		if ( pm->ps->weaponTime > 0 ) {
@@ -3351,7 +3351,7 @@ static void PM_Weapon( void ) {
 			}
 
 			// rain - floor() to prevent 8-bit wrap
-			pm->ps->curWeapHeat = floor( ( ( (float)pm->ps->weapHeat[WP_DUMMY_MG42] / MAX_MG42_HEAT ) ) * 255.0f );
+			pm->ps->curWeapHeat = c::floor( ( ( (float)pm->ps->weapHeat[WP_DUMMY_MG42] / MAX_MG42_HEAT ) ) * 255.0f );
 		}
 
 		if ( pm->ps->weaponTime > 0 ) {
@@ -3457,12 +3457,12 @@ static void PM_Weapon( void ) {
 
 		for ( i = pm->pmext->lastRecoilDeltaTime; i < deltaTime; i += 15 ) {
 			if ( pm->pmext->weapRecoilPitch > 0.f ) {
-				muzzlebounce[PITCH] -= 2*pm->pmext->weapRecoilPitch*cos( 2.5*(i) / pm->pmext->weapRecoilDuration );
+				muzzlebounce[PITCH] -= 2*pm->pmext->weapRecoilPitch*c::cos( 2.5*(i) / pm->pmext->weapRecoilDuration );
 				muzzlebounce[PITCH] -= 0.25 * random() * ( 1.0f - ( i ) / pm->pmext->weapRecoilDuration );
 			}
 
 			if ( pm->pmext->weapRecoilYaw > 0.f ) {
-				muzzlebounce[YAW] += 0.5*pm->pmext->weapRecoilYaw*cos( 1.0 - (i)*3 / pm->pmext->weapRecoilDuration );
+				muzzlebounce[YAW] += 0.5*pm->pmext->weapRecoilYaw*c::cos( 1.0 - (i)*3 / pm->pmext->weapRecoilDuration );
 				muzzlebounce[YAW] += 0.5 * crandom() * ( 1.0f - ( i ) / pm->pmext->weapRecoilDuration );
 			}
 		}
@@ -4737,7 +4737,7 @@ void PM_UpdateViewAngles( playerState_t *ps, pmoveExt_t *pmext, usercmd_t *cmd, 
 			arcMin = 14;
 			arcMax = 50;
 
-			angle = cos( DEG2RAD( AngleNormalize180( pmext->centerangles[ 1 ] - ps->viewangles[ 1 ] ) ) );
+			angle = c::cos( DEG2RAD( AngleNormalize180( pmext->centerangles[ 1 ] - ps->viewangles[ 1 ] ) ) );
 			angle = -AngleNormalize360( angle * AngleNormalize180( 0 - pmext->centerangles[ 0 ] ) );
 
 			pmext->centerangles[ PITCH ] = angle;
@@ -5309,7 +5309,7 @@ void PmoveSingle( pmove_t *pmove ) {
 
 	// make sure walking button is clear if they are running, to avoid
 	// proxy no-footsteps cheats
-	if ( abs( pm->cmd.forwardmove ) > 64 || abs( pm->cmd.rightmove ) > 64 ) {
+	if ( c::abs( pm->cmd.forwardmove ) > 64 || c::abs( pm->cmd.rightmove ) > 64 ) {
 		pm->cmd.buttons &= ~BUTTON_WALKING;
 	}
 

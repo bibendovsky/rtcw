@@ -376,18 +376,18 @@ static float PM_CmdScale( usercmd_t *cmd ) {
 		}
 	}
 
-	max = abs( cmd->forwardmove );
-	if ( abs( cmd->rightmove ) > max ) {
-		max = abs( cmd->rightmove );
+	max = c::abs( cmd->forwardmove );
+	if ( c::abs( cmd->rightmove ) > max ) {
+		max = c::abs( cmd->rightmove );
 	}
-	if ( abs( cmd->upmove ) > max ) {
-		max = abs( cmd->upmove );
+	if ( c::abs( cmd->upmove ) > max ) {
+		max = c::abs( cmd->upmove );
 	}
 	if ( !max ) {
 		return 0;
 	}
 
-	total = sqrt( float (cmd->forwardmove * cmd->forwardmove
+	total = c::sqrt( float (cmd->forwardmove * cmd->forwardmove
 				  + cmd->rightmove * cmd->rightmove + cmd->upmove * cmd->upmove) );
 	scale = (float)pm->ps->speed * max / ( 127.0 * total );
 
@@ -455,7 +455,7 @@ static void PM_SetMovementDir( void ) {
 			moveyaw = (int)AngleNormalize180( moveyaw + 180 );
 		}
 
-		if ( abs( moveyaw ) > 75 ) {
+		if ( c::abs( moveyaw ) > 75 ) {
 			if ( moveyaw > 0 ) {
 				moveyaw = 75;
 			} else
@@ -1166,7 +1166,7 @@ static void PM_CrashLand( void ) {
 	if ( den < 0 ) {
 		return;
 	}
-	t = ( -b - sqrt( den ) ) / ( 2 * a );
+	t = ( -b - c::sqrt( den ) ) / ( 2 * a );
 
 	delta = vel + t * acc;
 	delta = delta * delta * 0.0001;
@@ -1568,7 +1568,7 @@ static void PM_Footsteps( void ) {
 	// calculate speed and cycle to be used for
 	// all cyclic walking effects
 	//
-	pm->xyspeed = sqrt( pm->ps->velocity[0] * pm->ps->velocity[0]
+	pm->xyspeed = c::sqrt( pm->ps->velocity[0] * pm->ps->velocity[0]
 						+  pm->ps->velocity[1] * pm->ps->velocity[1] );
 
 	// mg42, always idle
@@ -2324,11 +2324,11 @@ void PM_AdjustAimSpreadScale( void ) {
 		// TODO: also check for jump/crouch and adjust accordingly
 		if ( pm->ps->weapon == WP_SNIPERRIFLE || pm->ps->weapon == WP_SNOOPERSCOPE ) {
 			for ( i = 0; i < 2; i++ )
-				viewchange += fabs( pm->ps->velocity[i] );
+				viewchange += c::fabs( pm->ps->velocity[i] );
 		} else {
 			// take player view rotation into account
 			for ( i = 0; i < 2; i++ )
-				viewchange += fabs( SHORT2ANGLE( pm->cmd.angles[i] ) - SHORT2ANGLE( pm->oldcmd.angles[i] ) );
+				viewchange += c::fabs( SHORT2ANGLE( pm->cmd.angles[i] ) - SHORT2ANGLE( pm->oldcmd.angles[i] ) );
 		}
 
 		viewchange = (float)viewchange / cmdTime;   // convert into this movement for a second
@@ -3799,7 +3799,7 @@ void PmoveSingle( pmove_t *pmove ) {
 
 	// make sure walking button is clear if they are running, to avoid
 	// proxy no-footsteps cheats
-	if ( abs( pm->cmd.forwardmove ) > 64 || abs( pm->cmd.rightmove ) > 64 ) {
+	if ( c::abs( pm->cmd.forwardmove ) > 64 || c::abs( pm->cmd.rightmove ) > 64 ) {
 		pm->cmd.buttons &= ~BUTTON_WALKING;
 	}
 

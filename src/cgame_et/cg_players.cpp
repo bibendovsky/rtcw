@@ -939,7 +939,7 @@ static void CG_SwingAngles( float destination, float swingTolerance, float clamp
 	// modify the speed depending on the delta
 	// so it doesn't seem so linear
 	swing = AngleSubtract( destination, *angle );
-	scale = fabs( swing );
+	scale = c::fabs( swing );
 	scale *= 0.05;
 	if ( scale < 0.5 ) {
 		scale = 0.5;
@@ -1098,7 +1098,7 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 			clampTolerance = 90;
 		} else {    // must be firing
 			torsoAngles[YAW] = headAngles[YAW]; // always face firing direction
-			//if (fabs(cent->currentState.angles2[YAW]) > 30)
+			//if (c::fabs(cent->currentState.angles2[YAW]) > 30)
 			//	legsAngles[YAW] = headAngles[YAW];
 			clampTolerance = 60;
 		}
@@ -2435,7 +2435,7 @@ static void CG_SwingAngles_Limbo( float destination, float swingTolerance, float
 	// modify the speed depending on the delta
 	// so it doesn't seem so linear
 	swing = AngleSubtract( destination, *angle );
-	scale = fabs( swing );
+	scale = c::fabs( swing );
 	if ( scale < swingTolerance * 0.5 ) {
 		scale = 0.5;
 	} else if ( scale < swingTolerance ) {
@@ -2568,8 +2568,8 @@ void CG_DrawPlayer_Limbo( float x, float y, float w, float h, playerInfo_t *pi, 
 	refdef.height = h;
 
 /*	refdef.fov_x = (int)((float)refdef.width / 640.0f * 90.0f);
-	xx = refdef.width / tan( refdef.fov_x / 360 * M_PI );
-	refdef.fov_y = atan2( refdef.height, xx );
+	xx = refdef.width / c::tan( refdef.fov_x / 360 * M_PI );
+	refdef.fov_y = c::atan2( refdef.height, xx );
 	refdef.fov_y *= ( 360 / M_PI );*/
 
 	refdef.fov_x = 35;
@@ -2583,7 +2583,7 @@ void CG_DrawPlayer_Limbo( float x, float y, float w, float h, playerInfo_t *pi, 
 	if ( animatedHead == qfalse ) {
 		// END Mad Doc - TDF
 		len = 0.9 * ( maxs[2] - mins[2] );                          // NERVE - SMF - changed from 0.7
-		origin[0] = pi->y - 70 + ( len / tan( DEG2RAD( refdef.fov_x ) * 0.5 ) );
+		origin[0] = pi->y - 70 + ( len / c::tan( DEG2RAD( refdef.fov_x ) * 0.5 ) );
 		origin[1] = 0.5 * ( mins[1] + maxs[1] );
 		origin[2] = pi->z - 23 + ( -0.5 * ( mins[2] + maxs[2] ) );
 	} else

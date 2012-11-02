@@ -1488,7 +1488,7 @@ int BotSuggestClass( bot_state_t *bs, team_t team ) {
 		if ( numTeamMembers <= 3 ) {
 			numRequired[PC_ENGINEER] = 1;
 		} else {
-			numRequired[PC_ENGINEER] = (int)ceil( numTeamMembers / 3.f );
+			numRequired[PC_ENGINEER] = (int)c::ceil( numTeamMembers / 3.f );
 		}
 	}
 

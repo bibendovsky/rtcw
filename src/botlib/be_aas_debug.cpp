@@ -346,7 +346,7 @@ void AAS_ShowFace( int facenum ) {
 	for ( i = 0; i < face->numedges; i++ )
 	{
 		//edge number
-		edgenum = abs( ( *aasworld ).edgeindex[face->firstedge + i] );
+		edgenum = c::abs( ( *aasworld ).edgeindex[face->firstedge + i] );
 		//check if edge number is in range
 		if ( edgenum >= ( *aasworld ).numedges ) {
 			botimport.Print( PRT_ERROR, "edgenum %d out of range\n", edgenum );
@@ -364,7 +364,7 @@ void AAS_ShowFace( int facenum ) {
 					   color );
 	} //end for
 	plane = &( *aasworld ).planes[face->planenum];
-	edgenum = abs( ( *aasworld ).edgeindex[face->firstedge] );
+	edgenum = c::abs( ( *aasworld ).edgeindex[face->firstedge] );
 	edge = &( *aasworld ).edges[edgenum];
 	VectorCopy( ( *aasworld ).vertexes[edge->v[0]], start );
 	VectorMA( start, 20, plane->normal, end );
@@ -396,7 +396,7 @@ void AAS_ShowFacePolygon( int facenum, int color, int flip ) {
 		{
 			//edge number
 			edgenum = ( *aasworld ).edgeindex[face->firstedge + i];
-			edge = &( *aasworld ).edges[abs( edgenum )];
+			edge = &( *aasworld ).edges[c::abs( edgenum )];
 			VectorCopy( ( *aasworld ).vertexes[edge->v[edgenum < 0]], points[numpoints] );
 			numpoints++;
 		} //end for
@@ -407,7 +407,7 @@ void AAS_ShowFacePolygon( int facenum, int color, int flip ) {
 		{
 			//edge number
 			edgenum = ( *aasworld ).edgeindex[face->firstedge + i];
-			edge = &( *aasworld ).edges[abs( edgenum )];
+			edge = &( *aasworld ).edges[c::abs( edgenum )];
 			VectorCopy( ( *aasworld ).vertexes[edge->v[edgenum < 0]], points[numpoints] );
 			numpoints++;
 		} //end for
@@ -432,7 +432,7 @@ void AAS_ShowFacePolygon( int facenum, int color, int flip ) {
 	if ( flip ) {
 		for ( i = face->numedges - 1; i >= 0; i-- ) {
 			edgenum = aasworld->edgeindex[face->firstedge + i];
-			edge = &( aasworld->edges[abs( edgenum )] );
+			edge = &( aasworld->edges[c::abs( edgenum )] );
 
 			VectorCopy( aasworld->vertexes[edge->v[edgenum < 0]], points[numpoints] );
 
@@ -441,7 +441,7 @@ void AAS_ShowFacePolygon( int facenum, int color, int flip ) {
 	} else {
 		for ( i = 0; i < face->numedges; i++ ) {
 			edgenum = aasworld->edgeindex[face->firstedge + i];
-			edge = &( aasworld->edges[abs( edgenum )] );
+			edge = &( aasworld->edges[c::abs( edgenum )] );
 
 			VectorCopy( aasworld->vertexes[edge->v[edgenum < 0]], points[numpoints] );
 
@@ -480,7 +480,7 @@ void AAS_ShowArea( int areanum, int groundfacesonly ) {
 	//walk through the faces of the area
 	for ( i = 0; i < area->numfaces; i++ )
 	{
-		facenum = abs( ( *aasworld ).faceindex[area->firstface + i] );
+		facenum = c::abs( ( *aasworld ).faceindex[area->firstface + i] );
 		//check if face number is in range
 		if ( facenum >= ( *aasworld ).numfaces ) {
 			botimport.Print( PRT_ERROR, "facenum %d out of range\n", facenum );
@@ -496,7 +496,7 @@ void AAS_ShowArea( int areanum, int groundfacesonly ) {
 		for ( j = 0; j < face->numedges; j++ )
 		{
 			//edge number
-			edgenum = abs( ( *aasworld ).edgeindex[face->firstedge + j] );
+			edgenum = c::abs( ( *aasworld ).edgeindex[face->firstedge + j] );
 			//check if edge number is in range
 			if ( edgenum >= ( *aasworld ).numedges ) {
 				botimport.Print( PRT_ERROR, "edgenum %d out of range\n", edgenum );
@@ -569,7 +569,7 @@ void AAS_ShowAreaPolygons( int areanum, int color, int groundfacesonly ) {
 	//walk through the faces of the area
 	for ( i = 0; i < area->numfaces; i++ )
 	{
-		facenum = abs( ( *aasworld ).faceindex[area->firstface + i] );
+		facenum = c::abs( ( *aasworld ).faceindex[area->firstface + i] );
 		//check if face number is in range
 		if ( facenum >= ( *aasworld ).numfaces ) {
 			botimport.Print( PRT_ERROR, "facenum %d out of range\n", facenum );
@@ -594,7 +594,7 @@ void AAS_ShowAreaPolygons( int areanum, int color, int groundfacesonly ) {
 
 	//walk through the faces of the area
 	for ( i = 0; i < area->numfaces; i++ ) {
-		facenum = abs( aasworld->faceindex[area->firstface + i] );
+		facenum = c::abs( aasworld->faceindex[area->firstface + i] );
 
 		//check if face number is in range
 		if ( facenum >= aasworld->numfaces ) {

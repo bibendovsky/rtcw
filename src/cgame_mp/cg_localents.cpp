@@ -855,9 +855,9 @@ void CG_AddClientCritter( localEntity_t *le ) {
 
 	// vary the enemyPos to create a psuedo-randomness
 	of = (float)cg.time + le->startTime;
-	enemyPos[0] += 12 * ( sin( of / 100 ) * cos( of / 78 ) );
-	enemyPos[1] += 12 * ( sin( of / 70 ) * cos( of / 82 ) );
-	enemyPos[2] += 12 * ( sin( of / 67 ) * cos( of / 98 ) );
+	enemyPos[0] += 12 * ( c::sin( of / 100 ) * c::cos( of / 78 ) );
+	enemyPos[1] += 12 * ( c::sin( of / 70 ) * c::cos( of / 82 ) );
+	enemyPos[2] += 12 * ( c::sin( of / 67 ) * c::cos( of / 98 ) );
 
 	time = le->lastTrailTime + step;
 
@@ -996,7 +996,7 @@ void CG_AddClientCritter( localEntity_t *le ) {
 		if ( le->leType == LE_ZOMBIE_BAT ) {
 			VectorSubtract( le->pos.trDelta, oDelta, v2 );
 			ang[ROLL] = -5.0 * DotProduct( le->refEntity.axis[1], v2 );
-			if ( fabs( ang[ROLL] ) > 80 ) {
+			if ( c::fabs( ang[ROLL] ) > 80 ) {
 				if ( ang[ROLL] > 80 ) {
 					ang[ROLL] = 80;
 				} else { ang[ROLL] = -80;}
@@ -1067,7 +1067,7 @@ void CG_AddClientCritter( localEntity_t *le ) {
 		le->refEntity.shaderTime = 0;
 /*
 		// drop a dlight
-		lightSize = 1.0 + 0.2*(sin(1.0*cg.time/50.0) * cos(1.0*cg.time/43.0));
+		lightSize = 1.0 + 0.2*(c::sin(1.0*cg.time/50.0) * c::cos(1.0*cg.time/43.0));
 		alpha = 0.2 * (lightSize / 1.2);
 		trap_R_AddLightToScene( le->refEntity.origin, 150.0 + 80.0*lightSize, 1.000000*alpha, 0.603922*alpha, 0.207843*alpha, 0 );
 		// add some sound

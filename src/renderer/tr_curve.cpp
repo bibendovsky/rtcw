@@ -487,7 +487,7 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 				}
 			}
 
-			maxLen = sqrt( maxLen );
+			maxLen = c::sqrt( maxLen );
 			// if all the points are on the lines, remove the entire columns
 			if ( maxLen < 0.1f ) {
 				errorTable[dir][j + 1] = 999;

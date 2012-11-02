@@ -474,7 +474,7 @@ unsigned char R_MDC_GetAnorm( const vec3_t dir ) {
 		}
 
 #if !defined RTCW_ET
-		if ( ( diff = fabs( dir[2] - r_anormals[i][2] ) ) < best_diff ) {
+		if ( ( diff = c::fabs( dir[2] - r_anormals[i][2] ) ) < best_diff ) {
 #else
 		if ( ( diff = Q_fabs( dir[2] - r_anormals[i][2] ) ) < best_diff ) {
 #endif // RTCW_XX
@@ -540,7 +540,7 @@ qboolean R_MDC_EncodeXyzCompressed( const vec3_t vec, const vec3_t normal, mdcXy
 	for ( i = 0; i < 3; i++ ) {
 
 #if !defined RTCW_ET
-		if ( fabs( vec[i] ) >= MDC_MAX_DIST ) {
+		if ( c::fabs( vec[i] ) >= MDC_MAX_DIST ) {
 #else
 		if ( Q_fabs( vec[i] ) >= MDC_MAX_DIST ) {
 #endif // RTCW_XX
@@ -549,7 +549,7 @@ qboolean R_MDC_EncodeXyzCompressed( const vec3_t vec, const vec3_t normal, mdcXy
 		}
 
 #if !defined RTCW_ET
-		retval.ofsVec += ( ( (int)fabs( ( vec[i] + MDC_DIST_SCALE * 0.5 ) * ( 1.0 / MDC_DIST_SCALE ) + MDC_MAX_OFS ) ) << ( i * MDC_BITS_PER_AXIS ) );
+		retval.ofsVec += ( ( (int)c::fabs( ( vec[i] + MDC_DIST_SCALE * 0.5 ) * ( 1.0 / MDC_DIST_SCALE ) + MDC_MAX_OFS ) ) << ( i * MDC_BITS_PER_AXIS ) );
 #else
 		retval.ofsVec += ( ( (int)Q_fabs( ( vec[i] + MDC_DIST_SCALE * 0.5 ) * ( 1.0 / MDC_DIST_SCALE ) + MDC_MAX_OFS ) ) << ( i * MDC_BITS_PER_AXIS ) );
 #endif // RTCW_XX

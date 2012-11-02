@@ -669,12 +669,12 @@ void Cvar_Cycle_f( void ) {
 	end = atoi( Cmd_Argv( 3 ) );
 
 	if ( Cmd_Argc() == 5 ) {
-		step = abs( atoi( Cmd_Argv( 4 ) ) );
+		step = c::abs( atoi( Cmd_Argv( 4 ) ) );
 	} else {
 		step = 1;
 	}
 
-	if ( abs( end - start ) < step ) {
+	if ( c::abs( end - start ) < step ) {
 		step = 1;
 	}
 

@@ -1462,13 +1462,13 @@ void AICast_WeaponSway( cast_state_t *cs, vec3_t ofs ) {
 			break;      // only allow flaming zombie beyond here
 		}
 	case WP_FLAMETHROWER:
-		ofs[PITCH] = ( 3.0 + 4.0 * sin( ( (float)level.time / 320.0 ) ) ) * sin( ( (float)level.time / 500.0 ) );
-		ofs[YAW] = ( 6.0 + 8.0 * sin( ( (float)level.time / 250.0 ) ) ) * sin( ( (float)level.time / 400.0 ) );
+		ofs[PITCH] = ( 3.0 + 4.0 * c::sin( ( (float)level.time / 320.0 ) ) ) * c::sin( ( (float)level.time / 500.0 ) );
+		ofs[YAW] = ( 6.0 + 8.0 * c::sin( ( (float)level.time / 250.0 ) ) ) * c::sin( ( (float)level.time / 400.0 ) );
 		ofs[ROLL] = 0;
 		break;
 	case WP_VENOM:
-		ofs[PITCH] = 2 * cos( float ( level.time / 200 ) );
-		ofs[YAW] = 10 * sin( float ( level.time / 150 ) ) * sin( float ( level.time / 100 ) );
+		ofs[PITCH] = 2 * c::cos( float ( level.time / 200 ) );
+		ofs[YAW] = 10 * c::sin( float ( level.time / 150 ) ) * c::sin( float ( level.time / 100 ) );
 		ofs[ROLL] = 0;
 		break;
 	}
@@ -1565,7 +1565,7 @@ qboolean AICast_AimAtEnemy( cast_state_t *cs ) {
 	}
 	// if the enemy is moving, they are harder to hit
 	if ( dist > 256 ) {
-		VectorMA( bestorigin, ( 0.3 + 0.7 * ( 1 - aim_accuracy ) ) * 0.4 * sin( (float)level.time / ( 500.0 + ( 100.0 * ( ( cs->entityNum + 3 ) % 4 ) ) ) ), g_entities[cs->enemyNum].client->ps.velocity, bestorigin );
+		VectorMA( bestorigin, ( 0.3 + 0.7 * ( 1 - aim_accuracy ) ) * 0.4 * c::sin( (float)level.time / ( 500.0 + ( 100.0 * ( ( cs->entityNum + 3 ) % 4 ) ) ) ), g_entities[cs->enemyNum].client->ps.velocity, bestorigin );
 	}
 	// if we are good at aiming, we should aim ahead of where they are now
 	// since by the time we have rotated to that direction, some time will have passed
@@ -2362,7 +2362,7 @@ void AICast_AudibleEvent( int srcnum, vec3_t pos, float range ) {
 		// we heard it
 
 		if ( g_debugAudibleEvents.integer ) {
-			G_Printf( "AICast_AudibleEvent heard: %s \"%s\" (dist:%0.0f s:%0.2f pvss:%0.2f)\n", ent->classname, ent->aiName, ( sqrt( localDist ) ), cs->attributes[HEARING_SCALE], cs->attributes[HEARING_SCALE_NOT_PVS] );
+			G_Printf( "AICast_AudibleEvent heard: %s \"%s\" (dist:%0.0f s:%0.2f pvss:%0.2f)\n", ent->classname, ent->aiName, ( c::sqrt( localDist ) ), cs->attributes[HEARING_SCALE], cs->attributes[HEARING_SCALE_NOT_PVS] );
 		}
 
 		cs->audibleEventTime = level.time + 200 + rand() % 300;   // random reaction delay

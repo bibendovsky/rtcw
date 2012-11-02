@@ -1486,7 +1486,7 @@ void BotCheckBlocked( bot_movestate_t *ms, vec3_t dir, int checkbottom, bot_move
 	//
 
 #if !defined RTCW_ET
-	if ( fabs( DotProduct( dir, up ) ) < 0.7 ) {
+	if ( c::fabs( DotProduct( dir, up ) ) < 0.7 ) {
 #else
 	if ( Q_fabs( DotProduct( dir, up ) ) < 0.7 ) {
 #endif // RTCW_XX
@@ -2734,10 +2734,7 @@ bot_moveresult_t BotTravel_Elevator( bot_movestate_t *ms, aas_reachability_t *re
 		botimport.Print( PRT_MESSAGE, "bot on elevator\n" );
 #endif //DEBUG_ELEVATOR
 	   //if vertically not too far from the end point
-        //BBi See #BUG0002
-		//if ( abs( ms->origin[2] - reach->end[2] ) < sv_maxbarrier ) {
-        if (static_cast<float> (::abs (static_cast<int> (ms->origin[2] - reach->end[2]))) < sv_maxbarrier ) {
-        //BBi
+		if ( c::abs( ms->origin[2] - reach->end[2] ) < sv_maxbarrier ) {
 #ifdef DEBUG_ELEVATOR
 			botimport.Print( PRT_MESSAGE, "bot moving to end\n" );
 #endif //DEBUG_ELEVATOR
@@ -2901,7 +2898,7 @@ bot_moveresult_t BotFinishTravel_Elevator( bot_movestate_t *ms, aas_reachability
 	//
 
 #if !defined RTCW_ET
-	if ( fabs( bottomdir[2] ) < fabs( topdir[2] ) ) {
+	if ( c::fabs( bottomdir[2] ) < c::fabs( topdir[2] ) ) {
 #else
 	if ( Q_fabs( bottomdir[2] ) < Q_fabs( topdir[2] ) ) {
 #endif // RTCW_XX
@@ -3410,8 +3407,8 @@ bot_moveresult_t BotTravel_Grapple( bot_movestate_t *ms, aas_reachability_t *rea
 		if ( dist < 5 &&
 
 #if !defined RTCW_ET
-			 fabs( AngleDiff( result.ideal_viewangles[0], ms->viewangles[0] ) ) < 2 &&
-			 fabs( AngleDiff( result.ideal_viewangles[1], ms->viewangles[1] ) ) < 2 ) {
+			 c::fabs( AngleDiff( result.ideal_viewangles[0], ms->viewangles[0] ) ) < 2 &&
+			 c::fabs( AngleDiff( result.ideal_viewangles[1], ms->viewangles[1] ) ) < 2 ) {
 #else
 			 Q_fabs( AngleDiff( result.ideal_viewangles[0], ms->viewangles[0] ) ) < 2 &&
 			 Q_fabs( AngleDiff( result.ideal_viewangles[1], ms->viewangles[1] ) ) < 2 ) {

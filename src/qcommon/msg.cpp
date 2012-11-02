@@ -2260,7 +2260,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 						MSG_WriteBits( msg, i, 5 );  // index number
 
 						// ammo
-						if ( abs( ammo_ofs ) > 127 ) {
+						if ( c::abs( ammo_ofs ) > 127 ) {
 							if ( ammo_ofs > 0 ) {
 								MSG_WriteChar( msg, 127 );
 								ammo_ofs -= 127;
@@ -2274,7 +2274,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 						}
 
 						// clip
-						if ( abs( clip_ofs ) > 127 ) {
+						if ( c::abs( clip_ofs ) > 127 ) {
 							if ( clip_ofs > 0 ) {
 								MSG_WriteChar( msg, 127 );
 								clip_ofs -= 127;

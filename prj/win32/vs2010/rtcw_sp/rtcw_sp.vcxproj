@@ -227,6 +227,7 @@
     <ClInclude Include="..\..\..\..\src\qcommon\cm_polylib.h" />
     <ClInclude Include="..\..\..\..\src\qcommon\cm_public.h" />
     <ClInclude Include="..\..\..\..\src\game\g_public.h" />
+    <ClInclude Include="..\..\..\..\src\qcommon\rtcw_c.h" />
     <ClInclude Include="..\..\..\..\src\renderer\anorms256.h" />
     <ClInclude Include="..\..\..\..\src\splines\math_angles.h" />
     <ClInclude Include="..\..\..\..\src\splines\math_matrix.h" />

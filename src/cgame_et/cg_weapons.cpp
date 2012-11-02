@@ -706,7 +706,7 @@ static void CG_DynamiteTrail( centity_t *ent, const weaponInfo_t *wi ) {
 
 	if ( ent->currentState.teamNum < 4 ) {
 		mult = 0.004f * ( cg.time - ent->currentState.effect1Time ) / 30000.0f;
-		trap_R_AddLightToScene( origin, 320, fabs( sin( ( cg.time - ent->currentState.effect1Time ) * mult ) ), 1.0, 0.0, 0.0, 0, REF_FORCE_DLIGHT );
+		trap_R_AddLightToScene( origin, 320, c::fabs( c::sin( ( cg.time - ent->currentState.effect1Time ) * mult ) ), 1.0, 0.0, 0.0, 0, REF_FORCE_DLIGHT );
 	} else {
 		mult = 1 - ( ( cg.time - ent->trailTime ) / 15500.0f );
 		//%	trap_R_AddLightToScene( origin, 10 + 300 * mult, 1.f, 1.f, 0, REF_FORCE_DLIGHT);
@@ -1932,10 +1932,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 		VectorMA( origin, angles[ROLL], right, origin );
 
 		// pitch the gun down a bit to show that firing is not allowed when leaning
-        //BBi See #BUG0002
-		//angles[PITCH] += ( abs( cg.predictedPlayerState.leanf ) / 2.0f );
-        angles[PITCH] += ::abs (static_cast<int> (cg.predictedPlayerState.leanf)) / 2.0F;
-        //BBi
+		angles[PITCH] += ( c::abs( cg.predictedPlayerState.leanf ) / 2.0f );
 
 		// this gives you some impression that the weapon stays in relatively the same
 		// position while you lean, so you appear to 'peek' over the weapon
@@ -1982,7 +1979,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 		//	scale = cg.xyspeed + 40;
 		scale = 80;
 		//----(SA)	end
-		fracsin = sin( cg.time * 0.001 );
+		fracsin = c::sin( cg.time * 0.001 );
 		angles[ROLL] += scale * fracsin * 0.01;
 		angles[YAW] += scale * fracsin * 0.01;
 		angles[PITCH] += scale * fracsin * 0.01;
@@ -4917,7 +4914,7 @@ void CG_AddDebris( vec3_t origin, vec3_t dir, int speed, int duration, int count
 		le = CG_AllocLocalEntity();
 		re = &le->refEntity;
 
-		VectorSet( unitvel, dir[0] + crandom() * 0.9, dir[1] + crandom() * 0.9, fabs( dir[2] ) > 0.5 ? dir[2] * ( 0.2 + 0.8 * random() ) : random() * 0.6 );
+		VectorSet( unitvel, dir[0] + crandom() * 0.9, dir[1] + crandom() * 0.9, c::fabs( dir[2] ) > 0.5 ? dir[2] * ( 0.2 + 0.8 * random() ) : random() * 0.6 );
 		VectorScale( unitvel, (float)speed + (float)speed * 0.5 * crandom(), velocity );
 
 		le->leType = LE_DEBRIS;
@@ -5882,10 +5879,10 @@ void SnapVectorTowards( vec3_t v, vec3_t to ) {
 	for ( i = 0 ; i < 3 ; i++ ) {
 		if ( to[i] <= v[i] ) {
 //			v[i] = (int)v[i];
-			v[i] = floor( v[i] );
+			v[i] = c::floor( v[i] );
 		} else {
 //			v[i] = (int)v[i] + 1;
-			v[i] = ceil( v[i] );
+			v[i] = c::ceil( v[i] );
 		}
 	}
 }

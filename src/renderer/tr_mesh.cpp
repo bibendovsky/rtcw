@@ -54,7 +54,7 @@ static float ProjectRadius( float r, vec3_t location ) {
 	p[0] = 0;
 
 #if !defined RTCW_ET
-	p[1] = fabs( r );
+	p[1] = c::fabs( r );
 #else
 	p[1] = Q_fabs( r );
 #endif // RTCW_XX

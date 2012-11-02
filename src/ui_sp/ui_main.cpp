@@ -2371,7 +2371,7 @@ static void UI_DrawServerRefreshDate( rectDef_t *rect, int font, float scale, ve
 		lowLight[1] = 0.8 * color[1];
 		lowLight[2] = 0.8 * color[2];
 		lowLight[3] = 0.8 * color[3];
-		LerpColor( color,lowLight,newColor,0.5 + 0.5 * sin( uiInfo.uiDC.realTime / PULSE_DIVISOR ) );
+		LerpColor( color,lowLight,newColor,0.5 + 0.5 * c::sin( uiInfo.uiDC.realTime / PULSE_DIVISOR ) );
 		Text_Paint( rect->x, rect->y, font, scale, newColor, va( "Getting info for %d servers (ESC to cancel)", trap_LAN_GetServerCount( ui_netSource.integer ) ), 0, 0, textStyle );
 	} else {
 		char buff[64];
@@ -6505,7 +6505,7 @@ static void UI_StopCinematic( int handle ) {
 	if ( handle >= 0 ) {
 		trap_CIN_StopCinematic( handle );
 	} else {
-		handle = abs( handle );
+		handle = c::abs( handle );
 		if ( handle == UI_MAPCINEMATIC ) {
 			if ( uiInfo.mapList[ui_currentMap.integer].cinematic >= 0 ) {
 				trap_CIN_StopCinematic( uiInfo.mapList[ui_currentMap.integer].cinematic );

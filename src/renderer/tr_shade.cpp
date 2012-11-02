@@ -421,7 +421,7 @@ static void DrawNormals( shaderCommands_t *input ) {
 		::glEnd();
 		::glPointSize( 1 );
 
-		if ( fabs( VectorLengthSquared( ent->lightDir ) - 1.0f ) > 0.2f ) {
+		if ( c::fabs( VectorLengthSquared( ent->lightDir ) - 1.0f ) > 0.2f ) {
 			::glColor3f( 1, 0, 0 );
 		} else {
 			::glColor3f( ent->directedLight[ 0 ] / 255, ent->directedLight[ 1 ] / 255, ent->directedLight[ 2 ] / 255 );
@@ -907,22 +907,22 @@ static void DynamicLightSinglePass( void ) {
 				// twosided surfaces use absolute value of the calculated lighting
 				modulate = intensity * DotProduct( dl->origin, tess.normal[ i ].v );
 				if ( tess.shader->cullType == CT_TWO_SIDED ) {
-					modulate = fabs( modulate );
+					modulate = c::fabs( modulate );
 				}
 				modulate += remainder;
 			}
 			// ball dlight
 			else
 			{
-				dir[ 0 ] = radius - fabs( origin[ 0 ] - tess.xyz[ i ].v[ 0 ] );
+				dir[ 0 ] = radius - c::fabs( origin[ 0 ] - tess.xyz[ i ].v[ 0 ] );
 				if ( dir[ 0 ] <= 0.0f ) {
 					continue;
 				}
-				dir[ 1 ] = radius - fabs( origin[ 1 ] - tess.xyz[ i ].v[ 1 ] );
+				dir[ 1 ] = radius - c::fabs( origin[ 1 ] - tess.xyz[ i ].v[ 1 ] );
 				if ( dir[ 1 ] <= 0.0f ) {
 					continue;
 				}
-				dir[ 2 ] = radius - fabs( origin[ 2 ] - tess.xyz[ i ].v[ 2 ] );
+				dir[ 2 ] = radius - c::fabs( origin[ 2 ] - tess.xyz[ i ].v[ 2 ] );
 				if ( dir[ 2 ] <= 0.0f ) {
 					continue;
 				}
@@ -1047,22 +1047,22 @@ static void DynamicLightPass( void ) {
 				// twosided surfaces use absolute value of the calculated lighting
 				modulate = intensity * DotProduct( dl->origin, tess.normal[ i ].v );
 				if ( tess.shader->cullType == CT_TWO_SIDED ) {
-					modulate = fabs( modulate );
+					modulate = c::fabs( modulate );
 				}
 				modulate += remainder;
 			}
 			// ball dlight
 			else
 			{
-				dir[ 0 ] = radius - fabs( origin[ 0 ] - tess.xyz[ i ].v[ 0 ] );
+				dir[ 0 ] = radius - c::fabs( origin[ 0 ] - tess.xyz[ i ].v[ 0 ] );
 				if ( dir[ 0 ] <= 0.0f ) {
 					continue;
 				}
-				dir[ 1 ] = radius - fabs( origin[ 1 ] - tess.xyz[ i ].v[ 1 ] );
+				dir[ 1 ] = radius - c::fabs( origin[ 1 ] - tess.xyz[ i ].v[ 1 ] );
 				if ( dir[ 1 ] <= 0.0f ) {
 					continue;
 				}
-				dir[ 2 ] = radius - fabs( origin[ 2 ] - tess.xyz[ i ].v[ 2 ] );
+				dir[ 2 ] = radius - c::fabs( origin[ 2 ] - tess.xyz[ i ].v[ 2 ] );
 				if ( dir[ 2 ] <= 0.0f ) {
 					continue;
 				}

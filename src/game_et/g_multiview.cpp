@@ -341,11 +341,11 @@ qboolean G_smvRunCamera( gentity_t *ent ) {
 		chargeTime = g_covertopsChargeTime.value;
 	} else { chargeTime = g_soldierChargeTime.value;}
 
-	chargeTime = ( level.time - tps->classWeaponTime >= (int)chargeTime ) ? 0 : ( 1 + floor( 15.0f * (float)( level.time - tps->classWeaponTime ) / chargeTime ) );
-	sprintTime = ( ent->target_ent->client->pmext.sprintTime >= 20000 ) ? 0.0f : ( 1 + floor( 7.0f * (float)ent->target_ent->client->pmext.sprintTime / 20000.0f ) );
-	weapHeat   = floor( (float)tps->curWeapHeat * 15.0f / 255.0f );
+	chargeTime = ( level.time - tps->classWeaponTime >= (int)chargeTime ) ? 0 : ( 1 + c::floor( 15.0f * (float)( level.time - tps->classWeaponTime ) / chargeTime ) );
+	sprintTime = ( ent->target_ent->client->pmext.sprintTime >= 20000 ) ? 0.0f : ( 1 + c::floor( 7.0f * (float)ent->target_ent->client->pmext.sprintTime / 20000.0f ) );
+	weapHeat   = c::floor( (float)tps->curWeapHeat * 15.0f / 255.0f );
 	hintTime   = ( tps->serverCursorHint != HINT_BUILD && ( tps->serverCursorHintVal >= 255 || tps->serverCursorHintVal == 0 ) ) ?
-				 0 : ( 1 + floor( 15.0f * (float)tps->serverCursorHintVal / 255.0f ) );
+				 0 : ( 1 + c::floor( 15.0f * (float)tps->serverCursorHintVal / 255.0f ) );
 
 	// (Remaining bits)
 	// ammo      : 0

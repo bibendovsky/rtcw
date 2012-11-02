@@ -1058,11 +1058,11 @@ unsigned short randtable[NUMRANDTABLE] =
 #define LT_RANDMAX  ( (unsigned short)0xffff )
 
 float lt_random( int thisrandseed, int t ) {
-	return (float)randtable[abs( ( thisrandseed + t + ( cg.time / LT_MS ) * ( cg.time / LT_MS ) ) ) % NUMRANDTABLE] / (float)LT_RANDMAX;
+	return (float)randtable[c::abs( ( thisrandseed + t + ( cg.time / LT_MS ) * ( cg.time / LT_MS ) ) ) % NUMRANDTABLE] / (float)LT_RANDMAX;
 }
 
 float lt_crandom( int thisrandseed, int t ) {
-	return ( ( 2.0 * ( (float)randtable[abs( ( thisrandseed + t + ( cg.time / LT_MS ) * ( cg.time / LT_MS ) ) ) % NUMRANDTABLE] / (float)LT_RANDMAX ) ) - 1.0 );
+	return ( ( 2.0 * ( (float)randtable[c::abs( ( thisrandseed + t + ( cg.time / LT_MS ) * ( cg.time / LT_MS ) ) ) % NUMRANDTABLE] / (float)LT_RANDMAX ) ) - 1.0 );
 }
 
 /*
@@ -1120,7 +1120,7 @@ void CG_DynamicLightningBolt( qhandle_t shader, vec3_t start, vec3_t pend, int n
 			if ( startAlpha == 1.0 ) {
 				alpha = startAlpha * ( distLeft / length );
 			} else {
-				alpha = 1.0 - 1.0 * fabs( ( 1.0 - ( distLeft / length ) ) - startAlpha );
+				alpha = 1.0 - 1.0 * c::fabs( ( 1.0 - ( distLeft / length ) ) - startAlpha );
 				if ( alpha < 0 ) {
 					alpha = 0;
 				}
@@ -1168,7 +1168,7 @@ void CG_DynamicLightningBolt( qhandle_t shader, vec3_t start, vec3_t pend, int n
 				}
 				for ( j = 0; j < 3; j++ ) {
 					viewDist = lt_crandom( randseed * randseed,j * j + i * i + 3 );
-					if ( fabs( viewDist ) < 0.5 ) {
+					if ( c::fabs( viewDist ) < 0.5 ) {
 						if ( viewDist > 0 ) {
 							viewDist = 0.5;
 						} else { viewDist = -0.5;}
@@ -1186,7 +1186,7 @@ void CG_DynamicLightningBolt( qhandle_t shader, vec3_t start, vec3_t pend, int n
 				}
 				for ( j = 0; j < 3; j++ ) {
 					viewDist = lt_crandom( randseed,j * j + i * i + 3 );
-					if ( fabs( viewDist ) < 0.5 ) {
+					if ( c::fabs( viewDist ) < 0.5 ) {
 						if ( viewDist > 0 ) {
 							viewDist = 0.5;
 						} else { viewDist = -0.5;}
@@ -1200,7 +1200,7 @@ void CG_DynamicLightningBolt( qhandle_t shader, vec3_t start, vec3_t pend, int n
 				if ( startAlpha == 1.0 ) {
 					alpha = startAlpha * ( distLeft / length );
 				} else {
-					alpha = 1.0 - 1.0 * fabs( ( 1.0 - ( distLeft / length ) ) - startAlpha );
+					alpha = 1.0 - 1.0 * c::fabs( ( 1.0 - ( distLeft / length ) ) - startAlpha );
 					if ( alpha < 0 ) {
 						alpha = 0;
 					}
@@ -1638,7 +1638,7 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 
 		// it's facing the camera, find out how closely and trace to see if the source can be seen
 
-		deg = RAD2DEG( M_PI - acos( dot ) );
+		deg = RAD2DEG( M_PI - c::acos( dot ) );
 		if ( deg <= FLAREANGLE ) { // start flare a bit before the camera gets inside the cylinder
 			lightInEyes = qtrue;
 			flarescale = 1 - ( deg / FLAREANGLE );
@@ -1690,7 +1690,7 @@ void CG_RumbleEfx( float pitch, float yaw ) {
 		pitch = 1;
 	}
 
-	pitchRecoilAdd = pow( random(),8 ) * ( 10 + VectorLength( cg.snap->ps.velocity ) / 5 );
+	pitchRecoilAdd = c::pow( random(),8 ) * ( 10 + VectorLength( cg.snap->ps.velocity ) / 5 );
 	pitchAdd = ( rand() % (int)pitch ) - ( pitch * 0.5 ); //5
 	yawRandom = yaw; //2
 

@@ -593,12 +593,7 @@ char *AIFunc_Idle( cast_state_t *cs ) {
 				//	also use PITCH angles to look at areas above/below them
 
 				cs->idleYaw = AICast_GetRandomViewAngle( cs, 512 );
-
-                //BBi See #BUG0002
-				//if ( abs( AngleDelta( cs->idleYaw, cs->ideal_viewangles[YAW] ) ) < 45 ) {
-                if (::abs (static_cast<int> (::AngleDelta (cs->idleYaw, cs->ideal_viewangles[YAW]))) < 45) {
-                //BBi
-
+				if ( c::abs( AngleDelta( cs->idleYaw, cs->ideal_viewangles[YAW] ) ) < 45 ) {
 					cs->nextIdleAngleChange = level.time + 1000 + rand() % 2500;
 				} else { // do really fast
 					cs->nextIdleAngleChange = level.time + 500;
@@ -893,12 +888,7 @@ char *AIFunc_InspectFriendly( cast_state_t *cs ) {
 			//	also use PITCH angles to look at areas above/below them
 
 			cs->idleYaw = AICast_GetRandomViewAngle( cs, 512 );
-
-            //BBi See #BUG0002
-			//if ( abs( AngleDelta( cs->idleYaw, cs->ideal_viewangles[YAW] ) ) < 45 ) {
-            if (::abs (static_cast<int> (::AngleDelta (cs->idleYaw, cs->ideal_viewangles[YAW]))) < 45) {
-            //BBi
-
+			if ( c::abs( AngleDelta( cs->idleYaw, cs->ideal_viewangles[YAW] ) ) < 45 ) {
 				cs->nextIdleAngleChange = level.time + 1000 + rand() % 2500;
 			} else { // do really fast
 				cs->nextIdleAngleChange = level.time + 500;
@@ -1024,7 +1014,7 @@ char *AIFunc_InspectBulletImpact( cast_state_t *cs ) {
 		vectoangles( v1, cs->ideal_viewangles );
 		//
 		// if we are facing that direction, we've looked at the impact point
-		if ( fabs( cs->ideal_viewangles[YAW] - cs->viewangles[YAW] ) < 1 ) {
+		if ( c::fabs( cs->ideal_viewangles[YAW] - cs->viewangles[YAW] ) < 1 ) {
 			cs->aiFlags &= ~AIFL_MISCFLAG2;
 		}
 		return NULL;
@@ -2564,12 +2554,7 @@ char *AIFunc_BattleAmbush( cast_state_t *cs ) {
 					//	also use PITCH angles to look at areas above/below them
 
 					cs->idleYaw = AICast_GetRandomViewAngle( cs, 512 );
-
-                    //BBi #BUG0002
-					//if ( abs( AngleDelta( cs->idleYaw, cs->ideal_viewangles[YAW] ) ) < 45 ) {
-                    if (::abs (static_cast<int> (::AngleDelta (cs->idleYaw, cs->ideal_viewangles[YAW]))) < 45) {
-                    //BBi
-
+					if ( c::abs( AngleDelta( cs->idleYaw, cs->ideal_viewangles[YAW] ) ) < 45 ) {
 						cs->nextIdleAngleChange = level.time + 1000 + rand() % 2500;
 					} else { // do really fast
 						cs->nextIdleAngleChange = level.time + 500;
@@ -2838,8 +2823,8 @@ char *AIFunc_BattleChase( cast_state_t *cs ) {
 	// Flaming Zombie? Shoot flames while running
 	if ( ( cs->aiCharacter == AICHAR_ZOMBIE ) &&
 		 ( IS_FLAMING_ZOMBIE( ent->s ) ) &&
-		 ( fabs( cs->ideal_viewangles[YAW] - cs->viewangles[YAW] ) < 5 ) ) {
-		if ( fabs( sin( float (( level.time + cs->entityNum * 314 ) / 1000) ) * cos( float (( level.time + cs->entityNum * 267 ) / 979) ) ) < 0.5 ) {
+		 ( c::fabs( cs->ideal_viewangles[YAW] - cs->viewangles[YAW] ) < 5 ) ) {
+		if ( c::fabs( c::sin( float (( level.time + cs->entityNum * 314 ) / 1000) ) * c::cos( float (( level.time + cs->entityNum * 267 ) / 979) ) ) < 0.5 ) {
 			ent->s.time = level.time + 800;
 		}
 	}
@@ -2886,7 +2871,7 @@ char *AIFunc_BattleChase( cast_state_t *cs ) {
 			if ( move.stopevent == PREDICTSTOP_HITENT ) { // success!
 				trap_EA_Move( cs->entityNum, dir, 400 );
 				// RF, if we are really close, we might be stuck on a corner, so randomly move sideways
-				if ( ( VectorLength( followent->client->ps.velocity ) < 50 ) && ( dist < 10 + ( sqrt( cs->bs->cur_ps.maxs[0] * cs->bs->cur_ps.maxs[0] * 8.0 ) / 2.0 + sqrt( followent->client->ps.maxs[0] * followent->client->ps.maxs[0] * 8.0 ) / 2.0 ) ) ) {
+				if ( ( VectorLength( followent->client->ps.velocity ) < 50 ) && ( dist < 10 + ( c::sqrt( cs->bs->cur_ps.maxs[0] * cs->bs->cur_ps.maxs[0] * 8.0 ) / 2.0 + c::sqrt( followent->client->ps.maxs[0] * followent->client->ps.maxs[0] * 8.0 ) / 2.0 ) ) ) {
 					// if the box trace is unsuccessful
 					trap_Trace( &tr, cs->bs->origin, cs->bs->cur_ps.mins, cs->bs->cur_ps.maxs, followent->r.currentOrigin, cs->entityNum, g_entities[cs->entityNum].clipmask );
 					if ( tr.entityNum != followent->s.number ) {
@@ -4052,7 +4037,7 @@ char *AIFunc_BattleMG42( cast_state_t *cs ) {
 		// face straight forward
 		VectorCopy( mg42->s.angles, cs->ideal_viewangles );
 		// only dismount when facing forwards
-		if ( fabs( AngleDifference( mg42->s.angles[YAW], cs->viewangles[YAW] ) ) < 10 ) {
+		if ( c::fabs( AngleDifference( mg42->s.angles[YAW], cs->viewangles[YAW] ) ) < 10 ) {
 			// try and unmount
 			Cmd_Activate_f( ent );
 		}
@@ -4091,7 +4076,7 @@ char *AIFunc_BattleMG42( cast_state_t *cs ) {
 	// check for enemy outside harc
 	if (    cs->enemyNum < 0 ||
 			!AICast_CheckAttack( cs, cs->enemyNum, qfalse ) ||
-			( fabs( AngleDifference( angles[YAW], mg42->s.angles[YAW] ) ) > mg42->harc ) ||
+			( c::fabs( AngleDifference( angles[YAW], mg42->s.angles[YAW] ) ) > mg42->harc ) ||
 			( angles[PITCH] < 0 && angles[PITCH] + 5 < -mg42->varc ) ||
 			( angles[PITCH] > 0 && angles[PITCH] - 5 > 5.0 ) ) {
 		qboolean shouldAttack;
@@ -4125,7 +4110,7 @@ char *AIFunc_BattleMG42( cast_state_t *cs ) {
 				VectorNormalize( vec );
 				vectoangles( vec, angles );
 				angles[PITCH] = AngleNormalize180( angles[PITCH] );
-				if ( !(  ( fabs( AngleDifference( angles[YAW], mg42->s.angles[YAW] ) ) > mg42->harc ) ||
+				if ( !(  ( c::fabs( AngleDifference( angles[YAW], mg42->s.angles[YAW] ) ) > mg42->harc ) ||
 						 ( angles[YAW] < 0 && angles[YAW] + 2 < -mg42->varc ) ||
 						 ( angles[YAW] > 0 && angles[YAW] - 2 > 5.0 ) ) ) {
 					//
@@ -5057,7 +5042,7 @@ char *AIFunc_BattleStart( cast_state_t *cs ) {
 recheck:
 	rval = NULL;
 	// ignore special attacks until we are facing our enemy
-	if ( fabs( AngleDifference( cs->ideal_viewangles[YAW], cs->viewangles[YAW] ) ) < 10 ) {
+	if ( c::fabs( AngleDifference( cs->ideal_viewangles[YAW], cs->viewangles[YAW] ) ) < 10 ) {
 		// select a weapon
 		AICast_ChooseWeapon( cs, qtrue );
 		//

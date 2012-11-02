@@ -32,6 +32,10 @@ If you have questions concerning this license or the applicable additional terms
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
+//BBi
+#include "rtcw_c.h"
+//BBi
+
 #if defined RTCW_SP
 //BBi
 //#define Q3_VERSION      "Wolf 1.41"
@@ -274,7 +278,7 @@ static inline float idSqrt( float x ) {
 	// This'll NaN if it hits frsqrte. Handle both +0.0 and -0.0
 
 #if !defined RTCW_ET
-	if ( fabs( x ) == 0.0 ) {
+	if ( c::fabs( x ) == 0.0 ) {
 #else
 	if ( Q_fabs( x ) == 0.0 ) {
 #endif // RTCW_XX
@@ -345,7 +349,7 @@ static inline float idSqrt( float x ) {
 	float B, y0, y1;
 
 	// This'll NaN if it hits frsqrte. Handle both +0.0 and -0.0
-	if ( fabs( x ) == 0.0 ) {
+	if ( c::fabs( x ) == 0.0 ) {
 		return x;
 	}
 	B = x;

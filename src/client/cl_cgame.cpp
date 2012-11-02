@@ -1155,17 +1155,17 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_STRNCPY:
 		return (int)strncpy( static_cast<char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), args[3] );
 	case CG_SIN:
-		return FloatAsInt( sin( VMF( 1 ) ) );
+		return FloatAsInt( c::sin( VMF( 1 ) ) );
 	case CG_COS:
-		return FloatAsInt( cos( VMF( 1 ) ) );
+		return FloatAsInt( c::cos( VMF( 1 ) ) );
 	case CG_ATAN2:
-		return FloatAsInt( atan2( VMF( 1 ), VMF( 2 ) ) );
+		return FloatAsInt( c::atan2( VMF( 1 ), VMF( 2 ) ) );
 	case CG_SQRT:
-		return FloatAsInt( sqrt( VMF( 1 ) ) );
+		return FloatAsInt( c::sqrt( VMF( 1 ) ) );
 	case CG_FLOOR:
-		return FloatAsInt( floor( VMF( 1 ) ) );
+		return FloatAsInt( c::floor( VMF( 1 ) ) );
 	case CG_CEIL:
-		return FloatAsInt( ceil( VMF( 1 ) ) );
+		return FloatAsInt( c::ceil( VMF( 1 ) ) );
 	case CG_ACOS:
 		return FloatAsInt( Q_acos( VMF( 1 ) ) );
 
@@ -1741,7 +1741,7 @@ void CL_AdjustTimeDelta( void ) {
 	}
 
 	newDelta = cl.snap.serverTime - cls.realtime;
-	deltaDelta = abs( newDelta - cl.serverTimeDelta );
+	deltaDelta = c::abs( newDelta - cl.serverTimeDelta );
 
 	if ( deltaDelta > RESET_TIME ) {
 		cl.serverTimeDelta = newDelta;

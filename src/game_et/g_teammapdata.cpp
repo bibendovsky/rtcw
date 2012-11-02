@@ -208,8 +208,8 @@ void G_SetupFrustum( gentity_t* ent ) {
 	vec3_t vieworg;
 
 	ang = ( 90 / 180.f ) * M_PI * 0.5f;
-	xs = sin( ang );
-	xc = cos( ang );
+	xs = c::sin( ang );
+	xc = c::cos( ang );
 
 	AnglesToAxis( ent->client->ps.viewangles, axis );
 
@@ -220,8 +220,8 @@ void G_SetupFrustum( gentity_t* ent ) {
 	VectorMA( frustum[1].normal, -xc, axis[1], frustum[1].normal );
 
 	ang = ( 90 / 180.f ) * M_PI * 0.5f;
-	xs = sin( ang );
-	xc = cos( ang );
+	xs = c::sin( ang );
+	xc = c::cos( ang );
 
 	VectorScale( axis[0], xs, frustum[2].normal );
 	VectorMA( frustum[2].normal, xc, axis[2], frustum[2].normal );
@@ -256,8 +256,8 @@ void G_SetupFrustum_ForBinoculars( gentity_t* ent ) {
 	}
 
 	ang = ( baseAngle / 180.f ) * M_PI * 0.5f;
-	xs = sin( ang );
-	xc = cos( ang );
+	xs = c::sin( ang );
+	xc = c::cos( ang );
 
 	AnglesToAxis( ent->client->ps.viewangles, axis );
 
@@ -268,8 +268,8 @@ void G_SetupFrustum_ForBinoculars( gentity_t* ent ) {
 	VectorMA( frustum[1].normal, -xc, axis[1], frustum[1].normal );
 
 	ang = ( baseAngle / 180.f ) * M_PI * 0.5f;
-	xs = sin( ang );
-	xc = cos( ang );
+	xs = c::sin( ang );
+	xc = c::cos( ang );
 
 	VectorScale( axis[0], xs, frustum[2].normal );
 	VectorMA( frustum[2].normal, xc, axis[2], frustum[2].normal );

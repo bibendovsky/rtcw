@@ -713,7 +713,7 @@ unsigned short int AAS_AreaTravelTime( int areanum, vec3_t start, vec3_t end ) {
 	//
 
 #if defined RTCW_SP
-	intdist = (int) ceil( dist );
+	intdist = (int) c::ceil( dist );
 #elif defined RTCW_MP
 	intdist = (int) dist;
 #endif // RTCW_XX

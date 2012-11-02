@@ -91,9 +91,9 @@ static void AddSkyPolygon( int nump, vec3_t vecs ) {
 	}
 
 #if !defined RTCW_ET
-	av[0] = fabs( v[0] );
-	av[1] = fabs( v[1] );
-	av[2] = fabs( v[2] );
+	av[0] = c::fabs( v[0] );
+	av[1] = c::fabs( v[1] );
+	av[2] = c::fabs( v[2] );
 #else
 	av[0] = Q_fabs( v[0] );
 	av[1] = Q_fabs( v[1] );
@@ -470,10 +470,10 @@ static void DrawSkyBox( shader_t *shader ) {
 		int sky_mins_subd[2], sky_maxs_subd[2];
 		int s, t;
 
-		sky_mins[0][i] = floor( sky_mins[0][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
-		sky_mins[1][i] = floor( sky_mins[1][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
-		sky_maxs[0][i] = ceil( sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
-		sky_maxs[1][i] = ceil( sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
+		sky_mins[0][i] = c::floor( sky_mins[0][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
+		sky_mins[1][i] = c::floor( sky_mins[1][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
+		sky_maxs[0][i] = c::ceil( sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
+		sky_maxs[1][i] = c::ceil( sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
 
 		if ( ( sky_mins[0][i] >= sky_maxs[0][i] ) ||
 			 ( sky_mins[1][i] >= sky_maxs[1][i] ) ) {
@@ -540,10 +540,10 @@ static void DrawSkyBoxInner( shader_t *shader ) {
 		int sky_mins_subd[2], sky_maxs_subd[2];
 		int s, t;
 
-		sky_mins[0][i] = floor( sky_mins[0][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
-		sky_mins[1][i] = floor( sky_mins[1][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
-		sky_maxs[0][i] = ceil( sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
-		sky_maxs[1][i] = ceil( sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
+		sky_mins[0][i] = c::floor( sky_mins[0][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
+		sky_mins[1][i] = c::floor( sky_mins[1][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
+		sky_maxs[0][i] = c::ceil( sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
+		sky_maxs[1][i] = c::ceil( sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
 
 		if ( ( sky_mins[0][i] >= sky_maxs[0][i] ) ||
 			 ( sky_mins[1][i] >= sky_maxs[1][i] ) ) {
@@ -701,10 +701,10 @@ static void FillCloudBox( const shader_t *shader, int stage ) {
 			}
 		}
 
-		sky_mins[0][i] = floor( sky_mins[0][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
-		sky_mins[1][i] = floor( sky_mins[1][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
-		sky_maxs[0][i] = ceil( sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
-		sky_maxs[1][i] = ceil( sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
+		sky_mins[0][i] = c::floor( sky_mins[0][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
+		sky_mins[1][i] = c::floor( sky_mins[1][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
+		sky_maxs[0][i] = c::ceil( sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
+		sky_maxs[1][i] = c::ceil( sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS ) / HALF_SKY_SUBDIVISIONS;
 
 		if ( ( sky_mins[0][i] >= sky_maxs[0][i] ) ||
 			 ( sky_mins[1][i] >= sky_maxs[1][i] ) ) {
@@ -847,7 +847,7 @@ void R_InitSkyTexCoords( float heightCloud ) {
 #if !defined RTCW_ET
 				p = ( 1.0f / ( 2 * DotProduct( skyVec, skyVec ) ) ) *
 					( -2 * skyVec[2] * radiusWorld +
-					  2 * sqrt( SQR( skyVec[2] ) * SQR( radiusWorld ) +
+					  2 * c::sqrt( SQR( skyVec[2] ) * SQR( radiusWorld ) +
 								2 * SQR( skyVec[0] ) * radiusWorld * heightCloud +
 								SQR( skyVec[0] ) * SQR( heightCloud ) +
 								2 * SQR( skyVec[1] ) * radiusWorld * heightCloud +
@@ -857,7 +857,7 @@ void R_InitSkyTexCoords( float heightCloud ) {
 #else
 				p = ( 1.0f / ( 2 * DotProduct( skyVec, skyVec ) ) ) *
 					( -2 * skyVec[2] * radiusWorld +
-					  2 * sqrt( Square( skyVec[2] ) * Square( radiusWorld ) +
+					  2 * c::sqrt( Square( skyVec[2] ) * Square( radiusWorld ) +
 								2 * Square( skyVec[0] ) * radiusWorld * heightCloud +
 								Square( skyVec[0] ) * Square( heightCloud ) +
 								2 * Square( skyVec[1] ) * radiusWorld * heightCloud +
@@ -923,7 +923,7 @@ void RB_DrawSun( void ) {
 	::glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
 #endif // RTCW_XX
 
-	dist =  backEnd.viewParms.zFar / 1.75;      // div sqrt(3)
+	dist =  backEnd.viewParms.zFar / 1.75;      // div c::sqrt(3)
 
 	// (SA) shrunk the size of the sun
 	size = dist * 0.2;

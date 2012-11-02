@@ -3320,7 +3320,7 @@ qboolean BG_RaySphereIntersection( float radius, vec3_t origin, splineSegment_t*
 	if ( d < 0 ) {
 		return qfalse;
 	}
-	d = sqrt( d );
+	d = c::sqrt( d );
 
 	*t0 = ( -b + d ) * 0.5f;
 	*t1 = ( -b - d ) * 0.5f;
@@ -3331,7 +3331,7 @@ qboolean BG_RaySphereIntersection( float radius, vec3_t origin, splineSegment_t*
 void BG_LinearPathOrigin2( float radius, splinePath_t** pSpline, float *deltaTime, vec3_t result, qboolean backwards ) {
 	qboolean first = qtrue;
 	float t = 0.f;
-	int i = floor( ( *deltaTime ) * ( MAX_SPLINE_SEGMENTS ) );
+	int i = c::floor( ( *deltaTime ) * ( MAX_SPLINE_SEGMENTS ) );
 	float frac;
 //	int x = 0;
 //	splinePath_t* start = *pSpline;
@@ -3481,7 +3481,7 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result, q
 		break;
 	case TR_SINE:
 		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
-		phase = sin( deltaTime * M_PI * 2 );
+		phase = c::sin( deltaTime * M_PI * 2 );
 		VectorMA( tr->trBase, phase, tr->trDelta, result );
 		break;
 //----(SA)	removed
@@ -3559,9 +3559,9 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result, q
 		}
 
 /*		if(pSpline->isStart) {
-			deltaTime = 1 - sin((1 - deltaTime) * M_PI * 0.5f);
+			deltaTime = 1 - c::sin((1 - deltaTime) * M_PI * 0.5f);
 		} else if(pSpline->isEnd) {
-			deltaTime = sin(deltaTime * M_PI * 0.5f);
+			deltaTime = c::sin(deltaTime * M_PI * 0.5f);
 		}*/
 
 		deltaTime2 = deltaTime;
@@ -3624,11 +3624,11 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result, q
 			}
 
 			if ( dampin && dampout ) {
-				result[ROLL] = base1 + ( ( sin( ( ( deltaTime * 2 ) - 1 ) * M_PI * 0.5f ) + 1 ) * 0.5f * tr->trBase[2] );
+				result[ROLL] = base1 + ( ( c::sin( ( ( deltaTime * 2 ) - 1 ) * M_PI * 0.5f ) + 1 ) * 0.5f * tr->trBase[2] );
 			} else if ( dampin ) {
-				result[ROLL] = base1 + ( sin( deltaTime * M_PI * 0.5f ) * tr->trBase[2] );
+				result[ROLL] = base1 + ( c::sin( deltaTime * M_PI * 0.5f ) * tr->trBase[2] );
 			} else if ( dampout ) {
-				result[ROLL] = base1 + ( ( 1 - sin( ( 1 - deltaTime ) * M_PI * 0.5f ) ) * tr->trBase[2] );
+				result[ROLL] = base1 + ( ( 1 - c::sin( ( 1 - deltaTime ) * M_PI * 0.5f ) ) * tr->trBase[2] );
 			} else {
 				result[ROLL] = base1 + ( deltaTime * tr->trBase[2] );
 			}
@@ -3656,7 +3656,7 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result, q
 		}
 
 		if ( isAngle ) {
-			int pos = floor( deltaTime * ( MAX_SPLINE_SEGMENTS ) );
+			int pos = c::floor( deltaTime * ( MAX_SPLINE_SEGMENTS ) );
 			float frac;
 
 			if ( pos >= MAX_SPLINE_SEGMENTS ) {
@@ -3683,7 +3683,7 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result, q
 			}
 
 		} else {
-			int pos = floor( deltaTime * ( MAX_SPLINE_SEGMENTS ) );
+			int pos = c::floor( deltaTime * ( MAX_SPLINE_SEGMENTS ) );
 			float frac;
 
 			if ( pos >= MAX_SPLINE_SEGMENTS ) {
@@ -3725,7 +3725,7 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
 		break;
 	case TR_SINE:
 		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
-		phase = cos( deltaTime * M_PI * 2 );    // derivative of sin = cos
+		phase = c::cos( deltaTime * M_PI * 2 );    // derivative of sin = cos
 		phase *= 0.5;
 		VectorScale( tr->trDelta, phase, result );
 		break;
@@ -4450,9 +4450,9 @@ float BG_SplineLength( splinePath_t* pSpline ) {
 
 	for ( i = 0; i <= 1.f; i += granularity ) {
 /*		if(pSpline->isStart) {
-			tension = 1 - sin((1 - i) * M_PI * 0.5f);
+			tension = 1 - c::sin((1 - i) * M_PI * 0.5f);
 		} else if(pSpline->isEnd) {
-			tension = sin(i * M_PI * 0.5f);
+			tension = c::sin(i * M_PI * 0.5f);
 		} else {
 			tension = i;
 		}*/

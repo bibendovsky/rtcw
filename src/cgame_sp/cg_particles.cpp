@@ -455,7 +455,7 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 				fardist *= 2;
 			}
 
-//			if(fabs(dot) < 0.8)
+//			if(c::fabs(dot) < 0.8)
 //				return;
 
 			if ( distSqrd > fardist ) {
@@ -734,8 +734,8 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 			height = p->endheight;
 		}
 
-		sinR = height * sin( DEG2RAD( p->roll ) ) * sqrt( 2.0F );
-		cosR = width * cos( DEG2RAD( p->roll ) ) * sqrt( 2.0F );
+		sinR = height * c::sin( DEG2RAD( p->roll ) ) * c::sqrt( 2.0F );
+		cosR = width * c::cos( DEG2RAD( p->roll ) ) * c::sqrt( 2.0F );
 
 		VectorCopy( org, verts[0].xyz );
 		verts[0].xyz[0] -= sinR;
@@ -841,7 +841,7 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 		}
 
 		i = p->shaderAnim;
-		j = (int)floor( ratio * shaderAnimCounts[p->shaderAnim] );
+		j = (int)c::floor( ratio * shaderAnimCounts[p->shaderAnim] );
 		p->pshader = shaderAnims[i][j];
 
 		if ( p->roll ) {

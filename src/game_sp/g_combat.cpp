@@ -615,7 +615,7 @@ int CheckArmor( gentity_t *ent, int damage, int dflags ) {
 
 	// armor
 	count = client->ps.stats[STAT_ARMOR];
-	save = ceil( damage * ARMOR_PROTECTION );
+	save = c::ceil( damage * ARMOR_PROTECTION );
 	if ( save >= count ) {
 		save = count;
 	}
@@ -1027,7 +1027,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		if ( !AICast_AIDamageOK( AICast_GetCastState( targ->s.number ), AICast_GetCastState( attacker->s.number ) ) ) {
 			return;
 		}
-		damage = (int)( ceil( (float)damage * 0.5 ) );
+		damage = (int)( c::ceil( (float)damage * 0.5 ) );
 	}
 	// done.
 

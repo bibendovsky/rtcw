@@ -3472,7 +3472,7 @@ void G_TagLinkEntity( gentity_t* ent, int msec ) {
 				ent->backdelta = 1 - ent->backdelta;
 			}
 
-			pos = floor( ent->backdelta * ( MAX_SPLINE_SEGMENTS ) );
+			pos = c::floor( ent->backdelta * ( MAX_SPLINE_SEGMENTS ) );
 			if ( pos >= MAX_SPLINE_SEGMENTS ) {
 				pos = MAX_SPLINE_SEGMENTS - 1;
 				frac = ent->backspline->segments[pos].length;

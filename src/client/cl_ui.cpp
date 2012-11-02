@@ -1443,22 +1443,22 @@ int CL_UISystemCalls( int *args ) {
 		return (int)strncpy( static_cast<char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), args[3] );
 
 	case UI_SIN:
-		return FloatAsInt( sin( VMF( 1 ) ) );
+		return FloatAsInt( c::sin( VMF( 1 ) ) );
 
 	case UI_COS:
-		return FloatAsInt( cos( VMF( 1 ) ) );
+		return FloatAsInt( c::cos( VMF( 1 ) ) );
 
 	case UI_ATAN2:
-		return FloatAsInt( atan2( VMF( 1 ), VMF( 2 ) ) );
+		return FloatAsInt( c::atan2( VMF( 1 ), VMF( 2 ) ) );
 
 	case UI_SQRT:
-		return FloatAsInt( sqrt( VMF( 1 ) ) );
+		return FloatAsInt( c::sqrt( VMF( 1 ) ) );
 
 	case UI_FLOOR:
-		return FloatAsInt( floor( VMF( 1 ) ) );
+		return FloatAsInt( c::floor( VMF( 1 ) ) );
 
 	case UI_CEIL:
-		return FloatAsInt( ceil( VMF( 1 ) ) );
+		return FloatAsInt( c::ceil( VMF( 1 ) ) );
 
 	case UI_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( static_cast<char*> (VMA( 1 )) );

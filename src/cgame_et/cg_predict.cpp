@@ -716,7 +716,7 @@ qboolean CG_PredictionOk( playerState_t *ps1, playerState_t *ps2 ) {
 	}
 
 	for ( i = 0; i < 3; i++ ) {
-		if ( abs( ps2->viewangles[i] - ps1->viewangles[i] ) > MAX_PREDICT_VIEWANGLES_DELTA ) {
+		if ( c::abs( ps2->viewangles[i] - ps1->viewangles[i] ) > MAX_PREDICT_VIEWANGLES_DELTA ) {
 			return qfalse;
 		}
 	}
@@ -1129,12 +1129,12 @@ void CG_PredictPlayerState( void ) {
 
 		// move
 		cg.predictedPlayerState.origin[ 2 ] +=
-			sin( M_PI * 8 * 13 + cg.cameraShakePhase ) * x * 6.0f * cg.cameraShakeScale;
+			c::sin( M_PI * 8 * 13 + cg.cameraShakePhase ) * x * 6.0f * cg.cameraShakeScale;
 
 		cg.predictedPlayerState.origin[ 1 ] +=
-			sin( M_PI * 17 * x + cg.cameraShakePhase ) * x * 6.0f * cg.cameraShakeScale;
+			c::sin( M_PI * 17 * x + cg.cameraShakePhase ) * x * 6.0f * cg.cameraShakeScale;
 
 		cg.predictedPlayerState.origin[ 0 ] +=
-			cos( M_PI * 7 * x + cg.cameraShakePhase ) * x * 6.0f * cg.cameraShakeScale;
+			c::cos( M_PI * 7 * x + cg.cameraShakePhase ) * x * 6.0f * cg.cameraShakeScale;
 	}
 }

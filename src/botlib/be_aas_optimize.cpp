@@ -131,12 +131,12 @@ int AAS_OptimizeEdge( optimized_t *optimized, int edgenum ) {
 	int i, optedgenum;
 	aas_edge_t *edge, *optedge;
 
-	edge = &( *aasworld ).edges[abs( edgenum )];
+	edge = &( *aasworld ).edges[c::abs( edgenum )];
 	if ( !AAS_KeepEdge( edge ) ) {
 		return 0;
 	}
 
-	optedgenum = optimized->edgeoptimizeindex[abs( edgenum )];
+	optedgenum = optimized->edgeoptimizeindex[c::abs( edgenum )];
 	if ( optedgenum ) {
 		//keep the edge reversed sign
 		if ( edgenum > 0 ) {
@@ -159,7 +159,7 @@ int AAS_OptimizeEdge( optimized_t *optimized, int edgenum ) {
 			optimized->numvertexes++;
 		} //end else
 	} //end for
-	optimized->edgeoptimizeindex[abs( edgenum )] = optimized->numedges;
+	optimized->edgeoptimizeindex[c::abs( edgenum )] = optimized->numedges;
 	optedgenum = optimized->numedges;
 	optimized->numedges++;
 	//keep the edge reversed sign
@@ -188,12 +188,12 @@ int AAS_OptimizeFace( optimized_t *optimized, int facenum ) {
 	int i, edgenum, optedgenum, optfacenum;
 	aas_face_t *face, *optface;
 
-	face = &( *aasworld ).faces[abs( facenum )];
+	face = &( *aasworld ).faces[c::abs( facenum )];
 	if ( !AAS_KeepFace( face ) ) {
 		return 0;
 	}
 
-	optfacenum = optimized->faceoptimizeindex[abs( facenum )];
+	optfacenum = optimized->faceoptimizeindex[c::abs( facenum )];
 	if ( optfacenum ) {
 		//keep the face side sign
 		if ( facenum > 0 ) {
@@ -216,7 +216,7 @@ int AAS_OptimizeFace( optimized_t *optimized, int facenum ) {
 			optimized->edgeindexsize++;
 		} //end if
 	} //end for
-	optimized->faceoptimizeindex[abs( facenum )] = optimized->numfaces;
+	optimized->faceoptimizeindex[c::abs( facenum )] = optimized->numfaces;
 	optfacenum = optimized->numfaces;
 	optimized->numfaces++;
 	//keep the face side sign
@@ -356,12 +356,12 @@ void AAS_Optimize( void ) {
 		}
 		//
 		sign = ( *aasworld ).reachability[i].facenum;
-		( *aasworld ).reachability[i].facenum = optimized.faceoptimizeindex[abs( ( *aasworld ).reachability[i].facenum )];
+		( *aasworld ).reachability[i].facenum = optimized.faceoptimizeindex[c::abs( ( *aasworld ).reachability[i].facenum )];
 		if ( sign < 0 ) {
 			( *aasworld ).reachability[i].facenum = -( *aasworld ).reachability[i].facenum;
 		}
 		sign = ( *aasworld ).reachability[i].edgenum;
-		( *aasworld ).reachability[i].edgenum = optimized.edgeoptimizeindex[abs( ( *aasworld ).reachability[i].edgenum )];
+		( *aasworld ).reachability[i].edgenum = optimized.edgeoptimizeindex[c::abs( ( *aasworld ).reachability[i].edgenum )];
 		if ( sign < 0 ) {
 			( *aasworld ).reachability[i].edgenum = -( *aasworld ).reachability[i].edgenum;
 		}

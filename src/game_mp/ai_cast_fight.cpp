@@ -1370,13 +1370,13 @@ void AICast_WeaponSway( cast_state_t *cs, vec3_t ofs ) {
 			break;      // only allow flaming zombie beyond here
 		}
 	case WP_FLAMETHROWER:
-		ofs[PITCH] = ( 3.0 + 4.0 * sin( ( (float)level.time / 320.0 ) ) ) * sin( ( (float)level.time / 500.0 ) );
-		ofs[YAW] = ( 6.0 + 8.0 * sin( ( (float)level.time / 250.0 ) ) ) * sin( ( (float)level.time / 400.0 ) );
+		ofs[PITCH] = ( 3.0 + 4.0 * c::sin( ( (float)level.time / 320.0 ) ) ) * c::sin( ( (float)level.time / 500.0 ) );
+		ofs[YAW] = ( 6.0 + 8.0 * c::sin( ( (float)level.time / 250.0 ) ) ) * c::sin( ( (float)level.time / 400.0 ) );
 		ofs[ROLL] = 0;
 		break;
 	case WP_VENOM:
-		ofs[PITCH] = 2 * cos( float ( level.time / 200 ) );
-		ofs[YAW] = 10 * sin( float ( level.time / 150 ) ) * sin( float ( level.time / 100 ) );
+		ofs[PITCH] = 2 * c::cos( float ( level.time / 200 ) );
+		ofs[YAW] = 10 * c::sin( float ( level.time / 150 ) ) * c::sin( float ( level.time / 100 ) );
 		ofs[ROLL] = 0;
 		break;
 	}
@@ -1500,16 +1500,16 @@ qboolean AICast_AimAtEnemy( cast_state_t *cs ) {
 			else
 				scale *= 1.0;
 
-			bestorigin[0] += scale * 96 * sin((float)level.time/(200.0 + (40.0*((cs->entityNum+3)%4)))) * (1 - aim_accuracy);
-			bestorigin[1] += scale * 96 * cos((float)level.time/(220.0 + (36.0*((cs->entityNum+1)%5)))) * (1 - aim_accuracy);
-			bestorigin[2] += scale * 48 * sin((float)level.time/(210.0 + (32.0*((cs->entityNum+2)%6)))) * (1 - aim_accuracy);
+			bestorigin[0] += scale * 96 * c::sin((float)level.time/(200.0 + (40.0*((cs->entityNum+3)%4)))) * (1 - aim_accuracy);
+			bestorigin[1] += scale * 96 * c::cos((float)level.time/(220.0 + (36.0*((cs->entityNum+1)%5)))) * (1 - aim_accuracy);
+			bestorigin[2] += scale * 48 * c::sin((float)level.time/(210.0 + (32.0*((cs->entityNum+2)%6)))) * (1 - aim_accuracy);
 		}
 		break;
 	}
 */
 	// if the enemy is moving, they are harder to hit
 	if ( dist > 256 ) {
-		VectorMA( bestorigin, ( 0.3 + 0.7 * ( 1 - aim_accuracy ) ) * 0.4 * sin( (float)level.time / ( 500.0 + ( 100.0 * ( ( cs->entityNum + 3 ) % 4 ) ) ) ), g_entities[bs->enemy].client->ps.velocity, bestorigin );
+		VectorMA( bestorigin, ( 0.3 + 0.7 * ( 1 - aim_accuracy ) ) * 0.4 * c::sin( (float)level.time / ( 500.0 + ( 100.0 * ( ( cs->entityNum + 3 ) % 4 ) ) ) ), g_entities[bs->enemy].client->ps.velocity, bestorigin );
 	}
 	//get aim direction
 	VectorSubtract( bestorigin, bs->eye, dir );

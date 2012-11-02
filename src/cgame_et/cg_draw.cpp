@@ -388,9 +388,9 @@ void CG_DrawKeyModel( int keynum, float x, float y, float w, float h, int fadeti
 
 //	len = 0.5 * ( maxs[2] - mins[2] );
 	len = 0.75 * ( maxs[2] - mins[2] );
-	origin[0] = len / 0.268;    // len / tan( fov/2 )
+	origin[0] = len / 0.268;    // len / c::tan( fov/2 )
 
-	angles[YAW] = 30 * sin( cg.time / 2000.0 );;
+	angles[YAW] = 30 * c::sin( cg.time / 2000.0 );;
 
 	CG_Draw3DModel( x, y, w, h, cg_items[keynum].models[0], 0, origin, angles );
 }
@@ -528,10 +528,10 @@ static float CG_DrawTimer( float y ) {
 	if ( cgs.gamestate != GS_PLAYING ) {
 		//%	s = va( "%s^*WARMUP", rt );
 		s = "^*WARMUP";  // ydnar: don't draw reinforcement time in warmup mode
-		color[3] = fabs( sin( cg.time * 0.002 ) );
+		color[3] = c::fabs( c::sin( cg.time * 0.002 ) );
 	} else if ( msec < 0 && cgs.timelimit > 0.0f ) {
 		s = va( "^N0:00" );
-		color[3] = fabs( sin( cg.time * 0.002 ) );
+		color[3] = c::fabs( c::sin( cg.time * 0.002 ) );
 	} else {
 		if ( cgs.timelimit <= 0.0f ) {
 			s = va( "%s", rt );
@@ -1350,7 +1350,7 @@ static void CG_DrawMortarReticle( void ) {
 
 	offset = ( 5.f / 65536 ) * ( (int)( angle * ( 65536 / 5.f ) ) & 65535 );
 	min = (int)( AngleNormalize360( angle - .5f * 180 ) / 15.f ) * 15;
-	majorOffset = (int)( floor( float ((int)floor( AngleNormalize360( angle - .5f * 180 ) ) % 15) ) / 5.f );
+	majorOffset = (int)( c::floor( float ((int)c::floor( AngleNormalize360( angle - .5f * 180 ) ) % 15) ) / 5.f );
 
 	for ( val = i = 0; i < 36; i++ ) {
 		localOffset = i * 10.f + ( offset * 2.f );
@@ -1436,7 +1436,7 @@ static void CG_DrawMortarReticle( void ) {
 				yaw = 0;
 			} else {
 				if ( dir[0] ) {
-					yaw = ( atan2( dir[1], dir[0] ) * 180 / M_PI );
+					yaw = ( c::atan2( dir[1], dir[0] ) * 180 / M_PI );
 				} else if ( dir[1] > 0 )   {
 					yaw = 90;
 				} else {
@@ -1507,8 +1507,8 @@ static void CG_DrawMortarReticle( void ) {
 	angle = AngleNormalize180( 360 - ( cg.predictedPlayerState.viewangles[PITCH] - 60 ) );
 
 	offset = ( 2.5f / 65536 ) * ( (int)( angle * ( 65536 / 2.5f ) ) & 65535 );
-	min = floor( ( angle + .5f * 50 ) / 10.f ) * 10;
-	majorOffset = (int)( floor( float ((int)( ( angle + .5f * 50 ) * 10.f ) % 100) ) / 25.f );
+	min = c::floor( ( angle + .5f * 50 ) / 10.f ) * 10;
+	majorOffset = (int)( c::floor( float ((int)( ( angle + .5f * 50 ) * 10.f ) % 100) ) / 25.f );
 
 	for ( val = i = 0; i < 20; i++ ) {
 		localOffset = i * 10.f + ( offset * 4.f );
@@ -3016,7 +3016,7 @@ static void CG_DrawFlashDamage( void ) {
 	}
 
 	if ( cg.v_dmg_time > cg.time ) {
-		redFlash = fabs( cg.v_dmg_pitch * ( ( cg.v_dmg_time - cg.time ) / DAMAGE_TIME ) );
+		redFlash = c::fabs( cg.v_dmg_pitch * ( ( cg.v_dmg_time - cg.time ) / DAMAGE_TIME ) );
 
 		// blend the entire screen red
 		if ( redFlash > 5 ) {
@@ -3067,7 +3067,7 @@ static void CG_DrawFlashFire( void ) {
 			alpha = f;
 		}
 
-		max = 0.5 + 0.5 * sin( (float)( ( cg.time / 10 ) % 1000 ) / 1000.0 );
+		max = 0.5 + 0.5 * c::sin( (float)( ( cg.time / 10 ) % 1000 ) / 1000.0 );
 		if ( alpha > max ) {
 			alpha = max;
 		}
@@ -3456,11 +3456,11 @@ void CG_DrawCompassIcon( float x, float y, float w, float h, vec3_t origin, vec3
 		}
 		else*/
 	{
-		w = sqrt( ( w * w ) + ( h * h ) ) / 3.f * 2.f * 0.9f;
+		w = c::sqrt( ( w * w ) + ( h * h ) ) / 3.f * 2.f * 0.9f;
 	}
 
-	x = x + ( cos( angle ) * w );
-	y = y + ( sin( angle ) * w );
+	x = x + ( c::cos( angle ) * w );
+	y = y + ( c::sin( angle ) * w );
 
 	len = 1 - min( 1.f, len / 2000.f );
 
@@ -3482,25 +3482,25 @@ void CG_DrawCompassIcon( float x, float y, float w, float h, vec3_t origin, vec3
 
 	x = x + w / 2;
 	y = y + h / 2;
-	w /= 2;    // = sqrt( ( w * w ) + ( h * h ) ) / 3.f * 2.f * 0.9f;
+	w /= 2;    // = c::sqrt( ( w * w ) + ( h * h ) ) / 3.f * 2.f * 0.9f;
 
 	if ( ( angle >= 0 ) && ( angle < M_PI / 4.0 ) ) {
 		x += w;
-		y += w * tan( angle );
+		y += w * c::tan( angle );
 
 	} else if ( ( angle >= M_PI / 4.0 ) && ( angle < 3.0 * M_PI / 4.0 ) )         {
-		x += w / tan( angle );
+		x += w / c::tan( angle );
 		y += w;
 	} else if ( ( angle >= 3.0 * M_PI / 4.0 ) && ( angle < 5.0 * M_PI / 4.0 ) )       {
 		x -= w;
-		y -= w * tan( angle );
+		y -= w * c::tan( angle );
 	} else if ( ( angle >= 5.0 * M_PI / 4.0 ) && ( angle < 7.0 * M_PI / 4.0 ) )       {
-		x -= w / tan( angle );
+		x -= w / c::tan( angle );
 		y -= w;
 	} else
 	{
 		x += w;
-		y += w * tan( angle );
+		y += w * c::tan( angle );
 
 	}
 
@@ -3900,14 +3900,14 @@ static void CG_DrawStaminaBar( rectDef_t *rect ) {
 
 	if ( cg.snap->ps.powerups[PW_ADRENALINE] ) {
 		if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
-			Vector4Average( colour, colorWhite, sin( cg.time * .005f ), colour );
+			Vector4Average( colour, colorWhite, c::sin( cg.time * .005f ), colour );
 		} else {
 			float msec = cg.snap->ps.powerups[PW_ADRENALINE] - cg.time;
 
 			if ( msec < 0 ) {
 				msec = 0;
 			} else {
-				Vector4Average( colour, colorWhite, .5f + sin( .2f * sqrt( msec ) * 2 * M_PI ) * .5f, colour );
+				Vector4Average( colour, colorWhite, .5f + c::sin( .2f * c::sqrt( msec ) * 2 * M_PI ) * .5f, colour );
 			}
 		}
 	} else {
@@ -4447,19 +4447,19 @@ void CG_ShakeCamera() {
 	// ydnar: move the camera
 	#if 0
 	// up/down
-	val = sin( M_PI * 8 * x + cg.cameraShakePhase ) * x * 18.0f * cg.cameraShakeScale;
+	val = c::sin( M_PI * 8 * x + cg.cameraShakePhase ) * x * 18.0f * cg.cameraShakeScale;
 	cg.refdefViewAngles[0] += val;
 
 	// left/right
-	val = sin( M_PI * 15 * x + cg.cameraShakePhase ) * x * 16.0f * cg.cameraShakeScale;
+	val = c::sin( M_PI * 15 * x + cg.cameraShakePhase ) * x * 16.0f * cg.cameraShakeScale;
 	cg.refdefViewAngles[1] += val;
 	#else
 	// move
-	val = sin( M_PI * 7 * x + cg.cameraShakePhase ) * x * 4.0f * cg.cameraShakeScale;
+	val = c::sin( M_PI * 7 * x + cg.cameraShakePhase ) * x * 4.0f * cg.cameraShakeScale;
 	cg.refdef.vieworg[ 2 ] += val;
-	val = sin( M_PI * 13 * x + cg.cameraShakePhase ) * x * 4.0f * cg.cameraShakeScale;
+	val = c::sin( M_PI * 13 * x + cg.cameraShakePhase ) * x * 4.0f * cg.cameraShakeScale;
 	cg.refdef.vieworg[ 1 ] += val;
-	val = cos( M_PI * 17 * x + cg.cameraShakePhase ) * x * 4.0f * cg.cameraShakeScale;
+	val = c::cos( M_PI * 17 * x + cg.cameraShakePhase ) * x * 4.0f * cg.cameraShakeScale;
 	cg.refdef.vieworg[ 0 ] += val;
 	#endif
 

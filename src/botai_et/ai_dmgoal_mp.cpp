@@ -290,7 +290,7 @@ qboolean BotMP_CheckEmergencyGoals( bot_state_t *bs ) {
 				}
 				if ( trav ) {
 					//
-					if ( BotNumTeamMatesWithTarget( bs, trav->s.number, NULL, 0 ) < (int)ceil( 0.5 * numTeammates ) ) {
+					if ( BotNumTeamMatesWithTarget( bs, trav->s.number, NULL, 0 ) < (int)c::ceil( 0.5 * numTeammates ) ) {
 						//
 						// if we are already heading for it, then continue
 						if ( bs->target_goal.entitynum == trav->s.number && bs->ainode == AINode_MP_DefendTarget ) {
@@ -532,7 +532,7 @@ qboolean BotMP_CheckEmergencyGoals( bot_state_t *bs ) {
 				if ( bs->sess.playerType != PC_ENGINEER ) {
 					if ( BotCanSnipe( bs, qtrue ) ) {
 						if ( level.explosiveTargets[bs->sess.sessionTeam == TEAM_AXIS ? 0 : 1] != BotGetTargetExplosives( bs->sess.sessionTeam, NULL, 0, qfalse )
-							 || BotNumTeamMatesWithTarget( bs, list[i], NULL, 0 ) >= (int)( floor( 0.3 * numTeammates / numList ) ) ) {
+							 || BotNumTeamMatesWithTarget( bs, list[i], NULL, 0 ) >= (int)( c::floor( 0.3 * numTeammates / numList ) ) ) {
 							continue;
 						}
 					}
@@ -544,7 +544,7 @@ qboolean BotMP_CheckEmergencyGoals( bot_state_t *bs ) {
 				}
 
 				//if (trav->missionLevel > level.time) continue;
-				if ( BotNumTeamMatesWithTarget( bs, trav->s.number, NULL, 0 ) > (int)floor( (float)( numTeammates / numList ) ) ) {
+				if ( BotNumTeamMatesWithTarget( bs, trav->s.number, NULL, 0 ) > (int)c::floor( (float)( numTeammates / numList ) ) ) {
 					continue;
 				}
 				VectorAdd( trav->r.absmin, trav->r.absmax, center );
@@ -573,7 +573,7 @@ qboolean BotMP_CheckEmergencyGoals( bot_state_t *bs ) {
 								return qtrue;
 							}
 							// only "defend" the dynamite if they are yet to break through any of the defenses
-						} else if ( ( BotNumTeamMatesWithTargetAndCloser( bs, target.entitynum, target.areanum, NULL, 0, -1 ) < (int)( ceil( 0.3 * numTeammates / numList ) ) ) ) {
+						} else if ( ( BotNumTeamMatesWithTargetAndCloser( bs, target.entitynum, target.areanum, NULL, 0, -1 ) < (int)( c::ceil( 0.3 * numTeammates / numList ) ) ) ) {
 							// if we are already heading there, continue
 							if ( bs->target_goal.entitynum && bs->target_goal.entitynum == trav->s.number && bs->ainode == AINode_MP_DefendTarget ) {
 								return qfalse;
@@ -1746,7 +1746,7 @@ qboolean BotMP_FindGoal( bot_state_t *bs ) {
 			targetPriority = 2;
 			//
 			// if there are too many going for this goal, then ignore it if we are the furthest away
-			if ( ( numList = BotNumTeamMatesWithTargetAndCloser( bs, trav->s.number, target.areanum, list, MAX_CLIENTS, -1 ) ) > (int)floor( 0.3 * numTeammates ) ) {
+			if ( ( numList = BotNumTeamMatesWithTargetAndCloser( bs, trav->s.number, target.areanum, list, MAX_CLIENTS, -1 ) ) > (int)c::floor( 0.3 * numTeammates ) ) {
 				distances = BotSortPlayersByTraveltime( BotGetArea( trav->s.number ), list, numList );
 				if ( distances[numList - 1] < (float)t ) {
 					// we are the furthest
@@ -2182,7 +2182,7 @@ qboolean BotMP_FindGoal( bot_state_t *bs ) {
 			targetPriority = 2;
 			//
 			// if there are too many going for this goal, then ignore it if we are the furthest away
-			if ( ( numList = BotNumTeamMatesWithTargetAndCloser( bs, trav->s.number, target.areanum, list, MAX_CLIENTS, -1 ) ) > (int)floor( 0.3 * numTeammates ) ) {
+			if ( ( numList = BotNumTeamMatesWithTargetAndCloser( bs, trav->s.number, target.areanum, list, MAX_CLIENTS, -1 ) ) > (int)c::floor( 0.3 * numTeammates ) ) {
 				distances = BotSortPlayersByTraveltime( BotGetArea( trav->s.number ), list, numList );
 				if ( distances[numList - 1] < (float)t ) {
 					// we are the furthest
@@ -2278,9 +2278,9 @@ qboolean BotMP_FindGoal( bot_state_t *bs ) {
 			f = 1.0f / i;
 		}
 		//if (level.captureFlagMode) {
-		//	c = (int)ceil(0.35*f*numTeammates);
+		//	c = (int)c::ceil(0.35*f*numTeammates);
 		//} else {
-		c = (int)ceil( f * numTeammates );
+		c = (int)c::ceil( f * numTeammates );
 		//}
 
 		// see if we should get/defend one
@@ -2440,7 +2440,7 @@ qboolean BotMP_FindGoal( bot_state_t *bs ) {
 			// is it disabled?
 			if (trav->aiInactive & (1<<bs->sess.sessionTeam)) continue;
 			//
-			if (BotNumTeamMatesWithTarget( bs, trav->s.number, NULL, 0 ) >= (int)ceil(f*numTeammates)) {
+			if (BotNumTeamMatesWithTarget( bs, trav->s.number, NULL, 0 ) >= (int)c::ceil(f*numTeammates)) {
 				if (bestPriority >= 2) continue;	// we already have an important goal
 				targetPriority = 1;
 			} else {
@@ -2731,7 +2731,7 @@ qboolean BotMP_FindGoal( bot_state_t *bs ) {
 				if ( !ent ) {
 					ent = BotFindNextStaticEntity( NULL, BOTSTATICENTITY_FLAGONLY_MULTIPLE );
 				}
-				if ( target.entitynum != bs->client && ent && ( BotNumTeamMatesWithTarget( bs, ent->s.number, NULL, 0 ) < (int)ceil( 0.3 * numTeammates ) ) ) {
+				if ( target.entitynum != bs->client && ent && ( BotNumTeamMatesWithTarget( bs, ent->s.number, NULL, 0 ) < (int)c::ceil( 0.3 * numTeammates ) ) ) {
 					VectorAdd( ent->r.absmin, ent->r.absmax, brushPos );
 					VectorScale( brushPos, 0.5, brushPos );
 					// find the best goal area
@@ -2872,7 +2872,7 @@ qboolean BotMP_FindGoal( bot_state_t *bs ) {
 
 				// defend the objective!
 				if ( BotFlagAtBase( bs->sess.sessionTeam, &ent ) == qtrue ) {
-					if ( !gotTarget || BotNumTeamMatesWithTarget( bs, ent->s.number, NULL, 0 ) < (int)ceil( 0.4 * numTeammates ) ) {
+					if ( !gotTarget || BotNumTeamMatesWithTarget( bs, ent->s.number, NULL, 0 ) < (int)c::ceil( 0.4 * numTeammates ) ) {
 						// do we have a route to the flag?
 						BotClearGoal( &target );
 						target.entitynum = ent->s.number;
@@ -2909,7 +2909,7 @@ qboolean BotMP_FindGoal( bot_state_t *bs ) {
 					if ( !ent ) {
 						ent = BotFindNextStaticEntity( NULL, BOTSTATICENTITY_FLAGONLY_MULTIPLE );
 					}
-					if ( ent /*&& (BotNumTeamMatesWithTarget( bs, ent->s.number, NULL, 0 ) < (int)ceil(0.5*numTeammates))*/ ) {
+					if ( ent /*&& (BotNumTeamMatesWithTarget( bs, ent->s.number, NULL, 0 ) < (int)c::ceil(0.5*numTeammates))*/ ) {
 						VectorAdd( ent->r.absmin, ent->r.absmax, brushPos );
 						VectorScale( brushPos, 0.5, brushPos );
 						bestDist = -1;

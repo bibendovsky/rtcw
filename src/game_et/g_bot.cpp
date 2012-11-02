@@ -1400,7 +1400,7 @@ void BotDropToFloor( gentity_t *ent ) {
 
 	if ( tr.startsolid ) {
 		// try raising us up some
-		if ( fabs( ent->r.currentOrigin[2] - ent->s.origin[2] ) < 48 ) {
+		if ( c::fabs( ent->r.currentOrigin[2] - ent->s.origin[2] ) < 48 ) {
 			ent->r.currentOrigin[2] += 4;
 			BotDropToFloor( ent );
 			return;
@@ -1437,7 +1437,7 @@ void ServerEntityDropToFloor( g_serverEntity_t *ent ) {
 
 	if ( tr.startsolid ) {
 		// try raising us up some
-		if ( fabs( ent->origin[2] - ent->origin[2] ) < 48 ) {
+		if ( c::fabs( ent->origin[2] - ent->origin[2] ) < 48 ) {
 			ent->origin[2] += 4;
 			ServerEntityDropToFloor( ent );
 			return;

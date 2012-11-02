@@ -213,7 +213,7 @@ int AAS_FloodClusterAreas_r( int areanum, int clusternum ) {
 	if ( !nofaceflood ) {
 		for ( i = 0; i < area->numfaces; i++ )
 		{
-			facenum = abs( ( *aasworld ).faceindex[area->firstface + i] );
+			facenum = c::abs( ( *aasworld ).faceindex[area->firstface + i] );
 			face = &( *aasworld ).faces[facenum];
 			if ( face->frontarea == areanum ) {
 				if ( face->backarea ) {
@@ -518,7 +518,7 @@ int AAS_NonConvexFaces(aas_face_t *face1, aas_face_t *face2, int side1, int side
 	//check if one of the points of face1 is at the back of the plane of face2
 	for (i = 0; i < face1->numedges; i++)
 	{
-		edgenum = abs((*aasworld).edgeindex[face1->firstedge + i]);
+		edgenum = c::abs((*aasworld).edgeindex[face1->firstedge + i]);
 		edge = &(*aasworld).edges[edgenum];
 		for (j = 0; j < 2; j++)
 		{
@@ -528,7 +528,7 @@ int AAS_NonConvexFaces(aas_face_t *face1, aas_face_t *face2, int side1, int side
 	} //end for
 	for (i = 0; i < face2->numedges; i++)
 	{
-		edgenum = abs((*aasworld).edgeindex[face2->firstedge + i]);
+		edgenum = c::abs((*aasworld).edgeindex[face2->firstedge + i]);
 		edge = &(*aasworld).edges[edgenum];
 		for (j = 0; j < 2; j++)
 		{
@@ -556,7 +556,7 @@ qboolean AAS_CanMergeAreas(int *areanums, int numareas)
 		area1 = &(*aasworld).areas[areanums[i]];
 		for (fn1 = 0; fn1 < area1->numfaces; fn1++)
 		{
-			face1num = abs((*aasworld).faceindex[area1->firstface + fn1]);
+			face1num = c::abs((*aasworld).faceindex[area1->firstface + fn1]);
 			face1 = &(*aasworld).faces[face1num];
 			side1 = face1->frontarea != areanums[i];
 			//check if the face isn't a shared one with one of the other areas
@@ -574,7 +574,7 @@ qboolean AAS_CanMergeAreas(int *areanums, int numareas)
 				area2 = &(*aasworld).areas[areanums[j]];
 				for (fn2 = 0; fn2 < area2->numfaces; fn2++)
 				{
-					face2num = abs((*aasworld).faceindex[area2->firstface + fn2]);
+					face2num = c::abs((*aasworld).faceindex[area2->firstface + fn2]);
 					face2 = &(*aasworld).faces[face2num];
 					side2 = face2->frontarea != areanums[j];
 					//check if the face isn't a shared one with one of the other areas
@@ -646,7 +646,7 @@ qboolean AAS_CanMergeFaces(int *facenums, int numfaces, int planenum)
 		{
 			edgenum1 = (*aasworld).edgeindex[face1->firstedge + en1];
 			side1 = (edgenum1 < 0) ^ (face1->planenum != planenum);
-			edgenum1 = abs(edgenum1);
+			edgenum1 = c::abs(edgenum1);
 			edge1 = &(*aasworld).edges[edgenum1];
 			//check if the edge is shared with another face
 			for (s = 0; s < numfaces; s++)
@@ -655,7 +655,7 @@ qboolean AAS_CanMergeFaces(int *facenums, int numfaces, int planenum)
 				otherface = &(*aasworld).faces[facenums[s]];
 				for (ens = 0; ens < otherface->numedges; ens++)
 				{
-					if (edgenum1 == abs((*aasworld).edgeindex[otherface->firstedge + ens])) break;
+					if (edgenum1 == c::abs((*aasworld).edgeindex[otherface->firstedge + ens])) break;
 				} //end for
 				if (ens != otherface->numedges) break;
 			} //end for
@@ -670,7 +670,7 @@ qboolean AAS_CanMergeFaces(int *facenums, int numfaces, int planenum)
 				{
 					edgenum2 = (*aasworld).edgeindex[face2->firstedge + en2];
 					side2 = (edgenum2 < 0) ^ (face2->planenum != planenum);
-					edgenum2 = abs(edgenum2);
+					edgenum2 = c::abs(edgenum2);
 					edge2 = &(*aasworld).edges[edgenum2];
 					//check if the edge is shared with another face
 					for (s = 0; s < numfaces; s++)
@@ -679,7 +679,7 @@ qboolean AAS_CanMergeFaces(int *facenums, int numfaces, int planenum)
 						otherface = &(*aasworld).faces[facenums[s]];
 						for (ens = 0; ens < otherface->numedges; ens++)
 						{
-							if (edgenum2 == abs((*aasworld).edgeindex[otherface->firstedge + ens])) break;
+							if (edgenum2 == c::abs((*aasworld).edgeindex[otherface->firstedge + ens])) break;
 						} //end for
 						if (ens != otherface->numedges) break;
 					} //end for
@@ -708,7 +708,7 @@ void AAS_ConnectedAreas_r( int *areanums, int numareas, int *connectedareas, int
 	area = &( *aasworld ).areas[areanums[curarea]];
 	for ( i = 0; i < area->numfaces; i++ )
 	{
-		facenum = abs( ( *aasworld ).faceindex[area->firstface + i] );
+		facenum = c::abs( ( *aasworld ).faceindex[area->firstface + i] );
 		face = &( *aasworld ).faces[facenum];
 		//if the face is solid
 		if ( face->faceflags & FACE_SOLID ) {
@@ -779,7 +779,7 @@ int AAS_GetAdjacentAreasWithLessPresenceTypes_r( int *areanums, int numareas, in
 	presencetype = ( *aasworld ).areasettings[curareanum].presencetype;
 	for ( i = 0; i < area->numfaces; i++ )
 	{
-		facenum = abs( ( *aasworld ).faceindex[area->firstface + i] );
+		facenum = c::abs( ( *aasworld ).faceindex[area->firstface + i] );
 		face = &( *aasworld ).faces[facenum];
 		//if the face is solid
 		if ( face->faceflags & FACE_SOLID ) {
@@ -853,7 +853,7 @@ int AAS_CheckAreaForPossiblePortals( int areanum ) {
 		area = &( *aasworld ).areas[areanums[i]];
 		for ( j = 0; j < area->numfaces; j++ )
 		{
-			facenum = abs( ( *aasworld ).faceindex[area->firstface + j] );
+			facenum = c::abs( ( *aasworld ).faceindex[area->firstface + j] );
 			face = &( *aasworld ).faces[facenum];
 			//if the face is solid
 			if ( face->faceflags & FACE_SOLID ) {
@@ -939,13 +939,13 @@ int AAS_CheckAreaForPossiblePortals( int areanum ) {
 		frontface = &( *aasworld ).faces[frontfacenums[i]];
 		for ( fen = 0; fen < frontface->numedges; fen++ )
 		{
-			frontedgenum = abs( ( *aasworld ).edgeindex[frontface->firstedge + fen] );
+			frontedgenum = c::abs( ( *aasworld ).edgeindex[frontface->firstedge + fen] );
 			for ( j = 0; j < numbackfaces; j++ )
 			{
 				backface = &( *aasworld ).faces[backfacenums[j]];
 				for ( ben = 0; ben < backface->numedges; ben++ )
 				{
-					backedgenum = abs( ( *aasworld ).edgeindex[backface->firstedge + ben] );
+					backedgenum = c::abs( ( *aasworld ).edgeindex[backface->firstedge + ben] );
 					if ( frontedgenum == backedgenum ) {
 						break;
 					}
@@ -1028,7 +1028,7 @@ void AAS_FloodCluster_r(int areanum, int clusternum)
 	//use area faces to flood into adjacent areas
 	for (i = 0; i < area->numfaces; i++)
 	{
-		face = &(*aasworld).faces[abs((*aasworld).faceindex[area->firstface + i])];
+		face = &(*aasworld).faces[c::abs((*aasworld).faceindex[area->firstface + i])];
 		//
 		if (face->frontarea != areanum) otherareanum = face->frontarea;
 		else otherareanum = face->backarea;
@@ -1140,7 +1140,7 @@ void AAS_RemoveNotClusterClosingPortals(void)
 		area = &(*aasworld).areas[i];
 		for (j = 0; j < area->numfaces; j++)
 		{
-			facenum = abs((*aasworld).faceindex[area->firstface + j]);
+			facenum = c::abs((*aasworld).faceindex[area->firstface + j]);
 			face = &(*aasworld).faces[facenum];
 			//
 			if (face->frontarea != i) otherareanum = face->frontarea;
@@ -1160,7 +1160,7 @@ void AAS_RemoveNotClusterClosingPortals(void)
 			//check if all adjacent non-portal areas have a cluster set
 			for (k = 0; k < area->numfaces; k++)
 			{
-				facenum = abs((*aasworld).faceindex[area->firstface + k]);
+				facenum = c::abs((*aasworld).faceindex[area->firstface + k]);
 				face = &(*aasworld).faces[facenum];
 				//
 				if (face->frontarea != i) otherareanum = face->frontarea;
@@ -1217,7 +1217,7 @@ void AAS_RemoveNotClusterClosingPortals(void)
 		area = &(*aasworld).areas[i];
 		for (j = 0; j < area->numfaces; j++)
 		{
-			facenum = abs((*aasworld).faceindex[area->firstface + j]);
+			facenum = c::abs((*aasworld).faceindex[area->firstface + j]);
 			face = &(*aasworld).faces[facenum];
 			//
 			if (face->frontarea != i) otherareanum = face->frontarea;
@@ -1369,7 +1369,7 @@ void AAS_AddTeleporterPortals(void)
 				area = &(*aasworld).areas[link->areanum];
 				for (j = 0; j < area->numfaces; j++)
 				{
-					facenum = abs((*aasworld).faceindex[area->firstface + j]);
+					facenum = c::abs((*aasworld).faceindex[area->firstface + j]);
 					face = &(*aasworld).faces[facenum];
 					//
 					if (face->frontarea != link->areanum) otherareanum = face->frontarea;

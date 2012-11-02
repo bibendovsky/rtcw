@@ -977,9 +977,9 @@ void CG_AddClientCritter( localEntity_t *le ) {
 
 	// vary the enemyPos to create a psuedo-randomness
 	of = (float)cg.time + le->startTime;
-	enemyPos[0] += 12 * ( sin( of / 100 ) * cos( of / 78 ) );
-	enemyPos[1] += 12 * ( sin( of / 70 ) * cos( of / 82 ) );
-	enemyPos[2] += 12 * ( sin( of / 67 ) * cos( of / 98 ) );
+	enemyPos[0] += 12 * ( c::sin( of / 100 ) * c::cos( of / 78 ) );
+	enemyPos[1] += 12 * ( c::sin( of / 70 ) * c::cos( of / 82 ) );
+	enemyPos[2] += 12 * ( c::sin( of / 67 ) * c::cos( of / 98 ) );
 
 	time = le->lastTrailTime + step;
 
@@ -1170,7 +1170,7 @@ void CG_AddClientCritter( localEntity_t *le ) {
 		if ( le->leType == LE_ZOMBIE_BAT || le->leType == LE_HELGA_SPIRIT ) {
 			VectorSubtract( le->pos.trDelta, oDelta, v2 );
 			ang[ROLL] = -0.5 * DotProduct( le->refEntity.axis[1], v2 );
-			if ( fabs( ang[ROLL] ) < 20 ) {
+			if ( c::fabs( ang[ROLL] ) < 20 ) {
 				ang[ROLL] = 0;
 			} else {
 				if ( ang[ROLL] < 0 ) {
@@ -1179,7 +1179,7 @@ void CG_AddClientCritter( localEntity_t *le ) {
 					ang[ROLL] -= 20;
 				}
 			}
-			if ( fabs( ang[ROLL] ) > 80 ) {
+			if ( c::fabs( ang[ROLL] ) > 80 ) {
 				if ( ang[ROLL] > 80 ) {
 					ang[ROLL] = 80;
 				} else { ang[ROLL] = -80;}

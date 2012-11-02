@@ -825,7 +825,7 @@ void InitShooter( gentity_t *ent, int weapon ) {
 	}
 
 	if ( ent->s.weapon != WP_SNIPER ) {
-		ent->random = sin( M_PI * ent->random / 180 );
+		ent->random = c::sin( M_PI * ent->random / 180 );
 	}
 
 	// target might be a moving object, so we can't set movedir for it
@@ -1671,7 +1671,7 @@ void clamp_hweapontofirearc( gentity_t *self, vec3_t dang ) {
 
 	// sanity check the angles again to make sure we don't go passed the harc
 	diff = AngleDifference( self->s.angles[YAW], dang[YAW] );
-	if ( fabs( diff ) > self->harc ) {
+	if ( c::fabs( diff ) > self->harc ) {
 		clamped = qtrue;
 
 		if ( diff > 0 ) {
@@ -2401,7 +2401,7 @@ void miscGunnerThink( gentity_t *ent ) {
 		}
 
 		// restrict vertical range
-		if ( dang[0] < 0 && fabs( dang[0] ) > ( gun->varc / 2 ) ) {
+		if ( dang[0] < 0 && c::fabs( dang[0] ) > ( gun->varc / 2 ) ) {
 			clamped = qtrue;
 			if ( dang[0] < 0 ) {
 				dang[0] = -( gun->varc / 2 );
@@ -2415,7 +2415,7 @@ void miscGunnerThink( gentity_t *ent ) {
 		for ( i = 0; i < 3; i++ ) {
 			BG_EvaluateTrajectory( &gun->s.apos, level.time, gun->r.currentAngles );
 			diff = AngleDifference( dang[i], gun->r.currentAngles[i] );
-			if ( fabs( diff ) > ( yawspeed * ( (float)FRAMETIME / 1000.0 ) ) ) {
+			if ( c::fabs( diff ) > ( yawspeed * ( (float)FRAMETIME / 1000.0 ) ) ) {
 				clamped = qtrue;
 				if ( diff > 0 ) {
 					dang[i] = AngleMod( gun->r.currentAngles[i] + ( yawspeed * ( (float)FRAMETIME / 1000.0 ) ) );
@@ -2437,7 +2437,7 @@ void miscGunnerThink( gentity_t *ent ) {
 		gun->s.apos.trDuration = 50;
 
 		// if we are facing them, fire
-		if ( fabs( AngleNormalize180( gun->r.currentAngles[YAW] - gun->TargetAngles[YAW] ) ) < 10 ) {
+		if ( c::fabs( AngleNormalize180( gun->r.currentAngles[YAW] - gun->TargetAngles[YAW] ) ) < 10 ) {
 			AngleVectors( gun->r.currentAngles, forward, right, up );
 			VectorCopy( gspot, muzzle );
 

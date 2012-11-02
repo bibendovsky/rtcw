@@ -998,8 +998,8 @@ void S_SpatializeOrigin( vec3_t origin, int master_vol, int *left_vol, int *righ
 		// These 2 conditions together give us the following solution.
 //		rscale = 0.5 * (1.0 + dot);
 //		lscale = 0.5 * (1.0 - dot);
-		rscale = sqrt( 1.0 - vec[1] );
-		lscale = sqrt( 1.0 + vec[1] );
+		rscale = c::sqrt( 1.0 - vec[1] );
+		lscale = c::sqrt( 1.0 + vec[1] );
 #endif // RTCW_XX
 		//rscale = s_separation->value + ( 1.0 - s_separation->value ) * dot;
 		//lscale = s_separation->value - ( 1.0 - s_separation->value ) * dot;

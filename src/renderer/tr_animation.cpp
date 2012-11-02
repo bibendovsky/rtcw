@@ -106,7 +106,7 @@ static float ProjectRadius( float r, vec3_t location ) {
 	}
 
 	p[0] = 0;
-	p[1] = fabs( r );
+	p[1] = c::fabs( r );
 	p[2] = -dist;
 
 	projected[0] = p[0] * tr.viewParms.projectionMatrix[0] +
@@ -541,11 +541,11 @@ static float sp, sy, cp, cy;
 
 __inline void LocalAngleVector( vec3_t angles, vec3_t forward ) {
 	LAVangle = angles[YAW] * ( M_PI * 2 / 360 );
-	sy = sin( LAVangle );
-	cy = cos( LAVangle );
+	sy = c::sin( LAVangle );
+	cy = c::cos( LAVangle );
 	LAVangle = angles[PITCH] * ( M_PI * 2 / 360 );
-	sp = sin( LAVangle );
-	cp = cos( LAVangle );
+	sp = c::sin( LAVangle );
+	cp = c::cos( LAVangle );
 
 	forward[0] = cp * cy;
 	forward[1] = cp * sy;
@@ -809,7 +809,7 @@ void R_CalcBone( mdsHeader_t *header, const refEntity_t *refent, int boneNum ) {
 			// blend the angles together
 			for ( j = 0; j < 3; j++ ) {
 				diff = tangles[j] - angles[j];
-				if ( fabs( diff ) > 180 ) {
+				if ( c::fabs( diff ) > 180 ) {
 					diff = AngleNormalize180( diff );
 				}
 				angles[j] = angles[j] + thisBoneInfo->torsoWeight * diff;
@@ -833,7 +833,7 @@ void R_CalcBone( mdsHeader_t *header, const refEntity_t *refent, int boneNum ) {
 			// blend the angles together
 			for ( j = 0; j < 3; j++ ) {
 				diff = tangles[j] - angles[j];
-				if ( fabs( diff ) > 180 ) {
+				if ( c::fabs( diff ) > 180 ) {
 					diff = AngleNormalize180( diff );
 				}
 				angles[j] = angles[j] + thisBoneInfo->torsoWeight * diff;
@@ -1009,7 +1009,7 @@ void R_CalcBoneLerp( mdsHeader_t *header, const refEntity_t *refent, int boneNum
 			// blend the angles together
 			for ( j = 0; j < 3; j++ ) {
 				diff = tangles[j] - angles[j];
-				if ( fabs( diff ) > 180 ) {
+				if ( c::fabs( diff ) > 180 ) {
 					diff = AngleNormalize180( diff );
 				}
 				angles[j] = angles[j] + thisBoneInfo->torsoWeight * diff;

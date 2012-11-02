@@ -747,7 +747,7 @@ qboolean infront( gentity_t *self, gentity_t *other ) {
 
 	if ( !other->aiCharacter && self->activateArc ) {  //----(SA)	make sure ai's aren't constrained to the grabarc of an mg42
 		float angle;
-		angle = RAD2DEG( M_PI - acos( dot ) );
+		angle = RAD2DEG( M_PI - c::acos( dot ) );
 		if ( angle < ( self->activateArc * 2.0 ) ) { // arc is 'half arc' since that's the way the other angles in the mg42 were done
 			return qfalse;
 		} else {

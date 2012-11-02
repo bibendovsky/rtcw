@@ -68,7 +68,7 @@ static qboolean MakeTextureMatrix( vec4_t texMat[ 2 ], vec4_t projection, decalV
 
 	/* calculate barycentric basis for the triangle */
 	bb = ( b->st[ 0 ] - a->st[ 0 ] ) * ( c->st[ 1 ] - a->st[ 1 ] ) - ( c->st[ 0 ] - a->st[ 0 ] ) * ( b->st[ 1 ] - a->st[ 1 ] );
-	if ( fabs( bb ) < 0.00000001f ) {
+	if ( c::fabs( bb ) < 0.00000001f ) {
 		return qfalse;
 	}
 
@@ -577,7 +577,7 @@ static void ProjectDecalOntoWinding( decalProjector_t *dp, int numPoints, vec3_t
 
 		/* fade by distance from plane */
 		d = DotProduct( dp->center, plane ) - plane[ 3 ];
-		alpha = 1.0f - ( fabs( d ) / dp->radius );
+		alpha = 1.0f - ( c::fabs( d ) / dp->radius );
 		if ( alpha < 0.0f ) {
 			return;
 		}
@@ -586,9 +586,9 @@ static void ProjectDecalOntoWinding( decalProjector_t *dp, int numPoints, vec3_t
 		}
 
 		/* set projection axis */
-		absNormal[ 0 ] = fabs( plane[ 0 ] );
-		absNormal[ 1 ] = fabs( plane[ 1 ] );
-		absNormal[ 2 ] = fabs( plane[ 2 ] );
+		absNormal[ 0 ] = c::fabs( plane[ 0 ] );
+		absNormal[ 1 ] = c::fabs( plane[ 1 ] );
+		absNormal[ 2 ] = c::fabs( plane[ 2 ] );
 		if ( absNormal[ 2 ] >= absNormal[ 0 ] && absNormal[ 2 ] >= absNormal[ 1 ] ) {
 			axis = 2;
 		} else if ( absNormal[ 0 ] >= absNormal[ 1 ] && absNormal[ 0 ] >= absNormal[ 2 ] ) {
@@ -807,7 +807,7 @@ void R_ProjectDecalOntoSurface( decalProjector_t *dp, msurface_t *surf, bmodel_t
 
 		/* plane-sphere check */
 		d = DotProduct( dp->center, gen->plane.normal ) - gen->plane.dist;
-		if ( fabs( d ) >= dp->radius ) {
+		if ( c::fabs( d ) >= dp->radius ) {
 			return;
 		}
 	}

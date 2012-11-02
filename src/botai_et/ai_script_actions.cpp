@@ -2048,12 +2048,12 @@ qboolean Bot_ScriptAction_FireAtTarget( bot_state_t *bs, char *params ) {
 			return qfalse;
 		}
 
-		a = (vec_t)atan((-x - b) / (-2 * d));
+		a = (vec_t)c::atan((-x - b) / (-2 * d));
 		bs->ideal_viewangles[PITCH] = (AngleMod(RAD2DEG(a)- 180) + 60);*/
 
 		float g = -g_gravity.value;
 
-		float uz = sqrt( -2 * 3072 * g );
+		float uz = c::sqrt( -2 * 3072 * g );
 		float t = ( ( -uz ) / g ) * 2;
 		float ux = ( org[0] - src[0] ) / t;
 		float uy = ( org[1] - src[1] ) / t;
@@ -2062,11 +2062,7 @@ qboolean Bot_ScriptAction_FireAtTarget( bot_state_t *bs, char *params ) {
 	} else //if (bs->weaponnum != WP_MORTAR_SET)
 	{
 		for ( i = 0; i < 2; i++ ) {
-
-            //BBi See #BUG0002
-			//diff = abs( AngleDifference( bs->cur_ps.viewangles[i], bs->ideal_viewangles[i] ) );
-            diff = static_cast<float> (::abs (static_cast<int> (::AngleDifference (bs->cur_ps.viewangles[i], bs->ideal_viewangles[i]))));
-            //BBi
+			diff = c::abs( AngleDifference( bs->cur_ps.viewangles[i], bs->ideal_viewangles[i] ) );
 
 			if ( VectorCompare( vec3_origin, ent->s.pos.trDelta ) ) {
 				if ( diff ) {

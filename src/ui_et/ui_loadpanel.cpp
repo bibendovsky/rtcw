@@ -223,8 +223,8 @@ void UI_LoadPanel_RenderCampaignNameText( panel_button_t* button ) {
 }*/
 
 void MiniAngleToAxis( vec_t angle, vec2_t axes[2] ) {
-	axes[0][0] = (vec_t)sin( -angle );
-	axes[0][1] = -(vec_t)cos( -angle );
+	axes[0][0] = (vec_t)c::sin( -angle );
+	axes[0][1] = -(vec_t)c::cos( -angle );
 
 	axes[1][0] = -axes[0][1];
 	axes[1][1] = axes[0][0];

@@ -143,7 +143,7 @@ void RB_CalcDeformVertexes( deformStage_t *ds ) {
 		// don't go so far if sideways, since they must be moving
 
 #if !defined RTCW_ET
-		VectorScale( worldUp, 0.4 + 0.6 * fabs( backEnd.currentEntity->e.fireRiseDir[2] ), worldUp );
+		VectorScale( worldUp, 0.4 + 0.6 * c::fabs( backEnd.currentEntity->e.fireRiseDir[2] ), worldUp );
 #else
 		VectorScale( worldUp, 0.4 + 0.6 * Q_fabs( backEnd.currentEntity->e.fireRiseDir[2] ), worldUp );
 #endif // RTCW_XX
@@ -625,7 +625,7 @@ static void Autosprite2Deform( void ) {
 			v1 = xyz + 4 * edgeVerts[nums[j]][0];
 			v2 = xyz + 4 * edgeVerts[nums[j]][1];
 
-			l = 0.5f * sqrt( lengths[j] );
+			l = 0.5f * c::sqrt( lengths[j] );
 
 			// we need to see which direction this edge
 			// is used to determine direction of projection
@@ -1244,10 +1244,10 @@ void RB_CalcEnvironmentTexCoords( float *st ) {
 	// as the car passes through the world
 	sAdjust = VectorLength( backEnd.orientation.origin ) * 0.00390625;
 	//%	 sAdjust = backEnd.orientation.origin[ 0 ] * 0.00390625;
-	sAdjust = 0.5 -  ( sAdjust - floor( sAdjust ) );
+	sAdjust = 0.5 -  ( sAdjust - c::floor( sAdjust ) );
 
 	tAdjust = backEnd.orientation.origin[ 2 ] * 0.00390625;
-	tAdjust = 0.5 - ( tAdjust - floor( tAdjust ) );
+	tAdjust = 0.5 - ( tAdjust - c::floor( tAdjust ) );
 
 	// ydnar: the final reflection vector must be converted into world-space again
 	// we just assume here that all transformations are rotations, so the inverse
@@ -1408,8 +1408,8 @@ void RB_CalcScrollTexCoords( const float scrollSpeed[2], float *st ) {
 
 	// clamp so coordinates don't continuously get larger, causing problems
 	// with hardware limits
-	adjustedScrollS = adjustedScrollS - floor( adjustedScrollS );
-	adjustedScrollT = adjustedScrollT - floor( adjustedScrollT );
+	adjustedScrollS = adjustedScrollS - c::floor( adjustedScrollS );
+	adjustedScrollT = adjustedScrollT - c::floor( adjustedScrollT );
 
 	for ( i = 0; i < tess.numVertexes; i++, st += 2 )
 	{
@@ -1574,7 +1574,7 @@ void RB_CalcDiffuseColor( unsigned char *colors ) {
 
 		// ydnar: enable this for twosided lighting
 		//%	if( tess.shader->cullType == CT_TWO_SIDED )
-		//%		dp = fabs( dp );
+		//%		dp = c::fabs( dp );
 
 		if ( dp <= 0 ) {
 			*colorsInt = ent->entityLightInt[ 0 ];

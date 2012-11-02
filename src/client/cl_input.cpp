@@ -638,7 +638,7 @@ void CL_MouseMove( usercmd_t *cmd ) {
 	cl.mouseDx[cl.mouseIndex] = 0;
 	cl.mouseDy[cl.mouseIndex] = 0;
 
-	rate = sqrt( mx * mx + my * my ) / (float)frame_msec;
+	rate = c::sqrt( mx * mx + my * my ) / (float)frame_msec;
 	accelSensitivity = cl_sensitivity->value + rate * cl_mouseAccel->value;
 
 	// scale by FOV
@@ -827,7 +827,7 @@ usercmd_t CL_CreateCmd( void ) {
 	recoilAdd = cl_recoilPitch->value;
 
 #if !defined RTCW_ET
-	if ( fabs( cl.viewangles[PITCH] + recoilAdd ) < 40 ) {
+	if ( c::fabs( cl.viewangles[PITCH] + recoilAdd ) < 40 ) {
 #else
 	if ( Q_fabs( cl.viewangles[PITCH] + recoilAdd ) < 40 ) {
 #endif // RTCW_XX
@@ -843,16 +843,10 @@ usercmd_t CL_CreateCmd( void ) {
 	// draw debug graphs of turning for mouse testing
 	if ( cl_debugMove->integer ) {
 		if ( cl_debugMove->integer == 1 ) {
-            //BBi See #BUG0002
-			//SCR_DebugGraph( abs( cl.viewangles[YAW] - oldAngles[YAW] ), 0 );
-            ::SCR_DebugGraph (static_cast<float> (::abs (static_cast<int> (cl.viewangles[YAW] - oldAngles[YAW]))), 0);
-            //BBi
+			SCR_DebugGraph( c::abs( cl.viewangles[YAW] - oldAngles[YAW] ), 0 );
 		}
 		if ( cl_debugMove->integer == 2 ) {
-            //BBi See #BUG0002
-			//SCR_DebugGraph( abs( cl.viewangles[PITCH] - oldAngles[PITCH] ), 0 );
-            ::SCR_DebugGraph (static_cast<float> (::abs (static_cast<int> (cl.viewangles[PITCH] - oldAngles[PITCH]))), 0);
-            //BBi
+			SCR_DebugGraph( c::abs( cl.viewangles[PITCH] - oldAngles[PITCH] ), 0 );
 		}
 	}
 

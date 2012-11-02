@@ -414,8 +414,8 @@ static void RB_SurfaceSprite( void ) {
 		float ang;
 
 		ang = M_PI * backEnd.currentEntity->e.rotation / 180;
-		s = sin( ang );
-		c = cos( ang );
+		s = c::sin( ang );
+		c = c::cos( ang );
 
 #if !defined RTCW_ET
 		VectorScale( backEnd.viewParms.or.axis[1], c * radius, left );
@@ -936,8 +936,8 @@ static void DoRailDiscs( int numSegs, const vec3_t start, const vec3_t dir, cons
 
 	for ( i = 0; i < 4; i++ )
 	{
-		c = cos( DEG2RAD( 45 + i * 90 ) );
-		s = sin( DEG2RAD( 45 + i * 90 ) );
+		c = c::cos( DEG2RAD( 45 + i * 90 ) );
+		s = c::sin( DEG2RAD( 45 + i * 90 ) );
 		v[0] = ( right[0] * c + up[0] * s ) * scale * spanWidth;
 		v[1] = ( right[1] * c + up[1] * s ) * scale * spanWidth;
 		v[2] = ( right[2] * c + up[2] * s ) * scale * spanWidth;

@@ -1680,7 +1680,7 @@ e_status CIN_RunCinematic( int handle ) {
 #if defined RTCW_SP
 	thisTime = CL_ScaledMilliseconds();
 
-	if ( cinTable[currentHandle].shader && ( abs( thisTime - int (cinTable[currentHandle].lastTime) ) ) > 100 ) {
+	if ( cinTable[currentHandle].shader && ( c::abs( thisTime - int (cinTable[currentHandle].lastTime) ) ) > 100 ) {
 		cinTable[currentHandle].startTime += thisTime - cinTable[currentHandle].lastTime;
 	}
 
@@ -1717,7 +1717,7 @@ e_status CIN_RunCinematic( int handle ) {
 //----(SA)	end
 #else
 	thisTime = CL_ScaledMilliseconds() * com_timescale->value;
-	if ( cinTable[currentHandle].shader && ( abs( thisTime - int (cinTable[currentHandle].lastTime) ) ) > 100 ) {
+	if ( cinTable[currentHandle].shader && ( c::abs( thisTime - int (cinTable[currentHandle].lastTime) ) ) > 100 ) {
 		cinTable[currentHandle].startTime += thisTime - cinTable[currentHandle].lastTime;
 	}
 	// we need to use CL_ScaledMilliseconds because of the smp mode calls from the renderer

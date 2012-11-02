@@ -522,8 +522,8 @@ void CG_mvDraw( cg_window_t *sw ) {
 				   ( cgs.clientinfo[pID].fCrewgun ) ?
 				   55 : cg_fov.integer;
 
-	x = refdef.width / tan( refdef.fov_x / 360 * M_PI );
-	refdef.fov_y = atan2( float (refdef.height), float (x) ) * 360 / M_PI;
+	x = refdef.width / c::tan( refdef.fov_x / 360 * M_PI );
+	refdef.fov_y = c::atan2( float (refdef.height), float (x) ) * 360 / M_PI;
 
 	refdef.rdflags = cg.refdef.rdflags;
 	refdef.time = cg.time;

@@ -307,8 +307,8 @@ void CG_OffsetThirdPersonView( void ) {
 
 	AngleVectors( cg.refdefViewAngles, forward, right, up );
 
-	forwardScale = cos( cg_thirdPersonAngle.value / 180 * M_PI );
-	sideScale = sin( cg_thirdPersonAngle.value / 180 * M_PI );
+	forwardScale = c::cos( cg_thirdPersonAngle.value / 180 * M_PI );
+	sideScale = c::sin( cg_thirdPersonAngle.value / 180 * M_PI );
 	VectorMA( view, -cg_thirdPersonRange.value * forwardScale, forward, view );
 	VectorMA( view, -cg_thirdPersonRange.value * sideScale, right, view );
 
@@ -332,11 +332,11 @@ void CG_OffsetThirdPersonView( void ) {
 
 	// select pitch to look at focus point from vieword
 	VectorSubtract( focusPoint, cg.refdef_current->vieworg, focusPoint );
-	focusDist = sqrt( focusPoint[0] * focusPoint[0] + focusPoint[1] * focusPoint[1] );
+	focusDist = c::sqrt( focusPoint[0] * focusPoint[0] + focusPoint[1] * focusPoint[1] );
 	if ( focusDist < 1 ) {
 		focusDist = 1;  // should never happen
 	}
-	cg.refdefViewAngles[PITCH] = -180 / M_PI * atan2( focusPoint[2], focusDist );
+	cg.refdefViewAngles[PITCH] = -180 / M_PI * c::atan2( focusPoint[2], focusDist );
 	cg.refdefViewAngles[YAW] -= cg_thirdPersonAngle.value;
 }
 
@@ -406,7 +406,7 @@ void CG_KickAngles( void ) {
 					cg.kickAngles[i] += kickChange;
 					if ( !cg.kickAngles[i] && frametime ) {
 						cg.kickAVel[i] = 0;
-					} else if ( fabs( cg.kickAngles[i] ) > maxKickAngles[i] ) {
+					} else if ( c::fabs( cg.kickAngles[i] ) > maxKickAngles[i] ) {
 						cg.kickAngles[i] = maxKickAngles[i] * ( ( 2 * ( cg.kickAngles[i] > 0 ) ) - 1 );
 						cg.kickAVel[i] = 0; // force Avel to return us to center rather than keep going outside range
 					}
@@ -420,7 +420,7 @@ void CG_KickAngles( void ) {
 		// recoil is added to input viewangles per frame
 		if ( cg.recoilPitch ) {
 			// apply max recoil
-			if ( fabs( cg.recoilPitch ) > recoilMaxSpeed ) {
+			if ( c::fabs( cg.recoilPitch ) > recoilMaxSpeed ) {
 				if ( cg.recoilPitch > 0 ) {
 					cg.recoilPitch = recoilMaxSpeed;
 				} else {
@@ -431,7 +431,7 @@ void CG_KickAngles( void ) {
 			if ( frametime ) {
 				idealCenterSpeed = -( 2.0 * ( cg.recoilPitch > 0 ) - 1.0 ) * recoilCenterSpeed * ft;
 				if ( idealCenterSpeed ) {
-					if ( fabs( idealCenterSpeed ) < fabs( cg.recoilPitch ) ) {
+					if ( c::fabs( idealCenterSpeed ) < c::fabs( cg.recoilPitch ) ) {
 						cg.recoilPitch += idealCenterSpeed;
 					} else {    // back zero out
 						cg.recoilPitch = 0;
@@ -439,7 +439,7 @@ void CG_KickAngles( void ) {
 				}
 			}
 		}
-		if ( fabs( cg.recoilPitch ) > recoilIgnoreCutoff ) {
+		if ( c::fabs( cg.recoilPitch ) > recoilIgnoreCutoff ) {
 			cg.recoilPitchAngle += cg.recoilPitch * ft;
 		}
 	}
@@ -531,10 +531,10 @@ static void CG_ZoomSway( void ) {
 	spreadfrac = (float)cg.snap->ps.aimSpreadScale / 255.0;
 
 	phase = cg.time / 1000.0 * ZOOM_PITCH_FREQUENCY * M_PI * 2;
-	cg.refdefViewAngles[PITCH] += ZOOM_PITCH_AMPLITUDE * sin( phase ) * ( spreadfrac + ZOOM_PITCH_MIN_AMPLITUDE );
+	cg.refdefViewAngles[PITCH] += ZOOM_PITCH_AMPLITUDE * c::sin( phase ) * ( spreadfrac + ZOOM_PITCH_MIN_AMPLITUDE );
 
 	phase = cg.time / 1000.0 * ZOOM_YAW_FREQUENCY * M_PI * 2;
-	cg.refdefViewAngles[YAW] += ZOOM_YAW_AMPLITUDE * sin( phase ) * ( spreadfrac + ZOOM_YAW_MIN_AMPLITUDE );
+	cg.refdefViewAngles[YAW] += ZOOM_YAW_AMPLITUDE * c::sin( phase ) * ( spreadfrac + ZOOM_YAW_MIN_AMPLITUDE );
 
 }
 
@@ -996,8 +996,8 @@ static int CG_CalcFov( void ) {
 	}
 
 	// Arnout: this is weird... (but ensures square pixel ratio!)
-	x = cg.refdef_current->width / tan( fov_x / 360 * M_PI );
-	fov_y = atan2( cg.refdef_current->height, x );
+	x = cg.refdef_current->width / c::tan( fov_x / 360 * M_PI );
+	fov_y = c::atan2( cg.refdef_current->height, x );
 	fov_y = fov_y * 360 / M_PI;
 	// And this seems better - but isn't really
 	//fov_y = fov_x / cgs.glconfig.windowAspect;
@@ -1007,7 +1007,7 @@ static int CG_CalcFov( void ) {
 	contents = CG_PointContents( cg.refdef.vieworg, -1 );
 	if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
 		phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
-		v = WAVE_AMPLITUDE * sin( phase );
+		v = WAVE_AMPLITUDE * c::sin( phase );
 		fov_x += v;
 		fov_y -= v;
 		inwater = qtrue;
@@ -1117,9 +1117,9 @@ static void CG_DamageBlendBlob( void ) {
 		VectorMA( ent.origin, vd->damageX * -8, cg.refdef_current->viewaxis[1], ent.origin );
 		VectorMA( ent.origin, vd->damageY * 8, cg.refdef_current->viewaxis[2], ent.origin );
 
-		ent.radius = vd->damageValue * 0.4 * ( 0.5 + 0.5 * (float)t / maxTime ) * ( 0.75 + 0.5 * fabs( sin( float (vd->damageTime) ) ) );
+		ent.radius = vd->damageValue * 0.4 * ( 0.5 + 0.5 * (float)t / maxTime ) * ( 0.75 + 0.5 * c::fabs( c::sin( float (vd->damageTime) ) ) );
 
-		ent.customShader = cgs.media.viewBloodAni[(int)( floor( ( (float)t / maxTime ) * 4.9 ) )]; //cgs.media.viewBloodShader;
+		ent.customShader = cgs.media.viewBloodAni[(int)( c::floor( ( (float)t / maxTime ) * 4.9 ) )]; //cgs.media.viewBloodShader;
 		ent.shaderRGBA[0] = 255;
 		ent.shaderRGBA[1] = 255;
 		ent.shaderRGBA[2] = 255;
@@ -1209,8 +1209,8 @@ int CG_CalcViewValues( void ) {
 			VectorCopy( angles, cg.refdefViewAngles );
 			AnglesToAxis( cg.refdefViewAngles, cg.refdef_current->viewaxis );
 
-			x = cg.refdef.width / tan( fov / 360 * M_PI );
-			cg.refdef_current->fov_y = atan2( cg.refdef_current->height, x );
+			x = cg.refdef.width / c::tan( fov / 360 * M_PI );
+			cg.refdef_current->fov_y = c::atan2( cg.refdef_current->height, x );
 			cg.refdef_current->fov_y = cg.refdef_current->fov_y * 360 / M_PI;
 			cg.refdef_current->fov_x = fov;
 
@@ -1243,8 +1243,8 @@ int CG_CalcViewValues( void ) {
 	}
 
 	cg.bobcycle = ( ps->bobCycle & 128 ) >> 7;
-	cg.bobfracsin = fabs( sin( ( ps->bobCycle & 127 ) / 127.0 * M_PI ) );
-	cg.xyspeed = sqrt( ps->velocity[0] * ps->velocity[0] + ps->velocity[1] * ps->velocity[1] );
+	cg.bobfracsin = c::fabs( c::sin( ( ps->bobCycle & 127 ) / 127.0 * M_PI ) );
+	cg.xyspeed = c::sqrt( ps->velocity[0] * ps->velocity[0] + ps->velocity[1] * ps->velocity[1] );
 
 
 	if ( cg.showGameView ) {
@@ -1547,8 +1547,8 @@ void CG_DrawSkyBoxPortal( qboolean fLocalView ) {
 
 	cg.refdef_current->time = cg.time;
 
-	x = cg.refdef_current->width / tan( fov_x / 360 * M_PI );
-	fov_y = atan2( cg.refdef_current->height, x );
+	x = cg.refdef_current->width / c::tan( fov_x / 360 * M_PI );
+	fov_y = c::atan2( cg.refdef_current->height, x );
 	fov_y = fov_y * 360 / M_PI;
 
 	cg.refdef_current->fov_x = fov_x;
@@ -1613,8 +1613,8 @@ void CG_DrawSkyBoxPortal( qboolean fLocalView ) {
 			fov_x = 55;
 		}
 
-		x = rd.width / tan( fov_x / 360 * M_PI );
-		fov_y = atan2( rd.height, x );
+		x = rd.width / c::tan( fov_x / 360 * M_PI );
+		fov_y = c::atan2( rd.height, x );
 		fov_y = fov_y * 360 / M_PI;
 
 		rd.fov_x = fov_x;
@@ -1651,8 +1651,8 @@ void CG_SetupFrustum( void ) {
 	float ang;
 
 	ang = cg.refdef_current->fov_x / 180 * M_PI * 0.5f;
-	xs = sin( ang );
-	xc = cos( ang );
+	xs = c::sin( ang );
+	xc = c::cos( ang );
 
 	VectorScale( cg.refdef_current->viewaxis[0], xs, frustum[0].normal );
 	VectorMA( frustum[0].normal, xc, cg.refdef_current->viewaxis[1], frustum[0].normal );
@@ -1661,8 +1661,8 @@ void CG_SetupFrustum( void ) {
 	VectorMA( frustum[1].normal, -xc, cg.refdef_current->viewaxis[1], frustum[1].normal );
 
 	ang = cg.refdef.fov_y / 180 * M_PI * 0.5f;
-	xs = sin( ang );
-	xc = cos( ang );
+	xs = c::sin( ang );
+	xc = c::cos( ang );
 
 	VectorScale( cg.refdef_current->viewaxis[0], xs, frustum[2].normal );
 	VectorMA( frustum[2].normal, xc, cg.refdef_current->viewaxis[2], frustum[2].normal );

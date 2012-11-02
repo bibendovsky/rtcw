@@ -295,9 +295,9 @@ static void CG_EntityEffects( centity_t *cent ) {
 	// Ridah, flaming sounds
 	if ( CG_EntOnFire( cent ) ) {
 		// play a flame blow sound when moving
-		trap_S_AddLoopingSound( cent->lerpOrigin, vec3_origin, cgs.media.flameBlowSound, (int)( 255.0 * ( 1.0 - fabs( cent->fireRiseDir[2] ) ) ), 0 );
+		trap_S_AddLoopingSound( cent->lerpOrigin, vec3_origin, cgs.media.flameBlowSound, (int)( 255.0 * ( 1.0 - c::fabs( cent->fireRiseDir[2] ) ) ), 0 );
 		// play a burning sound when not moving
-		trap_S_AddLoopingSound( cent->lerpOrigin, vec3_origin, cgs.media.flameSound, (int)( 0.3 * 255.0 * ( pow( cent->fireRiseDir[2],2 ) ) ), 0 );
+		trap_S_AddLoopingSound( cent->lerpOrigin, vec3_origin, cgs.media.flameSound, (int)( 0.3 * 255.0 * ( c::pow( cent->fireRiseDir[2],2 ) ) ), 0 );
 	}
 
 	// ydnar: overheating is a special effect
@@ -1133,7 +1133,7 @@ static void CG_Missile( centity_t *cent ) {
 					cent->highlightTime = cg.time;
 				}
 
-				ent.hilightIntensity = 0.5f * sin((cg.time-cent->highlightTime)/1000.f) + 1.f;*/
+				ent.hilightIntensity = 0.5f * c::sin((cg.time-cent->highlightTime)/1000.f) + 1.f;*/
 			}
 		}
 
@@ -2481,7 +2481,7 @@ qboolean CG_AddLinkedEntity( centity_t *cent, qboolean ignoreframe, int atTime )
 				cent->backdelta = 1 - cent->backdelta;
 			}
 
-			pos = floor( cent->backdelta * ( MAX_SPLINE_SEGMENTS ) );
+			pos = c::floor( cent->backdelta * ( MAX_SPLINE_SEGMENTS ) );
 			if ( pos >= MAX_SPLINE_SEGMENTS ) {
 				pos = MAX_SPLINE_SEGMENTS - 1;
 				frac = cent->backspline->segments[pos].length;

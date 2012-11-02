@@ -242,7 +242,7 @@ winding_t *BaseWindingForPlane( vec3_t normal, vec_t dist ) {
 	{
 
 #if !defined RTCW_ET
-		v = fabs( normal[i] );
+		v = c::fabs( normal[i] );
 #else
 		v = Q_fabs( normal[i] );
 #endif // RTCW_XX

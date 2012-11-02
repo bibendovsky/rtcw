@@ -64,7 +64,7 @@ void DropToFloor( gentity_t *ent ) {
 		return;
 	}
 
-	if ( fabs( ent->r.currentOrigin[2] - tr.endpos[2] ) > 1.0 ) {
+	if ( c::fabs( ent->r.currentOrigin[2] - tr.endpos[2] ) > 1.0 ) {
 		tr.endpos[2] = ( ent->r.currentOrigin[2] - 1.0 );
 	}
 
@@ -84,8 +84,8 @@ void moveit( gentity_t *ent, float yaw, float dist ) {
 
 	yaw = yaw * M_PI * 2 / 360;
 
-	move[0] = cos( yaw ) * dist;
-	move[1] = sin( yaw ) * dist;
+	move[0] = c::cos( yaw ) * dist;
+	move[1] = c::sin( yaw ) * dist;
 	move[2] = 0;
 
 	VectorAdd( ent->r.currentOrigin, move, origin );

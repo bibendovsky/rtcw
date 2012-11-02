@@ -1889,7 +1889,7 @@ void ClientSpawn( gentity_t *ent ) {
 //		}
 	}
 
-	// run a client frame to drop exactly to the floor,
+	// run a client frame to drop exactly to the c::floor,
 	// initialize animations and other things
 	client->ps.commandTime = level.time - 100;
 	ent->client->pers.cmd.serverTime = level.time;

@@ -1579,7 +1579,7 @@ void CG_DrawPlayerHead( rectDef_t *rect, bg_character_t* character, bg_character
 	// calculate distance so the head nearly fills the box
 	// assume heads are taller than wide
 	len = 3.5f * ( maxs[2] - mins[2] );
-	origin[0] = len / tan( 20.0F / 2.0F ); // 0.268;	// len / tan( fov/2 )
+	origin[0] = len / c::tan( 20.0F / 2.0F ); // 0.268;	// len / tan( fov/2 )
 
 	angles[PITCH] = pitch;
 	angles[YAW] = yaw;
@@ -2304,7 +2304,7 @@ void CG_LimboPanel_RenderCounter( panel_button_t* button ) {
 		if ( button->data[3] != button->data[5] ) {
 			button->data[3] = button->data[5];
 		} else if ( value != button->data[3] ) {
-			int maxchange = abs( value - button->data[3] );
+			int maxchange = c::abs( value - button->data[3] );
 			if ( maxchange > CG_LimboPanel_RenderCounter_MaxChangeForButton( button ) ) {
 				maxchange = CG_LimboPanel_RenderCounter_MaxChangeForButton( button );
 			}
@@ -2874,7 +2874,7 @@ qboolean CG_LimboPanel_WeaponIsDisabled( int index ) {
 	count =     CG_LimboPanel_TeamCount( weapon_t (-1) );
 	wcount =    CG_LimboPanel_TeamCount( classinfo->classWeapons[index] );
 
-	if ( wcount >= ceil( count * cgs.weaponRestrictions ) ) {
+	if ( wcount >= c::ceil( count * cgs.weaponRestrictions ) ) {
 		return qtrue;
 	}
 
@@ -2895,7 +2895,7 @@ qboolean CG_LimboPanel_RealWeaponIsDisabled( weapon_t weap ) {
 	count =     CG_LimboPanel_TeamCount( weapon_t (-1) );
 	wcount =    CG_LimboPanel_TeamCount( weap );
 
-	if ( wcount >= ceil( count * cgs.weaponRestrictions ) ) {
+	if ( wcount >= c::ceil( count * cgs.weaponRestrictions ) ) {
 		return qtrue;
 	}
 

@@ -210,14 +210,14 @@ static void CG_CalcMoveSpeeds( bg_character_t *character ) {
 				} else {
 					low = 1;
 				}
-				totalSpeed += fabs( oldPos[low][2] - o[low].origin[2] );
+				totalSpeed += c::fabs( oldPos[low][2] - o[low].origin[2] );
 			} else {
 				if ( o[0].origin[2] < o[1].origin[2] ) {
 					low = 0;
 				} else {
 					low = 1;
 				}
-				totalSpeed += fabs( oldPos[low][0] - o[low].origin[0] );
+				totalSpeed += c::fabs( oldPos[low][0] - o[low].origin[0] );
 			}
 
 			numSpeed++;
