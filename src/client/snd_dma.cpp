@@ -104,10 +104,10 @@ typedef struct {
 // =======================================================================
 
 // only begin attenuating sound volumes when outside the FULLVOLUME range
-#define     SOUND_FULLVOLUME    80
+#define     SOUND_FULLVOLUME    (80)
 
-#define     SOUND_ATTENUATE     0.0008f
-#define     SOUND_RANGE_DEFAULT 1250
+#define     SOUND_ATTENUATE     (0.0008F)
+#define     SOUND_RANGE_DEFAULT (1250)
 
 channel_t s_channels[MAX_CHANNELS];
 channel_t loop_channels[MAX_CHANNELS];
@@ -221,11 +221,13 @@ void S_SoundInfo_f( void ) {
 		Com_Printf( "%5d submission_chunk\n", dma.submission_chunk );
 		Com_Printf( "%5d speed\n", dma.speed );
 
-#if !defined RTCW_ET
-		Com_Printf( "0x%x dma buffer\n", dma.buffer );
-#else
-		Com_Printf( "0x%p dma buffer\n", dma.buffer );
-#endif // RTCW_XX
+//BBi Useless
+//#if !defined RTCW_ET
+//		Com_Printf( "0x%x dma buffer\n", dma.buffer );
+//#else
+//		Com_Printf( "0x%p dma buffer\n", dma.buffer );
+//#endif // RTCW_XX
+//BBi
 
 		if ( streamingSounds[0].file ) {
 			Com_Printf( "Background file: %s\n", streamingSounds[0].loop );
@@ -261,24 +263,44 @@ void S_Init( void ) {
 	s_separation = Cvar_Get( "s_separation", "0.5", CVAR_ARCHIVE );
 	s_doppler = Cvar_Get( "s_doppler", "1", CVAR_ARCHIVE );
 
-#if !defined RTCW_ET
-	s_khz = Cvar_Get( "s_khz", "22", CVAR_ARCHIVE );
-#else
-	s_khz = Cvar_Get( "s_khz", "22", CVAR_ARCHIVE | CVAR_LATCH );
-#endif // RTCW_XX
+//BBi
+//#if !defined RTCW_ET
+//	s_khz = Cvar_Get( "s_khz", "22", CVAR_ARCHIVE );
+//#else
+//	s_khz = Cvar_Get( "s_khz", "22", CVAR_ARCHIVE | CVAR_LATCH );
+//#endif // RTCW_XX
 
-#if defined RTCW_ET
-	s_mixahead = Cvar_Get( "s_mixahead", "0.2", CVAR_ARCHIVE );
-#endif // RTCW_XX
+    s_khz = ::Cvar_Get ("s_khz", "22", CVAR_ARCHIVE | CVAR_LATCH);
+//BBi
 
+//BBi
+//#if defined RTCW_ET
+//	s_mixahead = Cvar_Get( "s_mixahead", "0.2", CVAR_ARCHIVE );
+//#endif // RTCW_XX
+//
+//#if defined RTCW_SP
+//	s_mixahead = Cvar_Get( "s_mixahead", "0.5", CVAR_ARCHIVE );    //DAJ was 0.2
+//	s_debugMusic = Cvar_Get( "s_debugMusic", "0", CVAR_TEMP );
+//#elif defined RTCW_MP
+//	s_mixahead = Cvar_Get( "s_mixahead", "0.2", CVAR_ARCHIVE );
+//#else
+//	s_debugMusic = Cvar_Get( "s_debugMusic", "0", CVAR_TEMP );
+//#endif // RTCW_XX
+
+    static const char* const DEFAULT_MIX_AHEAD_STRING =
 #if defined RTCW_SP
-	s_mixahead = Cvar_Get( "s_mixahead", "0.5", CVAR_ARCHIVE );    //DAJ was 0.2
-	s_debugMusic = Cvar_Get( "s_debugMusic", "0", CVAR_TEMP );
-#elif defined RTCW_MP
-	s_mixahead = Cvar_Get( "s_mixahead", "0.2", CVAR_ARCHIVE );
+        "0.5"
 #else
-	s_debugMusic = Cvar_Get( "s_debugMusic", "0", CVAR_TEMP );
+        "0.2"
+#endif //RTCW_XX
+        ;
+
+    s_mixahead = Cvar_Get ("s_mixahead", DEFAULT_MIX_AHEAD_STRING, CVAR_ARCHIVE);
+
+#if !defined RTCW_MP
+    s_debugMusic = Cvar_Get ("s_debugMusic", "0", CVAR_TEMP);
 #endif // RTCW_XX
+//BBi
 
 	s_mixPreStep = Cvar_Get( "s_mixPreStep", "0.05", CVAR_ARCHIVE );
 	s_show = Cvar_Get( "s_show", "0", CVAR_CHEAT );
@@ -291,11 +313,19 @@ void S_Init( void ) {
 	// Rafael
 	s_nocompressed = Cvar_Get( "s_nocompressed", "0", CVAR_INIT );
 
+//BBi Useless but keep for compatibility
+//#if defined RTCW_ET
+//	// fretn
+//	s_bits = Cvar_Get( "s_bits", "16", CVAR_LATCH | CVAR_ARCHIVE );
+//	s_numchannels = Cvar_Get( "s_channels", "2", CVAR_LATCH | CVAR_ARCHIVE );
+//#endif // RTCW_XX
+
 #if defined RTCW_ET
-	// fretn
-	s_bits = Cvar_Get( "s_bits", "16", CVAR_LATCH | CVAR_ARCHIVE );
-	s_numchannels = Cvar_Get( "s_channels", "2", CVAR_LATCH | CVAR_ARCHIVE );
+    // fretn
+    s_bits = Cvar_Get ("s_bits", "16", CVAR_ROM);
+    s_numchannels = Cvar_Get ("s_channels", "2", CVAR_ROM);
 #endif // RTCW_XX
+//BBi
 
 	cv = Cvar_Get( "s_initsound", "1", 0 );
 	if ( !cv->integer ) {
@@ -504,7 +534,6 @@ void S_Shutdown( void ) {
 	Cmd_RemoveCommand( "stopsound" );
 	Cmd_RemoveCommand( "soundlist" );
 	Cmd_RemoveCommand( "soundinfo" );
-
 #else
 	Cmd_RemoveCommand( "s_stop" );
 	Cmd_RemoveCommand( "s_list" );

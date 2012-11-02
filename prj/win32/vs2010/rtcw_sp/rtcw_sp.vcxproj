@@ -40,11 +40,11 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;DEBUG;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SrcDir)glew-1.9.0\include;$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SrcDir)fmodex-4.42.05\api\inc;$(SrcDir)glew-1.9.0\include;$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;libglew_1_9_0_s_mt.lib;libjpeg_8d_s_mt.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;wsock32.lib;fmodex_vc.lib;libglew_1_9_0_s_mt.lib;libjpeg_8d_s_mt.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>8388608</StackReserveSize>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
@@ -55,11 +55,11 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SrcDir)glew-1.9.0\include;$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SrcDir)fmodex-4.42.05\api\inc;$(SrcDir)glew-1.9.0\include;$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;libglew_1_9_0_s_mt.lib;libjpeg_8d_s_mt.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;wsock32.lib;fmodex_vc.lib;libglew_1_9_0_s_mt.lib;libjpeg_8d_s_mt.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>8388608</StackReserveSize>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
@@ -106,6 +106,7 @@
     <ClCompile Include="..\..\..\..\src\client\cl_parse.cpp" />
     <ClCompile Include="..\..\..\..\src\client\cl_scrn.cpp" />
     <ClCompile Include="..\..\..\..\src\client\cl_ui.cpp" />
+    <ClCompile Include="..\..\..\..\src\client\snd_dma_core.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\cm_load.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\cm_patch.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\cm_polylib.cpp" />
@@ -175,7 +176,6 @@
     <ClCompile Include="..\..\..\..\src\win32\win_main.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_net.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_shared.cpp" />
-    <ClCompile Include="..\..\..\..\src\win32\win_snd.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_syscon.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_wndproc.cpp" />
     <ClCompile Include="..\..\..\..\src\zlib-1.2.7\contrib\minizip\unzip.c" />

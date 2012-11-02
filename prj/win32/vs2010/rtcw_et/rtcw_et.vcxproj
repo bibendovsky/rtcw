@@ -65,13 +65,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;DEBUG;CURL_STATICLIB;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SrcDir)curl-7.27.0\include;$(SrcDir)glew-1.9.0\include;$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SrcDir)curl-7.27.0\include;$(SrcDir)fmodex-4.42.05\api\inc;$(SrcDir)glew-1.9.0\include;$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile />
     <PreLinkEvent />
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>dinput8.lib;iphlpapi.lib;winmm.lib;ws2_32.lib;libcurl_7_27_0_s_mt.lib;libjpeg_8d_s_mt.lib;libglew_1_9_0_s_mt.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;iphlpapi.lib;winmm.lib;ws2_32.lib;fmodex_vc.lib;libcurl_7_27_0_s_mt.lib;libjpeg_8d_s_mt.lib;libglew_1_9_0_s_mt.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>8388608</StackReserveSize>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
@@ -97,13 +97,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>BOTLIB;CURL_STATICLIB;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SrcDir)curl-7.27.0\include;$(SrcDir)glew-1.9.0\include;$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SrcDir)curl-7.27.0\include;$(SrcDir)fmodex-4.42.05\api\inc;$(SrcDir)glew-1.9.0\include;$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile />
     <PreLinkEvent />
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>dinput8.lib;iphlpapi.lib;winmm.lib;ws2_32.lib;libcurl_7_27_0_s_mt.lib;libglew_1_9_0_s_mt.lib;libjpeg_8d_s_mt.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;iphlpapi.lib;winmm.lib;ws2_32.lib;fmodex_vc.lib;libcurl_7_27_0_s_mt.lib;libglew_1_9_0_s_mt.lib;libjpeg_8d_s_mt.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
@@ -186,6 +186,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\client\cl_ui.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\client\snd_dma_core.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -396,10 +400,6 @@
     <ClCompile Include="..\..\..\..\src\win32\win_main.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_net.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_shared.cpp" />
-    <ClCompile Include="..\..\..\..\src\win32\win_snd.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\win32\win_syscon.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_wndproc.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\dl_main.cpp">

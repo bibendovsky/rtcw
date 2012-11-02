@@ -18,7 +18,6 @@
     <ClCompile>
       <DebugInformationFormat>
       </DebugInformationFormat>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>_WIN32;WIN32;NDEBUG;WINVER=0x0501;_WIN32_WINNT=0x0501;NTDDI_VERSION=NTDDI_WINXPSP3;DIRECTINPUT_VERSION=0x0800;DIRECTSOUND_VERSION=0x0900;RTCW_MP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
