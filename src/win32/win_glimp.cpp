@@ -1381,6 +1381,8 @@ static rserr_t GLW_SetMode (
     int cdsRet;
     DEVMODE dm;
 
+    glConfigEx.isNativeResolution = false;
+
     //
     // print out informational messages
     //
@@ -1401,35 +1403,26 @@ static rserr_t GLW_SetMode (
     glw_state.desktopHeight = ::GetDeviceCaps (hDC, VERTRES);
     ::ReleaseDC (::GetDesktopWindow (), hDC);
 
+    //BBi
+    glConfigEx.isNativeResolution =
+        (glConfig.vidWidth == glw_state.desktopWidth) &&
+        (glConfig.vidHeight == glw_state.desktopHeight);
+    //BBi
+
     // do a CDS if needed
     if (isFullscreen) {
-        ::memset (&dm, 0, sizeof (dm));
-
-        dm.dmSize = sizeof (dm);
-        dm.dmPelsWidth  = glConfig.vidWidth;
-        dm.dmPelsHeight = glConfig.vidHeight;
-        dm.dmFields     = DM_PELSWIDTH | DM_PELSHEIGHT;
-
-        if (r_displayRefresh->integer != 0) {
-            dm.dmDisplayFrequency = r_displayRefresh->integer;
-            dm.dmFields |= DM_DISPLAYFREQUENCY;
-
-#if defined RTCW_ET
+        if (glConfigEx.isNativeResolution) {
+            glw_state.cdsFullscreen = true;
+            ::ChangeDisplaySettings (0, 0);
         } else {
-            DEVMODE dmode;
+            ::memset (&dm, 0, sizeof (dm));
 
-            if ( ::EnumDisplaySettings (NULL, ENUM_CURRENT_SETTINGS, &dmode)) {
-                dm.dmDisplayFrequency = dmode.dmDisplayFrequency;
-                dm.dmFields |= DM_DISPLAYFREQUENCY;
-            }
-#endif // RTCW_XX
-
+            dm.dmSize = sizeof (dm);
+            dm.dmPelsWidth  = glConfig.vidWidth;
+            dm.dmPelsHeight = glConfig.vidHeight;
+            dm.dmBitsPerPel = 32;
+            dm.dmFields     = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL;
         }
-
-        // try to change color depth if possible
-        dm.dmBitsPerPel = 32;
-        dm.dmFields |= DM_BITSPERPEL;
-        ::ri.Printf (PRINT_ALL, "...using colorsbits of %d\n", 32);
 
         //
         // if we're already in fullscreen then just create the window
@@ -1461,67 +1454,29 @@ static rserr_t GLW_SetMode (
                     return RSERR_INVALID_MODE;
                 }
 
-                glw_state.cdsFullscreen = qtrue;
+                glw_state.cdsFullscreen = true;
             } else {
-                //
-                // the exact mode failed, so scan EnumDisplaySettings for the next largest mode
-                //
-                DEVMODE devmode;
-                int modeNum;
-
-                ::ri.Printf (PRINT_ALL, "failed, ");
+                ::ri.Printf (PRINT_ALL, " failed, ");
 
                 ::PrintCDSError (cdsRet);
 
-                ::ri.Printf (PRINT_ALL, "...trying next higher resolution:");
+                ::ri.Printf (PRINT_ALL, "...restoring display settings\n");
+                ::ChangeDisplaySettings (0, 0);
 
-                // we could do a better matching job here...
-                for (modeNum = 0; ; ++modeNum) {
-                    if ( !::EnumDisplaySettings (NULL, modeNum, &devmode)) {
-                        modeNum = -1;
-                        break;
-                    }
+                glw_state.cdsFullscreen = false;
+                glConfig.isFullscreen = false;
 
-                    if ((devmode.dmPelsWidth >= glConfig.vidWidth) &&
-                        (devmode.dmPelsHeight >= glConfig.vidHeight) &&
-                        (devmode.dmBitsPerPel >= 15))
-                    {
-                            break;
-                    }
-                }
+                if (!::GLW_CreateWindow (glConfig.vidWidth, glConfig.vidHeight, false))
+                    return RSERR_INVALID_MODE;
 
-                if ((modeNum != -1) && (cdsRet = ::ChangeDisplaySettings (&devmode, CDS_FULLSCREEN)) == DISP_CHANGE_SUCCESSFUL) {
-                    ::ri.Printf (PRINT_ALL, " ok\n");
-                    if (!::GLW_CreateWindow (glConfig.vidWidth, glConfig.vidHeight, true)) {
-                        ::ri.Printf (PRINT_ALL, "...restoring display settings\n");
-                        ::ChangeDisplaySettings (0, 0);
-                        return RSERR_INVALID_MODE;
-                    }
-
-                    glw_state.cdsFullscreen = qtrue;
-                } else {
-                    ::ri.Printf (PRINT_ALL, " failed, ");
-
-                    ::PrintCDSError (cdsRet);
-
-                    ::ri.Printf (PRINT_ALL, "...restoring display settings\n");
-                    ::ChangeDisplaySettings (0, 0);
-
-                    glw_state.cdsFullscreen = qfalse;
-                    glConfig.isFullscreen = qfalse;
-
-                    if (!::GLW_CreateWindow (glConfig.vidWidth, glConfig.vidHeight, false))
-                        return RSERR_INVALID_MODE;
-
-                    return RSERR_INVALID_FULLSCREEN;
-                }
+                return RSERR_INVALID_FULLSCREEN;
             }
         }
     } else {
         if (glw_state.cdsFullscreen)
             ::ChangeDisplaySettings (0, 0);
 
-        glw_state.cdsFullscreen = qfalse;
+        glw_state.cdsFullscreen = false;
 
         if (!::GLW_CreateWindow (glConfig.vidWidth, glConfig.vidHeight, false))
             return RSERR_INVALID_MODE;
@@ -1961,38 +1916,40 @@ static void GLW_DeleteDefaultLists( void ) {
 }
 #endif // RTCW_XX
 
-/*
-** GLW_CheckOSVersion
-*/
-static qboolean GLW_CheckOSVersion( void ) {
-#define OSR2_BUILD_NUMBER 1111
-
-	OSVERSIONINFO vinfo;
-
-	vinfo.dwOSVersionInfoSize = sizeof( vinfo );
-
-	glw_state.allowdisplaydepthchange = qfalse;
-
-	if ( GetVersionEx( &vinfo ) ) {
-		if ( vinfo.dwMajorVersion > 4 ) {
-			glw_state.allowdisplaydepthchange = qtrue;
-		} else if ( vinfo.dwMajorVersion == 4 )   {
-			if ( vinfo.dwPlatformId == VER_PLATFORM_WIN32_NT ) {
-				glw_state.allowdisplaydepthchange = qtrue;
-			} else if ( vinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS )   {
-				if ( LOWORD( vinfo.dwBuildNumber ) >= OSR2_BUILD_NUMBER ) {
-					glw_state.allowdisplaydepthchange = qtrue;
-				}
-			}
-		}
-	} else
-	{
-		ri.Printf( PRINT_ALL, "GLW_CheckOSVersion() - GetVersionEx failed\n" );
-		return qfalse;
-	}
-
-	return qtrue;
-}
+//BBi
+///*
+//** GLW_CheckOSVersion
+//*/
+//static qboolean GLW_CheckOSVersion( void ) {
+//#define OSR2_BUILD_NUMBER 1111
+//
+//	OSVERSIONINFO vinfo;
+//
+//	vinfo.dwOSVersionInfoSize = sizeof( vinfo );
+//
+//	glw_state.allowdisplaydepthchange = qfalse;
+//
+//	if ( GetVersionEx( &vinfo ) ) {
+//		if ( vinfo.dwMajorVersion > 4 ) {
+//			glw_state.allowdisplaydepthchange = qtrue;
+//		} else if ( vinfo.dwMajorVersion == 4 )   {
+//			if ( vinfo.dwPlatformId == VER_PLATFORM_WIN32_NT ) {
+//				glw_state.allowdisplaydepthchange = qtrue;
+//			} else if ( vinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS )   {
+//				if ( LOWORD( vinfo.dwBuildNumber ) >= OSR2_BUILD_NUMBER ) {
+//					glw_state.allowdisplaydepthchange = qtrue;
+//				}
+//			}
+//		}
+//	} else
+//	{
+//		ri.Printf( PRINT_ALL, "GLW_CheckOSVersion() - GetVersionEx failed\n" );
+//		return qfalse;
+//	}
+//
+//	return qtrue;
+//}
+//BBi
 
 /*
 ** GLW_LoadOpenGL
@@ -2261,18 +2218,20 @@ void GLimp_Init( void ) {
 
 	ri.Printf( PRINT_ALL, "Initializing OpenGL subsystem\n" );
 
-	//
-	// check OS version to see if we can do fullscreen display changes
-	//
-	if ( !GLW_CheckOSVersion() ) {
-
-#if !defined RTCW_ET
-		ri.Error( ERR_FATAL, "GLimp_Init() - incorrect operating system\n" );
-#else
-		ri.Error( ERR_VID_FATAL, "GLimp_Init() - incorrect operating system\n" );
-#endif // RTCW_XX
-
-	}
+//BBi
+//	//
+//	// check OS version to see if we can do fullscreen display changes
+//	//
+//	if ( !GLW_CheckOSVersion() ) {
+//
+//#if !defined RTCW_ET
+//		ri.Error( ERR_FATAL, "GLimp_Init() - incorrect operating system\n" );
+//#else
+//		ri.Error( ERR_VID_FATAL, "GLimp_Init() - incorrect operating system\n" );
+//#endif // RTCW_XX
+//
+//	}
+//BBi
 
 	// save off hInstance and wndproc
 	cv = ri.Cvar_Get( "win_hinstance", "", 0 );
@@ -2678,3 +2637,42 @@ void GLimp_WakeRenderer( void *data ) {
 	::WaitForSingleObject( renderActiveEvent, INFINITE );
 }
 
+
+//BBi
+void GLimp_Activate (
+    bool isActivated,
+    bool isMinimized)
+{
+    if (!glConfig.isFullscreen)
+        return;
+
+
+    if (isActivated) {
+        ::ShowWindow (g_wv.hWnd, SW_SHOW);
+
+        if ((!glw_state.cdsFullscreen) &&
+            (!glConfigEx.isNativeResolution))
+        {
+            DEVMODE dm;
+            ::memset (&dm, 0, sizeof (DEVMODE));
+
+            dm.dmSize = sizeof (DEVMODE);
+            dm.dmPelsWidth  = glConfig.vidWidth;
+            dm.dmPelsHeight = glConfig.vidHeight;
+            dm.dmBitsPerPel = 32;
+            dm.dmFields     = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL;
+
+            ::ChangeDisplaySettings (&dm, CDS_FULLSCREEN);
+        }
+    } else {
+        ::ShowWindow (g_wv.hWnd, SW_MINIMIZE);
+
+        if ((!glConfigEx.isNativeResolution) &&
+            (glw_state.cdsFullscreen))
+        {
+            glw_state.cdsFullscreen = false;
+            ::ChangeDisplaySettings (0, 0);
+        }
+    }
+}
+//BBi

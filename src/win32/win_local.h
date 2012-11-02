@@ -107,12 +107,22 @@ typedef struct
 {
 
 	HINSTANCE reflib_library;           // Handle to refresh DLL
-	qboolean reflib_active;
+
+    //BBi
+	//qboolean reflib_active;
+    bool reflib_active;
+    //BBi
 
 	HWND hWnd;
 	HINSTANCE hInstance;
-	qboolean activeApp;
-	qboolean isMinimized;
+
+    //BBi
+	//qboolean activeApp;
+    bool activeApp;
+	//qboolean isMinimized;
+    bool isMinimized;
+    //BBi
+
 	OSVERSIONINFO osversion;
 
 	// when we get a windows message, we store the time off so keyboard processing
@@ -147,3 +157,10 @@ void WinSetExceptionVersion( const char* version );
 void Com_FrameExt( void );
 #endif // RTCW_XX
 
+//BBi
+#ifndef DEDICATED
+void GLimp_Activate (
+    bool isActivated,
+    bool isMinimized);
+#endif // DEDICATED
+//BBi

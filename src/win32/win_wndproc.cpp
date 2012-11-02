@@ -65,27 +65,32 @@ static void WIN_DisableAltTab( void ) {
 		return;
 	}
 
-	if ( !Q_stricmp( Cvar_VariableString( "arch" ), "winnt" ) ) {
-		RegisterHotKey( 0, 0, MOD_ALT, VK_TAB );
-	} else
-	{
-		BOOL old;
+    //BBi
+	//if ( !Q_stricmp( Cvar_VariableString( "arch" ), "winnt" ) ) {
+	//	RegisterHotKey( 0, 0, MOD_ALT, VK_TAB );
+	//} else
+	//{
+	//	BOOL old;
 
-		SystemParametersInfo( SPI_SCREENSAVERRUNNING, 1, &old, 0 );
-	}
+	//	SystemParametersInfo( SPI_SCREENSAVERRUNNING, 1, &old, 0 );
+	//}
+    //BBi
+
 	s_alttab_disabled = qtrue;
 }
 
 static void WIN_EnableAltTab( void ) {
 	if ( s_alttab_disabled ) {
-		if ( !Q_stricmp( Cvar_VariableString( "arch" ), "winnt" ) ) {
-			UnregisterHotKey( 0, 0 );
-		} else
-		{
-			BOOL old;
+        //BBi
+		//if ( !Q_stricmp( Cvar_VariableString( "arch" ), "winnt" ) ) {
+		//	UnregisterHotKey( 0, 0 );
+		//} else
+		//{
+		//	BOOL old;
 
-			SystemParametersInfo( SPI_SCREENSAVERRUNNING, 0, &old, 0 );
-		}
+		//	SystemParametersInfo( SPI_SCREENSAVERRUNNING, 0, &old, 0 );
+		//}
+        //BBi
 
 		s_alttab_disabled = qfalse;
 	}
@@ -96,29 +101,59 @@ static void WIN_EnableAltTab( void ) {
 VID_AppActivate
 ==================
 */
-static void VID_AppActivate( BOOL fActive, BOOL minimize ) {
-	g_wv.isMinimized = minimize;
 
-	Com_DPrintf( "VID_AppActivate: %i\n", fActive );
+//BBi
+//static void VID_AppActivate( BOOL fActive, BOOL minimize ) {
+//	g_wv.isMinimized = minimize;
+//
+//	Com_DPrintf( "VID_AppActivate: %i\n", fActive );
+//
+//	Key_ClearStates();  // FIXME!!!
+//
+//	// we don't want to act like we're active if we're minimized
+//	if ( fActive && !g_wv.isMinimized ) {
+//		g_wv.activeApp = qtrue;
+//	} else
+//	{
+//		g_wv.activeApp = qfalse;
+//	}
+//
+//	// minimize/restore mouse-capture on demand
+//	if ( !g_wv.activeApp ) {
+//		IN_Activate( qfalse );
+//	} else
+//	{
+//		IN_Activate( qtrue );
+//	}
+//}
 
-	Key_ClearStates();  // FIXME!!!
+static void VID_AppActivate (
+    bool fActive,
+    bool minimize)
+{
+    g_wv.isMinimized = minimize;
 
-	// we don't want to act like we're active if we're minimized
-	if ( fActive && !g_wv.isMinimized ) {
-		g_wv.activeApp = qtrue;
-	} else
-	{
-		g_wv.activeApp = qfalse;
-	}
+    ::Com_DPrintf ("VID_AppActivate: %i\n", static_cast<int> (fActive));
 
-	// minimize/restore mouse-capture on demand
-	if ( !g_wv.activeApp ) {
-		IN_Activate( qfalse );
-	} else
-	{
-		IN_Activate( qtrue );
-	}
+    ::Key_ClearStates ();
+
+    // we don't want to act like we're active if we're minimized
+    if ((fActive) && (!g_wv.isMinimized))
+        g_wv.activeApp = true;
+    else
+        g_wv.activeApp = false;
+
+    // minimize/restore mouse-capture on demand
+    if (!g_wv.activeApp)
+        ::IN_Activate (false);
+    else
+        ::IN_Activate (true);
+
+#ifndef DEDICATED
+    ::GLimp_Activate (g_wv.activeApp, minimize);
+#endif // DEDICATED
 }
+//BBi
 
 //==========================================================================
 
@@ -436,10 +471,18 @@ LONG WINAPI MainWndProc(
 
 	case WM_ACTIVATE:
 	{
-		int fActive, fMinimized;
+        //BBi
+		//int fActive, fMinimized;
+        int fActive;
+        bool fMinimized;
+        //BBi
 
 		fActive = LOWORD( wParam );
-		fMinimized = (BOOL) HIWORD( wParam );
+
+        //BBi
+		//fMinimized = (BOOL) HIWORD( wParam );
+        fMinimized = (HIWORD (wParam) != 0);
+        //BBi
 
 		VID_AppActivate( fActive != WA_INACTIVE, fMinimized );
 #ifndef DOOMSOUND   ///// (SA) DOOMSOUND

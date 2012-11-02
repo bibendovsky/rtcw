@@ -401,12 +401,11 @@ typedef struct {
 // Extends glconfig_t structure.
 class GlConfigEx {
 public:
+    bool isNativeResolution;
     bool useArbMultitexture;
     bool useExtCompiledVertexArray;
     bool useExtBgra;
     bool useArbFramebufferObject; // glGenerateMipmap, etc.
-
-    float anisotropicLevel;
 }; // class GlConfigEx
 //BBi
 
