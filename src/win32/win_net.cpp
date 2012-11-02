@@ -537,7 +537,11 @@ void NET_GetInterfaces( void ) {
 	num_interfaces = 0;
 	foundloopback = qfalse;
 
-	pAdapterInfo = (IP_ADAPTER_INFO *)malloc( sizeof( IP_ADAPTER_INFO ) );
+    //BBi
+	//pAdapterInfo = (IP_ADAPTER_INFO *)malloc( sizeof( IP_ADAPTER_INFO ) );
+    pAdapterInfo = reinterpret_cast<IP_ADAPTER_INFO*> (new byte[sizeof (IP_ADAPTER_INFO)]);
+    //BBi
+
 	if ( !pAdapterInfo ) {
 		Com_Error( ERR_FATAL, "NET_GetInterfaces: Couldn't malloc( %d )", sizeof( IP_ADAPTER_INFO ) );
 	}
@@ -546,8 +550,14 @@ void NET_GetInterfaces( void ) {
 	// Make an initial call to GetAdaptersInfo to get
 	// the necessary size into the ulOutBufLen variable
 	if ( GetAdaptersInfo( pAdapterInfo, &ulOutBufLen ) == ERROR_BUFFER_OVERFLOW ) {
-		free( pAdapterInfo );
-		pAdapterInfo = (IP_ADAPTER_INFO *)malloc( ulOutBufLen );
+
+        //BBi
+		//free( pAdapterInfo );
+        delete pAdapterInfo;
+		//pAdapterInfo = (IP_ADAPTER_INFO *)malloc( ulOutBufLen );
+        pAdapterInfo = reinterpret_cast<IP_ADAPTER_INFO*> (new byte[ulOutBufLen]);
+        //BBi
+
 		if ( !pAdapterInfo ) {
 			Com_Error( ERR_FATAL, "NET_GetInterfaces: Couldn't malloc( %ld )", ulOutBufLen );
 		}
@@ -578,7 +588,12 @@ void NET_GetInterfaces( void ) {
 				num_interfaces++;
 				if ( num_interfaces >= MAX_INTERFACES ) {
 					Com_Printf( "NET_GetInterfaces: MAX_INTERFACES(%d) hit.\n", MAX_INTERFACES );
+
+                    //BBi
 					free( pAdapterInfo );
+                    delete [] reinterpret_cast<byte*> (pAdapterInfo);
+                    //BBi
+
 					return;
 				}
 				pIPAddrString = pIPAddrString->Next;
@@ -595,7 +610,11 @@ void NET_GetInterfaces( void ) {
 		netint[num_interfaces].mask = ntohl( inet_addr( "255.0.0.0" ) );
 		num_interfaces++;
 	}
-	free( pAdapterInfo );
+
+    //BBi
+	//free( pAdapterInfo );
+    delete [] reinterpret_cast<byte*> (pAdapterInfo);
+    //BBi
 }
 #endif // RTCW_XX
 

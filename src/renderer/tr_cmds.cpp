@@ -244,11 +244,16 @@ render thread if needed.
 void *R_GetCommandBuffer( int bytes ) {
 	renderCommandList_t *cmdList;
 
-#if defined RTCW_MP
-	if ( !tr.registered ) {  //DAJ BUGFIX
-		return NULL;
-	}
-#endif // RTCW_XX
+//BBi See #BUG0001
+//#if defined RTCW_MP
+//	if ( !tr.registered ) {  //DAJ BUGFIX
+//		return NULL;
+//	}
+//#endif // RTCW_XX
+
+    if (!tr.registered) //DAJ BUGFIX
+        return 0;
+//BBi
 
 	cmdList = &backEndData[tr.smpFrame]->commands;
 

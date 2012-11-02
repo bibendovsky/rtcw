@@ -1,0 +1,22 @@
+=========
+#LBUG0001
+=========
+Name:
+    Buffer overrun.
+
+Victims:
+    SP/MP/ET
+    
+Symptoms:
+    a) Crash after renaming executable.
+    b) Crash after updating video driver.
+	
+Reason:
+    Too lengthy message for Com_Printf-like functions.
+
+Solution:
+   Use safe print calls (i.e. "vsnprintf") in Com_Printf-like functions.
+   
+Addition information:
+    A very old bug since first Quake. Developers did not take in account
+a constantly growing list of OpenGL extensions.

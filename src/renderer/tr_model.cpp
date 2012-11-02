@@ -2344,245 +2344,327 @@ void R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs ) {
 byte    *membase = NULL;
 int hunkmaxsize;
 
+//BBi
+//#if defined RTCW_SP
+//int hunkcursize;        //DAJ renamed from cursize
+//#else
+//int cursize;
+//#endif // RTCW_XX
+//
+//#define R_HUNK_MEGS     24
+//#define R_HUNK_SIZE     ( R_HUNK_MEGS*1024*1024 )
+
+static int hunkcursize;
+static const int R_HUNK_MEGS = 24;
+static const int R_HUNK_SIZE = R_HUNK_MEGS * 1024 * 1024;
+//BBi
+
+//BBi
+//void *R_Hunk_Begin( void ) {
+//	int maxsize = R_HUNK_SIZE;
+//
+//	//Com_Printf("R_Hunk_Begin\n");
+//
+//#if defined RTCW_SP
+//	if ( !r_cache->integer ) {
+//		return NULL;
+//	}
+//
+//	// reserve a huge chunk of memory, but don't commit any yet
+//	hunkcursize = 0;
+//#else
+//	// reserve a huge chunk of memory, but don't commit any yet
+//	cursize = 0;
+//#endif // RTCW_XX
+//
+//	hunkmaxsize = maxsize;
+//
+//#if defined RTCW_SP
+//#ifdef _WIN32
+//
+//	// this will "reserve" a chunk of memory for use by this application
+//	// it will not be "committed" just yet, but the swap file will grow
+//	// now if needed
+//	membase = static_cast<byte*> (VirtualAlloc( NULL, maxsize, MEM_RESERVE, PAGE_NOACCESS ));
+//
+//#elif defined( __MACOS__ )
+//
+//	return; //DAJ FIXME memory leak
+//
+//#else   // just allocate it now
+//
+//	// show_bug.cgi?id=440
+//	// it is possible that we have been allocated already, in case we don't do anything
+//	// NOTE: in SP we currently default to r_cache 0, meaning this code is not used at all
+//	//   I am merging the MP way of doing things though, just in case (since we have r_cache 1 on linux MP)
+//	if ( !membase ) {
+//		membase = malloc( maxsize );
+//		// TTimo NOTE: initially, I was doing the memset even if we had an existing membase
+//		// but this breaks some shaders (i.e. /map mp_beach, then go back to the main menu .. some shaders are missing)
+//		// I assume the shader missing is because we don't clear memory either on win32
+//		// meaning even on win32 we are using memory that is still reserved but was uncommited .. it works out of pure luck
+//		memset( membase, 0, maxsize );
+//	}
+//
+//#endif
+//#elif defined RTCW_MP
+//#ifdef _WIN32
+//
+//	// this will "reserve" a chunk of memory for use by this application
+//	// it will not be "committed" just yet, but the swap file will grow
+//	// now if needed
+//	membase = static_cast<byte*> (VirtualAlloc( NULL, maxsize, MEM_RESERVE, PAGE_NOACCESS ));
+//
+//#else
+//
+//	// show_bug.cgi?id=440
+//	// if not win32, then just allocate it now
+//	// it is possible that we have been allocated already, in case we don't do anything
+//	if ( !membase ) {
+//		membase = malloc( maxsize );
+//		// TTimo NOTE: initially, I was doing the memset even if we had an existing membase
+//		// but this breaks some shaders (i.e. /map mp_beach, then go back to the main menu .. some shaders are missing)
+//		// I assume the shader missing is because we don't clear memory either on win32
+//		// meaning even on win32 we are using memory that is still reserved but was uncommited .. it works out of pure luck
+//		memset( membase, 0, maxsize );
+//	}
+//
+//#endif
+//#else
+//	// reserve a huge chunk of memory, but don't commit any yet
+//	cursize = 0;
+//	hunkmaxsize = maxsize;
+//
+//	if ( !membase ) {
+//#ifdef _WIN32
+//		// this will "reserve" a chunk of memory for use by this application
+//		// it will not be "committed" just yet, but the swap file will grow
+//		// now if needed
+//		membase = static_cast<byte*> (VirtualAlloc( NULL, maxsize, MEM_RESERVE, PAGE_NOACCESS ));
+//#else
+//		// show_bug.cgi?id=440
+//		// if not win32, then just allocate it now
+//		// it is possible that we have been allocated already, in case we don't do anything
+//		membase = malloc( maxsize );
+//		// TTimo NOTE: initially, I was doing the memset even if we had an existing membase
+//		// but this breaks some shaders (i.e. /map mp_beach, then go back to the main menu .. some shaders are missing)
+//		// I assume the shader missing is because we don't clear memory either on win32
+//		// meaning even on win32 we are using memory that is still reserved but was uncommited .. it works out of pure luck
+//		memset( membase, 0, maxsize );
+//#endif
+//	}
+//#endif // RTCW_XX
+//
+//	if ( !membase ) {
+//		ri.Error( ERR_DROP, "R_Hunk_Begin: reserve failed" );
+//	}
+//
+//	return (void *)membase;
+//}
+
+void* R_Hunk_Begin ()
+{
+    int maxsize = R_HUNK_SIZE;
+
 #if defined RTCW_SP
-int hunkcursize;        //DAJ renamed from cursize
-#else
-int cursize;
+    if (r_cache->integer == 0)
+        return 0;
 #endif // RTCW_XX
 
-#define R_HUNK_MEGS     24
-#define R_HUNK_SIZE     ( R_HUNK_MEGS*1024*1024 )
+    // reserve a huge chunk of memory, but don't commit any yet
+    hunkcursize = 0;
+    hunkmaxsize = maxsize;
 
-void *R_Hunk_Begin( void ) {
-	int maxsize = R_HUNK_SIZE;
+    if (membase != 0) {
+        membase = new byte[maxsize];
 
-	//Com_Printf("R_Hunk_Begin\n");
+        if (membase == 0)
+            ::ri.Error (ERR_DROP, "R_Hunk_Begin: reserve failed");
 
-#if defined RTCW_SP
-	if ( !r_cache->integer ) {
-		return NULL;
-	}
+        ::memset (membase, 0, maxsize);
+    }
 
-	// reserve a huge chunk of memory, but don't commit any yet
-	hunkcursize = 0;
-#else
-	// reserve a huge chunk of memory, but don't commit any yet
-	cursize = 0;
-#endif // RTCW_XX
-
-	hunkmaxsize = maxsize;
-
-#if defined RTCW_SP
-#ifdef _WIN32
-
-	// this will "reserve" a chunk of memory for use by this application
-	// it will not be "committed" just yet, but the swap file will grow
-	// now if needed
-	membase = static_cast<byte*> (VirtualAlloc( NULL, maxsize, MEM_RESERVE, PAGE_NOACCESS ));
-
-#elif defined( __MACOS__ )
-
-	return; //DAJ FIXME memory leak
-
-#else   // just allocate it now
-
-	// show_bug.cgi?id=440
-	// it is possible that we have been allocated already, in case we don't do anything
-	// NOTE: in SP we currently default to r_cache 0, meaning this code is not used at all
-	//   I am merging the MP way of doing things though, just in case (since we have r_cache 1 on linux MP)
-	if ( !membase ) {
-		membase = malloc( maxsize );
-		// TTimo NOTE: initially, I was doing the memset even if we had an existing membase
-		// but this breaks some shaders (i.e. /map mp_beach, then go back to the main menu .. some shaders are missing)
-		// I assume the shader missing is because we don't clear memory either on win32
-		// meaning even on win32 we are using memory that is still reserved but was uncommited .. it works out of pure luck
-		memset( membase, 0, maxsize );
-	}
-
-#endif
-#elif defined RTCW_MP
-#ifdef _WIN32
-
-	// this will "reserve" a chunk of memory for use by this application
-	// it will not be "committed" just yet, but the swap file will grow
-	// now if needed
-	membase = static_cast<byte*> (VirtualAlloc( NULL, maxsize, MEM_RESERVE, PAGE_NOACCESS ));
-
-#else
-
-	// show_bug.cgi?id=440
-	// if not win32, then just allocate it now
-	// it is possible that we have been allocated already, in case we don't do anything
-	if ( !membase ) {
-		membase = malloc( maxsize );
-		// TTimo NOTE: initially, I was doing the memset even if we had an existing membase
-		// but this breaks some shaders (i.e. /map mp_beach, then go back to the main menu .. some shaders are missing)
-		// I assume the shader missing is because we don't clear memory either on win32
-		// meaning even on win32 we are using memory that is still reserved but was uncommited .. it works out of pure luck
-		memset( membase, 0, maxsize );
-	}
-
-#endif
-#else
-	// reserve a huge chunk of memory, but don't commit any yet
-	cursize = 0;
-	hunkmaxsize = maxsize;
-
-	if ( !membase ) {
-#ifdef _WIN32
-		// this will "reserve" a chunk of memory for use by this application
-		// it will not be "committed" just yet, but the swap file will grow
-		// now if needed
-		membase = static_cast<byte*> (VirtualAlloc( NULL, maxsize, MEM_RESERVE, PAGE_NOACCESS ));
-#else
-		// show_bug.cgi?id=440
-		// if not win32, then just allocate it now
-		// it is possible that we have been allocated already, in case we don't do anything
-		membase = malloc( maxsize );
-		// TTimo NOTE: initially, I was doing the memset even if we had an existing membase
-		// but this breaks some shaders (i.e. /map mp_beach, then go back to the main menu .. some shaders are missing)
-		// I assume the shader missing is because we don't clear memory either on win32
-		// meaning even on win32 we are using memory that is still reserved but was uncommited .. it works out of pure luck
-		memset( membase, 0, maxsize );
-#endif
-	}
-#endif // RTCW_XX
-
-	if ( !membase ) {
-		ri.Error( ERR_DROP, "R_Hunk_Begin: reserve failed" );
-	}
-
-	return (void *)membase;
+    return membase;
 }
+//BBi
 
-void *R_Hunk_Alloc( int size ) {
-#ifdef _WIN32
-	void    *buf;
-#endif
+//BBi
+//void *R_Hunk_Alloc( int size ) {
+//#ifdef _WIN32
+//	void    *buf;
+//#endif
+//
+//	//Com_Printf("R_Hunk_Alloc(%d)\n", size);
+//
+//	// round to cacheline
+//	size = ( size + 31 ) & ~31;
+//
+//#if defined RTCW_SP
+//#ifdef _WIN32
+//
+//	// commit pages as needed
+//	buf = VirtualAlloc( membase, hunkcursize + size, MEM_COMMIT, PAGE_READWRITE );
+//
+//	if ( !buf ) {
+//		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPTSTR) &buf, 0, NULL );
+//		ri.Error( ERR_DROP, "VirtualAlloc commit failed.\n%s", buf );
+//	}
+//
+//#elif defined( __MACOS__ )
+//
+//	return NULL;    //DAJ
+//
+//#endif
+//#else
+//#ifdef _WIN32
+//
+//	// commit pages as needed
+//	buf = VirtualAlloc( membase, cursize + size, MEM_COMMIT, PAGE_READWRITE );
+//
+//	if ( !buf ) {
+//		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPTSTR) &buf, 0, NULL );
+//		ri.Error( ERR_DROP, "VirtualAlloc commit failed.\n%s", buf );
+//	}
+//
+//#endif
+//#endif // RTCW_XX
+//
+//#if defined RTCW_SP
+//	hunkcursize += size;
+//	if ( hunkcursize > hunkmaxsize ) {
+//#else
+//	cursize += size;
+//	if ( cursize > hunkmaxsize ) {
+//#endif // RTCW_XX
+//
+//		ri.Error( ERR_DROP, "R_Hunk_Alloc overflow" );
+//	}
+//
+//#if defined RTCW_SP
+//	return ( void * )( membase + hunkcursize - size );
+//#else
+//	return ( void * )( membase + cursize - size );
+//#endif // RTCW_XX
+//
+//}
 
-	//Com_Printf("R_Hunk_Alloc(%d)\n", size);
+void* R_Hunk_Alloc (
+    int size)
+{
+    const int ROUND_MASK = (8 * sizeof (int)) - 1;
 
-	// round to cacheline
-	size = ( size + 31 ) & ~31;
+    // round to cacheline
+    size = (size + ROUND_MASK) & (~ROUND_MASK);
 
-#if defined RTCW_SP
-#ifdef _WIN32
+    hunkcursize += size;
 
-	// commit pages as needed
-	buf = VirtualAlloc( membase, hunkcursize + size, MEM_COMMIT, PAGE_READWRITE );
+    if (hunkcursize > hunkmaxsize)
+        ::ri.Error (ERR_DROP, "R_Hunk_Alloc overflow");
 
-	if ( !buf ) {
-		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPTSTR) &buf, 0, NULL );
-		ri.Error( ERR_DROP, "VirtualAlloc commit failed.\n%s", buf );
-	}
-
-#elif defined( __MACOS__ )
-
-	return NULL;    //DAJ
-
-#endif
-#else
-#ifdef _WIN32
-
-	// commit pages as needed
-	buf = VirtualAlloc( membase, cursize + size, MEM_COMMIT, PAGE_READWRITE );
-
-	if ( !buf ) {
-		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPTSTR) &buf, 0, NULL );
-		ri.Error( ERR_DROP, "VirtualAlloc commit failed.\n%s", buf );
-	}
-
-#endif
-#endif // RTCW_XX
-
-#if defined RTCW_SP
-	hunkcursize += size;
-	if ( hunkcursize > hunkmaxsize ) {
-#else
-	cursize += size;
-	if ( cursize > hunkmaxsize ) {
-#endif // RTCW_XX
-
-		ri.Error( ERR_DROP, "R_Hunk_Alloc overflow" );
-	}
-
-#if defined RTCW_SP
-	return ( void * )( membase + hunkcursize - size );
-#else
-	return ( void * )( membase + cursize - size );
-#endif // RTCW_XX
-
+    return membase + hunkcursize - size;
 }
+//BBi
+
+//BBi
+//// this is only called when we shutdown GL
+//void R_Hunk_End( void ) {
+//	//Com_Printf("R_Hunk_End\n");
+//
+//#if defined RTCW_SP
+//	if ( !r_cache->integer ) {
+//		return;
+//	}
+//#endif // RTCW_XX
+//
+//	if ( membase ) {
+//
+//#if defined RTCW_SP
+//#ifdef _WIN32
+//		VirtualFree( membase, 0, MEM_RELEASE );
+//#elif defined( __MACOS__ )
+//		//DAJ FIXME free (membase);
+//#else
+//		free( membase );
+//#endif
+//#else
+//#ifdef _WIN32
+//		VirtualFree( membase, 0, MEM_RELEASE );
+//#else
+//		free( membase );
+//#endif
+//#endif // RTCW_XX
+//
+//	}
+//
+//	membase = NULL;
+//}
 
 // this is only called when we shutdown GL
-void R_Hunk_End( void ) {
-	//Com_Printf("R_Hunk_End\n");
-
+void R_Hunk_End ()
+{
 #if defined RTCW_SP
-	if ( !r_cache->integer ) {
-		return;
-	}
+    if (r_cache->integer == 0)
+        return;
 #endif // RTCW_XX
 
-	if ( membase ) {
-
-#if defined RTCW_SP
-#ifdef _WIN32
-		VirtualFree( membase, 0, MEM_RELEASE );
-#elif defined( __MACOS__ )
-		//DAJ FIXME free (membase);
-#else
-		free( membase );
-#endif
-#else
-#ifdef _WIN32
-		VirtualFree( membase, 0, MEM_RELEASE );
-#else
-		free( membase );
-#endif
-#endif // RTCW_XX
-
-	}
-
-	membase = NULL;
+    if (membase != 0) {
+        delete [] membase;
+        membase = 0;
+    }
 }
+//BBi
 
-void R_Hunk_Reset( void ) {
-	//Com_Printf("R_Hunk_Reset\n");
+//BBi
+//void R_Hunk_Reset( void ) {
+//	//Com_Printf("R_Hunk_Reset\n");
+//
+//#if defined RTCW_SP
+//	if ( !r_cache->integer ) {
+//		return;
+//	}
+//#endif // RTCW_XX
+//
+//#if !defined RTCW_ET || (defined RTCW_ET && !defined __MACOS__)
+//	if ( !membase ) {
+//		ri.Error( ERR_DROP, "R_Hunk_Reset called without a membase!" );
+//	}
+//#endif
+//
+//#ifdef _WIN32
+//	// mark the existing committed pages as reserved, but not committed
+//
+//#if defined RTCW_SP
+//	VirtualFree( membase, hunkcursize, MEM_DECOMMIT );
+//#else
+//	VirtualFree( membase, cursize, MEM_DECOMMIT );
+//#endif // RTCW_XX
+//
+//#endif
+//	// on non win32 OS, we keep the allocated chunk as is, just start again to curzise = 0
+//
+//	// start again at the top
+//
+//#if defined RTCW_SP
+//	hunkcursize = 0;
+//#else
+//	cursize = 0;
+//#endif // RTCW_XX
+//
+//}
 
+void R_Hunk_Reset ()
+{
 #if defined RTCW_SP
-	if ( !r_cache->integer ) {
-		return;
-	}
+    if (r_cache->integer == 0)
+        return;
 #endif // RTCW_XX
 
-#if !defined RTCW_ET || (defined RTCW_ET && !defined __MACOS__)
-	if ( !membase ) {
-		ri.Error( ERR_DROP, "R_Hunk_Reset called without a membase!" );
-	}
-#endif
+    if (membase == 0)
+        ::ri.Error (ERR_DROP, "R_Hunk_Reset called without a membase!");
 
-#ifdef _WIN32
-	// mark the existing committed pages as reserved, but not committed
-
-#if defined RTCW_SP
-	VirtualFree( membase, hunkcursize, MEM_DECOMMIT );
-#else
-	VirtualFree( membase, cursize, MEM_DECOMMIT );
-#endif // RTCW_XX
-
-#endif
-	// on non win32 OS, we keep the allocated chunk as is, just start again to curzise = 0
-
-	// start again at the top
-
-#if defined RTCW_SP
-	hunkcursize = 0;
-#else
-	cursize = 0;
-#endif // RTCW_XX
-
+    hunkcursize = 0;
 }
+//BBi
 
 //=============================================================================
 // Ridah, model caching
@@ -2601,16 +2683,19 @@ R_CacheModelAlloc
 void *R_CacheModelAlloc( int size ) {
 	if ( r_cache->integer && r_cacheModels->integer ) {
 
-#if defined RTCW_SP
-#if defined( __MACOS__ )
-		return malloc( size );      //DAJ FIXME was co
-#else
-		return R_Hunk_Alloc( size );
-#endif
-#else
-		return R_Hunk_Alloc( size );
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//#if defined( __MACOS__ )
+//		return malloc( size );      //DAJ FIXME was co
+//#else
+//		return R_Hunk_Alloc( size );
+//#endif
+//#else
+//		return R_Hunk_Alloc( size );
+//#endif // RTCW_XX
+//BBi
 
+        return ::R_Hunk_Alloc (size);
 	} else {
 
 #if defined RTCW_SP
@@ -2631,11 +2716,13 @@ void R_CacheModelFree( void *ptr ) {
 	if ( r_cache->integer && r_cacheModels->integer ) {
 		// TTimo: it's in the hunk, leave it there, next R_Hunk_Begin will clear it all
 
-#if defined RTCW_SP
-#if defined( __MACOS__ )
-		free( ptr );    //DAJ FIXME was co
-#endif
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//#if defined( __MACOS__ )
+//		free( ptr );    //DAJ FIXME was co
+//#endif
+//#endif // RTCW_XX
+//BBi
 
 	} else
 	{

@@ -84,7 +84,11 @@ void        *imageBufferPtr[BUFFER_MAX_TYPES] = {NULL,NULL,NULL};
 void *R_GetImageBuffer( int size, bufferMemType_t bufferType ) {
 	if ( imageBufferSize[bufferType] < R_IMAGE_BUFFER_SIZE && size <= imageBufferSize[bufferType] ) {
 		imageBufferSize[bufferType] = R_IMAGE_BUFFER_SIZE;
-		imageBufferPtr[bufferType] = malloc( imageBufferSize[bufferType] );
+
+        //BBi
+		//imageBufferPtr[bufferType] = malloc( imageBufferSize[bufferType] );
+        imageBufferPtr[bufferType] = new byte[imageBufferSize[bufferType]];
+        //BBi
 
 #if !defined RTCW_SP
 //DAJ TEST		imageBufferPtr[bufferType] = Z_Malloc( imageBufferSize[bufferType] );
@@ -93,7 +97,12 @@ void *R_GetImageBuffer( int size, bufferMemType_t bufferType ) {
 	}
 	if ( size > imageBufferSize[bufferType] ) {   // it needs to grow
 		if ( imageBufferPtr[bufferType] ) {
-			free( imageBufferPtr[bufferType] );
+
+            //BBi
+			//free( imageBufferPtr[bufferType] );
+            delete [] static_cast<byte*> (imageBufferPtr[bufferType]);
+            //BBi
+
 		}
 
 #if !defined RTCW_SP
@@ -101,7 +110,11 @@ void *R_GetImageBuffer( int size, bufferMemType_t bufferType ) {
 #endif // RTCW_XX
 
 		imageBufferSize[bufferType] = size;
-		imageBufferPtr[bufferType] = malloc( imageBufferSize[bufferType] );
+
+        //BBi
+		//imageBufferPtr[bufferType] = malloc( imageBufferSize[bufferType] );
+        imageBufferPtr[bufferType] = new byte[imageBufferSize[bufferType]];
+        //BBi
 
 #if !defined RTCW_SP
 //DAJ TEST		imageBufferPtr[bufferType] = Z_Malloc( imageBufferSize[bufferType] );
@@ -118,7 +131,11 @@ void R_FreeImageBuffer( void ) {
 		if ( !imageBufferPtr[bufferType] ) {
 			return;
 		}
-		free( imageBufferPtr[bufferType] );
+
+        //BBi
+		//free( imageBufferPtr[bufferType] );
+        delete [] static_cast<byte*> (imageBufferPtr[bufferType]);
+        //BBi
 
 #if !defined RTCW_SP
 //DAJ TEST		Z_Free( imageBufferPtr[bufferType] );
@@ -1539,7 +1556,10 @@ static void LoadPCX( const char *filename, byte **pic, byte **palette, int *widt
 	if ( palette ) {
 
 #if defined RTCW_SP
-		*palette = static_cast<byte*> (malloc( 768 ));
+        //BBi
+		//*palette = static_cast<byte*> (malloc( 768 ));
+        *palette = new byte[768];
+        //BBi
 #else
 		*palette = static_cast<byte*> (ri.Z_Malloc( 768 ));
 #endif // RTCW_XX
@@ -1624,7 +1644,10 @@ static void LoadPCX( const char *filename, byte **pic, byte **palette, int *widt
 		ri.Printf( PRINT_DEVELOPER, "PCX file %s was malformed", filename );
 
 #if defined RTCW_SP
-		free( *pic );
+        //BBi
+		//free( *pic );
+        delete [] (*pic);
+        //BBi
 #else
 		ri.Free( *pic );
 #endif // RTCW_XX
@@ -1665,8 +1688,13 @@ static void LoadPCX32( const char *filename, byte **pic, int *width, int *height
 	}
 
 #if defined RTCW_SP
-	free( pic8 );
-	free( palette );
+    //BBi
+	//free( pic8 );
+	//free( palette );
+
+    delete [] pic8;
+    delete [] palette;
+    //BBi
 #else
 	ri.Free( pic8 );
 	ri.Free( palette );
@@ -4088,7 +4116,10 @@ qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *heigh
 #endif  // FUNNEL_HACK
 
 #if !defined RTCW_MP
-	temppic = static_cast<byte*> (malloc( sizeof( unsigned int ) * diff[0] * diff[1] ));
+    //BBi
+	//temppic = static_cast<byte*> (malloc( sizeof( unsigned int ) * diff[0] * diff[1] ));
+    temppic = new byte[sizeof (unsigned) * diff[0] * diff[1]];
+    //BBi
 #else
 	temppic = static_cast<byte*> (ri.Z_Malloc( sizeof( unsigned int ) * diff[0] * diff[1] ));
 #endif // RTCW_XX
@@ -4191,7 +4222,10 @@ void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, in
 				newHeight = newWidth;
 
 #if defined RTCW_SP
-				temppic = malloc( sizeof( unsigned int ) * newWidth * newHeight );
+                //BBi
+				//temppic = malloc( sizeof( unsigned int ) * newWidth * newHeight );
+                temppic = new byte[sizeof (unsigned) * newWidth * newHeight];
+                //BBi
 #else
 				temppic = ri.Z_Malloc( sizeof( unsigned int ) * newWidth * newHeight );
 #endif // RTCW_XX
@@ -4209,7 +4243,10 @@ void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, in
 			newHeight = maxWidth;
 
 #if defined RTCW_SP
-			temppic = malloc( sizeof( unsigned int ) * newWidth * newHeight );
+            //BBi
+			//temppic = malloc( sizeof( unsigned int ) * newWidth * newHeight );
+            temppic = new[sizeof (unsigned) * newWidth * newHeight];
+            //BBi
 #else
 			temppic = ri.Z_Malloc( sizeof( unsigned int ) * newWidth * newHeight );
 #endif // RTCW_XX
@@ -4225,7 +4262,10 @@ void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, in
 		newHeight = maxHeight;
 
 #if !defined RTCW_MP
-		temppic = static_cast<byte*> (malloc( sizeof( unsigned int ) * newWidth * newHeight ));
+        //BBi
+		//temppic = static_cast<byte*> (malloc( sizeof( unsigned int ) * newWidth * newHeight ));
+        temppic = new byte[sizeof (unsigned) * newWidth * newHeight];
+        //BBi
 #else
 		temppic = static_cast<byte*> (ri.Z_Malloc( sizeof( unsigned int ) * newWidth * newHeight ));
 #endif // RTCW_XX
@@ -4234,7 +4274,10 @@ void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, in
 		memcpy( pic, temppic, sizeof( unsigned int ) * newWidth * newHeight );
 
 #if !defined RTCW_MP
-		free( temppic );
+        //BBi
+		//free( temppic );
+        delete [] temppic;
+        //BBi
 #else
 		ri.Free( temppic );
 #endif // RTCW_XX
@@ -4315,7 +4358,10 @@ void *R_CacheImageAlloc( int size ) {
 	if ( r_cache->integer && r_cacheShaders->integer ) {
 
 #if !defined RTCW_ET
-		return malloc( size );
+        //BBi
+		//return malloc( size );
+        return new byte[size];
+        //BBi
 
 #if defined RTCW_SP
 		//return ri.Z_Malloc( size );
@@ -4324,7 +4370,11 @@ void *R_CacheImageAlloc( int size ) {
 #endif // RTCW_XX
 #else
 //		return ri.Z_Malloc( size );
-		return malloc( size );  // ri.Z_Malloc causes load times about twice as long?... Gordon
+
+        //BBi
+		//return malloc( size );  // ri.Z_Malloc causes load times about twice as long?... Gordon
+        return new byte[size]; // ri.Z_Malloc causes load times about twice as long?... Gordon
+        //BBi
 //DAJ TEST		return ri.Z_Malloc( size );	//DAJ was CO
 #endif // RTCW_XX
 
@@ -4345,7 +4395,10 @@ void R_CacheImageFree( void *ptr ) {
 //		ri.Free( ptr );
 #endif // RTCW_XX
 
-		free( ptr );
+        //BBi
+		//free( ptr );
+        delete [] static_cast<byte*> (ptr);
+        //BBi
 
 #if defined RTCW_SP
 		//ri.Free( ptr );

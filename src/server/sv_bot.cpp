@@ -421,7 +421,10 @@ BotImport_GetMemory
 void *BotImport_GetMemory( int size ) {
 
 #if defined RTCW_SP
-	return malloc( size );
+    //BBi
+	//return malloc( size );
+    return new byte[size];
+    //BBi
 #else
 	void *ptr;
 
@@ -439,7 +442,10 @@ BotImport_FreeMemory
 void BotImport_FreeMemory( void *ptr ) {
 
 #if defined RTCW_SP
-	free( ptr );
+    //BBi
+	//free( ptr );
+    delete [] static_cast<byte*> (ptr);
+    //BBi
 #else
 	Z_Free( ptr );
 #endif // RTCW_XX

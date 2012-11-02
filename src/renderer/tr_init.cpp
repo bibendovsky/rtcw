@@ -997,7 +997,7 @@ void GfxInfo_f( void ) {
 	ri.Printf( PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
 	ri.Printf( PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );
 
-    //BBi See #LB000001
+    //BBi See #LBUG0001
 	//ri.Printf( PRINT_ALL, "GL_EXTENSIONS: %s\n", glConfig.extensions_string );
     ::ri.Printf (PRINT_ALL, "GL_EXTENSIONS:\n");
     ::gfxPrintExtensions ();

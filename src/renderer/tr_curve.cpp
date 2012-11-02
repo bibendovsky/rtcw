@@ -307,7 +307,10 @@ srfGridMesh_t *R_CreateSurfaceGridMesh( int width, int height,
 #ifdef PATCH_STITCHING
 
 #if defined RTCW_SP
-	grid = static_cast<srfGridMesh_t*> (malloc( size ));
+    //BBi
+	//grid = static_cast<srfGridMesh_t*> (malloc( size ));
+    grid = reinterpret_cast<srfGridMesh_t*> (new byte[size]);
+    //BBi
 #else
 	grid = /*ri.Hunk_Alloc*/ static_cast<srfGridMesh_t*> (ri.Z_Malloc( size ));
 #endif // RTCW_XX
@@ -315,7 +318,10 @@ srfGridMesh_t *R_CreateSurfaceGridMesh( int width, int height,
 	Com_Memset( grid, 0, size );
 
 #if defined RTCW_SP
-	grid->widthLodError = static_cast<float*> (malloc( width * 4 ));
+    //BBi
+	//grid->widthLodError = static_cast<float*> (malloc( width * 4 ));
+    grid->widthLodError = new float[width];
+    //BBi
 #else
 	grid->widthLodError = /*ri.Hunk_Alloc*/ static_cast<float*> (ri.Z_Malloc( width * 4 ));
 #endif // RTCW_XX
@@ -323,7 +329,10 @@ srfGridMesh_t *R_CreateSurfaceGridMesh( int width, int height,
 	memcpy( grid->widthLodError, errorTable[0], width * 4 );
 
 #if defined RTCW_SP
-	grid->heightLodError = static_cast<float*> (malloc( height * 4 ));
+    //BBi
+	//grid->heightLodError = static_cast<float*> (malloc( height * 4 ));
+    grid->heightLodError = new float[height];
+    //BBi
 #else
 	grid->heightLodError = /*ri.Hunk_Alloc*/ static_cast<float*> (ri.Z_Malloc( height * 4 ));
 #endif // RTCW_XX
@@ -396,9 +405,15 @@ R_FreeSurfaceGridMesh
 void R_FreeSurfaceGridMesh( srfGridMesh_t *grid ) {
 
 #if defined RTCW_SP
-	free( grid->widthLodError );
-	free( grid->heightLodError );
-	free( grid );
+    //BBi
+	//free( grid->widthLodError );
+	//free( grid->heightLodError );
+	//free( grid );
+
+    delete [] grid->widthLodError;
+    delete [] grid->heightLodError;
+    delete [] reinterpret_cast<byte*> (grid);
+    //BBi
 #else
 	ri.Free( grid->widthLodError );
 	ri.Free( grid->heightLodError );

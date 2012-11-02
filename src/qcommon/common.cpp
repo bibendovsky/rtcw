@@ -226,7 +226,7 @@ int QDECL Com_VPrintf( const char *fmt, va_list argptr ) {
 	//
 #endif // RTCW_XX
 
-//BBi See #LB000001
+//BBi See #LBUG0001
 //#if defined RTCW_SP
 //	vsprintf( msg,fmt,argptr );
 //#else
@@ -365,7 +365,7 @@ void QDECL Com_DPrintf( const char *fmt, ... ) {
 
 	va_start( argptr,fmt );
 
-//BBi See #LB000001
+//BBi See #LBUG0001
 //#if defined RTCW_SP
 //	vsprintf( msg,fmt,argptr );
 //#else
@@ -1079,7 +1079,12 @@ Z_Free
 void Z_Free( void *ptr ) {
 
 #if defined RTCW_SP
-	free( ptr );
+
+    //BBi
+	//free( ptr );
+    delete [] static_cast<byte*> (ptr);
+    //BBi
+
 #else
 	memblock_t  *block, *other;
 	memzone_t *zone;
@@ -1154,7 +1159,12 @@ Z_Malloc
 ================
 */
 void *Z_Malloc( int size ) {
-	void *buf = malloc( size );
+
+    //BBi
+	//void *buf = malloc( size );
+    byte* buf = new byte[size];
+    //BBi
+
 	Com_Memset( buf, 0, size );
 	return buf;
 }
@@ -1960,13 +1970,20 @@ void Com_InitHunkMemory( void ) {
 		s_hunkTotal = cv->integer * 1024 * 1024;
 	}
 
+    //BBi
+	//s_hunkData = static_cast<byte*> (malloc( s_hunkTotal + 31 ));
+    s_hunkData = new byte[s_hunkTotal];
+    //BBi
 
-	s_hunkData = static_cast<byte*> (malloc( s_hunkTotal + 31 ));
 	if ( !s_hunkData ) {
 		Com_Error( ERR_FATAL, "Hunk data failed to allocate %i megs", s_hunkTotal / ( 1024 * 1024 ) );
 	}
-	// cacheline align
-	s_hunkData = ( byte * )( ( (int)s_hunkData + 31 ) & ~31 );
+
+    //BBi
+	//// cacheline align
+	//s_hunkData = ( byte * )( ( (int)s_hunkData + 31 ) & ~31 );
+    //BBi
+
 	Hunk_Clear();
 
 	Cmd_AddCommand( "meminfo", Com_Meminfo_f );

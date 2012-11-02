@@ -1190,7 +1190,11 @@ void Sys_StreamSeek( fileHandle_t f, int offset, int origin ) {
 void *Sys_InitializeCriticalSection() {
 	LPCRITICAL_SECTION crit;
 
-	crit = malloc( sizeof( CRITICAL_SECTION ) );
+    //BBi
+	//crit = malloc( sizeof( CRITICAL_SECTION ) );
+    crit = new CRITICAL_SECTION;
+    //BBi
+
 	InitializeCriticalSection( crit );
 	return crit;
 }
@@ -1263,7 +1267,11 @@ void Sys_MusicThread( void ) {
 void *Sys_InitializeCriticalSection() {
 	LPCRITICAL_SECTION crit;
 
-	crit = malloc( sizeof( CRITICAL_SECTION ) );
+    //BBi
+	//crit = malloc( sizeof( CRITICAL_SECTION ) );
+    crit = new CRITICAL_SECTION;
+    //BBi
+
 	InitializeCriticalSection( crit );
 	return crit;
 }

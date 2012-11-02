@@ -3779,7 +3779,7 @@ void QDECL CL_RefPrintf( int print_level, const char *fmt, ... ) {
 
 	va_start( argptr,fmt );
 
-//BBi See #LB000001
+//BBi See #LBUG0001
 //#if defined RTCW_SP
 //	vsprintf( msg,fmt,argptr );
 //#else
@@ -5963,7 +5963,11 @@ static trans_t* AllocTrans( char *original, char *translated[MAX_LANGUAGES] ) {
 	trans_t *t;
 	int i;
 
-	t = static_cast<trans_t*> (malloc( sizeof( trans_t ) ));
+    //BBi
+	//t = static_cast<trans_t*> (malloc( sizeof( trans_t ) ));
+    t = new trans_t;
+    //BBi
+
 	memset( t, 0, sizeof( trans_t ) );
 
 	if ( original ) {
@@ -6237,7 +6241,11 @@ void CL_LoadTransTable( const char *fileName ) {
 	// Gordon: shouldn't this be a z_malloc or something?
 #endif // RTCW_XX
 
-	text = static_cast<char*> (malloc( len + 1 ));
+    //BBi
+	//text = static_cast<char*> (malloc( len + 1 ));
+    text = new char[len + 1];
+    //BBi
+
 	if ( !text ) {
 		return;
 	}
@@ -6383,7 +6391,11 @@ void CL_LoadTransTable( const char *fileName ) {
 	}
 
 	// cleanup
-	free( text );
+
+    //BBi
+	//free( text );
+    delete [] text;
+    //BBi
 }
 
 /*
@@ -6397,7 +6409,12 @@ void CL_ReloadTranslation() {
 
 	for ( i = 0; i < FILE_HASH_SIZE; i++ ) {
 		if ( transTable[i] ) {
-			free( transTable[i] );
+
+            //BBi
+			//free( transTable[i] );
+            delete transTable[i];
+            //BBi
+
 		}
 	}
 

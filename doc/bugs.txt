@@ -1,0 +1,24 @@
+========
+#BUG0001
+========
+Name:
+    Level changing crash.
+
+Victims:
+   SP/ET(?)
+
+Symptoms:
+    Crash after finishing a level (for example "dam") when video resolution is
+    too high (i.e. 1680x1050).
+	
+Reason:
+    Backend data ("backEndData") used by drawing routines (for example,
+"SCR_DrawScreenField" in cl_scrn.cpp) after "Hunk_Clear" (common.cpp) call.
+
+Solution:
+    Disable renderer command buffer between registration sequences.
+Check for "tr.registered" in "R_GetCommandBuffer" ("tr_cmds.cpp") and return
+"null" if the value if "false".
+
+Additional information:
+    This bug encountered only in compiled executables only.
