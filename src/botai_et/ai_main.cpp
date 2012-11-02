@@ -536,7 +536,12 @@ void BotInputToUserCommand( bot_state_t *bs, bot_input_t *bi, usercmd_t *ucmd, i
 	//set the view independent movement
 	ucmd->forwardmove = DotProduct( forward, bi->dir ) * bi->speed;
 	ucmd->rightmove = DotProduct( right, bi->dir ) * bi->speed;
-	ucmd->upmove = abs( forward[2] ) * bi->dir[2] * bi->speed;
+
+    //BBi See #BUG0002
+	//ucmd->upmove = abs( forward[2] ) * bi->dir[2] * bi->speed;
+    ucmd->upmove = static_cast<float> (::abs (static_cast<int> (forward[2]))) * bi->dir[2] * bi->speed;
+    //BBi
+
 	//normal keyboard movement
 	if ( bi->actionflags & ACTION_MOVEFORWARD ) {
 		ucmd->forwardmove += 127;

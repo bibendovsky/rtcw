@@ -405,8 +405,13 @@ int AAS_NearestEntity( vec3_t origin, int modelindex ) {
 			continue;
 		}
 		VectorSubtract( ent->i.origin, origin, dir );
-		if ( abs( dir[0] ) < 40 ) {
-			if ( abs( dir[1] ) < 40 ) {
+
+        //BBi See #BUG0002
+		//if ( abs( dir[0] ) < 40 ) {
+		//	if ( abs( dir[1] ) < 40 ) {
+        if (::abs (static_cast<int> (dir[0])) < 40) {
+            if (::abs (static_cast<int> (dir[1])) < 40) {
+        //BBi
 				dist = VectorLength( dir );
 				if ( dist < bestdist ) {
 					bestdist = dist;

@@ -2487,13 +2487,18 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 		VectorMA( area2point, 32, dir, area2point );
 		//
 
-#if !defined RTCW_ET
-		ladderface1vertical = abs( DotProduct( plane1->normal, up ) ) < 0.1;
-		ladderface2vertical = abs( DotProduct( plane2->normal, up ) ) < 0.1;
-#else
-		ladderface1vertical = Q_fabs( DotProduct( plane1->normal, up ) ) < 0.1;
-		ladderface2vertical = Q_fabs( DotProduct( plane2->normal, up ) ) < 0.1;
-#endif // RTCW_XX
+//BBi Must be float-point abs
+//#if !defined RTCW_ET
+//		ladderface1vertical = abs( DotProduct( plane1->normal, up ) ) < 0.1;
+//		ladderface2vertical = abs( DotProduct( plane2->normal, up ) ) < 0.1;
+//#else
+//		ladderface1vertical = Q_fabs( DotProduct( plane1->normal, up ) ) < 0.1;
+//		ladderface2vertical = Q_fabs( DotProduct( plane2->normal, up ) ) < 0.1;
+//#endif // RTCW_XX
+
+        ladderface1vertical = (::fabs (DotProduct (plane1->normal, up)) < 0.1F);
+        ladderface2vertical = (::fabs (DotProduct (plane2->normal, up)) < 0.1F);
+//BBi
 
 		//there's only reachability between vertical ladder faces
 		if ( !ladderface1vertical && !ladderface2vertical ) {
@@ -2505,11 +2510,15 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 			 && DotProduct( plane1->normal, plane2->normal ) > 0.7
 			 //and the shared edge is not too vertical
 
-#if !defined RTCW_ET
-			 && abs( DotProduct( sharededgevec, up ) ) < 0.7 ) {
-#else
-			 && Q_fabs( DotProduct( sharededgevec, up ) ) < 0.7 ) {
-#endif // RTCW_XX
+//BBi Must be float-point abs
+//#if !defined RTCW_ET
+//			 && abs( DotProduct( sharededgevec, up ) ) < 0.7 ) {
+//#else
+//			 && Q_fabs( DotProduct( sharededgevec, up ) ) < 0.7 ) {
+//#endif // RTCW_XX
+
+            && ::fabs (DotProduct (sharededgevec, up)) < 0.7F) {
+//BBi
 
 			//create a new reachability link
 			lreach = AAS_AllocReachability();
@@ -2663,11 +2672,15 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 				if ( face2->faceflags & FACE_LADDER ) {
 					plane2 = &( *aasworld ).planes[face2->planenum];
 
-#if !defined RTCW_ET
-					if ( abs( DotProduct( plane2->normal, up ) ) < 0.1 ) {
-#else
-					if ( Q_fabs( DotProduct( plane2->normal, up ) ) < 0.1 ) {
-#endif // RTCW_XX
+//BBi Must be float-point abs
+//#if !defined RTCW_ET
+//					if ( abs( DotProduct( plane2->normal, up ) ) < 0.1 ) {
+//#else
+//					if ( Q_fabs( DotProduct( plane2->normal, up ) ) < 0.1 ) {
+//#endif // RTCW_XX
+
+                    if (::fabs (DotProduct (plane2->normal, up)) < 0.1F) {
+//BBi
 
 						break;
 					}

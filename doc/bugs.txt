@@ -22,3 +22,27 @@ Check for "tr.registered" in "R_GetCommandBuffer" ("tr_cmds.cpp") and return
 
 Additional information:
     This bug encountered only in compiled executables only.
+
+
+========
+#BUG0002
+========
+Name:
+    C++ porting issues.
+
+Victims:
+    SP(mostly)/MP/ET
+
+Symptoms:
+    Scripted sequences (mostly in cutscenes) may behave incorrectly.
+
+Reason:
+    Improper call of overloaded "abs" function.
+
+Solution:
+    Cast "abs"'s parameter to correct type.
+
+Additional information.
+    Standard headers for C defines only integral parameter for function
+"abs", while in C++ there are also overloaded versions with float-point
+parameter.

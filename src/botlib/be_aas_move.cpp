@@ -174,15 +174,27 @@ int AAS_AgainstLadder( vec3_t origin, int ms_areanum ) {
 		plane = &( *aasworld ).planes[face->planenum ^ side];
 		//if the origin is pretty close to the plane
 
+//BBi See #BUG0002
+//#if !defined RTCW_ET
+//		if ( abs( DotProduct( plane->normal, origin ) - plane->dist ) < 3 ) {
+//			if ( AAS_PointInsideFace( abs( facenum ), origin, 0.1 ) ) {
+//#else
+//		if ( abs( DotProduct( plane->normal, origin ) - plane->dist ) < 7 ) {
+//			// RF, if hanging on to the edge of a ladder, we have to account for bounding box touching
+//			//if (AAS_PointInsideFace(abs(facenum), origin, 0.1)) return qtrue;
+//			if ( AAS_PointInsideFace( abs( facenum ), origin, 2.0 ) ) {
+//#endif // RTCW_XX
+
 #if !defined RTCW_ET
-		if ( abs( DotProduct( plane->normal, origin ) - plane->dist ) < 3 ) {
-			if ( AAS_PointInsideFace( abs( facenum ), origin, 0.1 ) ) {
+        if (::abs (static_cast<int> (DotProduct (plane->normal, origin) - plane->dist)) < 3) {
+            if (::AAS_PointInsideFace (::abs (facenum ), origin, 0.1F)) {
 #else
-		if ( abs( DotProduct( plane->normal, origin ) - plane->dist ) < 7 ) {
-			// RF, if hanging on to the edge of a ladder, we have to account for bounding box touching
-			//if (AAS_PointInsideFace(abs(facenum), origin, 0.1)) return qtrue;
-			if ( AAS_PointInsideFace( abs( facenum ), origin, 2.0 ) ) {
+        if (::abs (static_cast<int> (DotProduct (plane->normal, origin) - plane->dist)) < 7) {
+            // RF, if hanging on to the edge of a ladder, we have to account for bounding box touching
+            //if (AAS_PointInsideFace(abs(facenum), origin, 0.1)) return qtrue;
+            if (::AAS_PointInsideFace (::abs (facenum), origin, 2.0F)) {
 #endif // RTCW_XX
+//BBi
 
 				return qtrue;
 			}

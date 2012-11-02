@@ -594,7 +594,11 @@ char *AIFunc_Idle( cast_state_t *cs ) {
 
 				cs->idleYaw = AICast_GetRandomViewAngle( cs, 512 );
 
-				if ( abs( AngleDelta( cs->idleYaw, cs->ideal_viewangles[YAW] ) ) < 45 ) {
+                //BBi See #BUG0002
+				//if ( abs( AngleDelta( cs->idleYaw, cs->ideal_viewangles[YAW] ) ) < 45 ) {
+                if (::abs (static_cast<int> (::AngleDelta (cs->idleYaw, cs->ideal_viewangles[YAW]))) < 45) {
+                //BBi
+
 					cs->nextIdleAngleChange = level.time + 1000 + rand() % 2500;
 				} else { // do really fast
 					cs->nextIdleAngleChange = level.time + 500;
@@ -890,7 +894,11 @@ char *AIFunc_InspectFriendly( cast_state_t *cs ) {
 
 			cs->idleYaw = AICast_GetRandomViewAngle( cs, 512 );
 
-			if ( abs( AngleDelta( cs->idleYaw, cs->ideal_viewangles[YAW] ) ) < 45 ) {
+            //BBi See #BUG0002
+			//if ( abs( AngleDelta( cs->idleYaw, cs->ideal_viewangles[YAW] ) ) < 45 ) {
+            if (::abs (static_cast<int> (::AngleDelta (cs->idleYaw, cs->ideal_viewangles[YAW]))) < 45) {
+            //BBi
+
 				cs->nextIdleAngleChange = level.time + 1000 + rand() % 2500;
 			} else { // do really fast
 				cs->nextIdleAngleChange = level.time + 500;
@@ -2557,7 +2565,11 @@ char *AIFunc_BattleAmbush( cast_state_t *cs ) {
 
 					cs->idleYaw = AICast_GetRandomViewAngle( cs, 512 );
 
-					if ( abs( AngleDelta( cs->idleYaw, cs->ideal_viewangles[YAW] ) ) < 45 ) {
+                    //BBi #BUG0002
+					//if ( abs( AngleDelta( cs->idleYaw, cs->ideal_viewangles[YAW] ) ) < 45 ) {
+                    if (::abs (static_cast<int> (::AngleDelta (cs->idleYaw, cs->ideal_viewangles[YAW]))) < 45) {
+                    //BBi
+
 						cs->nextIdleAngleChange = level.time + 1000 + rand() % 2500;
 					} else { // do really fast
 						cs->nextIdleAngleChange = level.time + 500;

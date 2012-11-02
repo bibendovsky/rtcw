@@ -2062,7 +2062,12 @@ qboolean Bot_ScriptAction_FireAtTarget( bot_state_t *bs, char *params ) {
 	} else //if (bs->weaponnum != WP_MORTAR_SET)
 	{
 		for ( i = 0; i < 2; i++ ) {
-			diff = abs( AngleDifference( bs->cur_ps.viewangles[i], bs->ideal_viewangles[i] ) );
+
+            //BBi See #BUG0002
+			//diff = abs( AngleDifference( bs->cur_ps.viewangles[i], bs->ideal_viewangles[i] ) );
+            diff = static_cast<float> (::abs (static_cast<int> (::AngleDifference (bs->cur_ps.viewangles[i], bs->ideal_viewangles[i]))));
+            //BBi
+
 			if ( VectorCompare( vec3_origin, ent->s.pos.trDelta ) ) {
 				if ( diff ) {
 					return qfalse;  // not facing yet

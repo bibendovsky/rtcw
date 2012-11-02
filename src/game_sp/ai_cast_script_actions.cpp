@@ -165,7 +165,11 @@ qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
 						}
 						if ( fire ) {
 							for ( i = 0; i < 2; i++ ) {
-								diff = abs( AngleDifference( cs->viewangles[i], cs->ideal_viewangles[i] ) );
+                                //BBi See #BUG0002
+								//diff = abs( AngleDifference( cs->viewangles[i], cs->ideal_viewangles[i] ) );
+                                diff = ::abs (static_cast<int> (::AngleDifference (cs->viewangles[i], cs->ideal_viewangles[i])));
+                                //BBi
+
 								if ( diff < 20 ) {
 									// dont reload prematurely
 									cs->noReloadTime = level.time + 1000;
@@ -350,7 +354,11 @@ qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 						}
 						if ( fire ) {
 							for ( i = 0; i < 2; i++ ) {
-								diff = abs( AngleDifference( cs->viewangles[i], cs->ideal_viewangles[i] ) );
+                                //BBi See #BUG0002
+								//diff = abs( AngleDifference( cs->viewangles[i], cs->ideal_viewangles[i] ) );
+                                diff = ::abs (static_cast<int> (::AngleDifference (cs->viewangles[i], cs->ideal_viewangles[i])));
+                                //BBi
+
 								if ( diff < 20 ) {
 									// dont reload prematurely
 									cs->noReloadTime = level.time + 1000;
@@ -1656,7 +1664,11 @@ qboolean AICast_ScriptAction_FireAtTarget( cast_state_t *cs, char *params ) {
 	VectorNormalize( vec );
 	vectoangles( vec, cs->ideal_viewangles );
 	for ( i = 0; i < 2; i++ ) {
-		diff = abs( AngleDifference( cs->bs->cur_ps.viewangles[i], cs->ideal_viewangles[i] ) );
+        //BBi See #BUG0002
+		//diff = abs( AngleDifference( cs->bs->cur_ps.viewangles[i], cs->ideal_viewangles[i] ) );
+        diff = ::abs (static_cast<int> (::AngleDifference (cs->bs->cur_ps.viewangles[i], cs->ideal_viewangles[i])));
+        //BBi
+
 		if ( VectorCompare( vec3_origin, ent->s.pos.trDelta ) ) {
 			if ( diff ) {
 				return qfalse;  // not facing yet
