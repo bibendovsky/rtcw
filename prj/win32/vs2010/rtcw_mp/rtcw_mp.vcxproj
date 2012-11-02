@@ -1,20 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug Dedicated|Win32">
-      <Configuration>Debug Dedicated</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release Dedicated|Win32">
-      <Configuration>Release Dedicated</Configuration>
+    <ProjectConfiguration Include="Debug Dedicated|Win32">
+      <Configuration>Debug Dedicated</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release Dedicated|Win32">
+      <Configuration>Release Dedicated</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -22,55 +22,64 @@
     <ProjectGuid>{3ACD01D0-DCF1-46A5-A477-7E8524032A02}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'" Label="Configuration">
     <CharacterSet>NotSet</CharacterSet>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'" Label="Configuration">
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\rtcw_core.props" />
+    <Import Project="..\rtcw_core_x86.props" />
+    <Import Project="..\rtcw_debug.props" />
+    <Import Project="..\rtcw_mp.props" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\rtcw_mp_debug.props" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\rtcw_mp_release.props" />
+    <Import Project="..\rtcw_core.props" />
+    <Import Project="..\rtcw_core_x86.props" />
+    <Import Project="..\rtcw_debug.props" />
+    <Import Project="..\rtcw_mp.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\rtcw_mp_release.props" />
+    <Import Project="..\rtcw_core.props" />
+    <Import Project="..\rtcw_core_x86.props" />
+    <Import Project="..\rtcw_release.props" />
+    <Import Project="..\rtcw_mp.props" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\rtcw_mp_debug.props" />
+    <Import Project="..\rtcw_core.props" />
+    <Import Project="..\rtcw_core_x86.props" />
+    <Import Project="..\rtcw_release.props" />
+    <Import Project="..\rtcw_mp.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
     <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</PostBuildEventUseInBuild>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">rtcw_mp_x86</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">rtcw_mp_ded_x86</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">rtcw_mp_x86</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">rtcw_mp_ded_x86</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">rtcw_$(rtcw_id_lc)_$(rtcw_platform)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">rtcw_$(rtcw_id_lc)_ded_$(rtcw_platform)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">rtcw_$(rtcw_id_lc)_$(rtcw_platform)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">rtcw_$(rtcw_id_lc)_ded_$(rtcw_platform)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>BOTLIB;DEBUG;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SrcDir)fmodex-4.42.05\api\inc;$(SrcDir)glew-1.9.0\include;$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOTLIB;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;fmodex_vc.lib;libglew_1_9_0_s_mt.lib;libjpeg_8d_s_mt.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
     <PostBuildEvent>
@@ -80,12 +89,10 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>BOTLIB;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SrcDir)fmodex-4.42.05\api\inc;$(SrcDir)glew-1.9.0\include;$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOTLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;fmodex_vc.lib;libglew_1_9_0_s_mt.lib;libjpeg_8d_s_mt.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
     <PostBuildEvent>
@@ -95,12 +102,10 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>BOTLIB;DEDICATED;DO_LIGHT_DEDICATED;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOTLIB;DEDICATED;DO_LIGHT_DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
     <PostBuildEvent>
@@ -110,12 +115,10 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>BOTLIB;DEBUG;DO_LIGHT_DEDICATED;DEDICATED;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOTLIB;DEBUG;DO_LIGHT_DEDICATED;DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
     <PostBuildEvent>
