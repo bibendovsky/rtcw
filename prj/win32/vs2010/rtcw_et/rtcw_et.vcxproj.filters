@@ -144,9 +144,6 @@
     <ClCompile Include="..\..\..\..\src\server\sv_world.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\qcommon\unzip.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\qcommon\vm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -382,6 +379,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\splines\util_str.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\zlib-1.2.7\contrib\minizip\unzip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

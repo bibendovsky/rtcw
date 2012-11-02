@@ -351,7 +351,7 @@
     <ClCompile Include="..\..\..\..\src\win32\win_qgl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\qcommon\unzip.cpp">
+    <ClCompile Include="..\..\..\..\src\zlib-1.2.7\contrib\minizip\unzip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

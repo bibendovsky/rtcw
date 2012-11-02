@@ -65,12 +65,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>BOTLIB;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOTLIB;DEBUG;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;libjpeg_8d_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;wsock32.lib;libjpeg_8d_s_mt.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
     <PostBuildEvent>
@@ -80,12 +80,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>BOTLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOTLIB;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SrcDir)jpeg-8d;$(SrcDir)jpeg-8d\win32\vs;$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;libjpeg_8d_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;wsock32.lib;libjpeg_8d_s_mt.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
     <PostBuildEvent>
@@ -95,11 +95,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>BOTLIB;DEDICATED;DO_LIGHT_DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOTLIB;DEDICATED;DO_LIGHT_DEDICATED;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;wsock32.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
     <PostBuildEvent>
@@ -109,11 +110,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>BOTLIB;DEBUG;DO_LIGHT_DEDICATED;DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOTLIB;DEBUG;DO_LIGHT_DEDICATED;DEDICATED;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SrcDir)zlib-1.2.7;$(SrcDir)zlib-1.2.7\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile />
     <Link>
-      <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;wsock32.lib;libz_1_2_7_s_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
     <PostBuildEvent>
@@ -344,7 +346,6 @@
     <ClCompile Include="..\..\..\..\src\server\sv_net_chan.cpp" />
     <ClCompile Include="..\..\..\..\src\server\sv_snapshot.cpp" />
     <ClCompile Include="..\..\..\..\src\server\sv_world.cpp" />
-    <ClCompile Include="..\..\..\..\src\qcommon\unzip.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\vm.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\vm_interpreted.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\vm_x86.cpp" />
@@ -401,6 +402,7 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\win32\win_syscon.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_wndproc.cpp" />
+    <ClCompile Include="..\..\..\..\src\zlib-1.2.7\contrib\minizip\unzip.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\botlib\be_aas_bsp.h" />
