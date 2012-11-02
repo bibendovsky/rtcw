@@ -57,10 +57,10 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">et</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">etded</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">et</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">etded</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">rtcw_et_x86</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">rtcw_et_ded_x86</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">rtcw_et_x86</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">rtcw_et_ded_x86</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

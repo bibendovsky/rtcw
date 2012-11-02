@@ -68,9 +68,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\game\q_math.cpp" />
     <ClCompile Include="..\..\..\..\src\game\q_shared.cpp" />
-    <ClCompile Include="..\..\..\..\src\game_sp\bg_lib.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\game_sp\bg_misc.cpp" />
     <ClCompile Include="..\..\..\..\src\ui_sp\ui_atoms.cpp" />
     <ClCompile Include="..\..\..\..\src\ui_sp\ui_gameinfo.cpp" />

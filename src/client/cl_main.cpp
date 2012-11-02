@@ -3779,11 +3779,21 @@ void QDECL CL_RefPrintf( int print_level, const char *fmt, ... ) {
 
 	va_start( argptr,fmt );
 
+//BBi See #LB000001
+//#if defined RTCW_SP
+//	vsprintf( msg,fmt,argptr );
+//#else
+//	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
+//#endif // RTCW_XX
+
+    msg[MAXPRINTMSG - 1] = '\0';
+
 #if defined RTCW_SP
-	vsprintf( msg,fmt,argptr );
+    ::vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #else
-	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
+    ::Q_vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #endif // RTCW_XX
+//BBi
 
 	va_end( argptr );
 
@@ -4228,13 +4238,19 @@ void CL_ClientDamageCommand( void ) {
 
 #if defined RTCW_SP
 void CL_startMultiplayer_f( void ) {
-#ifdef __MACOS__    //DAJ
-	Sys_StartProcess( "Wolfenstein MP", qtrue );
-#elif defined( __linux__ )
-	Sys_StartProcess( "./wolf.x86", qtrue );
-#else
-	Sys_StartProcess( "WolfMP.exe", qtrue );
-#endif
+
+//BBi
+//#ifdef __MACOS__    //DAJ
+//	Sys_StartProcess( "Wolfenstein MP", qtrue );
+//#elif defined( __linux__ )
+//	Sys_StartProcess( "./wolf.x86", qtrue );
+//#else
+//	Sys_StartProcess( "WolfMP.exe", qtrue );
+//#endif
+
+    ::Sys_StartProcess ("rtcw_mp_x86", qtrue);
+//BBi
+
 }
 // -NERVE - SMF
 
@@ -4274,23 +4290,30 @@ void CL_ShellExecute_URL_f( void ) {
 //----(SA) end
 #else
 
-#if !defined RTCW_ET
-void CL_startSingleplayer_f( void ) {
-#if defined( __linux__ )
-	Sys_StartProcess( "./wolfsp.x86", qtrue );
-#else
-	Sys_StartProcess( "WolfSP.exe", qtrue );
-#endif
+//BBi
+//#if !defined RTCW_ET
+//void CL_startSingleplayer_f( void ) {
+//#if defined( __linux__ )
+//	Sys_StartProcess( "./wolfsp.x86", qtrue );
+//#else
+//	Sys_StartProcess( "WolfSP.exe", qtrue );
+//#endif
+//}
+//#else
+///*void CL_startSingleplayer_f( void ) {
+//#if defined(__linux__)
+//	Sys_StartProcess( "./wolfsp.x86", qtrue );
+//#else
+//	Sys_StartProcess( "WolfSP.exe", qtrue );
+//#endif
+//}*/
+//#endif // RTCW_XX
+
+void CL_startSingleplayer_f ()
+{
+    ::Sys_StartProcess ("rtcw_sp_x86", qtrue);
 }
-#else
-/*void CL_startSingleplayer_f( void ) {
-#if defined(__linux__)
-	Sys_StartProcess( "./wolfsp.x86", qtrue );
-#else
-	Sys_StartProcess( "WolfSP.exe", qtrue );
-#endif
-}*/
-#endif // RTCW_XX
+//BBi
 
 // NERVE - SMF
 #if !defined RTCW_ET

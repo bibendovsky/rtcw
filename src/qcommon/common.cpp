@@ -226,12 +226,21 @@ int QDECL Com_VPrintf( const char *fmt, va_list argptr ) {
 	//
 #endif // RTCW_XX
 
-#if defined RTCW_SP
-	vsprintf( msg,fmt,argptr );
-#else
-	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
-#endif // RTCW_XX
+//BBi See #LB000001
+//#if defined RTCW_SP
+//	vsprintf( msg,fmt,argptr );
+//#else
+//	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
+//#endif // RTCW_XX
 
+    msg[MAXPRINTMSG - 1] = '\0';
+
+#if defined RTCW_SP
+    ::vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
+#else
+	::Q_vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
+#endif // RTCW_XX
+//BBi
 
 #if !defined RTCW_ET
 	va_end( argptr );
@@ -316,7 +325,9 @@ int QDECL Com_VPrintf( const char *fmt, va_list argptr ) {
 }
 
 #if defined RTCW_ET
-int QDECL Com_VPrintf( const char *fmt, va_list argptr ) _attribute( ( format( printf,1,0 ) ) );
+//BBi
+//int QDECL Com_VPrintf( const char *fmt, va_list argptr ) _attribute( ( format( printf,1,0 ) ) );
+//BBi
 
 void QDECL Com_Printf( const char *fmt, ... ) {
 	va_list argptr;
@@ -325,7 +336,10 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 	Com_VPrintf( fmt, argptr );
 	va_end( argptr );
 }
-void QDECL Com_Printf( const char *fmt, ... ) _attribute( ( format( printf,1,2 ) ) );
+
+//BBi
+//void QDECL Com_Printf( const char *fmt, ... ) _attribute( ( format( printf,1,2 ) ) );
+//BBi
 #endif // RTCW_XX
 
 
@@ -351,11 +365,21 @@ void QDECL Com_DPrintf( const char *fmt, ... ) {
 
 	va_start( argptr,fmt );
 
+//BBi See #LB000001
+//#if defined RTCW_SP
+//	vsprintf( msg,fmt,argptr );
+//#else
+//	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
+//#endif // RTCW_XX
+
+    msg[MAXPRINTMSG - 1] = '\0';
+
 #if defined RTCW_SP
-	vsprintf( msg,fmt,argptr );
+    ::vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #else
-	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
+    ::Q_vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #endif // RTCW_XX
+//BBi
 
 	va_end( argptr );
 

@@ -33,7 +33,11 @@ If you have questions concerning this license or the applicable additional terms
 // A user mod should never modify this file
 
 #if defined RTCW_SP
-#define Q3_VERSION      "Wolf 1.41"
+//BBi
+//#define Q3_VERSION      "Wolf 1.41"
+#define Q3_VERSION "RTCW-SP 0.99b (1.41)"
+//BBi
+
 // ver 1.0.0	- release
 // ver 1.0.1	- post-release work
 // ver 1.1.0	- patch 1 (12/12/01)
@@ -41,7 +45,11 @@ If you have questions concerning this license or the applicable additional terms
 // ver 1.2.b5	- Mac code merge in
 // ver 1.3		- patch 2 (02/13/02)
 #elif defined RTCW_MP
-#define Q3_VERSION      "Wolf 1.41b-MP"
+//BBi
+//#define Q3_VERSION      "Wolf 1.41b-MP"
+#define Q3_VERSION "RTCW-MP 0.99b (1.41b)"
+//BBi
+
 // 1.41b-MP: fix autodl sploit
 // 1.4-MP : (== 1.34)
 // 1.3-MP : final for release
@@ -51,9 +59,15 @@ If you have questions concerning this license or the applicable additional terms
 //#define PRE_RELEASE_DEMO
 
 #ifndef PRE_RELEASE_DEMO
-#define Q3_VERSION      "ET 2.60d"
+//BBi
+//#define Q3_VERSION      "ET 2.60d"
+#define Q3_VERSION "RTCW-ET 0.99b (2.60d)"
+//BBi
 #else
-#define Q3_VERSION      "ET 2.32"
+//BBi
+//#define Q3_VERSION      "ET 2.32"
+#define Q3_VERSION "RTCW-ET 0.99b (2.32)"
+//BBi
 #endif // PRE_RELEASE_DEMO
 // 2.60d: Mac OSX universal binaries
 // 2.60c: Mac OSX universal binaries

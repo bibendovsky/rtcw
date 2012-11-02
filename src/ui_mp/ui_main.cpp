@@ -2492,50 +2492,108 @@ static void UI_DrawKeyBindStatus( rectDef_t *rect, float scale, vec4_t color, in
 	}
 }
 
-static void UI_DrawGLInfo( rectDef_t *rect, float scale, vec4_t color, int textStyle ) {
-	char * eptr;
-	char buff[4096];
-	const char *lines[64];
-	int y, numLines, i;
+//BBi
+//static void UI_DrawGLInfo( rectDef_t *rect, float scale, vec4_t color, int textStyle ) {
+//	char * eptr;
+//	char buff[4096];
+//	const char *lines[64];
+//	int y, numLines, i;
+//
+//	Text_Paint( rect->x + 2, rect->y, scale, color, va( "VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string ), 0, 30, textStyle );
+//	Text_Paint( rect->x + 2, rect->y + 15, scale, color, va( "VERSION: %s: %s", uiInfo.uiDC.glconfig.version_string,uiInfo.uiDC.glconfig.renderer_string ), 0, 30, textStyle );
+//	Text_Paint( rect->x + 2, rect->y + 30, scale, color, va( "PIXELFORMAT: color(%d-bits) Z(%d-bits) stencil(%d-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits ), 0, 30, textStyle );
+//
+//	// build null terminated extension strings
+//	Q_strncpyz( buff, uiInfo.uiDC.glconfig.extensions_string, 4096 );
+//	eptr = buff;
+//	y = rect->y + 45;
+//	numLines = 0;
+//	// TTimo - don't overflow the line buffer, don't go above 46, as it goes out of the screen anyway
+//	while ( y < rect->y + rect->h && *eptr && numLines < 46 )
+//	{
+//		while ( *eptr && *eptr == ' ' )
+//			*eptr++ = '\0';
+//
+//		// track start of valid string
+//		if ( *eptr && *eptr != ' ' ) {
+//			lines[numLines++] = eptr;
+//		}
+//
+//		while ( *eptr && *eptr != ' ' )
+//			eptr++;
+//	}
+//
+//	i = 0;
+//	while ( i < numLines ) {
+//		Text_Paint( rect->x + 2, y, scale, color, lines[i++], 0, 20, textStyle );
+//		if ( i < numLines ) {
+//			Text_Paint( rect->x + rect->w / 2, y, scale, color, lines[i++], 0, 20, textStyle );
+//		}
+//		y += 10;
+//		if ( y > rect->y + rect->h - 11 ) {
+//			break;
+//		}
+//	}
+//
+//
+//}
 
-	Text_Paint( rect->x + 2, rect->y, scale, color, va( "VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string ), 0, 30, textStyle );
-	Text_Paint( rect->x + 2, rect->y + 15, scale, color, va( "VERSION: %s: %s", uiInfo.uiDC.glconfig.version_string,uiInfo.uiDC.glconfig.renderer_string ), 0, 30, textStyle );
-	Text_Paint( rect->x + 2, rect->y + 30, scale, color, va( "PIXELFORMAT: color(%d-bits) Z(%d-bits) stencil(%d-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits ), 0, 30, textStyle );
+static void UI_DrawGLInfo (
+    rectDef_t* rect,
+    float scale,
+    vec4_t color,
+    int textStyle)
+{
+    ::Text_Paint (
+        rect->x + 2,
+        rect->y,
+        scale,
+        color,
+        ::va (
+            "VENDOR: %s",
+            uiInfo.uiDC.glconfig.vendor_string),
+        0,
+        60,
+        textStyle);
 
-	// build null terminated extension strings
-	Q_strncpyz( buff, uiInfo.uiDC.glconfig.extensions_string, 4096 );
-	eptr = buff;
-	y = rect->y + 45;
-	numLines = 0;
-	// TTimo - don't overflow the line buffer, don't go above 46, as it goes out of the screen anyway
-	while ( y < rect->y + rect->h && *eptr && numLines < 46 )
-	{
-		while ( *eptr && *eptr == ' ' )
-			*eptr++ = '\0';
+    ::Text_Paint (
+        rect->x + 2,
+        rect->y + 15,
+        scale,
+        color,
+        ::va (
+            "VERSION: %s: %s",
+            uiInfo.uiDC.glconfig.version_string,
+            uiInfo.uiDC.glconfig.renderer_string),
+        0,
+        60,
+        textStyle);
 
-		// track start of valid string
-		if ( *eptr && *eptr != ' ' ) {
-			lines[numLines++] = eptr;
-		}
+    ::Text_Paint (
+        rect->x + 2,
+        rect->y + 30,
+        scale,
+        color,
+        ::va (
+            "FORMAT: color - %d bits, depth - %d bits, stencil - %d bits",
+            uiInfo.uiDC.glconfig.colorBits,
+            uiInfo.uiDC.glconfig.depthBits,
+            uiInfo.uiDC.glconfig.stencilBits),
+        0,
+        60,
+        textStyle);
 
-		while ( *eptr && *eptr != ' ' )
-			eptr++;
-	}
-
-	i = 0;
-	while ( i < numLines ) {
-		Text_Paint( rect->x + 2, y, scale, color, lines[i++], 0, 20, textStyle );
-		if ( i < numLines ) {
-			Text_Paint( rect->x + rect->w / 2, y, scale, color, lines[i++], 0, 20, textStyle );
-		}
-		y += 10;
-		if ( y > rect->y + rect->h - 11 ) {
-			break;
-		}
-	}
-
-
+    ::Text_Paint (
+        rect->x + 2,
+        rect->y + 55,
+        scale,
+        color,
+        "(Use \"gfxinfo\" console command for more information)",
+        0,
+        60,
+        textStyle);
 }
+//BBi
 
 // NERVE - SMF
 // TTimo - make the messages wrap and print in the right order (IRC-style)

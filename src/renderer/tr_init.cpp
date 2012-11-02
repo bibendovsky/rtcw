@@ -940,6 +940,41 @@ extern const char *glx_extensions_string;
 #endif
 #endif // RTCW_XX
 
+//BBi
+static void gfxPrintExtensions ()
+{
+    const GLubyte* extString = ::glGetString (GL_EXTENSIONS);
+
+    if (extString != 0) {
+        GLubyte extBuffer[128];
+
+        const GLubyte* beginExt = extString;
+        const GLubyte* endExt = extString;
+
+        while (true) {
+            while ((*endExt != ' ') && (*endExt != '\0')) {
+                ++endExt;
+            }
+
+            size_t extLen = endExt - beginExt;
+
+            ::memcpy (extBuffer, beginExt, extLen);
+            extBuffer[extLen] = '\0';
+
+            ::ri.Printf (PRINT_ALL, "  %s\n", extBuffer);
+
+            if (*endExt == '\0')
+                break;
+
+            ++endExt;
+
+            beginExt = endExt;
+        }
+    } else
+        ::ri.Printf (PRINT_ALL, "  none\n");
+}
+//BBi
+
 /*
 ================
 GfxInfo_f
@@ -961,7 +996,12 @@ void GfxInfo_f( void ) {
 	ri.Printf( PRINT_ALL, "\nGL_VENDOR: %s\n", glConfig.vendor_string );
 	ri.Printf( PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
 	ri.Printf( PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );
-	ri.Printf( PRINT_ALL, "GL_EXTENSIONS: %s\n", glConfig.extensions_string );
+
+    //BBi See #LB000001
+	//ri.Printf( PRINT_ALL, "GL_EXTENSIONS: %s\n", glConfig.extensions_string );
+    ::ri.Printf (PRINT_ALL, "GL_EXTENSIONS:\n");
+    ::gfxPrintExtensions ();
+    //BBi
 
 #if defined RTCW_ET
 #ifdef __linux__
@@ -970,7 +1010,7 @@ void GfxInfo_f( void ) {
 #endif // RTCW_XX
 
 	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
-	ri.Printf( PRINT_ALL, "GL_MAX_ACTIVE_TEXTURES_ARB: %d\n", glConfig.maxActiveTextures );
+	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_UNITS_ARB: %d\n", glConfig.maxActiveTextures );
 	ri.Printf( PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
 	ri.Printf( PRINT_ALL, "MODE: %d, %d x %d %s hz:", r_mode->integer, glConfig.vidWidth, glConfig.vidHeight, fsstrings[r_fullscreen->integer == 1] );
 	if ( glConfig.displayFrequency ) {

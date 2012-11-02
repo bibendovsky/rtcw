@@ -58,10 +58,10 @@
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
     <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</PostBuildEventUseInBuild>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">wolfmp</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">wolfmpded</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">wolfmp</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">wolfmpded</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">rtcw_mp_x86</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">rtcw_mp_ded_x86</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">rtcw_mp_x86</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">rtcw_mp_ded_x86</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
