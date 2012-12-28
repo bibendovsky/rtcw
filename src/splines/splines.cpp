@@ -608,9 +608,11 @@ bool idCameraDef::getCameraInfo( long time, idVec3 &origin, idVec3 &direction, f
 
 	origin = *cameraPosition->getPosition( time );
 
-#if !defined RTCW_MP
-	CHECK_NAN_VEC( origin );
-#endif // RTCW_XX
+//BBi
+//#if !defined RTCW_MP
+//	CHECK_NAN_VEC( origin );
+//#endif // RTCW_XX
+//BBi
 
 	*fv = fov.getFOV( time );
 

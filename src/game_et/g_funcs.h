@@ -73,6 +73,9 @@ If you have questions concerning this license or the applicable additional terms
 {"COM_RestoreParseSession", (byte *)COM_RestoreParseSession},
 {"COM_BackupParseSession", (byte *)COM_BackupParseSession},
 {"COM_BeginParseSession", (byte *)COM_BeginParseSession},
+
+//BBi
+#if 0
 {"Swap_Init", (byte *)Swap_Init},
 {"FloatNoSwap", (byte *)FloatNoSwap},
 {"FloatSwap", (byte *)FloatSwap},
@@ -90,6 +93,9 @@ If you have questions concerning this license or the applicable additional terms
 {"LittleLong64", (byte *)LittleLong64},
 {"LittleLong", (byte *)LittleLong},
 {"LittleShort", (byte *)LittleShort},
+#endif // 0
+//BBi
+
 {"COM_BitClear", (byte *)COM_BitClear},
 {"COM_BitSet", (byte *)COM_BitSet},
 {"COM_BitCheck", (byte *)COM_BitCheck},

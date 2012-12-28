@@ -13,6 +13,12 @@
       <UniqueIdentifier>{186f905a-520c-418e-bcdc-4694252b2e50}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
+    <Filter Include="Header Files\bbi">
+      <UniqueIdentifier>{8426f40f-5025-41ce-a149-1e1739ffc72d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\bbi">
+      <UniqueIdentifier>{458812b7-133f-4a31-82fd-5d35ac99f616}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\splines\math_angles.cpp">
@@ -568,6 +574,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\src\qcommon\rtcw_c.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_core.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_mem.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_endian.h">
+      <Filter>Header Files\bbi</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

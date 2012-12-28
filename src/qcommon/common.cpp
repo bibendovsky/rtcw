@@ -3258,7 +3258,10 @@ void Com_Init( char *commandLine ) {
 	volatile qboolean safeMode = qtrue;
 #endif // RTCW_XX
 
-	Com_Printf( "%s %s %s\n", Q3_VERSION, CPUSTRING, __DATE__ );
+    //BBi
+	//Com_Printf( "%s %s %s\n", Q3_VERSION, CPUSTRING, __DATE__ );
+    ::Com_Printf ("%s %s %s\n", RTCW_VERSION, CPUSTRING, __DATE__);
+    //BBi
 
 	if ( setjmp( abortframe ) ) {
 		Sys_Error( "Error during initialization" );
@@ -3277,7 +3280,10 @@ void Com_Init( char *commandLine ) {
 	// cvar and command buffer management
 	Com_ParseCommandLine( commandLine );
 
-	Swap_Init();
+    //BBi
+	//Swap_Init();
+    //BBi
+
 	Cbuf_Init();
 
 	Com_InitZoneMemory();
@@ -3535,7 +3541,11 @@ void Com_Init( char *commandLine ) {
 	Cmd_AddCommand( "changeVectors", MSG_ReportChangeVectors_f );
 	Cmd_AddCommand( "writeconfig", Com_WriteConfig_f );
 
-	s = va( "%s %s %s", Q3_VERSION, CPUSTRING, __DATE__ );
+    //BBi
+	//s = va( "%s %s %s", Q3_VERSION, CPUSTRING, __DATE__ );
+    s = ::va ("%s %s %s", RTCW_VERSION, CPUSTRING, __DATE__);
+    //BBi
+
 	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
 
 	Sys_Init();

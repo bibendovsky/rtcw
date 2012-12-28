@@ -367,8 +367,8 @@ static void R_LoadVisibility( lump_t *l ) {
 	}
 	buf = fileBase + l->fileofs;
 
-	s_worldData.numClusters = LittleLong( ( (int *)buf )[0] );
-	s_worldData.clusterBytes = LittleLong( ( (int *)buf )[1] );
+	s_worldData.numClusters = bbi::Endian::le ( ( (int *)buf )[0] );
+	s_worldData.clusterBytes = bbi::Endian::le ( ( (int *)buf )[1] );
 
 	// CM_Load should have given us the vis data to share, so
 	// we don't need to allocate another copy
@@ -395,7 +395,7 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
 	shader_t    *shader;
 	dshader_t   *dsh;
 
-	shaderNum = LittleLong( shaderNum );
+	bbi::Endian::lei (shaderNum);
 	if ( shaderNum < 0 || shaderNum >= s_worldData.numShaders ) {
 		ri.Error( ERR_DROP, "ShaderForShaderNum: bad num %i", shaderNum );
 	}
@@ -446,7 +446,7 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
 static byte *surfHunkPtr;
 static int surfHunkSize;
 #define SURF_HUNK_MAXSIZE 0x40000
-#define LL( x ) LittleLong( x )
+#define LL( x ) bbi::Endian::le ( x )
 
 /*
 ==============
@@ -495,10 +495,10 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	int lightmapNum;
 	int sfaceSize, ofsIndexes;
 
-	lightmapNum = LittleLong( ds->lightmapNum );
+	lightmapNum = bbi::Endian::le ( ds->lightmapNum );
 
 	// get fog volume
-	surf->fogIndex = LittleLong( ds->fogNum ) + 1;
+	surf->fogIndex = bbi::Endian::le ( ds->fogNum ) + 1;
 
 	// get shader value
 	surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapNum );
@@ -506,14 +506,14 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 		surf->shader = tr.defaultShader;
 	}
 
-	numPoints = LittleLong( ds->numVerts );
+	numPoints = bbi::Endian::le ( ds->numVerts );
 	if ( numPoints > MAX_FACE_POINTS ) {
 		ri.Printf( PRINT_WARNING, "WARNING: MAX_FACE_POINTS exceeded: %i\n", numPoints );
 		numPoints = MAX_FACE_POINTS;
 		surf->shader = tr.defaultShader;
 	}
 
-	numIndexes = LittleLong( ds->numIndexes );
+	numIndexes = bbi::Endian::le ( ds->numIndexes );
 
 	// create the srfSurfaceFace_t
 	sfaceSize = ( int ) &( (srfSurfaceFace_t *)0 )->points[numPoints];
@@ -528,26 +528,26 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	cv->numIndices = numIndexes;
 	cv->ofsIndices = ofsIndexes;
 
-	verts += LittleLong( ds->firstVert );
+	verts += bbi::Endian::le ( ds->firstVert );
 	for ( i = 0 ; i < numPoints ; i++ ) {
 		for ( j = 0 ; j < 3 ; j++ ) {
-			cv->points[i][j] = LittleFloat( verts[i].xyz[j] );
+			cv->points[i][j] = bbi::Endian::le ( verts[i].xyz[j] );
 		}
 		for ( j = 0 ; j < 2 ; j++ ) {
-			cv->points[i][3 + j] = LittleFloat( verts[i].st[j] );
-			cv->points[i][5 + j] = LittleFloat( verts[i].lightmap[j] );
+			cv->points[i][3 + j] = bbi::Endian::le ( verts[i].st[j] );
+			cv->points[i][5 + j] = bbi::Endian::le ( verts[i].lightmap[j] );
 		}
 		R_ColorShiftLightingBytes( verts[i].color, (byte *)&cv->points[i][7] );
 	}
 
-	indexes += LittleLong( ds->firstIndex );
+	indexes += bbi::Endian::le ( ds->firstIndex );
 	for ( i = 0 ; i < numIndexes ; i++ ) {
-		( ( int * )( (byte *)cv + cv->ofsIndices ) )[i] = LittleLong( indexes[ i ] );
+		( ( int * )( (byte *)cv + cv->ofsIndices ) )[i] = bbi::Endian::le ( indexes[ i ] );
 	}
 
 	// take the plane information from the lightmap vector
 	for ( i = 0 ; i < 3 ; i++ ) {
-		cv->plane.normal[i] = LittleFloat( ds->lightmapVecs[2][i] );
+		cv->plane.normal[i] = bbi::Endian::le ( ds->lightmapVecs[2][i] );
 	}
 	cv->plane.dist = DotProduct( cv->points[0], cv->plane.normal );
 	SetPlaneSignbits( &cv->plane );
@@ -584,9 +584,9 @@ static void FinishGenericSurface( dsurface_t *ds, srfGeneric_t *gen, vec3_t pt )
 	SphereFromBounds( gen->bounds[ 0 ], gen->bounds[ 1 ], gen->origin, &gen->radius );
 
 	// take the plane normal from the lightmap vector and classify it
-	gen->plane.normal[ 0 ] = LittleFloat( ds->lightmapVecs[ 2 ][ 0 ] );
-	gen->plane.normal[ 1 ] = LittleFloat( ds->lightmapVecs[ 2 ][ 1 ] );
-	gen->plane.normal[ 2 ] = LittleFloat( ds->lightmapVecs[ 2 ][ 2 ] );
+	gen->plane.normal[ 0 ] = bbi::Endian::le ( ds->lightmapVecs[ 2 ][ 0 ] );
+	gen->plane.normal[ 1 ] = bbi::Endian::le ( ds->lightmapVecs[ 2 ][ 1 ] );
+	gen->plane.normal[ 2 ] = bbi::Endian::le ( ds->lightmapVecs[ 2 ][ 2 ] );
 	gen->plane.dist = DotProduct( pt, gen->plane.normal );
 	SetPlaneSignbits( &gen->plane );
 	gen->plane.type = PlaneTypeForNormal( gen->plane.normal );
@@ -611,10 +611,10 @@ static void ParseMesh( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
 	static surfaceType_t skipData = SF_SKIP;
 #endif // RTCW_XX
 
-	lightmapNum = LittleLong( ds->lightmapNum );
+	lightmapNum = bbi::Endian::le ( ds->lightmapNum );
 
 	// get fog volume
-	surf->fogIndex = LittleLong( ds->fogNum ) + 1;
+	surf->fogIndex = bbi::Endian::le ( ds->fogNum ) + 1;
 
 	// get shader value
 	surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapNum );
@@ -624,24 +624,24 @@ static void ParseMesh( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
 
 	// we may have a nodraw surface, because they might still need to
 	// be around for movement clipping
-	if ( s_worldData.shaders[ LittleLong( ds->shaderNum ) ].surfaceFlags & SURF_NODRAW ) {
+	if ( s_worldData.shaders[ bbi::Endian::le ( ds->shaderNum ) ].surfaceFlags & SURF_NODRAW ) {
 		surf->data = &skipData;
 		return;
 	}
 
-	width = LittleLong( ds->patchWidth );
-	height = LittleLong( ds->patchHeight );
+	width = bbi::Endian::le ( ds->patchWidth );
+	height = bbi::Endian::le ( ds->patchHeight );
 
-	verts += LittleLong( ds->firstVert );
+	verts += bbi::Endian::le ( ds->firstVert );
 	numPoints = width * height;
 	for ( i = 0 ; i < numPoints ; i++ ) {
 		for ( j = 0 ; j < 3 ; j++ ) {
-			points[i].xyz[j] = LittleFloat( verts[i].xyz[j] );
-			points[i].normal[j] = LittleFloat( verts[i].normal[j] );
+			points[i].xyz[j] = bbi::Endian::le ( verts[i].xyz[j] );
+			points[i].normal[j] = bbi::Endian::le ( verts[i].normal[j] );
 		}
 		for ( j = 0 ; j < 2 ; j++ ) {
-			points[i].st[j] = LittleFloat( verts[i].st[j] );
-			points[i].lightmap[j] = LittleFloat( verts[i].lightmap[j] );
+			points[i].st[j] = bbi::Endian::le ( verts[i].st[j] );
+			points[i].lightmap[j] = bbi::Endian::le ( verts[i].lightmap[j] );
 		}
 		R_ColorShiftLightingBytes( verts[i].color, points[i].color );
 	}
@@ -654,8 +654,8 @@ static void ParseMesh( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
 	// of the group of all curves that must subdivide the same
 	// to avoid cracking
 	for ( i = 0 ; i < 3 ; i++ ) {
-		bounds[0][i] = LittleFloat( ds->lightmapVecs[0][i] );
-		bounds[1][i] = LittleFloat( ds->lightmapVecs[1][i] );
+		bounds[0][i] = bbi::Endian::le ( ds->lightmapVecs[0][i] );
+		bounds[1][i] = bbi::Endian::le ( ds->lightmapVecs[1][i] );
 	}
 	VectorAdd( bounds[0], bounds[1], bounds[1] );
 	VectorScale( bounds[1], 0.5f, grid->lodOrigin );
@@ -861,11 +861,11 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 
 
 	// get lightmap num
-	lightmapNum = LittleLong( ds->lightmapNum );
+	lightmapNum = bbi::Endian::le ( ds->lightmapNum );
 #endif // RTCW_XX
 
 	// get fog volume
-	surf->fogIndex = LittleLong( ds->fogNum ) + 1;
+	surf->fogIndex = bbi::Endian::le ( ds->fogNum ) + 1;
 
 	// get shader
 
@@ -879,8 +879,8 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 		surf->shader = tr.defaultShader;
 	}
 
-	numVerts = LittleLong( ds->numVerts );
-	numIndexes = LittleLong( ds->numIndexes );
+	numVerts = bbi::Endian::le ( ds->numVerts );
+	numIndexes = bbi::Endian::le ( ds->numIndexes );
 
 	//tri = ri.Hunk_Alloc( sizeof( *tri ) + numVerts * sizeof( tri->verts[0] )
 	//	+ numIndexes * sizeof( tri->indexes[0] ) );
@@ -897,25 +897,25 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 
 	// copy vertexes
 	ClearBounds( tri->bounds[0], tri->bounds[1] );
-	verts += LittleLong( ds->firstVert );
+	verts += bbi::Endian::le ( ds->firstVert );
 	for ( i = 0 ; i < numVerts ; i++ ) {
 		for ( j = 0 ; j < 3 ; j++ ) {
-			tri->verts[i].xyz[j] = LittleFloat( verts[i].xyz[j] );
-			tri->verts[i].normal[j] = LittleFloat( verts[i].normal[j] );
+			tri->verts[i].xyz[j] = bbi::Endian::le ( verts[i].xyz[j] );
+			tri->verts[i].normal[j] = bbi::Endian::le ( verts[i].normal[j] );
 		}
 		AddPointToBounds( tri->verts[i].xyz, tri->bounds[0], tri->bounds[1] );
 		for ( j = 0 ; j < 2 ; j++ ) {
-			tri->verts[i].st[j] = LittleFloat( verts[i].st[j] );
-			tri->verts[i].lightmap[j] = LittleFloat( verts[i].lightmap[j] );
+			tri->verts[i].st[j] = bbi::Endian::le ( verts[i].st[j] );
+			tri->verts[i].lightmap[j] = bbi::Endian::le ( verts[i].lightmap[j] );
 		}
 
 		R_ColorShiftLightingBytes( verts[i].color, tri->verts[i].color );
 	}
 
 	// copy indexes
-	indexes += LittleLong( ds->firstIndex );
+	indexes += bbi::Endian::le ( ds->firstIndex );
 	for ( i = 0 ; i < numIndexes ; i++ ) {
-		tri->indexes[i] = LittleLong( indexes[i] );
+		tri->indexes[i] = bbi::Endian::le ( indexes[i] );
 		if ( tri->indexes[i] < 0 || tri->indexes[i] >= numVerts ) {
 			ri.Error( ERR_DROP, "Bad index in triangle surface" );
 		}
@@ -944,7 +944,7 @@ static void ParseFoliage( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 
 
 	// get fog volume
-	surf->fogIndex = LittleLong( ds->fogNum ) + 1;
+	surf->fogIndex = bbi::Endian::le ( ds->fogNum ) + 1;
 
 	// get shader
 	surf->shader = ShaderForShaderNum( ds->shaderNum, LIGHTMAP_BY_VERTEX );
@@ -957,9 +957,9 @@ static void ParseFoliage( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 	// the instances are just additional drawverts
 
 	// get counts
-	numVerts = LittleLong( ds->patchHeight );
-	numIndexes = LittleLong( ds->numIndexes );
-	numInstances = LittleLong( ds->patchWidth );
+	numVerts = bbi::Endian::le ( ds->patchHeight );
+	numIndexes = bbi::Endian::le ( ds->numIndexes );
+	numInstances = bbi::Endian::le ( ds->patchWidth );
 
 	// calculate size
 	size = sizeof( *foliage ) +
@@ -994,7 +994,7 @@ static void ParseFoliage( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 
 	// copy vertexes
 	ClearBounds( bounds[ 0 ], bounds[ 1 ] );
-	verts += LittleLong( ds->firstVert );
+	verts += bbi::Endian::le ( ds->firstVert );
 	xyz = foliage->xyz;
 	normal = foliage->normal;
 	for ( i = 0; i < numVerts; i++ )
@@ -1002,8 +1002,8 @@ static void ParseFoliage( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 		// copy xyz and normal
 		for ( j = 0; j < 3; j++ )
 		{
-			foliage->xyz[ i ][ j ] = LittleFloat( verts[ i ].xyz[ j ] );
-			foliage->normal[ i ][ j ] = LittleFloat( verts[ i ].normal[ j ] );
+			foliage->xyz[ i ][ j ] = bbi::Endian::le ( verts[ i ].xyz[ j ] );
+			foliage->normal[ i ][ j ] = bbi::Endian::le ( verts[ i ].normal[ j ] );
 		}
 
 		// scale height
@@ -1016,16 +1016,16 @@ static void ParseFoliage( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 		// copy texture coordinates
 		for ( j = 0; j < 2; j++ )
 		{
-			foliage->texCoords[ i ][ j ] = LittleFloat( verts[ i ].st[ j ] );
-			foliage->lmTexCoords[ i ][ j ] = LittleFloat( verts[ i ].lightmap[ j ] );
+			foliage->texCoords[ i ][ j ] = bbi::Endian::le ( verts[ i ].st[ j ] );
+			foliage->lmTexCoords[ i ][ j ] = bbi::Endian::le ( verts[ i ].lightmap[ j ] );
 		}
 	}
 
 	// copy indexes
-	indexes += LittleLong( ds->firstIndex );
+	indexes += bbi::Endian::le ( ds->firstIndex );
 	for ( i = 0; i < numIndexes; i++ )
 	{
-		foliage->indexes[ i ] = LittleLong( indexes[ i ] );
+		foliage->indexes[ i ] = bbi::Endian::le ( indexes[ i ] );
 		if ( foliage->indexes[ i ] < 0 || foliage->indexes[ i ] >= numVerts ) {
 			ri.Error( ERR_DROP, "Bad index in triangle surface" );
 		}
@@ -1038,7 +1038,7 @@ static void ParseFoliage( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 	{
 		// copy xyz
 		for ( j = 0; j < 3; j++ )
-			foliage->instances[ i ].origin[ j ] = LittleFloat( verts[ i ].xyz[ j ] );
+			foliage->instances[ i ].origin[ j ] = bbi::Endian::le ( verts[ i ].xyz[ j ] );
 		VectorAdd( bounds[ 0 ], foliage->instances[ i ].origin, boundsTranslated[ 0 ] );
 		VectorAdd( bounds[ 1 ], foliage->instances[ i ].origin, boundsTranslated[ 1 ] );
 		AddPointToBounds( boundsTranslated[ 0 ], foliage->bounds[ 0 ], foliage->bounds[ 1 ] );
@@ -1064,7 +1064,7 @@ static void ParseFlare( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int
 	int i;
 
 	// get fog volume
-	surf->fogIndex = LittleLong( ds->fogNum ) + 1;
+	surf->fogIndex = bbi::Endian::le ( ds->fogNum ) + 1;
 
 	// get shader
 	surf->shader = ShaderForShaderNum( ds->shaderNum, LIGHTMAP_BY_VERTEX );
@@ -1078,9 +1078,9 @@ static void ParseFlare( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int
 	surf->data = (surfaceType_t *)flare;
 
 	for ( i = 0 ; i < 3 ; i++ ) {
-		flare->origin[i] = LittleFloat( ds->lightmapOrigin[i] );
-		flare->color[i] = LittleFloat( ds->lightmapVecs[0][i] );
-		flare->normal[i] = LittleFloat( ds->lightmapVecs[2][i] );
+		flare->origin[i] = bbi::Endian::le ( ds->lightmapOrigin[i] );
+		flare->color[i] = bbi::Endian::le ( ds->lightmapVecs[0][i] );
+		flare->normal[i] = bbi::Endian::le ( ds->lightmapVecs[2][i] );
 	}
 }
 
@@ -2356,7 +2356,7 @@ static void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 	R_InitSurfMemory();
 
 	for ( i = 0 ; i < count ; i++, in++, out++ ) {
-		switch ( LittleLong( in->surfaceType ) ) {
+		switch ( bbi::Endian::le ( in->surfaceType ) ) {
 		case MST_PATCH:
 			ParseMesh( in, dv, out );
 			numMeshes++;
@@ -2456,17 +2456,17 @@ static void R_LoadSubmodels( lump_t *l ) {
 		Com_sprintf( model->name, sizeof( model->name ), "*%d", i );
 
 		for ( j = 0 ; j < 3 ; j++ ) {
-			out->bounds[0][j] = LittleFloat( in->mins[j] );
-			out->bounds[1][j] = LittleFloat( in->maxs[j] );
+			out->bounds[0][j] = bbi::Endian::le ( in->mins[j] );
+			out->bounds[1][j] = bbi::Endian::le ( in->maxs[j] );
 		}
 
-		out->firstSurface = s_worldData.surfaces + LittleLong( in->firstSurface );
-		out->numSurfaces = LittleLong( in->numSurfaces );
+		out->firstSurface = s_worldData.surfaces + bbi::Endian::le ( in->firstSurface );
+		out->numSurfaces = bbi::Endian::le ( in->numSurfaces );
 
 #if defined RTCW_ET
 		// ydnar: for attaching fog brushes to models
-		out->firstBrush = LittleLong( in->firstBrush );
-		out->numBrushes = LittleLong( in->numBrushes );
+		out->firstBrush = bbi::Endian::le ( in->firstBrush );
+		out->numBrushes = bbi::Endian::le ( in->numBrushes );
 
 		// ydnar: allocate decal memory
 		j = ( i == 0 ? MAX_WORLD_DECALS : MAX_ENTITY_DECALS );
@@ -2586,8 +2586,8 @@ static void R_LoadNodesAndLeafs( lump_t *nodeLump, lump_t *leafLump ) {
 	{
 		for ( j = 0 ; j < 3 ; j++ )
 		{
-			out->mins[j] = LittleLong( in->mins[j] );
-			out->maxs[j] = LittleLong( in->maxs[j] );
+			out->mins[j] = bbi::Endian::le ( in->mins[j] );
+			out->maxs[j] = bbi::Endian::le ( in->maxs[j] );
 		}
 
 #if defined RTCW_ET
@@ -2596,14 +2596,14 @@ static void R_LoadNodesAndLeafs( lump_t *nodeLump, lump_t *leafLump ) {
 		VectorCopy( out->maxs, out->surfMaxs );
 #endif // RTCW_XX
 
-		p = LittleLong( in->planeNum );
+		p = bbi::Endian::le ( in->planeNum );
 		out->plane = s_worldData.planes + p;
 
 		out->contents = CONTENTS_NODE;  // differentiate from leafs
 
 		for ( j = 0 ; j < 2 ; j++ )
 		{
-			p = LittleLong( in->children[j] );
+			p = bbi::Endian::le ( in->children[j] );
 			if ( p >= 0 ) {
 				out->children[j] = s_worldData.nodes + p;
 			} else {
@@ -2618,8 +2618,8 @@ static void R_LoadNodesAndLeafs( lump_t *nodeLump, lump_t *leafLump ) {
 	{
 		for ( j = 0 ; j < 3 ; j++ )
 		{
-			out->mins[j] = LittleLong( inLeaf->mins[j] );
-			out->maxs[j] = LittleLong( inLeaf->maxs[j] );
+			out->mins[j] = bbi::Endian::le ( inLeaf->mins[j] );
+			out->maxs[j] = bbi::Endian::le ( inLeaf->maxs[j] );
 		}
 
 #if defined RTCW_ET
@@ -2627,16 +2627,16 @@ static void R_LoadNodesAndLeafs( lump_t *nodeLump, lump_t *leafLump ) {
 		ClearBounds( out->surfMins, out->surfMaxs );
 #endif // RTCW_XX
 
-		out->cluster = LittleLong( inLeaf->cluster );
-		out->area = LittleLong( inLeaf->area );
+		out->cluster = bbi::Endian::le ( inLeaf->cluster );
+		out->area = bbi::Endian::le ( inLeaf->area );
 
 		if ( out->cluster >= s_worldData.numClusters ) {
 			s_worldData.numClusters = out->cluster + 1;
 		}
 
 		out->firstmarksurface = s_worldData.marksurfaces +
-								LittleLong( inLeaf->firstLeafSurface );
-		out->nummarksurfaces = LittleLong( inLeaf->numLeafSurfaces );
+								bbi::Endian::le ( inLeaf->firstLeafSurface );
+		out->nummarksurfaces = bbi::Endian::le ( inLeaf->numLeafSurfaces );
 	}
 
 	// chain decendants
@@ -2667,8 +2667,8 @@ static void R_LoadShaders( lump_t *l ) {
 	memcpy( out, in, count * sizeof( *out ) );
 
 	for ( i = 0 ; i < count ; i++ ) {
-		out[i].surfaceFlags = LittleLong( out[i].surfaceFlags );
-		out[i].contentFlags = LittleLong( out[i].contentFlags );
+		out[i].surfaceFlags = bbi::Endian::le ( out[i].surfaceFlags );
+		out[i].contentFlags = bbi::Endian::le ( out[i].contentFlags );
 	}
 }
 
@@ -2695,7 +2695,7 @@ static void R_LoadMarksurfaces( lump_t *l ) {
 
 	for ( i = 0 ; i < count ; i++ )
 	{
-		j = LittleLong( in[i] );
+		j = bbi::Endian::le ( in[i] );
 		out[i] = s_worldData.surfaces + j;
 	}
 }
@@ -2726,13 +2726,13 @@ static void R_LoadPlanes( lump_t *l ) {
 	for ( i = 0 ; i < count ; i++, in++, out++ ) {
 		bits = 0;
 		for ( j = 0 ; j < 3 ; j++ ) {
-			out->normal[j] = LittleFloat( in->normal[j] );
+			out->normal[j] = bbi::Endian::le ( in->normal[j] );
 			if ( out->normal[j] < 0 ) {
 				bits |= 1 << j;
 			}
 		}
 
-		out->dist = LittleFloat( in->dist );
+		out->dist = bbi::Endian::le ( in->dist );
 		out->type = PlaneTypeForNormal( out->normal );
 		out->signbits = bits;
 	}
@@ -2801,7 +2801,7 @@ static void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
 	sidesCount = sidesLump->filelen / sizeof( *sides );
 
 	for ( i = 0 ; i < count ; i++, fogs++ ) {
-		out->originalBrushNumber = LittleLong( fogs->brushNum );
+		out->originalBrushNumber = bbi::Endian::le ( fogs->brushNum );
 
 
 #if defined RTCW_ET
@@ -2831,7 +2831,7 @@ static void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
 
 		brush = brushes + out->originalBrushNumber;
 
-		firstSide = LittleLong( brush->firstSide );
+		firstSide = bbi::Endian::le ( brush->firstSide );
 
 		if ( (unsigned)firstSide > sidesCount - 6 ) {
 			ri.Error( ERR_DROP, "fog brush sideNumber out of range" );
@@ -2839,27 +2839,27 @@ static void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
 
 		// brushes are always sorted with the axial sides first
 		sideNum = firstSide + 0;
-		planeNum = LittleLong( sides[ sideNum ].planeNum );
+		planeNum = bbi::Endian::le ( sides[ sideNum ].planeNum );
 		out->bounds[0][0] = -s_worldData.planes[ planeNum ].dist;
 
 		sideNum = firstSide + 1;
-		planeNum = LittleLong( sides[ sideNum ].planeNum );
+		planeNum = bbi::Endian::le ( sides[ sideNum ].planeNum );
 		out->bounds[1][0] = s_worldData.planes[ planeNum ].dist;
 
 		sideNum = firstSide + 2;
-		planeNum = LittleLong( sides[ sideNum ].planeNum );
+		planeNum = bbi::Endian::le ( sides[ sideNum ].planeNum );
 		out->bounds[0][1] = -s_worldData.planes[ planeNum ].dist;
 
 		sideNum = firstSide + 3;
-		planeNum = LittleLong( sides[ sideNum ].planeNum );
+		planeNum = bbi::Endian::le ( sides[ sideNum ].planeNum );
 		out->bounds[1][1] = s_worldData.planes[ planeNum ].dist;
 
 		sideNum = firstSide + 4;
-		planeNum = LittleLong( sides[ sideNum ].planeNum );
+		planeNum = bbi::Endian::le ( sides[ sideNum ].planeNum );
 		out->bounds[0][2] = -s_worldData.planes[ planeNum ].dist;
 
 		sideNum = firstSide + 5;
-		planeNum = LittleLong( sides[ sideNum ].planeNum );
+		planeNum = bbi::Endian::le ( sides[ sideNum ].planeNum );
 		out->bounds[1][2] = s_worldData.planes[ planeNum ].dist;
 
 #if defined RTCW_ET
@@ -2893,7 +2893,7 @@ static void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
 #endif // RTCW_XX
 
 		// set the gradient vector
-		sideNum = LittleLong( fogs->visibleSide );
+		sideNum = bbi::Endian::le ( fogs->visibleSide );
 
 #if !defined RTCW_ET
 		if ( sideNum == -1 ) {
@@ -2905,7 +2905,7 @@ static void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
 			out->hasSurface = qfalse;
 		} else {
 			out->hasSurface = qtrue;
-			planeNum = LittleLong( sides[ firstSide + sideNum ].planeNum );
+			planeNum = bbi::Endian::le ( sides[ firstSide + sideNum ].planeNum );
 			VectorSubtract( vec3_origin, s_worldData.planes[ planeNum ].normal, out->surface );
 			out->surface[3] = -s_worldData.planes[ planeNum ].dist;
 		}
@@ -3258,7 +3258,7 @@ void RE_LoadWorldMap( const char *name ) {
 	header = (dheader_t *)buffer;
 	fileBase = (byte *)header;
 
-	i = LittleLong( header->version );
+	i = bbi::Endian::le ( header->version );
 
 #if defined RTCW_SP
 #ifndef _SKIP_BSP_CHECK
@@ -3276,7 +3276,7 @@ void RE_LoadWorldMap( const char *name ) {
 
 	// swap all the lumps
 	for ( i = 0 ; i < sizeof( dheader_t ) / 4 ; i++ ) {
-		( (int *)header )[i] = LittleLong( ( (int *)header )[i] );
+		( (int *)header )[i] = bbi::Endian::le ( ( (int *)header )[i] );
 	}
 
 	// load into heap

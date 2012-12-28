@@ -1427,25 +1427,47 @@ BMP LOADING
 
 =========================================================
 */
-typedef struct
-{
-	char id[2];
-	unsigned long fileSize;
-	unsigned long reserved0;
-	unsigned long bitmapDataOffset;
-	unsigned long bitmapHeaderSize;
-	unsigned long width;
-	unsigned long height;
-	unsigned short planes;
-	unsigned short bitsPerPixel;
-	unsigned long compression;
-	unsigned long bitmapDataSize;
-	unsigned long hRes;
-	unsigned long vRes;
-	unsigned long colors;
-	unsigned long importantColors;
-	unsigned char palette[256][4];
-} BMPHeader_t;
+
+//BBi
+//typedef struct
+//{
+//	char id[2];
+//	unsigned long fileSize;
+//	unsigned long reserved0;
+//	unsigned long bitmapDataOffset;
+//	unsigned long bitmapHeaderSize;
+//	unsigned long width;
+//	unsigned long height;
+//	unsigned short planes;
+//	unsigned short bitsPerPixel;
+//	unsigned long compression;
+//	unsigned long bitmapDataSize;
+//	unsigned long hRes;
+//	unsigned long vRes;
+//	unsigned long colors;
+//	unsigned long importantColors;
+//	unsigned char palette[256][4];
+//} BMPHeader_t;
+
+struct BMPHeader_t {
+    bbi::Int8 id[2];
+    bbi::UInt32 fileSize;
+    bbi::UInt32 reserved0;
+    bbi::UInt32 bitmapDataOffset;
+    bbi::UInt32 bitmapHeaderSize;
+    bbi::UInt32 width;
+    bbi::UInt32 height;
+    bbi::UInt16 planes;
+    bbi::UInt16 bitsPerPixel;
+    bbi::UInt32 compression;
+    bbi::UInt32 bitmapDataSize;
+    bbi::UInt32 hRes;
+    bbi::UInt32 vRes;
+    bbi::UInt32 colors;
+    bbi::UInt32 importantColors;
+    bbi::UInt8 palette[256][4];
+}; // struct BMPHeader_t
+//BBi
 
 static void LoadBMP( const char *name, byte **pic, int *width, int *height ) {
 	int columns, rows, numPixels;
@@ -1471,33 +1493,33 @@ static void LoadBMP( const char *name, byte **pic, int *width, int *height ) {
 
 	bmpHeader.id[0] = *buf_p++;
 	bmpHeader.id[1] = *buf_p++;
-	bmpHeader.fileSize = LittleLong( *( long * ) buf_p );
+	bmpHeader.fileSize = bbi::Endian::le ( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.reserved0 = LittleLong( *( long * ) buf_p );
+	bmpHeader.reserved0 = bbi::Endian::le ( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.bitmapDataOffset = LittleLong( *( long * ) buf_p );
+	bmpHeader.bitmapDataOffset = bbi::Endian::le ( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.bitmapHeaderSize = LittleLong( *( long * ) buf_p );
+	bmpHeader.bitmapHeaderSize = bbi::Endian::le ( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.width = LittleLong( *( long * ) buf_p );
+	bmpHeader.width = bbi::Endian::le ( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.height = LittleLong( *( long * ) buf_p );
+	bmpHeader.height = bbi::Endian::le ( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.planes = LittleShort( *( short * ) buf_p );
+	bmpHeader.planes = bbi::Endian::le ( *( short * ) buf_p );
 	buf_p += 2;
-	bmpHeader.bitsPerPixel = LittleShort( *( short * ) buf_p );
+	bmpHeader.bitsPerPixel = bbi::Endian::le ( *( short * ) buf_p );
 	buf_p += 2;
-	bmpHeader.compression = LittleLong( *( long * ) buf_p );
+	bmpHeader.compression = bbi::Endian::le ( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.bitmapDataSize = LittleLong( *( long * ) buf_p );
+	bmpHeader.bitmapDataSize = bbi::Endian::le ( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.hRes = LittleLong( *( long * ) buf_p );
+	bmpHeader.hRes = bbi::Endian::le ( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.vRes = LittleLong( *( long * ) buf_p );
+	bmpHeader.vRes = bbi::Endian::le ( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.colors = LittleLong( *( long * ) buf_p );
+	bmpHeader.colors = bbi::Endian::le ( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.importantColors = LittleLong( *( long * ) buf_p );
+	bmpHeader.importantColors = bbi::Endian::le ( *( long * ) buf_p );
 	buf_p += 4;
 
 	memcpy( bmpHeader.palette, buf_p, sizeof( bmpHeader.palette ) );
@@ -1616,166 +1638,333 @@ LoadPCX
 #define DECODEPCX( b, d, r ) d = *b++; if ( ( d & 0xC0 ) == 0xC0 ) {r = d & 0x3F; d = *b++;} else {r = 1;}
 #endif // RTCW_XX
 
-static void LoadPCX( const char *filename, byte **pic, byte **palette, int *width, int *height ) {
-	byte    *raw;
-	pcx_t   *pcx;
+//BBi
+//static void LoadPCX( const char *filename, byte **pic, byte **palette, int *width, int *height ) {
+//	byte    *raw;
+//	pcx_t   *pcx;
+//
+//#if !defined RTCW_ET
+//	int x, y;
+//#else
+//	int x, y, lsize;
+//#endif // RTCW_XX
+//
+//	int len;
+//	int dataByte, runLength;
+//	byte    *out, *pix;
+//	int xmax, ymax;
+//
+//	*pic = NULL;
+//	*palette = NULL;
+//
+//#if defined RTCW_ET
+//	runLength = 0;
+//#endif // RTCW_XX
+//
+//	//
+//	// load the file
+//	//
+//	len = ri.FS_ReadFile( ( char * ) filename, (void **)&raw );
+//	if ( !raw ) {
+//		return;
+//	}
+//
+//	//
+//	// parse the PCX file
+//	//
+//	pcx = (pcx_t *)raw;
+//	raw = &pcx->data;
+//
+//	xmax = LittleShort( pcx->xmax );
+//	ymax = LittleShort( pcx->ymax );
+//
+//	if ( pcx->manufacturer != 0x0a
+//		 || pcx->version != 5
+//		 || pcx->encoding != 1
+//		 || pcx->bits_per_pixel != 8
+//		 || xmax >= 1024
+//		 || ymax >= 1024 ) {
+//		ri.Printf( PRINT_ALL, "Bad pcx file %s (%i x %i) (%i x %i)\n", filename, xmax + 1, ymax + 1, pcx->xmax, pcx->ymax );
+//		return;
+//	}
+//
+//	out = static_cast<byte*> (R_GetImageBuffer( ( ymax + 1 ) * ( xmax + 1 ), BUFFER_IMAGE ));
+//
+//	*pic = out;
+//
+//	pix = out;
+//
+//	if ( palette ) {
+//
+//#if defined RTCW_SP
+//        //BBi
+//		//*palette = static_cast<byte*> (malloc( 768 ));
+//        *palette = new byte[768];
+//        //BBi
+//#else
+//		*palette = static_cast<byte*> (ri.Z_Malloc( 768 ));
+//#endif // RTCW_XX
+//
+//		memcpy( *palette, (byte *)pcx + len - 768, 768 );
+//	}
+//
+//	if ( width ) {
+//		*width = xmax + 1;
+//	}
+//	if ( height ) {
+//		*height = ymax + 1;
+//	}
+//// FIXME: use bytes_per_line here?
+//
+//#if !defined RTCW_ET
+//	for ( y = 0 ; y <= ymax ; y++, pix += xmax + 1 )
+//	{
+//		for ( x = 0 ; x <= xmax ; )
+//		{
+//			dataByte = *raw++;
+//
+//			if ( ( dataByte & 0xC0 ) == 0xC0 ) {
+//				runLength = dataByte & 0x3F;
+//				dataByte = *raw++;
+//			} else {
+//				runLength = 1;
+//			}
+//
+//			while ( runLength-- > 0 )
+//				pix[x++] = dataByte;
+//		}
+//
+//	}
+//#else
+//	// Arnout: this doesn't work for all pcx files
+//	/*for (y=0 ; y<=ymax ; y++, pix += xmax+1)
+//	{
+//		for (x=0 ; x<=xmax ; )
+//		{
+//			dataByte = *raw++;
+//
+//			if((dataByte & 0xC0) == 0xC0)
+//			{
+//				runLength = dataByte & 0x3F;
+//				dataByte = *raw++;
+//			}
+//			else
+//				runLength = 1;
+//
+//			while(runLength-- > 0)
+//				pix[x++] = dataByte;
+//		}
+//
+//	}*/
+//
+//	lsize = pcx->color_planes * pcx->bytes_per_line;
+//
+//	// go scanline by scanline
+//	for ( y = 0; y <= pcx->ymax; y++, pix += pcx->xmax + 1 )
+//	{
+//		// do a scanline
+//		for ( x = 0; x <= pcx->xmax; )
+//		{
+//			DECODEPCX( raw, dataByte, runLength );
+//			while ( runLength-- > 0 )
+//				pix[ x++ ] = dataByte;
+//		}
+//
+//		// discard any other data
+//		while ( x < lsize )
+//		{
+//			DECODEPCX( raw, dataByte, runLength );
+//			x++;
+//		}
+//		while ( runLength-- > 0 )
+//			x++;
+//	}
+//#endif // RTCW_XX
+//
+//	if ( raw - (byte *)pcx > len ) {
+//		ri.Printf( PRINT_DEVELOPER, "PCX file %s was malformed", filename );
+//
+//#if defined RTCW_SP
+//        //BBi
+//		//free( *pic );
+//        delete [] (*pic);
+//        //BBi
+//#else
+//		ri.Free( *pic );
+//#endif // RTCW_XX
+//
+//		*pic = NULL;
+//	}
+//
+//	ri.FS_FreeFile( pcx );
+//}
+
+static void LoadPCX (
+    const char* filename,
+    bbi::UInt8** pic,
+    bbi::UInt8** palette,
+    int* width,
+    int* height)
+{
+    bbi::UInt8* raw;
+    pcx_t* pcx;
 
 #if !defined RTCW_ET
-	int x, y;
+    int x, y;
 #else
-	int x, y, lsize;
+    int x, y, lsize;
 #endif // RTCW_XX
 
-	int len;
-	int dataByte, runLength;
-	byte    *out, *pix;
-	int xmax, ymax;
+    int len;
+    int dataByte, runLength;
+    byte    *out, *pix;
+    int xmax, ymax;
 
-	*pic = NULL;
-	*palette = NULL;
+    *pic = NULL;
+    *palette = NULL;
 
 #if defined RTCW_ET
-	runLength = 0;
+    runLength = 0;
 #endif // RTCW_XX
 
-	//
-	// load the file
-	//
-	len = ri.FS_ReadFile( ( char * ) filename, (void **)&raw );
-	if ( !raw ) {
-		return;
-	}
+    //
+    // load the file
+    //
+    len = ri.FS_ReadFile( ( char * ) filename, (void **)&raw );
+    if ( !raw ) {
+        return;
+    }
 
-	//
-	// parse the PCX file
-	//
-	pcx = (pcx_t *)raw;
-	raw = &pcx->data;
+    //
+    // parse the PCX file
+    //
+    pcx = (pcx_t *)raw;
+    raw = &pcx->data;
 
-	xmax = LittleShort( pcx->xmax );
-	ymax = LittleShort( pcx->ymax );
+    xmax = bbi::Endian::le ( pcx->xmax );
+    ymax = bbi::Endian::le ( pcx->ymax );
 
-	if ( pcx->manufacturer != 0x0a
-		 || pcx->version != 5
-		 || pcx->encoding != 1
-		 || pcx->bits_per_pixel != 8
-		 || xmax >= 1024
-		 || ymax >= 1024 ) {
-		ri.Printf( PRINT_ALL, "Bad pcx file %s (%i x %i) (%i x %i)\n", filename, xmax + 1, ymax + 1, pcx->xmax, pcx->ymax );
-		return;
-	}
+    if ( pcx->manufacturer != 0x0a
+        || pcx->version != 5
+        || pcx->encoding != 1
+        || pcx->bits_per_pixel != 8
+        || xmax >= 1024
+        || ymax >= 1024 ) {
+            ri.Printf( PRINT_ALL, "Bad pcx file %s (%i x %i) (%i x %i)\n", filename, xmax + 1, ymax + 1, pcx->xmax, pcx->ymax );
+            return;
+    }
 
-	out = static_cast<byte*> (R_GetImageBuffer( ( ymax + 1 ) * ( xmax + 1 ), BUFFER_IMAGE ));
+    out = static_cast<byte*> (R_GetImageBuffer( ( ymax + 1 ) * ( xmax + 1 ), BUFFER_IMAGE ));
 
-	*pic = out;
+    *pic = out;
 
-	pix = out;
+    pix = out;
 
-	if ( palette ) {
+    if ( palette ) {
 
 #if defined RTCW_SP
         //BBi
-		//*palette = static_cast<byte*> (malloc( 768 ));
+        //*palette = static_cast<byte*> (malloc( 768 ));
         *palette = new byte[768];
         //BBi
 #else
-		*palette = static_cast<byte*> (ri.Z_Malloc( 768 ));
+        *palette = static_cast<byte*> (ri.Z_Malloc( 768 ));
 #endif // RTCW_XX
 
-		memcpy( *palette, (byte *)pcx + len - 768, 768 );
-	}
+        memcpy( *palette, (byte *)pcx + len - 768, 768 );
+    }
 
-	if ( width ) {
-		*width = xmax + 1;
-	}
-	if ( height ) {
-		*height = ymax + 1;
-	}
-// FIXME: use bytes_per_line here?
+    if ( width ) {
+        *width = xmax + 1;
+    }
+    if ( height ) {
+        *height = ymax + 1;
+    }
+    // FIXME: use bytes_per_line here?
 
 #if !defined RTCW_ET
-	for ( y = 0 ; y <= ymax ; y++, pix += xmax + 1 )
-	{
-		for ( x = 0 ; x <= xmax ; )
-		{
-			dataByte = *raw++;
+    for ( y = 0 ; y <= ymax ; y++, pix += xmax + 1 )
+    {
+        for ( x = 0 ; x <= xmax ; )
+        {
+            dataByte = *raw++;
 
-			if ( ( dataByte & 0xC0 ) == 0xC0 ) {
-				runLength = dataByte & 0x3F;
-				dataByte = *raw++;
-			} else {
-				runLength = 1;
-			}
+            if ( ( dataByte & 0xC0 ) == 0xC0 ) {
+                runLength = dataByte & 0x3F;
+                dataByte = *raw++;
+            } else {
+                runLength = 1;
+            }
 
-			while ( runLength-- > 0 )
-				pix[x++] = dataByte;
-		}
+            while ( runLength-- > 0 )
+                pix[x++] = dataByte;
+        }
 
-	}
+    }
 #else
-	// Arnout: this doesn't work for all pcx files
-	/*for (y=0 ; y<=ymax ; y++, pix += xmax+1)
-	{
-		for (x=0 ; x<=xmax ; )
-		{
-			dataByte = *raw++;
+    // Arnout: this doesn't work for all pcx files
+    /*for (y=0 ; y<=ymax ; y++, pix += xmax+1)
+    {
+    for (x=0 ; x<=xmax ; )
+    {
+    dataByte = *raw++;
 
-			if((dataByte & 0xC0) == 0xC0)
-			{
-				runLength = dataByte & 0x3F;
-				dataByte = *raw++;
-			}
-			else
-				runLength = 1;
+    if((dataByte & 0xC0) == 0xC0)
+    {
+    runLength = dataByte & 0x3F;
+    dataByte = *raw++;
+    }
+    else
+    runLength = 1;
 
-			while(runLength-- > 0)
-				pix[x++] = dataByte;
-		}
+    while(runLength-- > 0)
+    pix[x++] = dataByte;
+    }
 
-	}*/
+    }*/
 
-	lsize = pcx->color_planes * pcx->bytes_per_line;
+    lsize = pcx->color_planes * pcx->bytes_per_line;
 
-	// go scanline by scanline
-	for ( y = 0; y <= pcx->ymax; y++, pix += pcx->xmax + 1 )
-	{
-		// do a scanline
-		for ( x = 0; x <= pcx->xmax; )
-		{
-			DECODEPCX( raw, dataByte, runLength );
-			while ( runLength-- > 0 )
-				pix[ x++ ] = dataByte;
-		}
+    // go scanline by scanline
+    for ( y = 0; y <= pcx->ymax; y++, pix += pcx->xmax + 1 )
+    {
+        // do a scanline
+        for ( x = 0; x <= pcx->xmax; )
+        {
+            DECODEPCX( raw, dataByte, runLength );
+            while ( runLength-- > 0 )
+                pix[ x++ ] = dataByte;
+        }
 
-		// discard any other data
-		while ( x < lsize )
-		{
-			DECODEPCX( raw, dataByte, runLength );
-			x++;
-		}
-		while ( runLength-- > 0 )
-			x++;
-	}
+        // discard any other data
+        while ( x < lsize )
+        {
+            DECODEPCX( raw, dataByte, runLength );
+            x++;
+        }
+        while ( runLength-- > 0 )
+            x++;
+    }
 #endif // RTCW_XX
 
-	if ( raw - (byte *)pcx > len ) {
-		ri.Printf( PRINT_DEVELOPER, "PCX file %s was malformed", filename );
+    if ( raw - (byte *)pcx > len ) {
+        ri.Printf( PRINT_DEVELOPER, "PCX file %s was malformed", filename );
 
 #if defined RTCW_SP
         //BBi
-		//free( *pic );
+        //free( *pic );
         delete [] (*pic);
         //BBi
 #else
-		ri.Free( *pic );
+        ri.Free( *pic );
 #endif // RTCW_XX
 
-		*pic = NULL;
-	}
+        *pic = NULL;
+    }
 
-	ri.FS_FreeFile( pcx );
+    ri.FS_FreeFile( pcx );
 }
-
+//BBi
 
 /*
 ==============
@@ -1858,18 +2047,18 @@ void LoadTGA( const char *name, byte **pic, int *width, int *height ) {
 	targa_header.colormap_type = *buf_p++;
 	targa_header.image_type = *buf_p++;
 
-	targa_header.colormap_index = LittleShort( *(short *)buf_p );
+	targa_header.colormap_index = bbi::Endian::le ( *(short *)buf_p );
 	buf_p += 2;
-	targa_header.colormap_length = LittleShort( *(short *)buf_p );
+	targa_header.colormap_length = bbi::Endian::le ( *(short *)buf_p );
 	buf_p += 2;
 	targa_header.colormap_size = *buf_p++;
-	targa_header.x_origin = LittleShort( *(short *)buf_p );
+	targa_header.x_origin = bbi::Endian::le ( *(short *)buf_p );
 	buf_p += 2;
-	targa_header.y_origin = LittleShort( *(short *)buf_p );
+	targa_header.y_origin = bbi::Endian::le ( *(short *)buf_p );
 	buf_p += 2;
-	targa_header.width = LittleShort( *(short *)buf_p );
+	targa_header.width = bbi::Endian::le ( *(short *)buf_p );
 	buf_p += 2;
-	targa_header.height = LittleShort( *(short *)buf_p );
+	targa_header.height = bbi::Endian::le ( *(short *)buf_p );
 	buf_p += 2;
 	targa_header.pixel_size = *buf_p++;
 	targa_header.attributes = *buf_p++;

@@ -74,25 +74,47 @@ extern void COM_RestoreParseSession ( char * * data_p ) ;
 extern void COM_BackupParseSession ( char * * data_p ) ;
 extern void COM_BeginParseSession ( const char * name ) ;
 extern void Swap_Init ( void ) ;
+
+//BBi
+#if 0
 extern float FloatNoSwap ( float f ) ;
 extern float FloatSwap ( float f ) ;
-extern qint64 Long64NoSwap ( qint64 ll ) ;
-extern qint64 Long64Swap ( qint64 ll ) ;
+
+//BBi
+//extern qint64 Long64NoSwap ( qint64 ll ) ;
+//extern qint64 Long64Swap ( qint64 ll ) ;
+//BBi
+
 extern int LongNoSwap ( int l ) ;
 extern int LongSwap ( int l ) ;
 extern short ShortNoSwap ( short l ) ;
 extern short ShortSwap ( short l ) ;
 extern float BigFloat ( float l ) ;
-extern qint64 BigLong64 ( qint64 l ) ;
+
+//BBi
+//extern qint64 BigLong64 ( qint64 l ) ;
+//BBi
+
 extern int BigLong ( int l ) ;
 extern short BigShort ( short l ) ;
 extern float LittleFloat ( float l ) ;
-extern qint64 LittleLong64 ( qint64 l ) ;
+
+//BBi
+//extern qint64 LittleLong64 ( qint64 l ) ;
+//BBi
+
 extern int LittleLong ( int l ) ;
 extern short LittleShort ( short l ) ;
+#endif // 0
+//BBi
+
 extern void COM_BitClear ( int array [ ] , int bitNum ) ;
 extern void COM_BitSet ( int array [ ] , int bitNum ) ;
-extern qboolean COM_BitCheck ( const int array [ ] , int bitNum ) ;
+
+//BBi
+//extern qboolean COM_BitCheck ( const int array [ ] , int bitNum ) ;
+//BBi
+
 extern void COM_DefaultExtension ( char * path , int maxSize , const char * extension ) ;
 extern void COM_StripFilename ( char * in , char * out ) ;
 extern void COM_StripExtension2 ( const char * in , char * out , int destsize ) ;

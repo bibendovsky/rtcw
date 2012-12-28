@@ -182,8 +182,12 @@ int Export_BotLibSetup( qboolean singleplayer ) {
 	int errnum;
 
 	bot_developer = LibVarGetValue( "bot_developer" );
-	//initialize byte swapping (litte endian etc.)
-	Swap_Init();
+
+    //BBi
+	////initialize byte swapping (litte endian etc.)
+	//Swap_Init();
+    //BBi
+
 	Log_Open( "botlib.log" );
 	//
 	botimport.Print( PRT_MESSAGE, "------- BotLib Initialization -------\n" );

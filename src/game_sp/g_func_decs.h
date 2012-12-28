@@ -362,16 +362,24 @@ extern void COM_BeginParseSession ( const char * name ) ;
 extern void Swap_Init ( void ) ;
 extern float FloatNoSwap ( float f ) ;
 extern float FloatSwap ( float f ) ;
-extern qint64 Long64NoSwap ( qint64 ll ) ;
-extern qint64 Long64Swap ( qint64 ll ) ;
+
+//BBi
+//extern qint64 Long64NoSwap ( qint64 ll ) ;
+//extern qint64 Long64Swap ( qint64 ll ) ;
+//BBi
+
 extern int LongNoSwap ( int l ) ;
 extern int LongSwap ( int l ) ;
 extern short ShortNoSwap ( short l ) ;
 extern short ShortSwap ( short l ) ;
 extern float LittleFloat ( float l ) ;
 extern float BigFloat ( float l ) ;
-extern qint64 LittleLong64 ( qint64 l ) ;
-extern qint64 BigLong64 ( qint64 l ) ;
+
+//BBi
+//extern qint64 LittleLong64 ( qint64 l ) ;
+//extern qint64 BigLong64 ( qint64 l ) ;
+//BBi
+
 extern int LittleLong ( int l ) ;
 extern int BigLong ( int l ) ;
 extern short LittleShort ( short l ) ;

@@ -159,14 +159,13 @@ typedef struct
 //BBi Reference structure for x64 code.
 //BBi All pointers replaced with 4-byte integers.
 //BBi Of course this structure must be identical to original one (g_script_status_t).
-//BBi FIXME Use fixed size types (int32, etc.)
 struct GScriptStatus32 {
-    int scriptStackHead;
-    int scriptStackChangeTime;
-    int scriptEventIndex;
-    int scriptId;
-    int scriptFlags;
-    int animatingParams; // pointer
+    bbi::Int32 scriptStackHead;
+    bbi::Int32 scriptStackChangeTime;
+    bbi::Int32 scriptEventIndex;
+    bbi::Int32 scriptId;
+    bbi::Int32 scriptFlags;
+    bbi::Int32 animatingParams; // pointer
 }; // struct GScriptStatus32
 
 //
@@ -185,10 +184,10 @@ struct g_script_status_t
     typedef g_script_status_t Struct;
     typedef GScriptStatus32 Struct32;
 
-    void convertFrom32 (
+    void convert_from_32 (
         const Struct32& struct32);
 
-    void convertTo32 (
+    void convert_to_32 (
         Struct32& struct32) const;
     //BBi
 };
@@ -199,159 +198,161 @@ void G_Script_ScriptEvent( gentity_t *ent, char *eventStr, char *params );
 //====================================================================
 
 
-#define CFOFS( x ) ( (int)&( ( (gclient_t *)0 )->x ) )
+//BBi
+//#define CFOFS( x ) ( (int)&( ( (gclient_t *)0 )->x ) )
+#define CFOFS(x) (offsetof (gclient_t, x))
+//BBi
 
 //BBi Reference structure for x64 code.
 //BBi All pointers replaced with 4-byte integers.
 //BBi Of course this structure must be identical to original one (gentity_s).
-//BBi FIXME Use fixed size types (int32, etc.)
 struct GEntity32 {
     entityState_t s;
     entityShared_t r;
-    int client; // pointer
+    bbi::Int32 client; // pointer
     qboolean inuse;
-    int classname; // pointer
-    int spawnflags;
+    bbi::Int32 classname; // pointer
+    bbi::Int32 spawnflags;
     qboolean neverFree;
-    int flags;
-    int model; // pointer
-    int model2; // pointer
-    int freetime;
-    int eventTime;
+    bbi::Int32 flags;
+    bbi::Int32 model; // pointer
+    bbi::Int32 model2; // pointer
+    bbi::Int32 freetime;
+    bbi::Int32 eventTime;
     qboolean freeAfterEvent;
     qboolean unlinkAfterEvent;
     qboolean physicsObject;
     float physicsBounce;
-    int clipmask;
+    bbi::Int32 clipmask;
     moverState_t moverState;
-    int soundPos1;
-    int sound1to2;
-    int sound2to1;
-    int soundPos2;
-    int soundLoop;
-    int sound2to3;
-    int sound3to2;
-    int soundPos3;
-    int soundKicked;
-    int soundKickedEnd;
-    int soundSoftopen;
-    int soundSoftendo;
-    int soundSoftclose;
-    int soundSoftendc;
-    int parent; // pointer
-    int nextTrain; // pointer
-    int prevTrain; // pointer
+    bbi::Int32 soundPos1;
+    bbi::Int32 sound1to2;
+    bbi::Int32 sound2to1;
+    bbi::Int32 soundPos2;
+    bbi::Int32 soundLoop;
+    bbi::Int32 sound2to3;
+    bbi::Int32 sound3to2;
+    bbi::Int32 soundPos3;
+    bbi::Int32 soundKicked;
+    bbi::Int32 soundKickedEnd;
+    bbi::Int32 soundSoftopen;
+    bbi::Int32 soundSoftendo;
+    bbi::Int32 soundSoftclose;
+    bbi::Int32 soundSoftendc;
+    bbi::Int32 parent; // pointer
+    bbi::Int32 nextTrain; // pointer
+    bbi::Int32 prevTrain; // pointer
     vec3_t pos1;
     vec3_t pos2;
     vec3_t pos3;
-    int message; // pointer
-    int timestamp;
+    bbi::Int32 message; // pointer
+    bbi::Int32 timestamp;
     float angle;
-    int target; // pointer
-    int targetdeath; // pointer
-    int targetname; // pointer
-    int team; // pointer
-    int targetShaderName; // pointer
-    int targetShaderNewName; // pointer
-    int target_ent; // pointer
+    bbi::Int32 target; // pointer
+    bbi::Int32 targetdeath; // pointer
+    bbi::Int32 targetname; // pointer
+    bbi::Int32 team; // pointer
+    bbi::Int32 targetShaderName; // pointer
+    bbi::Int32 targetShaderNewName; // pointer
+    bbi::Int32 target_ent; // pointer
     float speed;
     float closespeed;
     vec3_t movedir;
-    int gDuration;
-    int gDurationBack;
+    bbi::Int32 gDuration;
+    bbi::Int32 gDurationBack;
     vec3_t gDelta;
     vec3_t gDeltaBack;
-    int nextthink;
-    int think; // pointer
-    int reached; // pointer
-    int blocked; // pointer
-    int touch; // pointer
-    int use; // pointer
-    int pain; // pointer
-    int die; // pointer
-    int pain_debounce_time;
-    int fly_sound_debounce_time;
-    int last_move_time;
-    int health;
+    bbi::Int32 nextthink;
+    bbi::Int32 think; // pointer
+    bbi::Int32 reached; // pointer
+    bbi::Int32 blocked; // pointer
+    bbi::Int32 touch; // pointer
+    bbi::Int32 use; // pointer
+    bbi::Int32 pain; // pointer
+    bbi::Int32 die; // pointer
+    bbi::Int32 pain_debounce_time;
+    bbi::Int32 fly_sound_debounce_time;
+    bbi::Int32 last_move_time;
+    bbi::Int32 health;
     qboolean takedamage;
-    int damage;
-    int splashDamage;
-    int splashRadius;
-    int methodOfDeath;
-    int splashMethodOfDeath;
-    int count;
-    int chain; // pointer
-    int enemy; // pointer
-    int activator; // pointer
-    int teamchain; // pointer
-    int teammaster; // pointer
-    int watertype;
-    int waterlevel;
-    int noise_index;
+    bbi::Int32 damage;
+    bbi::Int32 splashDamage;
+    bbi::Int32 splashRadius;
+    bbi::Int32 methodOfDeath;
+    bbi::Int32 splashMethodOfDeath;
+    bbi::Int32 count;
+    bbi::Int32 chain; // pointer
+    bbi::Int32 enemy; // pointer
+    bbi::Int32 activator; // pointer
+    bbi::Int32 teamchain; // pointer
+    bbi::Int32 teammaster; // pointer
+    bbi::Int32 watertype;
+    bbi::Int32 waterlevel;
+    bbi::Int32 noise_index;
     float wait;
     float random;
-    int radius;
+    bbi::Int32 radius;
     float delay;
-    int TargetFlag;
+    bbi::Int32 TargetFlag;
     float duration;
     vec3_t rotate;
     vec3_t TargetAngles;
-    int item; // pointer
-    int aiAttributes; // pointer
-    int aiName; // pointer
-    int aiTeam;
-    int AIScript_AlertEntity; // pointer
+    bbi::Int32 item; // pointer
+    bbi::Int32 aiAttributes; // pointer
+    bbi::Int32 aiName; // pointer
+    bbi::Int32 aiTeam;
+    bbi::Int32 AIScript_AlertEntity; // pointer
     qboolean aiInactive;
-    int aiCharacter;
-    int aiSkin; // pointer
-    int aihSkin; // pointer
+    bbi::Int32 aiCharacter;
+    bbi::Int32 aiSkin; // pointer
+    bbi::Int32 aihSkin; // pointer
     vec3_t dl_color;
-    int dl_stylestring; // pointer
-    int dl_shader; // pointer
-    int dl_atten;
-    int key;
+    bbi::Int32 dl_stylestring; // pointer
+    bbi::Int32 dl_shader; // pointer
+    bbi::Int32 dl_atten;
+    bbi::Int32 key;
     qboolean active;
     qboolean botDelayBegin;
     float harc;
     float varc;
     float activateArc;
-    int props_frame_state;
-    int missionLevel;
-    int missionObjectives;
-    int numSecretsFound;
-    int numTreasureFound;
+    bbi::Int32 props_frame_state;
+    bbi::Int32 missionLevel;
+    bbi::Int32 missionObjectives;
+    bbi::Int32 numSecretsFound;
+    bbi::Int32 numTreasureFound;
     qboolean is_dead;
-    int start_size;
-    int end_size;
+    bbi::Int32 start_size;
+    bbi::Int32 end_size;
     qboolean isProp;
-    int mg42BaseEnt;
-    int melee; // pointer
-    int spawnitem; // pointer
+    bbi::Int32 mg42BaseEnt;
+    bbi::Int32 melee; // pointer
+    bbi::Int32 spawnitem; // pointer
     qboolean nopickup;
-    int flameQuota;
-    int flameQuotaTime;
-    int flameBurnEnt;
-    int count2;
-    int grenadeExplodeTime;
-    int grenadeFired;
-    int mg42ClampTime;
-    int track; // pointer
-    int scriptName; // pointer
-    int numScriptEvents;
-    int scriptEvents; // pointer
+    bbi::Int32 flameQuota;
+    bbi::Int32 flameQuotaTime;
+    bbi::Int32 flameBurnEnt;
+    bbi::Int32 count2;
+    bbi::Int32 grenadeExplodeTime;
+    bbi::Int32 grenadeFired;
+    bbi::Int32 mg42ClampTime;
+    bbi::Int32 track; // pointer
+    bbi::Int32 scriptName; // pointer
+    bbi::Int32 numScriptEvents;
+    bbi::Int32 scriptEvents; // pointer
     GScriptStatus32 scriptStatus; // struct
     GScriptStatus32 scriptStatusBackup; // struct
-    int scriptAccumBuffer[G_MAX_SCRIPT_ACCUM_BUFFERS];
+    bbi::Int32 scriptAccumBuffer[G_MAX_SCRIPT_ACCUM_BUFFERS];
     qboolean AASblocking;
     float accuracy;
-    int tagName; // pointer
-    int tagParent; // pointer
+    bbi::Int32 tagName; // pointer
+    bbi::Int32 tagParent; // pointer
     float headshotDamageScale;
     GScriptStatus32 scriptStatusCurrent; // struct
-    int emitID;
-    int emitNum;
-    int emitPressure;
-    int emitTime;
+    bbi::Int32 emitID;
+    bbi::Int32 emitNum;
+    bbi::Int32 emitPressure;
+    bbi::Int32 emitTime;
 }; // struct GEntity32
 //BBi
 
@@ -599,10 +600,10 @@ struct gentity_s {
     typedef gentity_s Struct;
     typedef GEntity32 Struct32;
 
-    void convertFrom32 (
+    void convert_from_32 (
         const Struct32& struct32);
 
-    void convertTo32 (
+    void convert_to_32 (
         Struct32& struct32) const;
     //BBi
 };
@@ -707,57 +708,56 @@ typedef struct {
 //BBi Reference structure for x64 code.
 //BBi All pointers replaced with 4-byte integers.
 //BBi Of course this structure must be identical to original one (gclient_s).
-//BBi FIXME Use fixed size types (int32, etc.)
 struct GClient32 {
     playerState_t ps;
     clientPersistant_t pers;
     clientSession_t sess;
     qboolean readyToExit;
     qboolean noclip;
-    int lastCmdTime;
-    int buttons;
-    int oldbuttons;
-    int latched_buttons;
-    int wbuttons;
-    int oldwbuttons;
-    int latched_wbuttons;
+    bbi::Int32 lastCmdTime;
+    bbi::Int32 buttons;
+    bbi::Int32 oldbuttons;
+    bbi::Int32 latched_buttons;
+    bbi::Int32 wbuttons;
+    bbi::Int32 oldwbuttons;
+    bbi::Int32 latched_wbuttons;
     vec3_t oldOrigin;
-    int damage_armor;
-    int damage_blood;
-    int damage_knockback;
+    bbi::Int32 damage_armor;
+    bbi::Int32 damage_blood;
+    bbi::Int32 damage_knockback;
     vec3_t damage_from;
     qboolean damage_fromWorld;
-    int accurateCount;
-    int accuracy_shots;
-    int accuracy_hits;
-    int lastkilled_client;
-    int lasthurt_client;
-    int lasthurt_mod;
-    int respawnTime;
-    int inactivityTime;
+    bbi::Int32 accurateCount;
+    bbi::Int32 accuracy_shots;
+    bbi::Int32 accuracy_hits;
+    bbi::Int32 lastkilled_client;
+    bbi::Int32 lasthurt_client;
+    bbi::Int32 lasthurt_mod;
+    bbi::Int32 respawnTime;
+    bbi::Int32 inactivityTime;
     qboolean inactivityWarning;
-    int rewardTime;
-    int airOutTime;
-    int lastKillTime;
+    bbi::Int32 rewardTime;
+    bbi::Int32 airOutTime;
+    bbi::Int32 lastKillTime;
     qboolean fireHeld;
-    int hook; // pointer
-    int switchTeamTime;
-    int timeResidual;
+    bbi::Int32 hook; // pointer
+    bbi::Int32 switchTeamTime;
+    bbi::Int32 timeResidual;
     float currentAimSpreadScale;
-    int medicHealAmt;
-    int modelInfo; // pointer
-    int persistantPowerup; // pointer
-    int portalID;
-    int ammoTimes[WP_NUM_WEAPONS];
-    int invulnerabilityTime;
-    int cameraPortal; // pointer
+    bbi::Int32 medicHealAmt;
+    bbi::Int32 modelInfo; // pointer
+    bbi::Int32 persistantPowerup; // pointer
+    bbi::Int32 portalID;
+    bbi::Int32 ammoTimes[WP_NUM_WEAPONS];
+    bbi::Int32 invulnerabilityTime;
+    bbi::Int32 cameraPortal; // pointer
     vec3_t cameraOrigin;
-    int limboDropWeapon;
-    int deployQueueNumber;
-    int sniperRifleFiredTime;
+    bbi::Int32 limboDropWeapon;
+    bbi::Int32 deployQueueNumber;
+    bbi::Int32 sniperRifleFiredTime;
     float sniperRifleMuzzleYaw;
     float sniperRifleMuzzlePitch;
-    int saved_persistant[MAX_PERSISTANT];
+    bbi::Int32 saved_persistant[MAX_PERSISTANT];
 }; // struct GClient32
 //BBi
 
@@ -852,10 +852,10 @@ struct gclient_s {
     typedef gclient_s Struct;
     typedef GClient32 Struct32;
 
-    void convertFrom32 (
+    void convert_from_32 (
         const Struct32& struct32);
 
-    void convertTo32 (
+    void convert_to_32 (
         Struct32& struct32) const;
     //BBi
 };
@@ -1340,7 +1340,10 @@ extern level_locals_t level;
 extern gentity_t g_entities[MAX_GENTITIES];
 extern gentity_t       *g_camEnt;
 
-#define FOFS( x ) ( (int)&( ( (gentity_t *)0 )->x ) )
+//BBi
+//#define FOFS( x ) ( (int)&( ( (gentity_t *)0 )->x ) )
+#define FOFS(x) (offsetof (gentity_t, x))
+//BBi
 
 extern vmCvar_t g_gametype;
 

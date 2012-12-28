@@ -32,8 +32,14 @@ If you have questions concerning this license or the applicable additional terms
  */
 
 //BBi
+//BBi FIXME Take in account endianess
+//BBi
+
+//BBi
 #include <algorithm>
 #include <vector>
+
+#include "bbi_endian.h"
 //BBi
 
 #include "g_local.h"
@@ -69,841 +75,839 @@ NOTE TTimo: see show_bug.cgi?id=434 for v17 -> v18 savegames
 
 
 //BBi
-static const int MAX_ENCODER_BUFFER_SIZE = 2 * sizeof (CastState32);
+namespace {
 
 
-static std::vector<byte> gEncoderBuffer;
+    const int MAX_ENCODER_BUFFER_SIZE = 2 * sizeof (CastState32);
 
 
-void cast_state_t::convertFrom32 (
+    std::vector<bbi::UInt8> g_encoder_buffer;
+
+
+} // namespace
+
+
+void cast_state_t::convert_from_32 (
     const Struct32& struct32)
 {
     const Struct32& src = struct32;
     Struct& dst = *this;
 
-    dst.bs = reinterpret_cast<bot_state_t*> (src.bs);
-    dst.entityNum = src.entityNum;
-    dst.aasWorldIndex = src.aasWorldIndex;
-    dst.aiCharacter = src.aiCharacter;
-    dst.aiFlags = src.aiFlags;
-    dst.lastThink = src.lastThink;
-    dst.actionFlags = src.actionFlags;
-    dst.lastPain = src.lastPain;
-    dst.lastPainDamage = src.lastPainDamage;
-    dst.travelflags = src.travelflags;
-    dst.thinkFuncChangeTime = src.thinkFuncChangeTime;
-    dst.aiState = src.aiState;
-    dst.movestate = src.movestate;
-    dst.movestateType = src.movestateType;
+    dst.bs = reinterpret_cast<bot_state_t*> (bbi::Endian::le (src.bs));
+    dst.entityNum = bbi::Endian::le (src.entityNum);
+    dst.aasWorldIndex = bbi::Endian::le (src.aasWorldIndex);
+    dst.aiCharacter = bbi::Endian::le (src.aiCharacter);
+    dst.aiFlags = bbi::Endian::le (src.aiFlags);
+    dst.lastThink = bbi::Endian::le (src.lastThink);
+    dst.actionFlags = bbi::Endian::le (src.actionFlags);
+    dst.lastPain = bbi::Endian::le (src.lastPain);
+    dst.lastPainDamage = bbi::Endian::le (src.lastPainDamage);
+    dst.travelflags = bbi::Endian::le (src.travelflags);
+    dst.thinkFuncChangeTime = bbi::Endian::le (src.thinkFuncChangeTime);
+    dst.aiState = bbi::Endian::le (src.aiState);
+    dst.movestate = bbi::Endian::le (src.movestate);
+    dst.movestateType = bbi::Endian::le (src.movestateType);
     std::uninitialized_copy_n (src.attributes, AICAST_MAX_ATTRIBUTES, dst.attributes);
-    dst.numCastScriptEvents = src.numCastScriptEvents;
-    dst.castScriptEvents = reinterpret_cast<cast_script_event_t*> (src.castScriptEvents);
-    dst.castScriptStatus = src.castScriptStatus;
-    dst.castScriptStatusCurrent = src.castScriptStatusCurrent;
-    dst.castScriptStatusBackup = src.castScriptStatusBackup;
-    dst.scriptCallIndex = src.scriptCallIndex;
-    dst.scriptAnimTime = src.scriptAnimTime;
-    dst.scriptAnimNum = src.scriptAnimNum;
-    std::uninitialized_copy_n (src.scriptAccumBuffer, MAX_SCRIPT_ACCUM_BUFFERS, dst.scriptAccumBuffer);
-    dst.weaponInfo = reinterpret_cast<cast_weapon_info_t*> (src.weaponInfo);
-    std::uninitialized_copy_n (src.vislist, MAX_CLIENTS, dst.vislist);
-    std::uninitialized_copy_n (src.weaponFireTimes, MAX_WEAPONS, dst.weaponFireTimes);
-    dst.aifunc = reinterpret_cast<char* (*) (cast_state_s*)> (src.aifunc);
-    dst.oldAifunc = reinterpret_cast<char* (*) (cast_state_s*)> (src.oldAifunc);
-    dst.aifuncAttack1 = reinterpret_cast<char* (*) (cast_state_s*)> (src.aifuncAttack1);
-    dst.aifuncAttack2 = reinterpret_cast<char* (*) (cast_state_s*)> (src.aifuncAttack2);
-    dst.aifuncAttack3 = reinterpret_cast<char* (*) (cast_state_s*)> (src.aifuncAttack3);
-    dst.painfunc = reinterpret_cast<void (*) (gentity_t*, gentity_t*, int, vec_t*)> (src.painfunc);
-    dst.deathfunc = reinterpret_cast<void (*) (gentity_t*, gentity_t*, int, int)> (src.deathfunc);
-    dst.sightfunc = reinterpret_cast<void (*) (gentity_t*, gentity_t*, int)> (src.sightfunc);
-    dst.sightEnemy = reinterpret_cast<void (*) (gentity_t*, gentity_t*)> (src.sightEnemy);
-    dst.sightFriend = reinterpret_cast<void (*) (gentity_t*, gentity_t*)> (src.sightFriend);
-    dst.activate = reinterpret_cast<void (*) (int, int)> (src.activate);
-    dst.followEntity = src.followEntity;
-    dst.followDist = src.followDist;
-    dst.followIsGoto = src.followIsGoto;
-    dst.followTime = src.followTime;
-    dst.followSlowApproach = src.followSlowApproach;
-    dst.leaderNum = src.leaderNum;
-    dst.speedScale = src.speedScale;
-    dst.combatGoalTime = src.combatGoalTime;
-    VectorCopy (src.combatGoalOrigin, dst.combatGoalOrigin);
-    dst.lastGetHidePos = src.lastGetHidePos;
-    dst.startAttackCount = src.startAttackCount;
-    dst.combatSpotAttackCount = src.combatSpotAttackCount;
-    dst.combatSpotDelayTime = src.combatSpotDelayTime;
-    dst.startBattleChaseTime = src.startBattleChaseTime;
-    dst.blockedTime = src.blockedTime;
-    dst.obstructingTime = src.obstructingTime;
-    VectorCopy (src.obstructingPos, dst.obstructingPos);
-    dst.blockedAvoidTime = src.blockedAvoidTime;
-    dst.blockedAvoidYaw = src.blockedAvoidYaw;
-    dst.deathTime = src.deathTime;
-    dst.rebirthTime = src.rebirthTime;
-    dst.revivingTime = src.revivingTime;
-    dst.enemyHeight = src.enemyHeight;
-    dst.enemyDist = src.enemyDist;
-    VectorCopy (src.takeCoverPos, dst.takeCoverPos);
-    VectorCopy (src.takeCoverEnemyPos, dst.takeCoverEnemyPos);
-    dst.takeCoverTime = src.takeCoverTime;
-    dst.attackSpotTime = src.attackSpotTime;
-    dst.triggerReleaseTime = src.triggerReleaseTime;
-    dst.lastWeaponFired = src.lastWeaponFired;
-    VectorCopy (src.lastWeaponFiredPos, dst.lastWeaponFiredPos);
-    dst.lastWeaponFiredWeaponNum = src.lastWeaponFiredWeaponNum;
-    dst.lastEnemy = src.lastEnemy;
-    dst.nextIdleAngleChange = src.nextIdleAngleChange;
-    dst.idleYawChange = src.idleYawChange;
-    dst.idleYaw = src.idleYaw;
-    dst.crouchHideFlag = src.crouchHideFlag;
-    dst.doorMarker = src.doorMarker;
-    dst.doorEntNum = src.doorEntNum;
-    dst.attackSNDtime = src.attackSNDtime;
-    dst.attacksnd = src.attacksnd;
-    dst.painSoundTime = src.painSoundTime;
-    dst.firstSightTime = src.firstSightTime;
-    dst.secondDeadTime = src.secondDeadTime;
-    dst.startGrenadeFlushTime = src.startGrenadeFlushTime;
-    dst.lockViewAnglesTime = src.lockViewAnglesTime;
-    dst.grenadeFlushEndTime = src.grenadeFlushEndTime;
-    dst.grenadeFlushFiring = src.grenadeFlushFiring;
-    dst.dangerEntity = src.dangerEntity;
-    dst.dangerEntityValidTime = src.dangerEntityValidTime;
-    VectorCopy (src.dangerEntityPos, dst.dangerEntityPos);
-    dst.dangerEntityTimestamp = src.dangerEntityTimestamp;
-    dst.dangerDist = src.dangerDist;
-    dst.mountedEntity = src.mountedEntity;
-    dst.inspectBodyTime = src.inspectBodyTime;
-    VectorCopy (src.startOrigin, dst.startOrigin);
-    dst.damageQuota = src.damageQuota;
-    dst.damageQuotaTime = src.damageQuotaTime;
-    dst.dangerLastGetAvoid = src.dangerLastGetAvoid;
-    dst.lastAvoid = src.lastAvoid;
-    dst.doorMarkerTime = src.doorMarkerTime;
-    dst.doorMarkerNum = src.doorMarkerNum;
-    dst.doorMarkerDoor = src.doorMarkerDoor;
-    dst.pauseTime = src.pauseTime;
-    dst.checkAttackCache = src.checkAttackCache;
-    dst.secretsFound = src.secretsFound;
-    dst.attempts = src.attempts;
-    dst.grenadeGrabFlag = src.grenadeGrabFlag;
-    VectorCopy (src.lastMoveToPosGoalOrg, dst.lastMoveToPosGoalOrg);
-    dst.noAttackTime = src.noAttackTime;
-    dst.lastRollMove = src.lastRollMove;
-    dst.lastFlipMove = src.lastFlipMove;
-    VectorCopy (src.stimFlyAttackPos, dst.stimFlyAttackPos);
-    dst.lastDodgeRoll = src.lastDodgeRoll;
-    dst.battleRollTime = src.battleRollTime;
-    VectorCopy (src.viewlock_viewangles, dst.viewlock_viewangles);
-    dst.grenadeKickWeapon = src.grenadeKickWeapon;
-    dst.animHitCount = src.animHitCount;
-    dst.totalPlayTime = src.totalPlayTime;
-    dst.lastLoadTime = src.lastLoadTime;
-    dst.queryStartTime = src.queryStartTime;
-    dst.queryCountValidTime = src.queryCountValidTime;
-    dst.queryCount = src.queryCount;
-    dst.queryAlertSightTime = src.queryAlertSightTime;
-    dst.lastScriptSound = src.lastScriptSound;
-    dst.inspectNum = src.inspectNum;
-    dst.scriptPauseTime = src.scriptPauseTime;
-    dst.bulletImpactEntity = src.bulletImpactEntity;
-    dst.bulletImpactTime = src.bulletImpactTime;
-    dst.bulletImpactIgnoreTime = src.bulletImpactIgnoreTime;
-    VectorCopy (src.bulletImpactStart, dst.bulletImpactStart);
-    VectorCopy (src.bulletImpactEnd, dst.bulletImpactEnd);
-    dst.audibleEventTime = src.audibleEventTime;
-    VectorCopy (src.audibleEventOrg, dst.audibleEventOrg);
-    dst.audibleEventEnt = src.audibleEventEnt;
-    dst.battleChaseMarker = src.battleChaseMarker;
-    dst.battleChaseMarkerDir = src.battleChaseMarkerDir;
-    dst.lastBattleHunted = src.lastBattleHunted;
-    dst.battleHuntPauseTime = src.battleHuntPauseTime;
-    dst.battleHuntViewTime = src.battleHuntViewTime;
-    dst.lastAttackCrouch = src.lastAttackCrouch;
-    dst.lastMoveThink = src.lastMoveThink;
-    dst.numEnemies = src.numEnemies;
-    dst.noReloadTime = src.noReloadTime;
+    dst.numCastScriptEvents = bbi::Endian::le (src.numCastScriptEvents);
+    dst.castScriptEvents = reinterpret_cast<cast_script_event_t*> (bbi::Endian::le (src.castScriptEvents));
+    dst.castScriptStatus = bbi::Endian::le (src.castScriptStatus);
+    dst.castScriptStatusCurrent = bbi::Endian::le (src.castScriptStatusCurrent);
+    dst.castScriptStatusBackup = bbi::Endian::le (src.castScriptStatusBackup);
+    dst.scriptCallIndex = bbi::Endian::le (src.scriptCallIndex);
+    dst.scriptAnimTime = bbi::Endian::le (src.scriptAnimTime);
+    dst.scriptAnimNum = bbi::Endian::le (src.scriptAnimNum);
+    bbi::Endian::le (src.scriptAccumBuffer, MAX_SCRIPT_ACCUM_BUFFERS, dst.scriptAccumBuffer);
+    dst.weaponInfo = reinterpret_cast<cast_weapon_info_t*> (bbi::Endian::le (src.weaponInfo));
+    bbi::Endian::le (src.vislist, MAX_CLIENTS, dst.vislist);
+    bbi::Endian::le (src.weaponFireTimes, MAX_WEAPONS, dst.weaponFireTimes);
+    dst.aifunc = reinterpret_cast<char* (*) (cast_state_s*)> (bbi::Endian::le (src.aifunc));
+    dst.oldAifunc = reinterpret_cast<char* (*) (cast_state_s*)> (bbi::Endian::le (src.oldAifunc));
+    dst.aifuncAttack1 = reinterpret_cast<char* (*) (cast_state_s*)> (bbi::Endian::le (src.aifuncAttack1));
+    dst.aifuncAttack2 = reinterpret_cast<char* (*) (cast_state_s*)> (bbi::Endian::le (src.aifuncAttack2));
+    dst.aifuncAttack3 = reinterpret_cast<char* (*) (cast_state_s*)> (bbi::Endian::le (src.aifuncAttack3));
+    dst.painfunc = reinterpret_cast<void (*) (gentity_t*, gentity_t*, int, vec_t*)> (bbi::Endian::le (src.painfunc));
+    dst.deathfunc = reinterpret_cast<void (*) (gentity_t*, gentity_t*, int, int)> (bbi::Endian::le (src.deathfunc));
+    dst.sightfunc = reinterpret_cast<void (*) (gentity_t*, gentity_t*, int)> (bbi::Endian::le (src.sightfunc));
+    dst.sightEnemy = reinterpret_cast<void (*) (gentity_t*, gentity_t*)> (bbi::Endian::le (src.sightEnemy));
+    dst.sightFriend = reinterpret_cast<void (*) (gentity_t*, gentity_t*)> (bbi::Endian::le (src.sightFriend));
+    dst.activate = reinterpret_cast<void (*) (int, int)> (bbi::Endian::le (src.activate));
+    dst.followEntity = bbi::Endian::le (src.followEntity);
+    dst.followDist = bbi::Endian::le (src.followDist);
+    dst.followIsGoto = bbi::Endian::le (src.followIsGoto);
+    dst.followTime = bbi::Endian::le (src.followTime);
+    dst.followSlowApproach = bbi::Endian::le (src.followSlowApproach);
+    dst.leaderNum = bbi::Endian::le (src.leaderNum);
+    dst.speedScale = bbi::Endian::le (src.speedScale);
+    dst.combatGoalTime = bbi::Endian::le (src.combatGoalTime);
+    bbi::Endian::le (src.combatGoalOrigin, 3, dst.combatGoalOrigin);
+    dst.lastGetHidePos = bbi::Endian::le (src.lastGetHidePos);
+    dst.startAttackCount = bbi::Endian::le (src.startAttackCount);
+    dst.combatSpotAttackCount = bbi::Endian::le (src.combatSpotAttackCount);
+    dst.combatSpotDelayTime = bbi::Endian::le (src.combatSpotDelayTime);
+    dst.startBattleChaseTime = bbi::Endian::le (src.startBattleChaseTime);
+    dst.blockedTime = bbi::Endian::le (src.blockedTime);
+    dst.obstructingTime = bbi::Endian::le (src.obstructingTime);
+    bbi::Endian::le (src.obstructingPos, 3, dst.obstructingPos);
+    dst.blockedAvoidTime = bbi::Endian::le (src.blockedAvoidTime);
+    dst.blockedAvoidYaw = bbi::Endian::le (src.blockedAvoidYaw);
+    dst.deathTime = bbi::Endian::le (src.deathTime);
+    dst.rebirthTime = bbi::Endian::le (src.rebirthTime);
+    dst.revivingTime = bbi::Endian::le (src.revivingTime);
+    dst.enemyHeight = bbi::Endian::le (src.enemyHeight);
+    dst.enemyDist = bbi::Endian::le (src.enemyDist);
+    bbi::Endian::le (src.takeCoverPos, 3, dst.takeCoverPos);
+    bbi::Endian::le (src.takeCoverEnemyPos, 3, dst.takeCoverEnemyPos);
+    dst.takeCoverTime = bbi::Endian::le (src.takeCoverTime);
+    dst.attackSpotTime = bbi::Endian::le (src.attackSpotTime);
+    dst.triggerReleaseTime = bbi::Endian::le (src.triggerReleaseTime);
+    dst.lastWeaponFired = bbi::Endian::le (src.lastWeaponFired);
+    bbi::Endian::le (src.lastWeaponFiredPos, 3, dst.lastWeaponFiredPos);
+    dst.lastWeaponFiredWeaponNum = bbi::Endian::le (src.lastWeaponFiredWeaponNum);
+    dst.lastEnemy = bbi::Endian::le (src.lastEnemy);
+    dst.nextIdleAngleChange = bbi::Endian::le (src.nextIdleAngleChange);
+    dst.idleYawChange = bbi::Endian::le (src.idleYawChange);
+    dst.idleYaw = bbi::Endian::le (src.idleYaw);
+    dst.crouchHideFlag = bbi::Endian::le (src.crouchHideFlag);
+    dst.doorMarker = bbi::Endian::le (src.doorMarker);
+    dst.doorEntNum = bbi::Endian::le (src.doorEntNum);
+    dst.attackSNDtime = bbi::Endian::le (src.attackSNDtime);
+    dst.attacksnd = bbi::Endian::le (src.attacksnd);
+    dst.painSoundTime = bbi::Endian::le (src.painSoundTime);
+    dst.firstSightTime = bbi::Endian::le (src.firstSightTime);
+    dst.secondDeadTime = bbi::Endian::le (src.secondDeadTime);
+    dst.startGrenadeFlushTime = bbi::Endian::le (src.startGrenadeFlushTime);
+    dst.lockViewAnglesTime = bbi::Endian::le (src.lockViewAnglesTime);
+    dst.grenadeFlushEndTime = bbi::Endian::le (src.grenadeFlushEndTime);
+    dst.grenadeFlushFiring = bbi::Endian::le (src.grenadeFlushFiring);
+    dst.dangerEntity = bbi::Endian::le (src.dangerEntity);
+    dst.dangerEntityValidTime = bbi::Endian::le (src.dangerEntityValidTime);
+    bbi::Endian::le (src.dangerEntityPos, 3, dst.dangerEntityPos);
+    dst.dangerEntityTimestamp = bbi::Endian::le (src.dangerEntityTimestamp);
+    dst.dangerDist = bbi::Endian::le (src.dangerDist);
+    dst.mountedEntity = bbi::Endian::le (src.mountedEntity);
+    dst.inspectBodyTime = bbi::Endian::le (src.inspectBodyTime);
+    bbi::Endian::le (src.startOrigin, 3, dst.startOrigin);
+    dst.damageQuota = bbi::Endian::le (src.damageQuota);
+    dst.damageQuotaTime = bbi::Endian::le (src.damageQuotaTime);
+    dst.dangerLastGetAvoid = bbi::Endian::le (src.dangerLastGetAvoid);
+    dst.lastAvoid = bbi::Endian::le (src.lastAvoid);
+    dst.doorMarkerTime = bbi::Endian::le (src.doorMarkerTime);
+    dst.doorMarkerNum = bbi::Endian::le (src.doorMarkerNum);
+    dst.doorMarkerDoor = bbi::Endian::le (src.doorMarkerDoor);
+    dst.pauseTime = bbi::Endian::le (src.pauseTime);
+    dst.checkAttackCache = bbi::Endian::le (src.checkAttackCache);
+    dst.secretsFound = bbi::Endian::le (src.secretsFound);
+    dst.attempts = bbi::Endian::le (src.attempts);
+    dst.grenadeGrabFlag = bbi::Endian::le (src.grenadeGrabFlag);
+    bbi::Endian::le (src.lastMoveToPosGoalOrg, 3, dst.lastMoveToPosGoalOrg);
+    dst.noAttackTime = bbi::Endian::le (src.noAttackTime);
+    dst.lastRollMove = bbi::Endian::le (src.lastRollMove);
+    dst.lastFlipMove = bbi::Endian::le (src.lastFlipMove);
+    bbi::Endian::le (src.stimFlyAttackPos, 3, dst.stimFlyAttackPos);
+    dst.lastDodgeRoll = bbi::Endian::le (src.lastDodgeRoll);
+    dst.battleRollTime = bbi::Endian::le (src.battleRollTime);
+    bbi::Endian::le (src.viewlock_viewangles, 3, dst.viewlock_viewangles);
+    dst.grenadeKickWeapon = bbi::Endian::le (src.grenadeKickWeapon);
+    dst.animHitCount = bbi::Endian::le (src.animHitCount);
+    dst.totalPlayTime = bbi::Endian::le (src.totalPlayTime);
+    dst.lastLoadTime = bbi::Endian::le (src.lastLoadTime);
+    dst.queryStartTime = bbi::Endian::le (src.queryStartTime);
+    dst.queryCountValidTime = bbi::Endian::le (src.queryCountValidTime);
+    dst.queryCount = bbi::Endian::le (src.queryCount);
+    dst.queryAlertSightTime = bbi::Endian::le (src.queryAlertSightTime);
+    dst.lastScriptSound = bbi::Endian::le (src.lastScriptSound);
+    dst.inspectNum = bbi::Endian::le (src.inspectNum);
+    dst.scriptPauseTime = bbi::Endian::le (src.scriptPauseTime);
+    dst.bulletImpactEntity = bbi::Endian::le (src.bulletImpactEntity);
+    dst.bulletImpactTime = bbi::Endian::le (src.bulletImpactTime);
+    dst.bulletImpactIgnoreTime = bbi::Endian::le (src.bulletImpactIgnoreTime);
+    bbi::Endian::le (src.bulletImpactStart, 3, dst.bulletImpactStart);
+    bbi::Endian::le (src.bulletImpactEnd, 3, dst.bulletImpactEnd);
+    dst.audibleEventTime = bbi::Endian::le (src.audibleEventTime);
+    bbi::Endian::le (src.audibleEventOrg, 3, dst.audibleEventOrg);
+    dst.audibleEventEnt = bbi::Endian::le (src.audibleEventEnt);
+    dst.battleChaseMarker = bbi::Endian::le (src.battleChaseMarker);
+    dst.battleChaseMarkerDir = bbi::Endian::le (src.battleChaseMarkerDir);
+    dst.lastBattleHunted = bbi::Endian::le (src.lastBattleHunted);
+    dst.battleHuntPauseTime = bbi::Endian::le (src.battleHuntPauseTime);
+    dst.battleHuntViewTime = bbi::Endian::le (src.battleHuntViewTime);
+    dst.lastAttackCrouch = bbi::Endian::le (src.lastAttackCrouch);
+    dst.lastMoveThink = bbi::Endian::le (src.lastMoveThink);
+    dst.numEnemies = bbi::Endian::le (src.numEnemies);
+    dst.noReloadTime = bbi::Endian::le (src.noReloadTime);
     std::uninitialized_copy_n (src.lastValidAreaNum, 2, dst.lastValidAreaNum);
     std::uninitialized_copy_n (src.lastValidAreaTime, 2, dst.lastValidAreaTime);
-    dst.weaponNum = src.weaponNum;
-    dst.enemyNum = src.enemyNum;
-    VectorCopy (src.ideal_viewangles, dst.ideal_viewangles);
-    VectorCopy (src.viewangles, dst.viewangles);
-    dst.lastucmd = src.lastucmd;
-    dst.attackcrouch_time = src.attackcrouch_time;
-    dst.bFlags = src.bFlags;
-    dst.deadSinkStartTime = src.deadSinkStartTime;
-    dst.lastActivate = src.lastActivate;
-    VectorCopy (src.loperLeapVel, dst.loperLeapVel);
+    dst.weaponNum = bbi::Endian::le (src.weaponNum);
+    dst.enemyNum = bbi::Endian::le (src.enemyNum);
+    bbi::Endian::le (src.ideal_viewangles, 3, dst.ideal_viewangles);
+    bbi::Endian::le (src.viewangles, 3, dst.viewangles);
+    dst.lastucmd = bbi::Endian::le (src.lastucmd);
+    dst.attackcrouch_time = bbi::Endian::le (src.attackcrouch_time);
+    dst.bFlags = bbi::Endian::le (src.bFlags);
+    dst.deadSinkStartTime = bbi::Endian::le (src.deadSinkStartTime);
+    dst.lastActivate = bbi::Endian::le (src.lastActivate);
+    bbi::Endian::le (src.loperLeapVel, 3, dst.loperLeapVel);
 }
 
 //FIXME Check for "int" pointer overflow?
-void cast_state_t::convertTo32 (
+void cast_state_t::convert_to_32 (
     Struct32& struct32) const
 {
     const Struct& src = *this;
     Struct32& dst = struct32;
 
-    dst.bs = reinterpret_cast<int> (src.bs);
-    dst.entityNum = src.entityNum;
-    dst.aasWorldIndex = src.aasWorldIndex;
-    dst.aiCharacter = src.aiCharacter;
-    dst.aiFlags = src.aiFlags;
-    dst.lastThink = src.lastThink;
-    dst.actionFlags = src.actionFlags;
-    dst.lastPain = src.lastPain;
-    dst.lastPainDamage = src.lastPainDamage;
-    dst.travelflags = src.travelflags;
-    dst.thinkFuncChangeTime = src.thinkFuncChangeTime;
-    dst.aiState = src.aiState;
-    dst.movestate = src.movestate;
-    dst.movestateType = src.movestateType;
-    std::uninitialized_copy_n (src.attributes, AICAST_MAX_ATTRIBUTES, dst.attributes);
-    dst.numCastScriptEvents = src.numCastScriptEvents;
-    dst.castScriptEvents = reinterpret_cast<int> (src.castScriptEvents);
-    dst.castScriptStatus = src.castScriptStatus;
-    dst.castScriptStatusCurrent = src.castScriptStatusCurrent;
-    dst.castScriptStatusBackup = src.castScriptStatusBackup;
-    dst.scriptCallIndex = src.scriptCallIndex;
-    dst.scriptAnimTime = src.scriptAnimTime;
-    dst.scriptAnimNum = src.scriptAnimNum;
-    std::uninitialized_copy_n (src.scriptAccumBuffer, MAX_SCRIPT_ACCUM_BUFFERS, dst.scriptAccumBuffer);
-    dst.weaponInfo = reinterpret_cast<int> (src.weaponInfo);
-    std::uninitialized_copy_n (src.vislist, MAX_CLIENTS, dst.vislist);
-    std::uninitialized_copy_n (src.weaponFireTimes, MAX_WEAPONS, dst.weaponFireTimes);
-    dst.aifunc = reinterpret_cast<int> (src.aifunc);
-    dst.oldAifunc = reinterpret_cast<int> (src.oldAifunc);
-    dst.aifuncAttack1 = reinterpret_cast<int> (src.aifuncAttack1);
-    dst.aifuncAttack2 = reinterpret_cast<int> (src.aifuncAttack2);
-    dst.aifuncAttack3 = reinterpret_cast<int> (src.aifuncAttack3);
-    dst.painfunc = reinterpret_cast<int> (src.painfunc);
-    dst.deathfunc = reinterpret_cast<int> (src.deathfunc);
-    dst.sightfunc = reinterpret_cast<int> (src.sightfunc);
-    dst.sightEnemy = reinterpret_cast<int> (src.sightEnemy);
-    dst.sightFriend = reinterpret_cast<int> (src.sightFriend);
-    dst.activate = reinterpret_cast<int> (src.activate);
-    dst.followEntity = src.followEntity;
-    dst.followDist = src.followDist;
-    dst.followIsGoto = src.followIsGoto;
-    dst.followTime = src.followTime;
-    dst.followSlowApproach = src.followSlowApproach;
-    dst.leaderNum = src.leaderNum;
-    dst.speedScale = src.speedScale;
-    dst.combatGoalTime = src.combatGoalTime;
-    VectorCopy (src.combatGoalOrigin, dst.combatGoalOrigin);
-    dst.lastGetHidePos = src.lastGetHidePos;
-    dst.startAttackCount = src.startAttackCount;
-    dst.combatSpotAttackCount = src.combatSpotAttackCount;
-    dst.combatSpotDelayTime = src.combatSpotDelayTime;
-    dst.startBattleChaseTime = src.startBattleChaseTime;
-    dst.blockedTime = src.blockedTime;
-    dst.obstructingTime = src.obstructingTime;
-    VectorCopy (src.obstructingPos, dst.obstructingPos);
-    dst.blockedAvoidTime = src.blockedAvoidTime;
-    dst.blockedAvoidYaw = src.blockedAvoidYaw;
-    dst.deathTime = src.deathTime;
-    dst.rebirthTime = src.rebirthTime;
-    dst.revivingTime = src.revivingTime;
-    dst.enemyHeight = src.enemyHeight;
-    dst.enemyDist = src.enemyDist;
-    VectorCopy (src.takeCoverPos, dst.takeCoverPos);
-    VectorCopy (src.takeCoverEnemyPos, dst.takeCoverEnemyPos);
-    dst.takeCoverTime = src.takeCoverTime;
-    dst.attackSpotTime = src.attackSpotTime;
-    dst.triggerReleaseTime = src.triggerReleaseTime;
-    dst.lastWeaponFired = src.lastWeaponFired;
-    VectorCopy (src.lastWeaponFiredPos, dst.lastWeaponFiredPos);
-    dst.lastWeaponFiredWeaponNum = src.lastWeaponFiredWeaponNum;
-    dst.lastEnemy = src.lastEnemy;
-    dst.nextIdleAngleChange = src.nextIdleAngleChange;
-    dst.idleYawChange = src.idleYawChange;
-    dst.idleYaw = src.idleYaw;
-    dst.crouchHideFlag = src.crouchHideFlag;
-    dst.doorMarker = src.doorMarker;
-    dst.doorEntNum = src.doorEntNum;
-    dst.attackSNDtime = src.attackSNDtime;
-    dst.attacksnd = src.attacksnd;
-    dst.painSoundTime = src.painSoundTime;
-    dst.firstSightTime = src.firstSightTime;
-    dst.secondDeadTime = src.secondDeadTime;
-    dst.startGrenadeFlushTime = src.startGrenadeFlushTime;
-    dst.lockViewAnglesTime = src.lockViewAnglesTime;
-    dst.grenadeFlushEndTime = src.grenadeFlushEndTime;
-    dst.grenadeFlushFiring = src.grenadeFlushFiring;
-    dst.dangerEntity = src.dangerEntity;
-    dst.dangerEntityValidTime = src.dangerEntityValidTime;
-    VectorCopy (src.dangerEntityPos, dst.dangerEntityPos);
-    dst.dangerEntityTimestamp = src.dangerEntityTimestamp;
-    dst.dangerDist = src.dangerDist;
-    dst.mountedEntity = src.mountedEntity;
-    dst.inspectBodyTime = src.inspectBodyTime;
-    VectorCopy (src.startOrigin, dst.startOrigin);
-    dst.damageQuota = src.damageQuota;
-    dst.damageQuotaTime = src.damageQuotaTime;
-    dst.dangerLastGetAvoid = src.dangerLastGetAvoid;
-    dst.lastAvoid = src.lastAvoid;
-    dst.doorMarkerTime = src.doorMarkerTime;
-    dst.doorMarkerNum = src.doorMarkerNum;
-    dst.doorMarkerDoor = src.doorMarkerDoor;
-    dst.pauseTime = src.pauseTime;
-    dst.checkAttackCache = src.checkAttackCache;
-    dst.secretsFound = src.secretsFound;
-    dst.attempts = src.attempts;
-    dst.grenadeGrabFlag = src.grenadeGrabFlag;
-    VectorCopy (src.lastMoveToPosGoalOrg, dst.lastMoveToPosGoalOrg);
-    dst.noAttackTime = src.noAttackTime;
-    dst.lastRollMove = src.lastRollMove;
-    dst.lastFlipMove = src.lastFlipMove;
-    VectorCopy (src.stimFlyAttackPos, dst.stimFlyAttackPos);
-    dst.lastDodgeRoll = src.lastDodgeRoll;
-    dst.battleRollTime = src.battleRollTime;
-    VectorCopy (src.viewlock_viewangles, dst.viewlock_viewangles);
-    dst.grenadeKickWeapon = src.grenadeKickWeapon;
-    dst.animHitCount = src.animHitCount;
-    dst.totalPlayTime = src.totalPlayTime;
-    dst.lastLoadTime = src.lastLoadTime;
-    dst.queryStartTime = src.queryStartTime;
-    dst.queryCountValidTime = src.queryCountValidTime;
-    dst.queryCount = src.queryCount;
-    dst.queryAlertSightTime = src.queryAlertSightTime;
-    dst.lastScriptSound = src.lastScriptSound;
-    dst.inspectNum = src.inspectNum;
-    dst.scriptPauseTime = src.scriptPauseTime;
-    dst.bulletImpactEntity = src.bulletImpactEntity;
-    dst.bulletImpactTime = src.bulletImpactTime;
-    dst.bulletImpactIgnoreTime = src.bulletImpactIgnoreTime;
-    VectorCopy (src.bulletImpactStart, dst.bulletImpactStart);
-    VectorCopy (src.bulletImpactEnd, dst.bulletImpactEnd);
-    dst.audibleEventTime = src.audibleEventTime;
-    VectorCopy (src.audibleEventOrg, dst.audibleEventOrg);
-    dst.audibleEventEnt = src.audibleEventEnt;
-    dst.battleChaseMarker = src.battleChaseMarker;
-    dst.battleChaseMarkerDir = src.battleChaseMarkerDir;
-    dst.lastBattleHunted = src.lastBattleHunted;
-    dst.battleHuntPauseTime = src.battleHuntPauseTime;
-    dst.battleHuntViewTime = src.battleHuntViewTime;
-    dst.lastAttackCrouch = src.lastAttackCrouch;
-    dst.lastMoveThink = src.lastMoveThink;
-    dst.numEnemies = src.numEnemies;
-    dst.noReloadTime = src.noReloadTime;
+    dst.bs = bbi::Endian::le (reinterpret_cast<int> (src.bs));
+    dst.entityNum = bbi::Endian::le (src.entityNum);
+    dst.aasWorldIndex = bbi::Endian::le (src.aasWorldIndex);
+    dst.aiCharacter = bbi::Endian::le (src.aiCharacter);
+    dst.aiFlags = bbi::Endian::le (src.aiFlags);
+    dst.lastThink = bbi::Endian::le (src.lastThink);
+    dst.actionFlags = bbi::Endian::le (src.actionFlags);
+    dst.lastPain = bbi::Endian::le (src.lastPain);
+    dst.lastPainDamage = bbi::Endian::le (src.lastPainDamage);
+    dst.travelflags = bbi::Endian::le (src.travelflags);
+    dst.thinkFuncChangeTime = bbi::Endian::le (src.thinkFuncChangeTime);
+    dst.aiState = bbi::Endian::le (src.aiState);
+    dst.movestate = bbi::Endian::le (src.movestate);
+    dst.movestateType = bbi::Endian::le (src.movestateType);
+    bbi::Endian::le (src.attributes, AICAST_MAX_ATTRIBUTES, dst.attributes);
+    dst.numCastScriptEvents = bbi::Endian::le (src.numCastScriptEvents);
+    dst.castScriptEvents = bbi::Endian::le (reinterpret_cast<int> (src.castScriptEvents));
+    dst.castScriptStatus = bbi::Endian::le (src.castScriptStatus);
+    dst.castScriptStatusCurrent = bbi::Endian::le (src.castScriptStatusCurrent);
+    dst.castScriptStatusBackup = bbi::Endian::le (src.castScriptStatusBackup);
+    dst.scriptCallIndex = bbi::Endian::le (src.scriptCallIndex);
+    dst.scriptAnimTime = bbi::Endian::le (src.scriptAnimTime);
+    dst.scriptAnimNum = bbi::Endian::le (src.scriptAnimNum);
+    bbi::Endian::le (src.scriptAccumBuffer, MAX_SCRIPT_ACCUM_BUFFERS, dst.scriptAccumBuffer);
+    dst.weaponInfo = bbi::Endian::le (reinterpret_cast<int> (src.weaponInfo));
+    bbi::Endian::le (src.vislist, MAX_CLIENTS, dst.vislist);
+    bbi::Endian::le (src.weaponFireTimes, MAX_WEAPONS, dst.weaponFireTimes);
+    dst.aifunc = bbi::Endian::le (reinterpret_cast<int> (src.aifunc));
+    dst.oldAifunc = bbi::Endian::le (reinterpret_cast<int> (src.oldAifunc));
+    dst.aifuncAttack1 = bbi::Endian::le (reinterpret_cast<int> (src.aifuncAttack1));
+    dst.aifuncAttack2 = bbi::Endian::le (reinterpret_cast<int> (src.aifuncAttack2));
+    dst.aifuncAttack3 = bbi::Endian::le (reinterpret_cast<int> (src.aifuncAttack3));
+    dst.painfunc = bbi::Endian::le (reinterpret_cast<int> (src.painfunc));
+    dst.deathfunc = bbi::Endian::le (reinterpret_cast<int> (src.deathfunc));
+    dst.sightfunc = bbi::Endian::le (reinterpret_cast<int> (src.sightfunc));
+    dst.sightEnemy = bbi::Endian::le (reinterpret_cast<int> (src.sightEnemy));
+    dst.sightFriend = bbi::Endian::le (reinterpret_cast<int> (src.sightFriend));
+    dst.activate = bbi::Endian::le (reinterpret_cast<int> (src.activate));
+    dst.followEntity = bbi::Endian::le (src.followEntity);
+    dst.followDist = bbi::Endian::le (src.followDist);
+    dst.followIsGoto = bbi::Endian::le (src.followIsGoto);
+    dst.followTime = bbi::Endian::le (src.followTime);
+    dst.followSlowApproach = bbi::Endian::le (src.followSlowApproach);
+    dst.leaderNum = bbi::Endian::le (src.leaderNum);
+    dst.speedScale = bbi::Endian::le (src.speedScale);
+    dst.combatGoalTime = bbi::Endian::le (src.combatGoalTime);
+    bbi::Endian::le (src.combatGoalOrigin, 3, dst.combatGoalOrigin);
+    dst.lastGetHidePos = bbi::Endian::le (src.lastGetHidePos);
+    dst.startAttackCount = bbi::Endian::le (src.startAttackCount);
+    dst.combatSpotAttackCount = bbi::Endian::le (src.combatSpotAttackCount);
+    dst.combatSpotDelayTime = bbi::Endian::le (src.combatSpotDelayTime);
+    dst.startBattleChaseTime = bbi::Endian::le (src.startBattleChaseTime);
+    dst.blockedTime = bbi::Endian::le (src.blockedTime);
+    dst.obstructingTime = bbi::Endian::le (src.obstructingTime);
+    bbi::Endian::le (src.obstructingPos, 3, dst.obstructingPos);
+    dst.blockedAvoidTime = bbi::Endian::le (src.blockedAvoidTime);
+    dst.blockedAvoidYaw = bbi::Endian::le (src.blockedAvoidYaw);
+    dst.deathTime = bbi::Endian::le (src.deathTime);
+    dst.rebirthTime = bbi::Endian::le (src.rebirthTime);
+    dst.revivingTime = bbi::Endian::le (src.revivingTime);
+    dst.enemyHeight = bbi::Endian::le (src.enemyHeight);
+    dst.enemyDist = bbi::Endian::le (src.enemyDist);
+    bbi::Endian::le (src.takeCoverPos, 3, dst.takeCoverPos);
+    bbi::Endian::le (src.takeCoverEnemyPos, 3, dst.takeCoverEnemyPos);
+    dst.takeCoverTime = bbi::Endian::le (src.takeCoverTime);
+    dst.attackSpotTime = bbi::Endian::le (src.attackSpotTime);
+    dst.triggerReleaseTime = bbi::Endian::le (src.triggerReleaseTime);
+    dst.lastWeaponFired = bbi::Endian::le (src.lastWeaponFired);
+    bbi::Endian::le (src.lastWeaponFiredPos, 3, dst.lastWeaponFiredPos);
+    dst.lastWeaponFiredWeaponNum = bbi::Endian::le (src.lastWeaponFiredWeaponNum);
+    dst.lastEnemy = bbi::Endian::le (src.lastEnemy);
+    dst.nextIdleAngleChange = bbi::Endian::le (src.nextIdleAngleChange);
+    dst.idleYawChange = bbi::Endian::le (src.idleYawChange);
+    dst.idleYaw = bbi::Endian::le (src.idleYaw);
+    dst.crouchHideFlag = bbi::Endian::le (src.crouchHideFlag);
+    dst.doorMarker = bbi::Endian::le (src.doorMarker);
+    dst.doorEntNum = bbi::Endian::le (src.doorEntNum);
+    dst.attackSNDtime = bbi::Endian::le (src.attackSNDtime);
+    dst.attacksnd = bbi::Endian::le (src.attacksnd);
+    dst.painSoundTime = bbi::Endian::le (src.painSoundTime);
+    dst.firstSightTime = bbi::Endian::le (src.firstSightTime);
+    dst.secondDeadTime = bbi::Endian::le (src.secondDeadTime);
+    dst.startGrenadeFlushTime = bbi::Endian::le (src.startGrenadeFlushTime);
+    dst.lockViewAnglesTime = bbi::Endian::le (src.lockViewAnglesTime);
+    dst.grenadeFlushEndTime = bbi::Endian::le (src.grenadeFlushEndTime);
+    dst.grenadeFlushFiring = bbi::Endian::le (src.grenadeFlushFiring);
+    dst.dangerEntity = bbi::Endian::le (src.dangerEntity);
+    dst.dangerEntityValidTime = bbi::Endian::le (src.dangerEntityValidTime);
+    bbi::Endian::le (src.dangerEntityPos, 3, dst.dangerEntityPos);
+    dst.dangerEntityTimestamp = bbi::Endian::le (src.dangerEntityTimestamp);
+    dst.dangerDist = bbi::Endian::le (src.dangerDist);
+    dst.mountedEntity = bbi::Endian::le (src.mountedEntity);
+    dst.inspectBodyTime = bbi::Endian::le (src.inspectBodyTime);
+    bbi::Endian::le (src.startOrigin, 3, dst.startOrigin);
+    dst.damageQuota = bbi::Endian::le (src.damageQuota);
+    dst.damageQuotaTime = bbi::Endian::le (src.damageQuotaTime);
+    dst.dangerLastGetAvoid = bbi::Endian::le (src.dangerLastGetAvoid);
+    dst.lastAvoid = bbi::Endian::le (src.lastAvoid);
+    dst.doorMarkerTime = bbi::Endian::le (src.doorMarkerTime);
+    dst.doorMarkerNum = bbi::Endian::le (src.doorMarkerNum);
+    dst.doorMarkerDoor = bbi::Endian::le (src.doorMarkerDoor);
+    dst.pauseTime = bbi::Endian::le (src.pauseTime);
+    dst.checkAttackCache = bbi::Endian::le (src.checkAttackCache);
+    dst.secretsFound = bbi::Endian::le (src.secretsFound);
+    dst.attempts = bbi::Endian::le (src.attempts);
+    dst.grenadeGrabFlag = bbi::Endian::le (src.grenadeGrabFlag);
+    bbi::Endian::le (src.lastMoveToPosGoalOrg, 3, dst.lastMoveToPosGoalOrg);
+    dst.noAttackTime = bbi::Endian::le (src.noAttackTime);
+    dst.lastRollMove = bbi::Endian::le (src.lastRollMove);
+    dst.lastFlipMove = bbi::Endian::le (src.lastFlipMove);
+    bbi::Endian::le (src.stimFlyAttackPos, 3, dst.stimFlyAttackPos);
+    dst.lastDodgeRoll = bbi::Endian::le (src.lastDodgeRoll);
+    dst.battleRollTime = bbi::Endian::le (src.battleRollTime);
+    bbi::Endian::le (src.viewlock_viewangles, 3, dst.viewlock_viewangles);
+    dst.grenadeKickWeapon = bbi::Endian::le (src.grenadeKickWeapon);
+    dst.animHitCount = bbi::Endian::le (src.animHitCount);
+    dst.totalPlayTime = bbi::Endian::le (src.totalPlayTime);
+    dst.lastLoadTime = bbi::Endian::le (src.lastLoadTime);
+    dst.queryStartTime = bbi::Endian::le (src.queryStartTime);
+    dst.queryCountValidTime = bbi::Endian::le (src.queryCountValidTime);
+    dst.queryCount = bbi::Endian::le (src.queryCount);
+    dst.queryAlertSightTime = bbi::Endian::le (src.queryAlertSightTime);
+    dst.lastScriptSound = bbi::Endian::le (src.lastScriptSound);
+    dst.inspectNum = bbi::Endian::le (src.inspectNum);
+    dst.scriptPauseTime = bbi::Endian::le (src.scriptPauseTime);
+    dst.bulletImpactEntity = bbi::Endian::le (src.bulletImpactEntity);
+    dst.bulletImpactTime = bbi::Endian::le (src.bulletImpactTime);
+    dst.bulletImpactIgnoreTime = bbi::Endian::le (src.bulletImpactIgnoreTime);
+    bbi::Endian::le (src.bulletImpactStart, 3, dst.bulletImpactStart);
+    bbi::Endian::le (src.bulletImpactEnd, 3, dst.bulletImpactEnd);
+    dst.audibleEventTime = bbi::Endian::le (src.audibleEventTime);
+    bbi::Endian::le (src.audibleEventOrg, 3, dst.audibleEventOrg);
+    dst.audibleEventEnt = bbi::Endian::le (src.audibleEventEnt);
+    dst.battleChaseMarker = bbi::Endian::le (src.battleChaseMarker);
+    dst.battleChaseMarkerDir = bbi::Endian::le (src.battleChaseMarkerDir);
+    dst.lastBattleHunted = bbi::Endian::le (src.lastBattleHunted);
+    dst.battleHuntPauseTime = bbi::Endian::le (src.battleHuntPauseTime);
+    dst.battleHuntViewTime = bbi::Endian::le (src.battleHuntViewTime);
+    dst.lastAttackCrouch = bbi::Endian::le (src.lastAttackCrouch);
+    dst.lastMoveThink = bbi::Endian::le (src.lastMoveThink);
+    dst.numEnemies = bbi::Endian::le (src.numEnemies);
+    dst.noReloadTime = bbi::Endian::le (src.noReloadTime);
     std::uninitialized_copy_n (src.lastValidAreaNum, 2, dst.lastValidAreaNum);
     std::uninitialized_copy_n (src.lastValidAreaTime, 2, dst.lastValidAreaTime);
-    dst.weaponNum = src.weaponNum;
-    dst.enemyNum = src.enemyNum;
-    VectorCopy (src.ideal_viewangles, dst.ideal_viewangles);
-    VectorCopy (src.viewangles, dst.viewangles);
-    dst.lastucmd = src.lastucmd;
-    dst.attackcrouch_time = src.attackcrouch_time;
-    dst.bFlags = src.bFlags;
-    dst.deadSinkStartTime = src.deadSinkStartTime;
-    dst.lastActivate = src.lastActivate;
-    VectorCopy (src.loperLeapVel, dst.loperLeapVel);
+    dst.weaponNum = bbi::Endian::le (src.weaponNum);
+    dst.enemyNum = bbi::Endian::le (src.enemyNum);
+    bbi::Endian::le (src.ideal_viewangles, 3, dst.ideal_viewangles);
+    bbi::Endian::le (src.viewangles, 3, dst.viewangles);
+    dst.lastucmd = bbi::Endian::le (src.lastucmd);
+    dst.attackcrouch_time = bbi::Endian::le (src.attackcrouch_time);
+    dst.bFlags = bbi::Endian::le (src.bFlags);
+    dst.deadSinkStartTime = bbi::Endian::le (src.deadSinkStartTime);
+    dst.lastActivate = bbi::Endian::le (src.lastActivate);
+    bbi::Endian::le (src.loperLeapVel, 3, dst.loperLeapVel);
 }
 
-void gclient_t::convertFrom32 (
+void gclient_t::convert_from_32 (
     const Struct32& struct32)
 {
     const Struct32& src = struct32;
     Struct& dst = *this;
 
-    dst.ps = src.ps;
-    dst.pers = src.pers;
-    dst.sess = src.sess;
-    dst.readyToExit = src.readyToExit;
-    dst.noclip = src.noclip;
-    dst.lastCmdTime = src.lastCmdTime;
-    dst.buttons = src.buttons;
-    dst.oldbuttons = src.oldbuttons;
-    dst.latched_buttons = src.latched_buttons;
-    dst.wbuttons = src.wbuttons;
-    dst.oldwbuttons = src.oldwbuttons;
-    dst.latched_wbuttons = src.latched_wbuttons;
-    VectorCopy (src.oldOrigin, dst.oldOrigin);
-    dst.damage_armor = src.damage_armor;
-    dst.damage_blood = src.damage_blood;
-    dst.damage_knockback = src.damage_knockback;
-    VectorCopy (src.damage_from, dst.damage_from);
-    dst.damage_fromWorld = src.damage_fromWorld;
-    dst.accurateCount = src.accurateCount;
-    dst.accuracy_shots = src.accuracy_shots;
-    dst.accuracy_hits = src.accuracy_hits;
-    dst.lastkilled_client = src.lastkilled_client;
-    dst.lasthurt_client = src.lasthurt_client;
-    dst.lasthurt_mod = src.lasthurt_mod;
-    dst.respawnTime = src.respawnTime;
-    dst.inactivityTime = src.inactivityTime;
-    dst.inactivityWarning = src.inactivityWarning;
-    dst.rewardTime = src.rewardTime;
-    dst.airOutTime = src.airOutTime;
-    dst.lastKillTime = src.lastKillTime;
-    dst.fireHeld = src.fireHeld;
-    dst.hook = reinterpret_cast<gentity_t*> (src.hook);
-    dst.switchTeamTime = src.switchTeamTime;
-    dst.timeResidual = src.timeResidual;
-    dst.currentAimSpreadScale = src.currentAimSpreadScale;
-    dst.medicHealAmt = src.medicHealAmt;
-    dst.modelInfo = reinterpret_cast<animModelInfo_t*> (src.modelInfo);
-    dst.persistantPowerup = reinterpret_cast<gentity_t*> (src.persistantPowerup);
-    dst.portalID = src.portalID;
-    std::uninitialized_copy_n (src.ammoTimes, WP_NUM_WEAPONS, dst.ammoTimes);
-    dst.invulnerabilityTime = src.invulnerabilityTime;
-    dst.cameraPortal = reinterpret_cast<gentity_t*> (src.cameraPortal);
-    VectorCopy (src.cameraOrigin, dst.cameraOrigin);
-    dst.limboDropWeapon = src.limboDropWeapon;
-    dst.deployQueueNumber = src.deployQueueNumber;
-    dst.sniperRifleFiredTime = src.sniperRifleFiredTime;
-    dst.sniperRifleMuzzleYaw = src.sniperRifleMuzzleYaw;
-    dst.sniperRifleMuzzlePitch = src.sniperRifleMuzzlePitch;
-    std::uninitialized_copy_n (src.saved_persistant, MAX_PERSISTANT, dst.saved_persistant);
+    dst.ps = bbi::Endian::le (src.ps);
+    dst.pers = bbi::Endian::le (src.pers);
+    dst.sess = bbi::Endian::le (src.sess);
+    dst.readyToExit = bbi::Endian::le (src.readyToExit);
+    dst.noclip = bbi::Endian::le (src.noclip);
+    dst.lastCmdTime = bbi::Endian::le (src.lastCmdTime);
+    dst.buttons = bbi::Endian::le (src.buttons);
+    dst.oldbuttons = bbi::Endian::le (src.oldbuttons);
+    dst.latched_buttons = bbi::Endian::le (src.latched_buttons);
+    dst.wbuttons = bbi::Endian::le (src.wbuttons);
+    dst.oldwbuttons = bbi::Endian::le (src.oldwbuttons);
+    dst.latched_wbuttons = bbi::Endian::le (src.latched_wbuttons);
+    bbi::Endian::le (src.oldOrigin, 3, dst.oldOrigin);
+    dst.damage_armor = bbi::Endian::le (src.damage_armor);
+    dst.damage_blood = bbi::Endian::le (src.damage_blood);
+    dst.damage_knockback = bbi::Endian::le (src.damage_knockback);
+    bbi::Endian::le (src.damage_from, 3, dst.damage_from);
+    dst.damage_fromWorld = bbi::Endian::le (src.damage_fromWorld);
+    dst.accurateCount = bbi::Endian::le (src.accurateCount);
+    dst.accuracy_shots = bbi::Endian::le (src.accuracy_shots);
+    dst.accuracy_hits = bbi::Endian::le (src.accuracy_hits);
+    dst.lastkilled_client = bbi::Endian::le (src.lastkilled_client);
+    dst.lasthurt_client = bbi::Endian::le (src.lasthurt_client);
+    dst.lasthurt_mod = bbi::Endian::le (src.lasthurt_mod);
+    dst.respawnTime = bbi::Endian::le (src.respawnTime);
+    dst.inactivityTime = bbi::Endian::le (src.inactivityTime);
+    dst.inactivityWarning = bbi::Endian::le (src.inactivityWarning);
+    dst.rewardTime = bbi::Endian::le (src.rewardTime);
+    dst.airOutTime = bbi::Endian::le (src.airOutTime);
+    dst.lastKillTime = bbi::Endian::le (src.lastKillTime);
+    dst.fireHeld = bbi::Endian::le (src.fireHeld);
+    dst.hook = reinterpret_cast<gentity_t*> (bbi::Endian::le (src.hook));
+    dst.switchTeamTime = bbi::Endian::le (src.switchTeamTime);
+    dst.timeResidual = bbi::Endian::le (src.timeResidual);
+    dst.currentAimSpreadScale = bbi::Endian::le (src.currentAimSpreadScale);
+    dst.medicHealAmt = bbi::Endian::le (src.medicHealAmt);
+    dst.modelInfo = reinterpret_cast<animModelInfo_t*> (bbi::Endian::le (src.modelInfo));
+    dst.persistantPowerup = reinterpret_cast<gentity_t*> (bbi::Endian::le (src.persistantPowerup));
+    dst.portalID = bbi::Endian::le (src.portalID);
+    bbi::Endian::le (src.ammoTimes, WP_NUM_WEAPONS, dst.ammoTimes);
+    dst.invulnerabilityTime = bbi::Endian::le (src.invulnerabilityTime);
+    dst.cameraPortal = reinterpret_cast<gentity_t*> (bbi::Endian::le (src.cameraPortal));
+    bbi::Endian::le (src.cameraOrigin, 3, dst.cameraOrigin);
+    dst.limboDropWeapon = bbi::Endian::le (src.limboDropWeapon);
+    dst.deployQueueNumber = bbi::Endian::le (src.deployQueueNumber);
+    dst.sniperRifleFiredTime = bbi::Endian::le (src.sniperRifleFiredTime);
+    dst.sniperRifleMuzzleYaw = bbi::Endian::le (src.sniperRifleMuzzleYaw);
+    dst.sniperRifleMuzzlePitch = bbi::Endian::le (src.sniperRifleMuzzlePitch);
+    bbi::Endian::le (src.saved_persistant, MAX_PERSISTANT, dst.saved_persistant);
 }
 
 //FIXME Check for "int" pointer overflow?
-void gclient_t::convertTo32 (
-    Struct32& struct32) const
+void gclient_t::convert_to_32 (Struct32& struct32) const
 {
     const Struct& src = *this;
     Struct32& dst = struct32;
 
-    dst.ps = src.ps;
-    dst.pers = src.pers;
-    dst.sess = src.sess;
-    dst.readyToExit = src.readyToExit;
-    dst.noclip = src.noclip;
-    dst.lastCmdTime = src.lastCmdTime;
-    dst.buttons = src.buttons;
-    dst.oldbuttons = src.oldbuttons;
-    dst.latched_buttons = src.latched_buttons;
-    dst.wbuttons = src.wbuttons;
-    dst.oldwbuttons = src.oldwbuttons;
-    dst.latched_wbuttons = src.latched_wbuttons;
-    VectorCopy (src.oldOrigin, dst.oldOrigin);
-    dst.damage_armor = src.damage_armor;
-    dst.damage_blood = src.damage_blood;
-    dst.damage_knockback = src.damage_knockback;
-    VectorCopy (src.damage_from, dst.damage_from);
-    dst.damage_fromWorld = src.damage_fromWorld;
-    dst.accurateCount = src.accurateCount;
-    dst.accuracy_shots = src.accuracy_shots;
-    dst.accuracy_hits = src.accuracy_hits;
-    dst.lastkilled_client = src.lastkilled_client;
-    dst.lasthurt_client = src.lasthurt_client;
-    dst.lasthurt_mod = src.lasthurt_mod;
-    dst.respawnTime = src.respawnTime;
-    dst.inactivityTime = src.inactivityTime;
-    dst.inactivityWarning = src.inactivityWarning;
-    dst.rewardTime = src.rewardTime;
-    dst.airOutTime = src.airOutTime;
-    dst.lastKillTime = src.lastKillTime;
-    dst.fireHeld = src.fireHeld;
-    dst.hook = reinterpret_cast<int> (src.hook);
-    dst.switchTeamTime = src.switchTeamTime;
-    dst.timeResidual = src.timeResidual;
-    dst.currentAimSpreadScale = src.currentAimSpreadScale;
-    dst.medicHealAmt = src.medicHealAmt;
-    dst.modelInfo = reinterpret_cast<int> (src.modelInfo);
-    dst.persistantPowerup = reinterpret_cast<int> (src.persistantPowerup);
-    dst.portalID = src.portalID;
-    std::uninitialized_copy_n (src.ammoTimes, WP_NUM_WEAPONS, dst.ammoTimes);
-    dst.invulnerabilityTime = src.invulnerabilityTime;
-    dst.cameraPortal = reinterpret_cast<int> (src.cameraPortal);
-    VectorCopy (src.cameraOrigin, dst.cameraOrigin);
-    dst.limboDropWeapon = src.limboDropWeapon;
-    dst.deployQueueNumber = src.deployQueueNumber;
-    dst.sniperRifleFiredTime = src.sniperRifleFiredTime;
-    dst.sniperRifleMuzzleYaw = src.sniperRifleMuzzleYaw;
-    dst.sniperRifleMuzzlePitch = src.sniperRifleMuzzlePitch;
-    std::uninitialized_copy_n (src.saved_persistant, MAX_PERSISTANT, dst.saved_persistant);
+    dst.ps = bbi::Endian::le (src.ps);
+    dst.pers = bbi::Endian::le (src.pers);
+    dst.sess = bbi::Endian::le (src.sess);
+    dst.readyToExit = bbi::Endian::le (src.readyToExit);
+    dst.noclip = bbi::Endian::le (src.noclip);
+    dst.lastCmdTime = bbi::Endian::le (src.lastCmdTime);
+    dst.buttons = bbi::Endian::le (src.buttons);
+    dst.oldbuttons = bbi::Endian::le (src.oldbuttons);
+    dst.latched_buttons = bbi::Endian::le (src.latched_buttons);
+    dst.wbuttons = bbi::Endian::le (src.wbuttons);
+    dst.oldwbuttons = bbi::Endian::le (src.oldwbuttons);
+    dst.latched_wbuttons = bbi::Endian::le (src.latched_wbuttons);
+    bbi::Endian::le (src.oldOrigin, 3, dst.oldOrigin);
+    dst.damage_armor = bbi::Endian::le (src.damage_armor);
+    dst.damage_blood = bbi::Endian::le (src.damage_blood);
+    dst.damage_knockback = bbi::Endian::le (src.damage_knockback);
+    bbi::Endian::le (src.damage_from, 3, dst.damage_from);
+    dst.damage_fromWorld = bbi::Endian::le (src.damage_fromWorld);
+    dst.accurateCount = bbi::Endian::le (src.accurateCount);
+    dst.accuracy_shots = bbi::Endian::le (src.accuracy_shots);
+    dst.accuracy_hits = bbi::Endian::le (src.accuracy_hits);
+    dst.lastkilled_client = bbi::Endian::le (src.lastkilled_client);
+    dst.lasthurt_client = bbi::Endian::le (src.lasthurt_client);
+    dst.lasthurt_mod = bbi::Endian::le (src.lasthurt_mod);
+    dst.respawnTime = bbi::Endian::le (src.respawnTime);
+    dst.inactivityTime = bbi::Endian::le (src.inactivityTime);
+    dst.inactivityWarning = bbi::Endian::le (src.inactivityWarning);
+    dst.rewardTime = bbi::Endian::le (src.rewardTime);
+    dst.airOutTime = bbi::Endian::le (src.airOutTime);
+    dst.lastKillTime = bbi::Endian::le (src.lastKillTime);
+    dst.fireHeld = bbi::Endian::le (src.fireHeld);
+    dst.hook = bbi::Endian::le (reinterpret_cast<int> (src.hook));
+    dst.switchTeamTime = bbi::Endian::le (src.switchTeamTime);
+    dst.timeResidual = bbi::Endian::le (src.timeResidual);
+    dst.currentAimSpreadScale = bbi::Endian::le (src.currentAimSpreadScale);
+    dst.medicHealAmt = bbi::Endian::le (src.medicHealAmt);
+    dst.modelInfo = bbi::Endian::le (reinterpret_cast<int> (src.modelInfo));
+    dst.persistantPowerup = bbi::Endian::le (reinterpret_cast<int> (src.persistantPowerup));
+    dst.portalID = bbi::Endian::le (src.portalID);
+    bbi::Endian::le (src.ammoTimes, WP_NUM_WEAPONS, dst.ammoTimes);
+    dst.invulnerabilityTime = bbi::Endian::le (src.invulnerabilityTime);
+    dst.cameraPortal = bbi::Endian::le (reinterpret_cast<int> (src.cameraPortal));
+    bbi::Endian::le (src.cameraOrigin, 3, dst.cameraOrigin);
+    dst.limboDropWeapon = bbi::Endian::le (src.limboDropWeapon);
+    dst.deployQueueNumber = bbi::Endian::le (src.deployQueueNumber);
+    dst.sniperRifleFiredTime = bbi::Endian::le (src.sniperRifleFiredTime);
+    dst.sniperRifleMuzzleYaw = bbi::Endian::le (src.sniperRifleMuzzleYaw);
+    dst.sniperRifleMuzzlePitch = bbi::Endian::le (src.sniperRifleMuzzlePitch);
+    bbi::Endian::le (src.saved_persistant, MAX_PERSISTANT, dst.saved_persistant);
 }
 
-void g_script_status_t::convertFrom32 (
+void g_script_status_t::convert_from_32 (
     const Struct32& refStruct32)
 {
     const Struct32& src = refStruct32;
     Struct& dst = *this;
 
-    dst.scriptStackHead = src.scriptStackHead;
-    dst.scriptStackChangeTime = src.scriptStackChangeTime;
-    dst.scriptEventIndex = src.scriptEventIndex;
-    dst.scriptId = src.scriptId;
-    dst.scriptFlags = src.scriptFlags;
-    dst.animatingParams = reinterpret_cast<char*> (src.animatingParams);
+    dst.scriptStackHead = bbi::Endian::le (src.scriptStackHead);
+    dst.scriptStackChangeTime = bbi::Endian::le (src.scriptStackChangeTime);
+    dst.scriptEventIndex = bbi::Endian::le (src.scriptEventIndex);
+    dst.scriptId = bbi::Endian::le (src.scriptId);
+    dst.scriptFlags = bbi::Endian::le (src.scriptFlags);
+    dst.animatingParams = reinterpret_cast<char*> (bbi::Endian::le (src.animatingParams));
 }
 
 //FIXME Check for "int" pointer overflow?
-void g_script_status_t::convertTo32 (
+void g_script_status_t::convert_to_32 (
     Struct32& struct32) const
 {
     const Struct& src = *this;
     Struct32& dst = struct32;
 
-    dst.scriptStackHead = src.scriptStackHead;
-    dst.scriptStackChangeTime = src.scriptStackChangeTime;
-    dst.scriptEventIndex = src.scriptEventIndex;
-    dst.scriptId = src.scriptId;
-    dst.scriptFlags = src.scriptFlags;
-    dst.animatingParams = reinterpret_cast<int> (src.animatingParams);
+    dst.scriptStackHead = bbi::Endian::le (src.scriptStackHead);
+    dst.scriptStackChangeTime = bbi::Endian::le (src.scriptStackChangeTime);
+    dst.scriptEventIndex = bbi::Endian::le (src.scriptEventIndex);
+    dst.scriptId = bbi::Endian::le (src.scriptId);
+    dst.scriptFlags = bbi::Endian::le (src.scriptFlags);
+    dst.animatingParams = bbi::Endian::le (reinterpret_cast<int> (src.animatingParams));
 }
 
-void gentity_t::convertFrom32 (
+void gentity_t::convert_from_32 (
     const Struct32& refStruct32)
 {
     const Struct32& src = refStruct32;
     gentity_t& dst = *this;
 
-    dst.s = src.s;
-    dst.r = src.r;
-    dst.client = reinterpret_cast<gclient_s*> (src.client);
-    dst.inuse = src.inuse;
-    dst.classname = reinterpret_cast<char*> (src.classname);
-    dst.spawnflags = src.spawnflags;
-    dst.neverFree = src.neverFree;
-    dst.flags = src.flags;
-    dst.model = reinterpret_cast<char*> (src.model);
-    dst.model2 = reinterpret_cast<char*> (src.model2);
-    dst.freetime = src.freetime;
-    dst.eventTime = src.eventTime;
-    dst.freeAfterEvent = src.freeAfterEvent;
-    dst.unlinkAfterEvent = src.unlinkAfterEvent;
-    dst.physicsObject = src.physicsObject;
-    dst.physicsBounce = src.physicsBounce;
-    dst.clipmask = src.clipmask;
-    dst.moverState = src.moverState;
-    dst.soundPos1 = src.soundPos1;
-    dst.sound1to2 = src.sound1to2;
-    dst.sound2to1 = src.sound2to1;
-    dst.soundPos2 = src.soundPos2;
-    dst.soundLoop = src.soundLoop;
-    dst.sound2to3 = src.sound2to3;
-    dst.sound3to2 = src.sound3to2;
-    dst.soundPos3 = src.soundPos3;
-    dst.soundKicked = src.soundKicked;
-    dst.soundKickedEnd = src.soundKickedEnd;
-    dst.soundSoftopen = src.soundSoftopen;
-    dst.soundSoftendo = src.soundSoftendo;
-    dst.soundSoftclose = src.soundSoftclose;
-    dst.soundSoftendc = src.soundSoftendc;
-    dst.parent = reinterpret_cast<gentity_t*> (src.parent);
-    dst.nextTrain = reinterpret_cast<gentity_t*> (src.nextTrain);
-    dst.prevTrain = reinterpret_cast<gentity_t*> (src.prevTrain);
-    VectorCopy (src.pos1, dst.pos1);
-    VectorCopy (src.pos2, dst.pos2);
-    VectorCopy (src.pos3, dst.pos3);
-    dst.message = reinterpret_cast<char*> (src.message);
-    dst.timestamp = src.timestamp;
-    dst.angle = src.angle;
-    dst.target = reinterpret_cast<char*> (src.target);
-    dst.targetdeath = reinterpret_cast<char*> (src.targetdeath);
-    dst.targetname = reinterpret_cast<char*> (src.targetname);
-    dst.team = reinterpret_cast<char*> (src.team);
-    dst.targetShaderName = reinterpret_cast<char*> (src.targetShaderName);
-    dst.targetShaderNewName = reinterpret_cast<char*> (src.targetShaderNewName);
-    dst.target_ent = reinterpret_cast<gentity_t*> (src.target_ent);
-    dst.speed = src.speed;
-    dst.closespeed = src.closespeed;
-    VectorCopy (src.movedir, dst.movedir);
-    dst.gDuration = src.gDuration;
-    dst.gDurationBack = src.gDurationBack;
-    VectorCopy (src.gDelta, dst.gDelta);
-    VectorCopy (src.gDeltaBack, dst.gDeltaBack);
-    dst.nextthink = src.nextthink;
-    dst.think = reinterpret_cast<void (*) (gentity_t*)> (src.think);
-    dst.reached = reinterpret_cast<void (*) (gentity_t*)> (src.reached);
-    dst.blocked = reinterpret_cast<void (*) (gentity_t*, gentity_t*)> (src.blocked);
-    dst.touch = reinterpret_cast<void (*) (gentity_t*, gentity_t*, trace_t*)> (src.touch);
-    dst.use = reinterpret_cast<void (*) (gentity_t*, gentity_t*, gentity_t*)> (src.use);
-    dst.pain = reinterpret_cast<void (*) (gentity_t*, gentity_t*, int, vec_t*)> (src.pain);
-    dst.die = reinterpret_cast<void (*) (gentity_t*, gentity_t*, gentity_t*, int, int)> (src.die);
-    dst.pain_debounce_time = src.pain_debounce_time;
-    dst.fly_sound_debounce_time = src.fly_sound_debounce_time;
-    dst.last_move_time = src.last_move_time;
-    dst.health = src.health;
-    dst.takedamage = src.takedamage;
-    dst.damage = src.damage;
-    dst.splashDamage = src.splashDamage;
-    dst.splashRadius = src.splashRadius;
-    dst.methodOfDeath = src.methodOfDeath;
-    dst.splashMethodOfDeath = src.splashMethodOfDeath;
-    dst.count = src.count;
-    dst.chain = reinterpret_cast<gentity_t*> (src.chain);
-    dst.enemy = reinterpret_cast<gentity_t*> (src.enemy);
-    dst.activator = reinterpret_cast<gentity_t*> (src.activator);
-    dst.teamchain = reinterpret_cast<gentity_t*> (src.teamchain);
-    dst.teammaster = reinterpret_cast<gentity_t*> (src.teammaster);
-    dst.watertype = src.watertype;
-    dst.waterlevel = src.waterlevel;
-    dst.noise_index = src.noise_index;
-    dst.wait = src.wait;
-    dst.random = src.random;
-    dst.radius = src.radius;
-    dst.delay = src.delay;
-    dst.TargetFlag = src.TargetFlag;
-    dst.duration = src.duration;
-    VectorCopy (src.rotate, dst.rotate);
-    VectorCopy (src.TargetAngles, dst.TargetAngles);
-    dst.item = reinterpret_cast<gitem_t*> (src.item);
-    dst.aiAttributes = reinterpret_cast<char*> (src.aiAttributes);
-    dst.aiName = reinterpret_cast<char*> (src.aiName);
-    dst.aiTeam = src.aiTeam;
-    dst.AIScript_AlertEntity = reinterpret_cast<void (*) (gentity_t*)> (src.AIScript_AlertEntity);
-    dst.aiInactive = src.aiInactive;
-    dst.aiCharacter = src.aiCharacter;
-    dst.aiSkin = reinterpret_cast<char*> (src.aiSkin);
-    dst.aihSkin = reinterpret_cast<char*> (src.aihSkin);
-    VectorCopy (src.dl_color, dst.dl_color);
-    dst.dl_stylestring = reinterpret_cast<char*> (src.dl_stylestring);
-    dst.dl_shader = reinterpret_cast<char*> (src.dl_shader);
-    dst.dl_atten = src.dl_atten;
-    dst.key = src.key;
-    dst.active = src.active;
-    dst.botDelayBegin = src.botDelayBegin;
-    dst.harc = src.harc;
-    dst.varc = src.varc;
-    dst.activateArc = src.activateArc;
-    dst.props_frame_state = src.props_frame_state;
-    dst.missionLevel = src.missionLevel;
-    dst.missionObjectives = src.missionObjectives;
-    dst.numSecretsFound = src.numSecretsFound;
-    dst.numTreasureFound = src.numTreasureFound;
-    dst.is_dead = src.is_dead;
-    dst.start_size = src.start_size;
-    dst.end_size = src.end_size;
-    dst.isProp = src.isProp;
-    dst.mg42BaseEnt = src.mg42BaseEnt;
-    dst.melee = reinterpret_cast<gentity_t*> (src.melee);
-    dst.spawnitem = reinterpret_cast<char*> (src.spawnitem);
-    dst.nopickup = src.nopickup;
-    dst.flameQuota = src.flameQuota;
-    dst.flameQuotaTime = src.flameQuotaTime;
-    dst.flameBurnEnt = src.flameBurnEnt;
-    dst.count2 = src.count2;
-    dst.grenadeExplodeTime = src.grenadeExplodeTime;
-    dst.grenadeFired = src.grenadeFired;
-    dst.mg42ClampTime = src.mg42ClampTime;
-    dst.track = reinterpret_cast<char*> (src.track);
-    dst.scriptName = reinterpret_cast<char*> (src.scriptName);
-    dst.numScriptEvents = src.numScriptEvents;
-    dst.scriptEvents = reinterpret_cast<g_script_event_t*> (src.scriptEvents);
-    dst.scriptStatus.convertFrom32 (src.scriptStatus);
-    dst.scriptStatusBackup.convertFrom32 (src.scriptStatusBackup);
-    std::uninitialized_copy_n (src.scriptAccumBuffer, G_MAX_SCRIPT_ACCUM_BUFFERS, dst.scriptAccumBuffer);
-    dst.AASblocking = src.AASblocking;
-    dst.accuracy = src.accuracy;
-    dst.tagName = reinterpret_cast<char*> (src.tagName);
-    dst.tagParent = reinterpret_cast<gentity_t*> (src.tagParent);
-    dst.headshotDamageScale = src.headshotDamageScale;
-    dst.scriptStatusCurrent.convertFrom32 (src.scriptStatusCurrent);
-    dst.emitID = src.emitID;
-    dst.emitNum = src.emitNum;
-    dst.emitPressure = src.emitPressure;
-    dst.emitTime = src.emitTime;
+    dst.s = bbi::Endian::le (src.s);
+    dst.r = bbi::Endian::le (src.r);
+    dst.client = reinterpret_cast<gclient_s*> (bbi::Endian::le (src.client));
+    dst.inuse = bbi::Endian::le (src.inuse);
+    dst.classname = reinterpret_cast<char*> (bbi::Endian::le (src.classname));
+    dst.spawnflags = bbi::Endian::le (src.spawnflags);
+    dst.neverFree = bbi::Endian::le (src.neverFree);
+    dst.flags = bbi::Endian::le (src.flags);
+    dst.model = reinterpret_cast<char*> (bbi::Endian::le (src.model));
+    dst.model2 = reinterpret_cast<char*> (bbi::Endian::le (src.model2));
+    dst.freetime = bbi::Endian::le (src.freetime);
+    dst.eventTime = bbi::Endian::le (src.eventTime);
+    dst.freeAfterEvent = bbi::Endian::le (src.freeAfterEvent);
+    dst.unlinkAfterEvent = bbi::Endian::le (src.unlinkAfterEvent);
+    dst.physicsObject = bbi::Endian::le (src.physicsObject);
+    dst.physicsBounce = bbi::Endian::le (src.physicsBounce);
+    dst.clipmask = bbi::Endian::le (src.clipmask);
+    dst.moverState = bbi::Endian::le (src.moverState);
+    dst.soundPos1 = bbi::Endian::le (src.soundPos1);
+    dst.sound1to2 = bbi::Endian::le (src.sound1to2);
+    dst.sound2to1 = bbi::Endian::le (src.sound2to1);
+    dst.soundPos2 = bbi::Endian::le (src.soundPos2);
+    dst.soundLoop = bbi::Endian::le (src.soundLoop);
+    dst.sound2to3 = bbi::Endian::le (src.sound2to3);
+    dst.sound3to2 = bbi::Endian::le (src.sound3to2);
+    dst.soundPos3 = bbi::Endian::le (src.soundPos3);
+    dst.soundKicked = bbi::Endian::le (src.soundKicked);
+    dst.soundKickedEnd = bbi::Endian::le (src.soundKickedEnd);
+    dst.soundSoftopen = bbi::Endian::le (src.soundSoftopen);
+    dst.soundSoftendo = bbi::Endian::le (src.soundSoftendo);
+    dst.soundSoftclose = bbi::Endian::le (src.soundSoftclose);
+    dst.soundSoftendc = bbi::Endian::le (src.soundSoftendc);
+    dst.parent = reinterpret_cast<gentity_t*> (bbi::Endian::le (src.parent));
+    dst.nextTrain = reinterpret_cast<gentity_t*> (bbi::Endian::le (src.nextTrain));
+    dst.prevTrain = reinterpret_cast<gentity_t*> (bbi::Endian::le (src.prevTrain));
+    bbi::Endian::le (src.pos1, 3, dst.pos1);
+    bbi::Endian::le (src.pos2, 3, dst.pos2);
+    bbi::Endian::le (src.pos3, 3, dst.pos3);
+    dst.message = reinterpret_cast<char*> (bbi::Endian::le (src.message));
+    dst.timestamp = bbi::Endian::le (src.timestamp);
+    dst.angle = bbi::Endian::le (src.angle);
+    dst.target = reinterpret_cast<char*> (bbi::Endian::le (src.target));
+    dst.targetdeath = reinterpret_cast<char*> (bbi::Endian::le (src.targetdeath));
+    dst.targetname = reinterpret_cast<char*> (bbi::Endian::le (src.targetname));
+    dst.team = reinterpret_cast<char*> (bbi::Endian::le (src.team));
+    dst.targetShaderName = reinterpret_cast<char*> (bbi::Endian::le (src.targetShaderName));
+    dst.targetShaderNewName = reinterpret_cast<char*> (bbi::Endian::le (src.targetShaderNewName));
+    dst.target_ent = reinterpret_cast<gentity_t*> (bbi::Endian::le (src.target_ent));
+    dst.speed = bbi::Endian::le (src.speed);
+    dst.closespeed = bbi::Endian::le (src.closespeed);
+    bbi::Endian::le (src.movedir, 3, dst.movedir);
+    dst.gDuration = bbi::Endian::le (src.gDuration);
+    dst.gDurationBack = bbi::Endian::le (src.gDurationBack);
+    bbi::Endian::le (src.gDelta, 3, dst.gDelta);
+    bbi::Endian::le (src.gDeltaBack, 3, dst.gDeltaBack);
+    dst.nextthink = bbi::Endian::le (src.nextthink);
+    dst.think = reinterpret_cast<void (*) (gentity_t*)> (bbi::Endian::le (src.think));
+    dst.reached = reinterpret_cast<void (*) (gentity_t*)> (bbi::Endian::le (src.reached));
+    dst.blocked = reinterpret_cast<void (*) (gentity_t*, gentity_t*)> (bbi::Endian::le (src.blocked));
+    dst.touch = reinterpret_cast<void (*) (gentity_t*, gentity_t*, trace_t*)> (bbi::Endian::le (src.touch));
+    dst.use = reinterpret_cast<void (*) (gentity_t*, gentity_t*, gentity_t*)> (bbi::Endian::le (src.use));
+    dst.pain = reinterpret_cast<void (*) (gentity_t*, gentity_t*, int, vec_t*)> (bbi::Endian::le (src.pain));
+    dst.die = reinterpret_cast<void (*) (gentity_t*, gentity_t*, gentity_t*, int, int)> (bbi::Endian::le (src.die));
+    dst.pain_debounce_time = bbi::Endian::le (src.pain_debounce_time);
+    dst.fly_sound_debounce_time = bbi::Endian::le (src.fly_sound_debounce_time);
+    dst.last_move_time = bbi::Endian::le (src.last_move_time);
+    dst.health = bbi::Endian::le (src.health);
+    dst.takedamage = bbi::Endian::le (src.takedamage);
+    dst.damage = bbi::Endian::le (src.damage);
+    dst.splashDamage = bbi::Endian::le (src.splashDamage);
+    dst.splashRadius = bbi::Endian::le (src.splashRadius);
+    dst.methodOfDeath = bbi::Endian::le (src.methodOfDeath);
+    dst.splashMethodOfDeath = bbi::Endian::le (src.splashMethodOfDeath);
+    dst.count = bbi::Endian::le (src.count);
+    dst.chain = reinterpret_cast<gentity_t*> (bbi::Endian::le (src.chain));
+    dst.enemy = reinterpret_cast<gentity_t*> (bbi::Endian::le (src.enemy));
+    dst.activator = reinterpret_cast<gentity_t*> (bbi::Endian::le (src.activator));
+    dst.teamchain = reinterpret_cast<gentity_t*> (bbi::Endian::le (src.teamchain));
+    dst.teammaster = reinterpret_cast<gentity_t*> (bbi::Endian::le (src.teammaster));
+    dst.watertype = bbi::Endian::le (src.watertype);
+    dst.waterlevel = bbi::Endian::le (src.waterlevel);
+    dst.noise_index = bbi::Endian::le (src.noise_index);
+    dst.wait = bbi::Endian::le (src.wait);
+    dst.random = bbi::Endian::le (src.random);
+    dst.radius = bbi::Endian::le (src.radius);
+    dst.delay = bbi::Endian::le (src.delay);
+    dst.TargetFlag = bbi::Endian::le (src.TargetFlag);
+    dst.duration = bbi::Endian::le (src.duration);
+    bbi::Endian::le (src.rotate, 3, dst.rotate);
+    bbi::Endian::le (src.TargetAngles, 3, dst.TargetAngles);
+    dst.item = reinterpret_cast<gitem_t*> (bbi::Endian::le (src.item));
+    dst.aiAttributes = reinterpret_cast<char*> (bbi::Endian::le (src.aiAttributes));
+    dst.aiName = reinterpret_cast<char*> (bbi::Endian::le (src.aiName));
+    dst.aiTeam = bbi::Endian::le (src.aiTeam);
+    dst.AIScript_AlertEntity = reinterpret_cast<void (*) (gentity_t*)> (bbi::Endian::le (src.AIScript_AlertEntity));
+    dst.aiInactive = bbi::Endian::le (src.aiInactive);
+    dst.aiCharacter = bbi::Endian::le (src.aiCharacter);
+    dst.aiSkin = reinterpret_cast<char*> (bbi::Endian::le (src.aiSkin));
+    dst.aihSkin = reinterpret_cast<char*> (bbi::Endian::le (src.aihSkin));
+    bbi::Endian::le (src.dl_color, 3, dst.dl_color);
+    dst.dl_stylestring = reinterpret_cast<char*> (bbi::Endian::le (src.dl_stylestring));
+    dst.dl_shader = reinterpret_cast<char*> (bbi::Endian::le (src.dl_shader));
+    dst.dl_atten = bbi::Endian::le (src.dl_atten);
+    dst.key = bbi::Endian::le (src.key);
+    dst.active = bbi::Endian::le (src.active);
+    dst.botDelayBegin = bbi::Endian::le (src.botDelayBegin);
+    dst.harc = bbi::Endian::le (src.harc);
+    dst.varc = bbi::Endian::le (src.varc);
+    dst.activateArc = bbi::Endian::le (src.activateArc);
+    dst.props_frame_state = bbi::Endian::le (src.props_frame_state);
+    dst.missionLevel = bbi::Endian::le (src.missionLevel);
+    dst.missionObjectives = bbi::Endian::le (src.missionObjectives);
+    dst.numSecretsFound = bbi::Endian::le (src.numSecretsFound);
+    dst.numTreasureFound = bbi::Endian::le (src.numTreasureFound);
+    dst.is_dead = bbi::Endian::le (src.is_dead);
+    dst.start_size = bbi::Endian::le (src.start_size);
+    dst.end_size = bbi::Endian::le (src.end_size);
+    dst.isProp = bbi::Endian::le (src.isProp);
+    dst.mg42BaseEnt = bbi::Endian::le (src.mg42BaseEnt);
+    dst.melee = reinterpret_cast<gentity_t*> (bbi::Endian::le (src.melee));
+    dst.spawnitem = reinterpret_cast<char*> (bbi::Endian::le (src.spawnitem));
+    dst.nopickup = bbi::Endian::le (src.nopickup);
+    dst.flameQuota = bbi::Endian::le (src.flameQuota);
+    dst.flameQuotaTime = bbi::Endian::le (src.flameQuotaTime);
+    dst.flameBurnEnt = bbi::Endian::le (src.flameBurnEnt);
+    dst.count2 = bbi::Endian::le (src.count2);
+    dst.grenadeExplodeTime = bbi::Endian::le (src.grenadeExplodeTime);
+    dst.grenadeFired = bbi::Endian::le (src.grenadeFired);
+    dst.mg42ClampTime = bbi::Endian::le (src.mg42ClampTime);
+    dst.track = reinterpret_cast<char*> (bbi::Endian::le (src.track));
+    dst.scriptName = reinterpret_cast<char*> (bbi::Endian::le (src.scriptName));
+    dst.numScriptEvents = bbi::Endian::le (src.numScriptEvents);
+    dst.scriptEvents = reinterpret_cast<g_script_event_t*> (bbi::Endian::le (src.scriptEvents));
+    dst.scriptStatus.convert_from_32 (src.scriptStatus);
+    dst.scriptStatusBackup.convert_from_32 (src.scriptStatusBackup);
+    bbi::Endian::le (src.scriptAccumBuffer, G_MAX_SCRIPT_ACCUM_BUFFERS, dst.scriptAccumBuffer);
+    dst.AASblocking = bbi::Endian::le (src.AASblocking);
+    dst.accuracy = bbi::Endian::le (src.accuracy);
+    dst.tagName = reinterpret_cast<char*> (bbi::Endian::le (src.tagName));
+    dst.tagParent = reinterpret_cast<gentity_t*> (bbi::Endian::le (src.tagParent));
+    dst.headshotDamageScale = bbi::Endian::le (src.headshotDamageScale);
+    dst.scriptStatusCurrent.convert_from_32 (src.scriptStatusCurrent);
+    dst.emitID = bbi::Endian::le (src.emitID);
+    dst.emitNum = bbi::Endian::le (src.emitNum);
+    dst.emitPressure = bbi::Endian::le (src.emitPressure);
+    dst.emitTime = bbi::Endian::le (src.emitTime);
 }
 
 //FIXME Check for "int" pointer overflow?
-void gentity_t::convertTo32 (
+void gentity_t::convert_to_32 (
     Struct32& struct32) const
 {
     const Struct& src = *this;
     Struct32& dst = struct32;
 
-    dst.s = src.s;
-    dst.r = src.r;
-    dst.client = reinterpret_cast<int> (src.client);
-    dst.inuse = src.inuse;
-    dst.classname = reinterpret_cast<int> (src.classname);
-    dst.spawnflags = src.spawnflags;
-    dst.neverFree = src.neverFree;
-    dst.flags = src.flags;
-    dst.model = reinterpret_cast<int> (src.model);
-    dst.model2 = reinterpret_cast<int> (src.model2);
-    dst.freetime = src.freetime;
-    dst.eventTime = src.eventTime;
-    dst.freeAfterEvent = src.freeAfterEvent;
-    dst.unlinkAfterEvent = src.unlinkAfterEvent;
-    dst.physicsObject = src.physicsObject;
-    dst.physicsBounce = src.physicsBounce;
-    dst.clipmask = src.clipmask;
-    dst.moverState = src.moverState;
-    dst.soundPos1 = src.soundPos1;
-    dst.sound1to2 = src.sound1to2;
-    dst.sound2to1 = src.sound2to1;
-    dst.soundPos2 = src.soundPos2;
-    dst.soundLoop = src.soundLoop;
-    dst.sound2to3 = src.sound2to3;
-    dst.sound3to2 = src.sound3to2;
-    dst.soundPos3 = src.soundPos3;
-    dst.soundKicked = src.soundKicked;
-    dst.soundKickedEnd = src.soundKickedEnd;
-    dst.soundSoftopen = src.soundSoftopen;
-    dst.soundSoftendo = src.soundSoftendo;
-    dst.soundSoftclose = src.soundSoftclose;
-    dst.soundSoftendc = src.soundSoftendc;
-    dst.parent = reinterpret_cast<int> (src.parent);
-    dst.nextTrain = reinterpret_cast<int> (src.nextTrain);
-    dst.prevTrain = reinterpret_cast<int> (src.prevTrain);
-    VectorCopy (src.pos1, dst.pos1);
-    VectorCopy (src.pos2, dst.pos2);
-    VectorCopy (src.pos3, dst.pos3);
-    dst.message = reinterpret_cast<int> (src.message);
-    dst.timestamp = src.timestamp;
-    dst.angle = src.angle;
-    dst.target = reinterpret_cast<int> (src.target);
-    dst.targetdeath = reinterpret_cast<int> (src.targetdeath);
-    dst.targetname = reinterpret_cast<int> (src.targetname);
-    dst.team = reinterpret_cast<int> (src.team);
-    dst.targetShaderName = reinterpret_cast<int> (src.targetShaderName);
-    dst.targetShaderNewName = reinterpret_cast<int> (src.targetShaderNewName);
-    dst.target_ent = reinterpret_cast<int> (src.target_ent);
-    dst.speed = src.speed;
-    dst.closespeed = src.closespeed;
-    VectorCopy (src.movedir, dst.movedir);
-    dst.gDuration = src.gDuration;
-    dst.gDurationBack = src.gDurationBack;
-    VectorCopy (src.gDelta, dst.gDelta);
-    VectorCopy (src.gDeltaBack, dst.gDeltaBack);
-    dst.nextthink = src.nextthink;
-    dst.think = reinterpret_cast<int> (src.think);
-    dst.reached = reinterpret_cast<int> (src.reached);
-    dst.blocked = reinterpret_cast<int> (src.blocked);
-    dst.touch = reinterpret_cast<int> (src.touch);
-    dst.use = reinterpret_cast<int> (src.use);
-    dst.pain = reinterpret_cast<int> (src.pain);
-    dst.die = reinterpret_cast<int> (src.die);
-    dst.pain_debounce_time = src.pain_debounce_time;
-    dst.fly_sound_debounce_time = src.fly_sound_debounce_time;
-    dst.last_move_time = src.last_move_time;
-    dst.health = src.health;
-    dst.takedamage = src.takedamage;
-    dst.damage = src.damage;
-    dst.splashDamage = src.splashDamage;
-    dst.splashRadius = src.splashRadius;
-    dst.methodOfDeath = src.methodOfDeath;
-    dst.splashMethodOfDeath = src.splashMethodOfDeath;
-    dst.count = src.count;
-    dst.chain = reinterpret_cast<int> (src.chain);
-    dst.enemy = reinterpret_cast<int> (src.enemy);
-    dst.activator = reinterpret_cast<int> (src.activator);
-    dst.teamchain = reinterpret_cast<int> (src.teamchain);
-    dst.teammaster = reinterpret_cast<int> (src.teammaster);
-    dst.watertype = src.watertype;
-    dst.waterlevel = src.waterlevel;
-    dst.noise_index = src.noise_index;
-    dst.wait = src.wait;
-    dst.random = src.random;
-    dst.radius = src.radius;
-    dst.delay = src.delay;
-    dst.TargetFlag = src.TargetFlag;
-    dst.duration = src.duration;
-    VectorCopy (src.rotate, dst.rotate);
-    VectorCopy (src.TargetAngles, dst.TargetAngles);
-    dst.item = reinterpret_cast<int> (src.item);
-    dst.aiAttributes = reinterpret_cast<int> (src.aiAttributes);
-    dst.aiName = reinterpret_cast<int> (src.aiName);
-    dst.aiTeam = src.aiTeam;
-    dst.AIScript_AlertEntity = reinterpret_cast<int> (src.AIScript_AlertEntity);
-    dst.aiInactive = src.aiInactive;
-    dst.aiCharacter = src.aiCharacter;
-    dst.aiSkin = reinterpret_cast<int> (src.aiSkin);
-    dst.aihSkin = reinterpret_cast<int> (src.aihSkin);
-    VectorCopy (src.dl_color, dst.dl_color);
-    dst.dl_stylestring = reinterpret_cast<int> (src.dl_stylestring);
-    dst.dl_shader = reinterpret_cast<int> (src.dl_shader);
-    dst.dl_atten = src.dl_atten;
-    dst.key = src.key;
-    dst.active = src.active;
-    dst.botDelayBegin = src.botDelayBegin;
-    dst.harc = src.harc;
-    dst.varc = src.varc;
-    dst.activateArc = src.activateArc;
-    dst.props_frame_state = src.props_frame_state;
-    dst.missionLevel = src.missionLevel;
-    dst.missionObjectives = src.missionObjectives;
-    dst.numSecretsFound = src.numSecretsFound;
-    dst.numTreasureFound = src.numTreasureFound;
-    dst.is_dead = src.is_dead;
-    dst.start_size = src.start_size;
-    dst.end_size = src.end_size;
-    dst.isProp = src.isProp;
-    dst.mg42BaseEnt = src.mg42BaseEnt;
-    dst.melee = reinterpret_cast<int> (src.melee);
-    dst.spawnitem = reinterpret_cast<int> (src.spawnitem);
-    dst.nopickup = src.nopickup;
-    dst.flameQuota = src.flameQuota;
-    dst.flameQuotaTime = src.flameQuotaTime;
-    dst.flameBurnEnt = src.flameBurnEnt;
-    dst.count2 = src.count2;
-    dst.grenadeExplodeTime = src.grenadeExplodeTime;
-    dst.grenadeFired = src.grenadeFired;
-    dst.mg42ClampTime = src.mg42ClampTime;
-    dst.track = reinterpret_cast<int> (src.track);
-    dst.scriptName = reinterpret_cast<int> (src.scriptName);
-    dst.numScriptEvents = src.numScriptEvents;
-    dst.scriptEvents = reinterpret_cast<int> (src.scriptEvents);
-    src.scriptStatus.convertTo32 (dst.scriptStatus);
-    src.scriptStatusBackup.convertTo32 (dst.scriptStatusBackup);
-    std::uninitialized_copy_n (src.scriptAccumBuffer, G_MAX_SCRIPT_ACCUM_BUFFERS, dst.scriptAccumBuffer);
-    dst.AASblocking = src.AASblocking;
-    dst.accuracy = src.accuracy;
-    dst.tagName = reinterpret_cast<int> (src.tagName);
-    dst.tagParent = reinterpret_cast<int> (src.tagParent);
-    dst.headshotDamageScale = src.headshotDamageScale;
-    src.scriptStatusCurrent.convertTo32 (dst.scriptStatusCurrent);
-    dst.emitID = src.emitID;
-    dst.emitNum = src.emitNum;
-    dst.emitPressure = src.emitPressure;
-    dst.emitTime = src.emitTime;
+    dst.s = bbi::Endian::le (src.s);
+    dst.r = bbi::Endian::le (src.r);
+    dst.client = bbi::Endian::le (reinterpret_cast<int> (src.client));
+    dst.inuse = bbi::Endian::le (src.inuse);
+    dst.classname = bbi::Endian::le (reinterpret_cast<int> (src.classname));
+    dst.spawnflags = bbi::Endian::le (src.spawnflags);
+    dst.neverFree = bbi::Endian::le (src.neverFree);
+    dst.flags = bbi::Endian::le (src.flags);
+    dst.model = bbi::Endian::le (reinterpret_cast<int> (src.model));
+    dst.model2 = bbi::Endian::le (reinterpret_cast<int> (src.model2));
+    dst.freetime = bbi::Endian::le (src.freetime);
+    dst.eventTime = bbi::Endian::le (src.eventTime);
+    dst.freeAfterEvent = bbi::Endian::le (src.freeAfterEvent);
+    dst.unlinkAfterEvent = bbi::Endian::le (src.unlinkAfterEvent);
+    dst.physicsObject = bbi::Endian::le (src.physicsObject);
+    dst.physicsBounce = bbi::Endian::le (src.physicsBounce);
+    dst.clipmask = bbi::Endian::le (src.clipmask);
+    dst.moverState = bbi::Endian::le (src.moverState);
+    dst.soundPos1 = bbi::Endian::le (src.soundPos1);
+    dst.sound1to2 = bbi::Endian::le (src.sound1to2);
+    dst.sound2to1 = bbi::Endian::le (src.sound2to1);
+    dst.soundPos2 = bbi::Endian::le (src.soundPos2);
+    dst.soundLoop = bbi::Endian::le (src.soundLoop);
+    dst.sound2to3 = bbi::Endian::le (src.sound2to3);
+    dst.sound3to2 = bbi::Endian::le (src.sound3to2);
+    dst.soundPos3 = bbi::Endian::le (src.soundPos3);
+    dst.soundKicked = bbi::Endian::le (src.soundKicked);
+    dst.soundKickedEnd = bbi::Endian::le (src.soundKickedEnd);
+    dst.soundSoftopen = bbi::Endian::le (src.soundSoftopen);
+    dst.soundSoftendo = bbi::Endian::le (src.soundSoftendo);
+    dst.soundSoftclose = bbi::Endian::le (src.soundSoftclose);
+    dst.soundSoftendc = bbi::Endian::le (src.soundSoftendc);
+    dst.parent = bbi::Endian::le (reinterpret_cast<int> (src.parent));
+    dst.nextTrain = bbi::Endian::le (reinterpret_cast<int> (src.nextTrain));
+    dst.prevTrain = bbi::Endian::le (reinterpret_cast<int> (src.prevTrain));
+    bbi::Endian::le (src.pos1, 3, dst.pos1);
+    bbi::Endian::le (src.pos2, 3, dst.pos2);
+    bbi::Endian::le (src.pos3, 3, dst.pos3);
+    dst.message = bbi::Endian::le (reinterpret_cast<int> (src.message));
+    dst.timestamp = bbi::Endian::le (src.timestamp);
+    dst.angle = bbi::Endian::le (src.angle);
+    dst.target = bbi::Endian::le (reinterpret_cast<int> (src.target));
+    dst.targetdeath = bbi::Endian::le (reinterpret_cast<int> (src.targetdeath));
+    dst.targetname = bbi::Endian::le (reinterpret_cast<int> (src.targetname));
+    dst.team = bbi::Endian::le (reinterpret_cast<int> (src.team));
+    dst.targetShaderName = bbi::Endian::le (reinterpret_cast<int> (src.targetShaderName));
+    dst.targetShaderNewName = bbi::Endian::le (reinterpret_cast<int> (src.targetShaderNewName));
+    dst.target_ent = bbi::Endian::le (reinterpret_cast<int> (src.target_ent));
+    dst.speed = bbi::Endian::le (src.speed);
+    dst.closespeed = bbi::Endian::le (src.closespeed);
+    bbi::Endian::le (src.movedir, 3, dst.movedir);
+    dst.gDuration = bbi::Endian::le (src.gDuration);
+    dst.gDurationBack = bbi::Endian::le (src.gDurationBack);
+    bbi::Endian::le (src.gDelta, 3, dst.gDelta);
+    bbi::Endian::le (src.gDeltaBack, 3, dst.gDeltaBack);
+    dst.nextthink = bbi::Endian::le (src.nextthink);
+    dst.think = bbi::Endian::le (reinterpret_cast<int> (src.think));
+    dst.reached = bbi::Endian::le (reinterpret_cast<int> (src.reached));
+    dst.blocked = bbi::Endian::le (reinterpret_cast<int> (src.blocked));
+    dst.touch = bbi::Endian::le (reinterpret_cast<int> (src.touch));
+    dst.use = bbi::Endian::le (reinterpret_cast<int> (src.use));
+    dst.pain = bbi::Endian::le (reinterpret_cast<int> (src.pain));
+    dst.die = bbi::Endian::le (reinterpret_cast<int> (src.die));
+    dst.pain_debounce_time = bbi::Endian::le (src.pain_debounce_time);
+    dst.fly_sound_debounce_time = bbi::Endian::le (src.fly_sound_debounce_time);
+    dst.last_move_time = bbi::Endian::le (src.last_move_time);
+    dst.health = bbi::Endian::le (src.health);
+    dst.takedamage = bbi::Endian::le (src.takedamage);
+    dst.damage = bbi::Endian::le (src.damage);
+    dst.splashDamage = bbi::Endian::le (src.splashDamage);
+    dst.splashRadius = bbi::Endian::le (src.splashRadius);
+    dst.methodOfDeath = bbi::Endian::le (src.methodOfDeath);
+    dst.splashMethodOfDeath = bbi::Endian::le (src.splashMethodOfDeath);
+    dst.count = bbi::Endian::le (src.count);
+    dst.chain = bbi::Endian::le (reinterpret_cast<int> (src.chain));
+    dst.enemy = bbi::Endian::le (reinterpret_cast<int> (src.enemy));
+    dst.activator = bbi::Endian::le (reinterpret_cast<int> (src.activator));
+    dst.teamchain = bbi::Endian::le (reinterpret_cast<int> (src.teamchain));
+    dst.teammaster = bbi::Endian::le (reinterpret_cast<int> (src.teammaster));
+    dst.watertype = bbi::Endian::le (src.watertype);
+    dst.waterlevel = bbi::Endian::le (src.waterlevel);
+    dst.noise_index = bbi::Endian::le (src.noise_index);
+    dst.wait = bbi::Endian::le (src.wait);
+    dst.random = bbi::Endian::le (src.random);
+    dst.radius = bbi::Endian::le (src.radius);
+    dst.delay = bbi::Endian::le (src.delay);
+    dst.TargetFlag = bbi::Endian::le (src.TargetFlag);
+    dst.duration = bbi::Endian::le (src.duration);
+    bbi::Endian::le (src.rotate, 3, dst.rotate);
+    bbi::Endian::le (src.TargetAngles, 3, dst.TargetAngles);
+    dst.item = bbi::Endian::le (reinterpret_cast<int> (src.item));
+    dst.aiAttributes = bbi::Endian::le (reinterpret_cast<int> (src.aiAttributes));
+    dst.aiName = bbi::Endian::le (reinterpret_cast<int> (src.aiName));
+    dst.aiTeam = bbi::Endian::le (src.aiTeam);
+    dst.AIScript_AlertEntity = bbi::Endian::le (reinterpret_cast<int> (src.AIScript_AlertEntity));
+    dst.aiInactive = bbi::Endian::le (src.aiInactive);
+    dst.aiCharacter = bbi::Endian::le (src.aiCharacter);
+    dst.aiSkin = bbi::Endian::le (reinterpret_cast<int> (src.aiSkin));
+    dst.aihSkin = bbi::Endian::le (reinterpret_cast<int> (src.aihSkin));
+    bbi::Endian::le (src.dl_color, 3, dst.dl_color);
+    dst.dl_stylestring = bbi::Endian::le (reinterpret_cast<int> (src.dl_stylestring));
+    dst.dl_shader = bbi::Endian::le (reinterpret_cast<int> (src.dl_shader));
+    dst.dl_atten = bbi::Endian::le (src.dl_atten);
+    dst.key = bbi::Endian::le (src.key);
+    dst.active = bbi::Endian::le (src.active);
+    dst.botDelayBegin = bbi::Endian::le (src.botDelayBegin);
+    dst.harc = bbi::Endian::le (src.harc);
+    dst.varc = bbi::Endian::le (src.varc);
+    dst.activateArc = bbi::Endian::le (src.activateArc);
+    dst.props_frame_state = bbi::Endian::le (src.props_frame_state);
+    dst.missionLevel = bbi::Endian::le (src.missionLevel);
+    dst.missionObjectives = bbi::Endian::le (src.missionObjectives);
+    dst.numSecretsFound = bbi::Endian::le (src.numSecretsFound);
+    dst.numTreasureFound = bbi::Endian::le (src.numTreasureFound);
+    dst.is_dead = bbi::Endian::le (src.is_dead);
+    dst.start_size = bbi::Endian::le (src.start_size);
+    dst.end_size = bbi::Endian::le (src.end_size);
+    dst.isProp = bbi::Endian::le (src.isProp);
+    dst.mg42BaseEnt = bbi::Endian::le (src.mg42BaseEnt);
+    dst.melee = bbi::Endian::le (reinterpret_cast<int> (src.melee));
+    dst.spawnitem = bbi::Endian::le (reinterpret_cast<int> (src.spawnitem));
+    dst.nopickup = bbi::Endian::le (src.nopickup);
+    dst.flameQuota = bbi::Endian::le (src.flameQuota);
+    dst.flameQuotaTime = bbi::Endian::le (src.flameQuotaTime);
+    dst.flameBurnEnt = bbi::Endian::le (src.flameBurnEnt);
+    dst.count2 = bbi::Endian::le (src.count2);
+    dst.grenadeExplodeTime = bbi::Endian::le (src.grenadeExplodeTime);
+    dst.grenadeFired = bbi::Endian::le (src.grenadeFired);
+    dst.mg42ClampTime = bbi::Endian::le (src.mg42ClampTime);
+    dst.track = bbi::Endian::le (reinterpret_cast<int> (src.track));
+    dst.scriptName = bbi::Endian::le (reinterpret_cast<int> (src.scriptName));
+    dst.numScriptEvents = bbi::Endian::le (src.numScriptEvents);
+    dst.scriptEvents = bbi::Endian::le (reinterpret_cast<int> (src.scriptEvents));
+    src.scriptStatus.convert_to_32 (dst.scriptStatus);
+    src.scriptStatusBackup.convert_to_32 (dst.scriptStatusBackup);
+    bbi::Endian::le (src.scriptAccumBuffer, G_MAX_SCRIPT_ACCUM_BUFFERS, dst.scriptAccumBuffer);
+    dst.AASblocking = bbi::Endian::le (src.AASblocking);
+    dst.accuracy = bbi::Endian::le (src.accuracy);
+    dst.tagName = bbi::Endian::le (reinterpret_cast<int> (src.tagName));
+    dst.tagParent = bbi::Endian::le (reinterpret_cast<int> (src.tagParent));
+    dst.headshotDamageScale = bbi::Endian::le (src.headshotDamageScale);
+    src.scriptStatusCurrent.convert_to_32 (dst.scriptStatusCurrent);
+    dst.emitID = bbi::Endian::le (src.emitID);
+    dst.emitNum = bbi::Endian::le (src.emitNum);
+    dst.emitPressure = bbi::Endian::le (src.emitPressure);
+    dst.emitTime = bbi::Endian::le (src.emitTime);
 }
 
 template<class T>
-static void G_ReadStructVer10 (
-    T& outStruct,
-    int size,
-    fileHandle_t fileHandle)
+static void g_read_struct_ver_10 (T& dst_struct, int size,
+    fileHandle_t file_handle)
 {
-        static typename T::Struct32 tmpStruct;
-        const bool isStruct32 = (sizeof (T) == sizeof (typename T::Struct32));
-        void* out = isStruct32 ? static_cast<void*> (&outStruct) : static_cast<void*> (&tmpStruct);
+    static typename T::Struct32 tmp_struct;
+    const bool is_struct_32 = (sizeof (T) == sizeof (typename T::Struct32));
+    void* out = is_struct_32 ? static_cast<void*> (&dst_struct) : static_cast<void*> (&tmp_struct);
 
-        ::trap_FS_Read (out, size, fileHandle);
+    ::trap_FS_Read (out, size, file_handle);
 
-        if (!isStruct32)
-            outStruct.convertFrom32 (tmpStruct);
+    if (!is_struct_32)
+        dst_struct.convert_from_32 (tmp_struct);
 }
 
 template<class T>
-static void G_ReadStruct (
-    T& outStruct,
-    int size,
-    fileHandle_t fileHandle)
+static void g_read_struct (T& dst_struct, int size, fileHandle_t file_handle)
 {
     if (ver == 10)
-        ::G_ReadStructVer10 (outStruct, size, fileHandle);
+        ::g_read_struct_ver_10 (dst_struct, size, file_handle);
     else {
         int decodedSize;
 
-        if (gEncoderBuffer.empty ())
-            gEncoderBuffer.resize (MAX_ENCODER_BUFFER_SIZE);
+        if (g_encoder_buffer.empty ())
+            g_encoder_buffer.resize (MAX_ENCODER_BUFFER_SIZE);
 
-        ::trap_FS_Read (&decodedSize, sizeof (int), fileHandle);
+        ::trap_FS_Read (&decodedSize, sizeof (int), file_handle);
 
         if (decodedSize > MAX_ENCODER_BUFFER_SIZE)
             ::G_Error ("G_LoadGame: encoded chunk is greater than buffer");
 
-        ::trap_FS_Read (&gEncoderBuffer[0], decodedSize, fileHandle);
-        ::G_Save_Decode (&gEncoderBuffer[0], decodedSize, outStruct);
+        ::trap_FS_Read (&g_encoder_buffer[0], decodedSize, file_handle);
+        ::G_Save_Decode (&g_encoder_buffer[0], decodedSize, dst_struct);
     }
 }
 
 template<class T>
-static void G_WriteStruct (
-    const T& inStruct,
-    fileHandle_t fileHandle)
+static void g_write_struct (const T& src_struct, fileHandle_t file_handle)
 {
-    int length = ::G_Save_Encode (inStruct);
+    int length = ::s_save_encode (src_struct);
 
-    if (::G_SaveWrite (&length, sizeof (length), fileHandle) == 0)
+    if (::G_SaveWrite (&length, sizeof (length), file_handle) == 0)
         ::G_SaveWriteError ();
 
-    if (::G_SaveWrite (&gEncoderBuffer[0], length, fileHandle) == 0)
+    if (::G_SaveWrite (&g_encoder_buffer[0], length, file_handle) == 0)
         ::G_SaveWriteError ();
 }
 //BBi
@@ -1411,14 +1415,14 @@ static const byte SAVE_ENCODE_COUNT_MASK = 1 << ((SAVE_ENCODE_COUNT_BYTES * 8) -
 
 /*
 ===============
-G_Save_Encode
+s_save_encode
 
   returns the number of bytes written to "out"
 ===============
 */
 
 //BBi
-//int G_Save_Encode( byte *raw, byte *out, int rawsize, int outsize ) {
+//int s_save_encode( byte *raw, byte *out, int rawsize, int outsize ) {
 //	int rawcount, oldrawcount, outcount;
 //	int mode;
 //	byte count;     //DAJ was int but caused endian bugs
@@ -1457,63 +1461,62 @@ G_Save_Encode
 //}
 
 template<class T>
-int G_Save_Encode (
-    const T& inStruct)
+int s_save_encode (const T& dst_struct)
 {
-    const int rawSize = sizeof (typename T::Struct32);
-    static typename T::Struct32 tmpStruct;
-    const bool isStruct32 = (sizeof (T) == rawSize);
+    const int raw_size = sizeof (typename T::Struct32);
+    static typename T::Struct32 tmp_struct;
+    const bool is_struct_32 = (sizeof (T) == raw_size);
 
-    if (!isStruct32)
-        inStruct.convertTo32 (tmpStruct);
+    if (!is_struct_32)
+        dst_struct.convert_to_32 (tmp_struct);
 
-    const byte* inBytes =
-        isStruct32 ?
-        reinterpret_cast<const byte*> (&inStruct) :
-        reinterpret_cast<const byte*> (&tmpStruct);
+    const byte* in_bytes =
+        is_struct_32 ?
+        reinterpret_cast<const byte*> (&dst_struct) :
+        reinterpret_cast<const byte*> (&tmp_struct);
 
-    if (gEncoderBuffer.empty ())
-        gEncoderBuffer.resize (MAX_ENCODER_BUFFER_SIZE);
+    if (g_encoder_buffer.empty ())
+        g_encoder_buffer.resize (MAX_ENCODER_BUFFER_SIZE);
 
-    byte* outBytes = &gEncoderBuffer[0];
+    bbi::UInt8* out_bytes = &g_encoder_buffer[0];
 
-    int rawCount = 0;
-    int outCount = 0;
+    int raw_count = 0;
+    int out_count = 0;
 
-    while (rawCount < rawSize) {
-        int oldRawCount = rawCount;
+    while (raw_count < raw_size) {
+        int old_raw_count = raw_count;
 
         // is this a non-zero?
-        int mode = (inBytes[rawCount] != 0) ? 1 : 0;
+        int mode = (in_bytes[raw_count] != 0) ? 1 : 0;
 
         // calc the count
-        byte count = 0;
+        bbi::UInt8 count = 0;
 
-        while ((rawCount < rawSize) &&
-            ((inBytes[rawCount] != 0) == mode) &&
+        while ((raw_count < raw_size) &&
+            ((in_bytes[raw_count] != 0) == mode) &&
             (count < (SAVE_ENCODE_COUNT_MASK - 1)))
         {
-            ++rawCount;
+            ++raw_count;
             ++count;
         }
 
         // write the count, followed by data if required
-        ::memcpy (outBytes + outCount, &count, SAVE_ENCODE_COUNT_BYTES);
+        ::memcpy (out_bytes + out_count, &count, SAVE_ENCODE_COUNT_BYTES);
 
         // switch the sign bit if zeros
         if (mode == 0) {
-            outBytes[outCount + SAVE_ENCODE_COUNT_BYTES - 1] |= 1 << 7;
-            outCount += SAVE_ENCODE_COUNT_BYTES;
+            out_bytes[out_count + SAVE_ENCODE_COUNT_BYTES - 1] |= 1 << 7;
+            out_count += SAVE_ENCODE_COUNT_BYTES;
         } else {
-            outCount += SAVE_ENCODE_COUNT_BYTES;
+            out_count += SAVE_ENCODE_COUNT_BYTES;
 
             // write the data
-            ::memcpy (outBytes + outCount, inBytes + oldRawCount, count);
-            outCount += count;
+            ::memcpy (out_bytes + out_count, in_bytes + old_raw_count, count);
+            out_count += count;
         }
     }
 
-    return outCount;
+    return out_count;
 }
 //BBi
 
@@ -1550,40 +1553,39 @@ G_Save_Decode
 //}
 
 template<class T>
-void G_Save_Decode (
-    const byte* inBytes,
-    int inSize,
-    T& outStruct)
+void G_Save_Decode (const byte* src_bytes, int src_size, T& dst_struct)
 {
-    static typename T::Struct32 tmpStruct;
-    const bool isStruct32 = (sizeof (T) == sizeof (typename T::Struct32));
-    byte* outBytes = isStruct32 ? reinterpret_cast<byte*> (&outStruct) : reinterpret_cast<byte*> (&tmpStruct);
+    static typename T::Struct32 tmp_struct;
+    const bool is_struct_32 = (sizeof (T) == sizeof (typename T::Struct32));
+    byte* dst_bytes = is_struct_32 ?
+        reinterpret_cast<bbi::UInt8*> (&dst_struct) :
+        reinterpret_cast<bbi::UInt8*> (&tmp_struct);
 
-    byte count; //DAJ was in but caused endian bugs
-    int inCount = 0;
-    int outCount = 0;
+    byte count; //DAJ was "int" but caused endian bugs
+    int src_count = 0;
+    int dst_count = 0;
 
-    while (inCount < inSize) {
+    while (src_count < src_size) {
         // read the count
         count = 0;
-        ::memcpy (&count, inBytes + inCount, SAVE_ENCODE_COUNT_BYTES);
-        inCount += SAVE_ENCODE_COUNT_BYTES;
+        ::memcpy (&count, src_bytes + src_count, SAVE_ENCODE_COUNT_BYTES);
+        src_count += SAVE_ENCODE_COUNT_BYTES;
 
         // if it's negative, zero it out
         if ((count & SAVE_ENCODE_COUNT_MASK) != 0) {
             count &= ~SAVE_ENCODE_COUNT_MASK;
-            ::memset (outBytes + outCount, 0, count);
-            outCount += count;
+            ::memset (dst_bytes + dst_count, 0, count);
+            dst_count += count;
         } else {
             // copy the data from "in"
-            ::memcpy (outBytes + outCount, inBytes + inCount, count);
-            outCount += count;
-            inCount += count;
+            ::memcpy (dst_bytes + dst_count, src_bytes + src_count, count);
+            dst_count += count;
+            src_count += count;
         }
     }
 
-    if (!isStruct32)
-        outStruct.convertFrom32 (tmpStruct);
+    if (!is_struct_32)
+        dst_struct.convert_from_32 (tmp_struct);
 }
 //BBi
 
@@ -1626,7 +1628,7 @@ void WriteClient( fileHandle_t f, gclient_t *cl ) {
 
     //BBi
 	////if (!G_SaveWrite (&temp, sizeof(temp), f)) G_SaveWriteError();
-	//length = G_Save_Encode( (byte *)&temp, clientBuf, sizeof( temp ), sizeof( clientBuf ) );
+	//length = s_save_encode( (byte *)&temp, clientBuf, sizeof( temp ), sizeof( clientBuf ) );
 	//if ( !G_SaveWrite( &length, sizeof( length ), f ) ) {
 	//	G_SaveWriteError();
 	//}
@@ -1634,7 +1636,7 @@ void WriteClient( fileHandle_t f, gclient_t *cl ) {
 	//	G_SaveWriteError();
 	//}
 
-    ::G_WriteStruct (temp, f);
+    ::g_write_struct (temp, f);
     //BBi
 
 	// now write any allocated data following the edict
@@ -1674,7 +1676,7 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size ) {
 	//	G_Save_Decode( clientBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
 	//}
 
-    ::G_ReadStruct (temp, size, f);
+    ::g_read_struct (temp, size, f);
     //BBi
 
 	// convert any feilds back to the correct data
@@ -1690,7 +1692,11 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size ) {
 	}
 
 	// now copy the temp structure into the existing structure
-	memcpy( client, &temp, size );
+
+    //BBi
+	//memcpy( client, &temp, size );
+    *client = temp;
+    //BBi
 
 	// make sure they face the right way
 	//client->ps.pm_flags |= PMF_RESPAWNED;
@@ -1798,7 +1804,7 @@ void WriteEntity( fileHandle_t f, gentity_t *ent ) {
 
     //BBi
 	////if (!G_SaveWrite (&temp, sizeof(temp), f)) G_SaveWriteError();
-	//length = G_Save_Encode( (byte *)&temp, entityBuf, sizeof( temp ), sizeof( entityBuf ) );
+	//length = s_save_encode( (byte *)&temp, entityBuf, sizeof( temp ), sizeof( entityBuf ) );
 	//if ( !G_SaveWrite( &length, sizeof( length ), f ) ) {
 	//	G_SaveWriteError();
 	//}
@@ -1806,7 +1812,7 @@ void WriteEntity( fileHandle_t f, gentity_t *ent ) {
 	//	G_SaveWriteError();
 	//}
 
-    ::G_WriteStruct (temp, f);
+    ::g_write_struct (temp, f);
     //BBi
 
 	// now write any allocated data following the edict
@@ -1851,7 +1857,7 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size ) {
 	//	G_Save_Decode( entityBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
 	//}
 
-    ::G_ReadStruct (temp, size, f);
+    ::g_read_struct (temp, size, f);
     //BBi
 
 	// convert any fields back to the correct data
@@ -1881,7 +1887,11 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size ) {
 	}
 
 	// now copy the temp structure into the existing structure
-	memcpy( ent, &temp, size );
+
+    //BBi
+	//memcpy( ent, &temp, size );
+    *ent = temp;
+    //BBi
 
 	// notify server of changes in position/orientation
 	if ( ent->r.linked && ( !( ent->r.svFlags & SVF_CASTAI ) || !ent->aiInactive ) ) {
@@ -1983,7 +1993,7 @@ void WriteCastState( fileHandle_t f, cast_state_t *cs ) {
 
     //BBi
 	////if (!G_SaveWrite (&temp, sizeof(temp), f)) G_SaveWriteError();
-	//length = G_Save_Encode( (byte *)&temp, castStateBuf, sizeof( temp ), sizeof( castStateBuf ) );
+	//length = s_save_encode( (byte *)&temp, castStateBuf, sizeof( temp ), sizeof( castStateBuf ) );
 	//if ( !G_SaveWrite( &length, sizeof( length ), f ) ) {
 	//	G_SaveWriteError();
 	//}
@@ -1991,7 +2001,7 @@ void WriteCastState( fileHandle_t f, cast_state_t *cs ) {
 	//	G_SaveWriteError();
 	//}
 
-    ::G_WriteStruct (temp, f);
+    ::g_write_struct (temp, f);
     //BBi
 
 	// now write any allocated data following the edict
@@ -2031,7 +2041,7 @@ void ReadCastState( fileHandle_t f, cast_state_t *cs, int size ) {
 	//	G_Save_Decode( castStateBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
 	//}
 
-    ::G_ReadStruct (temp, size, f);
+    ::g_read_struct (temp, size, f);
     //BBi
 
 	// convert any feilds back to the correct data
@@ -2047,7 +2057,11 @@ void ReadCastState( fileHandle_t f, cast_state_t *cs, int size ) {
 	}
 
 	// now copy the temp structure into the existing structure
-	memcpy( cs, &temp, size );
+
+    //BBi
+	//memcpy( cs, &temp, size );
+    *cs = temp;
+    //BBi
 
 	// if this is an AI, init the cur_ps
 	if ( cs->bs && !cs->deathTime ) {

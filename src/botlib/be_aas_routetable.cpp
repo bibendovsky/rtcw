@@ -247,7 +247,7 @@ void AAS_RT_AddParentLink( aas_area_childlocaldata_t *child, int parentindex, in
 void AAS_RT_WriteShort( unsigned short int si, fileHandle_t fp ) {
 	unsigned short int lsi;
 
-	lsi = LittleShort( si );
+	lsi = bbi::Endian::le ( si );
 	botimport.FS_Write( &lsi, sizeof( lsi ), fp );
 }
 
@@ -287,11 +287,11 @@ void AAS_RT_WriteRouteTable() {
 	}
 
 	// ident
-	ident = LittleLong( RTBID );
+	ident = bbi::Endian::le ( RTBID );
 	botimport.FS_Write( &ident, sizeof( ident ), fp );
 
 	// version
-	version = LittleLong( RTBVERSION );
+	version = bbi::Endian::le ( RTBVERSION );
 	botimport.FS_Write( &version, sizeof( version ), fp );
 
 	// crc
@@ -361,11 +361,11 @@ qboolean AAS_RT_ReadRouteTable( fileHandle_t fp ) {
 
 	routetable = ( *aasworld ).routetable;
 
-	doswap = ( LittleLong( 1 ) != 1 );
+	doswap = !bbi::Endian::is_little ();
 
 	// check ident
 	AAS_RT_DBG_Read( &ident, sizeof( ident ), fp );
-	ident = LittleLong( ident );
+	bbi::Endian::lei (ident);
 
 	if ( ident != RTBID ) {
 		AAS_Error( "File is not an RTB file\n" );
@@ -375,7 +375,7 @@ qboolean AAS_RT_ReadRouteTable( fileHandle_t fp ) {
 
 	// check version
 	AAS_RT_DBG_Read( &version, sizeof( version ), fp );
-	version = LittleLong( version );
+	bbi::Endian::lei (version);
 
 	if ( version != RTBVERSION ) {
 		AAS_Error( "File is version %i not %i\n", version, RTBVERSION );
@@ -385,7 +385,7 @@ qboolean AAS_RT_ReadRouteTable( fileHandle_t fp ) {
 
 	// read the CRC check on the AAS data
 	AAS_RT_DBG_Read( &crc, sizeof( crc ), fp );
-	crc = LittleShort( crc );
+	bbi::Endian::lei (crc);
 
 	// calculate a CRC on the AAS areas
 	crc_aas = CRC_ProcessString( (unsigned char *)( *aasworld ).areas, sizeof( aas_area_t ) * ( *aasworld ).numareas );
@@ -400,68 +400,68 @@ qboolean AAS_RT_ReadRouteTable( fileHandle_t fp ) {
 
 	// children
 	botimport.FS_Read( &routetable->numChildren, sizeof( int ), fp );
-	routetable->numChildren = LittleLong( routetable->numChildren );
+	bbi::Endian::lei (routetable->numChildren);
 	routetable->children = (aas_rt_child_t *) AAS_RT_GetClearedMemory( routetable->numChildren * sizeof( aas_rt_child_t ) );
 	botimport.FS_Read( routetable->children, routetable->numChildren * sizeof( aas_rt_child_t ), fp );
 	child = &routetable->children[0];
 	if ( doswap ) {
 		for ( i = 0; i < routetable->numChildren; i++, child++ ) {
-			child->areanum = LittleShort( child->areanum );
-			child->numParentLinks = LittleLong( child->numParentLinks );
-			child->startParentLinks = LittleLong( child->startParentLinks );
+			bbi::Endian::lei (child->areanum);
+			bbi::Endian::lei (child->numParentLinks);
+			bbi::Endian::lei (child->startParentLinks);
 		}
 	}
 
 	// parents
 	botimport.FS_Read( &routetable->numParents, sizeof( int ), fp );
-	routetable->numParents = LittleLong( routetable->numParents );
+	bbi::Endian::lei (routetable->numParents);
 	routetable->parents = (aas_rt_parent_t *) AAS_RT_GetClearedMemory( routetable->numParents * sizeof( aas_rt_parent_t ) );
 	botimport.FS_Read( routetable->parents, routetable->numParents * sizeof( aas_rt_parent_t ), fp );
 	parent = &routetable->parents[0];
 	if ( doswap ) {
 		for ( i = 0; i < routetable->numParents; i++, parent++ ) {
-			parent->areanum = LittleShort( parent->areanum );
-			parent->numParentChildren = LittleLong( parent->numParentChildren );
-			parent->startParentChildren = LittleLong( parent->startParentChildren );
-			parent->numVisibleParents = LittleLong( parent->numVisibleParents );
-			parent->startVisibleParents = LittleLong( parent->startVisibleParents );
+			bbi::Endian::lei (parent->areanum);
+			bbi::Endian::lei (parent->numParentChildren);
+			bbi::Endian::lei (parent->startParentChildren);
+			bbi::Endian::lei (parent->numVisibleParents);
+			bbi::Endian::lei (parent->startVisibleParents);
 		}
 	}
 
 	// parentChildren
 	botimport.FS_Read( &routetable->numParentChildren, sizeof( int ), fp );
-	routetable->numParentChildren = LittleLong( routetable->numParentChildren );
+	bbi::Endian::lei (routetable->numParentChildren);
 	routetable->parentChildren = (unsigned short int *) AAS_RT_GetClearedMemory( routetable->numParentChildren * sizeof( unsigned short int ) );
 	botimport.FS_Read( routetable->parentChildren, routetable->numParentChildren * sizeof( unsigned short int ), fp );
 	psi = &routetable->parentChildren[0];
 	if ( doswap ) {
 		for ( i = 0; i < routetable->numParentChildren; i++, psi++ ) {
-			*psi = LittleShort( *psi );
+			bbi::Endian::lei (*psi);
 		}
 	}
 
 	// visibleParents
 	botimport.FS_Read( &routetable->numVisibleParents, sizeof( int ), fp );
-	routetable->numVisibleParents = LittleLong( routetable->numVisibleParents );
+	bbi::Endian::lei (routetable->numVisibleParents);
 	routetable->visibleParents = (unsigned short int *) AAS_RT_GetClearedMemory( routetable->numVisibleParents * sizeof( unsigned short int ) );
 	botimport.FS_Read( routetable->visibleParents, routetable->numVisibleParents * sizeof( unsigned short int ), fp );
 	psi = &routetable->visibleParents[0];
 	if ( doswap ) {
 		for ( i = 0; i < routetable->numVisibleParents; i++, psi++ ) {
-			*psi = LittleShort( *psi );
+			bbi::Endian::lei (*psi);
 		}
 	}
 
 	// parentLinks
 	botimport.FS_Read( &routetable->numParentLinks, sizeof( int ), fp );
-	routetable->numParentLinks = LittleLong( routetable->numParentLinks );
+	bbi::Endian::lei (routetable->numParentLinks);
 	routetable->parentLinks = (aas_rt_parent_link_t *) AAS_RT_GetClearedMemory( routetable->numParentLinks * sizeof( aas_rt_parent_link_t ) );
 	botimport.FS_Read( routetable->parentLinks, routetable->numParentLinks * sizeof( aas_parent_link_t ), fp );
 	plink = &routetable->parentLinks[0];
 	if ( doswap ) {
 		for ( i = 0; i < routetable->numParentLinks; i++, plink++ ) {
-			plink->childIndex = LittleShort( plink->childIndex );
-			plink->parent = LittleShort( plink->parent );
+			bbi::Endian::lei (plink->childIndex);
+			bbi::Endian::lei (plink->parent);
 		}
 	}
 

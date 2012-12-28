@@ -120,7 +120,7 @@ static void Netchan_ScramblePacket( msg_t *buf ) {
 	int i, j, c, mask, temp;
 	int seq[MAX_PACKETLEN];
 
-	seed = ( LittleLong( *(unsigned *)buf->data ) * 3 ) ^ ( buf->cursize * 123 );
+	seed = ( bbi::Endian::le ( *(unsigned *)buf->data ) * 3 ) ^ ( buf->cursize * 123 );
 	c = buf->cursize;
 	if ( c <= SCRAMBLE_START ) {
 		return;
@@ -157,7 +157,7 @@ static void Netchan_UnScramblePacket( msg_t *buf ) {
 	int i, j, c, mask, temp;
 	int seq[MAX_PACKETLEN];
 
-	seed = ( LittleLong( *(unsigned *)buf->data ) * 3 ) ^ ( buf->cursize * 123 );
+	seed = ( bbi::Endian::le ( *(unsigned *)buf->data ) * 3 ) ^ ( buf->cursize * 123 );
 	c = buf->cursize;
 	if ( c <= SCRAMBLE_START ) {
 		return;
@@ -475,7 +475,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 		// copy the full message over the partial fragment
 
 		// make sure the sequence number is still there
-		*(int *)msg->data = LittleLong( sequence );
+		*(int *)msg->data = bbi::Endian::le ( sequence );
 
 #if !defined RTCW_ET
 		memcpy( msg->data + 4, chan->fragmentBuffer, chan->fragmentLength );
@@ -558,7 +558,7 @@ const char  *NET_AdrToString( netadr_t a ) {
 		Com_sprintf( s, sizeof( s ), "%i.%i.%i.%i:%hu",
 #endif // RTCW_XX
 
-					 a.ip[0], a.ip[1], a.ip[2], a.ip[3], BigShort( a.port ) );
+					 a.ip[0], a.ip[1], a.ip[2], a.ip[3], bbi::Endian::be ( a.port ) );
 	} else {
 
 #if defined RTCW_SP
@@ -568,7 +568,7 @@ const char  *NET_AdrToString( netadr_t a ) {
 #endif // RTCW_XX
 
 					 a.ipx[0], a.ipx[1], a.ipx[2], a.ipx[3], a.ipx[4], a.ipx[5], a.ipx[6], a.ipx[7], a.ipx[8], a.ipx[9],
-					 BigShort( a.port ) );
+					 bbi::Endian::be( a.port ) );
 	}
 
 	return s;
@@ -1001,9 +1001,9 @@ qboolean    NET_StringToAdr( const char *s, netadr_t *a ) {
 	}
 
 	if ( port ) {
-		a->port = BigShort( (short)atoi( port ) );
+		a->port = bbi::Endian::be( (short)atoi( port ) );
 	} else {
-		a->port = BigShort( PORT_SERVER );
+		a->port = bbi::Endian::be( PORT_SERVER );
 	}
 
 	return qtrue;

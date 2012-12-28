@@ -36,11 +36,13 @@ If you have questions concerning this license or the applicable additional terms
 
 // A user mod should never modify this file
 
-#if !defined RTCW_ET
-#define Q3_VERSION      "DOOM 0.01"
-#else
-#define Q3_VERSION      "ET"
-#endif // RTCW_XX
+//BBi
+//#if !defined RTCW_ET
+//#define Q3_VERSION      "DOOM 0.01"
+//#else
+//#define Q3_VERSION      "ET"
+//#endif // RTCW_XX
+//BBi
 
 // alignment macros for SIMD
 #define ALIGN_ON
@@ -446,21 +448,23 @@ extern idVec3 vec3_origin;
 extern idVec4 vec4_origin;
 extern mat3_t axisDefault;
 
-#define nanmask ( 255 << 23 )
-
-#define IS_NAN( x ) ( ( ( *(int *)&x ) & nanmask ) == nanmask )
-
-#if !defined RTCW_MP
-// TTimo
-// handy stuff when tracking isnan problems
-#ifndef NDEBUG
-#define CHECK_NAN( x ) assert( !IS_NAN( x ) )
-#define CHECK_NAN_VEC( v ) assert( !IS_NAN( v[0] ) && !IS_NAN( v[1] ) && !IS_NAN( v[2] ) )
-#else
-#define CHECK_NAN
-#define CHECK_NAN_VEC
-#endif
-#endif // RTCW_XX
+//BBi
+//#define nanmask ( 255 << 23 )
+//
+//#define IS_NAN( x ) ( ( ( *(int *)&x ) & nanmask ) == nanmask )
+//
+//#if !defined RTCW_MP
+//// TTimo
+//// handy stuff when tracking isnan problems
+//#ifndef NDEBUG
+//#define CHECK_NAN( x ) assert( !IS_NAN( x ) )
+//#define CHECK_NAN_VEC( v ) assert( !IS_NAN( v[0] ) && !IS_NAN( v[1] ) && !IS_NAN( v[2] ) )
+//#else
+//#define CHECK_NAN
+//#define CHECK_NAN_VEC
+//#endif
+//#endif // RTCW_XX
+//BBi
 
 float Q_fabs( float f );
 float Q_rsqrt( float f );       // reciprocal square root
@@ -609,11 +613,15 @@ const char *Com_ParseRestOfLine( const char *( *data_p ) );
 
 void Com_UngetToken( void );
 
-#ifdef __cplusplus
-void Com_MatchToken( const char *( *buf_p ), const char *match, qboolean warning = qfalse );
-#else
-void Com_MatchToken( const char *( *buf_p ), const char *match, qboolean warning );
-#endif
+//BBi
+//#ifdef __cplusplus
+//void Com_MatchToken( const char *( *buf_p ), const char *match, qboolean warning = qfalse );
+//#else
+//void Com_MatchToken( const char *( *buf_p ), const char *match, qboolean warning );
+//#endif
+
+void Com_MatchToken (const char* (*buf_p), const char* match, qboolean warning = false);
+//BBi
 
 void Com_ScriptError( const char *msg, ... );
 void Com_ScriptWarning( const char *msg, ... );
@@ -691,14 +699,17 @@ const char *Com_StringContains( const char *str1, const char *str2, int casesens
 
 //=============================================
 
-short   BigShort( short l );
-short   LittleShort( short l );
-int     BigLong( int l );
-int     LittleLong( int l );
-float   BigFloat( float l );
-float   LittleFloat( float l );
+//BBi
+//short   BigShort( short l );
+//short   LittleShort( short l );
+//int     BigLong( int l );
+//int     LittleLong( int l );
+//float   BigFloat( float l );
+//float   LittleFloat( float l );
+//
+//void    Swap_Init( void );
+//BBi
 
-void    Swap_Init( void );
 char    * QDECL va( char *format, ... );
 
 //#ifdef __cplusplus
@@ -707,7 +718,11 @@ char    * QDECL va( char *format, ... );
 
 
 //=============================================
-#ifdef __cplusplus
+
+//BBi
+//#ifdef __cplusplus
+//BBi
+
 //
 // mapfile parsing
 //
@@ -794,7 +809,10 @@ typedef struct {
 // Tesselate a map patch into smoothed, drawable vertexes
 // MaxError of around 4 is reasonable
 drawVertMesh_t *SubdivideMapPatch( const mapPatch_t *patch, float maxError );
-#endif          // __cplusplus
+
+//BBi
+//#endif          // __cplusplus
+//BBi
 
 //=========================================
 
@@ -835,19 +853,21 @@ void Info_SetValueForKey( char *s, const char *key, const char *value );
 qboolean Info_Validate( const char *s );
 void Info_NextPair( const char *( *s ), char key[MAX_INFO_KEY], char value[MAX_INFO_VALUE] );
 
-// get cvar defs, collision defs, etc
-//#include "../shared/interface.h"
-
-// get key code numbers for events
-//#include "../shared/keycodes.h"
-
-#ifdef __cplusplus
-// get the polygon winding functions
-//#include "../shared/windings.h"
-
-// get the flags class
-//#include "../shared/idflags.h"
-#endif  // __cplusplus
+//BBi
+//// get cvar defs, collision defs, etc
+////#include "../shared/interface.h"
+//
+//// get key code numbers for events
+////#include "../shared/keycodes.h"
+//
+//#ifdef __cplusplus
+//// get the polygon winding functions
+////#include "../shared/windings.h"
+//
+//// get the flags class
+////#include "../shared/idflags.h"
+//#endif  // __cplusplus
+//BBi
 
 #endif  // __Q_SHARED_H
 

@@ -13,6 +13,12 @@
       <UniqueIdentifier>{58412bfe-af02-4213-8b55-996349851111}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
+    <Filter Include="Source Files\bbi">
+      <UniqueIdentifier>{af22a41e-b3a6-4030-bf04-ee4ffacff8af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\bbi">
+      <UniqueIdentifier>{27b24f8d-b2d2-4c12-99af-05c5955e73f6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\game_sp\ai_cast.cpp">
@@ -265,6 +271,21 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\src\game_sp\g_funcs.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_core.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_endian.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_mem.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_mem_reader.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_mem_writer.h">
+      <Filter>Header Files\bbi</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

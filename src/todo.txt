@@ -4,7 +4,6 @@ Check for FIXME and TODO
 -----------------------
 Change licenses for merged code.
 
-
 -----------------------
 Recheck code for merge:
 
@@ -19,6 +18,3 @@ qcommon/files.c
 
 ------------
 Try to make full merge for non engine code (cgame, game, ui).
-
-------------
-Review ET's win_eh.cpp for exception model.

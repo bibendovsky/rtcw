@@ -13,6 +13,12 @@
       <UniqueIdentifier>{30f92fd4-d505-4e1c-909e-5e27a22e238e}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
+    <Filter Include="Header Files\bbi">
+      <UniqueIdentifier>{e4c1fab0-c002-4506-8227-da37bb99e95b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\bbi">
+      <UniqueIdentifier>{9d84830f-a93a-4115-8717-72c7f7e19020}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\client\cl_cgame.cpp">
@@ -568,6 +574,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\src\win32\rtcw_mp_resource.h">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_core.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_endian.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_mem.h">
+      <Filter>Header Files\bbi</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -136,19 +136,18 @@ typedef struct aas_settings_s
 //BBi Reference structure for x64 code.
 //BBi All pointers replaced with 4-byte integers.
 //BBi Of course this structure must be identical to original one (aas_routingcache_t).
-//BBi FIXME Use fixed size types (int32, etc.)
 struct AasRoutingCache32 {
-    int size;
+    bbi::Int32 size;
     float time;
-    int cluster;
-    int areanum;
+    bbi::Int32 cluster;
+    bbi::Int32 areanum;
     vec3_t origin;
     float starttraveltime;
-    int travelflags;
-    int prev; // pointer
-    int next; // pointer
-    int reachabilities; // pointer
-    unsigned short traveltimes[1];
+    bbi::Int32 travelflags;
+    bbi::Int32 prev; // pointer
+    bbi::Int32 next; // pointer
+    bbi::Int32 reachabilities; // pointer
+    bbi::UInt16 traveltimes[1];
 }; // struct AasRoutingCache32
 //BBi
 

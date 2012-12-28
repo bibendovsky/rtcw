@@ -122,7 +122,12 @@ void Shaker_think( gentity_t *ent ) {
 
 		// NERVE - SMF - client side camera shake
 		//DAJ BUGFIX va() not doing %f's correctly
-		bounceamt = min( 1.0f, 1.0f - ( len / radius ) );
+
+        //BBi
+		//bounceamt = min( 1.0f, 1.0f - ( len / radius ) );
+        bounceamt = std::min (1.0F, 1.0F - (len / radius));
+        //BBi
+
 		sprintf( cmd, "shake %.4f", bounceamt );   //DAJ
 		trap_SendServerCommand( player->s.clientNum, cmd );
 //DAJ BUGFIX		trap_SendServerCommand( player->s.clientNum, va( "shake %f", &bounceamt));

@@ -2741,7 +2741,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		}
 
 		len = 1.0f - ( len / (float)cent->currentState.onFireStart );
-		len = min( 1.f, len );
+
+        //BBi
+		//len = min( 1.f, len );
+        len = std::min (1.0F, len);
+        //BBi
 
 		CG_StartShakeCamera( len );
 	}

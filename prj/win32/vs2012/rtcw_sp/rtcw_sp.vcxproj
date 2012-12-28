@@ -223,6 +223,9 @@
     <ClCompile Include="..\..\..\..\src\zlib-1.2.7\contrib\minizip\unzip.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_core.h" />
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_endian.h" />
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_mem.h" />
     <ClInclude Include="..\..\..\..\src\botlib\aasfile.h" />
     <ClInclude Include="..\..\..\..\src\botlib\be_aas_bsp.h" />
     <ClInclude Include="..\..\..\..\src\botlib\be_aas_cluster.h" />

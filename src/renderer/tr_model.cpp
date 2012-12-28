@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tr_local.h"
 
-#define LL( x ) x = LittleLong( x )
+#define LL( x ) x = bbi::Endian::le ( x )
 
 // Ridah
 static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_name );
@@ -251,7 +251,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 		if ( buf ) {
 			loadmodel = mod;
 
-			ident = LittleLong( *(unsigned *)buf );
+			ident = bbi::Endian::le ( *(unsigned *)buf );
 			if ( ident == MDS_IDENT ) {
 				loaded = R_LoadMDS( mod, buf, name );
 
@@ -326,7 +326,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 
 		loadmodel = mod;
 
-		ident = LittleLong( *(unsigned *)buf );
+		ident = bbi::Endian::le ( *(unsigned *)buf );
 		// Ridah, mesh compression
 		if ( ident != MD3_IDENT && ident != MDC_IDENT ) {
 			ri.Printf( PRINT_WARNING,"RE_RegisterModel: unknown fileid for %s\n", name );
@@ -880,7 +880,7 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 
 	pinmodel = (mdcHeader_t *)buffer;
 
-	version = LittleLong( pinmodel->version );
+	version = bbi::Endian::le ( pinmodel->version );
 	if ( version != MDC_VERSION ) {
 		ri.Printf( PRINT_WARNING, "R_LoadMDC: %s has wrong version (%i should be %i)\n",
 				   mod_name, version, MDC_VERSION );
@@ -888,13 +888,13 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 	}
 
 	mod->type = MOD_MDC;
-	size = LittleLong( pinmodel->ofsEnd );
+	size = bbi::Endian::le ( pinmodel->ofsEnd );
 	mod->dataSize += size;
 
 #if !defined RTCW_ET
 	mod->mdc[lod] = static_cast<mdcHeader_t*> (ri.Hunk_Alloc( size, h_low ));
 
-	memcpy( mod->mdc[lod], buffer, LittleLong( pinmodel->ofsEnd ) );
+	memcpy( mod->mdc[lod], buffer, bbi::Endian::le ( pinmodel->ofsEnd ) );
 
 	LL( mod->mdc[lod]->ident );
 	LL( mod->mdc[lod]->version );
@@ -914,7 +914,7 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 #else
 	mod->model.mdc[lod] = static_cast<mdcHeader_t*> (ri.Hunk_Alloc( size, h_low ));
 
-	memcpy( mod->model.mdc[lod], buffer, LittleLong( pinmodel->ofsEnd ) );
+	memcpy( mod->model.mdc[lod], buffer, bbi::Endian::le ( pinmodel->ofsEnd ) );
 
 	LL( mod->model.mdc[lod]->ident );
 	LL( mod->model.mdc[lod]->version );
@@ -947,20 +947,20 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 	for ( i = 0 ; i < mod->model.mdc[lod]->numFrames ; i++, frame++ ) {
 #endif // RTCW_XX
 
-		frame->radius = LittleFloat( frame->radius );
+		bbi::Endian::lei (frame->radius);
 		if ( strstr( mod->name,"sherman" ) || strstr( mod->name, "mg42" ) ) {
 			frame->radius = 256;
 			for ( j = 0 ; j < 3 ; j++ ) {
 				frame->bounds[0][j] = 128;
 				frame->bounds[1][j] = -128;
-				frame->localOrigin[j] = LittleFloat( frame->localOrigin[j] );
+				frame->localOrigin[j] = bbi::Endian::le ( frame->localOrigin[j] );
 			}
 		} else
 		{
 			for ( j = 0 ; j < 3 ; j++ ) {
-				frame->bounds[0][j] = LittleFloat( frame->bounds[0][j] );
-				frame->bounds[1][j] = LittleFloat( frame->bounds[1][j] );
-				frame->localOrigin[j] = LittleFloat( frame->localOrigin[j] );
+				frame->bounds[0][j] = bbi::Endian::le ( frame->bounds[0][j] );
+				frame->bounds[1][j] = bbi::Endian::le ( frame->bounds[1][j] );
+				frame->localOrigin[j] = bbi::Endian::le ( frame->localOrigin[j] );
 			}
 		}
 	}
@@ -969,18 +969,16 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 
 #if !defined RTCW_ET
 	tag = ( mdcTag_t * )( (byte *)mod->mdc[lod] + mod->mdc[lod]->ofsTags );
-	if ( LittleLong( 1 ) != 1 ) {
+	if (!bbi::Endian::is_little ()) {
 		for ( i = 0 ; i < mod->mdc[lod]->numTags * mod->mdc[lod]->numFrames ; i++, tag++ ) {
 #else
 	tag = ( mdcTag_t * )( (byte *)mod->model.mdc[lod] + mod->model.mdc[lod]->ofsTags );
-	if ( LittleLong( 1 ) != 1 ) {
+	if (!bbi::Endian::is_little ()) {
 		for ( i = 0 ; i < mod->model.mdc[lod]->numTags * mod->model.mdc[lod]->numFrames ; i++, tag++ ) {
 #endif // RTCW_XX
 
-			for ( j = 0 ; j < 3 ; j++ ) {
-				tag->xyz[j] = LittleShort( tag->xyz[j] );
-				tag->angles[j] = LittleShort( tag->angles[j] );
-			}
+			bbi::Endian::lei (tag->xyz);
+			bbi::Endian::lei (tag->angles);
 		}
 	}
 
@@ -1057,7 +1055,7 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 		}
 
 		// Ridah, optimization, only do the swapping if we really need to
-		if ( LittleShort( 1 ) != 1 ) {
+		if (!bbi::Endian::is_little ()) {
 
 			// swap all the triangles
 			tri = ( md3Triangle_t * )( (byte *)surf + surf->ofsTriangles );
@@ -1070,19 +1068,15 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 			// swap all the ST
 			st = ( md3St_t * )( (byte *)surf + surf->ofsSt );
 			for ( j = 0 ; j < surf->numVerts ; j++, st++ ) {
-				st->st[0] = LittleFloat( st->st[0] );
-				st->st[1] = LittleFloat( st->st[1] );
+				bbi::Endian::lei (st->st);
 			}
 
 			// swap all the XyzNormals
 			xyz = ( md3XyzNormal_t * )( (byte *)surf + surf->ofsXyzNormals );
 			for ( j = 0 ; j < surf->numVerts * surf->numBaseFrames ; j++, xyz++ )
 			{
-				xyz->xyz[0] = LittleShort( xyz->xyz[0] );
-				xyz->xyz[1] = LittleShort( xyz->xyz[1] );
-				xyz->xyz[2] = LittleShort( xyz->xyz[2] );
-
-				xyz->normal = LittleShort( xyz->normal );
+				bbi::Endian::lei (xyz->xyz);
+				bbi::Endian::lei (xyz->normal);
 			}
 
 			// swap all the XyzCompressed
@@ -1102,7 +1096,7 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 #endif // RTCW_XX
 
 			{
-				*ps = LittleShort( *ps );
+				bbi::Endian::lei (*ps);
 			}
 
 			// swap the frameCompFrames
@@ -1115,7 +1109,7 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 #endif // RTCW_XX
 
 			{
-				*ps = LittleShort( *ps );
+				bbi::Endian::lei (*ps);
 			}
 		}
 		// done.
@@ -1151,7 +1145,7 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 
 	pinmodel = (md3Header_t *)buffer;
 
-	version = LittleLong( pinmodel->version );
+	version = bbi::Endian::le ( pinmodel->version );
 	if ( version != MD3_VERSION ) {
 		ri.Printf( PRINT_WARNING, "R_LoadMD3: %s has wrong version (%i should be %i)\n",
 				   mod_name, version, MD3_VERSION );
@@ -1159,7 +1153,7 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 	}
 
 	mod->type = MOD_MESH;
-	size = LittleLong( pinmodel->ofsEnd );
+	size = bbi::Endian::le ( pinmodel->ofsEnd );
 	mod->dataSize += size;
 
 #if !defined RTCW_ET
@@ -1171,7 +1165,7 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 	}
 	// done.
 
-	memcpy( mod->md3[lod], buffer, LittleLong( pinmodel->ofsEnd ) );
+	memcpy( mod->md3[lod], buffer, bbi::Endian::le ( pinmodel->ofsEnd ) );
 
 	LL( mod->md3[lod]->ident );
 	LL( mod->md3[lod]->version );
@@ -1187,7 +1181,7 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 #else
 	mod->model.md3[lod] = static_cast<md3Header_t*> (ri.Hunk_Alloc( size, h_low ));
 
-	memcpy( mod->model.md3[lod], buffer, LittleLong( pinmodel->ofsEnd ) );
+	memcpy( mod->model.md3[lod], buffer, bbi::Endian::le ( pinmodel->ofsEnd ) );
 
 	LL( mod->model.md3[lod]->ident );
 	LL( mod->model.md3[lod]->version );
@@ -1220,13 +1214,13 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 	for ( i = 0 ; i < mod->model.md3[lod]->numFrames ; i++, frame++ ) {
 #endif // RTCW_XX
 
-		frame->radius = LittleFloat( frame->radius );
+		bbi::Endian::lei (frame->radius);
 		if ( fixRadius ) {
 			frame->radius = 256;
 			for ( j = 0 ; j < 3 ; j++ ) {
 				frame->bounds[0][j] = 128;
 				frame->bounds[1][j] = -128;
-				frame->localOrigin[j] = LittleFloat( frame->localOrigin[j] );
+				frame->localOrigin[j] = bbi::Endian::le ( frame->localOrigin[j] );
 			}
 		}
 		// Hack for Bug using plugin generated model
@@ -1235,15 +1229,13 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 			for ( j = 0 ; j < 3 ; j++ ) {
 				frame->bounds[0][j] = 128;
 				frame->bounds[1][j] = -128;
-				frame->localOrigin[j] = LittleFloat( frame->localOrigin[j] );
+				frame->localOrigin[j] = bbi::Endian::le ( frame->localOrigin[j] );
 			}
 		} else
 		{
-			for ( j = 0 ; j < 3 ; j++ ) {
-				frame->bounds[0][j] = LittleFloat( frame->bounds[0][j] );
-				frame->bounds[1][j] = LittleFloat( frame->bounds[1][j] );
-				frame->localOrigin[j] = LittleFloat( frame->localOrigin[j] );
-			}
+			bbi::Endian::lei (frame->bounds[0]);
+			bbi::Endian::lei (frame->bounds[1]);
+			bbi::Endian::lei (frame->localOrigin);
 		}
 	}
 
@@ -1257,12 +1249,10 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 	for ( i = 0 ; i < mod->model.md3[lod]->numTags * mod->model.md3[lod]->numFrames ; i++, tag++ ) {
 #endif // RTCW_XX
 
-		for ( j = 0 ; j < 3 ; j++ ) {
-			tag->origin[j] = LittleFloat( tag->origin[j] );
-			tag->axis[0][j] = LittleFloat( tag->axis[0][j] );
-			tag->axis[1][j] = LittleFloat( tag->axis[1][j] );
-			tag->axis[2][j] = LittleFloat( tag->axis[2][j] );
-		}
+		bbi::Endian::lei (tag->origin);
+		bbi::Endian::lei (tag->axis[0]);
+		bbi::Endian::lei (tag->axis[1]);
+		bbi::Endian::lei (tag->axis[2]);
 	}
 
 	// swap all the surfaces
@@ -1334,7 +1324,7 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 		}
 
 		// Ridah, optimization, only do the swapping if we really need to
-		if ( LittleShort( 1 ) != 1 ) {
+		if (!bbi::Endian::is_little ()) {
 
 			// swap all the triangles
 			tri = ( md3Triangle_t * )( (byte *)surf + surf->ofsTriangles );
@@ -1346,20 +1336,15 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 
 			// swap all the ST
 			st = ( md3St_t * )( (byte *)surf + surf->ofsSt );
-			for ( j = 0 ; j < surf->numVerts ; j++, st++ ) {
-				st->st[0] = LittleFloat( st->st[0] );
-				st->st[1] = LittleFloat( st->st[1] );
-			}
+			for ( j = 0 ; j < surf->numVerts ; j++, st++ )
+				bbi::Endian::lei (st->st);
 
 			// swap all the XyzNormals
 			xyz = ( md3XyzNormal_t * )( (byte *)surf + surf->ofsXyzNormals );
 			for ( j = 0 ; j < surf->numVerts * surf->numFrames ; j++, xyz++ )
 			{
-				xyz->xyz[0] = LittleShort( xyz->xyz[0] );
-				xyz->xyz[1] = LittleShort( xyz->xyz[1] );
-				xyz->xyz[2] = LittleShort( xyz->xyz[2] );
-
-				xyz->normal = LittleShort( xyz->normal );
+				bbi::Endian::lei (xyz->xyz);
+				bbi::Endian::lei (xyz->normal);
 			}
 
 		}
@@ -1404,7 +1389,7 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 
 	pinmodel = (mdsHeader_t *)buffer;
 
-	version = LittleLong( pinmodel->version );
+	version = bbi::Endian::le ( pinmodel->version );
 	if ( version != MDS_VERSION ) {
 		ri.Printf( PRINT_WARNING, "R_LoadMDS: %s has wrong version (%i should be %i)\n",
 				   mod_name, version, MDS_VERSION );
@@ -1412,7 +1397,7 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 	}
 
 	mod->type = MOD_MDS;
-	size = LittleLong( pinmodel->ofsEnd );
+	size = bbi::Endian::le ( pinmodel->ofsEnd );
 	mod->dataSize += size;
 
 #if !defined RTCW_ET
@@ -1421,7 +1406,7 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 	mds = mod->model.mds = static_cast<mdsHeader_t*> (ri.Hunk_Alloc( size, h_low ));
 #endif // RTCW_XX
 
-	memcpy( mds, buffer, LittleLong( pinmodel->ofsEnd ) );
+	memcpy( mds, buffer, bbi::Endian::le ( pinmodel->ofsEnd ) );
 
 	LL( mds->ident );
 	LL( mds->version );
@@ -1434,8 +1419,8 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 	LL( mds->ofsTags );
 	LL( mds->ofsEnd );
 	LL( mds->ofsSurfaces );
-	mds->lodBias = LittleFloat( mds->lodBias );
-	mds->lodScale = LittleFloat( mds->lodScale );
+	bbi::Endian::lei (mds->lodBias);
+	bbi::Endian::lei (mds->lodScale);
 	LL( mds->torsoParent );
 
 	if ( mds->numFrames < 1 ) {
@@ -1443,21 +1428,20 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 		return qfalse;
 	}
 
-	if ( LittleLong( 1 ) != 1 ) {
+	if (!bbi::Endian::is_little ()) {
 		// swap all the frames
 		//frameSize = (int)( &((mdsFrame_t *)0)->bones[ mds->numBones ] );
 		frameSize = (int) ( sizeof( mdsFrame_t ) - sizeof( mdsBoneFrameCompressed_t ) + mds->numBones * sizeof( mdsBoneFrameCompressed_t ) );
 		for ( i = 0 ; i < mds->numFrames ; i++, frame++ ) {
 			frame = ( mdsFrame_t * )( (byte *)mds + mds->ofsFrames + i * frameSize );
-			frame->radius = LittleFloat( frame->radius );
-			for ( j = 0 ; j < 3 ; j++ ) {
-				frame->bounds[0][j] = LittleFloat( frame->bounds[0][j] );
-				frame->bounds[1][j] = LittleFloat( frame->bounds[1][j] );
-				frame->localOrigin[j] = LittleFloat( frame->localOrigin[j] );
-				frame->parentOffset[j] = LittleFloat( frame->parentOffset[j] );
-			}
+			bbi::Endian::lei (frame->radius);
+			bbi::Endian::lei (frame->bounds[0]);
+			bbi::Endian::lei (frame->bounds[1]);
+			bbi::Endian::lei (frame->localOrigin);
+			bbi::Endian::lei (frame->parentOffset);
+
 			for ( j = 0 ; j < mds->numBones * sizeof( mdsBoneFrameCompressed_t ) / sizeof( short ) ; j++ ) {
-				( (short *)frame->bones )[j] = LittleShort( ( (short *)frame->bones )[j] );
+				( (short *)frame->bones )[j] = bbi::Endian::le ( ( (short *)frame->bones )[j] );
 			}
 		}
 
@@ -1465,15 +1449,15 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 		tag = ( mdsTag_t * )( (byte *)mds + mds->ofsTags );
 		for ( i = 0 ; i < mds->numTags ; i++, tag++ ) {
 			LL( tag->boneIndex );
-			tag->torsoWeight = LittleFloat( tag->torsoWeight );
+			bbi::Endian::lei (tag->torsoWeight);
 		}
 
 		// swap all the bones
 		for ( i = 0 ; i < mds->numBones ; i++, bi++ ) {
 			bi = ( mdsBoneInfo_t * )( (byte *)mds + mds->ofsBones + i * sizeof( mdsBoneInfo_t ) );
 			LL( bi->parent );
-			bi->torsoWeight = LittleFloat( bi->torsoWeight );
-			bi->parentDist = LittleFloat( bi->parentDist );
+			bbi::Endian::lei (bi->torsoWeight);
+			bbi::Endian::lei (bi->parentDist);
 			LL( bi->flags );
 		}
 	}
@@ -1481,7 +1465,7 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 	// swap all the surfaces
 	surf = ( mdsSurface_t * )( (byte *)mds + mds->ofsSurfaces );
 	for ( i = 0 ; i < mds->numSurfaces ; i++ ) {
-		if ( LittleLong( 1 ) != 1 ) {
+		if (!bbi::Endian::is_little ()) {
 
 #if !defined RTCW_ET
 			LL( surf->ident );
@@ -1537,7 +1521,7 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 			surf->shaderIndex = 0;
 		}
 
-		if ( LittleLong( 1 ) != 1 ) {
+		if (!bbi::Endian::is_little ()) {
 			// swap all the triangles
 			tri = ( mdsTriangle_t * )( (byte *)surf + surf->ofsTriangles );
 			for ( j = 0 ; j < surf->numTriangles ; j++, tri++ ) {
@@ -1549,21 +1533,15 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 			// swap all the vertexes
 			v = ( mdsVertex_t * )( (byte *)surf + surf->ofsVerts );
 			for ( j = 0 ; j < surf->numVerts ; j++ ) {
-				v->normal[0] = LittleFloat( v->normal[0] );
-				v->normal[1] = LittleFloat( v->normal[1] );
-				v->normal[2] = LittleFloat( v->normal[2] );
+				bbi::Endian::lei (v->normal);
+				bbi::Endian::lei (v->texCoords);
 
-				v->texCoords[0] = LittleFloat( v->texCoords[0] );
-				v->texCoords[1] = LittleFloat( v->texCoords[1] );
-
-				v->numWeights = LittleLong( v->numWeights );
+				bbi::Endian::lei (v->numWeights);
 
 				for ( k = 0 ; k < v->numWeights ; k++ ) {
-					v->weights[k].boneIndex = LittleLong( v->weights[k].boneIndex );
-					v->weights[k].boneWeight = LittleFloat( v->weights[k].boneWeight );
-					v->weights[k].offset[0] = LittleFloat( v->weights[k].offset[0] );
-					v->weights[k].offset[1] = LittleFloat( v->weights[k].offset[1] );
-					v->weights[k].offset[2] = LittleFloat( v->weights[k].offset[2] );
+					bbi::Endian::lei (v->weights[k].boneIndex);
+					bbi::Endian::lei (v->weights[k].boneWeight);
+					bbi::Endian::lei (v->weights[k].offset);
 				}
 
 #if !defined RTCW_SP
@@ -1586,13 +1564,13 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 			// swap the collapse map
 			collapseMap = ( int * )( (byte *)surf + surf->ofsCollapseMap );
 			for ( j = 0; j < surf->numVerts; j++, collapseMap++ ) {
-				*collapseMap = LittleLong( *collapseMap );
+				bbi::Endian::lei (*collapseMap);
 			}
 
 			// swap the bone references
 			boneref = ( int * )( ( byte *)surf + surf->ofsBoneReferences );
 			for ( j = 0; j < surf->numBoneReferences; j++, boneref++ ) {
-				*boneref = LittleLong( *boneref );
+				bbi::Endian::lei (*boneref);
 			}
 		}
 
@@ -1624,7 +1602,7 @@ static qboolean R_LoadMDM( model_t *mod, void *buffer, const char *mod_name ) {
 
 	pinmodel = (mdmHeader_t *)buffer;
 
-	version = LittleLong( pinmodel->version );
+	version = bbi::Endian::le ( pinmodel->version );
 	if ( version != MDM_VERSION ) {
 		ri.Printf( PRINT_WARNING, "R_LoadMDM: %s has wrong version (%i should be %i)\n",
 				   mod_name, version, MDM_VERSION );
@@ -1632,11 +1610,11 @@ static qboolean R_LoadMDM( model_t *mod, void *buffer, const char *mod_name ) {
 	}
 
 	mod->type = MOD_MDM;
-	size = LittleLong( pinmodel->ofsEnd );
+	size = bbi::Endian::le ( pinmodel->ofsEnd );
 	mod->dataSize += size;
 	mdm = mod->model.mdm = static_cast<mdmHeader_t*> (ri.Hunk_Alloc( size, h_low ));
 
-	memcpy( mdm, buffer, LittleLong( pinmodel->ofsEnd ) );
+	memcpy( mdm, buffer, bbi::Endian::le ( pinmodel->ofsEnd ) );
 
 	LL( mdm->ident );
 	LL( mdm->version );
@@ -1647,8 +1625,8 @@ static qboolean R_LoadMDM( model_t *mod, void *buffer, const char *mod_name ) {
 	LL( mdm->ofsTags );
 	LL( mdm->ofsEnd );
 	LL( mdm->ofsSurfaces );
-	mdm->lodBias = LittleFloat( mdm->lodBias );
-	mdm->lodScale = LittleFloat( mdm->lodScale );
+	bbi::Endian::lei (mdm->lodBias);
+	bbi::Endian::lei (mdm->lodScale);
 
 /*	mdm->skel = RE_RegisterModel(mdm->bonesfile);
 	if ( !mdm->skel ) {
@@ -1660,7 +1638,7 @@ static qboolean R_LoadMDM( model_t *mod, void *buffer, const char *mod_name ) {
 		return qfalse;
 	}*/
 
-	if ( LittleLong( 1 ) != 1 ) {
+	if (!bbi::Endian::is_little ()) {
 		// swap all the frames
 		/*frameSize = (int) ( sizeof( mdmFrame_t ) );
 		for ( i = 0 ; i < mdm->numFrames ; i++, frame++) {
@@ -1678,18 +1656,11 @@ static qboolean R_LoadMDM( model_t *mod, void *buffer, const char *mod_name ) {
 		tag = ( mdmTag_t * )( (byte *)mdm + mdm->ofsTags );
 		for ( i = 0 ; i < mdm->numTags ; i++ ) {
 			int ii;
-			for ( ii = 0; ii < 3; ii++ )
-			{
-				tag->axis[ii][0] = LittleFloat( tag->axis[ii][0] );
-				tag->axis[ii][1] = LittleFloat( tag->axis[ii][1] );
-				tag->axis[ii][2] = LittleFloat( tag->axis[ii][2] );
-			}
+			bbi::Endian::lei (tag->axis[ii]);
 
 			LL( tag->boneIndex );
 			//tag->torsoWeight = LittleFloat( tag->torsoWeight );
-			tag->offset[0] = LittleFloat( tag->offset[0] );
-			tag->offset[1] = LittleFloat( tag->offset[1] );
-			tag->offset[2] = LittleFloat( tag->offset[2] );
+			bbi::Endian::lei (tag->offset);
 
 			LL( tag->numBoneReferences );
 			LL( tag->ofsBoneReferences );
@@ -1698,7 +1669,7 @@ static qboolean R_LoadMDM( model_t *mod, void *buffer, const char *mod_name ) {
 			// swap the bone references
 			boneref = ( int * )( ( byte *)tag + tag->ofsBoneReferences );
 			for ( j = 0; j < tag->numBoneReferences; j++, boneref++ ) {
-				*boneref = LittleLong( *boneref );
+				bbi::Endian::lei (*boneref);
 			}
 
 			// find the next tag
@@ -1709,7 +1680,7 @@ static qboolean R_LoadMDM( model_t *mod, void *buffer, const char *mod_name ) {
 	// swap all the surfaces
 	surf = ( mdmSurface_t * )( (byte *)mdm + mdm->ofsSurfaces );
 	for ( i = 0 ; i < mdm->numSurfaces ; i++ ) {
-		if ( LittleLong( 1 ) != 1 ) {
+		if (!bbi::Endian::is_little ()) {
 			//LL(surf->ident);
 			LL( surf->shaderIndex );
 			LL( surf->minLod );
@@ -1748,7 +1719,7 @@ static qboolean R_LoadMDM( model_t *mod, void *buffer, const char *mod_name ) {
 			surf->shaderIndex = 0;
 		}
 
-		if ( LittleLong( 1 ) != 1 ) {
+		if (!bbi::Endian::is_little ()) {
 			// swap all the triangles
 			tri = ( mdmTriangle_t * )( (byte *)surf + surf->ofsTriangles );
 			for ( j = 0 ; j < surf->numTriangles ; j++, tri++ ) {
@@ -1760,21 +1731,14 @@ static qboolean R_LoadMDM( model_t *mod, void *buffer, const char *mod_name ) {
 			// swap all the vertexes
 			v = ( mdmVertex_t * )( (byte *)surf + surf->ofsVerts );
 			for ( j = 0 ; j < surf->numVerts ; j++ ) {
-				v->normal[0] = LittleFloat( v->normal[0] );
-				v->normal[1] = LittleFloat( v->normal[1] );
-				v->normal[2] = LittleFloat( v->normal[2] );
-
-				v->texCoords[0] = LittleFloat( v->texCoords[0] );
-				v->texCoords[1] = LittleFloat( v->texCoords[1] );
-
-				v->numWeights = LittleLong( v->numWeights );
+				bbi::Endian::lei (v->normal);
+				bbi::Endian::lei (v->texCoords);
+				bbi::Endian::lei (v->numWeights);
 
 				for ( k = 0 ; k < v->numWeights ; k++ ) {
-					v->weights[k].boneIndex = LittleLong( v->weights[k].boneIndex );
-					v->weights[k].boneWeight = LittleFloat( v->weights[k].boneWeight );
-					v->weights[k].offset[0] = LittleFloat( v->weights[k].offset[0] );
-					v->weights[k].offset[1] = LittleFloat( v->weights[k].offset[1] );
-					v->weights[k].offset[2] = LittleFloat( v->weights[k].offset[2] );
+					bbi::Endian::lei (v->weights[k].boneIndex);
+					bbi::Endian::lei (v->weights[k].boneWeight);
+					bbi::Endian::lei (v->weights[k].offset);
 				}
 
 				v = (mdmVertex_t *)&v->weights[v->numWeights];
@@ -1783,13 +1747,13 @@ static qboolean R_LoadMDM( model_t *mod, void *buffer, const char *mod_name ) {
 			// swap the collapse map
 			collapseMap = ( int * )( (byte *)surf + surf->ofsCollapseMap );
 			for ( j = 0; j < surf->numVerts; j++, collapseMap++ ) {
-				*collapseMap = LittleLong( *collapseMap );
+				bbi::Endian::lei (*collapseMap);
 			}
 
 			// swap the bone references
 			boneref = ( int * )( ( byte *)surf + surf->ofsBoneReferences );
 			for ( j = 0; j < surf->numBoneReferences; j++, boneref++ ) {
-				*boneref = LittleLong( *boneref );
+				bbi::Endian::lei (*boneref);
 			}
 		}
 
@@ -1817,7 +1781,7 @@ static qboolean R_LoadMDX( model_t *mod, void *buffer, const char *mod_name ) {
 
 	pinmodel = (mdxHeader_t *)buffer;
 
-	version = LittleLong( pinmodel->version );
+	version = bbi::Endian::le ( pinmodel->version );
 	if ( version != MDX_VERSION ) {
 		ri.Printf( PRINT_WARNING, "R_LoadMDX: %s has wrong version (%i should be %i)\n",
 				   mod_name, version, MDX_VERSION );
@@ -1825,11 +1789,11 @@ static qboolean R_LoadMDX( model_t *mod, void *buffer, const char *mod_name ) {
 	}
 
 	mod->type = MOD_MDX;
-	size = LittleLong( pinmodel->ofsEnd );
+	size = bbi::Endian::le ( pinmodel->ofsEnd );
 	mod->dataSize += size;
 	mdx = mod->model.mdx = static_cast<mdxHeader_t*> (ri.Hunk_Alloc( size, h_low ));
 
-	memcpy( mdx, buffer, LittleLong( pinmodel->ofsEnd ) );
+	memcpy( mdx, buffer, bbi::Endian::le ( pinmodel->ofsEnd ) );
 
 	LL( mdx->ident );
 	LL( mdx->version );
@@ -1840,22 +1804,20 @@ static qboolean R_LoadMDX( model_t *mod, void *buffer, const char *mod_name ) {
 	LL( mdx->ofsEnd );
 	LL( mdx->torsoParent );
 
-	if ( LittleLong( 1 ) != 1 ) {
+	if (!bbi::Endian::is_little ()) {
 		// swap all the frames
 		frameSize = (int) ( sizeof( mdxBoneFrameCompressed_t ) ) * mdx->numBones;
 		for ( i = 0 ; i < mdx->numFrames ; i++ ) {
 			frame = ( mdxFrame_t * )( (byte *)mdx + mdx->ofsFrames + i * frameSize + i * sizeof( mdxFrame_t ) );
-			frame->radius = LittleFloat( frame->radius );
-			for ( j = 0 ; j < 3 ; j++ ) {
-				frame->bounds[0][j] = LittleFloat( frame->bounds[0][j] );
-				frame->bounds[1][j] = LittleFloat( frame->bounds[1][j] );
-				frame->localOrigin[j] = LittleFloat( frame->localOrigin[j] );
-				frame->parentOffset[j] = LittleFloat( frame->parentOffset[j] );
-			}
+			bbi::Endian::lei (frame->radius);
+            bbi::Endian::lei (frame->bounds[0]);
+            bbi::Endian::lei (frame->bounds[1]);
+            bbi::Endian::lei (frame->localOrigin);
+            bbi::Endian::lei (frame->parentOffset);
 
 			bframe = ( short * )( (byte *)mdx + mdx->ofsFrames + i * frameSize + ( ( i + 1 ) * sizeof( mdxFrame_t ) ) );
 			for ( j = 0 ; j < mdx->numBones * sizeof( mdxBoneFrameCompressed_t ) / sizeof( short ) ; j++ ) {
-				( (short *)bframe )[j] = LittleShort( ( (short *)bframe )[j] );
+				( (short *)bframe )[j] = bbi::Endian::le ( ( (short *)bframe )[j] );
 			}
 		}
 
@@ -1863,8 +1825,8 @@ static qboolean R_LoadMDX( model_t *mod, void *buffer, const char *mod_name ) {
 		for ( i = 0 ; i < mdx->numBones ; i++ ) {
 			bi = ( mdxBoneInfo_t * )( (byte *)mdx + mdx->ofsBones + i * sizeof( mdxBoneInfo_t ) );
 			LL( bi->parent );
-			bi->torsoWeight = LittleFloat( bi->torsoWeight );
-			bi->parentDist = LittleFloat( bi->parentDist );
+			bbi::Endian::lei (bi->torsoWeight);
+			bbi::Endian::lei (bi->parentDist);
 			LL( bi->flags );
 		}
 	}

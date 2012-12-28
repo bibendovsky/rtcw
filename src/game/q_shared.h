@@ -33,66 +33,87 @@ If you have questions concerning this license or the applicable additional terms
 // A user mod should never modify this file
 
 //BBi
+#include <algorithm>
+
+#include "bbi_core.h"
+#include "bbi_endian.h"
+
 #include "rtcw_c.h"
 //BBi
 
+//BBi
+//#if defined RTCW_SP
+////BBi
+////#define Q3_VERSION      "Wolf 1.41"
+//#define Q3_VERSION "RTCW-SP 0.99b (1.41)"
+////BBi
+//
+//// ver 1.0.0	- release
+//// ver 1.0.1	- post-release work
+//// ver 1.1.0	- patch 1 (12/12/01)
+//// ver 1.1b		- TTimo SP linux release (+ MP update)
+//// ver 1.2.b5	- Mac code merge in
+//// ver 1.3		- patch 2 (02/13/02)
+//#elif defined RTCW_MP
+////BBi
+////#define Q3_VERSION      "Wolf 1.41b-MP"
+//#define Q3_VERSION "RTCW-MP 0.99b (1.41b)"
+////BBi
+//
+//// 1.41b-MP: fix autodl sploit
+//// 1.4-MP : (== 1.34)
+//// 1.3-MP : final for release
+//// 1.1b - TTimo SP linux release (+ MP updates)
+//// 1.1b5 - Mac update merge in
+//#else
+////#define PRE_RELEASE_DEMO
+//
+//#ifndef PRE_RELEASE_DEMO
+////BBi
+////#define Q3_VERSION      "ET 2.60d"
+//#define Q3_VERSION "RTCW-ET 0.99b (2.60d)"
+////BBi
+//#else
+////BBi
+////#define Q3_VERSION      "ET 2.32"
+//#define Q3_VERSION "RTCW-ET 0.99b (2.32)"
+////BBi
+//#endif // PRE_RELEASE_DEMO
+//// 2.60d: Mac OSX universal binaries
+//// 2.60c: Mac OSX universal binaries
+//// 2.60b: CVE-2006-2082 fix
+//// 2.6x: Enemy Territory - ETPro team maintenance release
+//// 2.5x: Enemy Territory FINAL
+//// 2.4x: Enemy Territory RC's
+//// 2.3x: Enemy Territory TEST
+//// 2.2+: post SP removal
+//// 2.1+: post Enemy Territory moved standalone
+//// 2.x: post Enemy Territory
+//// 1.x: pre Enemy Territory
+//////
+//// 1.3-MP : final for release
+//// 1.1b - TTimo SP linux release (+ MP updates)
+//// 1.1b5 - Mac update merge in
+//
+//#define CONFIG_NAME     "etconfig.cfg"
+//
+////#define LOCALIZATION_SUPPORT
+//#endif // RTCW_XX
+
 #if defined RTCW_SP
-//BBi
-//#define Q3_VERSION      "Wolf 1.41"
-#define Q3_VERSION "RTCW-SP 0.99b (1.41)"
-//BBi
-
-// ver 1.0.0	- release
-// ver 1.0.1	- post-release work
-// ver 1.1.0	- patch 1 (12/12/01)
-// ver 1.1b		- TTimo SP linux release (+ MP update)
-// ver 1.2.b5	- Mac code merge in
-// ver 1.3		- patch 2 (02/13/02)
+#define RTCW_VERSION "RTCW-SP 0.99b (1.41)"
 #elif defined RTCW_MP
-//BBi
-//#define Q3_VERSION      "Wolf 1.41b-MP"
-#define Q3_VERSION "RTCW-MP 0.99b (1.41b)"
-//BBi
-
-// 1.41b-MP: fix autodl sploit
-// 1.4-MP : (== 1.34)
-// 1.3-MP : final for release
-// 1.1b - TTimo SP linux release (+ MP updates)
-// 1.1b5 - Mac update merge in
+#define RTCW_VERSION "RTCW-MP 0.99b (1.41b)"
 #else
-//#define PRE_RELEASE_DEMO
-
 #ifndef PRE_RELEASE_DEMO
-//BBi
-//#define Q3_VERSION      "ET 2.60d"
-#define Q3_VERSION "RTCW-ET 0.99b (2.60d)"
-//BBi
+#define RTCW_VERSION "RTCW-ET 0.99b (2.60d)"
 #else
-//BBi
-//#define Q3_VERSION      "ET 2.32"
-#define Q3_VERSION "RTCW-ET 0.99b (2.32)"
-//BBi
+#define RTCW_VERSION "RTCW-ET 0.99b (2.32)"
 #endif // PRE_RELEASE_DEMO
-// 2.60d: Mac OSX universal binaries
-// 2.60c: Mac OSX universal binaries
-// 2.60b: CVE-2006-2082 fix
-// 2.6x: Enemy Territory - ETPro team maintenance release
-// 2.5x: Enemy Territory FINAL
-// 2.4x: Enemy Territory RC's
-// 2.3x: Enemy Territory TEST
-// 2.2+: post SP removal
-// 2.1+: post Enemy Territory moved standalone
-// 2.x: post Enemy Territory
-// 1.x: pre Enemy Territory
-////
-// 1.3-MP : final for release
-// 1.1b - TTimo SP linux release (+ MP updates)
-// 1.1b5 - Mac update merge in
 
-#define CONFIG_NAME     "etconfig.cfg"
-
-//#define LOCALIZATION_SUPPORT
+#define CONFIG_NAME "etconfig.cfg"
 #endif // RTCW_XX
+//BBi
 
 #define NEW_ANIMS
 #define MAX_TEAMNAME    32
@@ -127,48 +148,67 @@ If you have questions concerning this license or the applicable additional terms
 #pragma warning(disable : 4220) // varargs matches remaining parameters
 #endif
 
-#if defined( ppc ) || defined( __ppc ) || defined( __ppc__ ) || defined( __POWERPC__ )
-#define idppc 1
-#endif
+//BBi
+//#if defined( ppc ) || defined( __ppc ) || defined( __ppc__ ) || defined( __POWERPC__ )
+//#define idppc 1
+//#endif
+//BBi
 
-/**********************************************************************
-  VM Considerations
+//BBi
+///**********************************************************************
+//  VM Considerations
+//
+//  The VM can not use the standard system headers because we aren't really
+//  using the compiler they were meant for.  We use bg_lib.h which contains
+//  prototypes for the functions we define for our own use in bg_lib.c.
+//
+//  When writing mods, please add needed headers HERE, do not start including
+//  stuff like <stdio.h> in the various .c files that make up each of the VMs
+//  since you will be including system headers files can will have issues.
+//
+//  Remember, if you use a C library function that is not defined in bg_lib.c,
+//  you will have to add your own version for support in the VM.
+//
+// **********************************************************************/
+//
+//#ifdef Q3_VM
+//
+//#include "bg_lib.h"
+//
+//#else
+//
+//#include <assert.h>
+//#include <math.h>
+//#include <stdio.h>
+//#include <stdarg.h>
+//#include <string.h>
+//#include <stdlib.h>
+//#include <time.h>
+//#include <ctype.h>
+//#include <limits.h>
+//
+//#if defined RTCW_ET
+//#include <sys/stat.h> // rain
+//#include <float.h>
+//#endif // RTCW_XX
+//
+//#endif
 
-  The VM can not use the standard system headers because we aren't really
-  using the compiler they were meant for.  We use bg_lib.h which contains
-  prototypes for the functions we define for our own use in bg_lib.c.
-
-  When writing mods, please add needed headers HERE, do not start including
-  stuff like <stdio.h> in the various .c files that make up each of the VMs
-  since you will be including system headers files can will have issues.
-
-  Remember, if you use a C library function that is not defined in bg_lib.c,
-  you will have to add your own version for support in the VM.
-
- **********************************************************************/
-
-#ifdef Q3_VM
-
-#include "bg_lib.h"
-
-#else
-
-#include <assert.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
-#include <ctype.h>
-#include <limits.h>
+#include <cassert>
+#include <cmath>
+#include <cstdio>
+#include <cstdarg>
+#include <cstring>
+#include <cstdlib>
+#include <ctime>
+#include <cctype>
+#include <climits>
 
 #if defined RTCW_ET
 #include <sys/stat.h> // rain
 #include <float.h>
 #endif // RTCW_XX
-
-#endif
+//BBi
 
 #if !defined RTCW_ET && defined _WIN32
 
@@ -178,270 +218,307 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // this is the define for determining if we have an asm version of a C function
-#if (!defined RTCW_ET && ((defined _M_IX86 || defined __i386__) && !defined __sun__  && !defined __LCC__)) || (defined RTCW_ET && defined _M_IX86)
-#define id386   1
-#else
+
+//BBi
+//#if (!defined RTCW_ET && ((defined _M_IX86 || defined __i386__) && !defined __sun__  && !defined __LCC__)) || (defined RTCW_ET && defined _M_IX86)
+//#define id386   1
+//#else
+//#define id386   0
+//#endif
+
 #define id386   0
-#endif
+//BBi
 
 // for windows fastcall option
 
 #define QDECL
 
-#if defined RTCW_ET
-//bani
-//======================= GNUC DEFINES ==================================
-#ifdef __GNUC__
-#define _attribute( x ) __attribute__( x )
-#else
-#define _attribute( x )
-#endif
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_ET
+////bani
+////======================= GNUC DEFINES ==================================
+//#ifdef __GNUC__
+//#define _attribute( x ) __attribute__( x )
+//#else
+//#define _attribute( x )
+//#endif
+//#endif // RTCW_XX
+//BBi
 
 //======================= WIN32 DEFINES =================================
 
-#ifdef _WIN32
+//BBi
+//#ifdef _WIN32
+#if BBI_PLATFORM == BBI_WIN32
+//BBi
 
 #define MAC_STATIC
 
 #undef QDECL
-#define QDECL   __cdecl
+#define QDECL __cdecl
 
 // buildstring will be incorporated into the version string
-#ifdef NDEBUG
-#ifdef _M_IX86
-#define CPUSTRING   "win-x86"
-#elif defined _M_X64
-#define CPUSTRING   "win-x64"
-#elif defined _M_ALPHA
-#define CPUSTRING   "win-AXP"
-#endif
-#else
-#ifdef _M_IX86
-#define CPUSTRING   "win-x86-debug"
-#elif defined _M_X64
-#define CPUSTRING   "win-x64-debug"
-#elif defined _M_ALPHA
-#define CPUSTRING   "win-AXP-debug"
-#endif
-#endif
 
+//BBi
+//#ifdef NDEBUG
+//#ifdef _M_IX86
+//#define CPUSTRING   "win-x86"
+//#elif defined _M_X64
+//#define CPUSTRING   "win-x64"
+//#elif defined _M_ALPHA
+//#define CPUSTRING   "win-AXP"
+//#endif
+//#else
+//#ifdef _M_IX86
+//#define CPUSTRING   "win-x86-debug"
+//#elif defined _M_X64
+//#define CPUSTRING   "win-x64-debug"
+//#elif defined _M_ALPHA
+//#define CPUSTRING   "win-AXP-debug"
+//#endif
+//#endif
+
+#ifdef NDEBUG
+    #if BBI_PLATFORM_ARCH == BBI_X86
+        #define CPUSTRING "win-x86"
+    #elif BBI_PLATFORM_ARCH == BBI_X64
+        #define CPUSTRING "win-x64"
+    #else
+        #define CPUSTRING "gen"
+    #endif // BBI_PLATFORM_ARCH
+#else
+    #if BBI_PLATFORM_ARCH == BBI_X86
+        #define CPUSTRING "win-x86-debug"
+    #elif BBI_PLATFORM_ARCH == BBI_X64
+        #define CPUSTRING "win-x64-debug"
+    #else
+        #define CPUSTRING "gen-debug"
+    #endif // BBI_PLATFORM_ARCH
+#endif // NDEBUG
+//BBi
 
 #define PATH_SEP '\\'
 
-#endif
+#endif // BBI_PLATFORM
 
-//======================= MAC OS X SERVER DEFINES =====================
-
-#if defined RTCW_SP
-#if defined( __MACH__ ) && defined( __APPLE__ )
-
-#define MAC_STATIC
-
-#ifdef __ppc__
-#define CPUSTRING   "MacOSXS-ppc"
-#elif defined __i386__
-#define CPUSTRING   "MacOSXS-i386"
-#else
-#define CPUSTRING   "MacOSXS-other"
-#endif
-
-#define PATH_SEP    '/'
-
-#define GAME_HARD_LINKED
-#define CGAME_HARD_LINKED
-#define UI_HARD_LINKED
-#define BOTLIB_HARD_LINKED
-
-#endif
-#else
-#if defined( MACOS_X )
-
-#if defined RTCW_ET
-#error WTF
-#endif // RTCW_XX
-
-#define MAC_STATIC
-
-#define CPUSTRING   "MacOS_X"
-
-#define PATH_SEP    '/'
-
-// Vanilla PPC code, but since PPC has a reciprocal square root estimate instruction,
-// runs *much* faster than calling sqrt(). We'll use two Newton-Raphson
-// refinement steps to get bunch more precision in the 1/sqrt() value for very little cost.
-// We'll then multiply 1/sqrt times the original value to get the sqrt.
-// This is about 12.4 times faster than sqrt() and according to my testing (not exhaustive)
-// it returns fairly accurate results (error below 1.0e-5 up to 100000.0 in 0.1 increments).
-
-static inline float idSqrt( float x ) {
-	const float half = 0.5;
-	const float one = 1.0;
-	float B, y0, y1;
-
-	// This'll NaN if it hits frsqrte. Handle both +0.0 and -0.0
-
-#if !defined RTCW_ET
-	if ( c::fabs( x ) == 0.0 ) {
-#else
-	if ( Q_fabs( x ) == 0.0 ) {
-#endif // RTCW_XX
-
-		return x;
-	}
-	B = x;
-
-#ifdef __GNUC__
-	asm ( "frsqrte %0,%1" : "=f" ( y0 ) : "f" ( B ) );
-#else
-	y0 = __frsqrte( B );
-#endif
-	/* First refinement step */
-
-	y1 = y0 + half * y0 * ( one - B * y0 * y0 );
-
-	/* Second refinement step -- copy the output of the last step to the input of this step */
-
-	y0 = y1;
-	y1 = y0 + half * y0 * ( one - B * y0 * y0 );
-
-	/* Get sqrt(x) from x * 1/sqrt(x) */
-	return x * y1;
-}
-#define sqrt idSqrt
-
-
-#endif
-#endif // RTCW_XX
-
-//======================= MAC DEFINES =================================
-
-#if defined RTCW_SP
-#ifdef __MACOS__
-
-#include <MacTypes.h>
-//DAJ #define	MAC_STATIC	static
-#define MAC_STATIC
-
-#define CPUSTRING   "MacOS-PPC"
-
-#define PATH_SEP ':'
-
-#define GAME_HARD_LINKED
-#define CGAME_HARD_LINKED
-#define UI_HARD_LINKED
-#define BOTLIB_HARD_LINKED
-
-void Sys_PumpEvents( void );
-
-#endif
-#elif defined RTCW_MP
-#ifdef __MACOS__
-
-#include <MacTypes.h>
-#define MAC_STATIC
-
-#define CPUSTRING   "MacOS-PPC"
-
-#define PATH_SEP ':'
-
-void Sys_PumpEvents( void );
-
-static inline float idSqrt( float x ) {
-	const float half = 0.5;
-	const float one = 1.0;
-	float B, y0, y1;
-
-	// This'll NaN if it hits frsqrte. Handle both +0.0 and -0.0
-	if ( c::fabs( x ) == 0.0 ) {
-		return x;
-	}
-	B = x;
-
-#ifdef __GNUC__
-	asm ( "frsqrte %0,%1" : "=f" ( y0 ) : "f" ( B ) );
-#else
-	y0 = __frsqrte( B );
-#endif
-	/* First refinement step */
-
-	y1 = y0 + half * y0 * ( one - B * y0 * y0 );
-
-	/* Second refinement step -- copy the output of the last step to the input of this step */
-
-	y0 = y1;
-	y1 = y0 + half * y0 * ( one - B * y0 * y0 );
-
-	/* Get sqrt(x) from x * 1/sqrt(x) */
-	return x * y1;
-}
-#define sqrt idSqrt
-
-#endif
-#else
-#ifdef __MACOS__
-
-#define MAC_STATIC
-
-#define CPUSTRING   "OSX-universal"
-
-#define PATH_SEP '/'
-
-void Sys_PumpEvents( void );
-
-#endif
-#endif // RTCW_XX
-
-//======================= LINUX DEFINES =================================
-
-// the mac compiler can't handle >32k of locals, so we
-// just waste space and make big arrays static...
-#ifdef __linux__
-
-#define MAC_STATIC
-
-#ifdef __i386__
-#define CPUSTRING   "linux-i386"
-#elif defined __axp__
-#define CPUSTRING   "linux-alpha"
-#else
-#define CPUSTRING   "linux-other"
-#endif
-
-#define PATH_SEP '/'
-
-#endif
-
-//=============================================================
-
+//BBi
+////======================= MAC OS X SERVER DEFINES =====================
+//
+//#if defined RTCW_SP
+//#if defined( __MACH__ ) && defined( __APPLE__ )
+//
+//#define MAC_STATIC
+//
+//#ifdef __ppc__
+//#define CPUSTRING   "MacOSXS-ppc"
+//#elif defined __i386__
+//#define CPUSTRING   "MacOSXS-i386"
+//#else
+//#define CPUSTRING   "MacOSXS-other"
+//#endif
+//
+//#define PATH_SEP    '/'
+//
+//#define GAME_HARD_LINKED
+//#define CGAME_HARD_LINKED
+//#define UI_HARD_LINKED
+//#define BOTLIB_HARD_LINKED
+//
+//#endif
+//#else
+//#if defined( MACOS_X )
+//
+//#if defined RTCW_ET
+//#error WTF
+//#endif // RTCW_XX
+//
+//#define MAC_STATIC
+//
+//#define CPUSTRING   "MacOS_X"
+//
+//#define PATH_SEP    '/'
+//
+//// Vanilla PPC code, but since PPC has a reciprocal square root estimate instruction,
+//// runs *much* faster than calling sqrt(). We'll use two Newton-Raphson
+//// refinement steps to get bunch more precision in the 1/sqrt() value for very little cost.
+//// We'll then multiply 1/sqrt times the original value to get the sqrt.
+//// This is about 12.4 times faster than sqrt() and according to my testing (not exhaustive)
+//// it returns fairly accurate results (error below 1.0e-5 up to 100000.0 in 0.1 increments).
+//
+//static inline float idSqrt( float x ) {
+//	const float half = 0.5;
+//	const float one = 1.0;
+//	float B, y0, y1;
+//
+//	// This'll NaN if it hits frsqrte. Handle both +0.0 and -0.0
+//
+//#if !defined RTCW_ET
+//	if ( c::fabs( x ) == 0.0 ) {
+//#else
+//	if ( Q_fabs( x ) == 0.0 ) {
+//#endif // RTCW_XX
+//
+//		return x;
+//	}
+//	B = x;
+//
+//#ifdef __GNUC__
+//	asm ( "frsqrte %0,%1" : "=f" ( y0 ) : "f" ( B ) );
+//#else
+//	y0 = __frsqrte( B );
+//#endif
+//	/* First refinement step */
+//
+//	y1 = y0 + half * y0 * ( one - B * y0 * y0 );
+//
+//	/* Second refinement step -- copy the output of the last step to the input of this step */
+//
+//	y0 = y1;
+//	y1 = y0 + half * y0 * ( one - B * y0 * y0 );
+//
+//	/* Get sqrt(x) from x * 1/sqrt(x) */
+//	return x * y1;
+//}
+//#define sqrt idSqrt
+//
+//
+//#endif
+//#endif // RTCW_XX
+//
+////======================= MAC DEFINES =================================
+//
+//#if defined RTCW_SP
+//#ifdef __MACOS__
+//
+//#include <MacTypes.h>
+////DAJ #define	MAC_STATIC	static
+//#define MAC_STATIC
+//
+//#define CPUSTRING   "MacOS-PPC"
+//
+//#define PATH_SEP ':'
+//
+//#define GAME_HARD_LINKED
+//#define CGAME_HARD_LINKED
+//#define UI_HARD_LINKED
+//#define BOTLIB_HARD_LINKED
+//
+//void Sys_PumpEvents( void );
+//
+//#endif
+//#elif defined RTCW_MP
+//#ifdef __MACOS__
+//
+//#include <MacTypes.h>
+//#define MAC_STATIC
+//
+//#define CPUSTRING   "MacOS-PPC"
+//
+//#define PATH_SEP ':'
+//
+//void Sys_PumpEvents( void );
+//
+//static inline float idSqrt( float x ) {
+//	const float half = 0.5;
+//	const float one = 1.0;
+//	float B, y0, y1;
+//
+//	// This'll NaN if it hits frsqrte. Handle both +0.0 and -0.0
+//	if ( c::fabs( x ) == 0.0 ) {
+//		return x;
+//	}
+//	B = x;
+//
+//#ifdef __GNUC__
+//	asm ( "frsqrte %0,%1" : "=f" ( y0 ) : "f" ( B ) );
+//#else
+//	y0 = __frsqrte( B );
+//#endif
+//	/* First refinement step */
+//
+//	y1 = y0 + half * y0 * ( one - B * y0 * y0 );
+//
+//	/* Second refinement step -- copy the output of the last step to the input of this step */
+//
+//	y0 = y1;
+//	y1 = y0 + half * y0 * ( one - B * y0 * y0 );
+//
+//	/* Get sqrt(x) from x * 1/sqrt(x) */
+//	return x * y1;
+//}
+//#define sqrt idSqrt
+//
+//#endif
+//#else
+//#ifdef __MACOS__
+//
+//#define MAC_STATIC
+//
+//#define CPUSTRING   "OSX-universal"
+//
+//#define PATH_SEP '/'
+//
+//void Sys_PumpEvents( void );
+//
+//#endif
+//#endif // RTCW_XX
+//
+////======================= LINUX DEFINES =================================
+//
+//// the mac compiler can't handle >32k of locals, so we
+//// just waste space and make big arrays static...
+//#ifdef __linux__
+//
+//#define MAC_STATIC
+//
+//#ifdef __i386__
+//#define CPUSTRING   "linux-i386"
+//#elif defined __axp__
+//#define CPUSTRING   "linux-alpha"
+//#else
+//#define CPUSTRING   "linux-other"
+//#endif
+//
+//#define PATH_SEP '/'
+//
+//#endif
+//
+////=============================================================
+//BBi
 
 typedef unsigned char byte;
 
 //typedef enum {qfalse, qtrue}    qboolean;
-typedef int qboolean;
-#define qfalse (0)
-#define qtrue (1)
+typedef bbi::Int32 qboolean;
+const qboolean qfalse = 0;
+const qboolean qtrue = 1;
 
-#if defined RTCW_SP
-#if defined( __MACOS__ )
-#define qboolean int    //DAJ
-#endif
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//#if defined( __MACOS__ )
+//#define qboolean int    //DAJ
+//#endif
+//#endif // RTCW_XX
+//BBi
 
 typedef int qhandle_t;
 typedef int sfxHandle_t;
 typedef int fileHandle_t;
 typedef int clipHandle_t;
 
-#if defined RTCW_SP
-#ifndef ID_INLINE
-#ifdef _WIN32
-#define ID_INLINE __inline
-#else
+//BBi
+//#if defined RTCW_SP
+//#ifndef ID_INLINE
+//#ifdef _WIN32
+//#define ID_INLINE __inline
+//#else
+//#define ID_INLINE inline
+//#endif
+//#endif
+//#endif // RTCW_XX
+
 #define ID_INLINE inline
-#endif
-#endif
-#endif // RTCW_XX
+//BBi
 
 //#define	SND_NORMAL			0x000	// (default) Allow sound to be cut off only by the same sound on this channel
 #define     SND_OKTOCUT         0x001   // Allow sound to be cut off by any following sounds on this channel
@@ -458,17 +535,21 @@ typedef int clipHandle_t;
 #define NULL ( (void *)0 )
 #endif
 
-#define MAX_QINT            0x7fffffff
-#define MIN_QINT            ( -MAX_QINT - 1 )
+//BBi
+//#define MAX_QINT            0x7fffffff
+//#define MIN_QINT            ( -MAX_QINT - 1 )
+//BBi
 
 #if !defined RTCW_SP
 // TTimo gcc: was missing, added from Q3 source
 #endif // RTCW_XX
 
-#ifndef max
-#define max( x, y ) ( ( ( x ) > ( y ) ) ? ( x ) : ( y ) )
-#define min( x, y ) ( ( ( x ) < ( y ) ) ? ( x ) : ( y ) )
-#endif
+//BBi
+//#ifndef max
+//#define max( x, y ) ( ( ( x ) > ( y ) ) ? ( x ) : ( y ) )
+//#define min( x, y ) ( ( ( x ) < ( y ) ) ? ( x ) : ( y ) )
+//#endif
+//BBi
 
 // angle indexes
 #define PITCH               0       // up / down
@@ -657,12 +738,14 @@ typedef vec_t vec3_t[3];
 typedef vec_t vec4_t[4];
 typedef vec_t vec5_t[5];
 
-typedef int fixed4_t;
-typedef int fixed8_t;
-typedef int fixed16_t;
+//BBi
+//typedef int fixed4_t;
+//typedef int fixed8_t;
+//typedef int fixed16_t;
+//BBi
 
 #ifndef M_PI
-#define M_PI        3.14159265358979323846f // matches value in gcc v2 math.h
+#define M_PI 3.14159265358979323846F // matches value in gcc v2 math.h
 #endif
 
 #define NUMVERTEXNORMALS    162
@@ -821,22 +904,24 @@ struct cplane_s;
 extern vec3_t vec3_origin;
 extern vec3_t axisDefault[3];
 
-#define nanmask ( 255 << 23 )
-
-#define IS_NAN( x ) ( ( ( *(int *)&x ) & nanmask ) == nanmask )
-
-
-#if defined RTCW_SP
-// TTimo
-// handy stuff when tracking isnan problems
-#ifndef NDEBUG
-#define CHECK_NAN( x ) assert( !IS_NAN( x ) )
-#define CHECK_NAN_VEC( v ) assert( !IS_NAN( v[0] ) && !IS_NAN( v[1] ) && !IS_NAN( v[2] ) )
-#else
-#define CHECK_NAN
-#define CHECK_NAN_VEC
-#endif
-#endif // RTCW_XX
+//BBi
+//#define nanmask ( 255 << 23 )
+//
+//#define IS_NAN( x ) ( ( ( *(int *)&x ) & nanmask ) == nanmask )
+//
+//
+//#if defined RTCW_SP
+//// TTimo
+//// handy stuff when tracking isnan problems
+//#ifndef NDEBUG
+//#define CHECK_NAN( x ) assert( !IS_NAN( x ) )
+//#define CHECK_NAN_VEC( v ) assert( !IS_NAN( v[0] ) && !IS_NAN( v[1] ) && !IS_NAN( v[2] ) )
+//#else
+//#define CHECK_NAN
+//#define CHECK_NAN_VEC
+//#endif
+//#endif // RTCW_XX
+//BBi
 
 float Q_fabs( float f );
 float Q_rsqrt( float f );       // reciprocal square root
@@ -891,16 +976,18 @@ void ByteToDir( int b, vec3_t dir );
 
 #endif
 
-#ifdef __LCC__
-#ifdef VectorCopy
-#undef VectorCopy
-// this is a little hack to get more efficient copies in our interpreter
-typedef struct {
-	float v[3];
-} vec3struct_t;
-#define VectorCopy( a,b ) * (vec3struct_t *)b = *(vec3struct_t *)a;
-#endif
-#endif
+//BBi
+//#ifdef __LCC__
+//#ifdef VectorCopy
+//#undef VectorCopy
+//// this is a little hack to get more efficient copies in our interpreter
+//typedef struct {
+//	float v[3];
+//} vec3struct_t;
+//#define VectorCopy( a,b ) * (vec3struct_t *)b = *(vec3struct_t *)a;
+//#endif
+//#endif
+//BBi
 
 #define VectorClear( a )              ( ( a )[0] = ( a )[1] = ( a )[2] = 0 )
 #define VectorNegate( a,b )           ( ( b )[0] = -( a )[0],( b )[1] = -( a )[1],( b )[2] = -( a )[2] )
@@ -1056,23 +1143,30 @@ char    *COM_Parse( char **data_p );
 char    *COM_ParseExt( char **data_p, qboolean allowLineBreak );
 int     COM_Compress( char *data_p );
 
-#if !defined RTCW_ET
-void    COM_ParseError( char *format, ... );
-void    COM_ParseWarning( char *format, ... );
-#else
-void    COM_ParseError( char *format, ... ) _attribute( ( format( printf,1,2 ) ) );
-void    COM_ParseWarning( char *format, ... ) _attribute( ( format( printf,1,2 ) ) );
-#endif // RTCW_XX
+//BBi
+//#if !defined RTCW_ET
+//void    COM_ParseError( char *format, ... );
+//void    COM_ParseWarning( char *format, ... );
+//#else
+//void    COM_ParseError( char *format, ... ) _attribute( ( format( printf,1,2 ) ) );
+//void    COM_ParseWarning( char *format, ... ) _attribute( ( format( printf,1,2 ) ) );
+//#endif // RTCW_XX
+
+void COM_ParseError (char* format, ...);
+void COM_ParseWarning (char* format, ...);
+//BBi
 
 #if defined RTCW_ET
 int Com_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] );
 #endif // RTCW_XX
 
-#if defined RTCW_SP
-// TTimo
-#elif defined RTCW_MP
-//int		COM_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] );
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_SP
+//// TTimo
+//#elif defined RTCW_MP
+////int		COM_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] );
+//#endif // RTCW_XX
+//BBi
 
 qboolean COM_BitCheck( const int array[], int bitNum );
 void COM_BitSet( int array[], int bitNum );
@@ -1120,11 +1214,15 @@ void Parse1DMatrix( char **buf_p, int x, float *m );
 void Parse2DMatrix( char **buf_p, int y, int x, float *m );
 void Parse3DMatrix( char **buf_p, int z, int y, int x, float *m );
 
-#if !defined RTCW_ET
-void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... );
-#else
-void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... ) _attribute( ( format( printf,3,4 ) ) );
-#endif // RTCW_XX
+//BBi
+//#if !defined RTCW_ET
+//void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... );
+//#else
+//void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... ) _attribute( ( format( printf,3,4 ) ) );
+//#endif // RTCW_XX
+
+void QDECL Com_sprintf (char* dest, int size, const char* fmt, ...);
+//BBi
 
 // mode parm for FS_FOpenFile
 typedef enum {
@@ -1204,23 +1302,27 @@ char *Q_CleanDirName( char *dirname );
 int Q_vsnprintf( char *dest, int size, const char *fmt, va_list argptr );
 #endif // RTCW_XX
 
-//=============================================
-
-// 64-bit integers for global rankings interface
-// implemented as a struct for qvm compatibility
-typedef struct
-{
-	byte b0;
-	byte b1;
-	byte b2;
-	byte b3;
-	byte b4;
-	byte b5;
-	byte b6;
-	byte b7;
-} qint64;
-
-//=============================================
+//BBi
+#if 0
+//BBi
+////=============================================
+//
+//// 64-bit integers for global rankings interface
+//// implemented as a struct for qvm compatibility
+//typedef struct
+//{
+//	byte b0;
+//	byte b1;
+//	byte b2;
+//	byte b3;
+//	byte b4;
+//	byte b5;
+//	byte b6;
+//	byte b7;
+//} qint64;
+//
+////=============================================
+//BBi
 
 #if !defined RTCW_ET
 short   BigShort( short l );
@@ -1234,11 +1336,13 @@ int     BigLong( int l );
 
 int     LittleLong( int l );
 
-#if !defined RTCW_ET
-qint64  BigLong64( qint64 l );
-#endif // RTCW_XX
-
-qint64  LittleLong64( qint64 l );
+//BBi
+//#if !defined RTCW_ET
+//qint64  BigLong64( qint64 l );
+//#endif // RTCW_XX
+//
+//qint64  LittleLong64( qint64 l );
+//BBi
 
 #if !defined RTCW_ET
 float   BigFloat( float l );
@@ -1249,17 +1353,27 @@ float   LittleFloat( float l );
 #if defined RTCW_ET
 short   BigShort( short l );
 int BigLong( int l );
-qint64  BigLong64( qint64 l );
+
+//BBi
+//qint64  BigLong64( qint64 l );
+//BBi
+
 float   BigFloat( float l );
 #endif // RTCW_XX
 
 void    Swap_Init( void );
+#endif // 0
+//BBi
 
-#if !defined RTCW_ET
-char    * QDECL va( char *format, ... );
-#else
-char    * QDECL va( char *format, ... ) _attribute( ( format( printf,1,2 ) ) );
-#endif // RTCW_XX
+//BBi
+//#if !defined RTCW_ET
+//char    * QDECL va( char *format, ... );
+//#else
+//char    * QDECL va( char *format, ... ) _attribute( ( format( printf,1,2 ) ) );
+//#endif // RTCW_XX
+
+char* QDECL va (char* format, ...);
+//BBi
 
 float   *tv( float x, float y, float z );
 
@@ -1278,13 +1392,18 @@ void Info_NextPair( const char **s, char *key, char *value );
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
 
-#if !defined RTCW_ET
-void QDECL Com_Error( int level, const char *error, ... );
-void QDECL Com_Printf( const char *msg, ... );
-#else
-void QDECL Com_Error( int level, const char *error, ... ) _attribute( ( format( printf,2,3 ) ) );
-void QDECL Com_Printf( const char *msg, ... ) _attribute( ( format( printf,1,2 ) ) );
-#endif // RTCW_XX
+//BBi
+//#if !defined RTCW_ET
+//void QDECL Com_Error( int level, const char *error, ... );
+//void QDECL Com_Printf( const char *msg, ... );
+//#else
+//void QDECL Com_Error( int level, const char *error, ... ) _attribute( ( format( printf,2,3 ) ) );
+//void QDECL Com_Printf( const char *msg, ... ) _attribute( ( format( printf,1,2 ) ) );
+//#endif // RTCW_XX
+
+void QDECL Com_Error (int level, const char* error, ...);
+void QDECL Com_Printf (const char* msg, ...);
+//BBi
 
 #if !defined RTCW_MP
 
@@ -1432,9 +1551,9 @@ PlaneTypeForNormal
 typedef struct cplane_s {
 	vec3_t normal;
 	float dist;
-	byte type;              // for fast side tests: 0,1,2 = axial, 3 = nonaxial
-	byte signbits;          // signx + (signy<<1) + (signz<<2), used as lookup during collision
-	byte pad[2];
+	bbi::UInt8 type;              // for fast side tests: 0,1,2 = axial, 3 = nonaxial
+	bbi::UInt8 signbits;          // signx + (signy<<1) + (signz<<2), used as lookup during collision
+	bbi::UInt8 pad[2];
 } cplane_t;
 
 #if defined RTCW_ET
@@ -2034,16 +2153,16 @@ typedef enum {
 // usercmd_t is sent to the server each client frame
 typedef struct usercmd_s {
 	int serverTime;
-	byte buttons;
-	byte wbuttons;
-	byte weapon;
+	bbi::UInt8 buttons;
+	bbi::UInt8 wbuttons;
+	bbi::UInt8 weapon;
 
 #if !defined RTCW_ET
-	byte holdable;          //----(SA)	added
+	bbi::UInt8 holdable;          //----(SA)	added
 #endif // RTCW_XX
 
 #if defined RTCW_ET
-	byte flags;
+	bbi::UInt8 flags;
 #endif // RTCW_XX
 
 	int angles[3];
@@ -2055,7 +2174,7 @@ typedef struct usercmd_s {
 #endif // RTCW_XX
 
 #if defined RTCW_ET
-	byte doubleTap;             // Arnout: only 3 bits used
+	bbi::UInt8 doubleTap;             // Arnout: only 3 bits used
 #endif // RTCW_XX
 
 #if defined RTCW_SP
@@ -2066,7 +2185,7 @@ typedef struct usercmd_s {
 #else
 	// rain - in ET, this can be any entity, and it's used as an array
 	// index, so make sure it's unsigned
-	byte identClient;           // NERVE - SMF
+	bbi::UInt8 identClient;           // NERVE - SMF
 #endif // RTCW_XX
 
 } usercmd_t;

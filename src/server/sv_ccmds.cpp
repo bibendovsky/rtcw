@@ -1258,11 +1258,11 @@ static void SV_Ban_f( void ) {
 			Com_Printf( "Couldn't resolve address\n" );
 			return;
 		}
-		svs.authorizeAddress.port = BigShort( PORT_AUTHORIZE );
+		svs.authorizeAddress.port = bbi::Endian::be( PORT_AUTHORIZE );
 		Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
 					svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
 					svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3],
-					BigShort( svs.authorizeAddress.port ) );
+					bbi::Endian::be( svs.authorizeAddress.port ) );
 	}
 
 	// otherwise send their ip to the authorize server
@@ -1312,11 +1312,11 @@ static void SV_BanNum_f( void ) {
 			Com_Printf( "Couldn't resolve address\n" );
 			return;
 		}
-		svs.authorizeAddress.port = BigShort( PORT_AUTHORIZE );
+		svs.authorizeAddress.port = bbi::Endian::be( PORT_AUTHORIZE );
 		Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
 					svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
 					svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3],
-					BigShort( svs.authorizeAddress.port ) );
+					bbi::Endian::be( svs.authorizeAddress.port ) );
 	}
 
 	// otherwise send their ip to the authorize server

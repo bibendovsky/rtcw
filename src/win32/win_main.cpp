@@ -28,7 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 
 // win_main.h
 
-
 #include "client.h"
 #include "qcommon.h"
 #include "win_local.h"
@@ -1882,11 +1881,13 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		return 0;
 	}
 
-#if defined RTCW_ET
-#ifdef EXCEPTION_HANDLER
-	WinSetExceptionVersion( Q3_VERSION );
-#endif
-#endif // RTCW_XX
+//BBi
+//#if defined RTCW_ET
+//#ifdef EXCEPTION_HANDLER
+//	WinSetExceptionVersion( Q3_VERSION );
+//#endif
+//#endif // RTCW_XX
+//BBi
 
 	g_wv.hInstance = hInstance;
 	Q_strncpyz( sys_cmdline, lpCmdLine, sizeof( sys_cmdline ) );

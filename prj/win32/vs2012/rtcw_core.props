@@ -31,11 +31,7 @@
       <PreprocessorDefinitions>WINVER=0x0501;_WIN32_WINNT=0x0501;NTDDI_VERSION=NTDDI_WINXPSP3;DIRECTINPUT_VERSION=0x0800;DIRECTSOUND_VERSION=0x0900;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>
-      </PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(rtcw_src_dir)botai;$(rtcw_src_dir)botlib;$(rtcw_src_dir)cgame;$(rtcw_src_dir)client;$(rtcw_src_dir)game;$(rtcw_src_dir)null;$(rtcw_src_dir)qcommon;$(rtcw_src_dir)renderer;$(rtcw_src_dir)server;$(rtcw_src_dir)splines;$(rtcw_src_dir)ui;$(rtcw_src_dir)win32;$(rtcw_curl_dir)include;$(rtcw_fmodex_dir)api\inc;$(rtcw_glew_dir)include;$(rtcw_jpeg_dir);$(rtcw_jpeg_dir)win32\vs;$(rtcw_zlib_dir);$(rtcw_zlib_dir)contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(rtcw_src_dir)bbi;$(rtcw_src_dir)botai;$(rtcw_src_dir)botlib;$(rtcw_src_dir)cgame;$(rtcw_src_dir)client;$(rtcw_src_dir)game;$(rtcw_src_dir)null;$(rtcw_src_dir)qcommon;$(rtcw_src_dir)renderer;$(rtcw_src_dir)server;$(rtcw_src_dir)splines;$(rtcw_src_dir)ui;$(rtcw_src_dir)win32;$(rtcw_curl_dir)include;$(rtcw_fmodex_dir)api\inc;$(rtcw_glew_dir)include;$(rtcw_jpeg_dir);$(rtcw_jpeg_dir)win32\vs;$(rtcw_zlib_dir);$(rtcw_zlib_dir)contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>false</TreatWarningAsError>

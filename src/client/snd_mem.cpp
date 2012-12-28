@@ -391,7 +391,7 @@ static void ResampleSfx( sfx_t *sfx, int inrate, int inwidth, byte *data, qboole
 
 #if defined RTCW_ET
 	// Gordon: use the littleshort version only if we need to
-	if ( LittleShort( 256 ) == 256 ) {
+	if (!bbi::Endian::is_little ()) {
 		for ( i = 0 ; i < outcount ; i++ )
 		{
 			srcsample = samplefrac >> 8;
@@ -423,7 +423,7 @@ static void ResampleSfx( sfx_t *sfx, int inrate, int inwidth, byte *data, qboole
 		srcsample = samplefrac >> 8;
 		samplefrac += fracstep;
 		if ( inwidth == 2 ) {
-			sample = LittleShort( ( (short *)data )[srcsample] );
+			sample = bbi::Endian::le ( ( (short *)data )[srcsample] );
 		} else {
 			sample = (int)( ( unsigned char )( data[srcsample] ) - 128 ) << 8;
 		}
@@ -471,7 +471,7 @@ static int ResampleSfxRaw( short *sfx, int inrate, int inwidth, int samples, byt
 
 #if defined RTCW_ET
 	// Gordon: use the littleshort version only if we need to
-	if ( LittleShort( 256 ) == 256 ) {
+	if (!bbi::Endian::is_little ()) {
 		for ( i = 0 ; i < outcount ; i++ )
 		{
 			srcsample = samplefrac >> 8;
@@ -491,7 +491,7 @@ static int ResampleSfxRaw( short *sfx, int inrate, int inwidth, int samples, byt
 		srcsample = samplefrac >> 8;
 		samplefrac += fracstep;
 		if ( inwidth == 2 ) {
-			sample = LittleShort( ( (short *)data )[srcsample] );
+			sample = bbi::Endian::le ( ( (short *)data )[srcsample] );
 		} else {
 			sample = (int)( ( unsigned char )( data[srcsample] ) - 128 ) << 8;
 		}

@@ -359,23 +359,37 @@ If you have questions concerning this license or the applicable additional terms
 {"COM_SetCurrentParseLine", (byte *)COM_SetCurrentParseLine},
 {"COM_RestoreParseSession", (byte *)COM_RestoreParseSession},
 {"COM_BeginParseSession", (byte *)COM_BeginParseSession},
+
+//BBi
+#if 0
 {"Swap_Init", (byte *)Swap_Init},
 {"FloatNoSwap", (byte *)FloatNoSwap},
 {"FloatSwap", (byte *)FloatSwap},
-{"Long64NoSwap", (byte *)Long64NoSwap},
-{"Long64Swap", (byte *)Long64Swap},
+
+//BBi
+//{"Long64NoSwap", (byte *)Long64NoSwap},
+//{"Long64Swap", (byte *)Long64Swap},
+//BBi
+
 {"LongNoSwap", (byte *)LongNoSwap},
 {"LongSwap", (byte *)LongSwap},
 {"ShortNoSwap", (byte *)ShortNoSwap},
 {"ShortSwap", (byte *)ShortSwap},
 {"LittleFloat", (byte *)LittleFloat},
 {"BigFloat", (byte *)BigFloat},
-{"LittleLong64", (byte *)LittleLong64},
-{"BigLong64", (byte *)BigLong64},
+
+//BBi
+//{"LittleLong64", (byte *)LittleLong64},
+//{"BigLong64", (byte *)BigLong64},
+//BBi
+
 {"LittleLong", (byte *)LittleLong},
 {"BigLong", (byte *)BigLong},
 {"LittleShort", (byte *)LittleShort},
 {"BigShort", (byte *)BigShort},
+#endif // 0
+// BBi
+
 {"COM_BitClear", (byte *)COM_BitClear},
 {"COM_BitSet", (byte *)COM_BitSet},
 {"COM_BitCheck", (byte *)COM_BitCheck},

@@ -343,161 +343,160 @@ typedef struct aicast_checkattack_cache_s
 //BBi Reference structure for x64 code.
 //BBi All pointers replaced with 4-byte integers.
 //BBi Of course this structure must be identical to original one (cast_state_s).
-//BBi FIXME Use fixed size types (int32, etc.)
 struct CastState32 {
-    int bs; // pointer
-    int entityNum;
-    int aasWorldIndex;
-    int aiCharacter;
-    int aiFlags;
-    int lastThink;
-    int actionFlags;
-    int lastPain;
-    int lastPainDamage;
-    int travelflags;
-    int thinkFuncChangeTime;
+    bbi::Int32 bs; // pointer
+    bbi::Int32 entityNum;
+    bbi::Int32 aasWorldIndex;
+    bbi::Int32 aiCharacter;
+    bbi::Int32 aiFlags;
+    bbi::Int32 lastThink;
+    bbi::Int32 actionFlags;
+    bbi::Int32 lastPain;
+    bbi::Int32 lastPainDamage;
+    bbi::Int32 travelflags;
+    bbi::Int32 thinkFuncChangeTime;
     aistateEnum_t aiState;
     movestate_t movestate;
     movestateType_t movestateType;
     float attributes[AICAST_MAX_ATTRIBUTES];
-    int numCastScriptEvents;
-    int castScriptEvents; // pointer
+    bbi::Int32 numCastScriptEvents;
+    bbi::Int32 castScriptEvents; // pointer
     cast_script_status_t castScriptStatus;
     cast_script_status_t castScriptStatusCurrent;
     cast_script_status_t castScriptStatusBackup;
-    int scriptCallIndex;
-    int scriptAnimTime;
-    int scriptAnimNum;
-    int scriptAccumBuffer[MAX_SCRIPT_ACCUM_BUFFERS];
-    int weaponInfo; // pointer
+    bbi::Int32 scriptCallIndex;
+    bbi::Int32 scriptAnimTime;
+    bbi::Int32 scriptAnimNum;
+    bbi::Int32 scriptAccumBuffer[MAX_SCRIPT_ACCUM_BUFFERS];
+    bbi::Int32 weaponInfo; // pointer
     cast_visibility_t vislist[MAX_CLIENTS];
-    int weaponFireTimes[MAX_WEAPONS];
-    int aifunc; // pointer
-    int oldAifunc; // pointer
-    int aifuncAttack1; // pointer
-    int aifuncAttack2; // pointer
-    int aifuncAttack3; // pointer
-    int painfunc; // pointer
-    int deathfunc; // pointer
-    int sightfunc; // pointer
-    int sightEnemy; // pointer
-    int sightFriend; // pointer
-    int activate; // pointer
-    int followEntity;
+    bbi::Int32 weaponFireTimes[MAX_WEAPONS];
+    bbi::Int32 aifunc; // pointer
+    bbi::Int32 oldAifunc; // pointer
+    bbi::Int32 aifuncAttack1; // pointer
+    bbi::Int32 aifuncAttack2; // pointer
+    bbi::Int32 aifuncAttack3; // pointer
+    bbi::Int32 painfunc; // pointer
+    bbi::Int32 deathfunc; // pointer
+    bbi::Int32 sightfunc; // pointer
+    bbi::Int32 sightEnemy; // pointer
+    bbi::Int32 sightFriend; // pointer
+    bbi::Int32 activate; // pointer
+    bbi::Int32 followEntity;
     float followDist;
     qboolean followIsGoto;
-    int followTime;
+    bbi::Int32 followTime;
     qboolean followSlowApproach;
-    int leaderNum;
+    bbi::Int32 leaderNum;
     float speedScale;
     float combatGoalTime;
     vec3_t combatGoalOrigin;
-    int lastGetHidePos;
-    int startAttackCount;
-    int combatSpotAttackCount;
-    int combatSpotDelayTime;
-    int startBattleChaseTime;
-    int blockedTime;
-    int obstructingTime;
+    bbi::Int32 lastGetHidePos;
+    bbi::Int32 startAttackCount;
+    bbi::Int32 combatSpotAttackCount;
+    bbi::Int32 combatSpotDelayTime;
+    bbi::Int32 startBattleChaseTime;
+    bbi::Int32 blockedTime;
+    bbi::Int32 obstructingTime;
     vec3_t obstructingPos;
-    int blockedAvoidTime;
+    bbi::Int32 blockedAvoidTime;
     float blockedAvoidYaw;
-    int deathTime;
-    int rebirthTime;
-    int revivingTime;
-    int enemyHeight;
-    int enemyDist;
+    bbi::Int32 deathTime;
+    bbi::Int32 rebirthTime;
+    bbi::Int32 revivingTime;
+    bbi::Int32 enemyHeight;
+    bbi::Int32 enemyDist;
     vec3_t takeCoverPos;
     vec3_t takeCoverEnemyPos;
-    int takeCoverTime;
-    int attackSpotTime;
-    int triggerReleaseTime;
-    int lastWeaponFired;
+    bbi::Int32 takeCoverTime;
+    bbi::Int32 attackSpotTime;
+    bbi::Int32 triggerReleaseTime;
+    bbi::Int32 lastWeaponFired;
     vec3_t lastWeaponFiredPos;
-    int lastWeaponFiredWeaponNum;
-    int lastEnemy;
-    int nextIdleAngleChange;
+    bbi::Int32 lastWeaponFiredWeaponNum;
+    bbi::Int32 lastEnemy;
+    bbi::Int32 nextIdleAngleChange;
     float idleYawChange;
-    int idleYaw;
+    bbi::Int32 idleYaw;
     qboolean crouchHideFlag;
-    int doorMarker;
-    int doorEntNum;
-    int attackSNDtime;
-    int attacksnd;
-    int painSoundTime;
-    int firstSightTime;
+    bbi::Int32 doorMarker;
+    bbi::Int32 doorEntNum;
+    bbi::Int32 attackSNDtime;
+    bbi::Int32 attacksnd;
+    bbi::Int32 painSoundTime;
+    bbi::Int32 firstSightTime;
     qboolean secondDeadTime;
-    int startGrenadeFlushTime;
-    int lockViewAnglesTime;
-    int grenadeFlushEndTime;
-    int grenadeFlushFiring;
-    int dangerEntity;
-    int dangerEntityValidTime;
+    bbi::Int32 startGrenadeFlushTime;
+    bbi::Int32 lockViewAnglesTime;
+    bbi::Int32 grenadeFlushEndTime;
+    bbi::Int32 grenadeFlushFiring;
+    bbi::Int32 dangerEntity;
+    bbi::Int32 dangerEntityValidTime;
     vec3_t dangerEntityPos;
-    int dangerEntityTimestamp;
+    bbi::Int32 dangerEntityTimestamp;
     float dangerDist;
-    int mountedEntity;
-    int inspectBodyTime;
+    bbi::Int32 mountedEntity;
+    bbi::Int32 inspectBodyTime;
     vec3_t startOrigin;
-    int damageQuota;
-    int damageQuotaTime;
-    int dangerLastGetAvoid;
-    int lastAvoid;
-    int doorMarkerTime;
-    int doorMarkerNum;
-    int doorMarkerDoor;
-    int pauseTime;
+    bbi::Int32 damageQuota;
+    bbi::Int32 damageQuotaTime;
+    bbi::Int32 dangerLastGetAvoid;
+    bbi::Int32 lastAvoid;
+    bbi::Int32 doorMarkerTime;
+    bbi::Int32 doorMarkerNum;
+    bbi::Int32 doorMarkerDoor;
+    bbi::Int32 pauseTime;
     aicast_checkattack_cache_t checkAttackCache;
-    int secretsFound;
-    int attempts;
+    bbi::Int32 secretsFound;
+    bbi::Int32 attempts;
     qboolean grenadeGrabFlag;
     vec3_t lastMoveToPosGoalOrg;
-    int noAttackTime;
-    int lastRollMove;
-    int lastFlipMove;
+    bbi::Int32 noAttackTime;
+    bbi::Int32 lastRollMove;
+    bbi::Int32 lastFlipMove;
     vec3_t stimFlyAttackPos;
-    int lastDodgeRoll;
-    int battleRollTime;
+    bbi::Int32 lastDodgeRoll;
+    bbi::Int32 battleRollTime;
     vec3_t viewlock_viewangles;
-    int grenadeKickWeapon;
-    int animHitCount;
-    int totalPlayTime;
-    int lastLoadTime;
-    int queryStartTime;
-    int queryCountValidTime;
-    int queryCount;
-    int queryAlertSightTime;
-    int lastScriptSound;
-    int inspectNum;
-    int scriptPauseTime;
-    int bulletImpactEntity;
-    int bulletImpactTime;
-    int bulletImpactIgnoreTime;
+    bbi::Int32 grenadeKickWeapon;
+    bbi::Int32 animHitCount;
+    bbi::Int32 totalPlayTime;
+    bbi::Int32 lastLoadTime;
+    bbi::Int32 queryStartTime;
+    bbi::Int32 queryCountValidTime;
+    bbi::Int32 queryCount;
+    bbi::Int32 queryAlertSightTime;
+    bbi::Int32 lastScriptSound;
+    bbi::Int32 inspectNum;
+    bbi::Int32 scriptPauseTime;
+    bbi::Int32 bulletImpactEntity;
+    bbi::Int32 bulletImpactTime;
+    bbi::Int32 bulletImpactIgnoreTime;
     vec3_t bulletImpactStart;
     vec3_t bulletImpactEnd;
-    int audibleEventTime;
+    bbi::Int32 audibleEventTime;
     vec3_t audibleEventOrg;
-    int audibleEventEnt;
-    int battleChaseMarker;
-    int battleChaseMarkerDir;
-    int lastBattleHunted;
-    int battleHuntPauseTime;
-    int battleHuntViewTime;
-    int lastAttackCrouch;
-    int lastMoveThink;
-    int numEnemies;
-    int noReloadTime;
-    int lastValidAreaNum[2];
-    int lastValidAreaTime[2];
-    int weaponNum;
-    int enemyNum;
+    bbi::Int32 audibleEventEnt;
+    bbi::Int32 battleChaseMarker;
+    bbi::Int32 battleChaseMarkerDir;
+    bbi::Int32 lastBattleHunted;
+    bbi::Int32 battleHuntPauseTime;
+    bbi::Int32 battleHuntViewTime;
+    bbi::Int32 lastAttackCrouch;
+    bbi::Int32 lastMoveThink;
+    bbi::Int32 numEnemies;
+    bbi::Int32 noReloadTime;
+    bbi::Int32 lastValidAreaNum[2];
+    bbi::Int32 lastValidAreaTime[2];
+    bbi::Int32 weaponNum;
+    bbi::Int32 enemyNum;
     vec3_t ideal_viewangles;
     vec3_t viewangles;
     usercmd_t lastucmd;
-    int attackcrouch_time;
-    int bFlags;
-    int deadSinkStartTime;
-    int lastActivate;
+    bbi::Int32 attackcrouch_time;
+    bbi::Int32 bFlags;
+    bbi::Int32 deadSinkStartTime;
+    bbi::Int32 lastActivate;
     vec3_t loperLeapVel;
 }; // struct CastState32
 //BBi
@@ -735,15 +734,18 @@ typedef struct cast_state_s
     typedef cast_state_s Struct;
     typedef CastState32 Struct32;
 
-    void convertFrom32 (
-        const Struct32& struct32);
+    void convert_from_32 (const Struct32& struct32);
 
-    void convertTo32 (
-        Struct32& struct32) const;
+    void convert_to_32 (Struct32& struct32) const;
     //BBi
 } cast_state_t;
 //
-#define CSFOFS( x ) ( (int)&( ( (cast_state_t *)0 )->x ) )
+
+//BBi
+//#define CSFOFS( x ) ( (int)&( ( (cast_state_t *)0 )->x ) )
+#define CSFOFS(x) (offsetof (cast_state_t, x))
+//BBi
+
 //
 typedef struct aicast_predictmove_s
 {

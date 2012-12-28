@@ -36,8 +36,14 @@ If you have questions concerning this license or the applicable additional terms
  *****************************************************************************/
 
 //BBi
+//BBi FIXME Take in account endianess
+//BBi
+
+//BBi
 #include <algorithm>
 #include <vector>
+
+#include "bbi_endian.h"
 //BBi
 
 #include "q_shared.h"
@@ -70,8 +76,7 @@ namespace {
         &static_cast<const aas_routingcache_t::Struct32*> (0)->traveltimes);
     const size_t AAS_RCS_TT_DIFF = AAS_RCS_TT_SIZE - AAS_RCS_TT32_SIZE;
 
-    std::vector<byte> aasRcsBuffer;
-
+    std::vector<byte> aas_rcs_buffer;
 
     void aasWriteRcStruct (
         aas_routingcache_t* rcStruct,
@@ -80,9 +85,9 @@ namespace {
         if (aasIs32)
             botimport.FS_Write (rcStruct, rcStruct->size, fileHandle);
         else {
-            aasRcsBuffer.resize (rcStruct->size);
+            aas_rcs_buffer.resize (rcStruct->size);
             aas_routingcache_t::Struct32* struct32 =
-                reinterpret_cast<aas_routingcache_t::Struct32*> (&aasRcsBuffer[0]);
+                reinterpret_cast<aas_routingcache_t::Struct32*> (&aas_rcs_buffer[0]);
             rcStruct->convertTo32 (struct32);
 
             botimport.FS_Write (struct32, struct32->size, fileHandle);
@@ -104,12 +109,12 @@ aas_routingcache_t::Struct* aas_routingcache_t::convertFrom32 (
     Struct& dst = *result;
 
     dst.size = newSize;
-    dst.time = src.time;
-    dst.cluster = src.cluster;
-    dst.areanum = src.areanum;
-    VectorCopy (src.origin, dst.origin);
-    dst.starttraveltime = src.starttraveltime;
-    dst.travelflags = src.travelflags;
+    dst.time = bbi::Endian::le (src.time);
+    dst.cluster = bbi::Endian::le (src.cluster);
+    dst.areanum = bbi::Endian::le (src.areanum);
+    bbi::Endian::le (src.origin, dst.origin);
+    dst.starttraveltime = bbi::Endian::le (src.starttraveltime);
+    dst.travelflags = bbi::Endian::le (src.travelflags);
     dst.prev = 0;
     dst.next = 0;
 
@@ -123,6 +128,12 @@ aas_routingcache_t::Struct* aas_routingcache_t::convertFrom32 (
         extraSize,
         reinterpret_cast<byte*> (&dst.traveltimes));
 
+    if (!bbi::Endian::is_little ()) {
+        int tt_count = (dst.reachabilities - reinterpret_cast<const bbi::UChar*> (&dst.traveltimes)) / 2;
+
+        bbi::Endian::le (src.traveltimes, tt_count, dst.traveltimes);
+    }
+
     return result;
 }
 
@@ -134,13 +145,13 @@ void aas_routingcache_t::convertTo32 (
     const Struct& src = *this;
     Struct32& dst = *struct32;
 
-    dst.size = oldSize;
-    dst.time = src.time;
-    dst.cluster = src.cluster;
-    dst.areanum = src.areanum;
-    VectorCopy (src.origin, dst.origin);
-    dst.starttraveltime = src.starttraveltime;
-    dst.travelflags = src.travelflags;
+    dst.size = bbi::Endian::le (oldSize);
+    dst.time = bbi::Endian::le (src.time);
+    dst.cluster = bbi::Endian::le (src.cluster);
+    dst.areanum = bbi::Endian::le (src.areanum);
+    bbi::Endian::le (src.origin, dst.origin);
+    dst.starttraveltime = bbi::Endian::le (src.starttraveltime);
+    dst.travelflags = bbi::Endian::le (src.travelflags);
     dst.prev = 0;
     dst.next = 0;
     dst.reachabilities = 0;
@@ -151,6 +162,12 @@ void aas_routingcache_t::convertTo32 (
         reinterpret_cast<const byte*> (&src.traveltimes),
         extraSize,
         reinterpret_cast<byte*> (&dst.traveltimes));
+
+    if (!bbi::Endian::is_little ()) {
+        int tt_count = (src.reachabilities - reinterpret_cast<const bbi::UChar*> (&src.traveltimes)) / 2;
+
+        bbi::Endian::le (src.traveltimes, tt_count, dst.traveltimes);
+    }
 }
 //BBi
 
@@ -1653,165 +1670,249 @@ void AAS_WriteRouteCache( void ) {
 	routecacheheader_t routecacheheader;
 	byte *buf;
 
-#if !defined RTCW_ET
-	buf = (byte *) GetClearedMemory( ( *aasworld ).numareas * 2 * sizeof( byte ) );   // in case it ends up bigger than the decompressedvis, which is rare but possible
+//BBi Merged
+//#if !defined RTCW_ET
+//	buf = (byte *) GetClearedMemory( ( *aasworld ).numareas * 2 * sizeof( byte ) );   // in case it ends up bigger than the decompressedvis, which is rare but possible
+//
+//	numportalcache = 0;
+//	for ( i = 0; i < ( *aasworld ).numareas; i++ )
+//	{
+//		for ( cache = ( *aasworld ).portalcache[i]; cache; cache = cache->next )
+//		{
+//			numportalcache++;
+//		} //end for
+//	} //end for
+//	numareacache = 0;
+//	for ( i = 0; i < ( *aasworld ).numclusters; i++ )
+//	{
+//		cluster = &( *aasworld ).clusters[i];
+//		for ( j = 0; j < cluster->numareas; j++ )
+//		{
+//			for ( cache = ( *aasworld ).clusterareacache[i][j]; cache; cache = cache->next )
+//			{
+//				numareacache++;
+//			} //end for
+//		} //end for
+//	} //end for
+//	  // open the file for writing
+//	Com_sprintf( filename, MAX_QPATH, "maps/%s.rcd", ( *aasworld ).mapname );
+//	botimport.FS_FOpenFile( filename, &fp, FS_WRITE );
+//	if ( !fp ) {
+//		AAS_Error( "Unable to open file: %s\n", filename );
+//		return;
+//	} //end if
+//	  //create the header
+//	routecacheheader.ident = RCID;
+//	routecacheheader.version = RCVERSION;
+//	routecacheheader.numareas = ( *aasworld ).numareas;
+//	routecacheheader.numclusters = ( *aasworld ).numclusters;
+//	routecacheheader.areacrc = CRC_ProcessString( (unsigned char *)( *aasworld ).areas, sizeof( aas_area_t ) * ( *aasworld ).numareas );
+//	routecacheheader.clustercrc = CRC_ProcessString( (unsigned char *)( *aasworld ).clusters, sizeof( aas_cluster_t ) * ( *aasworld ).numclusters );
+//	routecacheheader.reachcrc = CRC_ProcessString( (unsigned char *)( *aasworld ).reachability, sizeof( aas_reachability_t ) * ( *aasworld ).reachabilitysize );
+//	routecacheheader.numportalcache = numportalcache;
+//	routecacheheader.numareacache = numareacache;
+//	//write the header
+//	botimport.FS_Write( &routecacheheader, sizeof( routecacheheader_t ), fp );
+//	//write all the cache
+//	for ( i = 0; i < ( *aasworld ).numareas; i++ )
+//	{
+//		for ( cache = ( *aasworld ).portalcache[i]; cache; cache = cache->next )
+//		{
+//			botimport.FS_Write( cache, cache->size, fp );
+//		} //end for
+//	} //end for
+//	for ( i = 0; i < ( *aasworld ).numclusters; i++ )
+//	{
+//		cluster = &( *aasworld ).clusters[i];
+//		for ( j = 0; j < cluster->numareas; j++ )
+//		{
+//			for ( cache = ( *aasworld ).clusterareacache[i][j]; cache; cache = cache->next )
+//			{
+//				botimport.FS_Write( cache, cache->size, fp );
+//			} //end for
+//		} //end for
+//	} //end for
+//	  // write the visareas
+//	for ( i = 0; i < ( *aasworld ).numareas; i++ )
+//	{
+//		if ( !( *aasworld ).areavisibility[i] ) {
+//			size = 0;
+//			botimport.FS_Write( &size, sizeof( int ), fp );
+//			continue;
+//		}
+//		AAS_DecompressVis( ( *aasworld ).areavisibility[i], ( *aasworld ).numareas, ( *aasworld ).decompressedvis );
+//		size = AAS_CompressVis( ( *aasworld ).decompressedvis, ( *aasworld ).numareas, buf );
+//		botimport.FS_Write( &size, sizeof( int ), fp );
+//		botimport.FS_Write( buf, size, fp );
+//	}
+//	// write the waypoints
+//	botimport.FS_Write( ( *aasworld ).areawaypoints, sizeof( vec3_t ) * ( *aasworld ).numareas, fp );
+//#else
+//	buf = (byte *) GetClearedMemory( aasworld->numareas * 2 * sizeof( byte ) ); // in case it ends up bigger than the decompressedvis, which is rare but possible
+//
+//	numportalcache = 0;
+//	for ( i = 0; i < aasworld->numareas; i++ )
+//	{
+//		for ( cache = aasworld->portalcache[i]; cache; cache = cache->next )
+//		{
+//			numportalcache++;
+//		} //end for
+//	} //end for
+//	numareacache = 0;
+//	for ( i = 0; i < aasworld->numclusters; i++ )
+//	{
+//		cluster = &aasworld->clusters[i];
+//		for ( j = 0; j < cluster->numareas; j++ )
+//		{
+//			for ( cache = aasworld->clusterareacache[i][j]; cache; cache = cache->next )
+//			{
+//				numareacache++;
+//			} //end for
+//		} //end for
+//	} //end for
+//	  // open the file for writing
+//	Com_sprintf( filename, MAX_QPATH, "maps/%s.rcd", aasworld->mapname );
+//	botimport.FS_FOpenFile( filename, &fp, FS_WRITE );
+//	if ( !fp ) {
+//		AAS_Error( "Unable to open file: %s\n", filename );
+//		return;
+//	} //end if
+//	  //create the header
+//	routecacheheader.ident = RCID;
+//	routecacheheader.version = RCVERSION;
+//	routecacheheader.numareas = aasworld->numareas;
+//	routecacheheader.numclusters = aasworld->numclusters;
+//	routecacheheader.areacrc = CRC_ProcessString( (unsigned char *)aasworld->areas, sizeof( aas_area_t ) * aasworld->numareas );
+//	routecacheheader.clustercrc = CRC_ProcessString( (unsigned char *)aasworld->clusters, sizeof( aas_cluster_t ) * aasworld->numclusters );
+//	routecacheheader.reachcrc = CRC_ProcessString( (unsigned char *)aasworld->reachability, sizeof( aas_reachability_t ) * aasworld->reachabilitysize );
+//	routecacheheader.numportalcache = numportalcache;
+//	routecacheheader.numareacache = numareacache;
+//	//write the header
+//	botimport.FS_Write( &routecacheheader, sizeof( routecacheheader_t ), fp );
+//	//write all the cache
+//	for ( i = 0; i < aasworld->numareas; i++ )
+//	{
+//		for ( cache = aasworld->portalcache[i]; cache; cache = cache->next )
+//		{
+//			botimport.FS_Write( cache, cache->size, fp );
+//		} //end for
+//	} //end for
+//	for ( i = 0; i < aasworld->numclusters; i++ )
+//	{
+//		cluster = &aasworld->clusters[i];
+//		for ( j = 0; j < cluster->numareas; j++ )
+//		{
+//			for ( cache = aasworld->clusterareacache[i][j]; cache; cache = cache->next )
+//			{
+//				botimport.FS_Write( cache, cache->size, fp );
+//			} //end for
+//		} //end for
+//	} //end for
+//	  // write the visareas
+//	for ( i = 0; i < aasworld->numareas; i++ )
+//	{
+//		if ( !aasworld->areavisibility[i] ) {
+//			size = 0;
+//			botimport.FS_Write( &size, sizeof( int ), fp );
+//			continue;
+//		}
+//		AAS_DecompressVis( aasworld->areavisibility[i], aasworld->numareas, aasworld->decompressedvis );
+//		size = AAS_CompressVis( aasworld->decompressedvis, aasworld->numareas, buf );
+//		botimport.FS_Write( &size, sizeof( int ), fp );
+//		botimport.FS_Write( buf, size, fp );
+//	}
+//	// write the waypoints
+//	botimport.FS_Write( aasworld->areawaypoints, sizeof( vec3_t ) * aasworld->numareas, fp );
+//#endif // RTCW_XX
 
-	numportalcache = 0;
-	for ( i = 0; i < ( *aasworld ).numareas; i++ )
-	{
-		for ( cache = ( *aasworld ).portalcache[i]; cache; cache = cache->next )
-		{
-			numportalcache++;
-		} //end for
-	} //end for
-	numareacache = 0;
-	for ( i = 0; i < ( *aasworld ).numclusters; i++ )
-	{
-		cluster = &( *aasworld ).clusters[i];
-		for ( j = 0; j < cluster->numareas; j++ )
-		{
-			for ( cache = ( *aasworld ).clusterareacache[i][j]; cache; cache = cache->next )
-			{
-				numareacache++;
-			} //end for
-		} //end for
-	} //end for
-	  // open the file for writing
-	Com_sprintf( filename, MAX_QPATH, "maps/%s.rcd", ( *aasworld ).mapname );
-	botimport.FS_FOpenFile( filename, &fp, FS_WRITE );
-	if ( !fp ) {
-		AAS_Error( "Unable to open file: %s\n", filename );
-		return;
-	} //end if
-	  //create the header
-	routecacheheader.ident = RCID;
-	routecacheheader.version = RCVERSION;
-	routecacheheader.numareas = ( *aasworld ).numareas;
-	routecacheheader.numclusters = ( *aasworld ).numclusters;
-	routecacheheader.areacrc = CRC_ProcessString( (unsigned char *)( *aasworld ).areas, sizeof( aas_area_t ) * ( *aasworld ).numareas );
-	routecacheheader.clustercrc = CRC_ProcessString( (unsigned char *)( *aasworld ).clusters, sizeof( aas_cluster_t ) * ( *aasworld ).numclusters );
-	routecacheheader.reachcrc = CRC_ProcessString( (unsigned char *)( *aasworld ).reachability, sizeof( aas_reachability_t ) * ( *aasworld ).reachabilitysize );
-	routecacheheader.numportalcache = numportalcache;
-	routecacheheader.numareacache = numareacache;
-	//write the header
-	botimport.FS_Write( &routecacheheader, sizeof( routecacheheader_t ), fp );
-	//write all the cache
-	for ( i = 0; i < ( *aasworld ).numareas; i++ )
-	{
-		for ( cache = ( *aasworld ).portalcache[i]; cache; cache = cache->next )
-		{
-            //BBi
-			//botimport.FS_Write( cache, cache->size, fp );
+    buf = static_cast<byte*> (GetClearedMemory (aasworld->numareas * 2 * sizeof (byte))); // in case it ends up bigger than the decompressedvis, which is rare but possible
+
+    numportalcache = 0;
+
+    for (i = 0; i < aasworld->numareas; ++i) {
+        for (cache = aasworld->portalcache[i]; cache; cache = cache->next)
+            ++numportalcache;
+    }
+
+    numareacache = 0;
+
+    for (i = 0; i < aasworld->numclusters; ++i) {
+        cluster = &aasworld->clusters[i];
+
+        for ( j = 0; j < cluster->numareas; j++ ) {
+            for (cache = aasworld->clusterareacache[i][j]; cache; cache = cache->next)
+                ++numareacache;
+        }
+    }
+
+    // open the file for writing
+    ::Com_sprintf (filename, MAX_QPATH, "maps/%s.rcd", aasworld->mapname);
+
+    botimport.FS_FOpenFile (filename, &fp, FS_WRITE);
+
+    if (fp == 0) {
+        ::AAS_Error ("Unable to open file: %s\n", filename);
+        return;
+    }
+
+    //create the header
+    routecacheheader.ident = bbi::Endian::le (static_cast<bbi::UInt32> (RCID));
+    routecacheheader.version = bbi::Endian::le (static_cast<bbi::UInt32> (RCVERSION));
+    routecacheheader.numareas = bbi::Endian::le ( aasworld->numareas);
+    routecacheheader.numclusters = bbi::Endian::le (aasworld->numclusters);
+    routecacheheader.areacrc = bbi::Endian::le (::CRC_ProcessString (
+        reinterpret_cast<bbi::UChar*> (aasworld->areas), sizeof (aas_area_t) * aasworld->numareas));
+    routecacheheader.clustercrc = bbi::Endian::le (::CRC_ProcessString (
+        reinterpret_cast<bbi::UChar*> (aasworld->clusters), sizeof (aas_cluster_t) * aasworld->numclusters));
+    routecacheheader.reachcrc = bbi::Endian::le (::CRC_ProcessString (
+        reinterpret_cast<bbi::UChar*> (aasworld->reachability), sizeof (aas_reachability_t) * aasworld->reachabilitysize));
+    routecacheheader.numportalcache = bbi::Endian::le (numportalcache);
+    routecacheheader.numareacache = bbi::Endian::le (numareacache);
+
+    //write the header
+    botimport.FS_Write (&routecacheheader, sizeof (routecacheheader_t), fp);
+
+    //write all the cache
+    for (i = 0; i < aasworld->numareas; ++i) {
+        for (cache = aasworld->portalcache[i]; cache; cache = cache->next)
             ::aasWriteRcStruct (cache, fp);
-            //BBi
-		} //end for
-	} //end for
-	for ( i = 0; i < ( *aasworld ).numclusters; i++ )
-	{
-		cluster = &( *aasworld ).clusters[i];
-		for ( j = 0; j < cluster->numareas; j++ )
-		{
-			for ( cache = ( *aasworld ).clusterareacache[i][j]; cache; cache = cache->next )
-			{
-                //BBi
-				//botimport.FS_Write( cache, cache->size, fp );
-                ::aasWriteRcStruct (cache, fp);
-                //BBi
-			} //end for
-		} //end for
-	} //end for
-	  // write the visareas
-	for ( i = 0; i < ( *aasworld ).numareas; i++ )
-	{
-		if ( !( *aasworld ).areavisibility[i] ) {
-			size = 0;
-			botimport.FS_Write( &size, sizeof( int ), fp );
-			continue;
-		}
-		AAS_DecompressVis( ( *aasworld ).areavisibility[i], ( *aasworld ).numareas, ( *aasworld ).decompressedvis );
-		size = AAS_CompressVis( ( *aasworld ).decompressedvis, ( *aasworld ).numareas, buf );
-		botimport.FS_Write( &size, sizeof( int ), fp );
-		botimport.FS_Write( buf, size, fp );
-	}
-	// write the waypoints
-	botimport.FS_Write( ( *aasworld ).areawaypoints, sizeof( vec3_t ) * ( *aasworld ).numareas, fp );
-#else
-	buf = (byte *) GetClearedMemory( aasworld->numareas * 2 * sizeof( byte ) ); // in case it ends up bigger than the decompressedvis, which is rare but possible
+    }
 
-	numportalcache = 0;
-	for ( i = 0; i < aasworld->numareas; i++ )
-	{
-		for ( cache = aasworld->portalcache[i]; cache; cache = cache->next )
-		{
-			numportalcache++;
-		} //end for
-	} //end for
-	numareacache = 0;
-	for ( i = 0; i < aasworld->numclusters; i++ )
-	{
-		cluster = &aasworld->clusters[i];
-		for ( j = 0; j < cluster->numareas; j++ )
-		{
-			for ( cache = aasworld->clusterareacache[i][j]; cache; cache = cache->next )
-			{
-				numareacache++;
-			} //end for
-		} //end for
-	} //end for
-	  // open the file for writing
-	Com_sprintf( filename, MAX_QPATH, "maps/%s.rcd", aasworld->mapname );
-	botimport.FS_FOpenFile( filename, &fp, FS_WRITE );
-	if ( !fp ) {
-		AAS_Error( "Unable to open file: %s\n", filename );
-		return;
-	} //end if
-	  //create the header
-	routecacheheader.ident = RCID;
-	routecacheheader.version = RCVERSION;
-	routecacheheader.numareas = aasworld->numareas;
-	routecacheheader.numclusters = aasworld->numclusters;
-	routecacheheader.areacrc = CRC_ProcessString( (unsigned char *)aasworld->areas, sizeof( aas_area_t ) * aasworld->numareas );
-	routecacheheader.clustercrc = CRC_ProcessString( (unsigned char *)aasworld->clusters, sizeof( aas_cluster_t ) * aasworld->numclusters );
-	routecacheheader.reachcrc = CRC_ProcessString( (unsigned char *)aasworld->reachability, sizeof( aas_reachability_t ) * aasworld->reachabilitysize );
-	routecacheheader.numportalcache = numportalcache;
-	routecacheheader.numareacache = numareacache;
-	//write the header
-	botimport.FS_Write( &routecacheheader, sizeof( routecacheheader_t ), fp );
-	//write all the cache
-	for ( i = 0; i < aasworld->numareas; i++ )
-	{
-		for ( cache = aasworld->portalcache[i]; cache; cache = cache->next )
-		{
-			botimport.FS_Write( cache, cache->size, fp );
-		} //end for
-	} //end for
-	for ( i = 0; i < aasworld->numclusters; i++ )
-	{
-		cluster = &aasworld->clusters[i];
-		for ( j = 0; j < cluster->numareas; j++ )
-		{
-			for ( cache = aasworld->clusterareacache[i][j]; cache; cache = cache->next )
-			{
-				botimport.FS_Write( cache, cache->size, fp );
-			} //end for
-		} //end for
-	} //end for
-	  // write the visareas
-	for ( i = 0; i < aasworld->numareas; i++ )
-	{
-		if ( !aasworld->areavisibility[i] ) {
-			size = 0;
-			botimport.FS_Write( &size, sizeof( int ), fp );
-			continue;
-		}
-		AAS_DecompressVis( aasworld->areavisibility[i], aasworld->numareas, aasworld->decompressedvis );
-		size = AAS_CompressVis( aasworld->decompressedvis, aasworld->numareas, buf );
-		botimport.FS_Write( &size, sizeof( int ), fp );
-		botimport.FS_Write( buf, size, fp );
-	}
-	// write the waypoints
-	botimport.FS_Write( aasworld->areawaypoints, sizeof( vec3_t ) * aasworld->numareas, fp );
-#endif // RTCW_XX
+    for (i = 0; i < aasworld->numclusters; ++i) {
+        cluster = &aasworld->clusters[i];
+
+        for (j = 0; j < cluster->numareas; ++j) {
+            for (cache = aasworld->clusterareacache[i][j]; cache; cache = cache->next)
+                ::aasWriteRcStruct (cache, fp);
+        }
+    }
+
+    // write the visareas
+    for (i = 0; i < aasworld->numareas; ++i) {
+        if (!aasworld->areavisibility[i]) {
+            size = 0;
+            botimport.FS_Write (&size, sizeof (int), fp);
+            continue;
+        }
+
+        ::AAS_DecompressVis (aasworld->areavisibility[i], aasworld->numareas, aasworld->decompressedvis);
+        size = ::AAS_CompressVis (aasworld->decompressedvis, aasworld->numareas, buf);
+        bbi::Endian::lei (size);
+        botimport.FS_Write (&size, sizeof (int), fp);
+        botimport.FS_Write (buf, size, fp);
+    }
+
+    // write the waypoints
+    botimport.FS_Write (aasworld->areawaypoints, sizeof (vec3_t) * aasworld->numareas, fp);
+
+    vec3_t vecBuffer;
+
+    for (i = 0; i < aasworld->numareas; ++i) {
+        bbi::Endian::le (aasworld->areawaypoints[i], vecBuffer);
+
+        botimport.FS_Write (vecBuffer, sizeof (vec3_t), fp);
+    }
+//BBi
 
 	//
 	botimport.FS_FCloseFile( fp );
@@ -1879,6 +1980,7 @@ aas_routingcache_t* AAS_ReadCache (
 
         int size;
         botimport.FS_Read (&size, sizeof (size), fp);
+        bbi::Endian::lei (size);
 
         cache = static_cast<aas_routingcache_t*> (AAS_RoutingGetMemory (size));
         cache->size = size;
@@ -1887,17 +1989,31 @@ aas_routingcache_t* AAS_ReadCache (
         cache->reachabilities = reinterpret_cast<byte*> (cache) + sizeof (aas_routingcache_t) +
             ((size - sizeof (aas_routingcache_t)) / 3) * 2;
 
+        if (!bbi::Endian::is_little ()) {
+            bbi::Endian::lei (cache->time);
+            bbi::Endian::lei (cache->cluster);
+            bbi::Endian::lei (cache->areanum);
+            bbi::Endian::lei (cache->origin);
+            bbi::Endian::lei (cache->starttraveltime);
+            bbi::Endian::lei (cache->travelflags);
+        }
+
+        size = ((size - sizeof (aas_routingcache_t)) / 3) + 1;
+
+        bbi::Endian::lei (cache->traveltimes, size);
+
         return cache;
     } else {
         int size;
         botimport.FS_Read (&size, sizeof (size), fp);
+        bbi::Endian::lei (size);
 
-        aasRcsBuffer.resize (size);
+        aas_rcs_buffer.resize (size);
 
-        aas_routingcache_t::Struct32* cache = reinterpret_cast<aas_routingcache_t::Struct32*> (&aasRcsBuffer[0]);
+        aas_routingcache_t::Struct32* cache = reinterpret_cast<aas_routingcache_t::Struct32*> (&aas_rcs_buffer[0]);
 
         cache->size = size;
-        botimport.FS_Read (&aasRcsBuffer[0] + sizeof (size), size - sizeof (size), fp);
+        botimport.FS_Read (&aas_rcs_buffer[0] + sizeof (size), size - sizeof (size), fp);
 
         return aas_routingcache_t::convertFrom32 (cache);
     }
@@ -1935,19 +2051,31 @@ int AAS_ReadRouteCache( void ) {
 	} //end if
 	botimport.FS_Read( &routecacheheader, sizeof( routecacheheader_t ), fp );
 
-#if defined RTCW_SP
-	// GJD: route cache data MUST be written on a PC because I've not altered the writing code.
+//BBi
+//#if defined RTCW_SP
+//	// GJD: route cache data MUST be written on a PC because I've not altered the writing code.
+//
+//	routecacheheader.areacrc = LittleLong( routecacheheader.areacrc );
+//	routecacheheader.clustercrc = LittleLong( routecacheheader.clustercrc );
+//	routecacheheader.ident = LittleLong( routecacheheader.ident );
+//	routecacheheader.numareacache = LittleLong( routecacheheader.numareacache );
+//	routecacheheader.numareas = LittleLong( routecacheheader.numareas );
+//	routecacheheader.numclusters = LittleLong( routecacheheader.numclusters );
+//	routecacheheader.numportalcache = LittleLong( routecacheheader.numportalcache );
+//	routecacheheader.reachcrc = LittleLong( routecacheheader.reachcrc );
+//	routecacheheader.version = LittleLong( routecacheheader.version );
+//#endif // RTCW_XX
 
-	routecacheheader.areacrc = LittleLong( routecacheheader.areacrc );
-	routecacheheader.clustercrc = LittleLong( routecacheheader.clustercrc );
-	routecacheheader.ident = LittleLong( routecacheheader.ident );
-	routecacheheader.numareacache = LittleLong( routecacheheader.numareacache );
-	routecacheheader.numareas = LittleLong( routecacheheader.numareas );
-	routecacheheader.numclusters = LittleLong( routecacheheader.numclusters );
-	routecacheheader.numportalcache = LittleLong( routecacheheader.numportalcache );
-	routecacheheader.reachcrc = LittleLong( routecacheheader.reachcrc );
-	routecacheheader.version = LittleLong( routecacheheader.version );
-#endif // RTCW_XX
+    bbi::Endian::lei (routecacheheader.areacrc);
+    bbi::Endian::lei (routecacheheader.clustercrc);
+    bbi::Endian::lei (routecacheheader.ident);
+    bbi::Endian::lei (routecacheheader.numareacache);
+    bbi::Endian::lei (routecacheheader.numareas);
+    bbi::Endian::lei (routecacheheader.numclusters);
+    bbi::Endian::lei (routecacheheader.numportalcache);
+    bbi::Endian::lei (routecacheheader.reachcrc);
+    bbi::Endian::lei (routecacheheader.version);
+//BBi
 
 	if ( routecacheheader.ident != RCID ) {
 		botimport.FS_FCloseFile( fp );
@@ -2065,12 +2193,6 @@ int AAS_ReadRouteCache( void ) {
 	{
 		cache = AAS_ReadCache( fp );
 
-        //BBi DEBUG
-        aasRcsBuffer.resize (cache->size);
-        aas_routingcache_t::Struct32* struct32 = reinterpret_cast<aas_routingcache_t::Struct32*> (&aasRcsBuffer[0]);
-        cache->convertTo32 (struct32);
-        //BBi DEBUG
-
 #if !defined RTCW_ET
 		cache->next = ( *aasworld ).portalcache[cache->areanum];
 		cache->prev = NULL;
@@ -2125,7 +2247,7 @@ int AAS_ReadRouteCache( void ) {
 		botimport.FS_Read( &size, sizeof( size ), fp );
 
 #if defined RTCW_SP
-		size = LittleLong( size );
+		bbi::Endian::lei (size);
 #endif // RTCW_XX
 
 		if ( size ) {
@@ -2149,12 +2271,9 @@ int AAS_ReadRouteCache( void ) {
 #endif // RTCW_XX
 
 #if defined RTCW_SP
-	if ( 1 != LittleLong( 1 ) ) {
-		for ( i = 0; i < ( *aasworld ).numareas; i++ ) {
-			( *aasworld ).areawaypoints[i][0] = LittleFloat( ( *aasworld ).areawaypoints[i][0] );
-			( *aasworld ).areawaypoints[i][1] = LittleFloat( ( *aasworld ).areawaypoints[i][1] );
-			( *aasworld ).areawaypoints[i][2] = LittleFloat( ( *aasworld ).areawaypoints[i][2] );
-		}
+	if (!bbi::Endian::is_little ()) {
+		for (i = 0; i < aasworld->numareas; ++i)
+			bbi::Endian::lei (aasworld->areawaypoints[i]);
 	}
 #endif // RTCW_XX
 

@@ -766,7 +766,7 @@ static unsigned int yuv_to_rgb24( long y, long u, long v ) {
 		b = 255;
 	}
 
-	return LittleLong( ( r ) | ( g << 8 ) | ( b << 16 ) | ( 255 << 24 ) );
+	return bbi::Endian::le ( ( r ) | ( g << 8 ) | ( b << 16 ) | ( 255 << 24 ) );
 }
 #endif
 #else
@@ -830,7 +830,7 @@ static unsigned int yuv_to_rgb24( long y, long u, long v ) {
 		b = 255;
 	}
 
-	return LittleLong( ( r ) | ( g << 8 ) | ( b << 16 ) | ( 255 << 24 ) );
+	return bbi::Endian::le ( ( r ) | ( g << 8 ) | ( b << 16 ) | ( 255 << 24 ) );
 }
 #endif
 #endif // RTCW_XX
