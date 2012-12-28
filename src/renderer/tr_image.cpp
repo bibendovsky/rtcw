@@ -43,9 +43,13 @@ If you have questions concerning this license or the applicable additional terms
  * You may also wish to include "jerror.h".
  */
 
-#define JPEG_INTERNALS
+//BBi
+//#define JPEG_INTERNALS
+//
+//#include "jpeglib.h"
 
-#include "jpeglib.h"
+#include "turbojpeg.h"
+//BBi
 
 
 static void LoadBMP( const char *name, byte **pic, int *width, int *height );
@@ -2236,27 +2240,27 @@ breakOut:;
 }
 
 //BBi
-static void jpegOnErrorExit (
-    j_common_ptr cinfo)
-{
-    char buffer[JMSG_LENGTH_MAX];
-
-    (*cinfo->err->format_message) (cinfo, buffer);
-
-    ::jpeg_destroy (cinfo);
-
-    ri.Error (ERR_FATAL, "JPEG: %s\n", buffer);
-}
-
-static void jpegOnOutputMessage (
-    j_common_ptr cinfo)
-{
-    char buffer[JMSG_LENGTH_MAX];
-
-    (*cinfo->err->format_message) (cinfo, buffer);
-
-    ri.Printf (PRINT_ALL, "JPEG: %s\n", buffer);
-}
+//static void jpegOnErrorExit (
+//    j_common_ptr cinfo)
+//{
+//    char buffer[JMSG_LENGTH_MAX];
+//
+//    (*cinfo->err->format_message) (cinfo, buffer);
+//
+//    ::jpeg_destroy (cinfo);
+//
+//    ri.Error (ERR_FATAL, "JPEG: %s\n", buffer);
+//}
+//
+//static void jpegOnOutputMessage (
+//    j_common_ptr cinfo)
+//{
+//    char buffer[JMSG_LENGTH_MAX];
+//
+//    (*cinfo->err->format_message) (cinfo, buffer);
+//
+//    ri.Printf (PRINT_ALL, "JPEG: %s\n", buffer);
+//}
 //BBi
 
 //BBi
@@ -2404,87 +2408,47 @@ static void jpegOnOutputMessage (
 //	/* And we're done! */
 //}
 
-static void LoadJPG (
-    const char* filename,
-    unsigned char** pic,
-    int* width,
-    int* height)
+static void LoadJPG (const char* filename, bbi::UInt8** pic,
+    int* width, int* height)
 {
-    jpeg_decompress_struct cinfo;
-    jpeg_error_mgr jerr;
-
-    int row_stride; // physical row width in output buffer
-    unsigned char* out;
-    byte* fbuffer;
+    bbi::UInt8* fbuffer;
 
     int flen = ::ri.FS_ReadFile (filename, reinterpret_cast<void**> (&fbuffer));
 
-    if (!fbuffer)
+    if (fbuffer == nullptr)
         return;
 
-    cinfo.err = ::jpeg_std_error (&jerr);
 
-    cinfo.err->error_exit = ::jpegOnErrorExit;
-    cinfo.err->output_message = ::jpegOnOutputMessage;
+    int tj_result = 0;
 
-    ::jpeg_create_decompress (&cinfo);
-    ::jpeg_mem_src (&cinfo, fbuffer, flen);
-    ::jpeg_read_header (&cinfo, true);
+    auto tjh = ::tjInitDecompress ();
 
-    if ((cinfo.out_color_space != JCS_GRAYSCALE) &&
-        (cinfo.out_color_space != JCS_RGB))
-    {
-        cinfo.out_color_space = JCS_RGB;
-    }
+    if (tjh == nullptr)
+        ::ri.Error (ERR_FATAL, "JPEG-T: Failed to init decompressor.\n");
 
-    ::jpeg_start_decompress (&cinfo);
+    int subsample = 0;
+    tj_result = tjDecompressHeader2 (tjh, fbuffer, flen, width, height, &subsample);
 
-    if ((cinfo.out_color_space != JCS_GRAYSCALE) &&
-        (cinfo.out_color_space != JCS_RGB))
-    {
-        ::ri.Error (ERR_FATAL, "JPEG: invalid output color space.\n");
-    }
+    if (tj_result != 0)
+        ::ri.Error (ERR_FATAL, "JPEG-T: Failed to read a header.\n");
 
-    bool isGrayScale = (cinfo.out_color_space == JCS_GRAYSCALE);
+    int pitch = 4 * (*width);
 
-    row_stride = cinfo.output_width * 4;
-
-    out = static_cast <byte*> (::R_GetImageBuffer (row_stride * cinfo.output_height, BUFFER_IMAGE));
+    auto out = static_cast<bbi::UInt8*> (
+        ::R_GetImageBuffer (pitch * (*height), BUFFER_IMAGE));
 
     *pic = out;
-    *width = cinfo.output_width;
-    *height = cinfo.output_height;
 
-    byte* lineBuffer = static_cast <byte*> (::ri.Hunk_AllocateTempMemory (
-        cinfo.output_width * cinfo.out_color_components));
+    tj_result = ::tjDecompress2 (tjh, fbuffer, flen, out,
+        *width, pitch, *height, TJPF_RGBA, 0);
 
-    while (cinfo.output_scanline < cinfo.output_height) {
-        byte* line = lineBuffer;
+    if (tj_result == 0)
+        tj_result = ::tjDestroy (tjh);
 
-        ::jpeg_read_scanlines (&cinfo, reinterpret_cast <JSAMPARRAY> (&line), 1);
-
-        // RGB -> RGBA
-        for (int i = 0; i < cinfo.output_width; ++i) {
-            if (!isGrayScale) {
-                *out++ = *line++;
-                *out++ = *line++;
-                *out++ = *line++;
-                *out++ = 255;
-            } else {
-                *out++ = *line;
-                *out++ = *line;
-                *out++ = *line;
-                *out++ = 255;
-                ++line;
-            }
-        }
-    }
-
-    ::jpeg_finish_decompress (&cinfo);
-    ::jpeg_destroy_decompress (&cinfo);
-
-    ::ri.Hunk_FreeTempMemory (lineBuffer);
     ::ri.FS_FreeFile (fbuffer);
+
+    if (tj_result != 0)
+        ::ri.Error (ERR_FATAL, "JPEG-T: Failed to decode an image.\n");
 }
 //BBi
 
@@ -2791,68 +2755,34 @@ static void LoadJPG (
 //	/* And we're done! */
 //}
 
-void SaveJPG (
-    char* filename,
-    int quality,
-    int image_width,
-    int image_height,
-    unsigned char* image_buffer)
+void SaveJPG (const char* file_name, int quality,
+    int width, int height, bbi::UInt8* src_data)
 {
-    const int rowStride = image_width * 4;
+    auto tjh = ::tjInitCompress ();
 
-    jpeg_compress_struct cinfo;
-    jpeg_error_mgr jerr;
+    auto tj_buf_size = ::tjBufSize (width, height, TJSAMP_444);
 
-    cinfo.err = jpeg_std_error (&jerr);
+    auto jpg_data = static_cast<bbi::UChar*> (
+        ri.Hunk_AllocateTempMemory (tj_buf_size));
 
-    cinfo.err->error_exit = jpegOnErrorExit;
-    cinfo.err->output_message = jpegOnOutputMessage;
+    int pitch = 4 * width;
 
-    ::jpeg_create_compress (&cinfo);
+    int tj_result = 0;
 
-    cinfo.image_width = JDIMENSION (image_width);
-    cinfo.image_height = JDIMENSION (image_height);
-    cinfo.input_components = 3; // "4" does not work anymore
-    cinfo.in_color_space = JCS_RGB;
+    bbi::ULong jpg_size = 0;
+    bbi::UChar* tj_buffer[1] = { jpg_data, };
 
-    unsigned long bufferSize = image_width * rowStride;
-    unsigned char* buffer = static_cast <unsigned char*> (ri.Hunk_AllocateTempMemory (bufferSize));
+    tj_result = ::tjCompress2 (tjh, src_data, width, pitch, height, TJPF_RGBA,
+        tj_buffer, &jpg_size, TJSAMP_444, quality,
+        TJFLAG_NOREALLOC | TJFLAG_BOTTOMUP);
 
-    ::jpeg_mem_dest (&cinfo, &buffer, &bufferSize);
+    if (tj_result == 0) {
+        tj_result = ::tjDestroy (tjh);
 
-    ::jpeg_set_defaults (&cinfo);
-    ::jpeg_set_quality (&cinfo, quality, true);
-    ::jpeg_start_compress (&cinfo, true);
-
-    byte* lineBuffer = static_cast <byte*> (ri.Hunk_AllocateTempMemory (image_width * 3));
-
-    while (cinfo.next_scanline < image_height)
-    {
-        byte* line = lineBuffer;
-
-        // OpenGL stores rows from bottom to top,
-        // but JPEG - from top to bottom.
-        byte* row = image_buffer + (image_height - cinfo.next_scanline - 1) * rowStride;
-
-        // OpenGL RGBA -> JPEG RGB
-        for (int i = 0; i < image_width; ++ i)
-        {
-            *line++ = *row++;
-            *line++ = *row++;
-            *line++ = *row++;
-            row++;
-        }
-
-        ::jpeg_write_scanlines (&cinfo, reinterpret_cast <JSAMPARRAY> (&lineBuffer), 1);
+        ri.FS_WriteFile (file_name, jpg_data, jpg_size);
     }
 
-    ::jpeg_finish_compress (&cinfo);
-    ::jpeg_destroy_compress (&cinfo);
-
-    ri.Hunk_FreeTempMemory (lineBuffer);
-
-    ri.FS_WriteFile (filename, buffer, bufferSize);
-    ri.Hunk_FreeTempMemory (buffer);
+    ri.Hunk_FreeTempMemory (jpg_data);
 }
 //BBi
 

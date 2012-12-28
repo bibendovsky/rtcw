@@ -6,7 +6,7 @@
     <rtcw_curl_lib>$(rtcw_curl_lib_base_name)_$(rtcw_curl_version)_$(rtcw_lib_type)_$(rtcw_platform).lib</rtcw_curl_lib>
     <rtcw_fmodex_lib>fmodex_vc.lib</rtcw_fmodex_lib>
     <rtcw_glew_lib>$(rtcw_glew_lib_base_name)_$(rtcw_glew_version)_$(rtcw_lib_type)_$(rtcw_platform).lib</rtcw_glew_lib>
-    <rtcw_jpeg_lib>$(rtcw_jpeg_lib_base_name)_$(rtcw_jpeg_version)_$(rtcw_lib_type)_$(rtcw_platform).lib</rtcw_jpeg_lib>
+    <rtcw_jpeg_turbo_lib>$(rtcw_jpeg_turbo_lib_base_name)_$(rtcw_jpeg_turbo_version)_$(rtcw_lib_type)_$(rtcw_platform).lib</rtcw_jpeg_turbo_lib>
     <rtcw_zlib_lib>$(rtcw_zlib_lib_base_name)_$(rtcw_zlib_version)_$(rtcw_lib_type)_$(rtcw_platform).lib</rtcw_zlib_lib>
   </PropertyGroup>
   <ItemDefinitionGroup>
@@ -14,7 +14,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Link>
-      <AdditionalDependencies>$(rtcw_curl_lib);$(rtcw_fmodex_lib);$(rtcw_glew_lib);$(rtcw_jpeg_lib);$(rtcw_zlib_lib);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(rtcw_curl_lib);$(rtcw_fmodex_lib);$(rtcw_glew_lib);$(rtcw_jpeg_turbo_lib);$(rtcw_zlib_lib);%(AdditionalDependencies)</AdditionalDependencies>
       <TargetMachine>MachineX86</TargetMachine>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
@@ -33,8 +33,8 @@
     <BuildMacro Include="rtcw_glew_lib">
       <Value>$(rtcw_glew_lib)</Value>
     </BuildMacro>
-    <BuildMacro Include="rtcw_jpeg_lib">
-      <Value>$(rtcw_jpeg_lib)</Value>
+    <BuildMacro Include="rtcw_jpeg_turbo_lib">
+      <Value>$(rtcw_jpeg_turbo_lib)</Value>
     </BuildMacro>
     <BuildMacro Include="rtcw_zlib_lib">
       <Value>$(rtcw_zlib_lib)</Value>

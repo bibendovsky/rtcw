@@ -18,12 +18,12 @@
     <rtcw_glew_version>1.9.0</rtcw_glew_version>
     <rtcw_glew_lib_base_name>libglew</rtcw_glew_lib_base_name>
     <rtcw_glew_dir>$(rtcw_src_dir)glew-$(rtcw_glew_version)\</rtcw_glew_dir>
-    <rtcw_jpeg_version>8d</rtcw_jpeg_version>
-    <rtcw_jpeg_lib_base_name>libjpeg</rtcw_jpeg_lib_base_name>
-    <rtcw_jpeg_dir>$(rtcw_src_dir)jpeg-$(rtcw_jpeg_version)\</rtcw_jpeg_dir>
     <rtcw_zlib_version>1.2.7</rtcw_zlib_version>
     <rtcw_zlib_lib_base_name>libz</rtcw_zlib_lib_base_name>
     <rtcw_zlib_dir>$(rtcw_src_dir)zlib-$(rtcw_zlib_version)\</rtcw_zlib_dir>
+    <rtcw_jpeg_turbo_version>1.2.1</rtcw_jpeg_turbo_version>
+    <rtcw_jpeg_turbo_lib_base_name>libjpeg_turbo</rtcw_jpeg_turbo_lib_base_name>
+    <rtcw_jpeg_turbo_dir>$(rtcw_src_dir)libjpeg-turbo-$(rtcw_jpeg_turbo_version)\</rtcw_jpeg_turbo_dir>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
@@ -31,7 +31,7 @@
       <PreprocessorDefinitions>WINVER=0x0501;_WIN32_WINNT=0x0501;NTDDI_VERSION=NTDDI_WINXPSP3;DIRECTINPUT_VERSION=0x0800;DIRECTSOUND_VERSION=0x0900;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(rtcw_src_dir)bbi;$(rtcw_src_dir)botai;$(rtcw_src_dir)botlib;$(rtcw_src_dir)cgame;$(rtcw_src_dir)client;$(rtcw_src_dir)game;$(rtcw_src_dir)null;$(rtcw_src_dir)qcommon;$(rtcw_src_dir)renderer;$(rtcw_src_dir)server;$(rtcw_src_dir)splines;$(rtcw_src_dir)ui;$(rtcw_src_dir)win32;$(rtcw_curl_dir)include;$(rtcw_fmodex_dir)api\inc;$(rtcw_glew_dir)include;$(rtcw_jpeg_dir);$(rtcw_jpeg_dir)win32\vs;$(rtcw_zlib_dir);$(rtcw_zlib_dir)contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(rtcw_src_dir)bbi;$(rtcw_src_dir)botai;$(rtcw_src_dir)botlib;$(rtcw_src_dir)cgame;$(rtcw_src_dir)client;$(rtcw_src_dir)game;$(rtcw_src_dir)null;$(rtcw_src_dir)qcommon;$(rtcw_src_dir)renderer;$(rtcw_src_dir)server;$(rtcw_src_dir)splines;$(rtcw_src_dir)ui;$(rtcw_src_dir)win32;$(rtcw_curl_dir)include;$(rtcw_fmodex_dir)api\inc;$(rtcw_glew_dir)include;$(rtcw_jpeg_turbo_dir)include;$(rtcw_zlib_dir);$(rtcw_zlib_dir)contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -103,15 +103,6 @@
     <BuildMacro Include="rtcw_glew_dir">
       <Value>$(rtcw_glew_dir)</Value>
     </BuildMacro>
-    <BuildMacro Include="rtcw_jpeg_version">
-      <Value>$(rtcw_jpeg_version)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_jpeg_lib_base_name">
-      <Value>$(rtcw_jpeg_lib_base_name)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_jpeg_dir">
-      <Value>$(rtcw_jpeg_dir)</Value>
-    </BuildMacro>
     <BuildMacro Include="rtcw_zlib_version">
       <Value>$(rtcw_zlib_version)</Value>
     </BuildMacro>
@@ -120,6 +111,15 @@
     </BuildMacro>
     <BuildMacro Include="rtcw_zlib_dir">
       <Value>$(rtcw_zlib_dir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="rtcw_jpeg_turbo_version">
+      <Value>$(rtcw_jpeg_turbo_version)</Value>
+    </BuildMacro>
+    <BuildMacro Include="rtcw_jpeg_turbo_lib_base_name">
+      <Value>$(rtcw_jpeg_turbo_lib_base_name)</Value>
+    </BuildMacro>
+    <BuildMacro Include="rtcw_jpeg_turbo_dir">
+      <Value>$(rtcw_jpeg_turbo_dir)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
