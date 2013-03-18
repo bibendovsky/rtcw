@@ -360,6 +360,30 @@
     <ClCompile Include="..\..\..\..\src\client\snd_dma_core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\renderer\rtcw_ogl_matrix_stack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\renderer\rtcw_ogl_program.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\renderer\rtcw_ogl_tess_program.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\renderer\rtcw_ogl_tess_state.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_program.cpp">
+      <Filter>Source Files\bbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_shader.cpp">
+      <Filter>Source Files\bbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_uniform_info.cpp">
+      <Filter>Source Files\bbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_version.cpp">
+      <Filter>Source Files\bbi</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\game\bg_public.h">
@@ -582,6 +606,30 @@
       <Filter>Header Files\bbi</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\src\bbi\bbi_mem.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\renderer\rtcw_ogl_matrix_stack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\renderer\rtcw_ogl_program.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\renderer\rtcw_ogl_tess_program.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\renderer\rtcw_ogl_tess_state.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_program.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_shader.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_uniform_info.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_version.h">
       <Filter>Header Files\bbi</Filter>
     </ClInclude>
   </ItemGroup>

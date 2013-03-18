@@ -33,7 +33,10 @@ If you have questions concerning this license or the applicable additional terms
 // A user mod should never modify this file
 
 //BBi
+#include <cstddef>
+
 #include <algorithm>
+#include <string>
 
 #include "bbi_core.h"
 #include "bbi_endian.h"

@@ -799,6 +799,28 @@ void RB_SurfaceBeam( void ) {
 
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
 
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_tess_state.primary_color.set (glm::vec4 (1.0F, 0.0F, 0.0F, 1.0F));
+        ogl_tess_state.commit_changes ();
+
+        int vertex_index = 0;
+        const float* v;
+
+        for (i = 0; i <= NUM_BEAM_SEGS; ++i) {
+            v = start_points[i % NUM_BEAM_SEGS];
+            ogl_tess2.position[vertex_index++] = glm::vec4 (
+                v[0], v[1], v[2], 1.0F);
+
+            v = end_points[i % NUM_BEAM_SEGS];
+            ogl_tess2.position[vertex_index++] = glm::vec4 (
+                v[0], v[1], v[2], 1.0F);
+        }
+
+        ::ogl_tess2_draw (GL_TRIANGLE_STRIP, 2 * NUM_BEAM_SEGS, false, false);
+    } else {
+    // BBi
+
 	::glColor3f( 1, 0, 0 );
 
 	::glBegin( GL_TRIANGLE_STRIP );
@@ -807,6 +829,10 @@ void RB_SurfaceBeam( void ) {
 		::glVertex3fv( end_points[ i % NUM_BEAM_SEGS] );
 	}
 	::glEnd();
+
+    // BBi
+    }
+    // BBi
 }
 
 //================================================================================
@@ -1975,6 +2001,52 @@ Draws x/y/z lines from the origin for orientation debugging
 */
 void RB_SurfaceAxis( void ) {
 	GL_Bind( tr.whiteImage );
+
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        //
+        ogl_tess2.color[0][0] = 255;
+        ogl_tess2.color[0][1] = 0;
+        ogl_tess2.color[0][2] = 0;
+        ogl_tess2.color[0][3] = 255;
+        ogl_tess2.position[0] = glm::vec4 (0.0F);
+
+        ogl_tess2.color[1][0] = 255;
+        ogl_tess2.color[1][1] = 0;
+        ogl_tess2.color[1][2] = 0;
+        ogl_tess2.color[1][3] = 255;
+        ogl_tess2.position[1] = glm::vec4 (16.0F, 0.0F, 0.0F, 1.0F);
+
+        //
+        ogl_tess2.color[2][0] = 0;
+        ogl_tess2.color[2][1] = 255;
+        ogl_tess2.color[2][2] = 0;
+        ogl_tess2.color[2][3] = 255;
+        ogl_tess2.position[2] = glm::vec4 (0.0F);
+
+        ogl_tess2.color[3][0] = 0;
+        ogl_tess2.color[3][1] = 255;
+        ogl_tess2.color[3][2] = 0;
+        ogl_tess2.color[3][3] = 255;
+        ogl_tess2.position[3] = glm::vec4 (0.0F, 16.0F, 0.0F, 1.0F);
+
+        //
+        ogl_tess2.color[4][0] = 0;
+        ogl_tess2.color[4][1] = 0;
+        ogl_tess2.color[4][2] = 255;
+        ogl_tess2.color[4][3] = 255;
+        ogl_tess2.position[4] = glm::vec4 (0.0F);
+
+        ogl_tess2.color[5][0] = 0;
+        ogl_tess2.color[5][1] = 0;
+        ogl_tess2.color[5][2] = 255;
+        ogl_tess2.color[5][3] = 255;
+        ogl_tess2.position[5] = glm::vec4 (0.0F, 0.0F, 16.0F, 1.0F);
+
+        ::ogl_tess2_draw (GL_LINES, 6, false, true);
+    } else {
+    // BBi
+
 	::glLineWidth( 3 );
 	::glBegin( GL_LINES );
 	::glColor3f( 1,0,0 );
@@ -1988,6 +2060,10 @@ void RB_SurfaceAxis( void ) {
 	::glVertex3f( 0,0,16 );
 	::glEnd();
 	::glLineWidth( 1 );
+
+    // BBi
+    }
+    // BBi
 }
 
 //===========================================================================

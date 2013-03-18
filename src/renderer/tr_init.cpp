@@ -30,6 +30,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tr_local.h"
 
+// BBi
+#include "bbi_ogl_version.h"
+// BBi
+
 #if !defined RTCW_ET
 //#ifdef __USEA3D
 //// Defined in snd_a3dg_refcommon.c
@@ -40,7 +44,67 @@ If you have questions concerning this license or the applicable additional terms
 glconfig_t glConfig;
 
 //BBi
+bbi::OglVersion ogl_version;
+
+
+const GLintptr OglTessLayout::POS_OFS =
+    offsetof (OglTessLayout, position);
+
+const GLintptr OglTessLayout::TC0_OFS =
+    offsetof (OglTessLayout, texture_coords[0]);
+
+const GLintptr OglTessLayout::TC1_OFS =
+    offsetof (OglTessLayout, texture_coords[1]);
+
+const GLintptr OglTessLayout::COL_OFS =
+    offsetof (OglTessLayout, color);
+
+
+const GLvoid* OglTessLayout::POS_PTR =
+    reinterpret_cast<const GLvoid*> (OglTessLayout::POS_OFS);
+
+const GLvoid* OglTessLayout::TC0_PTR =
+    reinterpret_cast<const GLvoid*> (OglTessLayout::TC0_OFS);
+
+const GLvoid* OglTessLayout::TC1_PTR =
+    reinterpret_cast<const GLvoid*> (OglTessLayout::TC1_OFS);
+
+const GLvoid* OglTessLayout::COL_PTR =
+    reinterpret_cast<const GLvoid*> (OglTessLayout::COL_OFS);
+
+
+const std::size_t OglTessLayout::POS_SIZE =
+    offsetof (OglTessLayout, position[1]) -
+    offsetof (OglTessLayout, position[0]);
+
+const std::size_t OglTessLayout::TC0_SIZE =
+    offsetof (OglTessLayout, texture_coords[0][1]) -
+    offsetof (OglTessLayout, texture_coords[0][0]);
+
+const std::size_t OglTessLayout::TC1_SIZE =
+    offsetof (OglTessLayout, texture_coords[1][1]) -
+    offsetof (OglTessLayout, texture_coords[1][0]);
+
+const std::size_t OglTessLayout::COL_SIZE =
+    offsetof (OglTessLayout, color[1]) -
+    offsetof (OglTessLayout, color[0]);
+
+
 GlConfigEx glConfigEx;
+
+rtcw::OglTessState ogl_tess_state;
+
+GLuint ogl_tess_vbo = 0;
+int ogl_tess_base_vertex = 0;
+
+rtcw::OglTessProgram* ogl_tess_program = nullptr;
+
+OglTessLayout ogl_tess2;
+GLuint ogl_tess2_vbo = 0;
+int ogl_tess2_base_vertex = 0;
+
+rtcw::OglMatrixStack ogl_model_view_stack;
+rtcw::OglMatrixStack ogl_projection_stack;
 //BBi
 
 glstate_t glState;
@@ -384,6 +448,108 @@ static int R_GetMaxTextureSize ()
 
     return result;
 }
+
+std::string r_get_glsl_path ()
+{
+    if (glConfigEx.is_path_ogl_2_1 ())
+        return "glsl/120/";
+    else
+        return "";
+}
+
+bool r_probe_programs ()
+{
+    bool is_try_successfull = true;
+
+    std::string glsl_dir = r_get_glsl_path ();
+
+    if (glsl_dir.empty ()) {
+        ri.Printf (PRINT_WARNING, "Invalid OpenGL path value.\n");
+        return false;
+    }
+
+    rtcw::OglTessProgram tess_program (glsl_dir, "tess");
+
+    ri.Printf (PRINT_ALL, "\n======== GLSL probe ========\n");
+    ri.Printf (PRINT_ALL, "%s...\n", "Trying to reload programs");
+
+    is_try_successfull &= tess_program.try_reload ();
+
+    ri.Printf (PRINT_ALL, "======== GLSL probe ========\n");
+
+    return is_try_successfull;
+}
+
+void r_reload_programs_f ()
+{
+    if (glConfigEx.is_path_ogl_1_x ()) {
+        ri.Printf (PRINT_WARNING, "%s.\n", "Not supported for OpenGL 1.X");
+        return;
+    }
+
+    ri.Printf (PRINT_ALL, "\n======== GLSL ========\n");
+    ri.Printf (PRINT_ALL, "%s...\n", "Trying to reload programs");
+
+    const std::string glsl_dir = r_get_glsl_path ();
+
+    if (glsl_dir.empty ()) {
+        ri.Printf (PRINT_WARNING, "Invalid OpenGL path value.\n");
+        return;
+    }
+
+    bool is_try_successfull = true;
+
+    ogl_tess_state.set_program (nullptr);
+
+    if (ogl_tess_program == nullptr) {
+        ogl_tess_program = new rtcw::OglTessProgram (
+            glsl_dir, "tess");
+    }
+
+    if (ogl_tess_program != nullptr)
+        is_try_successfull &= ogl_tess_program->try_reload ();
+    else {
+        is_try_successfull = false;
+        ri.Printf (PRINT_ALL, "%s.\n", "Out of memory");
+    }
+
+    if (is_try_successfull) {
+        ri.Printf (PRINT_ALL, "\n%s...\n", "Reloading programs");
+        ogl_tess_program->reload ();
+    }
+
+    ogl_tess_state.set_program (ogl_tess_program);
+    ogl_tess_state.commit_changes ();
+
+    ri.Printf (PRINT_ALL, "======== GLSL ========\n");
+}
+
+static void r_tess_initialize ()
+{
+    GLsizeiptr vbo_size = sizeof (OglTessLayout);
+
+    ::glGenBuffers (1, &ogl_tess_vbo);
+    ::glBindBuffer (GL_ARRAY_BUFFER, ogl_tess_vbo);
+    ::glBufferData (GL_ARRAY_BUFFER, vbo_size, nullptr, GL_DYNAMIC_DRAW);
+    ::glBindBuffer (GL_ARRAY_BUFFER, 0);
+
+    ::glGenBuffers (1, &ogl_tess2_vbo);
+    ::glBindBuffer (GL_ARRAY_BUFFER, ogl_tess2_vbo);
+    ::glBufferData (GL_ARRAY_BUFFER, vbo_size, nullptr, GL_DYNAMIC_DRAW);
+    ::glBindBuffer (GL_ARRAY_BUFFER, 0);
+
+    ogl_tess_base_vertex = 0;
+    ogl_tess2_base_vertex = 0;
+}
+
+static void r_tess_uninitialize ()
+{
+    ::glDeleteBuffers (1, &ogl_tess_vbo);
+    ogl_tess_vbo = 0;
+
+    ::glDeleteBuffers (1, &ogl_tess2_vbo);
+    ogl_tess2_vbo = 0;
+}
 //BBi
 
 /*
@@ -419,6 +585,10 @@ static void InitOpenGL( void ) {
 		strcpy( renderer_buffer, glConfig.renderer_string );
 		Q_strlwr( renderer_buffer );
 
+        // BBi
+        ogl_version.assign (glConfig.version_string);
+        // BBi
+
         //BBi
 		//// OpenGL driver constants
 		//::glGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );
@@ -432,6 +602,26 @@ static void InitOpenGL( void ) {
 			glConfig.maxTextureSize = 0;
 		}
 	}
+
+    // BBi
+    glConfigEx.renderer_path = RENDERER_PATH_OGL_1_X;
+
+    if (ogl_version.is_minimum_version (2, 1)) {
+        glConfigEx.renderer_path = RENDERER_PATH_OGL_2_1;
+
+        if (::r_probe_programs ()) {
+            ::ri.Printf (PRINT_ALL, "\nUsing OpenGL 2.1 path...\n");
+        } else {
+            glConfigEx.renderer_path = RENDERER_PATH_OGL_1_X;
+            ::ri.Printf (PRINT_WARNING, "\nFalling back to OpenGL 1.x path...");
+        }
+    }
+
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ::r_reload_programs_f ();
+        ::r_tess_initialize ();
+    }
+    // BBi
 
 	// init command buffers and SMP
 	R_InitCommandBuffers();
@@ -896,11 +1086,25 @@ void R_ScreenShotJPEG_f( void ) {
 ** GL_SetDefaultState
 */
 void GL_SetDefaultState( void ) {
+    // BBi
+    ogl_tess_state.set_default_values ();
+    // BBi
+
 	::glClearDepth( 1.0f );
 
 	::glCullFace( GL_FRONT );
 
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
+    } else {
+    // BBi
+
 	::glColor4f( 1,1,1,1 );
+
+    // BBi
+    }
+    // BBi
 
 	// initialize downstream texture unit if we're running
 	// in a multitexture environment
@@ -919,12 +1123,39 @@ void GL_SetDefaultState( void ) {
 //BBi
 
 		GL_TexEnv( GL_MODULATE );
+
+        // BBi
+        if (glConfigEx.is_path_ogl_1_x ()) {
+        // BBi
+
 		::glDisable( GL_TEXTURE_2D );
+
+        // BBi
+        }
+        // BBi
+
 		GL_SelectTexture( 0 );
 	}
 
+    // BBi
+    if (glConfigEx.is_path_ogl_1_x ()) {
+    // BBi
+
 	::glEnable( GL_TEXTURE_2D );
+
+    // BBi
+    }
+    // BBi
+
 	GL_TextureMode( r_textureMode->string );
+
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_tess_state.tex_2d[0].set (0);
+        ogl_tess_state.tex_2d[1].set (1);
+        ogl_tess_state.use_multitexturing.set (false);
+    }
+    // BBi
 
 //BBi
 //#if defined RTCW_ET
@@ -941,9 +1172,17 @@ void GL_SetDefaultState( void ) {
 	::glShadeModel( GL_SMOOTH );
 	::glDepthFunc( GL_LEQUAL );
 
+    // BBi
+    if (glConfigEx.is_path_ogl_1_x ()) {
+    // BBi
+
 	// the vertex array is always enabled, but the color and texture
 	// arrays are enabled and disabled around the compiled vertex array call
 	::glEnableClientState( GL_VERTEX_ARRAY );
+
+    // BBi
+    }
+    // BBi
 
 	//
 	// make sure our GL state vector is set correctly
@@ -991,6 +1230,10 @@ void GL_SetDefaultState( void ) {
 	}
 
 //----(SA)	end
+
+    // BBi
+    ogl_tess_state.commit_changes ();
+    // BBi
 }
 
 #if defined RTCW_ET
@@ -1182,6 +1425,7 @@ void GfxInfo_f( void ) {
 // RF
 extern void R_CropImages_f( void );
 #endif // RTCW_XX
+
 
 /*
 ===============
@@ -1679,6 +1923,10 @@ void R_Register( void ) {
 	}
 #endif // RTCW_XX
 
+    // BBi
+    ri.Cmd_AddCommand ("r_reload_programs", r_reload_programs_f);
+    // BBi
+
 	// done.
 }
 
@@ -1811,6 +2059,14 @@ void R_PurgeCache( void ) {
 }
 #endif // RTCW_XX
 
+// BBi
+static void r_shutdown_programs ()
+{
+    delete ogl_tess_program;
+    ogl_tess_program = nullptr;
+}
+// BBi
+
 /*
 ===============
 RE_Shutdown
@@ -1834,6 +2090,10 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	// Ridah
 	ri.Cmd_RemoveCommand( "cropimages" );
 	// done.
+
+    // BBi
+    ri.Cmd_RemoveCommand ("r_reload_programs");
+    // BBi
 
 	R_ShutdownCommandBuffers();
 
@@ -1870,6 +2130,13 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	}
 
 	R_DoneFreeType();
+
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ::r_shutdown_programs ();
+        ::r_tess_uninitialize ();
+    }
+    // BBi
 
 	// shut down platform specific OpenGL stuff
 	if ( destroyWindow ) {

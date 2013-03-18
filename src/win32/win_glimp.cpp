@@ -47,6 +47,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "tr_local.h"
 #include "qcommon.h"
 
+//BBi
 #if defined RTCW_SP
     #include "rtcw_sp_resource.h"
 #elif defined RTCW_MP
@@ -54,6 +55,7 @@ If you have questions concerning this license or the applicable additional terms
 #elif defined RTCW_ET
     #include "rtcw_et_resource.h"
 #endif // RTCW_XX
+//BBi
 
 #include "glw_win.h"
 #include "win_local.h"
@@ -1093,11 +1095,12 @@ static bool GLW_CreateWindow (
             exstyle,
             WINDOW_CLASS_NAME,
 
-#if !defined RTCW_ET
-            "Wolfenstein",
+#if defined RTCW_SP
+            "Return to Castle Wolfenstein: Single Player",
+#elif defined RTCW_MP
+            "Return to Castle Wolfenstein: Multi Player",
 #else
-            //"Wolfenstein",
-            "Enemy Territory",
+            "Return to Castle Wolfenstein: Enemy Territory",
 #endif // RTCW_XX
 
             stylebits,
@@ -1583,21 +1586,27 @@ static void GLW_InitExtensions( void ) {
     if (GLEW_ARB_texture_compression != 0) {
         if (r_ext_compressed_textures->integer != 0) {
             glConfig.textureCompression = TC_ARB;
-            ::ri.Printf (PRINT_ALL, "...using GL_ARB_texture_compression\n");
-        } else
-            ::ri.Printf (PRINT_ALL, "...ignoring GL_ARB_texture_compression\n");
+            ::ri.Printf (PRINT_ALL, "...using %s\n",
+                "GL_ARB_texture_compression");
+        } else {
+            ::ri.Printf (PRINT_ALL, "...ignoring %s\n",
+                "GL_ARB_texture_compression");
+        }
     } else if (GLEW_EXT_texture_compression_s3tc != 0) {
         if (r_ext_compressed_textures->integer != 0) {
             glConfig.textureCompression = TC_EXT_COMP_S3TC;
-            ::ri.Printf (PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n");
-        } else
-            ::ri.Printf (PRINT_ALL, "...ignoring GL_EXT_texture_compression_s3tc\n");
+            ::ri.Printf (PRINT_ALL, "...using %s\n",
+                "GL_EXT_texture_compression_s3tc");
+        } else {
+            ::ri.Printf (PRINT_ALL, "...ignoring %s\n",
+                "GL_EXT_texture_compression_s3tc");
+        }
     } else if (GLEW_S3_s3tc != 0) {
         if (r_ext_compressed_textures->integer != 0) {
             glConfig.textureCompression = TC_S3TC;
-            ::ri.Printf (PRINT_ALL, "...using GL_S3_s3tc\n");
+            ::ri.Printf (PRINT_ALL, "...using %s\n", "GL_S3_s3tc");
         } else
-            ::ri.Printf (PRINT_ALL, "...ignoring GL_S3_s3tc\n");
+            ::ri.Printf (PRINT_ALL, "...ignoring %s\n", "GL_S3_s3tc");
     } else
         ::ri.Printf (PRINT_ALL, "...texture compression not found\n");
 //BBi
@@ -1610,19 +1619,35 @@ static void GLW_InitExtensions( void ) {
 //#endif // RTCW_XX
 //BBi
 
-	if ( strstr( glConfig.extensions_string, "EXT_texture_env_add" ) ) {
-		if ( r_ext_texture_env_add->integer ) {
-			glConfig.textureEnvAddAvailable = qtrue;
-			ri.Printf( PRINT_ALL, "...using GL_EXT_texture_env_add\n" );
-		} else
-		{
-			glConfig.textureEnvAddAvailable = qfalse;
-			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n" );
-		}
-	} else
-	{
-		ri.Printf( PRINT_ALL, "...GL_EXT_texture_env_add not found\n" );
-	}
+    // BBi
+	//if ( strstr( glConfig.extensions_string, "EXT_texture_env_add" ) ) {
+	//	if ( r_ext_texture_env_add->integer ) {
+	//		glConfig.textureEnvAddAvailable = qtrue;
+	//		ri.Printf( PRINT_ALL, "...using GL_EXT_texture_env_add\n" );
+	//	} else
+	//	{
+	//		glConfig.textureEnvAddAvailable = qfalse;
+	//		ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n" );
+	//	}
+	//} else
+	//{
+	//	ri.Printf( PRINT_ALL, "...GL_EXT_texture_env_add not found\n" );
+	//}
+
+    if (GLEW_EXT_texture_env_add != 0) {
+        if (r_ext_texture_env_add->integer != 0) {
+            glConfig.textureEnvAddAvailable = true;
+            ::ri.Printf (PRINT_ALL, "...using %s\n", "GL_EXT_texture_env_add");
+        } else {
+            glConfig.textureEnvAddAvailable = false;
+            ::ri.Printf (PRINT_ALL, "...ignoring %s\n",
+                "GL_EXT_texture_env_add");
+        }
+    } else {
+        ::ri.Printf (PRINT_ALL, "...%s not found\n",
+            "GL_EXT_texture_env_add");
+    }
+    // BBi
 
 	// WGL_EXT_swap_control
 
@@ -1637,10 +1662,10 @@ static void GLW_InitExtensions( void ) {
 	//}
 
     if (WGLEW_EXT_swap_control != 0) {
-        ::ri.Printf (PRINT_ALL, "...using WGL_EXT_swap_control\n");
+        ::ri.Printf (PRINT_ALL, "...using %s\n", "WGL_EXT_swap_control");
         r_swapInterval->modified = true;   // force a set next frame
     } else
-        ::ri.Printf (PRINT_ALL, "...WGL_EXT_swap_control not found\n");
+        ::ri.Printf (PRINT_ALL, "...%s not found\n", "WGL_EXT_swap_control");
     //BBi
 
 	// GL_ARB_multitexture
@@ -1686,13 +1711,15 @@ static void GLW_InitExtensions( void ) {
 
             if (glConfig.maxActiveTextures > 1) {
                 glConfigEx.useArbMultitexture = true;
-                ri.Printf (PRINT_ALL, "...using GL_ARB_multitexture\n");
-            } else
-                ri.Printf (PRINT_ALL, "...not using GL_ARB_multitexture, < 2 texture units\n");
+                ri.Printf (PRINT_ALL, "...using %s\n", "GL_ARB_multitexture");
+            } else {
+                ri.Printf (PRINT_ALL, "...not using %s, < 2 texture units\n",
+                "GL_ARB_multitexture");
+            }
         } else
-            ::ri.Printf (PRINT_ALL, "...ignoring GL_ARB_multitexture\n");
+            ::ri.Printf (PRINT_ALL, "...ignoring %s\n", "GL_ARB_multitexture");
     } else
-        ::ri.Printf (PRINT_ALL, "...GL_ARB_multitexture not found\n");
+        ::ri.Printf (PRINT_ALL, "...%s not found\n", "GL_ARB_multitexture");
 //BBi
 
 	// GL_EXT_compiled_vertex_array
@@ -1730,11 +1757,16 @@ static void GLW_InitExtensions( void ) {
     if (GLEW_EXT_compiled_vertex_array != 0) {
         if (r_ext_compiled_vertex_array->integer != 0) {
             glConfigEx.useExtCompiledVertexArray = true;
-            ::ri.Printf (PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n");
-        } else
-            ::ri.Printf (PRINT_ALL, "...ignoring GL_EXT_compiled_vertex_array\n");
-    } else
-        ::ri.Printf (PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n");
+            ::ri.Printf (PRINT_ALL, "...using %s\n",
+                "GL_EXT_compiled_vertex_array");
+        } else {
+            ::ri.Printf (PRINT_ALL, "...ignoring %s\n",
+                "GL_EXT_compiled_vertex_array");
+        }
+    } else {
+        ::ri.Printf (PRINT_ALL, "...%s not found\n",
+            "GL_EXT_compiled_vertex_array");
+    }
 //BBi
 
 //BBi
@@ -1866,13 +1898,16 @@ static void GLW_InitExtensions( void ) {
     if (GLEW_EXT_texture_filter_anisotropic != 0) {
         if (r_ext_texture_filter_anisotropic->integer != 0) {
             glConfig.anisotropicAvailable = true;
-            ::ri.Printf (PRINT_ALL, "...using GL_EXT_texture_filter_anisotropic\n");
+            ::ri.Printf (PRINT_ALL, "...using %s\n",
+                "GL_EXT_texture_filter_anisotropic");
         } else {
-            ::ri.Printf (PRINT_ALL, "...ignoring GL_EXT_texture_filter_anisotropic\n");
+            ::ri.Printf (PRINT_ALL, "...ignoring %s\n",
+                "GL_EXT_texture_filter_anisotropic");
             ::ri.Cvar_Set ("r_ext_texture_filter_anisotropic", "0");
         }
     } else {
-        ::ri.Printf (PRINT_ALL, "... GL_EXT_texture_filter_anisotropic not found\n");
+        ::ri.Printf (PRINT_ALL, "... %s not found\n",
+            "GL_EXT_texture_filter_anisotropic");
         ::ri.Cvar_Set ("r_ext_texture_filter_anisotropic", "0");
     }
     //BBi
@@ -1884,17 +1919,31 @@ static void GLW_InitExtensions( void ) {
     //BBi
     if (GLEW_ARB_framebuffer_object != 0) {
         glConfigEx.useArbFramebufferObject = true;
-        ::ri.Printf (PRINT_ALL, "...using GL_ARB_framebuffer_object\n");
-    } else
-        ::ri.Printf (PRINT_ALL, "...GL_ARB_framebuffer_object not found\n");
+        ::ri.Printf (PRINT_ALL, "...using %s\n",
+            "GL_ARB_framebuffer_object");
+    } else {
+        ::ri.Printf (PRINT_ALL, "...%s not found\n",
+            "GL_ARB_framebuffer_object");
+    }
 
 
     if (GLEW_ARB_texture_non_power_of_two != 0) {
         glConfigEx.useArbTextureNonPowerOfTwo = true;
-        ::ri.Printf (PRINT_ALL, "...using GL_ARB_texture_non_power_of_two\n");
-    } else
-        ::ri.Printf (PRINT_ALL, "...GL_ARB_texture_non_power_of_two not found\n");
-    //BBi
+        ::ri.Printf (PRINT_ALL, "...using %s\n",
+            "GL_ARB_texture_non_power_of_two");
+    } else {
+        ::ri.Printf (PRINT_ALL, "...%s not found\n",
+            "GL_ARB_texture_non_power_of_two");
+    }
+
+    if (GLEW_ARB_draw_elements_base_vertex != 0) {
+        glConfigEx.use_arb_draw_elements_base_vertex = true;
+        ::ri.Printf (PRINT_ALL, "...using %s\n",
+            "GL_ARB_draw_elements_base_vertex");
+    } else {
+        ::ri.Printf (PRINT_ALL, "...%s not found\n",
+            "GL_ARB_draw_elements_base_vertex");
+    }
 }
 
 #if defined RTCW_ET

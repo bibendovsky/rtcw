@@ -98,6 +98,43 @@ void R_Fog( glfog_t *curfog ) {
 
 	// only send changes if necessary
 
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        float fog_start = curfog->start;
+        float fog_end = curfog->end;
+
+#if defined RTCW_SP
+        if ((backEnd.refdef.rdflags & RDF_SNOOPERVIEW) != 0)
+            fog_start = curfog->end;
+#endif // RTCW_XX
+
+        if (r_zfar->value)
+            fog_end = r_zfar->value;
+        else {
+#if defined RTCW_SP
+            if ((backEnd.refdef.rdflags & RDF_SNOOPERVIEW) != 0)
+                fog_end = curfog->end + 1000.0F;
+#endif // RTCW_XX
+        }
+
+    //// NV fog mode
+    //if ( glConfig.NVFogAvailable ) {
+    //	::glFogi( GL_FOG_DISTANCE_MODE_NV, glConfig.NVFogMode );
+    //}
+
+        ogl_tess_state.fog_mode.set (curfog->mode);
+        ogl_tess_state.fog_hint.set (curfog->hint);
+        ogl_tess_state.fog_density.set (curfog->density);
+        ogl_tess_state.fog_start.set (fog_start);
+        ogl_tess_state.fog_end.set (fog_end);
+
+        ogl_tess_state.fog_color.set (glm::vec4 (curfog->color[0],
+            curfog->color[1], curfog->color[2], curfog->color[3]));
+
+        ogl_tess_state.commit_changes ();
+    } else {
+    // BBi
+
 //	if(curfog->mode != setfog.mode || !setfog.registered) {
 	::glFogi( GL_FOG_MODE, curfog->mode );
 //		setfog.mode = curfog->mode;
@@ -170,6 +207,10 @@ void R_Fog( glfog_t *curfog ) {
 // end
 #endif // RTCW_XX
 
+    // BBi
+    }
+    // BBi
+
 	setfog.registered = qtrue;
 
 	::glClearColor( curfog->color[0], curfog->color[1], curfog->color[2], curfog->color[3] );
@@ -182,7 +223,20 @@ void R_FogOff( void ) {
 	if ( !fogIsOn ) {
 		return;
 	}
+
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_tess_state.use_fog.set (false);
+        ogl_tess_state.commit_changes ();
+    } else {
+    // BBi
+
 	::glDisable( GL_FOG );
+
+    // BBi
+    }
+    // BBi
+
 	fogIsOn = qfalse;
 }
 
@@ -228,7 +282,19 @@ void R_FogOn( void ) {
 		return;
 	}
 
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_tess_state.use_fog.set (true);
+        ogl_tess_state.commit_changes ();
+    } else {
+    // BBi
+
 	::glEnable( GL_FOG );
+
+    // BBi
+    }
+    // BBi
+
 	fogIsOn = qtrue;
 }
 // done.
@@ -1731,16 +1797,12 @@ qsort replacement
 
 //BBi
 //#define SWAP_DRAW_SURF( a,b ) temp = ( (int *)a )[0]; ( (int *)a )[0] = ( (int *)b )[0]; ( (int *)b )[0] = temp; temp = ( (int *)a )[1]; ( (int *)a )[1] = ( (int *)b )[1]; ( (int *)b )[1] = temp;
-static inline void SWAP_DRAW_SURF (
-    drawSurf_t* a,
-    drawSurf_t* b)
+static inline void SWAP_DRAW_SURF (drawSurf_t* a, drawSurf_t* b)
 {
     std::swap (*a, *b);
 }
 
-static inline void SWAP_DRAW_SURF (
-    char* a,
-    char* b)
+static inline void SWAP_DRAW_SURF (char* a, char* b)
 {
     std::swap_ranges (a, a + sizeof (drawSurf_t), b);
 }
@@ -2302,6 +2364,24 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 
 	// draw solid shade
 
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_tess_state.primary_color.set (glm::vec4 (
+            static_cast<float> (color % 2),
+            static_cast<float> ((color / 2) % 2),
+            static_cast<float> ((color / 4) % 2),
+            1.0F));
+        ogl_tess_state.commit_changes ();
+
+        for (i = 0; i < numPoints; ++i) {
+            const float* v = points + (3 * i);
+            ogl_tess2.position[i] = glm::vec4 (v[0], v[1], v[2], 1.0F);
+        }
+
+        ::ogl_tess2_draw (GL_TRIANGLE_FAN, numPoints, false, false);
+    } else {
+    // BBi
+
 	::glColor3f( color & 1, ( color >> 1 ) & 1, ( color >> 2 ) & 1 );
 	::glBegin( GL_POLYGON );
 	for ( i = 0 ; i < numPoints ; i++ ) {
@@ -2309,15 +2389,39 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 	}
 	::glEnd();
 
+    // BBi
+    }
+    // BBi
+
 	// draw wireframe outline
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
 	::glDepthRange( 0, 0 );
+
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
+        ogl_tess_state.commit_changes ();
+
+        for (i = 0; i < numPoints; ++i) {
+            const float* v = points + (3 * i);
+            ogl_tess2.position[i] = glm::vec4 (v[0], v[1], v[2], 1.0F);
+        }
+
+        ::ogl_tess2_draw (GL_TRIANGLE_FAN, numPoints, false, false);
+    } else {
+    // BBi
+
 	::glColor3f( 1, 1, 1 );
 	::glBegin( GL_POLYGON );
 	for ( i = 0 ; i < numPoints ; i++ ) {
 		::glVertex3fv( points + i * 3 );
 	}
 	::glEnd();
+
+    // BBi
+    }
+    // BBi
+
 	::glDepthRange( 0, 1 );
 }
 
@@ -2333,6 +2437,11 @@ void R_DebugText( const vec3_t org, float r, float g, float b, const char *text,
 		::glDepthRange( 0, 0 );  // never occluded
 
 	}
+
+    // BBi FIXME 2.1+ path
+    if (glConfigEx.is_path_ogl_1_x ()) {
+    // BBi
+
 	::glColor3f( r, g, b );
 	::glRasterPos3fv( org );
 	::glPushAttrib( GL_LIST_BIT );
@@ -2340,6 +2449,10 @@ void R_DebugText( const vec3_t org, float r, float g, float b, const char *text,
 	::glCallLists( strlen( text ), GL_UNSIGNED_BYTE, text );
 	::glListBase( 0 );
 	::glPopAttrib();
+
+    // BBi
+    }
+    // BBi
 
 	if ( neverOcclude ) {
 		::glDepthRange( 0, 1 );
@@ -2432,12 +2545,12 @@ void R_RenderView( viewParms_t *parms ) {
 
 }
 
-//BBi
-GLenum R_GetBestWrapClamp ()
+// BBi
+GLenum r_get_best_wrap_clamp ()
 {
     if (glConfigEx.useArbFramebufferObject)
         return GL_CLAMP_TO_EDGE;
     else
         return GL_CLAMP;
 }
-//BBi
+// BBi

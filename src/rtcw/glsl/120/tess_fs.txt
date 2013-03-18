@@ -1,0 +1,116 @@
+#version 120
+
+
+// Known constants.
+const int GL_ADD = 0x0104;
+const int GL_DECAL = 0x2101;
+const int GL_EXP = 0x0800;
+const int GL_GEQUAL = 0x0206;
+const int GL_GREATER = 0x0204;
+const int GL_LESS = 0x0201;
+const int GL_LINEAR = 0x2601;
+const int GL_MODULATE = 0x2100;
+const int GL_REPLACE = 0x1E01;
+
+
+uniform vec4 primary_color; // primary color
+uniform bool use_alpha_test; // alpha test switch
+uniform int alpha_test_func; // alpha test function
+uniform float alpha_test_ref; // alpha test reference value
+uniform int tex_env_mode[2]; // texture environment mode
+uniform bool use_multitexturing; // mutitexturing switch
+uniform sampler2D tex_2d[2]; // textures
+
+uniform bool use_fog = false;
+uniform int fog_mode = GL_EXP;
+uniform vec4 fog_color = vec4 (0.0);
+uniform float fog_density = 1.0;
+uniform float fog_start = 0.0;
+uniform float fog_end = 1.0;
+
+varying vec4 col; // interpolated color
+varying vec2 tc[2]; // interpolated texture coords
+varying float fog_c;
+
+
+vec4 apply_tex_env (vec4 previous_color, int env_index)
+{
+    vec4 result = previous_color;
+    vec4 texel = texture2D (tex_2d[env_index], tc[env_index]);
+
+    if (tex_env_mode[env_index] == GL_REPLACE)
+        result = texel;
+    else if (tex_env_mode[env_index] == GL_MODULATE)
+        result *= texel;
+    else if (tex_env_mode[env_index] == GL_DECAL)
+        result.rgb = mix (result.rgb, texel.rgb, texel.a);
+    else if (tex_env_mode[env_index] == GL_ADD) {
+        result.rgb += texel.rgb;
+        result.a *= texel.a;
+    } else {
+        // invalid mode
+        result *= vec4 (0.5, 0.0, 0.0, 1.0);
+    }
+
+    return result;
+}
+
+vec4 apply_alpha_test (vec4 color)
+{
+    float test_ref = clamp (alpha_test_ref, 0.0, 1.0);
+
+    if (alpha_test_func == GL_GEQUAL) {
+        if (color.a < test_ref)
+            discard;
+    } else if (alpha_test_func == GL_GREATER) {
+        if (color.a <= test_ref)
+            discard;
+    } else if (alpha_test_func == GL_LESS) {
+        if (color.a >= test_ref)
+            discard;
+    } else {
+        // invalid function
+        color *= vec4 (0.0, 0.5, 0.0, 1.0);
+    }
+
+    return color;
+}
+
+vec4 apply_fog (vec4 color)
+{
+    float f = 1.0;
+
+    if (fog_c >= 0.0) {
+        if (fog_mode == GL_LINEAR) {
+            float es = fog_end - fog_start;
+
+            if (es != 0.0)
+                f = (fog_end - fog_c) / es;
+        } else if (fog_mode == GL_EXP)
+            f = exp (-fog_density * fog_c);
+    } else
+        return color *= vec4 (0.0, 0.5, 0.0, 1.0);
+
+    f = clamp (f, 0.0, 1.0);
+    vec4 mixed_color = mix (fog_color, color, f);
+    return vec4 (mixed_color.rgb, color.a);
+}
+
+
+void main ()
+{
+    vec4 frag_color = primary_color * col;
+
+    frag_color = apply_tex_env (frag_color, 0);
+
+    if (use_multitexturing)
+        frag_color = apply_tex_env (frag_color, 1);
+
+    if (use_fog)
+        frag_color = apply_fog (frag_color);
+
+    if (use_alpha_test)
+        frag_color = apply_alpha_test (frag_color);
+
+    gl_FragColor = frag_color;
+}

@@ -144,6 +144,42 @@ void R_RenderShadowEdges( void ) {
 			// if it doesn't share the edge with another front facing
 			// triangle, it is a sil edge
 			if ( hit[ 1 ] == 0 ) {
+                // BBi
+                if (!glConfigEx.is_path_ogl_1_x ()) {
+#if !defined RTCW_ET
+                    ogl_tess2.position[0] =
+                        *reinterpret_cast<const glm::vec4*> (tess.xyz[i]);
+
+                    ogl_tess2.position[1] =
+                        *reinterpret_cast<const glm::vec4*> (
+                            tess.xyz[i + tess.numVertexes]);
+
+                    ogl_tess2.position[2] =
+                        *reinterpret_cast<const glm::vec4*> (tess.xyz[i2]);
+
+                    ogl_tess2.position[3] =
+                        *reinterpret_cast<const glm::vec4*> (
+                        tess.xyz[i2 + tess.numVertexes]);
+#else
+                    ogl_tess2.position[0] =
+                        *reinterpret_cast<const glm::vec4*> (tess.xyz[i].v);
+
+                    ogl_tess2.position[1] =
+                        *reinterpret_cast<const glm::vec4*> (
+                            tess.xyz[i + tess.numVertexes].v);
+
+                    ogl_tess2.position[2] =
+                        *reinterpret_cast<const glm::vec4*> (tess.xyz[i2].v);
+
+                    ogl_tess2.position[3] =
+                        *reinterpret_cast<const glm::vec4*> (
+                        tess.xyz[i2 + tess.numVertexes].v);
+#endif // RTCW_XX
+
+                    ::ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, false, false);
+                } else {
+                // BBi
+
 				::glBegin( GL_TRIANGLE_STRIP );
 
 #if !defined RTCW_ET
@@ -159,6 +195,11 @@ void R_RenderShadowEdges( void ) {
 #endif // RTCW_XX
 
 				::glEnd();
+
+                // BBi
+                }
+                // BBi
+
 				c_edges++;
 			} else {
 				c_rejected++;
@@ -321,13 +362,41 @@ void RB_ShadowFinish( void ) {
 
 	GL_Bind( tr.whiteImage );
 
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_model_view_stack.set_current (glm::mat4 (1.0F));
+        ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
+        ogl_tess_state.primary_color.set (glm::vec4 (0.6F, 0.6F, 0.6F, 1.0F));
+        ogl_tess_state.commit_changes ();
+    } else {
+    // BBi
+
 	::glLoadIdentity();
 
 	::glColor3f( 0.6f, 0.6f, 0.6f );
+
+    // BBi
+    }
+    // BBi
+
 	GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO );
 
 //	::glColor3f( 1, 0, 0 );
 //	GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
+
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_tess2.position[0] = glm::vec4 (-100.0F, 100.0F, -10.0F, 1.0F);
+        ogl_tess2.position[1] = glm::vec4 (100.0F, 100.0F, -10.0F, 1.0F);
+        ogl_tess2.position[2] = glm::vec4 (-100.0F, -100.0F, -10.0F, 1.0F);
+        ogl_tess2.position[3] = glm::vec4 (100.0F, -100.0F, -10.0F, 1.0F);
+
+        ::ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, false, false);
+
+        ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
+        ogl_tess_state.commit_changes ();
+    } else {
+    // BBi
 
 	::glBegin( GL_QUADS );
 	::glVertex3f( -100, 100, -10 );
@@ -337,6 +406,11 @@ void RB_ShadowFinish( void ) {
 	::glEnd();
 
 	::glColor4f( 1,1,1,1 );
+
+    // BBi
+    }
+    // BBi
+
 	::glDisable( GL_STENCIL_TEST );
 }
 

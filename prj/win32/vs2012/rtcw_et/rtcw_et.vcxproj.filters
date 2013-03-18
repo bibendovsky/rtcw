@@ -16,6 +16,12 @@
       <UniqueIdentifier>{eff05ee1-7f6f-4aa5-81c3-2eb14536e1db}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
+    <Filter Include="Header Files\bbi">
+      <UniqueIdentifier>{31390677-fe16-4fec-bc32-e0445da03bf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\bbi">
+      <UniqueIdentifier>{ca48641d-2b4b-4f49-bb44-3e4ce1caa8cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\client\cl_cgame.cpp">
@@ -372,6 +378,30 @@
     <ClCompile Include="..\..\..\..\src\client\snd_dma_core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_program.cpp">
+      <Filter>Source Files\bbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_shader.cpp">
+      <Filter>Source Files\bbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_uniform_info.cpp">
+      <Filter>Source Files\bbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_version.cpp">
+      <Filter>Source Files\bbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\renderer\rtcw_ogl_matrix_stack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\renderer\rtcw_ogl_program.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\renderer\rtcw_ogl_tess_program.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\renderer\rtcw_ogl_tess_state.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\game\bg_public.h">
@@ -595,6 +625,36 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\src\win32\rtcw_et_resource.h">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_core.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_endian.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_program.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_shader.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_uniform_info.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_version.h">
+      <Filter>Header Files\bbi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\renderer\rtcw_ogl_matrix_stack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\renderer\rtcw_ogl_program.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\renderer\rtcw_ogl_tess_program.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\renderer\rtcw_ogl_tess_state.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -5,3 +5,24 @@ RTCW: One source port for all Return to Castle Wolfenstein games
 Minimum system requirements
 ---------------------------
 OS: Windows XP
+
+
+Used third-party libraries
+--------------------------
+FMOD Ex SoundSystem Copyright © 2005-2012 Firelight Technologies Pty, Ltd.
+(http://fmod.org/)
+
+GLEW: The OpenGL Extension Wrangler Library
+(http://glew.sourceforge.net/)
+
+libjpeg-turbo
+(http://libjpeg-turbo.virtualgl.org/)
+
+libcurl - the multiprotocol file transfer library 
+(http://curl.haxx.se/libcurl/)
+
+OpenGL Mathematics (GLM)
+(http://glm.g-truc.net/)
+
+ZLIB DATA COMPRESSION LIBRARY (zlib)
+(http://zlib.net/)

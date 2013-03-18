@@ -111,6 +111,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_program.cpp" />
+    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_shader.cpp" />
+    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_source.cpp" />
+    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_uniform_info.cpp" />
+    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_version.cpp" />
+    <ClCompile Include="..\..\..\..\src\bbi\bbi_string.cpp" />
     <ClCompile Include="..\..\..\..\src\botlib\be_aas_bspq3.cpp" />
     <ClCompile Include="..\..\..\..\src\botlib\be_aas_cluster.cpp" />
     <ClCompile Include="..\..\..\..\src\botlib\be_aas_debug.cpp" />
@@ -171,6 +177,10 @@
     <ClCompile Include="..\..\..\..\src\client\snd_mem.cpp" />
     <ClCompile Include="..\..\..\..\src\client\snd_mix.cpp" />
     <ClCompile Include="..\..\..\..\src\client\snd_wavelet.cpp" />
+    <ClCompile Include="..\..\..\..\src\renderer\rtcw_ogl_tess_state.cpp" />
+    <ClCompile Include="..\..\..\..\src\renderer\rtcw_ogl_tess_program.cpp" />
+    <ClCompile Include="..\..\..\..\src\renderer\rtcw_ogl_matrix_stack.cpp" />
+    <ClCompile Include="..\..\..\..\src\renderer\rtcw_ogl_program.cpp" />
     <ClCompile Include="..\..\..\..\src\renderer\tr_animation.cpp" />
     <ClCompile Include="..\..\..\..\src\renderer\tr_backend.cpp" />
     <ClCompile Include="..\..\..\..\src\renderer\tr_bsp.cpp" />
@@ -226,6 +236,13 @@
     <ClInclude Include="..\..\..\..\src\bbi\bbi_core.h" />
     <ClInclude Include="..\..\..\..\src\bbi\bbi_endian.h" />
     <ClInclude Include="..\..\..\..\src\bbi\bbi_mem.h" />
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_program.h" />
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_shader.h" />
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_source.h" />
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_uniform_info.h" />
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_version.h" />
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_string.h" />
+    <ClInclude Include="..\..\..\..\src\bbi\bbi_types.h" />
     <ClInclude Include="..\..\..\..\src\botlib\aasfile.h" />
     <ClInclude Include="..\..\..\..\src\botlib\be_aas_bsp.h" />
     <ClInclude Include="..\..\..\..\src\botlib\be_aas_cluster.h" />
@@ -272,7 +289,12 @@
     <ClInclude Include="..\..\..\..\src\qcommon\cm_public.h" />
     <ClInclude Include="..\..\..\..\src\game\g_public.h" />
     <ClInclude Include="..\..\..\..\src\qcommon\rtcw_c.h" />
+    <ClInclude Include="..\..\..\..\src\qcommon\rtcw_mod_value.h" />
     <ClInclude Include="..\..\..\..\src\renderer\anorms256.h" />
+    <ClInclude Include="..\..\..\..\src\renderer\rtcw_ogl_tess_state.h" />
+    <ClInclude Include="..\..\..\..\src\renderer\rtcw_ogl_tess_program.h" />
+    <ClInclude Include="..\..\..\..\src\renderer\rtcw_ogl_matrix_stack.h" />
+    <ClInclude Include="..\..\..\..\src\renderer\rtcw_ogl_program.h" />
     <ClInclude Include="..\..\..\..\src\splines\math_angles.h" />
     <ClInclude Include="..\..\..\..\src\splines\math_matrix.h" />
     <ClInclude Include="..\..\..\..\src\splines\math_quaternion.h" />

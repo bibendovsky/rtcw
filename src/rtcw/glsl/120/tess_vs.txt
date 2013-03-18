@@ -1,0 +1,46 @@
+#version 120
+
+
+// known GL constants
+const int GL_DONT_CARE = 0x1100;
+const int GL_EXP = 0x0800;
+const int GL_FASTEST = 0x1101;
+const int GL_NICEST = 0x1102;
+
+
+attribute vec4 pos_vec4; // position
+attribute vec4 col_vec4; // color
+attribute vec2 tc0_vec2; // texture coords (0)
+attribute vec2 tc1_vec2; // texture coords (1)
+
+uniform bool use_fog = false;
+uniform int fog_mode = GL_EXP;
+uniform int fog_hint = GL_DONT_CARE;
+
+uniform mat4 projection_mat4; // projection matrix
+uniform mat4 model_view_mat4; // model-view matrix
+
+varying vec4 col; // interpolated color
+varying vec2 tc[2]; // interpolated texture coords
+varying float fog_c;
+
+
+void main ()
+{
+    col = col_vec4;
+    tc[0] = tc0_vec2;
+    tc[1] = tc1_vec2;
+
+    vec4 eye_pos = model_view_mat4 * pos_vec4;
+
+    if (use_fog) {
+        if (fog_hint == GL_DONT_CARE || fog_hint == GL_FASTEST)
+            fog_c = abs (eye_pos.z);
+        else if (fog_hint == GL_NICEST)
+            fog_c = length (eye_pos.xyz);
+        else
+            fog_c = -1;
+    }
+
+    gl_Position =  projection_mat4 * eye_pos;
+}

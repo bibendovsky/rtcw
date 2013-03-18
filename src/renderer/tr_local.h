@@ -37,6 +37,18 @@ If you have questions concerning this license or the applicable additional terms
 #include "tr_public.h"
 #include "qgl.h"
 
+// BBi GLSL
+#include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "bbi_ogl_version.h"
+#include "rtcw_ogl_tess_program.h"
+#include "rtcw_ogl_tess_state.h"
+#include "rtcw_ogl_matrix_stack.h"
+// BBi
+
 #define GL_INDEX_TYPE       GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;
 
@@ -2776,7 +2788,54 @@ qboolean R_inPVS( const vec3_t p1, const vec3_t p2 );
 #endif // RTCW_XX
 
 //BBi
-GLenum R_GetBestWrapClamp ();
+extern bbi::OglVersion ogl_version;
+
+
+class OglTessLayout {
+public:
+    static const int MAX_VERTEX_COUNT = 2 * 4000;
+
+    static const GLintptr POS_OFS;
+    static const GLintptr TC0_OFS;
+    static const GLintptr TC1_OFS;
+    static const GLintptr COL_OFS;
+
+    static const GLvoid* POS_PTR;
+    static const GLvoid* TC0_PTR;
+    static const GLvoid* TC1_PTR;
+    static const GLvoid* COL_PTR;
+
+    static const std::size_t POS_SIZE;
+    static const std::size_t TC0_SIZE;
+    static const std::size_t TC1_SIZE;
+    static const std::size_t COL_SIZE;
+
+    glm::vec4 position[MAX_VERTEX_COUNT];
+    glm::vec2 texture_coords[2][MAX_VERTEX_COUNT];
+    color4ub_t color[MAX_VERTEX_COUNT];
+}; // class OglTessLayout
+
+extern rtcw::OglTessState ogl_tess_state;
+
+extern GLuint ogl_tess_vbo;
+extern int ogl_tess_base_vertex;
+extern rtcw::OglTessProgram* ogl_tess_program;
+
+extern GLuint ogl_tess2_vbo;
+extern int ogl_tess2_base_vertex;
+extern OglTessLayout ogl_tess2;
+
+void ogl_tess2_draw (GLenum mode, int vertex_count,
+    bool use_texture_coords, bool use_color);
+
+
+GLenum r_get_best_wrap_clamp ();
+void r_reload_programs_f ();
+
+extern rtcw::OglMatrixStack ogl_model_view_stack;
+extern rtcw::OglMatrixStack ogl_projection_stack;
+
+bool r_probe_programs ();
 //BBi
 
 #endif //TR_LOCAL_H (THIS MUST BE LAST!!)

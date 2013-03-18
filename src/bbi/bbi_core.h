@@ -2,7 +2,7 @@
 // Custom library.
 // Copyright (C) 2012 Boris I. Bendovsky
 //
-// Core defines and basic types.
+// Core checks, defines and basic types.
 //
 
 
@@ -18,14 +18,8 @@
 // Defines
 //
 
-#ifndef BBI_CXX_STANDARD
-    #if (__cplusplus == 199711L)
-        #define BBI_CXX_STANDARD 2003L
-    #elif (__cplusplus == 201103L)
-        #define BBI_CXX_STANDARD 2011L
-    #else
-        #error Unsupported C++ language standard (BBI_CXX_STANDARD).
-    #endif // __cplusplus
+#ifndef __cplusplus
+    #error C++ required.
 #endif // BBI_CXX_STANDARD
 
 
@@ -65,7 +59,6 @@
 
 
 #ifdef _WIN32
-
     #define BBI_PLATFORM BBI_WIN32
 
     #ifdef _WIN64
@@ -75,6 +68,10 @@
     #endif // _WIN64
 
     #ifdef _MSC_VER
+        #if _MSC_VER < 1700L
+            #error Visual C++ 2012 required.
+        #endif
+
         #define BBI_PLATFORM_BUILD_TOOL BBI_MSC
         #define BBI_PLATFORM_BUILD_TOOL_VERSION _MSC_VER
     #endif // _MSC_VER
@@ -82,7 +79,6 @@
     #ifndef BBI_SYS_API
         #define BBI_SYS_API __stdcall
     #endif // BBI_SYS_API
-
 #endif // _WIN32
 
 
@@ -103,30 +99,6 @@
     #define BBI_SYS_API
 #endif // BBI_SYS_API
 
-
-#ifndef BBI_CXX_HAS_LONG_LONG_TYPE
-    #if (BBI_CXX_STANDARD >= 2011L)
-        #define BBI_CXX_HAS_LONG_LONG_TYPE
-    #elif (BBI_PLATFORM_BUILD_TOOL == BBI_MSC)
-        //FIXME Check for MSC version?
-        #define BBI_CXX_HAS_LONG_LONG_TYPE
-    #endif // BBI_CXX_STANDARD
-
-#ifndef BBI_CXX_HAS_LONG_LONG_TYPE
-    #error Compiler does not support type "long long" (BBI_CXX_HAS_LONG_LONG_TYPE).
-#endif // BBI_CXX_HAS_LONG_LONG_TYPE
-
-#endif // BBI_CXX_HAS_LONG_LONG_TYPE
-
-#ifndef BBI_CXX_HAS_NULLPTR_KEYWORD
-    #if (BBI_CXX_STANDARD >= 2011L)
-        #define BBI_CXX_HAS_NULLPTR_KEYWORD
-    #elif (BBI_PLATFORM_BUILD_TOOL == BBI_MSC)
-        #if (BBI_PLATFORM_BUILD_TOOL_VERSION >= 1600L)
-            #define BBI_CXX_HAS_NULLPTR_KEYWORD
-        #endif // BBI_PLATFORM_BUILD_TOOL_VERSION
-    #endif // BBI_CXX_STANDARD
-#endif // BBI_HAS_NATIVE_NULLPTR
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -169,15 +141,10 @@ typedef size_t UIntPtr;
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 //
 // Constants
 //
-
-#ifndef BBI_CXX_HAS_NULLPTR_KEYWORD
-    void* const nullptr = 0;
-#endif // BBI_CXX_HAS_NULLPTR_KEYWORD
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

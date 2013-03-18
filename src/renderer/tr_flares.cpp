@@ -609,6 +609,25 @@ void RB_RenderFlares( void ) {
 		::glDisable( GL_CLIP_PLANE0 );
 	}
 
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_model_view_stack.push_and_set_identity ();
+
+        ogl_projection_stack.push_and_set (glm::ortho (
+            static_cast<float> (backEnd.viewParms.viewportX),
+            static_cast<float> (backEnd.viewParms.viewportX +
+                backEnd.viewParms.viewportWidth),
+            static_cast<float> (backEnd.viewParms.viewportY),
+            static_cast<float> (backEnd.viewParms.viewportY +
+                backEnd.viewParms.viewportHeight),
+            -99999.0F, 99999.0F));
+
+        ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
+        ogl_tess_state.projection.set (ogl_projection_stack.get_current ());
+        ogl_tess_state.commit_changes ();
+    } else {
+    // BBi
+
 	::glPushMatrix();
 	::glLoadIdentity();
 	::glMatrixMode( GL_PROJECTION );
@@ -618,6 +637,10 @@ void RB_RenderFlares( void ) {
 			  backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
 			  -99999, 99999 );
 
+    // BBi
+    }
+    // BBi
+
 	for ( f = r_activeFlares ; f ; f = f->next ) {
 		if ( f->frameSceneNum == backEnd.viewParms.frameSceneNum
 			 && f->inPortal == backEnd.viewParms.isPortal
@@ -626,8 +649,19 @@ void RB_RenderFlares( void ) {
 		}
 	}
 
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_tess_state.model_view.set (ogl_model_view_stack.pop_and_get ());
+        ogl_tess_state.projection.set (ogl_projection_stack.pop_and_get ());
+        ogl_tess_state.commit_changes ();
+    } else {
+    // BBi
+
 	::glPopMatrix();
 	::glMatrixMode( GL_MODELVIEW );
 	::glPopMatrix();
-}
 
+    // BBi
+    }
+    // BBi
+}

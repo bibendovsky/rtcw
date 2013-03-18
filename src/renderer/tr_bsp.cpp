@@ -320,7 +320,7 @@ static void R_LoadLightmaps( lump_t *l ) {
 		//tr.lightmaps[i] = R_CreateImage( va( "*lightmap%d",i ), image,
 		//								 LIGHTMAP_SIZE, LIGHTMAP_SIZE, qfalse, qfalse, GL_CLAMP );
         tr.lightmaps[i] = ::R_CreateImage (::va ("*lightmap%d", i), image,
-            LIGHTMAP_SIZE, LIGHTMAP_SIZE, false, false, ::R_GetBestWrapClamp ());
+            LIGHTMAP_SIZE, LIGHTMAP_SIZE, false, false, ::r_get_best_wrap_clamp ());
         //BBi
 	}
 

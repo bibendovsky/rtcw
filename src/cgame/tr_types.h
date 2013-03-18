@@ -402,6 +402,14 @@ typedef struct {
 } glconfig_t;
 
 //BBi
+enum RendererPath {
+    RENDERER_PATH_NONE,
+    // Fixed OpenGL.
+    RENDERER_PATH_OGL_1_X,
+    // Programmable OpenGL 2.1.
+    RENDERER_PATH_OGL_2_1,
+}; // enum RendererPath
+
 // Extends glconfig_t structure.
 class GlConfigEx {
 public:
@@ -411,6 +419,8 @@ public:
     bool useExtBgra;
     bool useArbFramebufferObject; // glGenerateMipmap, etc.
     bool useArbTextureNonPowerOfTwo;
+    bool use_arb_draw_elements_base_vertex;
+    RendererPath renderer_path;
 
     void reset ()
     {
@@ -420,6 +430,18 @@ public:
         useExtBgra = false;
         useArbFramebufferObject = false;
         useArbTextureNonPowerOfTwo = false;
+        use_arb_draw_elements_base_vertex = false;
+        renderer_path = RENDERER_PATH_NONE;
+    }
+
+    bool is_path_ogl_1_x () const
+    {
+        return renderer_path == RENDERER_PATH_OGL_1_X;
+    }
+
+    bool is_path_ogl_2_1 () const
+    {
+        return renderer_path == RENDERER_PATH_OGL_2_1;
     }
 }; // class GlConfigEx
 //BBi

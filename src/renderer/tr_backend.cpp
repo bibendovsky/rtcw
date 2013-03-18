@@ -42,6 +42,109 @@ static float s_flipMatrix[16] = {
 };
 
 
+// BBi
+void ogl_tess2_draw (GLenum mode, int vertex_count,
+    bool use_texture_coords, bool use_color)
+{
+    if (vertex_count <= 0)
+        return;
+
+    if (ogl_tess_program->program == 0)
+        return;
+
+    if (ogl_tess2_vbo == 0)
+        return;
+
+    bool use_pos_array = (ogl_tess_program->a_pos_vec4 >= 0);
+    bool use_tc0_array = use_texture_coords &&
+        (ogl_tess_program->a_pos_vec4 >= 0);
+    bool use_col_array = use_color &&
+        (ogl_tess_program->a_col_vec4 >= 0);
+
+    if ((!use_pos_array) && (!use_tc0_array) && (!use_col_array))
+        return;
+
+
+    if ((ogl_tess2_base_vertex + vertex_count) >
+        OglTessLayout::MAX_VERTEX_COUNT)
+    {
+        ogl_tess2_base_vertex = 0;
+    }
+
+    ::glUseProgram (ogl_tess_program->program);
+
+    ::glBindBuffer (GL_ARRAY_BUFFER, ogl_tess2_vbo);
+
+    if (use_pos_array) {
+        ::glBufferSubData (GL_ARRAY_BUFFER,
+            OglTessLayout::POS_OFS +
+                (ogl_tess2_base_vertex * OglTessLayout::POS_SIZE),
+            vertex_count * OglTessLayout::POS_SIZE,
+            ogl_tess2.position);
+    }
+
+    if (use_tc0_array) {
+        ::glBufferSubData (GL_ARRAY_BUFFER,
+            OglTessLayout::TC0_OFS +
+                (ogl_tess2_base_vertex * OglTessLayout::TC0_SIZE),
+            vertex_count * OglTessLayout::TC0_SIZE,
+            ogl_tess2.texture_coords[0]);
+    }
+
+    if (use_col_array) {
+        ::glBufferSubData (GL_ARRAY_BUFFER,
+            OglTessLayout::COL_OFS +
+                (ogl_tess2_base_vertex * OglTessLayout::COL_SIZE),
+            vertex_count * OglTessLayout::COL_SIZE,
+            ogl_tess2.color);
+    }
+
+    // position
+    if (use_pos_array) {
+        ::glVertexAttribPointer (ogl_tess_program->a_pos_vec4, 3, GL_FLOAT,
+            GL_FALSE, OglTessLayout::POS_SIZE,
+            OglTessLayout::POS_PTR);
+
+        ::glEnableVertexAttribArray (ogl_tess_program->a_pos_vec4);
+    }
+
+    // texture coordinates (0)
+    if (use_tc0_array) {
+        ::glVertexAttribPointer (ogl_tess_program->a_tc0_vec2, 2, GL_FLOAT,
+            GL_FALSE, 0, OglTessLayout::TC0_PTR);
+
+        ::glEnableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
+    }
+
+    // color
+    if (use_col_array) {
+        ::glVertexAttribPointer (ogl_tess_program->a_col_vec4, 4,
+            GL_UNSIGNED_BYTE, GL_TRUE, 0,
+            OglTessLayout::COL_PTR);
+
+        ::glEnableVertexAttribArray (ogl_tess_program->a_col_vec4);
+    }
+
+    ::glDrawArrays (mode, ogl_tess2_base_vertex, vertex_count);
+
+    ::glUseProgram (0);
+
+    if (use_pos_array)
+        ::glDisableVertexAttribArray (ogl_tess_program->a_pos_vec4);
+
+    if (use_tc0_array)
+        ::glDisableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
+
+    if (use_col_array)
+        ::glDisableVertexAttribArray (ogl_tess_program->a_col_vec4);
+
+    ::glBindBuffer (GL_ARRAY_BUFFER, 0);
+
+    ogl_tess2_base_vertex += vertex_count;
+}
+// BBi
+
+
 /*
 ** GL_Bind
 */
@@ -75,15 +178,35 @@ void GL_SelectTexture( int unit ) {
 	}
 
 	if ( unit == 0 ) {
+        // BBi
+        if (!glConfigEx.is_path_ogl_1_x ()) {
+            ::glActiveTexture (GL_TEXTURE0);
+        } else {
+        // BBi
+
 		::glActiveTextureARB( GL_TEXTURE0_ARB );
 		//GLimp_LogComment( "glActiveTextureARB( GL_TEXTURE0_ARB )\n" );
 		::glClientActiveTextureARB( GL_TEXTURE0_ARB );
 		//GLimp_LogComment( "glClientActiveTextureARB( GL_TEXTURE0_ARB )\n" );
+
+        // BBi
+        }
+        // BBi
 	} else if ( unit == 1 )   {
+        // BBi
+        if (!glConfigEx.is_path_ogl_1_x ()) {
+            ::glActiveTexture (GL_TEXTURE1);
+        } else {
+        // BBi
+
 		::glActiveTextureARB( GL_TEXTURE1_ARB );
 		//GLimp_LogComment( "glActiveTextureARB( GL_TEXTURE1_ARB )\n" );
 		::glClientActiveTextureARB( GL_TEXTURE1_ARB );
 		//GLimp_LogComment( "glClientActiveTextureARB( GL_TEXTURE1_ARB )\n" );
+
+        // BBi
+        }
+        // BBi
 	} else {
 		ri.Error( ERR_DROP, "GL_SelectTexture: unit = %i", unit );
 	}
@@ -166,24 +289,78 @@ void GL_TexEnv( int env ) {
 	glState.texEnv[glState.currenttmu] = env;
 
 
+    // BBi
+    int tu = glState.currenttmu;
+    assert ((tu == 0) || (tu == 1));
+    // BBi
+
 	switch ( env )
 	{
 	case GL_MODULATE:
+        // BBi
+        if (!glConfigEx.is_path_ogl_1_x ()) {
+            ogl_tess_state.tex_env_mode[tu].set (GL_MODULATE);
+        } else {
+        // BBi
+
 		::glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+
+        // BBi
+        }
+        // BBi
+
 		break;
 	case GL_REPLACE:
+        // BBi
+        if (!glConfigEx.is_path_ogl_1_x ()) {
+            ogl_tess_state.tex_env_mode[tu].set (GL_REPLACE);
+        } else {
+        // BBi
+
 		::glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE );
+
+        // BBi
+        }
+        // BBi
+
 		break;
 	case GL_DECAL:
+        // BBi
+        if (!glConfigEx.is_path_ogl_1_x ()) {
+            ogl_tess_state.tex_env_mode[tu].set (GL_DECAL);
+        } else {
+        // BBi
+
 		::glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL );
+
+        // BBi
+        }
+        // BBi
+
 		break;
 	case GL_ADD:
+        // BBi
+        if (!glConfigEx.is_path_ogl_1_x ()) {
+            ogl_tess_state.tex_env_mode[tu].set (GL_ADD);
+        } else {
+        // BBi
+
 		::glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD );
+
+        // BBi
+        }
+        // BBi
+
 		break;
 	default:
 		ri.Error( ERR_DROP, "GL_TexEnv: invalid env '%d' passed\n", env );
 		break;
 	}
+
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ())
+        ogl_tess_state.commit_changes ();
+    // BBi
 }
 
 /*
@@ -336,24 +513,79 @@ void GL_State( unsigned long stateBits ) {
 		switch ( stateBits & GLS_ATEST_BITS )
 		{
 		case 0:
+            // BBi
+            if (!glConfigEx.is_path_ogl_1_x ()) {
+                ogl_tess_state.use_alpha_test.set (false);
+            } else {
+            // BBi
+
 			::glDisable( GL_ALPHA_TEST );
+
+            // BBi
+            }
+            // BBi
+
 			break;
 		case GLS_ATEST_GT_0:
+            // BBi
+            if (!glConfigEx.is_path_ogl_1_x ()) {
+                ogl_tess_state.use_alpha_test.set (true);
+                ogl_tess_state.alpha_test_func.set (GL_GREATER);
+                ogl_tess_state.alpha_test_ref.set (0.0F);
+            } else {
+            // BBi
+
 			::glEnable( GL_ALPHA_TEST );
 			::glAlphaFunc( GL_GREATER, 0.0f );
+
+            // BBi
+            }
+            // BBi
+
 			break;
 		case GLS_ATEST_LT_80:
+            // BBi
+            if (!glConfigEx.is_path_ogl_1_x ()) {
+                ogl_tess_state.use_alpha_test.set (true);
+                ogl_tess_state.alpha_test_func.set (GL_LESS);
+                ogl_tess_state.alpha_test_ref.set (0.5F);
+            } else {
+            // BBi
+
 			::glEnable( GL_ALPHA_TEST );
 			::glAlphaFunc( GL_LESS, 0.5f );
+
+            // BBi
+            }
+            // BBi
+
 			break;
 		case GLS_ATEST_GE_80:
+            // BBi
+            if (!glConfigEx.is_path_ogl_1_x ()) {
+                ogl_tess_state.use_alpha_test.set (true);
+                ogl_tess_state.alpha_test_func.set (GL_GEQUAL);
+                ogl_tess_state.alpha_test_ref.set (0.5F);
+            } else {
+            // BBi
+
 			::glEnable( GL_ALPHA_TEST );
 			::glAlphaFunc( GL_GEQUAL, 0.5f );
+
+            // BBi
+            }
+            // BBi
+
 			break;
 		default:
 			assert( 0 );
 			break;
 		}
+
+        // BBi
+        if (!glConfigEx.is_path_ogl_1_x ())
+            ogl_tess_state.commit_changes ();
+        // BBi
 	}
 
 	glState.glStateBits = stateBits;
@@ -384,9 +616,22 @@ static void RB_Hyperspace( void ) {
 
 
 static void SetViewportAndScissor( void ) {
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_projection_stack.set_current (backEnd.viewParms.projectionMatrix);
+
+        ogl_tess_state.projection.set (ogl_projection_stack.get_current ());
+        ogl_tess_state.commit_changes ();
+    } else {
+    // BBi
+
 	::glMatrixMode( GL_PROJECTION );
 	::glLoadMatrixf( backEnd.viewParms.projectionMatrix );
 	::glMatrixMode( GL_MODELVIEW );
+
+    // BBi
+    }
+    // BBi
 
 	// set the window clipping
 
@@ -610,7 +855,20 @@ void RB_BeginDrawingView( void ) {
 		plane2[3] = DotProduct( plane, backEnd.viewParms.orientation.origin ) - plane[3];
 #endif // RTCW_XX
 
+        // BBi
+        if (!glConfigEx.is_path_ogl_1_x ()) {
+            ogl_model_view_stack.set_current (s_flipMatrix);
+            ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
+            ogl_tess_state.commit_changes ();
+        } else {
+        // BBi
+
 		::glLoadMatrixf( s_flipMatrix );
+
+        // BBi
+        }
+        // BBi
+
 		::glClipPlane( GL_CLIP_PLANE0, plane2 );
 		::glEnable( GL_CLIP_PLANE0 );
 	} else {
@@ -1137,11 +1395,28 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 			}
 
+// BBi
 #if !defined RTCW_ET
-			::glLoadMatrixf( backEnd.or.modelMatrix );
+            const float* matrix = backEnd.or.modelMatrix;
 #else
-			::glLoadMatrixf( backEnd.orientation.modelMatrix );
+            const float* matrix = backEnd.orientation.modelMatrix;
 #endif // RTCW_XX
+// BBi
+
+// BBi
+//#if !defined RTCW_ET
+//			::glLoadMatrixf( backEnd.or.modelMatrix );
+//#else
+//			::glLoadMatrixf( backEnd.orientation.modelMatrix );
+//#endif // RTCW_XX
+            if (!glConfigEx.is_path_ogl_1_x ()) {
+                ogl_model_view_stack.set_current (matrix);
+
+                ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
+                ogl_tess_state.commit_changes ();
+            } else
+                ::glLoadMatrixf (matrix);
+// BBi
 
 			//
 			// change depthrange if needed
@@ -1203,7 +1478,20 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.orientation );
 #endif // RTCW_XX
 
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_model_view_stack.set_current (backEnd.viewParms.world.modelMatrix);
+        ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
+        ogl_tess_state.commit_changes ();
+    } else {
+    // BBi
+
 	::glLoadMatrixf( backEnd.viewParms.world.modelMatrix );
+
+    // BBi
+    }
+    // BBi
+
 	if ( depthRange ) {
 		::glDepthRange( 0, 1 );
 	}
@@ -1244,18 +1532,47 @@ void    RB_SetGL2D( void ) {
 	// set 2D virtual screen size
 	::glViewport( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
 	::glScissor( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
+
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_model_view_stack.set_current (glm::mat4 (1.0F));
+        ogl_projection_stack.set_current (glm::ortho (
+            0.0F, static_cast<float> (glConfig.vidWidth),
+            static_cast<float> (glConfig.vidHeight), 0.0F, 0.0F, 1.0F));
+
+        ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
+        ogl_tess_state.projection.set (ogl_projection_stack.get_current ());
+        ogl_tess_state.commit_changes ();
+    } else {
+    // BBi
+
 	::glMatrixMode( GL_PROJECTION );
 	::glLoadIdentity();
 	::glOrtho( 0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1 );
 	::glMatrixMode( GL_MODELVIEW );
 	::glLoadIdentity();
 
+    // BBi
+    }
+    // BBi
+
 	GL_State( GLS_DEPTHTEST_DISABLE |
 			  GLS_SRCBLEND_SRC_ALPHA |
 			  GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 
 #if defined RTCW_SP
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_tess_state.use_fog.set (false);
+        ogl_tess_state.commit_changes ();
+    } else {
+    // BBi
+
 	::glDisable( GL_FOG ); //----(SA)	added
+
+    // BBi
+    }
+    // BBi
 #endif // RTCW_XX
 
 	::glDisable( GL_CULL_FACE );
@@ -1316,12 +1633,12 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 
-        GLenum clampMode = ::R_GetBestWrapClamp ();
+        auto clamp_mode = ::r_get_best_wrap_clamp ();
 
         ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clampMode);
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clampMode);
+        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
+        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
         //BBi
 	} else {
 		if ( dirty ) {
@@ -1338,7 +1655,49 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 
 	RB_SetGL2D();
 
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_tess_state.primary_color.set (glm::vec4 (
+            tr.identityLight, tr.identityLight, tr.identityLight, 1.0F));
+        ogl_tess_state.commit_changes ();
+    } else {
+    // BBi
+
 	::glColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
+
+    // BBi
+    }
+    // BBi
+
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        ogl_tess2.texture_coords[0][0] =
+            glm::vec2 (0.0F, 0.0F);
+        ogl_tess2.position[0] = glm::vec4 (
+            static_cast<float> (x), static_cast<float> (y),
+            0.0F, 1.0F);
+
+        ogl_tess2.texture_coords[0][1] =
+            glm::vec2 (1.0F, 0.0F);
+        ogl_tess2.position[1] = glm::vec4 (
+            static_cast<float> (x + w), static_cast<float> (y),
+            0.0F, 1.0F);
+
+        ogl_tess2.texture_coords[0][2] =
+            glm::vec2 (0.0F, 1.0F);
+        ogl_tess2.position[2] = glm::vec4 (
+            static_cast<float> (x), static_cast<float> (y + h),
+            0.0F, 1.0F);
+
+        ogl_tess2.texture_coords[0][3] =
+            glm::vec2 (1.0F, 1.0F);
+        ogl_tess2.position[3] = glm::vec4 (
+            static_cast<float> (x + w), static_cast<float> (y + h),
+            0.0F, 1.0F);
+
+        ::ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, true, false);
+    } else {
+    // BBi
 
 	::glBegin( GL_QUADS );
 	::glTexCoord2f( 0.5f / cols,  0.5f / rows );
@@ -1350,8 +1709,11 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 	::glTexCoord2f( 0.5f / cols, ( rows - 0.5f ) / rows );
 	::glVertex2f( x, y + h );
 	::glEnd();
-}
 
+    // BBi
+    }
+    // BBi
+}
 
 void RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty ) {
 
@@ -1369,12 +1731,12 @@ void RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 
-        GLenum clampMode = ::R_GetBestWrapClamp ();
+        auto clamp_mode = ::r_get_best_wrap_clamp ();
 
         ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clampMode);
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clampMode);
+        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
+        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
         //BBi
 	} else {
 		if ( dirty ) {
@@ -1901,6 +2263,37 @@ void RB_ShowImages( void ) {
 		}
 
 		GL_Bind( image );
+
+        // BBi
+        if (!glConfigEx.is_path_ogl_1_x ()) {
+            ogl_tess2.texture_coords[0][0] =
+                glm::vec2 (0.0F, 0.0F);
+            ogl_tess2.position[0] = glm::vec4 (
+                static_cast<float> (x), static_cast<float> (y),
+                0.0F, 1.0F);
+
+            ogl_tess2.texture_coords[0][1] =
+                glm::vec2 (1.0F, 0.0F);
+            ogl_tess2.position[1] = glm::vec4 (
+                static_cast<float> (x + w), static_cast<float> (y),
+                0.0F, 1.0F);
+
+            ogl_tess2.texture_coords[0][2] =
+                glm::vec2 (0.0F, 1.0F);
+            ogl_tess2.position[2] = glm::vec4 (
+                static_cast<float> (x), static_cast<float> (y + h),
+                0.0F, 1.0F);
+
+            ogl_tess2.texture_coords[0][3] =
+                glm::vec2 (1.0F, 1.0F);
+            ogl_tess2.position[3] = glm::vec4 (
+                static_cast<float> (x + w), static_cast<float> (y + h),
+                0.0F, 1.0F);
+
+            ::ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, true, false);
+        } else {
+        // BBi
+
 		::glBegin( GL_QUADS );
 		::glTexCoord2f( 0, 0 );
 		::glVertex2f( x, y );
@@ -1911,6 +2304,10 @@ void RB_ShowImages( void ) {
 		::glTexCoord2f( 0, 1 );
 		::glVertex2f( x, y + h );
 		::glEnd();
+
+        // BBi
+        }
+        // BBi
 	}
 
 	::glFinish();
@@ -1935,6 +2332,125 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 	GL_State( GLS_POLYMODE_LINE );
 
 	// box corners
+
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        bbi::UInt8* col;
+
+        //
+        col = ogl_tess2.color[0];
+        col[0] = 255;
+        col[1] = 255;
+        col[2] = 255;
+        col[3] = 255;
+
+        ogl_tess2.position[0] = glm::vec4 (mins[0], mins[1], mins[2], 1.0F);
+
+        //
+        col = ogl_tess2.color[1];
+        col[0] = 255;
+        col[1] = 255;
+        col[2] = 255;
+        col[3] = 255;
+
+        ogl_tess2.position[1] = glm::vec4 (maxs[0], mins[1], mins[2], 1.0F);
+
+        //
+        col = ogl_tess2.color[2];
+        col[0] = 255;
+        col[1] = 255;
+        col[2] = 255;
+        col[3] = 255;
+
+        ogl_tess2.position[2] = glm::vec4 (mins[0], mins[1], mins[2], 1.0F);
+
+        //
+        col = ogl_tess2.color[3];
+        col[0] = 255;
+        col[1] = 255;
+        col[2] = 255;
+        col[3] = 255;
+
+        ogl_tess2.position[3] = glm::vec4 (mins[0], maxs[1], mins[2], 1.0F);
+
+        //
+        col = ogl_tess2.color[4];
+        col[0] = 255;
+        col[1] = 255;
+        col[2] = 255;
+        col[3] = 255;
+
+        ogl_tess2.position[4] = glm::vec4 (mins[0], mins[1], mins[2], 1.0F);
+
+        //
+        col = ogl_tess2.color[5];
+        col[0] = 255;
+        col[1] = 255;
+        col[2] = 255;
+        col[3] = 255;
+
+        ogl_tess2.position[5] = glm::vec4 (mins[0], mins[1], maxs[2], 1.0F);
+
+        // ***
+
+        //
+        col = ogl_tess2.color[6];
+        col[0] = 255;
+        col[1] = 255;
+        col[2] = 255;
+        col[3] = 255;
+
+        ogl_tess2.position[6] = glm::vec4 (maxs[0], maxs[1], maxs[2], 1.0F);
+
+        //
+        col = ogl_tess2.color[7];
+        col[0] = 255;
+        col[1] = 255;
+        col[2] = 255;
+        col[3] = 255;
+
+        ogl_tess2.position[7] = glm::vec4 (mins[0], maxs[1], maxs[2], 1.0F);
+
+        //
+        col = ogl_tess2.color[8];
+        col[0] = 255;
+        col[1] = 255;
+        col[2] = 255;
+        col[3] = 255;
+
+        ogl_tess2.position[8] = glm::vec4 (maxs[0], maxs[1], maxs[2], 1.0F);
+
+        //
+        col = ogl_tess2.color[9];
+        col[0] = 255;
+        col[1] = 255;
+        col[2] = 255;
+        col[3] = 255;
+
+        ogl_tess2.position[9] = glm::vec4 (maxs[0], mins[1], maxs[2], 1.0F);
+
+        //
+        col = ogl_tess2.color[10];
+        col[0] = 255;
+        col[1] = 255;
+        col[2] = 255;
+        col[3] = 255;
+
+        ogl_tess2.position[10] = glm::vec4 (maxs[0], maxs[1], maxs[2], 1.0F);
+
+        //
+        col = ogl_tess2.color[11];
+        col[0] = 255;
+        col[1] = 255;
+        col[2] = 255;
+        col[3] = 255;
+
+        ogl_tess2.position[11] = glm::vec4 (maxs[0], maxs[1], mins[2], 1.0F);
+
+        ::ogl_tess2_draw (GL_LINES, 12, false, true);
+    } else {
+    // BBi
+
 	::glBegin( GL_LINES );
 	::glColor3f( 1, 1, 1 );
 
@@ -1953,11 +2469,84 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 	::glVertex3f( maxs[ 0 ], maxs[ 1 ], mins[ 2 ] );
 	::glEnd();
 
+    // BBi
+    }
+    // BBi
+
 	center[ 0 ] = ( mins[ 0 ] + maxs[ 0 ] ) * 0.5;
 	center[ 1 ] = ( mins[ 1 ] + maxs[ 1 ] ) * 0.5;
 	center[ 2 ] = ( mins[ 2 ] + maxs[ 2 ] ) * 0.5;
 
 	// center axis
+
+    // BBi
+    if (!glConfigEx.is_path_ogl_1_x ()) {
+        bbi::UInt8* col;
+
+        //
+        col = ogl_tess2.color[0];
+        col[0] = 255;
+        col[1] = 216;
+        col[2] = 0;
+        col[3] = 255;
+
+        ogl_tess2.position[0] = glm::vec4 (
+            mins[0], center[1], center[2], 1.0F);
+
+        //
+        col = ogl_tess2.color[1];
+        col[0] = 255;
+        col[1] = 216;
+        col[2] = 0;
+        col[3] = 255;
+
+        ogl_tess2.position[1] = glm::vec4 (
+            maxs[0], center[1], center[2], 1.0F);
+
+        //
+        col = ogl_tess2.color[2];
+        col[0] = 255;
+        col[1] = 216;
+        col[2] = 0;
+        col[3] = 255;
+
+        ogl_tess2.position[2] = glm::vec4 (
+            center[0], mins[1], center[2], 1.0F);
+
+        //
+        col = ogl_tess2.color[3];
+        col[0] = 255;
+        col[1] = 216;
+        col[2] = 0;
+        col[3] = 255;
+
+        ogl_tess2.position[3] = glm::vec4 (
+            center[0], maxs[1], center[2], 1.0F);
+
+        //
+        col = ogl_tess2.color[4];
+        col[0] = 255;
+        col[1] = 216;
+        col[2] = 0;
+        col[3] = 255;
+
+        ogl_tess2.position[4] = glm::vec4 (
+            center[0], center[1], mins[2], 1.0F);
+
+        //
+        col = ogl_tess2.color[5];
+        col[0] = 255;
+        col[1] = 216;
+        col[2] = 0;
+        col[3] = 255;
+
+        ogl_tess2.position[5] = glm::vec4 (
+            center[0], center[1], maxs[2], 1.0F);
+
+        ::ogl_tess2_draw (GL_LINES, 6, false, true);
+    } else {
+    // BBi
+
 	::glBegin( GL_LINES );
 	::glColor3f( 1, 0.85, 0 );
 
@@ -1968,6 +2557,10 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 	::glVertex3f( center[ 0 ], center[ 1 ], mins[ 2 ] );
 	::glVertex3f( center[ 0 ], center[ 1 ], maxs[ 2 ] );
 	::glEnd();
+
+    // BBi
+    }
+    // BBi
 }
 #endif // RTCW_XX
 

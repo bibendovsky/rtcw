@@ -18,3 +18,14 @@ qcommon/files.c
 
 ------------
 Try to make full merge for non engine code (cgame, game, ui).
+
+
+------------
+emulate nvidia fog
+R_DebugText
+
+------------
+cpu id: remove or fix
+
+------------
+Exclude source files from dedicated builds with preprocessor.

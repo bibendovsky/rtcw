@@ -674,11 +674,11 @@ static qboolean ParseStage( shaderStage_t *stage, char **text ) {
 //#endif // RTCW_XX
 
 #if defined RTCW_SP
-			stage->bundle[0].image[0] = ::R_FindImageFileExt (token, !shader.noMipMaps, !shader.noPicMip, shader.characterMip, ::R_GetBestWrapClamp ());
+			stage->bundle[0].image[0] = ::R_FindImageFileExt (token, !shader.noMipMaps, !shader.noPicMip, shader.characterMip, ::r_get_best_wrap_clamp ());
 #elif defined RTCW_MP
-			stage->bundle[0].image[0] = ::R_FindImageFile (token, !shader.noMipMaps, !shader.noPicMip, ::R_GetBestWrapClamp ());
+			stage->bundle[0].image[0] = ::R_FindImageFile (token, !shader.noMipMaps, !shader.noPicMip, ::r_get_best_wrap_clamp ());
 #else
-			stage->bundle[0].image[0] = ::R_FindImageFile (token, !shader.noMipMaps, !shader.noPicMip, ::R_GetBestWrapClamp (), false);
+			stage->bundle[0].image[0] = ::R_FindImageFile (token, !shader.noMipMaps, !shader.noPicMip, ::r_get_best_wrap_clamp (), false);
 #endif // RTCW_XX
 //BBi
 
@@ -722,7 +722,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text ) {
 			} else {
                 //BBi
 				//stage->bundle[0].image[0] = R_FindImageFile( token, qfalse, qfalse, GL_CLAMP, qtrue );
-                stage->bundle[0].image[0] = ::R_FindImageFile (token, false, false, ::R_GetBestWrapClamp (), true);
+                stage->bundle[0].image[0] = ::R_FindImageFile (token, false, false, ::r_get_best_wrap_clamp (), true);
                 //BBi
 
 				if ( !stage->bundle[0].image[0] ) {
@@ -1278,7 +1278,7 @@ static void ParseSkyParms( char **text ) {
 //#endif // RTCW_XX
 
             shader.sky.outerbox[i] = ::R_FindImageFile (
-                pathname, true, true, ::R_GetBestWrapClamp ()
+                pathname, true, true, ::r_get_best_wrap_clamp ()
 #if defined RTCW_ET
             , false
 #endif // RTCW_XX
@@ -3258,7 +3258,7 @@ void R_FindLightmap( int *lightmapIndex ) {
 
     //BBi
 	//image = R_FindImageFile( fileName, qfalse, qfalse, GL_CLAMP, qtrue );
-    image = ::R_FindImageFile (fileName, false, false, ::R_GetBestWrapClamp (), true);
+    image = ::R_FindImageFile (fileName, false, false, ::r_get_best_wrap_clamp (), true);
     //BBi
 
 	if ( image == NULL ) {
@@ -3498,7 +3498,7 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
     //BBi
 	//image = R_FindImageFile( fileName, mipRawImage, mipRawImage, mipRawImage ? GL_REPEAT : GL_CLAMP );
     image = ::R_FindImageFile (fileName, mipRawImage, mipRawImage,
-        mipRawImage ? GL_REPEAT : ::R_GetBestWrapClamp ());
+        mipRawImage ? GL_REPEAT : ::r_get_best_wrap_clamp ());
     //BBi
 
 	if ( !image ) {
@@ -3578,7 +3578,7 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
     //BBi
 	//image = R_FindImageFile( fileName, !shader.noMipMaps, !shader.noPicMip, mipRawImage ? GL_REPEAT : GL_CLAMP, qfalse );
     image = ::R_FindImageFile (fileName, !shader.noMipMaps, !shader.noPicMip,
-        mipRawImage ? GL_REPEAT : ::R_GetBestWrapClamp (), false);
+        mipRawImage ? GL_REPEAT : ::r_get_best_wrap_clamp (), false);
     //BBi
 
 	if ( !image ) {

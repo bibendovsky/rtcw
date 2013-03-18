@@ -1315,30 +1315,38 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	// Ridah
 	image = tr.images[tr.numImages] = static_cast<image_t*> (R_CacheImageAlloc( sizeof( image_t ) ));
 
-#if !defined RTCW_ET
-	image->texnum = 1024 + tr.numImages;
-
-	// Ridah
-	if ( r_cacheShaders->integer ) {
-		R_FindFreeTexnum( image );
-	}
-#else
-	// ydnar: not exactly sure why this mechanism is here at all, but it's generating
-	// bad texture names (not that the rest of the code is a saint, but hey...)
-	//%	image->texnum = 1024 + tr.numImages;
-
-	// Ridah
-	//%	if (r_cacheShaders->integer) {
-	//%		R_FindFreeTexnum(image);
-	//%	}
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	image->texnum = 1024 + tr.numImages;
+//
+//	// Ridah
+//	if ( r_cacheShaders->integer ) {
+//		R_FindFreeTexnum( image );
+//	}
+//#else
+//	// ydnar: not exactly sure why this mechanism is here at all, but it's generating
+//	// bad texture names (not that the rest of the code is a saint, but hey...)
+//	//%	image->texnum = 1024 + tr.numImages;
+//
+//	// Ridah
+//	//%	if (r_cacheShaders->integer) {
+//	//%		R_FindFreeTexnum(image);
+//	//%	}
+//#endif // RTCW_XX
+// BBi
 
 	// done.
 
-#if defined RTCW_ET
+// BBi
+//#if defined RTCW_ET
+// BBi
+
 	// ydnar: ok, let's try the recommended way
 	::glGenTextures( 1, &image->texnum );
-#endif // RTCW_XX
+
+// BBi
+//#endif // RTCW_XX
+// BBi
 
 
 	tr.numImages++;
@@ -3048,7 +3056,7 @@ static void R_CreateDlightImage( void ) {
 
     //BBi
 	//tr.dlightImage = R_CreateImage( "*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, GL_CLAMP );
-    tr.dlightImage = ::R_CreateImage ("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, false, false, ::R_GetBestWrapClamp ());
+    tr.dlightImage = ::R_CreateImage ("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, false, false, ::r_get_best_wrap_clamp ());
     //BBi
 }
 
@@ -3289,7 +3297,7 @@ static void R_CreateFogImage ()
     }
 #endif // RTCW_XX
 
-    tr.fogImage = ::R_CreateImage ("*fog", data, FOG_S, FOG_T, false, false, ::R_GetBestWrapClamp ());
+    tr.fogImage = ::R_CreateImage ("*fog", data, FOG_S, FOG_T, false, false, ::r_get_best_wrap_clamp ());
     ::ri.Hunk_FreeTempMemory (data);
 
 #if !defined RTCW_ET
@@ -3404,7 +3412,7 @@ void R_CreateBuiltinImages( void ) {
 
         //BBi
 		//tr.scratchImage[x] = R_CreateImage( "*scratch", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, GL_CLAMP );
-        tr.scratchImage[x] = ::R_CreateImage ("*scratch", (byte*) data, DEFAULT_SIZE, DEFAULT_SIZE, false, true, ::R_GetBestWrapClamp ());
+        tr.scratchImage[x] = ::R_CreateImage ("*scratch", (byte*) data, DEFAULT_SIZE, DEFAULT_SIZE, false, true, ::r_get_best_wrap_clamp ());
         //BBi
 	}
 
@@ -3520,11 +3528,13 @@ void    R_InitImages( void ) {
 
 	// Ridah, caching system
 
-#if !defined RTCW_ET
-	R_InitTexnumImages( qfalse );
-#else
-	//%	R_InitTexnumImages(qfalse);
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	R_InitTexnumImages( qfalse );
+//#else
+//	//%	R_InitTexnumImages(qfalse);
+//#endif // RTCW_XX
+// BBi
 
 	// done.
 
@@ -3553,11 +3563,13 @@ void R_DeleteTextures( void ) {
 	memset( tr.images, 0, sizeof( tr.images ) );
 	// Ridah
 
-#if !defined RTCW_ET
-	R_InitTexnumImages( qtrue );
-#else
-	//%	R_InitTexnumImages(qtrue);
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	R_InitTexnumImages( qtrue );
+//#else
+//	//%	R_InitTexnumImages(qtrue);
+//#endif // RTCW_XX
+// BBi
 
 	// done.
 
@@ -4949,53 +4961,56 @@ int R_GetTextureId( const char *name ) {
 // ydnar: glGenTextures, sir...
 #endif // RTCW_XX
 
-#if !defined RTCW_ET
-/*
-===============
-R_InitTexnumImages
-===============
-*/
-static int last_i;
-void R_InitTexnumImages( qboolean force ) {
-	if ( force || !numBackupImages ) {
-		memset( texnumImages, 0, sizeof( texnumImages ) );
-		last_i = 0;
-	}
-}
-
-/*
-============
-R_FindFreeTexnum
-============
-*/
-void R_FindFreeTexnum( image_t *inImage ) {
-	int i, max;
-	image_t **image;
-
-	max = ( MAX_DRAWIMAGES * 2 );
-	if ( last_i && !texnumImages[last_i + 1] ) {
-		i = last_i + 1;
-	} else {
-		i = 0;
-		image = (image_t **)&texnumImages;
-		while ( i < max && *( image++ ) ) {
-			i++;
-		}
-	}
-
-	if ( i < max ) {
-		if ( i < max - 1 ) {
-			last_i = i;
-		} else {
-			last_i = 0;
-		}
-		inImage->texnum = 1024 + i;
-		texnumImages[i] = inImage;
-	} else {
-		ri.Error( ERR_DROP, "R_FindFreeTexnum: MAX_DRAWIMAGES hit\n" );
-	}
-}
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+///*
+//===============
+//R_InitTexnumImages
+//===============
+//*/
+//static int last_i;
+//void R_InitTexnumImages( qboolean force ) {
+//	if ( force || !numBackupImages ) {
+//		memset( texnumImages, 0, sizeof( texnumImages ) );
+//		last_i = 0;
+//	}
+//}
+//
+///*
+//============
+//R_FindFreeTexnum
+//============
+//*/
+//
+//void R_FindFreeTexnum( image_t *inImage ) {
+//	int i, max;
+//	image_t **image;
+//
+//	max = ( MAX_DRAWIMAGES * 2 );
+//	if ( last_i && !texnumImages[last_i + 1] ) {
+//		i = last_i + 1;
+//	} else {
+//		i = 0;
+//		image = (image_t **)&texnumImages;
+//		while ( i < max && *( image++ ) ) {
+//			i++;
+//		}
+//	}
+//
+//	if ( i < max ) {
+//		if ( i < max - 1 ) {
+//			last_i = i;
+//		} else {
+//			last_i = 0;
+//		}
+//		inImage->texnum = 1024 + i;
+//		texnumImages[i] = inImage;
+//	} else {
+//		ri.Error( ERR_DROP, "R_FindFreeTexnum: MAX_DRAWIMAGES hit\n" );
+//	}
+//}
+//#endif // RTCW_XX
+// BBi
 
 /*
 ===============

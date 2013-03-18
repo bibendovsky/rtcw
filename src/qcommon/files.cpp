@@ -2137,10 +2137,6 @@ int FS_Read( void *buffer, int len, fileHandle_t f ) {
 //			read = fread (buf, block, 1, fsh[f].handleFiles.file.o);
 #endif // RTCW_XX
 
-            //BBi DEBUG
-            long curFilePos = ::ftell (fsh[f].handleFiles.file.o);
-            //BBi
-
 			read = fread( buf, 1, block, fsh[f].handleFiles.file.o );
 			if ( read == 0 ) {
 				// we might have been trying to read from a CD, which
@@ -3933,6 +3929,10 @@ static void FS_Startup( const char *gameName ) {
 	fs_homepath = Cvar_Get( "fs_homepath", homePath, CVAR_INIT );
 	fs_gamedirvar = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO );
 	fs_restrict = Cvar_Get( "fs_restrict", "", CVAR_INIT );
+
+    // BBi
+    ::FS_AddGameDirectory (fs_basepath->string, "rtcw");
+    // BBi
 
 	// add search path elements in reverse priority order
 	if ( fs_cdpath->string[0] ) {

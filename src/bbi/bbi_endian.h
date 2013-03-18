@@ -168,8 +168,8 @@ private:
         T result;
 
         for (int i = 0, j = sizeof (T) - 1; i < sizeof (T); ++i, --j) {
-            (reinterpret_cast<bbi::UInt8*> (&result)) [i] =
-                (reinterpret_cast<const bbi::UInt8*> (&value)) [j];
+            (reinterpret_cast<bbi::UChar*> (&result)) [i] =
+                (reinterpret_cast<const bbi::UChar*> (&value)) [j];
         }
 
         return result;
@@ -180,8 +180,8 @@ private:
     static void lei_bei (T& value)
     {
         for (int i = 0, j = sizeof (T) - 1, n = sizeof (T) / 2; i < n; ++i, --j) {
-            std::swap ((reinterpret_cast<bbi::UInt8*> (&value)) [i],
-                (reinterpret_cast<bbi::UInt8*> (&value)) [j]);
+            std::swap ((reinterpret_cast<bbi::UChar*> (&value)) [i],
+                (reinterpret_cast<bbi::UChar*> (&value)) [j]);
         }
     }
 }; // enum Endian
