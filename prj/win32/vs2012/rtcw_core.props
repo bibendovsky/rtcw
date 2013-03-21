@@ -3,29 +3,11 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <rtcw_vs_id>vs2012</rtcw_vs_id>
-    <rtcw_lib_type>s_mt</rtcw_lib_type>
     <rtcw_root_dir>$(SolutionDir)..\..\..\</rtcw_root_dir>
     <rtcw_bin_dir>$(rtcw_root_dir)bin\win32\$(rtcw_vs_id)\</rtcw_bin_dir>
     <rtcw_lib_dir>$(rtcw_root_dir)lib\win32\$(rtcw_vs_id)\</rtcw_lib_dir>
     <rtcw_obj_dir>$(rtcw_root_dir)obj\win32\$(rtcw_vs_id)\</rtcw_obj_dir>
     <rtcw_src_dir>$(rtcw_root_dir)src\</rtcw_src_dir>
-    <rtcw_curl_version>7.27.0</rtcw_curl_version>
-    <rtcw_curl_lib_base_name>libcurl</rtcw_curl_lib_base_name>
-    <rtcw_curl_dir>$(rtcw_src_dir)curl-$(rtcw_curl_version)\</rtcw_curl_dir>
-    <rtcw_fmodex_version>4.42.05</rtcw_fmodex_version>
-    <rtcw_fmodex_lib_base_name>fmodex</rtcw_fmodex_lib_base_name>
-    <rtcw_fmodex_dir>$(rtcw_src_dir)fmodex-$(rtcw_fmodex_version)\</rtcw_fmodex_dir>
-    <rtcw_glew_version>1.9.0</rtcw_glew_version>
-    <rtcw_glew_lib_base_name>libglew</rtcw_glew_lib_base_name>
-    <rtcw_glew_dir>$(rtcw_src_dir)glew-$(rtcw_glew_version)\</rtcw_glew_dir>
-    <rtcw_glm_version>0.9.4.1</rtcw_glm_version>
-    <rtcw_glm_dir>$(rtcw_src_dir)glm-$(rtcw_glm_version)\</rtcw_glm_dir>
-    <rtcw_zlib_version>1.2.7</rtcw_zlib_version>
-    <rtcw_zlib_lib_base_name>libz</rtcw_zlib_lib_base_name>
-    <rtcw_zlib_dir>$(rtcw_src_dir)zlib-$(rtcw_zlib_version)\</rtcw_zlib_dir>
-    <rtcw_jpeg_turbo_version>1.2.1</rtcw_jpeg_turbo_version>
-    <rtcw_jpeg_turbo_lib_base_name>libjpeg_turbo</rtcw_jpeg_turbo_lib_base_name>
-    <rtcw_jpeg_turbo_dir>$(rtcw_src_dir)libjpeg-turbo-$(rtcw_jpeg_turbo_version)\</rtcw_jpeg_turbo_dir>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
@@ -33,14 +15,14 @@
       <PreprocessorDefinitions>WINVER=0x0501;_WIN32_WINNT=0x0501;NTDDI_VERSION=NTDDI_WINXPSP3;DIRECTINPUT_VERSION=0x0800;DIRECTSOUND_VERSION=0x0900;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(rtcw_src_dir)bbi;$(rtcw_src_dir)botai;$(rtcw_src_dir)botlib;$(rtcw_src_dir)cgame;$(rtcw_src_dir)client;$(rtcw_src_dir)game;$(rtcw_src_dir)null;$(rtcw_src_dir)qcommon;$(rtcw_src_dir)renderer;$(rtcw_src_dir)server;$(rtcw_src_dir)splines;$(rtcw_src_dir)ui;$(rtcw_src_dir)win32;$(rtcw_curl_dir)include;$(rtcw_fmodex_dir)api\inc;$(rtcw_glew_dir)include;$(rtcw_glm_dir);$(rtcw_jpeg_turbo_dir)include;$(rtcw_zlib_dir);$(rtcw_zlib_dir)contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(rtcw_src_dir)bbi;$(rtcw_src_dir)botai;$(rtcw_src_dir)botlib;$(rtcw_src_dir)cgame;$(rtcw_src_dir)client;$(rtcw_src_dir)game;$(rtcw_src_dir)null;$(rtcw_src_dir)qcommon;$(rtcw_src_dir)renderer;$(rtcw_src_dir)server;$(rtcw_src_dir)splines;$(rtcw_src_dir)ui;$(rtcw_src_dir)win32;$(rtcw_src_dir)curl\include;$(rtcw_src_dir)fmodex\api\inc;$(rtcw_src_dir)glew\include;$(rtcw_src_dir)glm;$(rtcw_src_dir)libjpeg_turbo;$(rtcw_src_dir)libjpeg_turbo_win32;$(rtcw_src_dir)zlib;$(rtcw_src_dir)zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Lib>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
     <Link>
-      <AdditionalLibraryDirectories>$(rtcw_lib_dir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(rtcw_lib_dir);$(rtcw_lib_dir)$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>dinput8.lib;iphlpapi.lib;winmm.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TargetMachine>MachineX86</TargetMachine>
@@ -50,9 +32,6 @@
   <ItemGroup>
     <BuildMacro Include="rtcw_vs_id">
       <Value>$(rtcw_vs_id)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_lib_type">
-      <Value>$(rtcw_lib_type)</Value>
     </BuildMacro>
     <BuildMacro Include="rtcw_root_dir">
       <Value>$(rtcw_root_dir)</Value>
@@ -68,57 +47,6 @@
     </BuildMacro>
     <BuildMacro Include="rtcw_src_dir">
       <Value>$(rtcw_src_dir)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_curl_version">
-      <Value>$(rtcw_curl_version)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_curl_lib_base_name">
-      <Value>$(rtcw_curl_lib_base_name)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_curl_dir">
-      <Value>$(rtcw_curl_dir)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_fmodex_version">
-      <Value>$(rtcw_fmodex_version)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_fmodex_lib_base_name">
-      <Value>$(rtcw_fmodex_lib_base_name)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_fmodex_dir">
-      <Value>$(rtcw_fmodex_dir)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_glew_version">
-      <Value>$(rtcw_glew_version)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_glew_lib_base_name">
-      <Value>$(rtcw_glew_lib_base_name)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_glew_dir">
-      <Value>$(rtcw_glew_dir)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_glm_version">
-      <Value>$(rtcw_glm_version)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_glm_dir">
-      <Value>$(rtcw_glm_dir)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_zlib_version">
-      <Value>$(rtcw_zlib_version)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_zlib_lib_base_name">
-      <Value>$(rtcw_zlib_lib_base_name)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_zlib_dir">
-      <Value>$(rtcw_zlib_dir)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_jpeg_turbo_version">
-      <Value>$(rtcw_jpeg_turbo_version)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_jpeg_turbo_lib_base_name">
-      <Value>$(rtcw_jpeg_turbo_lib_base_name)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_jpeg_turbo_dir">
-      <Value>$(rtcw_jpeg_turbo_dir)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

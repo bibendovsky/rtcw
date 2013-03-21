@@ -19,6 +19,9 @@
     <ResourceCompile>
       <PreprocessorDefinitions>$(rtcw_id_define);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>$(rtcw_fmodex_lib);libglew.lib;libjpeg_turbo.lib;libz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="rtcw_id_lc">

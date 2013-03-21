@@ -147,7 +147,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalDependencies>$(rtcw_fmodex_lib);libcurl.lib;libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -156,7 +156,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalDependencies>$(rtcw_fmodex_lib);libcurl.lib;libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">
@@ -181,6 +181,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
+      <AdditionalDependencies>$(rtcw_fmodex_lib);libcurl.lib;libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -189,6 +190,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
+      <AdditionalDependencies>$(rtcw_fmodex_lib);libcurl.lib;libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">
@@ -671,7 +673,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zlib-1.2.7\contrib\minizip\unzip.c" />
+    <ClCompile Include="..\..\..\..\src\zlib\contrib\minizip\ioapi.c" />
+    <ClCompile Include="..\..\..\..\src\zlib\contrib\minizip\unzip.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\bbi\bbi_core.h" />

@@ -149,6 +149,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
+      <AdditionalDependencies>$(rtcw_fmodex_lib);libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -157,6 +158,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
+      <AdditionalDependencies>$(rtcw_fmodex_lib);libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -165,6 +167,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
+      <AdditionalDependencies>$(rtcw_fmodex_lib);libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -173,6 +176,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
+      <AdditionalDependencies>$(rtcw_fmodex_lib);libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">
@@ -635,7 +639,8 @@
     <ClCompile Include="..\..\..\..\src\win32\win_shared.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_syscon.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_wndproc.cpp" />
-    <ClCompile Include="..\..\..\..\src\zlib-1.2.7\contrib\minizip\unzip.c" />
+    <ClCompile Include="..\..\..\..\src\zlib\contrib\minizip\ioapi.c" />
+    <ClCompile Include="..\..\..\..\src\zlib\contrib\minizip\unzip.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\bbi\bbi_core.h" />

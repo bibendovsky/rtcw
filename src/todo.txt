@@ -2,7 +2,7 @@
 Check for FIXME and TODO
 
 -----------------------
-Change licenses for merged code.
+Modify licenses for merged code.
 
 -----------------------
 Recheck code for merge:

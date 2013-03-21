@@ -19,6 +19,9 @@
     <Filter Include="Source Files\bbi">
       <UniqueIdentifier>{9d84830f-a93a-4115-8717-72c7f7e19020}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\minizip">
+      <UniqueIdentifier>{b9e68928-992c-458b-93c8-8653ced1171b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\client\cl_cgame.cpp">
@@ -354,9 +357,6 @@
     <ClCompile Include="..\..\..\..\src\splines\util_str.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\zlib-1.2.7\contrib\minizip\unzip.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\client\snd_dma_core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -383,6 +383,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_version.cpp">
       <Filter>Source Files\bbi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\zlib\contrib\minizip\ioapi.c">
+      <Filter>Source Files\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\zlib\contrib\minizip\unzip.c">
+      <Filter>Source Files\minizip</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

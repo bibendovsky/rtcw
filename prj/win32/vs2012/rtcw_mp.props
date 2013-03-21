@@ -19,6 +19,10 @@
     <ResourceCompile>
       <PreprocessorDefinitions>$(rtcw_id_define);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
+    <Link />
+    <Link>
+      <AdditionalDependencies>libz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="rtcw_id_lc">

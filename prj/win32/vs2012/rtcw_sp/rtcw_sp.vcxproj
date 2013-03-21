@@ -230,7 +230,8 @@
     <ClCompile Include="..\..\..\..\src\win32\win_shared.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_syscon.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_wndproc.cpp" />
-    <ClCompile Include="..\..\..\..\src\zlib-1.2.7\contrib\minizip\unzip.c" />
+    <ClCompile Include="..\..\..\..\src\zlib\contrib\minizip\ioapi.c" />
+    <ClCompile Include="..\..\..\..\src\zlib\contrib\minizip\unzip.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\bbi\bbi_core.h" />

@@ -14,7 +14,6 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Link>
-      <AdditionalDependencies>$(rtcw_curl_lib);$(rtcw_fmodex_lib);$(rtcw_glew_lib);$(rtcw_jpeg_turbo_lib);$(rtcw_zlib_lib);%(AdditionalDependencies)</AdditionalDependencies>
       <TargetMachine>MachineX86</TargetMachine>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
