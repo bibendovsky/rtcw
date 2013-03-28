@@ -1252,7 +1252,7 @@ void Sys_LeaveCriticalSection( void *ptr ) {
 }
 #endif // RTCW_XX
 
-#else /* RTCW_MP */
+#else // RTCW_MP
 #if 1
 
 void Sys_InitStreamThread( void ) {

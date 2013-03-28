@@ -27,279 +27,294 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-//BBi
-// *************************************************
-// Low-level sound routines implemented via FMOD Ex.
-// (Originaly was "win_snd.cpp")
-// *************************************************
-//BBi
+// BBi
+// ************************************************
+// Low-level sound routines implemented via OpenAL.
+// (Former "win_snd.cpp")
+// ************************************************
+// BBi
 
 
-#include <fmod.hpp>
+#include <cassert>
+
+#include <algorithm>
+#include <deque>
+#include <vector>
+#include <queue>
+
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alext.h>
 
 #include "snd_local.h"
 
 
-static const int FMOD_MIN_CHANNELS = 2;
+namespace {
+
+
+typedef std::queue<ALuint> OalQueue;
+typedef std::vector<bbi::UChar> OalBuffer;
+
+const int OAL_MAX_QUEUE_SIZE = 2;
 
 // WARNING: Must be power of two!
-static const int FMOD_DMA_BUFFER_SIZE = 65536;
+const int OAL_MIX_BUFFER_SIZE = 65536;
 
-static bool fmodIsInitialized;
-static FMOD::System* fmodSystem;
-static FMOD::Sound* fmodDmaSound;
-static FMOD::Channel* fmodDmaChannel;
+const int OAL_SLICE_SIZE = PAINTBUFFER_SIZE;
+
+bool oal_is_initialized = false;
+OalQueue oal_free_buffers;
+OalQueue oal_used_buffers;
+ALCdevice* oal_device = nullptr;
+ALCcontext* oal_context = nullptr;
+ALuint oal_source = AL_NONE;
+
+ALuint oal_looped_source = AL_NONE;
+ALuint oal_looped_buffer = AL_NONE;
+
+bool oal_has_ext_buffer_subdata = false;
+PFNALBUFFERSUBDATASOFTPROC oal_buffer_subdata = nullptr;
+
+// We need it for overlap case.
+OalBuffer oal_slice_buffer;
+
+OalBuffer oal_mix_buffer;
+
+int oal_position = 0;
+
+void oal_uninitialize ()
+{
+    if (oal_context != nullptr) {
+        ::alcMakeContextCurrent (nullptr);
+
+        if (oal_looped_source != AL_NONE) {
+            ::alSourceStop (oal_looped_source);
+            ::alDeleteSources (1, &oal_looped_source);
+            oal_looped_source = AL_NONE;
+        }
+
+        if (oal_looped_buffer != AL_NONE) {
+            ::alDeleteBuffers (1, &oal_looped_buffer);
+            oal_looped_buffer = AL_NONE;
+        }
+
+
+        if (oal_source != AL_NONE) {
+            ::alSourceStop (oal_source);
+            ::alDeleteSources (1, &oal_source);
+            oal_source = AL_NONE;
+        }
+
+        while (!oal_free_buffers.empty ()) {
+            auto buffer = oal_free_buffers.front ();
+            ::alDeleteBuffers (1, &buffer);
+            oal_free_buffers.pop ();
+        }
+
+        while (!oal_used_buffers.empty ()) {
+            auto buffer = oal_used_buffers.front ();
+            ::alDeleteBuffers (1, &buffer);
+            oal_used_buffers.pop ();
+        }
+
+        ::alcDestroyContext (oal_context);
+        oal_context = nullptr;
+    }
+
+    if (oal_device != nullptr) {
+        ::alcCloseDevice (oal_device);
+        oal_device = nullptr;
+    }
+
+    oal_has_ext_buffer_subdata = false;
+    oal_buffer_subdata = nullptr;
+
+    oal_is_initialized = false;
+}
+
+void oal_detect_extension_soft_buffer_sub_data ()
+{
+    oal_has_ext_buffer_subdata = (::alIsExtensionPresent (
+        "AL_SOFT_buffer_sub_data") == AL_TRUE);
+
+    if (!oal_has_ext_buffer_subdata)
+        return;
+
+    oal_buffer_subdata = reinterpret_cast<PFNALBUFFERSUBDATASOFTPROC> (
+        ::alGetProcAddress ("alBufferSubDataSOFT"));
+
+    if (oal_buffer_subdata != nullptr)
+        return;
+
+    oal_has_ext_buffer_subdata = false;
+}
+
+
+} // namespace
 
 
 void SNDDMA_Shutdown ()
 {
     ::Com_DPrintf ("Shutting down sound system\n");
 
-    if (!fmodIsInitialized)
-        return;
-
-
-    if (fmodDmaChannel != 0) {
-        fmodDmaChannel->stop ();
-        fmodDmaChannel = 0;
-    }
-
-    if (fmodDmaSound != 0) {
-        fmodDmaSound->release ();
-        fmodDmaSound = 0;
-    }
-
-    if (fmodSystem != 0) {
-        fmodSystem->release ();
-        fmodSystem = 0;
-    }
+    oal_uninitialize ();
 }
 
 qboolean SNDDMA_Init ()
 {
-    if (fmodIsInitialized)
+    if (oal_is_initialized)
         ::SNDDMA_Shutdown ();
 
+    ::Com_Printf ("Initializing OpenAL...\n");
 
-    ::Com_DPrintf ("Initializing FMOD Ex...\n");
+    bool is_succeed = true;
 
-    ::memset (&dma, 0, sizeof (dma_t));
+    oal_device = ::alcOpenDevice (nullptr);
 
-    FMOD_RESULT fmodResult = FMOD_OK;
-    FMOD::System* system = 0;
+    if (oal_device == nullptr) {
+        is_succeed = false;
+        ::Com_Printf (S_COLOR_YELLOW "Failed to open a device.\n");
+    }
 
-    fmodResult = FMOD::System_Create (&system);
+    if (is_succeed) {
+        oal_context = ::alcCreateContext (oal_device, nullptr);
 
-    if (fmodResult != FMOD_OK)
-        ::Com_Printf (S_COLOR_RED "FMOD: Failed to %s.\n", "create a system object");
+        if (oal_context == nullptr) {
+            is_succeed = false;
+            ::Com_Printf (S_COLOR_YELLOW "Failed to open a context.\n");
+        }
+    }
 
+    if (is_succeed) {
+        auto is_made_current = ::alcMakeContextCurrent (oal_context);
 
-    unsigned fmodVersion = 0;
-
-    if (fmodResult == FMOD_OK) {
-        fmodResult = system->getVersion (&fmodVersion);
-
-        if (fmodResult == FMOD_OK) {
-            if (fmodVersion < FMOD_VERSION) {
-                fmodResult = FMOD_ERR_VERSION;
-                ::Com_Printf (S_COLOR_RED "FMOD: Old version: %08x (requires %08x).\n",
-                    fmodVersion, static_cast<unsigned> (FMOD_VERSION));
-            }
-        } else
-            ::Com_Printf (S_COLOR_RED "FMOD: Failed to %s.\n", "get a version");
+        if (is_made_current == ALC_FALSE) {
+            is_succeed = false;
+            ::Com_Printf (S_COLOR_YELLOW "Failed to make a context current.\n");
+        }
     }
 
 
-#ifdef _WIN32
-    int nDriver = 0;
+    oal_mix_buffer.clear ();
+    oal_mix_buffer.resize (OAL_MIX_BUFFER_SIZE);
 
-    if (fmodResult == FMOD_OK) {
-        fmodResult = system->getNumDrivers (&nDriver);
+    int sample_rate = 0;
 
-        if (fmodResult != FMOD_OK)
-            ::Com_Printf (S_COLOR_RED "FMOD: Failed to %s.\n", "get a number of drivers");
+    switch (s_khz->integer) {
+    case 11:
+        sample_rate = 11025;
+        break;
+
+    case 22:
+        sample_rate = 22050;
+        break;
+
+    case 44:
+        sample_rate = 44100;
+        break;
+
+    default:
+        sample_rate = 22050;
+        break;
     }
 
-    if (fmodResult == FMOD_OK) {
-        if (nDriver > 0) {
-            FMOD_CAPS driverCaps = FMOD_CAPS_NONE;
-            FMOD_SPEAKERMODE sysSpeakerMode = FMOD_SPEAKERMODE_RAW;
 
-            fmodResult = system->getDriverCaps (0, &driverCaps, 0, &sysSpeakerMode);
+    ALenum oal_result = ::alGetError ();
 
-            if (fmodResult != FMOD_OK)
-                ::Com_Printf (S_COLOR_RED "FMOD: Failed to %s.\n", "get a driver caps");
+    if (is_succeed)
+        oal_detect_extension_soft_buffer_sub_data ();
 
-            if ((fmodResult == FMOD_OK) &&
-                ((driverCaps & FMOD_CAPS_HARDWARE_EMULATED) != 0))
-            {
-                ::Com_Printf (S_COLOR_YELLOW "FMOD: %s.\n", "Acceleration in control panel set to off");
-                ::Com_Printf (S_COLOR_YELLOW "FMOD: %s...\n", "Adjusting internal mixing buffer size");
+    if (is_succeed) {
+        ::alGenBuffers (1, &oal_looped_buffer);
+        oal_result = ::alGetError ();
 
-                fmodResult = system->setDSPBufferSize (1024, 10);
+        if (oal_result != AL_NO_ERROR) {
+            is_succeed = false;
+            ::Com_Printf (S_COLOR_YELLOW "Failed to create a buffer object.\n");
+        }
+    }
 
-                if (fmodResult == FMOD_OK)
-                    ::Com_Printf (S_COLOR_YELLOW "FMOD: ...%s.\n", "successed");
-                else {
-                    fmodResult = FMOD_ERR_INTERNAL;
-                    ::Com_Printf (S_COLOR_RED "FMOD: ...%s.\n", "failed");
-                }
-            }
+    if (is_succeed) {
+        ::alBufferData (oal_looped_buffer, AL_FORMAT_STEREO16,
+            &oal_mix_buffer[0], OAL_MIX_BUFFER_SIZE, sample_rate);
+        oal_result = ::alGetError ();
 
-            if (fmodResult == FMOD_OK) {
-                static const int MAX_DRIVER_NAME_SIZE = 256;
-                char driverNameBuffer[MAX_DRIVER_NAME_SIZE];
+        if (oal_result != AL_NO_ERROR) {
+            is_succeed = false;
+            ::Com_Printf (S_COLOR_YELLOW "Failed to initialize a buffer with data.\n");
+        }
+    }
 
-                fmodResult = system->getDriverInfo (0, driverNameBuffer, MAX_DRIVER_NAME_SIZE, 0);
+    if (is_succeed) {
+        ::alGenSources (1, &oal_looped_source);
+        oal_result = ::alGetError ();
 
-                if (fmodResult == FMOD_OK) {
-                    driverNameBuffer[MAX_DRIVER_NAME_SIZE - 1] = '\0';
+        if (oal_result != AL_NO_ERROR) {
+            is_succeed = false;
+            ::Com_Printf (S_COLOR_YELLOW "Failed to create a source object.\n");
+        }
+    }
 
-                    if (::strstr (driverNameBuffer, "SigmaTel") != 0) {
-                        ::Com_Printf (S_COLOR_YELLOW "FMOD: %s...\n", "Working around SigmaTel driver...");
+    if (is_succeed) {
+        ::alSourcei (oal_looped_source, AL_LOOPING, AL_TRUE);
+        ::alSourcei (oal_looped_source, AL_BUFFER,
+            static_cast<ALint> (oal_looped_buffer));
+        ::alSourcePlay (oal_looped_source);
+        oal_result = ::alGetError ();
 
-                        fmodResult = system->setSoftwareFormat (
-                            48000, FMOD_SOUND_FORMAT_PCMFLOAT, 0, 0, FMOD_DSP_RESAMPLER_LINEAR);
+        if (oal_result != AL_NO_ERROR) {
+            is_succeed = false;
+            ::Com_Printf (S_COLOR_YELLOW "Failed to play a source.\n");
+        }
+    }
 
-                        if (fmodResult == FMOD_OK)
-                            ::Com_Printf (S_COLOR_YELLOW "FMOD: ...%s.\n", "successed");
-                        else
-                            ::Com_Printf (S_COLOR_RED "FMOD: ...%s.\n", "failed");
-                    }
-                }
-            }
+    if (is_succeed && (!oal_has_ext_buffer_subdata)) {
+        ::alGenSources (1, &oal_source);
+        oal_result = ::alGetError ();
+
+        if (oal_result != AL_NO_ERROR) {
+            is_succeed = false;
+            ::Com_Printf (S_COLOR_YELLOW "Failed to create a source object.\n");
+        }
+    }
+
+    if (is_succeed && (!oal_has_ext_buffer_subdata)) {
+        ALuint buffers[OAL_MAX_QUEUE_SIZE];
+
+        ::alGenBuffers (OAL_MAX_QUEUE_SIZE, buffers);
+        oal_result = ::alGetError ();
+
+        if (oal_result == AL_NO_ERROR) {
+            for (auto buffer : buffers)
+                oal_free_buffers.push (buffer);
         } else {
-            fmodResult = system->setOutput (FMOD_OUTPUTTYPE_NOSOUND);
-
-            if (fmodResult != FMOD_OK)
-                ::Com_Printf (S_COLOR_RED "FMOD: Failed to %s.\n", "set an output mode");
-        }
-    }
-#endif // _WIN32
-
-
-    if (fmodResult == FMOD_OK) {
-        fmodResult = system->init (FMOD_MIN_CHANNELS, FMOD_INIT_NORMAL, 0);
-
-        if (fmodResult != FMOD_OK)
-            ::Com_Printf (S_COLOR_RED "FMOD: Failed to %s.\n", "initialize a system object");
-    }
-
-
-#ifdef _WIN32
-    if (fmodResult == FMOD_ERR_OUTPUT_CREATEBUFFER) {
-        ::Com_Printf (S_COLOR_YELLOW "FMOD: %s.\n", "Selected speaker mode is not supported");
-        ::Com_Printf (S_COLOR_YELLOW "FMOD: %s.\n", "Switching to stereo...");
-
-        fmodResult = system->setSpeakerMode (FMOD_SPEAKERMODE_STEREO);
-
-        if (fmodResult == FMOD_OK)
-            ::Com_Printf (S_COLOR_YELLOW "FMOD: ...%s.\n", "successed");
-        else
-            ::Com_Printf (S_COLOR_RED "FMOD: ...%s.\n", "failed");
-
-        if (fmodResult == FMOD_OK) {
-            fmodResult = system->init (FMOD_MIN_CHANNELS, FMOD_INIT_NORMAL, 0);
-
-            if (fmodResult != FMOD_OK)
-                ::Com_Printf (S_COLOR_RED "FMOD: Failed to %s.\n",
-                    "re-initialize a system object");
-        }
-    }
-#endif // _WIN32
-
-
-    int dmaRate = 0;
-
-    if (fmodResult == FMOD_OK) {
-        switch (s_khz->integer) {
-        case 11:
-            dmaRate = 11025;
-            break;
-
-        case 22:
-            dmaRate = 22050;
-            break;
-
-        case 44:
-            dmaRate = 44100;
-            break;
-
-        default:
-            dmaRate = 22050;
-            break;
+            is_succeed = false;
+            ::Com_Printf (S_COLOR_YELLOW "Failed to create buffer objects.\n");
         }
     }
 
-
-    FMOD::Sound* sound = 0;
-
-    if (fmodResult == FMOD_OK) {
-        FMOD_MODE soundMode =
-            FMOD_LOOP_NORMAL |
-            FMOD_2D |
-            FMOD_SOFTWARE |
-            FMOD_OPENUSER |
-            FMOD_OPENRAW;
-
-        FMOD_CREATESOUNDEXINFO soundInfo;
-        ::memset (&soundInfo, 0, sizeof (FMOD_CREATESOUNDEXINFO));
-        soundInfo.cbsize = sizeof (FMOD_CREATESOUNDEXINFO);
-        soundInfo.length = FMOD_DMA_BUFFER_SIZE;
-        soundInfo.numchannels = 2;
-        soundInfo.defaultfrequency = dmaRate;
-        soundInfo.format = FMOD_SOUND_FORMAT_PCM16;
-
-        fmodResult = system->createSound (
-            0, soundMode, &soundInfo, &sound);
-
-        if (fmodResult != FMOD_OK)
-            ::Com_Printf (S_COLOR_RED "FMOD: Failed to %s.\n", "create a DMA sound object");
-    }
-
-
-    FMOD::Channel* channel = 0;
-
-    if (fmodResult == FMOD_OK) {
-        fmodResult = system->playSound (FMOD_CHANNEL_FREE, sound, false, &channel);
-
-        if (fmodResult != FMOD_OK)
-            ::Com_Printf (S_COLOR_RED "FMOD: Failed to %s.\n", "play a DMA sound");
-    }
-
-
-    if (fmodResult == FMOD_OK) {
-        fmodIsInitialized = true;
-
-        fmodSystem = system;
-        fmodDmaSound = sound;
-        fmodDmaChannel = channel;
+    if (is_succeed) {
+        std::uninitialized_fill_n (
+            reinterpret_cast<char*> (&dma), sizeof (dma_t), 0);
 
         dma.channels = 2;
-        dma.speed = dmaRate;
         dma.samplebits = 16;
         dma.submission_chunk = 1;
-        dma.samples = FMOD_DMA_BUFFER_SIZE / 2;
+        dma.samples = OAL_MIX_BUFFER_SIZE / 2;
+        dma.speed = sample_rate;
 
-        // Generate silence.
-        ::SNDDMA_BeginPainting ();
-        if (dma.buffer != 0)
-            ::memset (dma.buffer, 0, FMOD_DMA_BUFFER_SIZE);
-        ::SNDDMA_Submit ();
+        if  (oal_has_ext_buffer_subdata)
+            ::Com_Printf ("... using AL_SOFT_buffer_sub_data extension.");
+        else
+            oal_slice_buffer.resize (OAL_SLICE_SIZE);
 
-        ::Com_DPrintf ("Completed successfully\n");
-    } else {
-        if (channel != 0)
-            channel->stop ();
+        oal_is_initialized = true;
 
-        if (sound != 0)
-            sound->release ();
+        ::Com_Printf ("Completed successfully.\n");
+    } else
+        oal_uninitialize ();
 
-        if (system != 0)
-            system->release ();
-    }
-
-    return fmodIsInitialized;
+    return oal_is_initialized;
 }
 
 // Return the current sample position (in mono samples read)
@@ -307,60 +322,112 @@ qboolean SNDDMA_Init ()
 // how many sample are required to fill it up.
 int SNDDMA_GetDMAPos ()
 {
-    if (!fmodIsInitialized)
+    if (!oal_is_initialized)
         return 0;
 
+    ALint offset = 0;
+    ::alGetSourcei (oal_looped_source, AL_BYTE_OFFSET, &offset);
 
-    FMOD_RESULT fmodResult = FMOD_OK;
+    oal_position = offset;
 
-    unsigned position = 0;
+    if (oal_has_ext_buffer_subdata)
+        return oal_position / 2;
 
-    fmodResult = fmodDmaChannel->getPosition (&position, FMOD_TIMEUNIT_PCMBYTES);
 
-    if (fmodResult == FMOD_OK)
-        return static_cast<int> (position / 2);
+    ALint queued = 0;
+    ::alGetSourcei (oal_source, AL_BUFFERS_QUEUED, &queued);
 
-    return 0;
+    ALint processed = 0;
+    ::alGetSourcei (oal_source, AL_BUFFERS_PROCESSED, &processed);
+
+    for (int i = 0; i < processed; ++i) {
+        ALuint buffer = AL_NONE;
+        ::alSourceUnqueueBuffers (oal_source, 1, &buffer);
+
+        if (buffer == AL_NONE)
+            continue;
+
+        assert (oal_used_buffers.front () == buffer);
+
+        oal_free_buffers.push (buffer);
+        oal_used_buffers.pop ();
+    }
+
+    if (queued < OAL_MAX_QUEUE_SIZE) {
+        int read_offset = (oal_position / OAL_SLICE_SIZE) * OAL_SLICE_SIZE;
+
+        ALuint buffer = oal_free_buffers.front ();
+        oal_free_buffers.pop ();
+        oal_used_buffers.push (buffer);
+
+        bbi::UChar* data = nullptr;
+
+        if ((read_offset + OAL_SLICE_SIZE) <= OAL_MIX_BUFFER_SIZE)
+            data = &oal_mix_buffer[read_offset];
+        else {
+            int size1 = OAL_MIX_BUFFER_SIZE - read_offset;
+            int size2 = OAL_SLICE_SIZE - size1;
+
+            std::uninitialized_copy_n (
+                &oal_mix_buffer[read_offset],
+                size1,
+                &oal_slice_buffer[0]);
+
+            std::uninitialized_copy_n (
+                &oal_mix_buffer[0],
+                size2,
+                &oal_slice_buffer[size1]);
+
+            data = &oal_slice_buffer[0];
+        }
+
+        ::alBufferData (buffer, AL_FORMAT_STEREO16,
+            data, OAL_SLICE_SIZE, dma.speed);
+
+        ::alSourceQueueBuffers (oal_source, 1, &buffer);
+    }
+
+    ALint state = AL_STOPPED;
+    ::alGetSourcei (oal_source, AL_SOURCE_STATE, &state);
+
+    if (state != AL_PLAYING)
+        ::alSourcePlay (oal_source);
+
+
+    return oal_position / 2;
 }
 
 void SNDDMA_BeginPainting ()
 {
-    if (!fmodIsInitialized)
+    if (!oal_is_initialized)
         return;
 
+    assert (dma.buffer == nullptr);
 
-    assert (dma.buffer == 0);
-
-    unsigned length;
-    FMOD_RESULT fmodResult = FMOD_OK;
-
-    fmodResult = fmodDmaSound->lock (0, FMOD_DMA_BUFFER_SIZE,
-        reinterpret_cast<void**> (&dma.buffer), 0, &length, 0);
+    dma.buffer = &oal_mix_buffer[0];
 }
 
 void SNDDMA_Submit ()
 {
-    if (!fmodIsInitialized)
+    if (!oal_is_initialized)
         return;
 
+    assert (dma.buffer != nullptr);
 
-    assert (dma.buffer != 0);
+    if (oal_has_ext_buffer_subdata) {
+        oal_buffer_subdata (oal_looped_buffer, AL_FORMAT_STEREO16,
+            dma.buffer, 0, OAL_MIX_BUFFER_SIZE);
+    }
 
-    FMOD_RESULT fmodResult = FMOD_OK;
-
-    fmodResult = fmodDmaSound->unlock (dma.buffer, 0, FMOD_DMA_BUFFER_SIZE, 0);
-
-    dma.buffer = 0;
+    dma.buffer = nullptr;
 }
 
-void SNDDMA_Activate (
-    bool isActive)
+void SNDDMA_Activate (bool value)
 {
-    if (!fmodIsInitialized)
+    if (!oal_is_initialized)
         return;
 
+    float volume = value ? 1.0F : 0.0F;
 
-    FMOD_RESULT fmodResult = FMOD_OK;
-
-    fmodResult = fmodDmaChannel->setMute (!isActive);
+    ::alListenerf (AL_GAIN, volume);
 }

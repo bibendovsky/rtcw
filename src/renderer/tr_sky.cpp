@@ -1247,7 +1247,7 @@ void RB_DrawSun( void ) {
 	// back to normal depth range
 	::glDepthRange( 0.0, 1.0 );
 
-#if defined RTCW_ET
+//#if defined RTCW_ET
     // BBi
     if (!glConfigEx.is_path_ogl_1_x ()) {
         ogl_tess_state.model_view.set (
@@ -1261,7 +1261,7 @@ void RB_DrawSun( void ) {
     // BBi
     }
     // BBi
-#endif // RTCW_XX
+//#endif // RTCW_XX
 
 }
 

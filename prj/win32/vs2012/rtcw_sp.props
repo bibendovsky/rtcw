@@ -20,7 +20,7 @@
       <PreprocessorDefinitions>$(rtcw_id_define);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>$(rtcw_fmodex_lib);libglew.lib;libjpeg_turbo.lib;libz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libglew.lib;libjpeg_turbo.lib;libopenal_soft.lib;libz.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

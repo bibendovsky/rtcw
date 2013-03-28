@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\alc">
+      <UniqueIdentifier>{8261de67-eb4a-4f08-848d-c145b0987cf9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\alc\backends">
+      <UniqueIdentifier>{f1799ed7-9254-4e6f-b5d4-1cda0ef635c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\openal32">
+      <UniqueIdentifier>{844538b5-596b-44c2-a1e1-e8cd94751944}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\backends\dsound.c">
+      <Filter>Source Files\alc\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\backends\loopback.c">
+      <Filter>Source Files\alc\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\backends\null.c">
+      <Filter>Source Files\alc\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\backends\winmm.c">
+      <Filter>Source Files\alc\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\ALc.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\alcConfig.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\alcDedicated.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\alcEcho.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\alcModulator.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\alcReverb.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\alcRing.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\alcThread.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\ALu.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\bs2b.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\helpers.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\hrtf.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\mixer.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\mixer_sse.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\panning.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\OpenAL32\alAuxEffectSlot.c">
+      <Filter>Source Files\openal32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\OpenAL32\alBuffer.c">
+      <Filter>Source Files\openal32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\OpenAL32\alEffect.c">
+      <Filter>Source Files\openal32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\OpenAL32\alError.c">
+      <Filter>Source Files\openal32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\OpenAL32\alExtension.c">
+      <Filter>Source Files\openal32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\OpenAL32\alFilter.c">
+      <Filter>Source Files\openal32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\OpenAL32\alListener.c">
+      <Filter>Source Files\openal32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\OpenAL32\alSource.c">
+      <Filter>Source Files\openal32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\OpenAL32\alState.c">
+      <Filter>Source Files\openal32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\OpenAL32\alThunk.c">
+      <Filter>Source Files\openal32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\openal_soft\Alc\mixer_c.c">
+      <Filter>Source Files\alc</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

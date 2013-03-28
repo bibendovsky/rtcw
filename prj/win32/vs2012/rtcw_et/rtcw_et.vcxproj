@@ -147,7 +147,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
-      <AdditionalDependencies>$(rtcw_fmodex_lib);libcurl.lib;libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcurl.lib;libglew.lib;libjpeg_turbo.lib;libopenal_soft.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -156,7 +156,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
-      <AdditionalDependencies>$(rtcw_fmodex_lib);libcurl.lib;libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcurl.lib;libglew.lib;libjpeg_turbo.lib;libopenal_soft.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">
@@ -181,7 +181,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
-      <AdditionalDependencies>$(rtcw_fmodex_lib);libcurl.lib;libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcurl.lib;libglew.lib;libjpeg_turbo.lib;libopenal_soft.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -190,7 +190,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
-      <AdditionalDependencies>$(rtcw_fmodex_lib);libcurl.lib;libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcurl.lib;libglew.lib;libjpeg_turbo.lib;libopenal_soft.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">

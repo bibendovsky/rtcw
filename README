@@ -9,20 +9,20 @@ OS: Windows XP
 
 Used third-party libraries
 --------------------------
-FMOD Ex SoundSystem Copyright © 2005-2012 Firelight Technologies Pty, Ltd.
-(http://fmod.org/)
-
 GLEW: The OpenGL Extension Wrangler Library
-(http://glew.sourceforge.net/)
+http://glew.sourceforge.net/
 
 libjpeg-turbo
-(http://libjpeg-turbo.virtualgl.org/)
+http://libjpeg-turbo.virtualgl.org/
 
 libcurl - the multiprotocol file transfer library 
-(http://curl.haxx.se/libcurl/)
+http://curl.haxx.se/libcurl/
+
+OpenAL Soft: A cross-platform 3D audio API
+http://kcat.strangesoft.net/openal.html
 
 OpenGL Mathematics (GLM)
-(http://glm.g-truc.net/)
+http://glm.g-truc.net/
 
 ZLIB DATA COMPRESSION LIBRARY (zlib)
-(http://zlib.net/)
+http://zlib.net/

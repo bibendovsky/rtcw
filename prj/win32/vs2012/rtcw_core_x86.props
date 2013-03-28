@@ -3,11 +3,6 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <rtcw_platform>x86</rtcw_platform>
-    <rtcw_curl_lib>$(rtcw_curl_lib_base_name)_$(rtcw_curl_version)_$(rtcw_lib_type)_$(rtcw_platform).lib</rtcw_curl_lib>
-    <rtcw_fmodex_lib>fmodex_vc.lib</rtcw_fmodex_lib>
-    <rtcw_glew_lib>$(rtcw_glew_lib_base_name)_$(rtcw_glew_version)_$(rtcw_lib_type)_$(rtcw_platform).lib</rtcw_glew_lib>
-    <rtcw_jpeg_turbo_lib>$(rtcw_jpeg_turbo_lib_base_name)_$(rtcw_jpeg_turbo_version)_$(rtcw_lib_type)_$(rtcw_platform).lib</rtcw_jpeg_turbo_lib>
-    <rtcw_zlib_lib>$(rtcw_zlib_lib_base_name)_$(rtcw_zlib_version)_$(rtcw_lib_type)_$(rtcw_platform).lib</rtcw_zlib_lib>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Lib>
@@ -22,21 +17,6 @@
   <ItemGroup>
     <BuildMacro Include="rtcw_platform">
       <Value>$(rtcw_platform)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_curl_lib">
-      <Value>$(rtcw_curl_lib)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_fmodex_lib">
-      <Value>$(rtcw_fmodex_lib)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_glew_lib">
-      <Value>$(rtcw_glew_lib)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_jpeg_turbo_lib">
-      <Value>$(rtcw_jpeg_turbo_lib)</Value>
-    </BuildMacro>
-    <BuildMacro Include="rtcw_zlib_lib">
-      <Value>$(rtcw_zlib_lib)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
