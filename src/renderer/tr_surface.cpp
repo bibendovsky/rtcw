@@ -142,7 +142,11 @@ void RB_AddQuadStampFadingCornersExt( vec3_t origin, vec3_t left, vec3_t up, byt
 
 
 	// constant normal all the way around
-	VectorSubtract( vec3_origin, backEnd.viewParms.or.axis[0], normal );
+    // BBi
+	//VectorSubtract( vec3_origin, backEnd.viewParms.or.axis[0], normal );
+    VectorSubtract (vec3_origin, ::backEnd.viewParms.orientation.axis[0],
+        normal);
+    // BBi
 
 	tess.normal[ndx][0] = tess.normal[ndx + 1][0] = tess.normal[ndx + 2][0] = tess.normal[ndx + 3][0] = tess.normal[ndx + 4][0] = normal[0];
 	tess.normal[ndx][1] = tess.normal[ndx + 1][1] = tess.normal[ndx + 2][1] = tess.normal[ndx + 3][1] = tess.normal[ndx + 4][1] = normal[1];
@@ -281,7 +285,10 @@ void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, flo
 
 
 	// constant normal all the way around
-	VectorSubtract( vec3_origin, backEnd.viewParms.or.axis[0], normal );
+    // BBi
+	//VectorSubtract( vec3_origin, backEnd.viewParms.or.axis[0], normal );
+    VectorSubtract (vec3_origin, backEnd.viewParms.orientation.axis[0], normal);
+    // BBi
 
 	tess.normal[ndx][0] = tess.normal[ndx + 1][0] = tess.normal[ndx + 2][0] = tess.normal[ndx + 3][0] = normal[0];
 	tess.normal[ndx][1] = tess.normal[ndx + 1][1] = tess.normal[ndx + 2][1] = tess.normal[ndx + 3][1] = normal[1];
@@ -400,15 +407,17 @@ static void RB_SurfaceSprite( void ) {
 	// calculate the xyz locations for the four corners
 	radius = backEnd.currentEntity->e.radius;
 	if ( backEnd.currentEntity->e.rotation == 0 ) {
-
-#if !defined RTCW_ET
-		VectorScale( backEnd.viewParms.or.axis[1], radius, left );
-		VectorScale( backEnd.viewParms.or.axis[2], radius, up );
-#else
-		VectorScale( backEnd.viewParms.orientation.axis[1], radius, left );
-		VectorScale( backEnd.viewParms.orientation.axis[2], radius, up );
-#endif // RTCW_XX
-
+// BBi
+//#if !defined RTCW_ET
+//		VectorScale( backEnd.viewParms.or.axis[1], radius, left );
+//		VectorScale( backEnd.viewParms.or.axis[2], radius, up );
+//#else
+//		VectorScale( backEnd.viewParms.orientation.axis[1], radius, left );
+//		VectorScale( backEnd.viewParms.orientation.axis[2], radius, up );
+//#endif // RTCW_XX
+        VectorScale (::backEnd.viewParms.orientation.axis[1], radius, left);
+        VectorScale (::backEnd.viewParms.orientation.axis[2], radius, up);
+// BBi
 	} else {
 		float s, c;
 		float ang;
@@ -417,20 +426,26 @@ static void RB_SurfaceSprite( void ) {
 		s = c::sin( ang );
 		c = c::cos( ang );
 
-#if !defined RTCW_ET
-		VectorScale( backEnd.viewParms.or.axis[1], c * radius, left );
-		VectorMA( left, -s * radius, backEnd.viewParms.or.axis[2], left );
+// BBi
+//#if !defined RTCW_ET
+//		VectorScale( backEnd.viewParms.or.axis[1], c * radius, left );
+//		VectorMA( left, -s * radius, backEnd.viewParms.or.axis[2], left );
+//
+//		VectorScale( backEnd.viewParms.or.axis[2], c * radius, up );
+//		VectorMA( up, s * radius, backEnd.viewParms.or.axis[1], up );
+//#else
+//		VectorScale( backEnd.viewParms.orientation.axis[1], c * radius, left );
+//		VectorMA( left, -s * radius, backEnd.viewParms.orientation.axis[2], left );
+//
+//		VectorScale( backEnd.viewParms.orientation.axis[2], c * radius, up );
+//		VectorMA( up, s * radius, backEnd.viewParms.orientation.axis[1], up );
+//#endif // RTCW_XX
+        VectorScale (::backEnd.viewParms.orientation.axis[1], c * radius, left);
+        VectorMA (left, -s * radius, ::backEnd.viewParms.orientation.axis[2], left);
 
-		VectorScale( backEnd.viewParms.or.axis[2], c * radius, up );
-		VectorMA( up, s * radius, backEnd.viewParms.or.axis[1], up );
-#else
-		VectorScale( backEnd.viewParms.orientation.axis[1], c * radius, left );
-		VectorMA( left, -s * radius, backEnd.viewParms.orientation.axis[2], left );
-
-		VectorScale( backEnd.viewParms.orientation.axis[2], c * radius, up );
-		VectorMA( up, s * radius, backEnd.viewParms.orientation.axis[1], up );
-#endif // RTCW_XX
-
+        VectorScale (::backEnd.viewParms.orientation.axis[2], c * radius, up);
+        VectorMA (up, s * radius, ::backEnd.viewParms.orientation.axis[1], up);
+// BBi
 	}
 	if ( backEnd.viewParms.isMirror ) {
 		VectorSubtract( vec3_origin, left, left );
@@ -1064,20 +1079,25 @@ void RB_SurfaceRailCore( void ) {
 	len = VectorNormalize( vec );
 
 	// compute side vector
-
-#if !defined RTCW_ET
-	VectorSubtract( start, backEnd.viewParms.or.origin, v1 );
-#else
-	VectorSubtract( start, backEnd.viewParms.orientation.origin, v1 );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	VectorSubtract( start, backEnd.viewParms.or.origin, v1 );
+//#else
+//	VectorSubtract( start, backEnd.viewParms.orientation.origin, v1 );
+//#endif // RTCW_XX
+    VectorSubtract (start, backEnd.viewParms.orientation.origin, v1);
+// BBi
 
 	VectorNormalize( v1 );
 
-#if !defined RTCW_ET
-	VectorSubtract( end, backEnd.viewParms.or.origin, v2 );
-#else
-	VectorSubtract( end, backEnd.viewParms.orientation.origin, v2 );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	VectorSubtract( end, backEnd.viewParms.or.origin, v2 );
+//#else
+//	VectorSubtract( end, backEnd.viewParms.orientation.origin, v2 );
+//#endif // RTCW_XX
+    VectorSubtract (end, backEnd.viewParms.orientation.origin, v2);
+// BBi
 
 	VectorNormalize( v2 );
 	CrossProduct( v1, v2, right );
@@ -1113,20 +1133,25 @@ void RB_SurfaceLightningBolt( void ) {
 	len = VectorNormalize( vec );
 
 	// compute side vector
-
-#if !defined RTCW_ET
-	VectorSubtract( start, backEnd.viewParms.or.origin, v1 );
-#else
-	VectorSubtract( start, backEnd.viewParms.orientation.origin, v1 );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	VectorSubtract( start, backEnd.viewParms.or.origin, v1 );
+//#else
+//	VectorSubtract( start, backEnd.viewParms.orientation.origin, v1 );
+//#endif // RTCW_XX
+    VectorSubtract (start, ::backEnd.viewParms.orientation.origin, v1);
+// BBi
 
 	VectorNormalize( v1 );
 
-#if !defined RTCW_ET
-	VectorSubtract( end, backEnd.viewParms.or.origin, v2 );
-#else
-	VectorSubtract( end, backEnd.viewParms.orientation.origin, v2 );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	VectorSubtract( end, backEnd.viewParms.or.origin, v2 );
+//#else
+//	VectorSubtract( end, backEnd.viewParms.orientation.origin, v2 );
+//#endif // RTCW_XX
+    VectorSubtract (end, ::backEnd.viewParms.orientation.origin, v2);
+// BBi
 
 	VectorNormalize( v2 );
 	CrossProduct( v1, v2, right );
@@ -1732,37 +1757,66 @@ static float    LodErrorForVolume( vec3_t local, float radius ) {
 	vec3_t world;
 	float d;
 
+// BBi
+//#if !defined RTCW_ET
+//	// never let it go negative
+//	if ( r_lodCurveError->value < 0 ) {
+//		return 0;
+//	}
+//
+//	world[0] = local[0] * backEnd.or.axis[0][0] + local[1] * backEnd.or.axis[1][0] +
+//			   local[2] * backEnd.or.axis[2][0] + backEnd.or.origin[0];
+//	world[1] = local[0] * backEnd.or.axis[0][1] + local[1] * backEnd.or.axis[1][1] +
+//			   local[2] * backEnd.or.axis[2][1] + backEnd.or.origin[1];
+//	world[2] = local[0] * backEnd.or.axis[0][2] + local[1] * backEnd.or.axis[1][2] +
+//			   local[2] * backEnd.or.axis[2][2] + backEnd.or.origin[2];
+//
+//	VectorSubtract( world, backEnd.viewParms.or.origin, world );
+//	d = DotProduct( world, backEnd.viewParms.or.axis[0] );
+//#else
+//	// never let it go lower than 1
+//	if ( r_lodCurveError->value < 1 ) {
+//		return 1;
+//	}
+//
+//	world[0] = local[0] * backEnd.orientation.axis[0][0] + local[1] * backEnd.orientation.axis[1][0] +
+//			   local[2] * backEnd.orientation.axis[2][0] + backEnd.orientation.origin[0];
+//	world[1] = local[0] * backEnd.orientation.axis[0][1] + local[1] * backEnd.orientation.axis[1][1] +
+//			   local[2] * backEnd.orientation.axis[2][1] + backEnd.orientation.origin[1];
+//	world[2] = local[0] * backEnd.orientation.axis[0][2] + local[1] * backEnd.orientation.axis[1][2] +
+//			   local[2] * backEnd.orientation.axis[2][2] + backEnd.orientation.origin[2];
+//
+//	VectorSubtract( world, backEnd.viewParms.orientation.origin, world );
+//	d = DotProduct( world, backEnd.viewParms.orientation.axis[0] );
+//#endif // RTCW_XX
 #if !defined RTCW_ET
-	// never let it go negative
-	if ( r_lodCurveError->value < 0 ) {
-		return 0;
-	}
-
-	world[0] = local[0] * backEnd.or.axis[0][0] + local[1] * backEnd.or.axis[1][0] +
-			   local[2] * backEnd.or.axis[2][0] + backEnd.or.origin[0];
-	world[1] = local[0] * backEnd.or.axis[0][1] + local[1] * backEnd.or.axis[1][1] +
-			   local[2] * backEnd.or.axis[2][1] + backEnd.or.origin[1];
-	world[2] = local[0] * backEnd.or.axis[0][2] + local[1] * backEnd.or.axis[1][2] +
-			   local[2] * backEnd.or.axis[2][2] + backEnd.or.origin[2];
-
-	VectorSubtract( world, backEnd.viewParms.or.origin, world );
-	d = DotProduct( world, backEnd.viewParms.or.axis[0] );
+    // never let it go negative
+    if (r_lodCurveError->value < 0)
+        return 0;
 #else
-	// never let it go lower than 1
-	if ( r_lodCurveError->value < 1 ) {
-		return 1;
-	}
-
-	world[0] = local[0] * backEnd.orientation.axis[0][0] + local[1] * backEnd.orientation.axis[1][0] +
-			   local[2] * backEnd.orientation.axis[2][0] + backEnd.orientation.origin[0];
-	world[1] = local[0] * backEnd.orientation.axis[0][1] + local[1] * backEnd.orientation.axis[1][1] +
-			   local[2] * backEnd.orientation.axis[2][1] + backEnd.orientation.origin[1];
-	world[2] = local[0] * backEnd.orientation.axis[0][2] + local[1] * backEnd.orientation.axis[1][2] +
-			   local[2] * backEnd.orientation.axis[2][2] + backEnd.orientation.origin[2];
-
-	VectorSubtract( world, backEnd.viewParms.orientation.origin, world );
-	d = DotProduct( world, backEnd.viewParms.orientation.axis[0] );
+    // never let it go lower than 1
+    if (r_lodCurveError->value < 1)
+        return 1;
 #endif // RTCW_XX
+
+    world[0] = (local[0] * backEnd.orientation.axis[0][0]) +
+        (local[1] * backEnd.orientation.axis[1][0]) +
+        (local[2] * backEnd.orientation.axis[2][0]) +
+        backEnd.orientation.origin[0];
+
+    world[1] = (local[0] * backEnd.orientation.axis[0][1]) +
+        (local[1] * backEnd.orientation.axis[1][1]) +
+        (local[2] * backEnd.orientation.axis[2][1]) +
+        backEnd.orientation.origin[1];
+
+    world[2] = (local[0] * backEnd.orientation.axis[0][2]) +
+        (local[1] * backEnd.orientation.axis[1][2]) +
+        (local[2] * backEnd.orientation.axis[2][2]) +
+        backEnd.orientation.origin[2];
+
+    VectorSubtract (world, backEnd.viewParms.orientation.origin, world);
+    d = DotProduct (world, backEnd.viewParms.orientation.axis[0]);
+// BBi
 
 	if ( d < 0 ) {
 		d = -d;

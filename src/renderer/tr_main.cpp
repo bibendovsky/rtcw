@@ -455,18 +455,23 @@ int R_CullLocalBox( vec3_t bounds[2] ) {
 		v[1] = bounds[( i >> 1 ) & 1][1];
 		v[2] = bounds[( i >> 2 ) & 1][2];
 
-#if !defined RTCW_ET
-		VectorCopy( tr.or.origin, transformed[i] );
-		VectorMA( transformed[i], v[0], tr.or.axis[0], transformed[i] );
-		VectorMA( transformed[i], v[1], tr.or.axis[1], transformed[i] );
-		VectorMA( transformed[i], v[2], tr.or.axis[2], transformed[i] );
-#else
-		VectorCopy( tr.orientation.origin, transformed[i] );
-		VectorMA( transformed[i], v[0], tr.orientation.axis[0], transformed[i] );
-		VectorMA( transformed[i], v[1], tr.orientation.axis[1], transformed[i] );
-		VectorMA( transformed[i], v[2], tr.orientation.axis[2], transformed[i] );
-#endif // RTCW_XX
-
+// BBi
+//#if !defined RTCW_ET
+//		VectorCopy( tr.or.origin, transformed[i] );
+//		VectorMA( transformed[i], v[0], tr.or.axis[0], transformed[i] );
+//		VectorMA( transformed[i], v[1], tr.or.axis[1], transformed[i] );
+//		VectorMA( transformed[i], v[2], tr.or.axis[2], transformed[i] );
+//#else
+//		VectorCopy( tr.orientation.origin, transformed[i] );
+//		VectorMA( transformed[i], v[0], tr.orientation.axis[0], transformed[i] );
+//		VectorMA( transformed[i], v[1], tr.orientation.axis[1], transformed[i] );
+//		VectorMA( transformed[i], v[2], tr.orientation.axis[2], transformed[i] );
+//#endif // RTCW_XX
+        VectorCopy (::tr.orientation.origin, transformed[i]);
+        VectorMA (transformed[i], v[0], ::tr.orientation.axis[0], transformed[i]);
+        VectorMA (transformed[i], v[1], ::tr.orientation.axis[1], transformed[i]);
+        VectorMA (transformed[i], v[2], ::tr.orientation.axis[2], transformed[i]);
+// BBi
 	}
 
 	// check against frustum planes
@@ -564,17 +569,28 @@ R_LocalNormalToWorld
 =================
 */
 void R_LocalNormalToWorld( vec3_t local, vec3_t world ) {
+// BBi
+//#if !defined RTCW_ET
+//	world[0] = local[0] * tr.or.axis[0][0] + local[1] * tr.or.axis[1][0] + local[2] * tr.or.axis[2][0];
+//	world[1] = local[0] * tr.or.axis[0][1] + local[1] * tr.or.axis[1][1] + local[2] * tr.or.axis[2][1];
+//	world[2] = local[0] * tr.or.axis[0][2] + local[1] * tr.or.axis[1][2] + local[2] * tr.or.axis[2][2];
+//#else
+//	world[0] = local[0] * tr.orientation.axis[0][0] + local[1] * tr.orientation.axis[1][0] + local[2] * tr.orientation.axis[2][0];
+//	world[1] = local[0] * tr.orientation.axis[0][1] + local[1] * tr.orientation.axis[1][1] + local[2] * tr.orientation.axis[2][1];
+//	world[2] = local[0] * tr.orientation.axis[0][2] + local[1] * tr.orientation.axis[1][2] + local[2] * tr.orientation.axis[2][2];
+//#endif // RTCW_XX
+    world[0] = (local[0] * ::tr.orientation.axis[0][0]) +
+        (local[1] * ::tr.orientation.axis[1][0]) +
+        (local[2] * ::tr.orientation.axis[2][0]);
 
-#if !defined RTCW_ET
-	world[0] = local[0] * tr.or.axis[0][0] + local[1] * tr.or.axis[1][0] + local[2] * tr.or.axis[2][0];
-	world[1] = local[0] * tr.or.axis[0][1] + local[1] * tr.or.axis[1][1] + local[2] * tr.or.axis[2][1];
-	world[2] = local[0] * tr.or.axis[0][2] + local[1] * tr.or.axis[1][2] + local[2] * tr.or.axis[2][2];
-#else
-	world[0] = local[0] * tr.orientation.axis[0][0] + local[1] * tr.orientation.axis[1][0] + local[2] * tr.orientation.axis[2][0];
-	world[1] = local[0] * tr.orientation.axis[0][1] + local[1] * tr.orientation.axis[1][1] + local[2] * tr.orientation.axis[2][1];
-	world[2] = local[0] * tr.orientation.axis[0][2] + local[1] * tr.orientation.axis[1][2] + local[2] * tr.orientation.axis[2][2];
-#endif // RTCW_XX
+    world[1] = (local[0] * ::tr.orientation.axis[0][1]) +
+        (local[1] * ::tr.orientation.axis[1][1]) +
+        (local[2] * ::tr.orientation.axis[2][1]);
 
+    world[2] = (local[0] * ::tr.orientation.axis[0][2]) +
+        (local[1] * ::tr.orientation.axis[1][2]) +
+        (local[2] * ::tr.orientation.axis[2][2]);
+// BBi
 }
 
 /*
@@ -584,17 +600,31 @@ R_LocalPointToWorld
 =================
 */
 void R_LocalPointToWorld( vec3_t local, vec3_t world ) {
+// BBi
+//#if !defined RTCW_ET
+//	world[0] = local[0] * tr.or.axis[0][0] + local[1] * tr.or.axis[1][0] + local[2] * tr.or.axis[2][0] + tr.or.origin[0];
+//	world[1] = local[0] * tr.or.axis[0][1] + local[1] * tr.or.axis[1][1] + local[2] * tr.or.axis[2][1] + tr.or.origin[1];
+//	world[2] = local[0] * tr.or.axis[0][2] + local[1] * tr.or.axis[1][2] + local[2] * tr.or.axis[2][2] + tr.or.origin[2];
+//#else
+//	world[0] = local[0] * tr.orientation.axis[0][0] + local[1] * tr.orientation.axis[1][0] + local[2] * tr.orientation.axis[2][0] + tr.orientation.origin[0];
+//	world[1] = local[0] * tr.orientation.axis[0][1] + local[1] * tr.orientation.axis[1][1] + local[2] * tr.orientation.axis[2][1] + tr.orientation.origin[1];
+//	world[2] = local[0] * tr.orientation.axis[0][2] + local[1] * tr.orientation.axis[1][2] + local[2] * tr.orientation.axis[2][2] + tr.orientation.origin[2];
+//#endif // RTCW_XX
+    world[0] = (local[0] * ::tr.orientation.axis[0][0]) +
+        (local[1] * ::tr.orientation.axis[1][0]) +
+        (local[2] * ::tr.orientation.axis[2][0]) +
+        ::tr.orientation.origin[0];
 
-#if !defined RTCW_ET
-	world[0] = local[0] * tr.or.axis[0][0] + local[1] * tr.or.axis[1][0] + local[2] * tr.or.axis[2][0] + tr.or.origin[0];
-	world[1] = local[0] * tr.or.axis[0][1] + local[1] * tr.or.axis[1][1] + local[2] * tr.or.axis[2][1] + tr.or.origin[1];
-	world[2] = local[0] * tr.or.axis[0][2] + local[1] * tr.or.axis[1][2] + local[2] * tr.or.axis[2][2] + tr.or.origin[2];
-#else
-	world[0] = local[0] * tr.orientation.axis[0][0] + local[1] * tr.orientation.axis[1][0] + local[2] * tr.orientation.axis[2][0] + tr.orientation.origin[0];
-	world[1] = local[0] * tr.orientation.axis[0][1] + local[1] * tr.orientation.axis[1][1] + local[2] * tr.orientation.axis[2][1] + tr.orientation.origin[1];
-	world[2] = local[0] * tr.orientation.axis[0][2] + local[1] * tr.orientation.axis[1][2] + local[2] * tr.orientation.axis[2][2] + tr.orientation.origin[2];
-#endif // RTCW_XX
+    world[1] = (local[0] * ::tr.orientation.axis[0][1]) +
+        (local[1] * ::tr.orientation.axis[1][1]) +
+        (local[2] * ::tr.orientation.axis[2][1]) +
+        ::tr.orientation.origin[1];
 
+    world[2] = (local[0] * ::tr.orientation.axis[0][2]) +
+        (local[1] * ::tr.orientation.axis[1][2]) +
+        (local[2] * ::tr.orientation.axis[2][2]) +
+        ::tr.orientation.origin[2];
+// BBi
 }
 
 /*
@@ -604,17 +634,20 @@ R_WorldToLocal
 =================
 */
 void R_WorldToLocal( vec3_t world, vec3_t local ) {
-
-#if !defined RTCW_ET
-	local[0] = DotProduct( world, tr.or.axis[0] );
-	local[1] = DotProduct( world, tr.or.axis[1] );
-	local[2] = DotProduct( world, tr.or.axis[2] );
-#else
-	local[0] = DotProduct( world, tr.orientation.axis[0] );
-	local[1] = DotProduct( world, tr.orientation.axis[1] );
-	local[2] = DotProduct( world, tr.orientation.axis[2] );
-#endif // RTCW_XX
-
+// BBi
+//#if !defined RTCW_ET
+//	local[0] = DotProduct( world, tr.or.axis[0] );
+//	local[1] = DotProduct( world, tr.or.axis[1] );
+//	local[2] = DotProduct( world, tr.or.axis[2] );
+//#else
+//	local[0] = DotProduct( world, tr.orientation.axis[0] );
+//	local[1] = DotProduct( world, tr.orientation.axis[1] );
+//	local[2] = DotProduct( world, tr.orientation.axis[2] );
+//#endif // RTCW_XX
+    local[0] = DotProduct (world, ::tr.orientation.axis[0]);
+    local[1] = DotProduct (world, ::tr.orientation.axis[1]);
+    local[2] = DotProduct (world, ::tr.orientation.axis[2]);
+// BBi
 }
 
 /*
@@ -735,11 +768,14 @@ void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms,
 	// calculate the viewer origin in the model's space
 	// needed for fog, specular, and environment mapping
 
-#if !defined RTCW_ET
-	VectorSubtract( viewParms->or.origin, or->origin, delta );
-#else
-	VectorSubtract( viewParms->orientation.origin, or->origin, delta );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	VectorSubtract( viewParms->or.origin, or->origin, delta );
+//#else
+//	VectorSubtract( viewParms->orientation.origin, or->origin, delta );
+//#endif // RTCW_XX
+    VectorSubtract (viewParms->orientation.origin, or->origin, delta);
+// BBi
 
 	// compensate for scale in the axes if necessary
 	if ( ent->e.nonNormalizedAxes ) {
@@ -769,53 +805,80 @@ void R_RotateForViewer( void ) {
 	float viewerMatrix[16];
 	vec3_t origin;
 
-#if !defined RTCW_ET
-	memset( &tr.or, 0, sizeof( tr.or ) );
-	tr.or.axis[0][0] = 1;
-	tr.or.axis[1][1] = 1;
-	tr.or.axis[2][2] = 1;
-	VectorCopy( tr.viewParms.or.origin, tr.or.viewOrigin );
+// BBi
+//#if !defined RTCW_ET
+//	memset( &tr.or, 0, sizeof( tr.or ) );
+//	tr.or.axis[0][0] = 1;
+//	tr.or.axis[1][1] = 1;
+//	tr.or.axis[2][2] = 1;
+//	VectorCopy( tr.viewParms.or.origin, tr.or.viewOrigin );
+//
+//	// transform by the camera placement
+//	VectorCopy( tr.viewParms.or.origin, origin );
+//
+//	viewerMatrix[0] = tr.viewParms.or.axis[0][0];
+//	viewerMatrix[4] = tr.viewParms.or.axis[0][1];
+//	viewerMatrix[8] = tr.viewParms.or.axis[0][2];
+//	viewerMatrix[12] = -origin[0] * viewerMatrix[0] + - origin[1] * viewerMatrix[4] + - origin[2] * viewerMatrix[8];
+//
+//	viewerMatrix[1] = tr.viewParms.or.axis[1][0];
+//	viewerMatrix[5] = tr.viewParms.or.axis[1][1];
+//	viewerMatrix[9] = tr.viewParms.or.axis[1][2];
+//	viewerMatrix[13] = -origin[0] * viewerMatrix[1] + - origin[1] * viewerMatrix[5] + - origin[2] * viewerMatrix[9];
+//
+//	viewerMatrix[2] = tr.viewParms.or.axis[2][0];
+//	viewerMatrix[6] = tr.viewParms.or.axis[2][1];
+//	viewerMatrix[10] = tr.viewParms.or.axis[2][2];
+//#else
+//	memset( &tr.orientation, 0, sizeof( tr.orientation ) );
+//	tr.orientation.axis[0][0] = 1;
+//	tr.orientation.axis[1][1] = 1;
+//	tr.orientation.axis[2][2] = 1;
+//	VectorCopy( tr.viewParms.orientation.origin, tr.orientation.viewOrigin );
+//
+//	// transform by the camera placement
+//	VectorCopy( tr.viewParms.orientation.origin, origin );
+//
+//	viewerMatrix[0] = tr.viewParms.orientation.axis[0][0];
+//	viewerMatrix[4] = tr.viewParms.orientation.axis[0][1];
+//	viewerMatrix[8] = tr.viewParms.orientation.axis[0][2];
+//	viewerMatrix[12] = -origin[0] * viewerMatrix[0] + - origin[1] * viewerMatrix[4] + - origin[2] * viewerMatrix[8];
+//
+//	viewerMatrix[1] = tr.viewParms.orientation.axis[1][0];
+//	viewerMatrix[5] = tr.viewParms.orientation.axis[1][1];
+//	viewerMatrix[9] = tr.viewParms.orientation.axis[1][2];
+//	viewerMatrix[13] = -origin[0] * viewerMatrix[1] + - origin[1] * viewerMatrix[5] + - origin[2] * viewerMatrix[9];
+//
+//	viewerMatrix[2] = tr.viewParms.orientation.axis[2][0];
+//	viewerMatrix[6] = tr.viewParms.orientation.axis[2][1];
+//	viewerMatrix[10] = tr.viewParms.orientation.axis[2][2];
+//#endif // RTCW_XX
+    ::memset (&::tr.orientation, 0, sizeof (tr.orientation));
+    ::tr.orientation.axis[0][0] = 1;
+    ::tr.orientation.axis[1][1] = 1;
+    ::tr.orientation.axis[2][2] = 1;
+    VectorCopy (::tr.viewParms.orientation.origin,
+        ::tr.orientation.viewOrigin);
 
-	// transform by the camera placement
-	VectorCopy( tr.viewParms.or.origin, origin );
+    // transform by the camera placement
+    VectorCopy (::tr.viewParms.orientation.origin, origin);
 
-	viewerMatrix[0] = tr.viewParms.or.axis[0][0];
-	viewerMatrix[4] = tr.viewParms.or.axis[0][1];
-	viewerMatrix[8] = tr.viewParms.or.axis[0][2];
-	viewerMatrix[12] = -origin[0] * viewerMatrix[0] + - origin[1] * viewerMatrix[4] + - origin[2] * viewerMatrix[8];
+    viewerMatrix[0] = ::tr.viewParms.orientation.axis[0][0];
+    viewerMatrix[4] = ::tr.viewParms.orientation.axis[0][1];
+    viewerMatrix[8] = ::tr.viewParms.orientation.axis[0][2];
+    viewerMatrix[12] = (-origin[0] * viewerMatrix[0]) +
+        (-origin[1] * viewerMatrix[4]) + (-origin[2] * viewerMatrix[8]);
 
-	viewerMatrix[1] = tr.viewParms.or.axis[1][0];
-	viewerMatrix[5] = tr.viewParms.or.axis[1][1];
-	viewerMatrix[9] = tr.viewParms.or.axis[1][2];
-	viewerMatrix[13] = -origin[0] * viewerMatrix[1] + - origin[1] * viewerMatrix[5] + - origin[2] * viewerMatrix[9];
+    viewerMatrix[1] = ::tr.viewParms.orientation.axis[1][0];
+    viewerMatrix[5] = ::tr.viewParms.orientation.axis[1][1];
+    viewerMatrix[9] = ::tr.viewParms.orientation.axis[1][2];
+    viewerMatrix[13] = (-origin[0] * viewerMatrix[1]) +
+        (-origin[1] * viewerMatrix[5]) + (-origin[2] * viewerMatrix[9]);
 
-	viewerMatrix[2] = tr.viewParms.or.axis[2][0];
-	viewerMatrix[6] = tr.viewParms.or.axis[2][1];
-	viewerMatrix[10] = tr.viewParms.or.axis[2][2];
-#else
-	memset( &tr.orientation, 0, sizeof( tr.orientation ) );
-	tr.orientation.axis[0][0] = 1;
-	tr.orientation.axis[1][1] = 1;
-	tr.orientation.axis[2][2] = 1;
-	VectorCopy( tr.viewParms.orientation.origin, tr.orientation.viewOrigin );
-
-	// transform by the camera placement
-	VectorCopy( tr.viewParms.orientation.origin, origin );
-
-	viewerMatrix[0] = tr.viewParms.orientation.axis[0][0];
-	viewerMatrix[4] = tr.viewParms.orientation.axis[0][1];
-	viewerMatrix[8] = tr.viewParms.orientation.axis[0][2];
-	viewerMatrix[12] = -origin[0] * viewerMatrix[0] + - origin[1] * viewerMatrix[4] + - origin[2] * viewerMatrix[8];
-
-	viewerMatrix[1] = tr.viewParms.orientation.axis[1][0];
-	viewerMatrix[5] = tr.viewParms.orientation.axis[1][1];
-	viewerMatrix[9] = tr.viewParms.orientation.axis[1][2];
-	viewerMatrix[13] = -origin[0] * viewerMatrix[1] + - origin[1] * viewerMatrix[5] + - origin[2] * viewerMatrix[9];
-
-	viewerMatrix[2] = tr.viewParms.orientation.axis[2][0];
-	viewerMatrix[6] = tr.viewParms.orientation.axis[2][1];
-	viewerMatrix[10] = tr.viewParms.orientation.axis[2][2];
-#endif // RTCW_XX
+    viewerMatrix[2] = ::tr.viewParms.orientation.axis[2][0];
+    viewerMatrix[6] = ::tr.viewParms.orientation.axis[2][1];
+    viewerMatrix[10] = ::tr.viewParms.orientation.axis[2][2];
+// BBi
 
 	viewerMatrix[14] = -origin[0] * viewerMatrix[2] + - origin[1] * viewerMatrix[6] + - origin[2] * viewerMatrix[10];
 
@@ -827,16 +890,19 @@ void R_RotateForViewer( void ) {
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
 
-#if !defined RTCW_ET
-	myGlMultMatrix( viewerMatrix, s_flipMatrix, tr.or.modelMatrix );
-
-	tr.viewParms.world = tr.or;
-#else
-	myGlMultMatrix( viewerMatrix, s_flipMatrix, tr.orientation.modelMatrix );
-
-	tr.viewParms.world = tr.orientation;
-#endif // RTCW_XX
-
+// BBi
+//#if !defined RTCW_ET
+//	myGlMultMatrix( viewerMatrix, s_flipMatrix, tr.or.modelMatrix );
+//
+//	tr.viewParms.world = tr.or;
+//#else
+//	myGlMultMatrix( viewerMatrix, s_flipMatrix, tr.orientation.modelMatrix );
+//
+//	tr.viewParms.world = tr.orientation;
+//#endif // RTCW_XX
+    ::myGlMultMatrix (viewerMatrix, s_flipMatrix, ::tr.orientation.modelMatrix);
+    ::tr.viewParms.world = ::tr.orientation;
+// BBi
 }
 
 
@@ -1068,11 +1134,14 @@ static void SetFarClip( void ) {
 			v[2] = tr.viewParms.visBounds[1][2];
 		}
 
-#if !defined RTCW_ET
-		VectorSubtract( v, tr.viewParms.or.origin, vecTo );
-#else
-		VectorSubtract( v, tr.viewParms.orientation.origin, vecTo );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//		VectorSubtract( v, tr.viewParms.or.origin, vecTo );
+//#else
+//		VectorSubtract( v, tr.viewParms.orientation.origin, vecTo );
+//#endif // RTCW_XX
+        VectorSubtract (v, ::tr.viewParms.orientation.origin, vecTo);
+// BBi
 
 		distance = vecTo[0] * vecTo[0] + vecTo[1] * vecTo[1] + vecTo[2] * vecTo[2];
 
@@ -1231,25 +1300,57 @@ void R_SetupFrustum( void ) {
 	xs = c::sin( ang );
 	xc = c::cos( ang );
 
-	VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[0].normal );
-	VectorMA( tr.viewParms.frustum[0].normal, xc, tr.viewParms.or.axis[1], tr.viewParms.frustum[0].normal );
+    // BBi
+	//VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[0].normal );
+	//VectorMA( tr.viewParms.frustum[0].normal, xc, tr.viewParms.or.axis[1], tr.viewParms.frustum[0].normal );
 
-	VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[1].normal );
-	VectorMA( tr.viewParms.frustum[1].normal, -xc, tr.viewParms.or.axis[1], tr.viewParms.frustum[1].normal );
+	//VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[1].normal );
+	//VectorMA( tr.viewParms.frustum[1].normal, -xc, tr.viewParms.or.axis[1], tr.viewParms.frustum[1].normal );
+    VectorScale (::tr.viewParms.orientation.axis[0], xs,
+        ::tr.viewParms.frustum[0].normal);
+
+    VectorMA (::tr.viewParms.frustum[0].normal, xc,
+        ::tr.viewParms.orientation.axis[1], ::tr.viewParms.frustum[0].normal);
+
+    VectorScale (::tr.viewParms.orientation.axis[0], xs,
+        ::tr.viewParms.frustum[1].normal);
+
+    VectorMA (::tr.viewParms.frustum[1].normal, -xc,
+        ::tr.viewParms.orientation.axis[1], ::tr.viewParms.frustum[1].normal);
+    // BBi
 
 	ang = tr.viewParms.fovY / 180 * M_PI * 0.5f;
 	xs = c::sin( ang );
 	xc = c::cos( ang );
 
-	VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[2].normal );
-	VectorMA( tr.viewParms.frustum[2].normal, xc, tr.viewParms.or.axis[2], tr.viewParms.frustum[2].normal );
+    // BBi
+	//VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[2].normal );
+	//VectorMA( tr.viewParms.frustum[2].normal, xc, tr.viewParms.or.axis[2], tr.viewParms.frustum[2].normal );
 
-	VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[3].normal );
-	VectorMA( tr.viewParms.frustum[3].normal, -xc, tr.viewParms.or.axis[2], tr.viewParms.frustum[3].normal );
+	//VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[3].normal );
+	//VectorMA( tr.viewParms.frustum[3].normal, -xc, tr.viewParms.or.axis[2], tr.viewParms.frustum[3].normal );
+    VectorScale (::tr.viewParms.orientation.axis[0], xs,
+        ::tr.viewParms.frustum[2].normal);
+
+    VectorMA (::tr.viewParms.frustum[2].normal, xc,
+        ::tr.viewParms.orientation.axis[2], ::tr.viewParms.frustum[2].normal);
+
+    VectorScale (::tr.viewParms.orientation.axis[0], xs,
+        ::tr.viewParms.frustum[3].normal);
+
+    VectorMA (::tr.viewParms.frustum[3].normal, -xc,
+        ::tr.viewParms.orientation.axis[2], ::tr.viewParms.frustum[3].normal);
+    // BBi
 
 	for ( i = 0 ; i < 4 ; i++ ) {
 		tr.viewParms.frustum[i].type = PLANE_NON_AXIAL;
-		tr.viewParms.frustum[i].dist = DotProduct( tr.viewParms.or.origin, tr.viewParms.frustum[i].normal );
+
+        // BBi
+		//tr.viewParms.frustum[i].dist = DotProduct( tr.viewParms.or.origin, tr.viewParms.frustum[i].normal );
+        ::tr.viewParms.frustum[i].dist = DotProduct (
+            ::tr.viewParms.orientation.origin, ::tr.viewParms.frustum[i].normal);
+        // BBi
+
 		SetPlaneSignbits( &tr.viewParms.frustum[i] );
 	}
 }
@@ -1359,31 +1460,40 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 		tr.currentEntity = &tr.refdef.entities[entityNum];
 
 		// get the orientation of the entity
-
-#if !defined RTCW_ET
-		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.or );
-#else
-		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.orientation );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.or );
+//#else
+//		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.orientation );
+//#endif // RTCW_XX
+        ::R_RotateForEntity (::tr.currentEntity, &::tr.viewParms,
+            &::tr.orientation);
+// BBi
 
 		// rotate the plane, but keep the non-rotated version for matching
 		// against the portalSurface entities
 		R_LocalNormalToWorld( originalPlane.normal, plane.normal );
 
-#if !defined RTCW_ET
-		plane.dist = originalPlane.dist + DotProduct( plane.normal, tr.or.origin );
-#else
-		plane.dist = originalPlane.dist + DotProduct( plane.normal, tr.orientation.origin );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//		plane.dist = originalPlane.dist + DotProduct( plane.normal, tr.or.origin );
+//#else
+//		plane.dist = originalPlane.dist + DotProduct( plane.normal, tr.orientation.origin );
+//#endif // RTCW_XX
+        plane.dist = originalPlane.dist +
+            DotProduct (plane.normal, ::tr.orientation.origin);
+// BBi
 
 		// translate the original plane
-
-#if !defined RTCW_ET
-		originalPlane.dist = originalPlane.dist + DotProduct( originalPlane.normal, tr.or.origin );
-#else
-		originalPlane.dist = originalPlane.dist + DotProduct( originalPlane.normal, tr.orientation.origin );
-#endif // RTCW_XX
-
+// BBi
+//#if !defined RTCW_ET
+//		originalPlane.dist = originalPlane.dist + DotProduct( originalPlane.normal, tr.or.origin );
+//#else
+//		originalPlane.dist = originalPlane.dist + DotProduct( originalPlane.normal, tr.orientation.origin );
+//#endif // RTCW_XX
+        originalPlane.dist = originalPlane.dist + DotProduct (
+            originalPlane.normal, tr.orientation.origin);
+// BBi
 	} else {
 		plane = originalPlane;
 	}
@@ -1490,31 +1600,40 @@ static qboolean IsMirror( const drawSurf_t *drawSurf, int entityNum ) {
 		tr.currentEntity = &tr.refdef.entities[entityNum];
 
 		// get the orientation of the entity
-
-#if !defined RTCW_ET
-		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.or );
-#else
-		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.orientation );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.or );
+//#else
+//		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.orientation );
+//#endif // RTCW_XX
+        ::R_RotateForEntity (::tr.currentEntity, &::tr.viewParms,
+            &::tr.orientation);
+// BBi
 
 		// rotate the plane, but keep the non-rotated version for matching
 		// against the portalSurface entities
 		R_LocalNormalToWorld( originalPlane.normal, plane.normal );
 
-#if !defined RTCW_ET
-		plane.dist = originalPlane.dist + DotProduct( plane.normal, tr.or.origin );
-#else
-		plane.dist = originalPlane.dist + DotProduct( plane.normal, tr.orientation.origin );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//		plane.dist = originalPlane.dist + DotProduct( plane.normal, tr.or.origin );
+//#else
+//		plane.dist = originalPlane.dist + DotProduct( plane.normal, tr.orientation.origin );
+//#endif // RTCW_XX
+        plane.dist = originalPlane.dist + DotProduct (
+            plane.normal, tr.orientation.origin);
+// BBi
 
 		// translate the original plane
-
-#if !defined RTCW_ET
-		originalPlane.dist = originalPlane.dist + DotProduct( originalPlane.normal, tr.or.origin );
-#else
-		originalPlane.dist = originalPlane.dist + DotProduct( originalPlane.normal, tr.orientation.origin );
-#endif // RTCW_XX
-
+// BBi
+//#if !defined RTCW_ET
+//		originalPlane.dist = originalPlane.dist + DotProduct( originalPlane.normal, tr.or.origin );
+//#else
+//		originalPlane.dist = originalPlane.dist + DotProduct( originalPlane.normal, tr.orientation.origin );
+//#endif // RTCW_XX
+        originalPlane.dist = originalPlane.dist + DotProduct (
+            originalPlane.normal, tr.orientation.origin);
+// BBi
 	} else
 	{
 		plane = originalPlane;
@@ -1601,7 +1720,11 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 		unsigned int pointFlags = 0;
 
 #if !defined RTCW_ET
-		R_TransformModelToClip( tess.xyz[i], tr.or.modelMatrix, tr.viewParms.projectionMatrix, eye, clip );
+        // BBi
+		//R_TransformModelToClip( tess.xyz[i], tr.or.modelMatrix, tr.viewParms.projectionMatrix, eye, clip );
+        ::R_TransformModelToClip (::tess.xyz[i], ::tr.orientation.modelMatrix,
+            ::tr.viewParms.projectionMatrix, eye, clip);
+        // BBi
 #else
 		R_TransformModelToClip( tess.xyz[i].v, tr.orientation.modelMatrix, tr.viewParms.projectionMatrix, eye, clip );
 #endif // RTCW_XX
@@ -1637,7 +1760,11 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 		float len;
 
 #if !defined RTCW_ET
-		VectorSubtract( tess.xyz[tess.indexes[i]], tr.viewParms.or.origin, normal );
+        // BBi
+		//VectorSubtract( tess.xyz[tess.indexes[i]], tr.viewParms.or.origin, normal );
+        VectorSubtract (::tess.xyz[tess.indexes[i]],
+            ::tr.viewParms.orientation.origin, normal);
+        // BBi
 #else
 		VectorSubtract( tess.xyz[tess.indexes[i]].v, tr.viewParms.orientation.origin, normal );
 #endif // RTCW_XX
@@ -1712,24 +1839,38 @@ qboolean R_MirrorViewBySurface( drawSurf_t *drawSurf, int entityNum ) {
 		return qfalse;      // bad portal, no portalentity
 	}
 
-#if !defined RTCW_ET
-	R_MirrorPoint( oldParms.or.origin, &surface, &camera, newParms.or.origin );
-#else
-	R_MirrorPoint( oldParms.orientation.origin, &surface, &camera, newParms.orientation.origin );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	R_MirrorPoint( oldParms.or.origin, &surface, &camera, newParms.or.origin );
+//#else
+//	R_MirrorPoint( oldParms.orientation.origin, &surface, &camera, newParms.orientation.origin );
+//#endif // RTCW_XX
+    ::R_MirrorPoint (oldParms.orientation.origin, &surface, &camera,
+        newParms.orientation.origin);
+// BBi
 
 	VectorSubtract( vec3_origin, camera.axis[0], newParms.portalPlane.normal );
 	newParms.portalPlane.dist = DotProduct( camera.origin, newParms.portalPlane.normal );
 
-#if !defined RTCW_ET
-	R_MirrorVector( oldParms.or.axis[0], &surface, &camera, newParms.or.axis[0] );
-	R_MirrorVector( oldParms.or.axis[1], &surface, &camera, newParms.or.axis[1] );
-	R_MirrorVector( oldParms.or.axis[2], &surface, &camera, newParms.or.axis[2] );
-#else
-	R_MirrorVector( oldParms.orientation.axis[0], &surface, &camera, newParms.orientation.axis[0] );
-	R_MirrorVector( oldParms.orientation.axis[1], &surface, &camera, newParms.orientation.axis[1] );
-	R_MirrorVector( oldParms.orientation.axis[2], &surface, &camera, newParms.orientation.axis[2] );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	R_MirrorVector( oldParms.or.axis[0], &surface, &camera, newParms.or.axis[0] );
+//	R_MirrorVector( oldParms.or.axis[1], &surface, &camera, newParms.or.axis[1] );
+//	R_MirrorVector( oldParms.or.axis[2], &surface, &camera, newParms.or.axis[2] );
+//#else
+//	R_MirrorVector( oldParms.orientation.axis[0], &surface, &camera, newParms.orientation.axis[0] );
+//	R_MirrorVector( oldParms.orientation.axis[1], &surface, &camera, newParms.orientation.axis[1] );
+//	R_MirrorVector( oldParms.orientation.axis[2], &surface, &camera, newParms.orientation.axis[2] );
+//#endif // RTCW_XX
+    R_MirrorVector (oldParms.orientation.axis[0], &surface, &camera,
+        newParms.orientation.axis[0]);
+
+    R_MirrorVector (oldParms.orientation.axis[1], &surface, &camera,
+        newParms.orientation.axis[1]);
+
+    R_MirrorVector (oldParms.orientation.axis[2], &surface, &camera,
+        newParms.orientation.axis[2]);
+// BBi
 
 	// OPTIMIZE: restrict the viewport on the mirrored view
 
@@ -2224,12 +2365,14 @@ void R_AddEntitySurfaces( void ) {
 
 		case RT_MODEL:
 			// we must set up parts of tr.or for model culling
-
-#if !defined RTCW_ET
-			R_RotateForEntity( ent, &tr.viewParms, &tr.or );
-#else
-			R_RotateForEntity( ent, &tr.viewParms, &tr.orientation );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//			R_RotateForEntity( ent, &tr.viewParms, &tr.or );
+//#else
+//			R_RotateForEntity( ent, &tr.viewParms, &tr.orientation );
+//#endif // RTCW_XX
+            ::R_RotateForEntity (ent, &::tr.viewParms, &::tr.orientation);
+// BBi
 
 			tr.currentModel = R_GetModelByHandle( ent->e.hModel );
 			if ( !tr.currentModel ) {

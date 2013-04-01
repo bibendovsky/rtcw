@@ -286,9 +286,13 @@ void RB_ClipSkyPolygons( shaderCommands_t *input ) {
 		{
 
 #if !defined RTCW_ET
-			VectorSubtract( input->xyz[input->indexes[i + j]],
-							backEnd.viewParms.or.origin,
-							p[j] );
+            // BBi
+			//VectorSubtract( input->xyz[input->indexes[i + j]],
+			//				backEnd.viewParms.or.origin,
+			//				p[j] );
+            VectorSubtract (input->xyz[input->indexes[i + j]],
+                ::backEnd.viewParms.orientation.origin, p[j] );
+            // BBi
 #else
 			VectorSubtract( input->xyz[input->indexes[i + j]].v,
 							backEnd.viewParms.orientation.origin,
@@ -736,9 +740,17 @@ static void FillCloudySkySide( const int mins[2], const int maxs[2], qboolean ad
 		{
 
 #if !defined RTCW_ET
-			VectorAdd( s_skyPoints[t][s], backEnd.viewParms.or.origin, tess.xyz[tess.numVertexes] );
-			tess.texCoords[tess.numVertexes][0][0] = s_skyTexCoords[t][s][0];
-			tess.texCoords[tess.numVertexes][0][1] = s_skyTexCoords[t][s][1];
+            // BBi
+			//VectorAdd( s_skyPoints[t][s], backEnd.viewParms.or.origin, tess.xyz[tess.numVertexes] );
+			//tess.texCoords[tess.numVertexes][0][0] = s_skyTexCoords[t][s][0];
+			//tess.texCoords[tess.numVertexes][0][1] = s_skyTexCoords[t][s][1];
+            VectorAdd (s_skyPoints[t][s],
+                ::backEnd.viewParms.orientation.origin,
+                ::tess.xyz[tess.numVertexes]);
+
+            ::tess.texCoords[::tess.numVertexes][0][0] = s_skyTexCoords[t][s][0];
+            ::tess.texCoords[::tess.numVertexes][0][1] = s_skyTexCoords[t][s][1];
+            // BBi
 #else
 			VectorAdd( s_skyPoints[t][s], backEnd.viewParms.orientation.origin, tess.xyz[tess.numVertexes].v );
 			tess.texCoords0[tess.numVertexes].v[0] = s_skyTexCoords[t][s][0];
@@ -1047,17 +1059,10 @@ void RB_DrawSun( void ) {
 
         ogl_model_view_stack.set_current (backEnd.viewParms.world.modelMatrix);
 
-#if !defined RTCW_ET
-        glm::translate (matrix, glm::vec3 (
-            backEnd.viewParms.or.origin[0],
-            backEnd.viewParms.or.origin[1],
-            backEnd.viewParms.or.origin[2]));
-#else
         glm::translate (matrix, glm::vec3 (
             backEnd.viewParms.orientation.origin[0],
             backEnd.viewParms.orientation.origin[1],
             backEnd.viewParms.orientation.origin[2]));
-#endif // RTCW_XX
 
         ogl_tess_state.model_view.set (matrix);
         ogl_tess_state.commit_changes ();
@@ -1066,12 +1071,16 @@ void RB_DrawSun( void ) {
 
 	::glLoadMatrixf( backEnd.viewParms.world.modelMatrix );
 
-#if !defined RTCW_ET
-	::glTranslatef( backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2] );
-#else
-	::glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
-#endif // RTCW_XX
-
+// BBi
+//#if !defined RTCW_ET
+//	::glTranslatef( backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2] );
+//#else
+//	::glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
+//#endif // RTCW_XX
+    ::glTranslatef (::backEnd.viewParms.orientation.origin[0],
+        ::backEnd.viewParms.orientation.origin[1],
+        ::backEnd.viewParms.orientation.origin[2]);
+// BBi
     // BBi
     }
     // BBi
@@ -1222,12 +1231,15 @@ void RB_DrawSun( void ) {
 		VectorScale( vec2, 0.5f, vec2 );
 
 		// add the vectors to give an 'off angle' result
-
-#if !defined RTCW_ET
-		VectorAdd( tr.sunDirection, backEnd.viewParms.or.axis[0], temp );
-#else
-		VectorAdd( tr.sunDirection, backEnd.viewParms.orientation.axis[0], temp );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//		VectorAdd( tr.sunDirection, backEnd.viewParms.or.axis[0], temp );
+//#else
+//		VectorAdd( tr.sunDirection, backEnd.viewParms.orientation.axis[0], temp );
+//#endif // RTCW_XX
+        VectorAdd (::tr.sunDirection, ::backEnd.viewParms.orientation.axis[0],
+            temp);
+// BBi
 
 		VectorNormalize( temp );
 
@@ -1325,19 +1337,10 @@ void RB_StageIteratorSky( void ) {
 	if ( tess.shader->sky.outerbox[0] && tess.shader->sky.outerbox[0] != tr.defaultImage ) {
         // BBi
         if (!glConfigEx.is_path_ogl_1_x ()) {
-#if !defined RTCW_ET
-        matrix = glm::translate (ogl_model_view_stack.push_and_get (),
-            glm::vec3 (
-                backEnd.viewParms.or.origin[0],
-                backEnd.viewParms.or.origin[1],
-                backEnd.viewParms.or.origin[2]));
-#else
-        matrix = glm::translate (ogl_model_view_stack.push_and_get (),
-            glm::vec3 (
-                backEnd.viewParms.orientation.origin[0],
-                backEnd.viewParms.orientation.origin[1],
-                backEnd.viewParms.orientation.origin[2]));
-#endif // RTCW_XX
+            matrix = glm::translate (ogl_model_view_stack.push_and_get (),
+                glm::vec3 (::backEnd.viewParms.orientation.origin[0],
+                    ::backEnd.viewParms.orientation.origin[1],
+                    ::backEnd.viewParms.orientation.origin[2]));
 
             ogl_tess_state.model_view.set (matrix);
 
@@ -1362,12 +1365,16 @@ void RB_StageIteratorSky( void ) {
         if (glConfigEx.is_path_ogl_1_x ()) {
         // BBi
 
-#if !defined RTCW_ET
-		::glTranslatef( backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2] );
-#else
-		::glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
-#endif // RTCW_XX
-
+// BBi
+//#if !defined RTCW_ET
+//		::glTranslatef( backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2] );
+//#else
+//		::glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
+//#endif // RTCW_XX
+        ::glTranslatef (::backEnd.viewParms.orientation.origin[0],
+            ::backEnd.viewParms.orientation.origin[1],
+            ::backEnd.viewParms.orientation.origin[2]);
+// BBi
         // BBi
         }
         // BBi
@@ -1400,19 +1407,10 @@ void RB_StageIteratorSky( void ) {
 	if ( tess.shader->sky.innerbox[0] && tess.shader->sky.innerbox[0] != tr.defaultImage ) {
         // BBi
         if (!glConfigEx.is_path_ogl_1_x ()) {
-#if !defined RTCW_ET
-        matrix = glm::translate (ogl_model_view_stack.push_and_get (),
-            glm::vec3 (
-                backEnd.viewParms.or.origin[0],
-                backEnd.viewParms.or.origin[1],
-                backEnd.viewParms.or.origin[2]));
-#else
-        matrix = glm::translate (ogl_model_view_stack.push_and_get (),
-            glm::vec3 (
-                backEnd.viewParms.orientation.origin[0],
-                backEnd.viewParms.orientation.origin[1],
-                backEnd.viewParms.orientation.origin[2]));
-#endif // RTCW_XX
+            matrix = glm::translate (ogl_model_view_stack.push_and_get (),
+                glm::vec3 (::backEnd.viewParms.orientation.origin[0],
+                    ::backEnd.viewParms.orientation.origin[1],
+                    ::backEnd.viewParms.orientation.origin[2]));
 
             ogl_tess_state.model_view.set (matrix);
 
@@ -1437,12 +1435,16 @@ void RB_StageIteratorSky( void ) {
         if (glConfigEx.is_path_ogl_1_x ()) {
         // BBi
 
-#if !defined RTCW_ET
-		::glTranslatef( backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2] );
-#else
-		::glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
-#endif // RTCW_XX
-
+// BBi
+//#if !defined RTCW_ET
+//		::glTranslatef( backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2] );
+//#else
+//		::glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
+//#endif // RTCW_XX
+        ::glTranslatef (::backEnd.viewParms.orientation.origin[0],
+            ::backEnd.viewParms.orientation.origin[1],
+            ::backEnd.viewParms.orientation.origin[2]);
+// BBi
         // BBi
         }
         // BBi

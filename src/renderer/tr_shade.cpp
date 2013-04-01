@@ -1924,7 +1924,11 @@ static void ComputeColors( shaderStage_t *pStage ) {
 			vec3_t v;
 
 #if !defined RTCW_ET
-			VectorSubtract( tess.xyz[i], backEnd.viewParms.or.origin, v );
+            // BBi
+			//VectorSubtract( tess.xyz[i], backEnd.viewParms.or.origin, v );
+            VectorSubtract (::tess.xyz[i],
+                ::backEnd.viewParms.orientation.origin, v);
+            // BBi
 #else
 			VectorSubtract( tess.xyz[i].v, backEnd.viewParms.orientation.origin, v );
 #endif // RTCW_XX

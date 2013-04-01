@@ -98,8 +98,14 @@ static float ProjectRadius( float r, vec3_t location ) {
 	vec3_t p;
 	float projected[4];
 
-	c = DotProduct( tr.viewParms.or.axis[0], tr.viewParms.or.origin );
-	dist = DotProduct( tr.viewParms.or.axis[0], location ) - c;
+    // BBi
+	//c = DotProduct( tr.viewParms.or.axis[0], tr.viewParms.or.origin );
+	//dist = DotProduct( tr.viewParms.or.axis[0], location ) - c;
+    c = DotProduct (::tr.viewParms.orientation.axis[0],
+        ::tr.viewParms.orientation.origin);
+
+    dist = DotProduct (::tr.viewParms.orientation.axis[0], location) - c;
+    // BBi
 
 	if ( dist <= 0 ) {
 		return 0;

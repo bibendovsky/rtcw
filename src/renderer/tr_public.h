@@ -95,12 +95,15 @@ typedef struct {
 #endif // RTCW_XX
 
 //----(SA)
-
-#if defined RTCW_SP
-	void ( *AddCoronaToScene )( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
-#else
-	void ( *AddCoronaToScene )( const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible );
-#endif // RTCW_XX
+// BBi
+//#if defined RTCW_SP
+//	void ( *AddCoronaToScene )( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
+//#else
+//	void ( *AddCoronaToScene )( const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible );
+//#endif // RTCW_XX
+    void (*AddCoronaToScene) (const vec3_t org, float r, float g, float b,
+        float scale, int id, int flags);
+// BBi
 
 	void ( *SetFog )( int fogvar, int var1, int var2, float r, float g, float b, float density );
 //----(SA)

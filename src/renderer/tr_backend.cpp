@@ -843,17 +843,27 @@ void RB_BeginDrawingView( void ) {
 		plane[2] = backEnd.viewParms.portalPlane.normal[2];
 		plane[3] = backEnd.viewParms.portalPlane.dist;
 
-#if !defined RTCW_ET
-		plane2[0] = DotProduct( backEnd.viewParms.or.axis[0], plane );
-		plane2[1] = DotProduct( backEnd.viewParms.or.axis[1], plane );
-		plane2[2] = DotProduct( backEnd.viewParms.or.axis[2], plane );
-		plane2[3] = DotProduct( plane, backEnd.viewParms.or.origin ) - plane[3];
-#else
-		plane2[0] = DotProduct( backEnd.viewParms.orientation.axis[0], plane );
-		plane2[1] = DotProduct( backEnd.viewParms.orientation.axis[1], plane );
-		plane2[2] = DotProduct( backEnd.viewParms.orientation.axis[2], plane );
-		plane2[3] = DotProduct( plane, backEnd.viewParms.orientation.origin ) - plane[3];
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//		plane2[0] = DotProduct( backEnd.viewParms.or.axis[0], plane );
+//		plane2[1] = DotProduct( backEnd.viewParms.or.axis[1], plane );
+//		plane2[2] = DotProduct( backEnd.viewParms.or.axis[2], plane );
+//		plane2[3] = DotProduct( plane, backEnd.viewParms.or.origin ) - plane[3];
+//#else
+//		plane2[0] = DotProduct( backEnd.viewParms.orientation.axis[0], plane );
+//		plane2[1] = DotProduct( backEnd.viewParms.orientation.axis[1], plane );
+//		plane2[2] = DotProduct( backEnd.viewParms.orientation.axis[2], plane );
+//		plane2[3] = DotProduct( plane, backEnd.viewParms.orientation.origin ) - plane[3];
+//#endif // RTCW_XX
+        plane2[0] = DotProduct (
+            ::backEnd.viewParms.orientation.axis[0], plane);
+        plane2[1] = DotProduct (
+            ::backEnd.viewParms.orientation.axis[1], plane);
+        plane2[2] = DotProduct (
+            ::backEnd.viewParms.orientation.axis[2], plane);
+        plane2[3] = DotProduct (
+            plane, ::backEnd.viewParms.orientation.origin) - plane[3];
+// BBi
 
         // BBi
         if (!glConfigEx.is_path_ogl_1_x ()) {
@@ -1352,21 +1362,32 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 				// set up the transformation matrix
 
-#if !defined RTCW_ET
-				R_RotateForEntity( backEnd.currentEntity, &backEnd.viewParms, &backEnd.or );
-#else
-				R_RotateForEntity( backEnd.currentEntity, &backEnd.viewParms, &backEnd.orientation );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//				R_RotateForEntity( backEnd.currentEntity, &backEnd.viewParms, &backEnd.or );
+//#else
+//				R_RotateForEntity( backEnd.currentEntity, &backEnd.viewParms, &backEnd.orientation );
+//#endif // RTCW_XX
+                ::R_RotateForEntity (
+                    ::backEnd.currentEntity,
+                    &::backEnd.viewParms,
+                    &::backEnd.orientation);
+// BBi
 
 				// set up the dynamic lighting if needed
 				if ( backEnd.currentEntity->needDlights ) {
 
-#if !defined RTCW_ET
-					R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
-#else
-					R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.orientation );
-#endif // RTCW_XX
-
+// BBi
+//#if !defined RTCW_ET
+//					R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
+//#else
+//					R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.orientation );
+//#endif // RTCW_XX
+                    ::R_TransformDlights (
+                        ::backEnd.refdef.num_dlights,
+                        ::backEnd.refdef.dlights,
+                        &::backEnd.orientation);
+// BBi
 				}
 
 				if ( backEnd.currentEntity->e.renderfx & RF_DEPTHHACK ) {
@@ -1377,30 +1398,34 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				backEnd.currentEntity = &tr.worldEntity;
 				backEnd.refdef.floatTime = originalTime;
 
-#if !defined RTCW_ET
-				backEnd.or = backEnd.viewParms.world;
-#else
-				backEnd.orientation = backEnd.viewParms.world;
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//				backEnd.or = backEnd.viewParms.world;
+//#else
+//				backEnd.orientation = backEnd.viewParms.world;
+//#endif // RTCW_XX
+                ::backEnd.orientation = ::backEnd.viewParms.world;
+// BBi
 
 				// we have to reset the shaderTime as well otherwise image animations on
 				// the world (like water) continue with the wrong frame
 //				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
 
-#if !defined RTCW_ET
-				R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
-#else
-				R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.orientation );
-#endif // RTCW_XX
-
+// BBi
+//#if !defined RTCW_ET
+//				R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
+//#else
+//				R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.orientation );
+//#endif // RTCW_XX
+                ::R_TransformDlights (
+                    ::backEnd.refdef.num_dlights,
+                    ::backEnd.refdef.dlights,
+                    &::backEnd.orientation);
+// BBi
 			}
 
 // BBi
-#if !defined RTCW_ET
-            const float* matrix = backEnd.or.modelMatrix;
-#else
-            const float* matrix = backEnd.orientation.modelMatrix;
-#endif // RTCW_XX
+            const float* matrix = ::backEnd.orientation.modelMatrix;
 // BBi
 
 // BBi
@@ -1470,13 +1495,21 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	backEnd.currentEntity = &tr.worldEntity;
 	backEnd.refdef.floatTime = originalTime;
 
-#if !defined RTCW_ET
-	backEnd.or = backEnd.viewParms.world;
-	R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
-#else
-	backEnd.orientation = backEnd.viewParms.world;
-	R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.orientation );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	backEnd.or = backEnd.viewParms.world;
+//	R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
+//#else
+//	backEnd.orientation = backEnd.viewParms.world;
+//	R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.orientation );
+//#endif // RTCW_XX
+    ::backEnd.orientation = ::backEnd.viewParms.world;
+
+    ::R_TransformDlights (
+        ::backEnd.refdef.num_dlights,
+        ::backEnd.refdef.dlights,
+        &::backEnd.orientation);
+// BBi
 
     // BBi
     if (!glConfigEx.is_path_ogl_1_x ()) {

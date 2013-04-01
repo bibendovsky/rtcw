@@ -489,13 +489,17 @@ typedef struct corona_s {
 	float scale;                // uses r_flaresize as the baseline (1.0)
 	int id;
 
-#if defined RTCW_SP
-	int flags;                  // '1' is 'visible'
-								// still send the corona request, even if not visible, for proper fading
-#else
-	qboolean visible;           // still send the corona request, even if not visible, for proper fading
-#endif // RTCW_XX
-
+// BBi
+//#if defined RTCW_SP
+//	int flags;                  // '1' is 'visible'
+//								// still send the corona request, even if not visible, for proper fading
+//#else
+//	qboolean visible;           // still send the corona request, even if not visible, for proper fading
+//#endif // RTCW_XX
+    int flags; // '1' is 'visible'
+               // still send the corona request, even if not visible,
+               // for proper fading
+// BBi
 } corona_t;
 
 typedef struct dlight_s {
@@ -673,11 +677,14 @@ typedef struct {
 
 typedef struct {
 
-#if !defined RTCW_ET
-	orientationr_t  or;
-#else
-	orientationr_t orientation;
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	orientationr_t  or;
+//#else
+//	orientationr_t orientation;
+//#endif // RTCW_XX
+    orientationr_t orientation;
+// BBi
 
 	orientationr_t world;
 	vec3_t pvsOrigin;               // may be different than or.origin for portals
@@ -1447,11 +1454,14 @@ typedef struct {
 	trRefdef_t refdef;
 	viewParms_t viewParms;
 
-#if !defined RTCW_ET
-	orientationr_t  or;
-#else
-	orientationr_t orientation;
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	orientationr_t  or;
+//#else
+//	orientationr_t orientation;
+//#endif // RTCW_XX
+    orientationr_t orientation;
+// BBi
 
 	backEndCounters_t pc;
 	qboolean isHyperspace;
@@ -1542,11 +1552,14 @@ typedef struct {
 	int identityLightByte;                      // identityLight * 255
 	int overbrightBits;                         // r_overbrightBits->integer, but set to 0 if no hw gamma
 
-#if !defined RTCW_ET
-	orientationr_t          or;                 // for current entity
-#else
-	orientationr_t orientation;                 // for current entity
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	orientationr_t          or;                 // for current entity
+//#else
+//	orientationr_t orientation;                 // for current entity
+//#endif // RTCW_XX
+    orientationr_t orientation; // for current entity
+// BBi
 
 	trRefdef_t refdef;
 
@@ -1913,11 +1926,14 @@ int R_CullLocalBox( vec3_t bounds[2] );
 int R_CullPointAndRadius( vec3_t origin, float radius );
 int R_CullLocalPointAndRadius( vec3_t origin, float radius );
 
-#if !defined RTCW_ET
-void R_RotateForEntity( const trRefEntity_t * ent, const viewParms_t * viewParms, orientationr_t * or );
-#else
-void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *orientation );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//void R_RotateForEntity( const trRefEntity_t * ent, const viewParms_t * viewParms, orientationr_t * or );
+//#else
+//void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *orientation );
+//#endif // RTCW_XX
+void R_RotateForEntity (const trRefEntity_t* ent, const viewParms_t* viewParms, orientationr_t* orientation);
+// BBi
 
 /*
 ** GL wrapper/helper functions
@@ -2228,11 +2244,15 @@ FLARES
 
 void R_ClearFlares( void );
 
-#if defined RTCW_SP
-void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float scale, vec3_t normal, int id, int flags ); // TTimo updated prototype
-#else
-void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float scale, vec3_t normal, int id, qboolean visible );    //----(SA)	added scale.  added id.  added visible
-#endif // RTCW_XX
+// BBi
+//#if defined RTCW_SP
+//void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float scale, vec3_t normal, int id, int flags ); // TTimo updated prototype
+//#else
+//void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float scale, vec3_t normal, int id, qboolean visible );    //----(SA)	added scale.  added id.  added visible
+//#endif // RTCW_XX
+void RB_AddFlare (void* surface, int fogNum, vec3_t point, vec3_t color,
+    float scale, vec3_t normal, int id, int flags);
+// BBi
 
 void RB_AddDlightFlares( void );
 void RB_RenderFlares( void );
@@ -2370,13 +2390,15 @@ void RE_AddLightToScene( const vec3_t org, float radius, float intensity, float 
 #endif // RTCW_XX
 
 //----(SA)
-
-#if defined RTCW_SP
-void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
-#else
-void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible );
-#endif // RTCW_XX
-
+// BBi
+//#if defined RTCW_SP
+//void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
+//#else
+//void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible );
+//#endif // RTCW_XX
+void RE_AddCoronaToScene (const vec3_t org, float r, float g, float b,
+    float scale, int id, int flags);
+// BBi
 //----(SA)
 void RE_RenderScene( const refdef_t *fd );
 

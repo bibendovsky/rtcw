@@ -433,19 +433,27 @@ void RB_ProjectionShadowDeform( void ) {
 
 	xyz = ( float * ) tess.xyz;
 
-#if !defined RTCW_ET
-	ground[0] = backEnd.or.axis[0][2];
-	ground[1] = backEnd.or.axis[1][2];
-	ground[2] = backEnd.or.axis[2][2];
+// BBi
+//#if !defined RTCW_ET
+//	ground[0] = backEnd.or.axis[0][2];
+//	ground[1] = backEnd.or.axis[1][2];
+//	ground[2] = backEnd.or.axis[2][2];
+//
+//	groundDist = backEnd.or.origin[2] - backEnd.currentEntity->e.shadowPlane;
+//#else
+//	ground[0] = backEnd.orientation.axis[0][2];
+//	ground[1] = backEnd.orientation.axis[1][2];
+//	ground[2] = backEnd.orientation.axis[2][2];
+//
+//	groundDist = backEnd.orientation.origin[2] - backEnd.currentEntity->e.shadowPlane;
+//#endif // RTCW_XX
+    ground[0] = ::backEnd.orientation.axis[0][2];
+    ground[1] = ::backEnd.orientation.axis[1][2];
+    ground[2] = ::backEnd.orientation.axis[2][2];
 
-	groundDist = backEnd.or.origin[2] - backEnd.currentEntity->e.shadowPlane;
-#else
-	ground[0] = backEnd.orientation.axis[0][2];
-	ground[1] = backEnd.orientation.axis[1][2];
-	ground[2] = backEnd.orientation.axis[2][2];
-
-	groundDist = backEnd.orientation.origin[2] - backEnd.currentEntity->e.shadowPlane;
-#endif // RTCW_XX
+    groundDist = ::backEnd.orientation.origin[2] -
+        ::backEnd.currentEntity->e.shadowPlane;
+// BBi
 
 	VectorCopy( backEnd.currentEntity->lightDir, lightDir );
 	d = DotProduct( lightDir, ground );

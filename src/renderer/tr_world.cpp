@@ -251,7 +251,11 @@ static qboolean R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 	}
 
 	sface = ( srfSurfaceFace_t * ) surface;
-	d = DotProduct( tr.or.viewOrigin, sface->plane.normal );
+
+    // BBi
+	//d = DotProduct( tr.or.viewOrigin, sface->plane.normal );
+    d = DotProduct (::tr.orientation.viewOrigin, sface->plane.normal);
+    // BBi
 
 	// don't cull exactly on the plane, because there are levels of rounding
 	// through the BSP, ICD, and hardware that may cause pixel gaps if an

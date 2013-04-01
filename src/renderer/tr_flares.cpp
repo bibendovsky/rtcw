@@ -76,11 +76,14 @@ typedef struct flare_s {
 
 	int fadeTime;
 
-#if defined RTCW_SP
-	int flags;
-#else
-	qboolean cgvisible;             // for coronas, the client determines current visibility, but it's still inserted so it will fade out properly
-#endif // RTCW_XX
+// BBi
+//#if defined RTCW_SP
+//	int flags;
+//#else
+//	qboolean cgvisible;             // for coronas, the client determines current visibility, but it's still inserted so it will fade out properly
+//#endif // RTCW_XX
+    int flags;
+// BBi
 
 #if defined RTCW_SP
 	// for coronas, the client determines current visibility, but it's still inserted so it will fade out properly
@@ -130,13 +133,16 @@ RB_AddFlare
 This is called at surface tesselation time
 ==================
 */
-
-#if defined RTCW_SP
-void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float scale, vec3_t normal, int id, int flags ) {  //----(SA)	added scale. added id.  added visible
-#else
-void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float scale, vec3_t normal, int id, qboolean cgvisible ) { //----(SA)	added scale. added id.  added visible
-#endif // RTCW_XX
-
+// BBi
+//#if defined RTCW_SP
+//void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float scale, vec3_t normal, int id, int flags ) {  //----(SA)	added scale. added id.  added visible
+//#else
+//void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float scale, vec3_t normal, int id, qboolean cgvisible ) { //----(SA)	added scale. added id.  added visible
+//#endif // RTCW_XX
+void RB_AddFlare (void* surface, int fogNum, vec3_t point, vec3_t color,
+    float scale, vec3_t normal, int id, int flags)
+{
+// BBi
 	int i;
 	flare_t         *f, *oldest;
 	vec3_t local;
@@ -148,13 +154,17 @@ void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float s
 	// if the point is off the screen, don't bother adding it
 	// calculate screen coordinates and depth
 
-#if !defined RTCW_ET
-	R_TransformModelToClip( point, backEnd.or.modelMatrix,
-							backEnd.viewParms.projectionMatrix, eye, clip );
-#else
-	R_TransformModelToClip( point, backEnd.orientation.modelMatrix,
-							backEnd.viewParms.projectionMatrix, eye, clip );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	R_TransformModelToClip( point, backEnd.or.modelMatrix,
+//							backEnd.viewParms.projectionMatrix, eye, clip );
+//#else
+//	R_TransformModelToClip( point, backEnd.orientation.modelMatrix,
+//							backEnd.viewParms.projectionMatrix, eye, clip );
+//#endif // RTCW_XX
+    ::R_TransformModelToClip (point, ::backEnd.orientation.modelMatrix,
+        ::backEnd.viewParms.projectionMatrix, eye, clip);
+// BBi
 
 	//ri.Printf(PRINT_ALL, "src:  %f  %f  %f  \n", point[0], point[1], point[2]);
 	//ri.Printf(PRINT_ALL, "eye:  %f  %f  %f  %f\n", eye[0], eye[1], eye[2], eye[3]);
@@ -204,11 +214,14 @@ void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float s
 		f->id = id;
 	}
 
-#if defined RTCW_SP
-	f->flags = flags;
-#else
-	f->cgvisible = cgvisible;
-#endif // RTCW_XX
+// BBi
+//#if defined RTCW_SP
+//	f->flags = flags;
+//#else
+//	f->cgvisible = cgvisible;
+//#endif // RTCW_XX
+    f->flags = flags;
+// BBi
 
 	if ( f->addedFrame != backEnd.viewParms.frameCount - 1 ) {
 		f->visible = qfalse;
@@ -226,11 +239,14 @@ void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float s
 	// light surface turns away from the viewer
 	if ( normal ) {
 
-#if !defined RTCW_ET
-		VectorSubtract( backEnd.viewParms.or.origin, point, local );
-#else
-		VectorSubtract( backEnd.viewParms.orientation.origin, point, local );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//		VectorSubtract( backEnd.viewParms.or.origin, point, local );
+//#else
+//		VectorSubtract( backEnd.viewParms.orientation.origin, point, local );
+//#endif // RTCW_XX
+        VectorSubtract (::backEnd.viewParms.orientation.origin, point, local);
+// BBi
 
 		VectorNormalizeFast( local );
 		d = DotProduct( local, normal );
@@ -321,12 +337,16 @@ void RB_AddCoronaFlares( void ) {
 		if ( j == tr.world->numfogs ) {
 			j = 0;
 		}
-#if defined RTCW_SP
-		RB_AddFlare( (void *)cor, j, cor->origin, cor->color, cor->scale, NULL, cor->id, cor->flags );
-#else
-		RB_AddFlare( (void *)cor, j, cor->origin, cor->color, cor->scale, NULL, cor->id, cor->visible );
-#endif // RTCW_XX
 
+// BBi
+//#if defined RTCW_SP
+//		RB_AddFlare( (void *)cor, j, cor->origin, cor->color, cor->scale, NULL, cor->id, cor->flags );
+//#else
+//		RB_AddFlare( (void *)cor, j, cor->origin, cor->color, cor->scale, NULL, cor->id, cor->visible );
+//#endif // RTCW_XX
+        ::RB_AddFlare (cor, j, cor->origin, cor->color, cor->scale, NULL,
+            cor->id, cor->flags);
+// BBi
 	}
 }
 
@@ -370,11 +390,14 @@ void RB_TestFlare( flare_t *f ) {
 
 //	visible = qtrue;
 
-#if defined RTCW_SP
-	visible = (qboolean)( f->flags & 1 );
-#else
-	visible = f->cgvisible;
-#endif // RTCW_XX
+// BBi
+//#if defined RTCW_SP
+//	visible = (qboolean)( f->flags & 1 );
+//#else
+//	visible = f->cgvisible;
+//#endif // RTCW_XX
+    visible = f->flags & 1;
+// BBi
 
 	if ( visible ) {
 		if ( !f->visible ) {

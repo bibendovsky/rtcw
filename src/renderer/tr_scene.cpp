@@ -577,13 +577,16 @@ void RE_AddLightToScene( const vec3_t org, float radius, float intensity, float 
 RE_AddCoronaToScene
 ==============
 */
-
-#if defined RTCW_SP
-void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags ) {
-#else
-void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible ) {
-#endif // RTCW_XX
-
+// BBi
+//#if defined RTCW_SP
+//void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags ) {
+//#else
+//void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible ) {
+//#endif // RTCW_XX
+void RE_AddCoronaToScene (const vec3_t org, float r, float g, float b,
+    float scale, int id, int flags)
+{
+// BBi
 	corona_t    *cor;
 
 	if ( !tr.registered ) {
@@ -601,12 +604,14 @@ void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float sca
 	cor->scale = scale;
 	cor->id = id;
 
-#if defined RTCW_SP
-	cor->flags = flags;
-#else
-	cor->visible = visible;
-#endif // RTCW_XX
-
+// BBi
+//#if defined RTCW_SP
+//	cor->flags = flags;
+//#else
+//	cor->visible = visible;
+//#endif // RTCW_XX
+    cor->flags = flags;
+// BBi
 }
 
 /*
@@ -777,17 +782,23 @@ void RE_RenderScene( const refdef_t *fd ) {
 	parms.fovX = tr.refdef.fov_x;
 	parms.fovY = tr.refdef.fov_y;
 
-#if !defined RTCW_ET
-	VectorCopy( fd->vieworg, parms.or.origin );
-	VectorCopy( fd->viewaxis[0], parms.or.axis[0] );
-	VectorCopy( fd->viewaxis[1], parms.or.axis[1] );
-	VectorCopy( fd->viewaxis[2], parms.or.axis[2] );
-#else
-	VectorCopy( fd->vieworg, parms.orientation.origin );
-	VectorCopy( fd->viewaxis[0], parms.orientation.axis[0] );
-	VectorCopy( fd->viewaxis[1], parms.orientation.axis[1] );
-	VectorCopy( fd->viewaxis[2], parms.orientation.axis[2] );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	VectorCopy( fd->vieworg, parms.or.origin );
+//	VectorCopy( fd->viewaxis[0], parms.or.axis[0] );
+//	VectorCopy( fd->viewaxis[1], parms.or.axis[1] );
+//	VectorCopy( fd->viewaxis[2], parms.or.axis[2] );
+//#else
+//	VectorCopy( fd->vieworg, parms.orientation.origin );
+//	VectorCopy( fd->viewaxis[0], parms.orientation.axis[0] );
+//	VectorCopy( fd->viewaxis[1], parms.orientation.axis[1] );
+//	VectorCopy( fd->viewaxis[2], parms.orientation.axis[2] );
+//#endif // RTCW_XX
+    VectorCopy (fd->vieworg, parms.orientation.origin);
+    VectorCopy (fd->viewaxis[0], parms.orientation.axis[0]);
+    VectorCopy (fd->viewaxis[1], parms.orientation.axis[1]);
+    VectorCopy (fd->viewaxis[2], parms.orientation.axis[2]);
+// BBi
 
 	VectorCopy( fd->vieworg, parms.pvsOrigin );
 

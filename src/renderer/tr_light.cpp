@@ -108,11 +108,15 @@ void R_DlightBmodel( bmodel_t *bmodel ) {
 
 	// transform all the lights
 
-#if !defined RTCW_ET
-	R_TransformDlights( tr.refdef.num_dlights, tr.refdef.dlights, &tr.or );
-#else
-	R_TransformDlights( tr.refdef.num_dlights, tr.refdef.dlights, &tr.orientation );
-#endif // RTCW_XX
+// BBi
+//#if !defined RTCW_ET
+//	R_TransformDlights( tr.refdef.num_dlights, tr.refdef.dlights, &tr.or );
+//#else
+//	R_TransformDlights( tr.refdef.num_dlights, tr.refdef.dlights, &tr.orientation );
+//#endif // RTCW_XX
+    ::R_TransformDlights (
+        ::tr.refdef.num_dlights, ::tr.refdef.dlights, &::tr.orientation);
+// BBi
 
 	mask = 0;
 	for ( i = 0 ; i < tr.refdef.num_dlights ; i++ ) {
