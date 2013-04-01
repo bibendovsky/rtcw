@@ -27,6 +27,7 @@ public:
     int u_primary_color;
     int u_use_fog;
     int u_fog_mode;
+    int u_fog_dist_mode;
     int u_fog_hint;
     int u_fog_color;
     int u_fog_density;

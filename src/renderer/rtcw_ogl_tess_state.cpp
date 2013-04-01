@@ -46,6 +46,7 @@ void OglTessState::set_default_values ()
 
     use_fog.set (false);
     fog_mode.set (GL_EXP);
+    fog_dist_mode.set (GL_NONE);
     fog_hint.set (GL_DONT_CARE);
     fog_density.set (1.0F);
     fog_start.set (0.0F);
@@ -69,6 +70,7 @@ void OglTessState::commit_changes ()
         alpha_test_ref.is_modified () ||
         use_fog.is_modified () ||
         fog_mode.is_modified () ||
+        fog_dist_mode.is_modified () ||
         fog_hint.is_modified () ||
         fog_density.is_modified () ||
         fog_start.is_modified () ||
@@ -201,6 +203,15 @@ void OglTessState::commit_changes ()
         fog_mode.set_modified (false);
     }
 
+    if (fog_dist_mode.is_modified ()) {
+        if (use_program && (program_->u_fog_dist_mode >= 0)) {
+            ::glUniform1i (program_->u_fog_dist_mode,
+                fog_dist_mode.get ());
+        }
+
+        fog_dist_mode.set_modified (false);
+    }
+
     if (fog_hint.is_modified ()) {
         if (use_program && (program_->u_fog_hint >= 0)) {
             ::glUniform1i (program_->u_fog_hint,
@@ -271,6 +282,7 @@ void OglTessState::invalidate ()
 
     use_fog.set_modified (true);
     fog_mode.set_modified (true);
+    fog_dist_mode.set_modified (true);
     fog_hint.set_modified (true);
     fog_density.set_modified (true);
     fog_start.set_modified (true);

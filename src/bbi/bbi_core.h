@@ -1,6 +1,6 @@
 //
 // Custom library.
-// Copyright (C) 2012 Boris I. Bendovsky
+// Copyright (C) 2012-2013 Boris I. Bendovsky
 //
 // Core checks, defines and basic types.
 //
@@ -11,6 +11,7 @@
 
 
 #include <cstddef>
+#include <cstdint>
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -20,18 +21,19 @@
 
 #ifndef __cplusplus
     #error C++ required.
-#endif // BBI_CXX_STANDARD
+#endif
 
 
+#undef BBI_LE
 #define BBI_LE 1L
+
+#undef BBI_BE
 #define BBI_BE 2L
 
 #if (!defined BBI_ENDIANNESS) || (BBI_ENDIANNESS == 0L)
-
     #if (defined _M_AMD64) || (defined _M_IX86) || (defined _M_X64)
         #define BBI_ENDIANNESS BBI_LE
     #endif
-
 #endif
 
 #if (!defined BBI_ENDIANNESS) || (BBI_ENDIANNESS == 0L)
@@ -39,23 +41,19 @@
 #endif
 
 
-#ifndef BBI_MSC
-    #define BBI_MSC 1L
-#endif // BBI_MSC
+#undef BBI_MSC
+#define BBI_MSC (1L)
 
 
-#ifndef BBI_X86
-    #define BBI_X86 1L
-#endif // BBI_X86
+#undef BBI_X86
+#define BBI_X86 (1L)
 
-#ifndef BBI_X64
-    #define BBI_X64 2L
-#endif // BBI_X64
+#undef BBI_X64
+#define BBI_X64 (2L)
 
 
-#ifndef BBI_WIN32
-    #define BBI_WIN32 1L
-#endif // BBI_WIN32
+#undef BBI_WIN32
+#define BBI_WIN32 (1L)
 
 
 #ifdef _WIN32
@@ -65,39 +63,39 @@
         #define BBI_PLATFORM_ARCH BBI_X64
     #else
         #define BBI_PLATFORM_ARCH BBI_X86
-    #endif // _WIN64
+    #endif
 
     #ifdef _MSC_VER
         #if _MSC_VER < 1700L
-            #error Visual C++ 2012 required.
+            #error Visual C++ 2012 or higher required.
         #endif
 
         #define BBI_PLATFORM_BUILD_TOOL BBI_MSC
         #define BBI_PLATFORM_BUILD_TOOL_VERSION _MSC_VER
-    #endif // _MSC_VER
+    #endif
 
     #ifndef BBI_SYS_API
         #define BBI_SYS_API __stdcall
-    #endif // BBI_SYS_API
+    #endif
 #endif // _WIN32
 
 
 #ifndef BBI_PLATFORM
     #error Unknown platform (BBI_PLATFORM).
-#endif // BBI_PLATFORM
+#endif
 
 #ifndef BBI_PLATFORM_BUILD_TOOL
     #error Unknown platform build tool (BBI_PLATFORM_BUILD_TOOL).
-#endif // BBI_PLATFORM_BUILD_TOOL
+#endif
 
 #ifndef BBI_PLATFORM_ARCH
     #error Unknown platform arhitecture (BBI_PLATFORM_ARCH).
-#endif // BBI_PLATFORM_ARCH
+#endif
 
 
 #ifndef BBI_SYS_API
     #define BBI_SYS_API
-#endif // BBI_SYS_API
+#endif
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -111,19 +109,17 @@
 namespace bbi {
 
 
-#if BBI_PLATFORM_BUILD_TOOL == BBI_MSC
-    typedef signed __int8 Int8;
-    typedef unsigned __int8 UInt8;
+typedef int8_t Int8;
+typedef uint8_t UInt8;
 
-    typedef signed __int16 Int16;
-    typedef unsigned __int16 UInt16;
+typedef int16_t Int16;
+typedef uint16_t UInt16;
 
-    typedef signed __int32 Int32;
-    typedef unsigned __int32 UInt32;
+typedef int32_t Int32;
+typedef uint32_t UInt32;
 
-    typedef signed __int64 Int64;
-    typedef unsigned __int64 UInt64;
-#endif // BBI_PLATFORM_BUILD_TOOL
+typedef int64_t Int64;
+typedef uint64_t UInt64;
 
 typedef signed char SChar;
 typedef unsigned char UChar;

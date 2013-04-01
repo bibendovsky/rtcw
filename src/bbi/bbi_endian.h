@@ -1,6 +1,6 @@
 //
 // Custom library.
-// Copyright (C) 2012 Boris I. Bendovsky
+// Copyright (C) 2012-2013 Boris I. Bendovsky
 //
 // Byte order (endianness) manipulation.
 //
@@ -153,35 +153,32 @@ public:
 
 private:
     Endian ();
-
     Endian (const Endian& that);
-
     ~Endian ();
-
     Endian& operator = (const Endian& that);
 
 
-    // Swaps bytes for static methods.
+    // Swaps bytes.
     template<class T>
-    static T le_be (const T value)
+    static T le_be (const T& value)
     {
         T result;
 
         for (int i = 0, j = sizeof (T) - 1; i < sizeof (T); ++i, --j) {
-            (reinterpret_cast<bbi::UChar*> (&result)) [i] =
-                (reinterpret_cast<const bbi::UChar*> (&value)) [j];
+            (reinterpret_cast<char*> (&result)) [i] =
+                (reinterpret_cast<const char*> (&value)) [j];
         }
 
         return result;
     }
 
-    // Swaps bytes in place for static methods.
+    // Swaps bytes in place.
     template<class T>
     static void lei_bei (T& value)
     {
         for (int i = 0, j = sizeof (T) - 1, n = sizeof (T) / 2; i < n; ++i, --j) {
-            std::swap ((reinterpret_cast<bbi::UChar*> (&value)) [i],
-                (reinterpret_cast<bbi::UChar*> (&value)) [j]);
+            std::swap ((reinterpret_cast<char*> (&value)) [i],
+                (reinterpret_cast<char*> (&value)) [j]);
         }
     }
 }; // enum Endian

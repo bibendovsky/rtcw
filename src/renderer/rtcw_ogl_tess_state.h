@@ -31,6 +31,7 @@ public:
 
     rtcw::ModValue<bool> use_fog;
     rtcw::ModValue<GLenum> fog_mode;
+    rtcw::ModValue<GLenum> fog_dist_mode;
     rtcw::ModValue<GLenum> fog_hint;
     rtcw::ModValue<float> fog_density;
     rtcw::ModValue<float> fog_start;

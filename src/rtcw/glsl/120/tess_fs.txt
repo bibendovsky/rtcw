@@ -1,15 +1,29 @@
+//
+// Project: RTCW
+// Author: Boris I. Bendovsky
+//
+// Shader type: fragment.
+// Purpose: Generic drawing.
+//
+
+
 #version 120
 
 
 // Known constants.
 const int GL_ADD = 0x0104;
 const int GL_DECAL = 0x2101;
+const int GL_DONT_CARE = 0x1100;
+const int GL_EYE_PLANE = 0x2502;
+const int GL_EYE_RADIAL_NV = 0x855B;
 const int GL_EXP = 0x0800;
+const int GL_FASTEST = 0x1101;
 const int GL_GEQUAL = 0x0206;
 const int GL_GREATER = 0x0204;
 const int GL_LESS = 0x0201;
 const int GL_LINEAR = 0x2601;
 const int GL_MODULATE = 0x2100;
+const int GL_NICEST = 0x1102;
 const int GL_REPLACE = 0x1E01;
 
 
@@ -23,6 +37,8 @@ uniform sampler2D tex_2d[2]; // textures
 
 uniform bool use_fog = false;
 uniform int fog_mode = GL_EXP;
+uniform int fog_hint = GL_DONT_CARE;
+uniform int fog_dist_mode = GL_NONE; // GL_NV_fog_distance emulation
 uniform vec4 fog_color = vec4 (0.0);
 uniform float fog_density = 1.0;
 uniform float fog_start = 0.0;
@@ -30,7 +46,8 @@ uniform float fog_end = 1.0;
 
 varying vec4 col; // interpolated color
 varying vec2 tc[2]; // interpolated texture coords
-varying float fog_c;
+varying float fog_vc; // interpolated calculated fog coords
+varying vec4 fog_fc; // interpolated fog coords
 
 
 vec4 apply_tex_env (vec4 previous_color, int env_index)
@@ -78,18 +95,30 @@ vec4 apply_alpha_test (vec4 color)
 
 vec4 apply_fog (vec4 color)
 {
+    float c;
+
+    if (fog_hint != GL_FASTEST) {
+        vec4 r_fog_fc = fog_fc / fog_fc.w;
+
+        if (fog_dist_mode == GL_EYE_RADIAL_NV)
+            c = length (r_fog_fc.xyz);
+        else if (fog_dist_mode == GL_EYE_PLANE)
+            c = fog_fc.z;
+        else
+            c = abs (fog_fc.z);
+    } else
+        c = fog_vc;
+
+
     float f = 1.0;
 
-    if (fog_c >= 0.0) {
-        if (fog_mode == GL_LINEAR) {
-            float es = fog_end - fog_start;
+    if (fog_mode == GL_LINEAR) {
+        float es = fog_end - fog_start;
 
-            if (es != 0.0)
-                f = (fog_end - fog_c) / es;
-        } else if (fog_mode == GL_EXP)
-            f = exp (-fog_density * fog_c);
+        if (es != 0.0)
+            f = (fog_end - c) / es;
     } else
-        return color *= vec4 (0.0, 0.5, 0.0, 1.0);
+        f = exp (-fog_density * c);
 
     f = clamp (f, 0.0, 1.0);
     vec4 mixed_color = mix (fog_color, color, f);

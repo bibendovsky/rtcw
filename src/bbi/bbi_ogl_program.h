@@ -1,4 +1,7 @@
 //
+// Custom library.
+// Copyright (C) 2012-2013 Boris I. Bendovsky
+//
 // A helper class for an OpenGL program object.
 //
 

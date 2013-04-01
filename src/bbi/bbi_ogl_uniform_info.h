@@ -1,3 +1,11 @@
+//
+// Custom library.
+// Copyright (C) 2012-2013 Boris I. Bendovsky
+//
+// Container for information about OpenGL uniform variable.
+//
+
+
 #ifndef BBI_OGL_UNIFORM_INFO_H
 #define BBI_OGL_UNIFORM_INFO_H
 

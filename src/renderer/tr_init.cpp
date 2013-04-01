@@ -620,6 +620,9 @@ static void InitOpenGL( void ) {
     if (!glConfigEx.is_path_ogl_1_x ()) {
         ::r_reload_programs_f ();
         ::r_tess_initialize ();
+
+        ::ri.Cvar_Set ("r_ext_NV_fog_dist", "1");
+        ::ri.Printf (PRINT_ALL, "Emulating %s...\n", "GL_NV_fog_distance");
     }
     // BBi
 

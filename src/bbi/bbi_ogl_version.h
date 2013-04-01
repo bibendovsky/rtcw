@@ -1,3 +1,11 @@
+//
+// Custom library.
+// Copyright (C) 2012-2013 Boris I. Bendovsky
+//
+// Container for OpenGL version number.
+//
+
+
 #ifndef BBI_OGL_VERSION_H
 #define BBI_OGL_VERSION_H
 

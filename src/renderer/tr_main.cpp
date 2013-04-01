@@ -117,12 +117,8 @@ void R_Fog( glfog_t *curfog ) {
 #endif // RTCW_XX
         }
 
-    //// NV fog mode
-    //if ( glConfig.NVFogAvailable ) {
-    //	::glFogi( GL_FOG_DISTANCE_MODE_NV, glConfig.NVFogMode );
-    //}
-
         ogl_tess_state.fog_mode.set (curfog->mode);
+        ogl_tess_state.fog_dist_mode.set (glConfig.NVFogMode);
         ogl_tess_state.fog_hint.set (curfog->hint);
         ogl_tess_state.fog_density.set (curfog->density);
         ogl_tess_state.fog_start.set (fog_start);
@@ -214,8 +210,6 @@ void R_Fog( glfog_t *curfog ) {
 	setfog.registered = qtrue;
 
 	::glClearColor( curfog->color[0], curfog->color[1], curfog->color[2], curfog->color[3] );
-
-
 }
 
 // Ridah, allow disabling fog temporarily

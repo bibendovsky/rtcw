@@ -1,11 +1,23 @@
+//
+// Project: RTCW
+// Author: Boris I. Bendovsky
+//
+// Shader type: vertex.
+// Purpose: Generic drawing.
+//
+
+
 #version 120
 
 
-// known GL constants
+// Known GL constants.
 const int GL_DONT_CARE = 0x1100;
 const int GL_EXP = 0x0800;
 const int GL_FASTEST = 0x1101;
 const int GL_NICEST = 0x1102;
+const int GL_NONE = 0x0000;
+const int GL_EYE_PLANE = 0x2502;
+const int GL_EYE_RADIAL_NV = 0x855B;
 
 
 attribute vec4 pos_vec4; // position
@@ -15,6 +27,7 @@ attribute vec2 tc1_vec2; // texture coords (1)
 
 uniform bool use_fog = false;
 uniform int fog_mode = GL_EXP;
+uniform int fog_dist_mode = GL_NONE; // GL_NV_fog_distance emulation
 uniform int fog_hint = GL_DONT_CARE;
 
 uniform mat4 projection_mat4; // projection matrix
@@ -22,7 +35,8 @@ uniform mat4 model_view_mat4; // model-view matrix
 
 varying vec4 col; // interpolated color
 varying vec2 tc[2]; // interpolated texture coords
-varying float fog_c;
+varying float fog_vc; // interpolated calculated fog coords
+varying vec4 fog_fc; // interpolated fog coords
 
 
 void main ()
@@ -34,13 +48,17 @@ void main ()
     vec4 eye_pos = model_view_mat4 * pos_vec4;
 
     if (use_fog) {
-        if (fog_hint == GL_DONT_CARE || fog_hint == GL_FASTEST)
-            fog_c = abs (eye_pos.z);
-        else if (fog_hint == GL_NICEST)
-            fog_c = length (eye_pos.xyz);
-        else
-            fog_c = -1;
+        if (fog_hint != GL_FASTEST)
+            fog_fc = eye_pos;
+        else {
+            if (fog_dist_mode == GL_EYE_RADIAL_NV)
+                fog_vc = length (eye_pos.xyz);
+            else if (fog_dist_mode == GL_EYE_PLANE)
+                fog_vc = eye_pos.z;
+            else
+                fog_vc = abs (eye_pos.z);
+        }
     }
 
-    gl_Position =  projection_mat4 * eye_pos;
+    gl_Position = projection_mat4 * eye_pos;
 }

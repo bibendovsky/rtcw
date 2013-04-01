@@ -113,10 +113,8 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_program.cpp" />
     <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_shader.cpp" />
-    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_source.cpp" />
     <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_uniform_info.cpp" />
     <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_version.cpp" />
-    <ClCompile Include="..\..\..\..\src\bbi\bbi_string.cpp" />
     <ClCompile Include="..\..\..\..\src\botlib\be_aas_bspq3.cpp" />
     <ClCompile Include="..\..\..\..\src\botlib\be_aas_cluster.cpp" />
     <ClCompile Include="..\..\..\..\src\botlib\be_aas_debug.cpp" />
@@ -236,14 +234,10 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\bbi\bbi_core.h" />
     <ClInclude Include="..\..\..\..\src\bbi\bbi_endian.h" />
-    <ClInclude Include="..\..\..\..\src\bbi\bbi_mem.h" />
     <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_program.h" />
     <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_shader.h" />
-    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_source.h" />
     <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_uniform_info.h" />
     <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_version.h" />
-    <ClInclude Include="..\..\..\..\src\bbi\bbi_string.h" />
-    <ClInclude Include="..\..\..\..\src\bbi\bbi_types.h" />
     <ClInclude Include="..\..\..\..\src\botlib\aasfile.h" />
     <ClInclude Include="..\..\..\..\src\botlib\be_aas_bsp.h" />
     <ClInclude Include="..\..\..\..\src\botlib\be_aas_cluster.h" />

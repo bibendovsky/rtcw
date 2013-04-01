@@ -24,6 +24,7 @@ OglTessProgram::OglTessProgram (const std::string& glsl_dir,
         u_primary_color (-1),
         u_use_fog (-1),
         u_fog_mode (-1),
+        u_fog_dist_mode (-1),
         u_fog_hint (-1),
         u_fog_color (-1),
         u_fog_density (-1),
@@ -97,6 +98,9 @@ bool OglTessProgram::reload ()
     u_fog_mode = ::glGetUniformLocation (
         program, "fog_mode");
 
+    u_fog_dist_mode = ::glGetUniformLocation (
+        program, "fog_dist_mode");
+
     u_fog_hint = ::glGetUniformLocation (
         program, "fog_hint");
 
@@ -144,6 +148,7 @@ void OglTessProgram::unload ()
     u_primary_color = -1;
     u_use_fog = -1;
     u_fog_mode = -1;
+    u_fog_dist_mode = -1;
     u_fog_hint = -1;
     u_fog_color = -1;
     u_fog_density = -1;

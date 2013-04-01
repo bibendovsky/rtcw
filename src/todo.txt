@@ -21,7 +21,6 @@ Try to make full merge for non engine code (cgame, game, ui).
 
 
 ------------
-emulate nvidia fog
 R_DebugText
 
 ------------

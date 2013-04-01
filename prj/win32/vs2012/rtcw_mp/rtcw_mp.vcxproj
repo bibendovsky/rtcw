@@ -645,7 +645,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\bbi\bbi_core.h" />
     <ClInclude Include="..\..\..\..\src\bbi\bbi_endian.h" />
-    <ClInclude Include="..\..\..\..\src\bbi\bbi_mem.h" />
     <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_program.h" />
     <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_shader.h" />
     <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_uniform_info.h" />

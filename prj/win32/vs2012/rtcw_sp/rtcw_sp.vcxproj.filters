@@ -351,9 +351,6 @@
     <ClCompile Include="..\..\..\..\src\client\snd_dma_core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\bbi\bbi_string.cpp">
-      <Filter>Source Files\bbi</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_uniform_info.cpp">
       <Filter>Source Files\bbi</Filter>
     </ClCompile>
@@ -361,9 +358,6 @@
       <Filter>Source Files\bbi</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_program.cpp">
-      <Filter>Source Files\bbi</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_source.cpp">
       <Filter>Source Files\bbi</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\renderer\rtcw_ogl_program.cpp">
@@ -614,16 +608,7 @@
     <ClInclude Include="..\..\..\..\src\bbi\bbi_core.h">
       <Filter>Header Files\bbi</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\src\bbi\bbi_mem.h">
-      <Filter>Header Files\bbi</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\src\bbi\bbi_endian.h">
-      <Filter>Header Files\bbi</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\src\bbi\bbi_types.h">
-      <Filter>Header Files\bbi</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\src\bbi\bbi_string.h">
       <Filter>Header Files\bbi</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_uniform_info.h">
@@ -633,9 +618,6 @@
       <Filter>Header Files\bbi</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_program.h">
-      <Filter>Header Files\bbi</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_source.h">
       <Filter>Header Files\bbi</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\src\renderer\rtcw_ogl_program.h">

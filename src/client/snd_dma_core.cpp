@@ -304,7 +304,7 @@ qboolean SNDDMA_Init ()
         dma.speed = sample_rate;
 
         if  (oal_has_ext_buffer_subdata)
-            ::Com_Printf ("... using AL_SOFT_buffer_sub_data extension.");
+            ::Com_Printf ("... using AL_SOFT_buffer_sub_data extension.\n");
         else
             oal_slice_buffer.resize (OAL_SLICE_SIZE);
 

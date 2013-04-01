@@ -1,3 +1,11 @@
+//
+// Custom library.
+// Copyright (C) 2012-2013 Boris I. Bendovsky
+//
+// Container for OpenGL version number.
+//
+
+
 #include "bbi_ogl_version.h"
 
 #include <sstream>

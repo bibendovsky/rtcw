@@ -1863,6 +1863,18 @@ static void GLW_InitExtensions( void ) {
 	//	ri.Printf( PRINT_ALL, "...GL_NV_fog_distance not found\n" );
 	//	ri.Cvar_Set( "r_ext_NV_fog_dist", "0" );
 	//}
+    if (GLEW_NV_fog_distance != 0) {
+        if (r_ext_NV_fog_dist->integer != 0) {
+            ::glConfig.NVFogAvailable = true;
+            ::ri.Printf (PRINT_ALL, "...using %s\n", "GL_NV_fog_distance");
+        } else {
+            ::ri.Printf (PRINT_ALL, "...ignoring %s\n", "GL_NV_fog_distance");
+            ::ri.Cvar_Set ("r_ext_NV_fog_dist", "0");
+        }
+    } else {
+        ::ri.Printf (PRINT_ALL, "...%s not found\n", "GL_NV_fog_distance");
+        ::ri.Cvar_Set ("r_ext_NV_fog_dist", "0");
+    }
     //BBi
 
 //BBi
@@ -2330,21 +2342,21 @@ void GLimp_Init( void ) {
 	// save off hInstance and wndproc
 	cv = ri.Cvar_Get( "win_hinstance", "", 0 );
 
-    //BBi
+    // BBi
     const char* const scanFormat = (sizeof (size_t) == 4) ? "%i" : "%lli";
-    //BBi
+    // BBi
 
-    //BBi
+    // BBi
 	//sscanf( cv->string, "%i", (int *)&g_wv.hInstance );
     ::sscanf (cv->string, scanFormat, reinterpret_cast<intptr_t*> (&g_wv.hInstance));
-    //BBi
+    // BBi
 
 	cv = ri.Cvar_Get( "win_wndproc", "", 0 );
 
-    //bbI
+    // BBi
 	//sscanf( cv->string, "%i", (int *)&glw_state.wndproc );
     ::sscanf (cv->string, scanFormat, reinterpret_cast<intptr_t*> (&glw_state.wndproc));
-    //bbI
+    // BBi
 
 	r_allowSoftwareGL = ri.Cvar_Get( "r_allowSoftwareGL", "0", CVAR_LATCH );
 	r_maskMinidriver = ri.Cvar_Get( "r_maskMinidriver", "0", CVAR_LATCH );

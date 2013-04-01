@@ -1,6 +1,12 @@
-#include "bbi_ogl_shader.h"
+//
+// Custom library.
+// Copyright (C) 2012-2013 Boris I. Bendovsky
+//
+// A helper class for an OpenGL shader object.
+//
 
-#include "bbi_vec3.h"
+
+#include "bbi_ogl_shader.h"
 
 #include <memory>
 
@@ -14,8 +20,8 @@ GLuint OglShader::create (GLenum shader_type, const GLchar* const source,
 {
     auto shader_object = ::glCreateShader (shader_type);
 
-    if (shader_object == 0)
-        return 0;
+    if (shader_object == GL_NONE)
+        return GL_NONE;
 
 
     auto strings = source;
@@ -33,8 +39,8 @@ GLuint OglShader::create (GLenum shader_type, GLsizei line_count,
 {
     auto shader_object = ::glCreateShader (shader_type);
 
-    if (shader_object == 0)
-        return 0;
+    if (shader_object == GL_NONE)
+        return GL_NONE;
 
     ::glShaderSource (shader_object, line_count, source_lines, source_lengths);
     ::glCompileShader (shader_object);
