@@ -1,22 +1,16 @@
-# Auto detect text files and perform LF normalization
+# Force LF line ending for text files.
 * text=auto
 
-# Custom for Visual Studio
-*.cs     diff=csharp
-*.sln    merge=union
-*.csproj merge=union
-*.vbproj merge=union
-*.fsproj merge=union
-*.dbproj merge=union
-
-# Standard to msysgit
-*.doc	 diff=astextplain
-*.DOC	 diff=astextplain
-*.docx diff=astextplain
-*.DOCX diff=astextplain
-*.dot  diff=astextplain
-*.DOT  diff=astextplain
-*.pdf  diff=astextplain
-*.PDF	 diff=astextplain
-*.rtf	 diff=astextplain
-*.RTF	 diff=astextplain
+# Text files with forced CRLF line ending.
+*.rc text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.def text eol=crlf
+*.dsp text eol=crlf
+*.dsw text eol=crlf
+*.sln text eol=crlf
+*.props text eol=crlf
+*.csproj text eol=crlf
+*.vcproj text eol=crlf
+*.vcxproj text eol=crlf
+*.vcxproj.filters text eol=crlf
