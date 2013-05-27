@@ -21,7 +21,6 @@ Try to make full merge for non engine code (cgame, game, ui).
 
 
 ------------
-Lights corona in MP not visible.
 Rendering broken after com_error (MP).
 Emulate clipping plane 0.
 R_DebugText

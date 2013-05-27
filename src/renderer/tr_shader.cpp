@@ -3910,6 +3910,8 @@ shaderStringPointer_t shaderStringPointerList[MAX_SHADER_STRING_POINTERS];
 BuildShaderChecksumLookup
 ====================
 */
+// BBi
+#if 0
 static void BuildShaderChecksumLookup( void ) {
 	char *p = s_shaderText, *pOld;
 	char *token;
@@ -3993,7 +3995,67 @@ static void BuildShaderChecksumLookup( void ) {
 	}
 }
 // done.
+#endif // 0
 
+#if 1
+static void BuildShaderChecksumLookup ()
+{
+    char* p = s_shaderText;
+
+    // initialize the checksums
+    ::memset (shaderChecksumLookup, 0, sizeof (shaderChecksumLookup));
+
+    if (p == NULL)
+        return;
+
+    char* pOld;
+    char* token;
+    int numShaderStringPointers = 0;
+
+    // loop for all labels
+    while (true) {
+        pOld = p;
+        token = ::COM_ParseExt (&p, true);
+
+        if (token[0] == 0)
+            break;
+
+        // Hack for ui_wolf.shader in SP.
+        // There are two closed braces at the end.
+        if (::Q_stricmp (token, "}") == 0)
+            continue;
+
+        if (::Q_stricmp (token, "{") == 0) {
+            ::SkipBracedSection (&p);
+            continue;
+        }
+
+        // get it's checksum
+        int checksum = static_cast<int> (generateHashValue (token) & 0xFFFF);
+
+        // if it's not currently used
+        if (shaderChecksumLookup[checksum].pStr == NULL)
+            shaderChecksumLookup[checksum].pStr = pOld;
+        else {
+            // create a new list item
+            if (numShaderStringPointers >= MAX_SHADER_STRING_POINTERS) {
+                ri.Error (ERR_DROP,
+                    "MAX_SHADER_STRING_POINTERS exceeded, too many shaders");
+            }
+
+            shaderStringPointer_t* newStrPtr;
+            newStrPtr = &shaderStringPointerList[numShaderStringPointers++];
+            newStrPtr->pStr = pOld;
+            newStrPtr->next = shaderChecksumLookup[checksum].next;
+            shaderChecksumLookup[checksum].next = newStrPtr;
+        }
+
+        // BBi Fix for missing light coronas in MP.
+        ::SkipRestOfLine (&p);
+    }
+}
+#endif
+// BBi
 
 /*
 ====================
