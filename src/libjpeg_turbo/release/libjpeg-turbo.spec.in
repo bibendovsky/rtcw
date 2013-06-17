@@ -1,11 +1,32 @@
+# Path under which libjpeg-turbo should be installed
+%define _prefix %{__prefix}
+
+# Path under which executables should be installed
+%define _bindir %{__bindir}
+
+# Path under which Java classes and man pages should be installed
+%define _datadir %{__datadir}
+
+# Path under which docs should be installed
+%define _docdir %{_defaultdocdir}/%{name}-%{version}
+
+# Path under which headers should be installed
+%define _includedir %{__includedir}
+
+# _libdir is set to %{_prefix}/%{_lib} by default
 %ifarch x86_64
-%define __lib lib64
+%define _lib lib64
 %else
-%define __lib lib
+%if "%{_prefix}" == "/opt/libjpeg-turbo"
+%define _lib lib32
+%endif
 %endif
 
+# Path under which man pages should be installed
+%define _mandir %{__mandir}
+
 Summary: A SIMD-accelerated JPEG codec that provides both the libjpeg and TurboJPEG APIs
-Name: @PACKAGE_NAME@
+Name: @PKGNAME@
 Version: @VERSION@
 Vendor: The libjpeg-turbo Project
 URL: http://www.libjpeg-turbo.org
@@ -15,51 +36,66 @@ Release: @BUILD@
 License: BSD-style
 BuildRoot: %{_blddir}/%{name}-buildroot-%{version}-%{release}
 Prereq: /sbin/ldconfig
-Provides: %{name} = %{version}-%{release}, turbojpeg = 2.00
-Obsoletes: turbojpeg
+%ifarch x86_64
+Provides: %{name} = %{version}-%{release}, @PACKAGE_NAME@ = %{version}-%{release}, libturbojpeg.so()(64bit)
+%else
+Provides: %{name} = %{version}-%{release}, @PACKAGE_NAME@ = %{version}-%{release}, libturbojpeg.so
+%endif
 
 %description
-libjpeg-turbo is a derivative of libjpeg that uses SIMD instructions (MMX,
-SSE2, NEON) to accelerate baseline JPEG compression and decompression on x86,
-x86-64, and ARM systems.  On such systems, libjpeg-turbo is generally 2-4x as
-fast as the unmodified version of libjpeg, all else being equal.
+libjpeg-turbo is a JPEG image codec that uses SIMD instructions (MMX, SSE2,
+NEON) to accelerate baseline JPEG compression and decompression on x86, x86-64,
+and ARM systems.  On such systems, libjpeg-turbo is generally 2-4x as fast as
+libjpeg, all else being equal.  On other types of systems, libjpeg-turbo can
+still outperform libjpeg by a significant amount, by virtue of its
+highly-optimized Huffman coding routines.  In many cases, the performance of
+libjpeg-turbo rivals that of proprietary high-speed JPEG codecs.
 
-libjpeg-turbo was originally based on libjpeg/SIMD by Miyasaka Masaru, but
-the TigerVNC and VirtualGL projects made numerous enhancements to the codec in
-2009, including improved support for Mac OS X, 64-bit support, support for
-32-bit and big-endian pixel formats (RGBX, XBGR, etc.), accelerated Huffman
-encoding/decoding, and various bug fixes.  The goal was to produce a fully
-open-source codec that could replace the partially closed-source TurboJPEG/IPP
-codec used by VirtualGL and TurboVNC.  libjpeg-turbo generally achieves 80-120%
-of the performance of TurboJPEG/IPP.  It is faster in some areas but slower in
-others.
+libjpeg-turbo implements both the traditional libjpeg API as well as the less
+powerful but more straightforward TurboJPEG API.  libjpeg-turbo also features
+colorspace extensions that allow it to compress from/decompress to 32-bit and
+big-endian pixel buffers (RGBX, XBGR, etc.), as well as a full-featured Java
+interface.
 
-In early 2010, libjpeg-turbo spun off into its own independent project, with
-the goal of making high-speed JPEG compression/decompression technology
-available to a broader range of users and developers.
+libjpeg-turbo was originally based on libjpeg/SIMD, an MMX-accelerated
+derivative of libjpeg v6b developed by Miyasaka Masaru.  The TigerVNC and
+VirtualGL projects made numerous enhancements to the codec in 2009, and in
+early 2010, libjpeg-turbo spun off into an independent project, with the goal
+of making high-speed JPEG compression/decompression technology available to a
+broader range of users and developers.
 
 #-->%prep
-#-->%setup -q
+#-->%setup -q -n libjpeg-turbo-%{version}
 
 #-->%build
-#-->./configure libdir=/opt/%{name}/%{__lib} mandir=/opt/%{name}/man JPEG_LIB_VERSION=@JPEG_LIB_VERSION@ SO_MAJOR_VERSION=@SO_MAJOR_VERSION@ SO_MINOR_VERSION=@SO_MINOR_VERSION@ --with-pic @RPM_CONFIG_ARGS@
-#-->make DESTDIR=$RPM_BUILD_ROOT libdir=/opt/%{name}/%{__lib} mandir=/opt/%{name}/man
+#-->./configure prefix=%{_prefix} bindir=%{_bindir} datadir=%{_datadir} \
+#-->	docdir=%{_docdir} includedir=%{_includedir} libdir=%{_libdir} \
+#-->	mandir=%{_mandir} JPEG_LIB_VERSION=@JPEG_LIB_VERSION@ \
+#-->	SO_MAJOR_VERSION=@SO_MAJOR_VERSION@ SO_MINOR_VERSION=@SO_MINOR_VERSION@ \
+#-->	--with-pic @RPM_CONFIG_ARGS@
+#-->make DESTDIR=$RPM_BUILD_ROOT
 
 %install
 
 rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT libdir=/opt/%{name}/%{__lib} mandir=/opt/%{name}/man docdir=/opt/%{name}/doc exampledir=/opt/%{name}/doc
-rm -f $RPM_BUILD_ROOT/opt/%{name}/%{__lib}/*.la
-mkdir -p $RPM_BUILD_ROOT/usr/%{__lib}
-mv $RPM_BUILD_ROOT/opt/%{name}/%{__lib}/libturbojpeg.* $RPM_BUILD_ROOT/usr/%{__lib}
-/sbin/ldconfig -n $RPM_BUILD_ROOT/opt/%{name}/%{__lib}
-/sbin/ldconfig -n $RPM_BUILD_ROOT/usr/%{__lib}
-mkdir -p $RPM_BUILD_ROOT/usr/include
-mv $RPM_BUILD_ROOT/opt/%{name}/include/turbojpeg.h $RPM_BUILD_ROOT/usr/include
-ln -fs /usr/include/turbojpeg.h $RPM_BUILD_ROOT/opt/%{name}/include/
-ln -fs /usr/%{__lib}/libturbojpeg.a $RPM_BUILD_ROOT/opt/%{name}/%{__lib}/
-mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}
-mv $RPM_BUILD_ROOT/opt/%{name}/doc $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}
+make install DESTDIR=$RPM_BUILD_ROOT docdir=%{_docdir} exampledir=%{_docdir}
+rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
+/sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}
+
+#-->%if 0
+
+LJT_LIBDIR=%{__libdir}
+if [ ! "$LJT_LIBDIR" = "%{_libdir}" ]; then
+	echo ERROR: libjpeg-turbo must be configured with libdir=%{_prefix}/%{_lib} when generating an in-tree RPM for this architecture.
+	exit 1
+fi
+
+#-->%endif
+
+LJT_DOCDIR=%{__docdir}
+if [ "%{_prefix}" = "/opt/libjpeg-turbo" -a "$LJT_DOCDIR" = "/opt/libjpeg-turbo/doc" ]; then
+	ln -fs %{_docdir} $RPM_BUILD_ROOT/$LJT_DOCDIR
+fi
 
 %post -p /sbin/ldconfig
 
@@ -70,42 +106,44 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%dir %{_defaultdocdir}/%{name}-%{version}
-%doc %{_defaultdocdir}/%{name}-%{version}/*
-%dir /opt/%{name}
-%dir /opt/%{name}/bin
-/opt/%{name}/bin/cjpeg
-/opt/%{name}/bin/djpeg
-/opt/%{name}/bin/jpegtran
-/opt/%{name}/bin/tjbench
-/opt/%{name}/bin/rdjpgcom
-/opt/%{name}/bin/wrjpgcom
-%dir /opt/%{name}/%{__lib}
-%ifarch x86_64
-%else
-/opt/%{name}/lib32
+%dir %{_docdir}
+%doc %{_docdir}/*
+%dir %{_prefix}
+%if "%{_prefix}" == "/opt/libjpeg-turbo" && "%{_docdir}" != "%{_prefix}/doc"
+ %{_prefix}/doc
 %endif
-/opt/%{name}/%{__lib}/libjpeg.so.@SO_MAJOR_VERSION@.0.@SO_MINOR_VERSION@
-/opt/%{name}/%{__lib}/libjpeg.so.@SO_MAJOR_VERSION@
-/opt/%{name}/%{__lib}/libjpeg.so
-/opt/%{name}/%{__lib}/libjpeg.a
-/opt/%{name}/%{__lib}/libturbojpeg.a
-/usr/%{__lib}/libturbojpeg.so
-/usr/%{__lib}/libturbojpeg.a
-/usr/include/turbojpeg.h
-%dir /opt/%{name}/include
-/opt/%{name}/include/jconfig.h
-/opt/%{name}/include/jerror.h
-/opt/%{name}/include/jmorecfg.h
-/opt/%{name}/include/jpeglib.h
-/opt/%{name}/include/turbojpeg.h
-%dir /opt/%{name}/man
-%dir /opt/%{name}/man/man1
-/opt/%{name}/man/man1/cjpeg.1*
-/opt/%{name}/man/man1/djpeg.1*
-/opt/%{name}/man/man1/jpegtran.1*
-/opt/%{name}/man/man1/rdjpgcom.1*
-/opt/%{name}/man/man1/wrjpgcom.1*
+%dir %{_bindir}
+%{_bindir}/cjpeg
+%{_bindir}/djpeg
+%{_bindir}/jpegtran
+%{_bindir}/tjbench
+%{_bindir}/rdjpgcom
+%{_bindir}/wrjpgcom
+%dir %{_libdir}
+%{_libdir}/libjpeg.so.@SO_MAJOR_VERSION@.@SO_AGE@.@SO_MINOR_VERSION@
+%{_libdir}/libjpeg.so.@SO_MAJOR_VERSION@
+%{_libdir}/libjpeg.so
+%{_libdir}/libjpeg.a
+%{_libdir}/libturbojpeg.so.0.0.0
+%{_libdir}/libturbojpeg.so.0
+%{_libdir}/libturbojpeg.so
+%{_libdir}/libturbojpeg.a
+%dir %{_includedir}
+%{_includedir}/jconfig.h
+%{_includedir}/jerror.h
+%{_includedir}/jmorecfg.h
+%{_includedir}/jpeglib.h
+%{_includedir}/turbojpeg.h
+%dir %{_mandir}
+%dir %{_mandir}/man1
+%{_mandir}/man1/cjpeg.1*
+%{_mandir}/man1/djpeg.1*
+%{_mandir}/man1/jpegtran.1*
+%{_mandir}/man1/rdjpgcom.1*
+%{_mandir}/man1/wrjpgcom.1*
+%if "%{_prefix}" != "%{_datadir}"
+ %dir %{_datadir}
+%endif
 @JAVA_RPM_CONTENTS_1@
 @JAVA_RPM_CONTENTS_2@
 

@@ -104,19 +104,19 @@ struct pcx_t {
     char version;
     char encoding;
     char bits_per_pixel;
-    bbi::UInt16 xmin;
-    bbi::UInt16 ymin;
-    bbi::UInt16 xmax;
-    bbi::UInt16 ymax;
-    bbi::UInt16 hres;
-    bbi::UInt16 vres;
-    bbi::UInt8 palette[48];
+    uint16_t xmin;
+    uint16_t ymin;
+    uint16_t xmax;
+    uint16_t ymax;
+    uint16_t hres;
+    uint16_t vres;
+    uint8_t palette[48];
     char reserved;
     char color_planes;
-    bbi::UInt16 bytes_per_line;
-    bbi::UInt16 palette_type;
+    uint16_t bytes_per_line;
+    uint16_t palette_type;
     char filler[58];
-    bbi::UInt8 data; // unbounded
+    uint8_t data; // unbounded
 }; // struct pcx_t
 //BBi
 
@@ -139,18 +139,18 @@ TGA files are used for 24/32 bit images
 //} TargaHeader;
 
 struct TargaHeader {
-    bbi::UInt8 id_length;
-    bbi::UInt8 colormap_type;
-    bbi::UInt8 image_type;
-    bbi::UInt16 colormap_index;
-    bbi::UInt16 colormap_length;
-    bbi::UInt8 colormap_size;
-    bbi::UInt16 x_origin;
-    bbi::UInt16 y_origin;
-    bbi::UInt16 width;
-    bbi::UInt16 height;
-    bbi::UInt8 pixel_size;
-    bbi::UInt8 attributes;
+    uint8_t id_length;
+    uint8_t colormap_type;
+    uint8_t image_type;
+    uint16_t colormap_index;
+    uint16_t colormap_length;
+    uint8_t colormap_size;
+    uint16_t x_origin;
+    uint16_t y_origin;
+    uint16_t width;
+    uint16_t height;
+    uint8_t pixel_size;
+    uint8_t attributes;
 }; // struct TargaHeader
 //BBi
 
@@ -251,24 +251,24 @@ struct md3Tag_t {
 //} md3Surface_t;
 
 struct md3Surface_t {
-    bbi::Int32 ident;
+    int32_t ident;
 
     char name[MAX_QPATH]; // polyset name
 
-    bbi::Int32 flags;
-    bbi::Int32 numFrames; // all surfaces in a model should have the same
+    int32_t flags;
+    int32_t numFrames; // all surfaces in a model should have the same
 
-    bbi::Int32 numShaders; // all surfaces in a model should have the same
-    bbi::Int32 numVerts;
+    int32_t numShaders; // all surfaces in a model should have the same
+    int32_t numVerts;
 
-    bbi::Int32 numTriangles;
-    bbi::Int32 ofsTriangles;
+    int32_t numTriangles;
+    int32_t ofsTriangles;
 
-    bbi::Int32 ofsShaders; // offset from start of md3Surface_t
-    bbi::Int32 ofsSt; // texture coords are common for all frames
-    bbi::Int32 ofsXyzNormals; // numVerts * numFrames
+    int32_t ofsShaders; // offset from start of md3Surface_t
+    int32_t ofsSt; // texture coords are common for all frames
+    int32_t ofsXyzNormals; // numVerts * numFrames
 
-    bbi::Int32 ofsEnd; // next surface follows
+    int32_t ofsEnd; // next surface follows
 }; // struct md3Surface_t
 //BBi
 
@@ -280,7 +280,7 @@ struct md3Surface_t {
 
 struct md3Shader_t {
     char name[MAX_QPATH];
-    bbi::Int32 shaderIndex;                // for in-game use
+    int32_t shaderIndex;                // for in-game use
 }; // struct md3Shader_t
 //BBi
 
@@ -290,7 +290,7 @@ struct md3Shader_t {
 //} md3Triangle_t;
 
 struct md3Triangle_t {
-    bbi::Int32 indexes[3];
+    int32_t indexes[3];
 }; // struct md3Triangle_t
 //BBi
 
@@ -305,8 +305,8 @@ typedef struct {
 //} md3XyzNormal_t;
 
 struct md3XyzNormal_t {
-    bbi::Int16 xyz[3];
-    bbi::Int16 normal;
+    int16_t xyz[3];
+    int16_t normal;
 }; // struct md3XyzNormal_t
 //BBi
 
@@ -333,24 +333,24 @@ struct md3XyzNormal_t {
 //} md3Header_t;
 
 struct md3Header_t {
-    bbi::Int32 ident;
-    bbi::Int32 version;
+    int32_t ident;
+    int32_t version;
 
     char name[MAX_QPATH];           // model name
 
-    bbi::Int32 flags;
+    int32_t flags;
 
-    bbi::Int32 numFrames;
-    bbi::Int32 numTags;
-    bbi::Int32 numSurfaces;
+    int32_t numFrames;
+    int32_t numTags;
+    int32_t numSurfaces;
 
-    bbi::Int32 numSkins;
+    int32_t numSkins;
 
-    bbi::Int32 ofsFrames;                  // offset for first frame
-    bbi::Int32 ofsTags;                    // numFrames * numTags
-    bbi::Int32 ofsSurfaces;                // first surface, others follow
+    int32_t ofsFrames;                  // offset for first frame
+    int32_t ofsTags;                    // numFrames * numTags
+    int32_t ofsSurfaces;                // first surface, others follow
 
-    bbi::Int32 ofsEnd;                     // end of file
+    int32_t ofsEnd;                     // end of file
 }; // struct md3Header_t
 //BBi
 
@@ -377,10 +377,10 @@ struct md3Header_t {
 //} tagHeader_t;
 
 struct tagHeader_t {
-    bbi::Int32 ident;
-    bbi::Int32 version;
-    bbi::Int32 numTags;
-    bbi::Int32 ofsEnd;
+    int32_t ident;
+    int32_t version;
+    int32_t numTags;
+    int32_t ofsEnd;
 }; // struct tagHeader_t
 //BBi
 
@@ -393,8 +393,8 @@ struct tagHeader_t {
 
 struct tagHeaderExt_t {
     char filename[MAX_QPATH];
-    bbi::Int32 start;
-    bbi::Int32 count;
+    int32_t start;
+    int32_t count;
 }; // struct tagHeaderExt_t
 //BBi
 #endif // RTCW_XX
@@ -422,7 +422,7 @@ MDC file format
 //} mdcXyzCompressed_t;
 
 struct mdcXyzCompressed_t {
-    bbi::UInt32 ofsVec; // offset direction from the last base frame
+    uint32_t ofsVec; // offset direction from the last base frame
 };
 //BBi
 
@@ -439,8 +439,8 @@ typedef struct {
 //} mdcTag_t;
 
 struct mdcTag_t {
-    bbi::Int16 xyz[3];
-    bbi::Int16 angles[3];
+    int16_t xyz[3];
+    int16_t angles[3];
 }; // struct mdcTag_t
 //BBi
 
@@ -486,29 +486,29 @@ struct mdcTag_t {
 //} mdcSurface_t;
 
 struct mdcSurface_t {
-    bbi::Int32 ident;                  //
+    int32_t ident;                  //
 
     char name[MAX_QPATH];       // polyset name
 
-    bbi::Int32 flags;
-    bbi::Int32 numCompFrames;          // all surfaces in a model should have the same
-    bbi::Int32 numBaseFrames;          // ditto
+    int32_t flags;
+    int32_t numCompFrames;          // all surfaces in a model should have the same
+    int32_t numBaseFrames;          // ditto
 
-    bbi::Int32 numShaders;             // all surfaces in a model should have the same
-    bbi::Int32 numVerts;
+    int32_t numShaders;             // all surfaces in a model should have the same
+    int32_t numVerts;
 
-    bbi::Int32 numTriangles;
-    bbi::Int32 ofsTriangles;
+    int32_t numTriangles;
+    int32_t ofsTriangles;
 
-    bbi::Int32 ofsShaders;             // offset from start of md3Surface_t
-    bbi::Int32 ofsSt;                  // texture coords are common for all frames
-    bbi::Int32 ofsXyzNormals;          // numVerts * numBaseFrames
-    bbi::Int32 ofsXyzCompressed;       // numVerts * numCompFrames
+    int32_t ofsShaders;             // offset from start of md3Surface_t
+    int32_t ofsSt;                  // texture coords are common for all frames
+    int32_t ofsXyzNormals;          // numVerts * numBaseFrames
+    int32_t ofsXyzCompressed;       // numVerts * numCompFrames
 
-    bbi::Int32 ofsFrameBaseFrames;     // numFrames
-    bbi::Int32 ofsFrameCompFrames;     // numFrames
+    int32_t ofsFrameBaseFrames;     // numFrames
+    int32_t ofsFrameCompFrames;     // numFrames
 
-    bbi::Int32 ofsEnd;                 // next surface follows
+    int32_t ofsEnd;                 // next surface follows
 }; // struct mdcSurface_t
 //BBi
 
@@ -536,25 +536,25 @@ struct mdcSurface_t {
 //} mdcHeader_t;
 
 struct mdcHeader_t {
-    bbi::Int32 ident;
-    bbi::Int32 version;
+    int32_t ident;
+    int32_t version;
 
     char name[MAX_QPATH]; // model name
 
-    bbi::Int32 flags;
+    int32_t flags;
 
-    bbi::Int32 numFrames;
-    bbi::Int32 numTags;
-    bbi::Int32 numSurfaces;
+    int32_t numFrames;
+    int32_t numTags;
+    int32_t numSurfaces;
 
-    bbi::Int32 numSkins;
+    int32_t numSkins;
 
-    bbi::Int32 ofsFrames; // offset for first frame, stores the bounds and localOrigin
-    bbi::Int32 ofsTagNames; // numTags
-    bbi::Int32 ofsTags; // numFrames * numTags
-    bbi::Int32 ofsSurfaces; // first surface, others follow
+    int32_t ofsFrames; // offset for first frame, stores the bounds and localOrigin
+    int32_t ofsTagNames; // numTags
+    int32_t ofsTags; // numFrames * numTags
+    int32_t ofsSurfaces; // first surface, others follow
 
-    bbi::Int32 ofsEnd; // end of file
+    int32_t ofsEnd; // end of file
 }; // struct mdcHeader_t
 //BBi
 // done.
@@ -579,7 +579,7 @@ MD4 file format
 //} md4Weight_t;
 
 struct md4Weight_t {
-    bbi::Int32 boneIndex; // these are indexes into the boneReferences,
+    int32_t boneIndex; // these are indexes into the boneReferences,
     float boneWeight; // not the global per-frame bone list
     vec3_t offset;
 }; // struct md4Weight_t
@@ -596,7 +596,7 @@ struct md4Weight_t {
 struct md4Vertex_t {
     vec3_t normal;
     vec2_t texCoords;
-    bbi::Int32 numWeights;
+    int32_t numWeights;
     md4Weight_t weights[1]; // variable sized
 }; // struct md4Vertex_t
 //BBi
@@ -607,7 +607,7 @@ struct md4Vertex_t {
 //} md4Triangle_t;
 
 struct md4Triangle_t {
-    bbi::Int32 indexes[3];
+    int32_t indexes[3];
 }; // struct md4Triangle_t
 //BBi
 
@@ -639,29 +639,29 @@ struct md4Triangle_t {
 //} md4Surface_t;
 
 struct md4Surface_t {
-	bbi::Int32 ident;
+	int32_t ident;
 
 	char name[MAX_QPATH]; // polyset name
 	char shader[MAX_QPATH];
-	bbi::Int32 shaderIndex; // for in-game use
+	int32_t shaderIndex; // for in-game use
 
-	bbi::Int32 ofsHeader; // this will be a negative number
+	int32_t ofsHeader; // this will be a negative number
 
-	bbi::Int32 numVerts;
-	bbi::Int32 ofsVerts;
+	int32_t numVerts;
+	int32_t ofsVerts;
 
-	bbi::Int32 numTriangles;
-	bbi::Int32 ofsTriangles;
+	int32_t numTriangles;
+	int32_t ofsTriangles;
 
 	// Bone references are a set of ints representing all the bones
 	// present in any vertex weights for this surface.  This is
 	// needed because a model may have surfaces that need to be
 	// drawn at different sort times, and we don't want to have
 	// to re-interpolate all the bones for each surface.
-	bbi::Int32 numBoneReferences;
-	bbi::Int32 ofsBoneReferences;
+	int32_t numBoneReferences;
+	int32_t ofsBoneReferences;
 
-	bbi::Int32 ofsEnd; // next surface follows
+	int32_t ofsEnd; // next surface follows
 }; // struct md4Surface_t
 //BBi
 
@@ -685,9 +685,9 @@ typedef struct {
 //} md4LOD_t;
 
 struct md4LOD_t {
-    bbi::Int32 numSurfaces;
-    bbi::Int32 ofsSurfaces;                // first surface, others follow
-    bbi::Int32 ofsEnd;                     // next lod follows
+    int32_t numSurfaces;
+    int32_t ofsSurfaces;                // first surface, others follow
+    int32_t ofsEnd;                     // next lod follows
 }; // struct md4LOD_t
 //BBi
 
@@ -711,21 +711,21 @@ struct md4LOD_t {
 //} md4Header_t;
 
 typedef struct {
-    bbi::Int32 ident;
-    bbi::Int32 version;
+    int32_t ident;
+    int32_t version;
 
     char name[MAX_QPATH]; // model name
 
     // frames and bones are shared by all levels of detail
-    bbi::Int32 numFrames;
-    bbi::Int32 numBones;
-    bbi::Int32 ofsFrames; // md4Frame_t[numFrames]
+    int32_t numFrames;
+    int32_t numBones;
+    int32_t ofsFrames; // md4Frame_t[numFrames]
 
     // each level of detail has completely separate sets of surfaces
-    bbi::Int32 numLODs;
-    bbi::Int32 ofsLODs;
+    int32_t numLODs;
+    int32_t ofsLODs;
 
-    bbi::Int32 ofsEnd; // end of file
+    int32_t ofsEnd; // end of file
 } md4Header_t;
 //BBi
 
@@ -755,7 +755,7 @@ MDS file format (Wolfenstein Skeletal Format)
 //} mdsWeight_t;
 
 struct mdsWeight_t {
-    bbi::Int32 boneIndex; // these are indexes into the boneReferences,
+    int32_t boneIndex; // these are indexes into the boneReferences,
     float boneWeight; // not the global per-frame bone list
     vec3_t offset;
 }; // struct mdsWeight_t
@@ -774,8 +774,8 @@ struct mdsWeight_t {
 struct mdsVertex_t {
     vec3_t normal;
     vec2_t texCoords;
-    bbi::Int32 numWeights;
-    bbi::Int32 fixedParent; // stay equi-distant from this parent
+    int32_t numWeights;
+    int32_t fixedParent; // stay equi-distant from this parent
     float fixedDist;
     mdsWeight_t weights[1]; // variable sized
 }; // struct mdsVertex_t
@@ -787,7 +787,7 @@ struct mdsVertex_t {
 //} mdsTriangle_t;
 
 struct mdsTriangle_t {
-    bbi::Int32 indexes[3];
+    int32_t indexes[3];
 }; // struct mdsTriangle_t
 //BBi
 
@@ -823,33 +823,33 @@ struct mdsTriangle_t {
 //} mdsSurface_t;
 
 struct mdsSurface_t {
-    bbi::Int32 ident;
+    int32_t ident;
 
     char name[MAX_QPATH]; // polyset name
     char shader[MAX_QPATH];
-    bbi::Int32 shaderIndex; // for in-game use
+    int32_t shaderIndex; // for in-game use
 
-    bbi::Int32 minLod;
+    int32_t minLod;
 
-    bbi::Int32 ofsHeader; // this will be a negative number
+    int32_t ofsHeader; // this will be a negative number
 
-    bbi::Int32 numVerts;
-    bbi::Int32 ofsVerts;
+    int32_t numVerts;
+    int32_t ofsVerts;
 
-    bbi::Int32 numTriangles;
-    bbi::Int32 ofsTriangles;
+    int32_t numTriangles;
+    int32_t ofsTriangles;
 
-    bbi::Int32 ofsCollapseMap; // numVerts * bbi::Int32
+    int32_t ofsCollapseMap; // numVerts * int32_t
 
     // Bone references are a set of ints representing all the bones
     // present in any vertex weights for this surface.  This is
     // needed because a model may have surfaces that need to be
     // drawn at different sort times, and we don't want to have
     // to re-interpolate all the bones for each surface.
-    bbi::Int32 numBoneReferences;
-    bbi::Int32 ofsBoneReferences;
+    int32_t numBoneReferences;
+    int32_t ofsBoneReferences;
 
-    bbi::Int32 ofsEnd; // next surface follows
+    int32_t ofsEnd; // next surface follows
 }; // struct mdsSurface_t
 //BBi
 
@@ -862,8 +862,8 @@ struct mdsSurface_t {
 //} mdsBoneFrameCompressed_t;
 
 struct mdsBoneFrameCompressed_t {
-    bbi::Int16 angles[4]; // to be converted to axis at run-time (this is also better for lerping)
-    bbi::Int16 ofsAngles[2]; // PITCH/YAW, head in this direction from parent to go to the offset position
+    int16_t angles[4]; // to be converted to axis at run-time (this is also better for lerping)
+    int16_t ofsAngles[2]; // PITCH/YAW, head in this direction from parent to go to the offset position
 }; // struct mdsBoneFrameCompressed_t
 //BBi
 
@@ -889,9 +889,9 @@ typedef struct {
 //} mdsLOD_t;
 
 struct mdsLOD_t {
-    bbi::Int32 numSurfaces;
-    bbi::Int32 ofsSurfaces; // first surface, others follow
-    bbi::Int32 ofsEnd; // next lod follows
+    int32_t numSurfaces;
+    int32_t ofsSurfaces; // first surface, others follow
+    int32_t ofsEnd; // next lod follows
 }; // struct mdsLOD_t
 //BBi
 
@@ -905,7 +905,7 @@ struct mdsLOD_t {
 struct mdsTag_t {
     char name[MAX_QPATH]; // name of tag
     float torsoWeight;
-    bbi::Int32 boneIndex; // our index in the bones
+    int32_t boneIndex; // our index in the bones
 }; // struct mdsTag_t
 //BBi
 
@@ -922,10 +922,10 @@ struct mdsTag_t {
 
 struct mdsBoneInfo_t {
     char name[MAX_QPATH]; // name of bone
-    bbi::Int32 parent; // not sure if this is required, no harm throwing it in
+    int32_t parent; // not sure if this is required, no harm throwing it in
     float torsoWeight; // scale torso rotation about torsoParent by this
     float parentDist;
-    bbi::Int32 flags;
+    int32_t flags;
 }; // struct mdsBoneInfo_t
 //BBi
 
@@ -957,8 +957,8 @@ struct mdsBoneInfo_t {
 //} mdsHeader_t;
 
 struct mdsHeader_t {
-    bbi::Int32 ident;
-    bbi::Int32 version;
+    int32_t ident;
+    int32_t version;
 
     char name[MAX_QPATH]; // model name
 
@@ -966,20 +966,20 @@ struct mdsHeader_t {
     float lodBias;
 
     // frames and bones are shared by all levels of detail
-    bbi::Int32 numFrames;
-    bbi::Int32 numBones;
-    bbi::Int32 ofsFrames; // md4Frame_t[numFrames]
-    bbi::Int32 ofsBones; // mdsBoneInfo_t[numBones]
-    bbi::Int32 torsoParent; // index of bone that is the parent of the torso
+    int32_t numFrames;
+    int32_t numBones;
+    int32_t ofsFrames; // md4Frame_t[numFrames]
+    int32_t ofsBones; // mdsBoneInfo_t[numBones]
+    int32_t torsoParent; // index of bone that is the parent of the torso
 
-    bbi::Int32 numSurfaces;
-    bbi::Int32 ofsSurfaces;
+    int32_t numSurfaces;
+    int32_t ofsSurfaces;
 
     // tag data
-    bbi::Int32 numTags;
-    bbi::Int32 ofsTags; // mdsTag_t[numTags]
+    int32_t numTags;
+    int32_t ofsTags; // mdsTag_t[numTags]
 
-    bbi::Int32 ofsEnd; // end of file
+    int32_t ofsEnd; // end of file
 }; // struct mdsHeader_t
 //BBi
 
@@ -1013,7 +1013,7 @@ version history:
 //} mdmWeight_t;
 
 struct mdmWeight_t {
-    bbi::Int32 boneIndex; // these are indexes into the boneReferences,
+    int32_t boneIndex; // these are indexes into the boneReferences,
     float boneWeight; // not the global per-frame bone list
     vec3_t offset;
 }; // struct mdmWeight_t
@@ -1030,7 +1030,7 @@ struct mdmWeight_t {
 struct mdmVertex_t {
     vec3_t normal;
     vec2_t texCoords;
-    bbi::Int32 numWeights;
+    int32_t numWeights;
     mdmWeight_t weights[1];     // variable sized
 }; // struct mdmVertex_t
 //BBi
@@ -1041,7 +1041,7 @@ struct mdmVertex_t {
 //} mdmTriangle_t;
 
 struct mdmTriangle_t {
-    bbi::Int32 indexes[3];
+    int32_t indexes[3];
 }; // struct mdmTriangle_t
 //BBi
 
@@ -1077,33 +1077,33 @@ struct mdmTriangle_t {
 //} mdmSurface_t;
 
 struct mdmSurface_t {
-    bbi::Int32 ident;
+    int32_t ident;
 
     char name[MAX_QPATH]; // polyset name
     char shader[MAX_QPATH];
-    bbi::Int32 shaderIndex; // for in-game use
+    int32_t shaderIndex; // for in-game use
 
-    bbi::Int32 minLod;
+    int32_t minLod;
 
-    bbi::Int32 ofsHeader; // this will be a negative number
+    int32_t ofsHeader; // this will be a negative number
 
-    bbi::Int32 numVerts;
-    bbi::Int32 ofsVerts;
+    int32_t numVerts;
+    int32_t ofsVerts;
 
-    bbi::Int32 numTriangles;
-    bbi::Int32 ofsTriangles;
+    int32_t numTriangles;
+    int32_t ofsTriangles;
 
-    bbi::Int32 ofsCollapseMap; // numVerts * bbi::Int32
+    int32_t ofsCollapseMap; // numVerts * int32_t
 
     // Bone references are a set of ints representing all the bones
     // present in any vertex weights for this surface.  This is
     // needed because a model may have surfaces that need to be
     // drawn at different sort times, and we don't want to have
     // to re-interpolate all the bones for each surface.
-    bbi::Int32 numBoneReferences;
-    bbi::Int32 ofsBoneReferences;
+    int32_t numBoneReferences;
+    int32_t ofsBoneReferences;
 
-    bbi::Int32 ofsEnd; // next surface follows
+    int32_t ofsEnd; // next surface follows
 }; // struct mdmSurface_t
 //BBi
 
@@ -1122,9 +1122,9 @@ struct mdmSurface_t {
 //} mdmLOD_t;
 
 struct mdmLOD_t {
-    bbi::Int32 numSurfaces;
-    bbi::Int32 ofsSurfaces;                // first surface, others follow
-    bbi::Int32 ofsEnd;                     // next lod follows
+    int32_t numSurfaces;
+    int32_t ofsSurfaces;                // first surface, others follow
+    int32_t ofsEnd;                     // next lod follows
 }; // struct mdmLOD_t
 //BBi
 
@@ -1159,13 +1159,13 @@ typedef struct {
     char name[MAX_QPATH]; // name of tag
     vec3_t axis[3];
 
-    bbi::Int32 boneIndex;
+    int32_t boneIndex;
     vec3_t offset;
 
-    bbi::Int32 numBoneReferences;
-    bbi::Int32 ofsBoneReferences;
+    int32_t numBoneReferences;
+    int32_t ofsBoneReferences;
 
-    bbi::Int32 ofsEnd; // next tag follows
+    int32_t ofsEnd; // next tag follows
 } mdmTag_t;
 //BBi
 
@@ -1202,22 +1202,22 @@ typedef struct {
 //} mdmHeader_t;
 
 struct mdmHeader_t {
-    bbi::Int32 ident;
-    bbi::Int32 version;
+    int32_t ident;
+    int32_t version;
 
     char name[MAX_QPATH]; // model name
     float lodScale;
     float lodBias;
 
     // frames and bones are shared by all levels of detail
-    bbi::Int32 numSurfaces;
-    bbi::Int32 ofsSurfaces;
+    int32_t numSurfaces;
+    int32_t ofsSurfaces;
 
     // tag data
-    bbi::Int32 numTags;
-    bbi::Int32 ofsTags;
+    int32_t numTags;
+    int32_t ofsTags;
 
-    bbi::Int32 ofsEnd; // end of file
+    int32_t ofsEnd; // end of file
 }; // struct mdmHeader_t
 //BBi
 
@@ -1253,8 +1253,8 @@ typedef struct {
 //} mdxBoneFrameCompressed_t;
 
 struct mdxBoneFrameCompressed_t {
-    bbi::Int16 angles[4]; // to be converted to axis at run-time (this is also better for lerping)
-    bbi::Int16 ofsAngles[2]; // PITCH/YAW, head in this direction from parent to go to the offset position
+    int16_t angles[4]; // to be converted to axis at run-time (this is also better for lerping)
+    int16_t ofsAngles[2]; // PITCH/YAW, head in this direction from parent to go to the offset position
 }; // mdxBoneFrameCompressed_t
 //BBi
 
@@ -1276,10 +1276,10 @@ typedef struct {
 
 struct mdxBoneInfo_t {
     char name[MAX_QPATH]; // name of bone
-    bbi::Int32 parent; // not sure if this is required, no harm throwing it in
+    int32_t parent; // not sure if this is required, no harm throwing it in
     float torsoWeight; // scale torso rotation about torsoParent by this
     float parentDist;
-    bbi::Int32 flags;
+    int32_t flags;
 }; // struct mdxBoneInfo_t
 //BBi
 
@@ -1301,19 +1301,19 @@ struct mdxBoneInfo_t {
 //} mdxHeader_t;
 
 struct mdxHeader_t {
-    bbi::Int32 ident;
-    bbi::Int32 version;
+    int32_t ident;
+    int32_t version;
 
     char name[MAX_QPATH]; // model name
 
     // bones are shared by all levels of detail
-    bbi::Int32 numFrames;
-    bbi::Int32 numBones;
-    bbi::Int32 ofsFrames; // (mdxFrame_t + mdxBoneFrameCompressed_t[numBones]) * numframes
-    bbi::Int32 ofsBones; // mdxBoneInfo_t[numBones]
-    bbi::Int32 torsoParent; // index of bone that is the parent of the torso
+    int32_t numFrames;
+    int32_t numBones;
+    int32_t ofsFrames; // (mdxFrame_t + mdxBoneFrameCompressed_t[numBones]) * numframes
+    int32_t ofsBones; // mdxBoneInfo_t[numBones]
+    int32_t torsoParent; // index of bone that is the parent of the torso
 
-    bbi::Int32 ofsEnd; // end of file
+    int32_t ofsEnd; // end of file
 }; // struct mdxHeader_t
 //BBi
 #endif // RTCW_XX
@@ -1403,8 +1403,8 @@ struct mdxHeader_t {
 //} lump_t;
 
 struct lump_t {
-    bbi::Int32 fileofs;
-    bbi::Int32 filelen;
+    int32_t fileofs;
+    int32_t filelen;
 }; // struct lump_t
 //BBi
 
@@ -1436,8 +1436,8 @@ struct lump_t {
 //} dheader_t;
 
 struct dheader_t {
-    bbi::Int32 ident;
-    bbi::Int32 version;
+    int32_t ident;
+    int32_t version;
 
     lump_t lumps[HEADER_LUMPS];
 }; // struct dheader_t
@@ -1453,10 +1453,10 @@ struct dheader_t {
 struct dmodel_t {
     float mins[3];
     float maxs[3];
-    bbi::Int32 firstSurface;
-    bbi::Int32 numSurfaces;
-    bbi::Int32 firstBrush;
-    bbi::Int32 numBrushes;
+    int32_t firstSurface;
+    int32_t numSurfaces;
+    int32_t firstBrush;
+    int32_t numBrushes;
 }; // struct dmodel_t
 //BBi
 
@@ -1469,8 +1469,8 @@ struct dmodel_t {
 
 struct dshader_t {
     char shader[MAX_QPATH];
-    bbi::Int32 surfaceFlags;
-    bbi::Int32 contentFlags;
+    int32_t surfaceFlags;
+    int32_t contentFlags;
 }; // struct dshader_t
 //BBi
 
@@ -1490,10 +1490,10 @@ typedef struct {
 //} dnode_t;
 
 struct dnode_t {
-	bbi::Int32 planeNum;
-	bbi::Int32 children[2]; // negative numbers are -(leafs+1), not nodes
-	bbi::Int32 mins[3]; // for frustom culling
-	bbi::Int32 maxs[3];
+	int32_t planeNum;
+	int32_t children[2]; // negative numbers are -(leafs+1), not nodes
+	int32_t mins[3]; // for frustom culling
+	int32_t maxs[3];
 }; // struct dnode_t
 //BBi
 
@@ -1513,17 +1513,17 @@ struct dnode_t {
 //} dleaf_t;
 
 struct dleaf_t {
-    bbi::Int32 cluster; // -1 = opaque cluster (do I still store these?)
-    bbi::Int32 area;
+    int32_t cluster; // -1 = opaque cluster (do I still store these?)
+    int32_t area;
 
-    bbi::Int32 mins[3]; // for frustum culling
-    bbi::Int32 maxs[3];
+    int32_t mins[3]; // for frustum culling
+    int32_t maxs[3];
 
-    bbi::Int32 firstLeafSurface;
-    bbi::Int32 numLeafSurfaces;
+    int32_t firstLeafSurface;
+    int32_t numLeafSurfaces;
 
-    bbi::Int32 firstLeafBrush;
-    bbi::Int32 numLeafBrushes;
+    int32_t firstLeafBrush;
+    int32_t numLeafBrushes;
 }; // struct dleaf_t
 //BBi
 
@@ -1534,8 +1534,8 @@ struct dleaf_t {
 //} dbrushside_t;
 
 struct dbrushside_t {
-    bbi::Int32 planeNum; // positive plane side faces out of the leaf
-    bbi::Int32 shaderNum;
+    int32_t planeNum; // positive plane side faces out of the leaf
+    int32_t shaderNum;
 }; // struct dbrushside_t
 //BBi
 
@@ -1547,9 +1547,9 @@ struct dbrushside_t {
 //} dbrush_t;
 
 struct dbrush_t {
-    bbi::Int32 firstSide;
-    bbi::Int32 numSides;
-    bbi::Int32 shaderNum; // the shader that determines the contents flags
+    int32_t firstSide;
+    int32_t numSides;
+    int32_t shaderNum; // the shader that determines the contents flags
 }; // struct dbrush_t
 //BBi
 
@@ -1562,8 +1562,8 @@ struct dbrush_t {
 
 struct dfog_t {
     char shader[MAX_QPATH];
-    bbi::Int32 brushNum;
-    bbi::Int32 visibleSide; // the brush side that ray tests need to clip against (-1 == none)
+    int32_t brushNum;
+    int32_t visibleSide; // the brush side that ray tests need to clip against (-1 == none)
 }; // struct dfog_t
 //BBi
 
@@ -1581,7 +1581,7 @@ struct drawVert_t {
     float st[2];
     float lightmap[2];
     vec3_t normal;
-    bbi::UInt8 color[4];
+    uint8_t color[4];
 }; // struct drawVert_t
 //BBi
 
@@ -1624,25 +1624,25 @@ typedef enum {
 //} dsurface_t;
 
 struct dsurface_t {
-    bbi::Int32 shaderNum;
-    bbi::Int32 fogNum;
-    bbi::Int32 surfaceType;
+    int32_t shaderNum;
+    int32_t fogNum;
+    int32_t surfaceType;
 
-    bbi::Int32 firstVert;
-    bbi::Int32 numVerts;
+    int32_t firstVert;
+    int32_t numVerts;
 
-    bbi::Int32 firstIndex;
-    bbi::Int32 numIndexes;
+    int32_t firstIndex;
+    int32_t numIndexes;
 
-    bbi::Int32 lightmapNum;
-    bbi::Int32 lightmapX, lightmapY;
-    bbi::Int32 lightmapWidth, lightmapHeight;
+    int32_t lightmapNum;
+    int32_t lightmapX, lightmapY;
+    int32_t lightmapWidth, lightmapHeight;
 
     vec3_t lightmapOrigin;
     vec3_t lightmapVecs[3]; // for patches, [0] and [1] are lodbounds
 
-    bbi::Int32 patchWidth;
-    bbi::Int32 patchHeight;
+    int32_t patchWidth;
+    int32_t patchHeight;
 }; // struct dsurface_t
 //BBi
 

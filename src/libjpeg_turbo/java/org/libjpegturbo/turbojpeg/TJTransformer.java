@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2011 D. R. Commander.  All Rights Reserved.
+ * Copyright (C)2011, 2013 D. R. Commander.  All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -73,17 +73,18 @@ public class TJTransformer extends TJDecompressor {
    * JPEG image structure to another without altering the values of the
    * coefficients.  While this is typically faster than decompressing the
    * image, transforming it, and re-compressing it, lossless transforms are not
-   * free.  Each lossless transform requires reading and Huffman decoding all
-   * of the coefficients in the source image, regardless of the size of the
-   * destination image.  Thus, this method provides a means of generating
-   * multiple transformed images from the same source or of applying multiple
-   * transformations simultaneously, in order to eliminate the need to read the
-   * source coefficients multiple times.
+   * free.  Each lossless transform requires reading and performing Huffman
+   * decoding on all of the coefficients in the source image, regardless of the
+   * size of the destination image.  Thus, this method provides a means of
+   * generating multiple transformed images from the same source or of applying
+   * multiple transformations simultaneously, in order to eliminate the need to
+   * read the source coefficients multiple times.
    *
    * @param dstBufs an array of image buffers.  <code>dstbufs[i]</code> will
    * receive a JPEG image that has been transformed using the parameters in
    * <code>transforms[i]</code>.  Use {@link TJ#bufSize} to determine the
-   * maximum size for each buffer based on the cropped width and height.
+   * maximum size for each buffer based on the transformed or cropped width and
+   * height.
    *
    * @param transforms an array of {@link TJTransform} instances, each of
    * which specifies the transform parameters and/or cropping region for the
@@ -92,12 +93,13 @@ public class TJTransformer extends TJDecompressor {
    * @param flags the bitwise OR of one or more of {@link TJ TJ.FLAG_*}
    */
   public void transform(byte[][] dstBufs, TJTransform[] transforms,
-    int flags) throws Exception {
-    if(jpegBuf == null) throw new Exception("JPEG buffer not initialized");
+                        int flags) throws Exception {
+    if (jpegBuf == null)
+      throw new Exception("JPEG buffer not initialized");
     transformedSizes = transform(jpegBuf, jpegBufSize, dstBufs, transforms,
-      flags);
+                                 flags);
   }
-  
+
   /**
    * Losslessly transform the JPEG image associated with this transformer
    * instance and return an array of {@link TJDecompressor} instances, each of
@@ -115,23 +117,23 @@ public class TJTransformer extends TJDecompressor {
   public TJDecompressor[] transform(TJTransform[] transforms, int flags)
     throws Exception {
     byte[][] dstBufs = new byte[transforms.length][];
-    if(jpegWidth < 1 || jpegHeight < 1)
+    if (jpegWidth < 1 || jpegHeight < 1)
       throw new Exception("JPEG buffer not initialized");
-    for(int i = 0; i < transforms.length; i++) {
+    for (int i = 0; i < transforms.length; i++) {
       int w = jpegWidth, h = jpegHeight;
-      if((transforms[i].options & TJTransform.OPT_CROP) != 0) {
-        if(transforms[i].width != 0) w = transforms[i].width;
-        if(transforms[i].height != 0) h = transforms[i].height;
+      if ((transforms[i].options & TJTransform.OPT_CROP) != 0) {
+        if (transforms[i].width != 0) w = transforms[i].width;
+        if (transforms[i].height != 0) h = transforms[i].height;
       }
       dstBufs[i] = new byte[TJ.bufSize(w, h, jpegSubsamp)];
     }
     TJDecompressor[] tjd = new TJDecompressor[transforms.length];
     transform(dstBufs, transforms, flags);
-    for(int i = 0; i < transforms.length; i++)
+    for (int i = 0; i < transforms.length; i++)
       tjd[i] = new TJDecompressor(dstBufs[i], transformedSizes[i]);
     return tjd;
   }
-  
+
   /**
    * Returns an array containing the sizes of the transformed JPEG images from
    * the most recent call to {@link #transform transform()}.
@@ -140,7 +142,7 @@ public class TJTransformer extends TJDecompressor {
    * the most recent call to {@link #transform transform()}
    */
   public int[] getTransformedSizes() throws Exception {
-    if(transformedSizes == null)
+    if (transformedSizes == null)
       throw new Exception("No image has been transformed yet");
     return transformedSizes;
   }

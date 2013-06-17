@@ -96,6 +96,7 @@
     <ClCompile Include="..\..\..\..\src\curl\lib\openldap.c" />
     <ClCompile Include="..\..\..\..\src\curl\lib\parsedate.c" />
     <ClCompile Include="..\..\..\..\src\curl\lib\pingpong.c" />
+    <ClCompile Include="..\..\..\..\src\curl\lib\pipeline.c" />
     <ClCompile Include="..\..\..\..\src\curl\lib\polarssl.c" />
     <ClCompile Include="..\..\..\..\src\curl\lib\pop3.c" />
     <ClCompile Include="..\..\..\..\src\curl\lib\progress.c" />

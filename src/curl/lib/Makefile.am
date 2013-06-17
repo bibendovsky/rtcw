@@ -21,34 +21,31 @@
 ###########################################################################
 AUTOMAKE_OPTIONS = foreign nostdinc
 
-DSP = vc6libcurl.dsp
-VCPROJ = libcurl.vcproj
-
 DOCS = README.encoding README.memoryleak README.ares README.curlx	\
  README.hostip README.multi_socket README.httpauth README.pipelining    \
  README.curl_off_t README.pingpong
 
 CMAKE_DIST = CMakeLists.txt curl_config.h.cmake
 
-EXTRA_DIST = Makefile.b32 Makefile.m32 Makefile.vc6 $(DSP)		\
- vc6libcurl.dsw config-win32.h config-win32ce.h config-riscos.h		\
- config-mac.h curl_config.h.in makefile.dj config-dos.h libcurl.plist	\
- libcurl.rc config-amigaos.h makefile.amiga Makefile.netware nwlib.c	\
- nwos.c msvcproj.head msvcproj.foot config-win32ce.h config-os400.h	\
- setup-os400.h config-symbian.h Makefile.Watcom config-tpf.h $(DOCS)	\
- $(VCPROJ) mk-ca-bundle.pl mk-ca-bundle.vbs firefox-db2pem.sh		\
- $(CMAKE_DIST) config-vxworks.h Makefile.vxworks checksrc.pl		\
+EXTRA_DIST = Makefile.b32 Makefile.m32 Makefile.vc6 config-win32.h	\
+ config-win32ce.h config-riscos.h config-mac.h curl_config.h.in		\
+ makefile.dj config-dos.h libcurl.plist libcurl.rc config-amigaos.h	\
+ makefile.amiga Makefile.netware nwlib.c nwos.c config-win32ce.h	\
+ config-os400.h setup-os400.h config-symbian.h Makefile.Watcom		\
+ config-tpf.h $(DOCS) mk-ca-bundle.pl mk-ca-bundle.vbs $(CMAKE_DIST)	\
+ firefox-db2pem.sh config-vxworks.h Makefile.vxworks checksrc.pl	\
  objnames-test08.sh objnames-test10.sh objnames.inc
 
-CLEANFILES = $(DSP) $(VCPROJ)
-
 lib_LTLIBRARIES = libcurl.la
-LIBCURL_LIBS = @LIBCURL_LIBS@
+
+if BUILD_UNITTESTS
+noinst_LTLIBRARIES = libcurlu.la
+else
+noinst_LTLIBRARIES =
+endif
 
 # This might hold -Werror
 CFLAGS += @CURL_CFLAG_EXTRAS@
-
-CFLAG_CURL_SYMBOL_HIDING = @CFLAG_CURL_SYMBOL_HIDING@
 
 # Specify our include paths here, and do it relative to $(top_srcdir) and
 # $(top_builddir), to ensure that these paths which belong to the library
@@ -79,15 +76,8 @@ AM_CPPFLAGS = -I$(top_builddir)/include/curl \
               -I$(top_srcdir)/lib
 endif
 
-# Mostly for Windows build targets, when building libcurl library
-if USE_CPPFLAG_BUILDING_LIBCURL
-AM_CPPFLAGS += -DBUILDING_LIBCURL
-endif
-
-# Mostly for Windows build targets, when building static libcurl
-if USE_CPPFLAG_CURL_STATICLIB
-AM_CPPFLAGS += -DCURL_STATICLIB
-endif
+# Prevent LIBS from being used for all link targets
+LIBS = $(BLANK_AT_MAKETIME)
 
 if SONAME_BUMP
 #
@@ -117,43 +107,45 @@ endif
 #
 # For the full guide on libcurl ABI rules, see docs/libcurl/ABI
 
-if NO_UNDEFINED
-# The -no-undefined flag is crucial to build fine on some platforms
-UNDEF = -no-undefined
+AM_CPPFLAGS += -DBUILDING_LIBCURL
+AM_LDFLAGS =
+AM_CFLAGS =
+
+libcurl_la_CPPFLAGS_EXTRA =
+libcurl_la_LDFLAGS_EXTRA =
+libcurl_la_CFLAGS_EXTRA =
+
+if CURL_LT_SHLIB_USE_VERSION_INFO
+libcurl_la_LDFLAGS_EXTRA += $(VERSIONINFO)
 endif
 
-if MIMPURE
-# This is for gcc on Solaris (8+ ?) to avoid "relocations remain against
-# allocatable but non-writable sections" problems.
-MIMPURE = -mimpure-text
+if CURL_LT_SHLIB_USE_NO_UNDEFINED
+libcurl_la_LDFLAGS_EXTRA += -no-undefined
 endif
 
-if VERSIONED_SYMBOLS
-VERSIONED_SYMBOLS = -Wl,--version-script=libcurl.vers
+if CURL_LT_SHLIB_USE_MIMPURE_TEXT
+libcurl_la_LDFLAGS_EXTRA += -mimpure-text
 endif
 
-# Prevent LIBS from being used for all link targets
-LIBS = $(BLANK_AT_MAKETIME)
+if CURL_LT_SHLIB_USE_VERSIONED_SYMBOLS
+libcurl_la_LDFLAGS_EXTRA += -Wl,--version-script=libcurl.vers
+endif
 
-libcurl_la_LDFLAGS = $(UNDEF) $(VERSIONINFO) $(MIMPURE) $(VERSIONED_SYMBOLS) $(LIBCURL_LIBS)
+if USE_CPPFLAG_CURL_STATICLIB
+libcurl_la_CPPFLAGS_EXTRA += -DCURL_STATICLIB
+endif
 
 if DOING_CURL_SYMBOL_HIDING
-libcurl_la_CPPFLAGS = $(AM_CPPFLAGS) -DCURL_HIDDEN_SYMBOLS
-libcurl_la_CFLAGS = $(AM_CFLAGS) $(CFLAG_CURL_SYMBOL_HIDING)
-else
-libcurl_la_CPPFLAGS = $(AM_CPPFLAGS)
-libcurl_la_CFLAGS = $(AM_CFLAGS)
+libcurl_la_CPPFLAGS_EXTRA += -DCURL_HIDDEN_SYMBOLS
+libcurl_la_CFLAGS_EXTRA += $(CFLAG_CURL_SYMBOL_HIDING)
 endif
 
-# unit testing static library built only along with unit tests
-if BUILD_UNITTESTS
-noinst_LTLIBRARIES = libcurlu.la
-else
-noinst_LTLIBRARIES =
-endif
+libcurl_la_CPPFLAGS = $(AM_CPPFLAGS) $(libcurl_la_CPPFLAGS_EXTRA)
+libcurl_la_LDFLAGS = $(AM_LDFLAGS) $(libcurl_la_LDFLAGS_EXTRA) $(LIBCURL_LIBS)
+libcurl_la_CFLAGS = $(AM_CFLAGS) $(libcurl_la_CFLAGS_EXTRA)
 
-libcurlu_la_CPPFLAGS = $(AM_CPPFLAGS) -DUNITTESTS
-libcurlu_la_LDFLAGS = -static $(LIBCURL_LIBS)
+libcurlu_la_CPPFLAGS = $(AM_CPPFLAGS) -DCURL_STATICLIB -DUNITTESTS
+libcurlu_la_LDFLAGS = $(AM_LDFLAGS) -static $(LIBCURL_LIBS)
 libcurlu_la_CFLAGS = $(AM_CFLAGS)
 
 # Makefile.inc provides the CSOURCES and HHEADERS defines
@@ -161,58 +153,6 @@ include Makefile.inc
 
 libcurl_la_SOURCES = $(CSOURCES) $(HHEADERS)
 libcurlu_la_SOURCES = $(CSOURCES) $(HHEADERS)
-
-WIN32SOURCES = $(CSOURCES)
-WIN32HEADERS = $(HHEADERS) config-win32.h
-
-DSPOUT = | awk '{printf("%s\r\n", $$0)}' >> $(DSP)
-VCPROJOUT = | awk '{printf("%s\r\n", $$0)}' >> $(VCPROJ)
-
-$(DSP): msvcproj.head msvcproj.foot Makefile.am
-	echo "creating $(DSP)"
-	@(cp $(srcdir)/msvcproj.head $(DSP); \
-	echo "# Begin Group \"Source Files\"" $(DSPOUT); \
-        echo "" $(DSPOUT); \
-        echo "# PROP Default_Filter \"\"" $(DSPOUT); \
-        win32_srcs='$(WIN32SOURCES)'; \
-        sorted_srcs=`for file in $$win32_srcs; do echo $$file; done | sort`; \
-        for file in $$sorted_srcs; do \
-	echo "# Begin Source File" $(DSPOUT); \
-	echo "" $(DSPOUT); \
-	echo "SOURCE=.\\"$$file $(DSPOUT); \
-	echo "# End Source File" $(DSPOUT); \
-	done; \
-	echo "# End Group" $(DSPOUT); \
-	echo "# Begin Group \"Header Files\"" $(DSPOUT); \
-        echo "" $(DSPOUT); \
-        echo "# PROP Default_Filter \"\"" $(DSPOUT); \
-        win32_hdrs='$(WIN32HEADERS)'; \
-        sorted_hdrs=`for file in $$win32_hdrs; do echo $$file; done | sort`; \
-        for file in $$sorted_hdrs; do \
-	echo "# Begin Source File" $(DSPOUT); \
-	echo "" $(DSPOUT); \
-	echo "SOURCE=.\\"$$file $(DSPOUT); \
-	echo "# End Source File" $(DSPOUT); \
-	done; \
-	echo "# End Group" $(DSPOUT); \
-	cat $(srcdir)/msvcproj.foot $(DSPOUT) )
-
-$(VCPROJ): vc8proj.head vc8proj.foot Makefile.am
-	echo "creating $(VCPROJ)"
-	@(cp $(srcdir)/vc8proj.head $(VCPROJ); \
-        win32_srcs='$(WIN32SOURCES)'; \
-        sorted_srcs=`for file in $$win32_srcs; do echo $$file; done | sort`; \
-        for file in $$sorted_srcs; do \
-	echo "<File RelativePath=\""$$file"\"></File>" $(VCPROJOUT); \
-	done; \
-	echo "</Filter><Filter	Name=\"Header Files\">" $(VCPROJOUT); \
-        win32_hdrs='$(WIN32HEADERS)'; \
-        sorted_hdrs=`for file in $$win32_hdrs; do echo $$file; done | sort`; \
-        for file in $$sorted_hdrs; do \
-	echo "<File RelativePath=\""$$file"\"></File>" $(VCPROJOUT); \
-	done; \
-	cat $(srcdir)/vc8proj.foot $(VCPROJOUT) )
-
 
 checksrc:
 	@@PERL@ $(top_srcdir)/lib/checksrc.pl -D$(top_srcdir)/lib $(CSOURCES) $(HHEADERS)

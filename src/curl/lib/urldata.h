@@ -58,6 +58,8 @@
 #define CURL_DEFAULT_USER "anonymous"
 #define CURL_DEFAULT_PASSWORD "ftp@example.com"
 
+#define DEFAULT_CONNCACHE_SIZE 5
+
 /* length of longest IPv6 address string including the trailing null */
 #define MAX_IPADR_LEN sizeof("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")
 
@@ -107,9 +109,15 @@
 #endif
 
 #ifdef USE_POLARSSL
-#include <polarssl/havege.h>
 #include <polarssl/ssl.h>
-#endif
+#include <polarssl/version.h>
+#if POLARSSL_VERSION_NUMBER<0x01010000
+#include <polarssl/havege.h>
+#else
+#include <polarssl/entropy.h>
+#include <polarssl/ctr_drbg.h>
+#endif /* POLARSSL_VERSION_NUMBER<0x01010000 */
+#endif /* USE_POLARSSL */
 
 #ifdef USE_CYASSL
 #undef OCSP_REQUEST  /* avoid cyassl/openssl/ssl.h clash with wincrypt.h */
@@ -282,7 +290,13 @@ struct ssl_connect_data {
   ssl_connect_state connecting_state;
 #endif /* USE_GNUTLS */
 #ifdef USE_POLARSSL
+#if POLARSSL_VERSION_NUMBER<0x01010000
   havege_state hs;
+#else
+  /* from v1.1.0, use ctr_drbg and entropy */
+  ctr_drbg_context ctr_drbg;
+  entropy_context entropy;
+#endif /* POLARSSL_VERSION_NUMBER<0x01010000 */
   ssl_context ssl;
   ssl_session ssn;
   int server_fd;
@@ -326,6 +340,7 @@ struct ssl_connect_data {
   curl_socket_t ssl_sockfd;
   ssl_connect_state connecting_state;
   bool ssl_direction; /* true if writing, false if reading */
+  size_t ssl_write_buffered_length;
 #endif /* USE_DARWINSSL */
 };
 
@@ -922,17 +937,10 @@ struct connectdata {
                               handle */
   bool writechannel_inuse; /* whether the write channel is in use by an easy
                               handle */
-  bool server_supports_pipelining; /* TRUE if server supports pipelining,
-                                      set after first response */
   struct curl_llist *send_pipe; /* List of handles waiting to
                                    send on this pipeline */
   struct curl_llist *recv_pipe; /* List of handles waiting to read
                                    their responses on this pipeline */
-  struct curl_llist *pend_pipe; /* List of pending handles on
-                                   this pipeline */
-  struct curl_llist *done_pipe; /* Handles that are finished, but
-                                   still reference this connectdata */
-#define MAX_PIPELINE_LENGTH 5
   char* master_buffer; /* The master buffer allocated on-demand;
                           used for pipelining. */
   size_t read_pos; /* Current read position in the master buffer */
@@ -1009,8 +1017,7 @@ struct connectdata {
     TUNNEL_CONNECT, /* CONNECT has been sent off */
     TUNNEL_COMPLETE /* CONNECT response received completely */
   } tunnel_state[2]; /* two separate ones to allow FTP */
-
-   struct connectbundle *bundle; /* The bundle we are member of */
+  struct connectbundle *bundle; /* The bundle we are member of */
 };
 
 /* The end of connectdata. */
@@ -1159,13 +1166,6 @@ struct UrlState {
   /* buffers to store authentication data in, as parsed from input options */
   struct timeval keeps_speed; /* for the progress meter really */
 
-  struct connectdata *pending_conn; /* This points to the connection we want
-                                       to open when we are waiting in the
-                                       CONNECT_PEND state in the multi
-                                       interface. This to avoid recreating it
-                                       when we enter the CONNECT state again.
-                                    */
-
   struct connectdata *lastconnect; /* The last connection, NULL if undefined */
 
   char *headerbuff; /* allocated buffer to store headers in */
@@ -1279,9 +1279,9 @@ struct UrlState {
     void *telnet;        /* private for telnet.c-eyes only */
     void *generic;
     struct SSHPROTO *ssh;
-    struct FTP *imap;
-    struct FTP *pop3;
-    struct FTP *smtp;
+    struct IMAP *imap;
+    struct POP3 *pop3;
+    struct SMTP *smtp;
   } proto;
   /* current user of this SessionHandle instance, or NULL */
   struct connectdata *current_conn;
@@ -1519,7 +1519,7 @@ struct UserDefined {
   bool include_header;   /* include received protocol headers in data output */
   bool http_set_referer; /* is a custom referer used */
   bool http_auto_referer; /* set "correct" referer when following location: */
-  bool opt_no_body;      /* as set with CURLOPT_NO_BODY */
+  bool opt_no_body;      /* as set with CURLOPT_NOBODY */
   bool set_port;         /* custom port number used */
   bool upload;           /* upload request */
   enum CURL_NETRC_OPTION

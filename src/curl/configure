@@ -902,9 +902,9 @@ NROFF
 PERL
 IPV6_ENABLED
 IDN_ENABLED
-VERSIONED_SYMBOLS_FALSE
-VERSIONED_SYMBOLS_TRUE
-VERSIONED_FLAVOUR
+CURL_LT_SHLIB_USE_VERSIONED_SYMBOLS_FALSE
+CURL_LT_SHLIB_USE_VERSIONED_SYMBOLS_TRUE
+CURL_LT_SHLIB_VERSIONED_FLAVOUR
 USE_LIBRTMP
 USE_LIBSSH2
 LIBMETALINK_CPPFLAGS
@@ -954,18 +954,18 @@ BUILD_UNITTESTS_FALSE
 BUILD_UNITTESTS_TRUE
 CURLDEBUG_FALSE
 CURLDEBUG_TRUE
-NO_UNDEFINED_FALSE
-NO_UNDEFINED_TRUE
 USE_EXPLICIT_LIB_DEPS_FALSE
 USE_EXPLICIT_LIB_DEPS_TRUE
 REQUIRE_LIB_DEPS
 CPPFLAG_CURL_STATICLIB
 USE_CPPFLAG_CURL_STATICLIB_FALSE
 USE_CPPFLAG_CURL_STATICLIB_TRUE
-USE_CPPFLAG_BUILDING_LIBCURL_FALSE
-USE_CPPFLAG_BUILDING_LIBCURL_TRUE
-MIMPURE_FALSE
-MIMPURE_TRUE
+CURL_LT_SHLIB_USE_MIMPURE_TEXT_FALSE
+CURL_LT_SHLIB_USE_MIMPURE_TEXT_TRUE
+CURL_LT_SHLIB_USE_NO_UNDEFINED_FALSE
+CURL_LT_SHLIB_USE_NO_UNDEFINED_TRUE
+CURL_LT_SHLIB_USE_VERSION_INFO_FALSE
+CURL_LT_SHLIB_USE_VERSION_INFO_TRUE
 OTOOL64
 OTOOL
 LIPO
@@ -7697,338 +7697,6 @@ rm -rf conftest*
 fi
 
 
-enable_win32_dll=yes
-
-case $host in
-*-*-cygwin* | *-*-mingw* | *-*-pw32* | *-*-cegcc*)
-  if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}as", so it can be a program name with args.
-set dummy ${ac_tool_prefix}as; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_AS+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$AS"; then
-  ac_cv_prog_AS="$AS" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_AS="${ac_tool_prefix}as"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-AS=$ac_cv_prog_AS
-if test -n "$AS"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $AS" >&5
-$as_echo "$AS" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-fi
-if test -z "$ac_cv_prog_AS"; then
-  ac_ct_AS=$AS
-  # Extract the first word of "as", so it can be a program name with args.
-set dummy as; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_ac_ct_AS+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$ac_ct_AS"; then
-  ac_cv_prog_ac_ct_AS="$ac_ct_AS" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_ac_ct_AS="as"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-ac_ct_AS=$ac_cv_prog_ac_ct_AS
-if test -n "$ac_ct_AS"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_AS" >&5
-$as_echo "$ac_ct_AS" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-  if test "x$ac_ct_AS" = x; then
-    AS="false"
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    AS=$ac_ct_AS
-  fi
-else
-  AS="$ac_cv_prog_AS"
-fi
-
-  if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}dlltool", so it can be a program name with args.
-set dummy ${ac_tool_prefix}dlltool; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_DLLTOOL+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$DLLTOOL"; then
-  ac_cv_prog_DLLTOOL="$DLLTOOL" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_DLLTOOL="${ac_tool_prefix}dlltool"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-DLLTOOL=$ac_cv_prog_DLLTOOL
-if test -n "$DLLTOOL"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $DLLTOOL" >&5
-$as_echo "$DLLTOOL" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-fi
-if test -z "$ac_cv_prog_DLLTOOL"; then
-  ac_ct_DLLTOOL=$DLLTOOL
-  # Extract the first word of "dlltool", so it can be a program name with args.
-set dummy dlltool; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_ac_ct_DLLTOOL+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$ac_ct_DLLTOOL"; then
-  ac_cv_prog_ac_ct_DLLTOOL="$ac_ct_DLLTOOL" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_ac_ct_DLLTOOL="dlltool"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-ac_ct_DLLTOOL=$ac_cv_prog_ac_ct_DLLTOOL
-if test -n "$ac_ct_DLLTOOL"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_DLLTOOL" >&5
-$as_echo "$ac_ct_DLLTOOL" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-  if test "x$ac_ct_DLLTOOL" = x; then
-    DLLTOOL="false"
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    DLLTOOL=$ac_ct_DLLTOOL
-  fi
-else
-  DLLTOOL="$ac_cv_prog_DLLTOOL"
-fi
-
-  if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}objdump", so it can be a program name with args.
-set dummy ${ac_tool_prefix}objdump; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_OBJDUMP+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$OBJDUMP"; then
-  ac_cv_prog_OBJDUMP="$OBJDUMP" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_OBJDUMP="${ac_tool_prefix}objdump"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-OBJDUMP=$ac_cv_prog_OBJDUMP
-if test -n "$OBJDUMP"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $OBJDUMP" >&5
-$as_echo "$OBJDUMP" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-fi
-if test -z "$ac_cv_prog_OBJDUMP"; then
-  ac_ct_OBJDUMP=$OBJDUMP
-  # Extract the first word of "objdump", so it can be a program name with args.
-set dummy objdump; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_ac_ct_OBJDUMP+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$ac_ct_OBJDUMP"; then
-  ac_cv_prog_ac_ct_OBJDUMP="$ac_ct_OBJDUMP" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_ac_ct_OBJDUMP="objdump"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-ac_ct_OBJDUMP=$ac_cv_prog_ac_ct_OBJDUMP
-if test -n "$ac_ct_OBJDUMP"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_OBJDUMP" >&5
-$as_echo "$ac_ct_OBJDUMP" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-  if test "x$ac_ct_OBJDUMP" = x; then
-    OBJDUMP="false"
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    OBJDUMP=$ac_ct_OBJDUMP
-  fi
-else
-  OBJDUMP="$ac_cv_prog_OBJDUMP"
-fi
-
-  ;;
-esac
-
-test -z "$AS" && AS=as
-
-
-
-
-
-test -z "$DLLTOOL" && DLLTOOL=dlltool
-
-
-
-
-
-test -z "$OBJDUMP" && OBJDUMP=objdump
-
-
-
-
-
-
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if arch-OS host is AMD64-Linux/FreeBSD (to build static libraries with PIC)" >&5
-$as_echo_n "checking if arch-OS host is AMD64-Linux/FreeBSD (to build static libraries with PIC)... " >&6; }
-case $host in
-  x86_64*linux*|amd64*freebsd*|ia64*freebsd*)
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-    with_pic=yes
-    ;;
-  *)
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-    ;;
-esac
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if compiler is icc (to build with PIC)" >&5
-$as_echo_n "checking if compiler is icc (to build with PIC)... " >&6; }
-case $CC in
-  icc | */icc)
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-    with_pic=yes
-    ;;
-  *)
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-    ;;
-esac
-
 case `pwd` in
   *\ * | *\	*)
     { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Libtool does not cope well with whitespace in \`pwd\`" >&5
@@ -11129,11 +10797,418 @@ fi
 
 done
 
+# ------------------------------------ #
+#  Determine libtool default behavior  #
+# ------------------------------------ #
+
+#
+# Default behavior is to enable shared and static libraries on systems
+# where libtool knows how to build both library versions, and does not
+# require separate configuration and build runs for each flavor.
+#
+
+xc_lt_want_enable_shared='yes'
+xc_lt_want_enable_static='yes'
+
+#
+# User may have disabled shared or static libraries.
+#
+case "x$enable_shared" in # (
+  xno)
+    xc_lt_want_enable_shared='no'
+    ;;
+esac
+case "x$enable_static" in # (
+  xno)
+    xc_lt_want_enable_static='no'
+    ;;
+esac
+if test "x$xc_lt_want_enable_shared" = 'xno' &&
+  test "x$xc_lt_want_enable_static" = 'xno'; then
+  as_fn_error $? "can not disable shared and static libraries simultaneously" "$LINENO" 5
+fi
+
+#
+# Default behavior on systems that require independent configuration
+# and build runs for shared and static is to enable shared libraries
+# and disable static ones. On these systems option '--disable-shared'
+# must be used in order to build a proper static library.
+#
+
+if test "x$xc_lt_want_enable_shared" = 'xyes' &&
+  test "x$xc_lt_want_enable_static" = 'xyes'; then
+  case $host_os in # (
+    mingw* | pw32* | cegcc* | os2* | aix*)
+      xc_lt_want_enable_static='no'
+      ;;
+  esac
+fi
+
+#
+# Make libtool aware of current shared and static library preferences
+# taking in account that, depending on host characteristics, libtool
+# may modify these option preferences later in this configure script.
+#
+
+enable_shared=$xc_lt_want_enable_shared
+enable_static=$xc_lt_want_enable_static
+
+#
+# Default behavior is to build PIC objects for shared libraries and
+# non-PIC objects for static libraries.
+#
+
+xc_lt_want_with_pic='default'
+
+#
+# User may have specified PIC preference.
+#
+
+case "x$with_pic" in # ((
+  xno)
+    xc_lt_want_with_pic='no'
+    ;;
+  xyes)
+    xc_lt_want_with_pic='yes'
+    ;;
+esac
+
+#
+# Default behavior on some systems where building a shared library out
+# of non-PIC compiled objects will fail with following linker error
+# "relocation R_X86_64_32 can not be used when making a shared object"
+# is to build PIC objects even for static libraries. This behavior may
+# be overriden using 'configure --disable-shared --without-pic'.
+#
+
+if test "x$xc_lt_want_with_pic" = 'xdefault'; then
+  case $host_cpu in # (
+    x86_64 | amd64 | ia64)
+      case $host_os in # (
+        linux* | freebsd*)
+          xc_lt_want_with_pic='yes'
+          ;;
+      esac
+      ;;
+  esac
+fi
+
+#
+# Make libtool aware of current PIC preference taking in account that,
+# depending on host characteristics, libtool may modify PIC default
+# behavior to fit host system idiosyncrasies later in this script.
+#
+
+with_pic=$xc_lt_want_with_pic
+
+## ----------------------- ##
+##  Start of libtool code  ##
+## ----------------------- ##
 
 
 
 
 # Set options
+enable_win32_dll=yes
+
+case $host in
+*-*-cygwin* | *-*-mingw* | *-*-pw32* | *-*-cegcc*)
+  if test -n "$ac_tool_prefix"; then
+  # Extract the first word of "${ac_tool_prefix}as", so it can be a program name with args.
+set dummy ${ac_tool_prefix}as; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_AS+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$AS"; then
+  ac_cv_prog_AS="$AS" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_AS="${ac_tool_prefix}as"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+AS=$ac_cv_prog_AS
+if test -n "$AS"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $AS" >&5
+$as_echo "$AS" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+fi
+if test -z "$ac_cv_prog_AS"; then
+  ac_ct_AS=$AS
+  # Extract the first word of "as", so it can be a program name with args.
+set dummy as; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_ac_ct_AS+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$ac_ct_AS"; then
+  ac_cv_prog_ac_ct_AS="$ac_ct_AS" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_ac_ct_AS="as"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+ac_ct_AS=$ac_cv_prog_ac_ct_AS
+if test -n "$ac_ct_AS"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_AS" >&5
+$as_echo "$ac_ct_AS" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+  if test "x$ac_ct_AS" = x; then
+    AS="false"
+  else
+    case $cross_compiling:$ac_tool_warned in
+yes:)
+{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
+$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
+ac_tool_warned=yes ;;
+esac
+    AS=$ac_ct_AS
+  fi
+else
+  AS="$ac_cv_prog_AS"
+fi
+
+  if test -n "$ac_tool_prefix"; then
+  # Extract the first word of "${ac_tool_prefix}dlltool", so it can be a program name with args.
+set dummy ${ac_tool_prefix}dlltool; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_DLLTOOL+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$DLLTOOL"; then
+  ac_cv_prog_DLLTOOL="$DLLTOOL" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_DLLTOOL="${ac_tool_prefix}dlltool"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+DLLTOOL=$ac_cv_prog_DLLTOOL
+if test -n "$DLLTOOL"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $DLLTOOL" >&5
+$as_echo "$DLLTOOL" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+fi
+if test -z "$ac_cv_prog_DLLTOOL"; then
+  ac_ct_DLLTOOL=$DLLTOOL
+  # Extract the first word of "dlltool", so it can be a program name with args.
+set dummy dlltool; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_ac_ct_DLLTOOL+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$ac_ct_DLLTOOL"; then
+  ac_cv_prog_ac_ct_DLLTOOL="$ac_ct_DLLTOOL" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_ac_ct_DLLTOOL="dlltool"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+ac_ct_DLLTOOL=$ac_cv_prog_ac_ct_DLLTOOL
+if test -n "$ac_ct_DLLTOOL"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_DLLTOOL" >&5
+$as_echo "$ac_ct_DLLTOOL" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+  if test "x$ac_ct_DLLTOOL" = x; then
+    DLLTOOL="false"
+  else
+    case $cross_compiling:$ac_tool_warned in
+yes:)
+{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
+$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
+ac_tool_warned=yes ;;
+esac
+    DLLTOOL=$ac_ct_DLLTOOL
+  fi
+else
+  DLLTOOL="$ac_cv_prog_DLLTOOL"
+fi
+
+  if test -n "$ac_tool_prefix"; then
+  # Extract the first word of "${ac_tool_prefix}objdump", so it can be a program name with args.
+set dummy ${ac_tool_prefix}objdump; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_OBJDUMP+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$OBJDUMP"; then
+  ac_cv_prog_OBJDUMP="$OBJDUMP" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_OBJDUMP="${ac_tool_prefix}objdump"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+OBJDUMP=$ac_cv_prog_OBJDUMP
+if test -n "$OBJDUMP"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $OBJDUMP" >&5
+$as_echo "$OBJDUMP" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+fi
+if test -z "$ac_cv_prog_OBJDUMP"; then
+  ac_ct_OBJDUMP=$OBJDUMP
+  # Extract the first word of "objdump", so it can be a program name with args.
+set dummy objdump; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_ac_ct_OBJDUMP+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$ac_ct_OBJDUMP"; then
+  ac_cv_prog_ac_ct_OBJDUMP="$ac_ct_OBJDUMP" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_ac_ct_OBJDUMP="objdump"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+ac_ct_OBJDUMP=$ac_cv_prog_ac_ct_OBJDUMP
+if test -n "$ac_ct_OBJDUMP"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_OBJDUMP" >&5
+$as_echo "$ac_ct_OBJDUMP" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+  if test "x$ac_ct_OBJDUMP" = x; then
+    OBJDUMP="false"
+  else
+    case $cross_compiling:$ac_tool_warned in
+yes:)
+{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
+$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
+ac_tool_warned=yes ;;
+esac
+    OBJDUMP=$ac_ct_OBJDUMP
+  fi
+else
+  OBJDUMP="$ac_cv_prog_OBJDUMP"
+fi
+
+  ;;
+esac
+
+test -z "$AS" && AS=as
+
+
+
+
+
+test -z "$DLLTOOL" && DLLTOOL=dlltool
+
+
+
+
+
+test -z "$OBJDUMP" && OBJDUMP=objdump
+
+
+
+
 
 
 
@@ -15122,72 +15197,220 @@ CC="$lt_save_CC"
 # Only expand once:
 
 
+## --------------------- ##
+##  End of libtool code  ##
+## --------------------- ##
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if we need -mimpure-text" >&5
-$as_echo_n "checking if we need -mimpure-text... " >&6; }
-mimpure=no
-case $host in
-  *-*-solaris2*)
-    if test "$GCC" = "yes"; then
-      mimpure="yes"
-    fi
+#
+# Verify if finally libtool shared libraries will be built
+#
+
+case "x$enable_shared" in # ((
+  xyes | xno)
+    xc_lt_build_shared=$enable_shared
     ;;
   *)
+    as_fn_error $? "unexpected libtool enable_shared value: $enable_shared" "$LINENO" 5
     ;;
 esac
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $mimpure" >&5
-$as_echo "$mimpure" >&6; }
- if test x$mimpure = xyes; then
-  MIMPURE_TRUE=
-  MIMPURE_FALSE='#'
+
+#
+# Verify if finally libtool static libraries will be built
+#
+
+case "x$enable_static" in # ((
+  xyes | xno)
+    xc_lt_build_static=$enable_static
+    ;;
+  *)
+    as_fn_error $? "unexpected libtool enable_static value: $enable_static" "$LINENO" 5
+    ;;
+esac
+
+#
+# Verify if libtool shared libraries should be linked using flag -version-info
+#
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build shared libraries with -version-info" >&5
+$as_echo_n "checking whether to build shared libraries with -version-info... " >&6; }
+xc_lt_shlib_use_version_info='yes'
+if test "x$version_type" = 'xnone'; then
+  xc_lt_shlib_use_version_info='no'
+fi
+case $host_os in # (
+  amigaos*)
+    xc_lt_shlib_use_version_info='yes'
+    ;;
+esac
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $xc_lt_shlib_use_version_info" >&5
+$as_echo "$xc_lt_shlib_use_version_info" >&6; }
+
+#
+# Verify if libtool shared libraries should be linked using flag -no-undefined
+#
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build shared libraries with -no-undefined" >&5
+$as_echo_n "checking whether to build shared libraries with -no-undefined... " >&6; }
+xc_lt_shlib_use_no_undefined='no'
+if test "x$allow_undefined" = 'xno'; then
+  xc_lt_shlib_use_no_undefined='yes'
+elif test "x$allow_undefined_flag" = 'xunsupported'; then
+  xc_lt_shlib_use_no_undefined='yes'
+fi
+case $host_os in # (
+  cygwin* | mingw* | pw32* | cegcc* | os2* | aix*)
+    xc_lt_shlib_use_no_undefined='yes'
+    ;;
+esac
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $xc_lt_shlib_use_no_undefined" >&5
+$as_echo "$xc_lt_shlib_use_no_undefined" >&6; }
+
+#
+# Verify if libtool shared libraries should be linked using flag -mimpure-text
+#
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build shared libraries with -mimpure-text" >&5
+$as_echo_n "checking whether to build shared libraries with -mimpure-text... " >&6; }
+xc_lt_shlib_use_mimpure_text='no'
+case $host_os in # (
+  solaris2*)
+    if test "x$GCC" = 'xyes'; then
+      xc_lt_shlib_use_mimpure_text='yes'
+    fi
+    ;;
+esac
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $xc_lt_shlib_use_mimpure_text" >&5
+$as_echo "$xc_lt_shlib_use_mimpure_text" >&6; }
+
+#
+# Find out wether libtool libraries would be built wit PIC
+#
+
+case "x$pic_mode" in # ((((
+  xdefault)
+    xc_lt_build_shared_with_pic='yes'
+    xc_lt_build_static_with_pic='no'
+    ;;
+  xyes)
+    xc_lt_build_shared_with_pic='yes'
+    xc_lt_build_static_with_pic='yes'
+    ;;
+  xno)
+    xc_lt_build_shared_with_pic='no'
+    xc_lt_build_static_with_pic='no'
+    ;;
+  *)
+    xc_lt_build_shared_with_pic='unknown'
+    xc_lt_build_static_with_pic='unknown'
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unexpected libtool pic_mode value: $pic_mode" >&5
+$as_echo "$as_me: WARNING: unexpected libtool pic_mode value: $pic_mode" >&2;}
+    ;;
+esac
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build shared libraries with PIC" >&5
+$as_echo_n "checking whether to build shared libraries with PIC... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $xc_lt_build_shared_with_pic" >&5
+$as_echo "$xc_lt_build_shared_with_pic" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build static libraries with PIC" >&5
+$as_echo_n "checking whether to build static libraries with PIC... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $xc_lt_build_static_with_pic" >&5
+$as_echo "$xc_lt_build_static_with_pic" >&6; }
+
+#
+# Verify if libtool shared libraries will be built while static not built
+#
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build shared libraries only" >&5
+$as_echo_n "checking whether to build shared libraries only... " >&6; }
+if test "$xc_lt_build_shared" = 'yes' &&
+  test "$xc_lt_build_static" = 'no'; then
+  xc_lt_build_shared_only='yes'
 else
-  MIMPURE_TRUE='#'
-  MIMPURE_FALSE=
+  xc_lt_build_shared_only='no'
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $xc_lt_build_shared_only" >&5
+$as_echo "$xc_lt_build_shared_only" >&6; }
+
+#
+# Verify if libtool static libraries will be built while shared not built
+#
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build static libraries only" >&5
+$as_echo_n "checking whether to build static libraries only... " >&6; }
+if test "$xc_lt_build_static" = 'yes' &&
+  test "$xc_lt_build_shared" = 'no'; then
+  xc_lt_build_static_only='yes'
+else
+  xc_lt_build_static_only='no'
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $xc_lt_build_static_only" >&5
+$as_echo "$xc_lt_build_static_only" >&6; }
+
+
+
+
+#
+# Automake conditionals based on libtool related checks
+#
+
+ if test "x$xc_lt_shlib_use_version_info" = 'xyes'; then
+  CURL_LT_SHLIB_USE_VERSION_INFO_TRUE=
+  CURL_LT_SHLIB_USE_VERSION_INFO_FALSE='#'
+else
+  CURL_LT_SHLIB_USE_VERSION_INFO_TRUE='#'
+  CURL_LT_SHLIB_USE_VERSION_INFO_FALSE=
+fi
+
+ if test "x$xc_lt_shlib_use_no_undefined" = 'xyes'; then
+  CURL_LT_SHLIB_USE_NO_UNDEFINED_TRUE=
+  CURL_LT_SHLIB_USE_NO_UNDEFINED_FALSE='#'
+else
+  CURL_LT_SHLIB_USE_NO_UNDEFINED_TRUE='#'
+  CURL_LT_SHLIB_USE_NO_UNDEFINED_FALSE=
+fi
+
+ if test "x$xc_lt_shlib_use_mimpure_text" = 'xyes'; then
+  CURL_LT_SHLIB_USE_MIMPURE_TEXT_TRUE=
+  CURL_LT_SHLIB_USE_MIMPURE_TEXT_FALSE='#'
+else
+  CURL_LT_SHLIB_USE_MIMPURE_TEXT_TRUE='#'
+  CURL_LT_SHLIB_USE_MIMPURE_TEXT_FALSE=
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if we need BUILDING_LIBCURL" >&5
-$as_echo_n "checking if we need BUILDING_LIBCURL... " >&6; }
-use_cppflag_building_libcurl="no"
-use_cppflag_curl_staticlib="no"
-CPPFLAG_CURL_STATICLIB=""
-case $host in
-  *-*-mingw*)
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-    use_cppflag_building_libcurl="yes"
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking if we need CURL_STATICLIB" >&5
-$as_echo_n "checking if we need CURL_STATICLIB... " >&6; }
-    if test "X$enable_shared" = "Xno"
-    then
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-      use_cppflag_curl_staticlib="yes"
-      CPPFLAG_CURL_STATICLIB="-DCURL_STATICLIB"
-    else
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-    fi
-    ;;
-  *)
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-    ;;
-esac
- if test x$use_cppflag_building_libcurl = xyes; then
-  USE_CPPFLAG_BUILDING_LIBCURL_TRUE=
-  USE_CPPFLAG_BUILDING_LIBCURL_FALSE='#'
-else
-  USE_CPPFLAG_BUILDING_LIBCURL_TRUE='#'
-  USE_CPPFLAG_BUILDING_LIBCURL_FALSE=
-fi
+#
+# Due to libtool and automake machinery limitations of not allowing
+# specifying separate CPPFLAGS or CFLAGS when compiling objects for
+# inclusion of these in shared or static libraries, we are forced to
+# build using separate configure runs for shared and static libraries
+# on systems where different CPPFLAGS or CFLAGS are mandatory in order
+# to compile objects for each kind of library. Notice that relying on
+# the '-DPIC' CFLAG that libtool provides is not valid given that the
+# user might for example choose to build static libraries with PIC.
+#
 
- if test x$use_cppflag_curl_staticlib = xyes; then
+#
+# Make our Makefile.am files use the staticlib CPPFLAG only when strictly
+# targeting a static library and not building its shared counterpart.
+#
+
+ if test "x$xc_lt_build_static_only" = 'xyes'; then
   USE_CPPFLAG_CURL_STATICLIB_TRUE=
   USE_CPPFLAG_CURL_STATICLIB_FALSE='#'
 else
   USE_CPPFLAG_CURL_STATICLIB_TRUE='#'
   USE_CPPFLAG_CURL_STATICLIB_FALSE=
+fi
+
+
+#
+# Make staticlib CPPFLAG variable and its definition visible in output
+# files unconditionally, providing an empty definition unless strictly
+# targeting a static library and not building its shared counterpart.
+#
+
+CPPFLAG_CURL_STATICLIB=
+if test "x$xc_lt_build_static_only" = 'xyes'; then
+  CPPFLAG_CURL_STATICLIB='-DCURL_STATICLIB'
 fi
 
 
@@ -15206,38 +15429,6 @@ fi
 else
   USE_EXPLICIT_LIB_DEPS_TRUE='#'
   USE_EXPLICIT_LIB_DEPS_FALSE=
-fi
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${MAKE-make} sets \$(MAKE)" >&5
-$as_echo_n "checking whether ${MAKE-make} sets \$(MAKE)... " >&6; }
-set x ${MAKE-make}
-ac_make=`$as_echo "$2" | sed 's/+/p/g; s/[^a-zA-Z0-9_]/_/g'`
-if eval \${ac_cv_prog_make_${ac_make}_set+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat >conftest.make <<\_ACEOF
-SHELL = /bin/sh
-all:
-	@echo '@@@%%%=$(MAKE)=@@@%%%'
-_ACEOF
-# GNU make sometimes prints "make[1]: Entering ...", which would confuse us.
-case `${MAKE-make} -f conftest.make 2>/dev/null` in
-  *@@@%%%=?*=@@@%%%*)
-    eval ac_cv_prog_make_${ac_make}_set=yes;;
-  *)
-    eval ac_cv_prog_make_${ac_make}_set=no;;
-esac
-rm -f conftest.make
-fi
-if eval test \$ac_cv_prog_make_${ac_make}_set = yes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-  SET_MAKE=
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-  SET_MAKE="MAKE=${MAKE-make}"
 fi
 
 
@@ -17696,33 +17887,7 @@ $as_echo "no" >&6; }
 
 
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking if shared libraries need -no-undefined" >&5
-$as_echo_n "checking if shared libraries need -no-undefined... " >&6; }
-  need_no_undefined="no"
-  case $host in
-    *-*-cygwin* | *-*-mingw* | *-*-pw32* | *-*-cegcc* | *-*-aix*)
-      need_no_undefined="yes"
-      ;;
-  esac
-  if test "x$allow_undefined" = "xno"; then
-    need_no_undefined="yes"
-  elif test "x$allow_undefined_flag" = "xunsupported"; then
-    need_no_undefined="yes"
-  fi
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $need_no_undefined" >&5
-$as_echo "$need_no_undefined" >&6; }
-
- if test x$need_no_undefined = xyes; then
-  NO_UNDEFINED_TRUE=
-  NO_UNDEFINED_FALSE='#'
-else
-  NO_UNDEFINED_TRUE='#'
-  NO_UNDEFINED_FALSE=
-fi
-
-
-
-    supports_curldebug="unknown"
+      supports_curldebug="unknown"
   if test "$want_curldebug" = "yes"; then
     if test "x$enable_shared" != "xno" &&
       test "x$enable_shared" != "xyes"; then
@@ -17738,7 +17903,7 @@ $as_echo "$as_me: WARNING: unknown enable_static setting." >&2;}
     fi
     if test "$supports_curldebug" != "no"; then
       if test "$enable_shared" = "yes" &&
-        test "$need_no_undefined" = "yes"; then
+        test "x$xc_lt_shlib_use_no_undefined" = 'xyes'; then
         supports_curldebug="no"
         { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: shared library does not support undefined symbols." >&5
 $as_echo "$as_me: WARNING: shared library does not support undefined symbols." >&2;}
@@ -23819,8 +23984,8 @@ fi
 if test "x$OPENSSL_ENABLED$GNUTLS_ENABLED$NSS_ENABLED$POLARSSL_ENABLED$AXTLS_ENABLED$CYASSL_ENABLED$WINSSL_ENABLED$DARWINSSL_ENABLED" = "x"; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: SSL disabled, you will not be able to use HTTPS, FTPS, NTLM and more." >&5
 $as_echo "$as_me: WARNING: SSL disabled, you will not be able to use HTTPS, FTPS, NTLM and more." >&2;}
-  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Use --with-ssl, --with-gnutls, --with-polarssl, --with-cyassl, --with-nss, --with-axtls or --with-winssl to address this." >&5
-$as_echo "$as_me: WARNING: Use --with-ssl, --with-gnutls, --with-polarssl, --with-cyassl, --with-nss, --with-axtls or --with-winssl to address this." >&2;}
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Use --with-ssl, --with-gnutls, --with-polarssl, --with-cyassl, --with-nss, --with-axtls, --with-winssl, or --with-darwinssl to address this." >&5
+$as_echo "$as_me: WARNING: Use --with-ssl, --with-gnutls, --with-polarssl, --with-cyassl, --with-nss, --with-axtls, --with-winssl, or --with-darwinssl to address this." >&2;}
 else
   # SSL is enabled, genericly
 
@@ -24868,14 +25033,14 @@ $as_echo "no" >&6; }
 fi
 
 
-VERSIONED_FLAVOUR="$versioned_symbols_flavour"
+CURL_LT_SHLIB_VERSIONED_FLAVOUR="$versioned_symbols_flavour"
 
- if test "x$versioned_symbols" = "xyes"; then
-  VERSIONED_SYMBOLS_TRUE=
-  VERSIONED_SYMBOLS_FALSE='#'
+ if test "x$versioned_symbols" = 'xyes'; then
+  CURL_LT_SHLIB_USE_VERSIONED_SYMBOLS_TRUE=
+  CURL_LT_SHLIB_USE_VERSIONED_SYMBOLS_FALSE='#'
 else
-  VERSIONED_SYMBOLS_TRUE='#'
-  VERSIONED_SYMBOLS_FALSE=
+  CURL_LT_SHLIB_USE_VERSIONED_SYMBOLS_TRUE='#'
+  CURL_LT_SHLIB_USE_VERSIONED_SYMBOLS_FALSE=
 fi
 
 
@@ -27696,288 +27861,6 @@ _ACEOF
     fi
   else
     as_fn_error $? "Unable to link function recv" "$LINENO" 5
-  fi
-
-
-      for ac_header in sys/types.h sys/socket.h
-do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-
-done
-
-  #
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for recvfrom" >&5
-$as_echo_n "checking for recvfrom... " >&6; }
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-#undef inline
-#ifdef HAVE_WINDOWS_H
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#else
-#ifdef HAVE_WINSOCK_H
-#include <winsock.h>
-#endif
-#endif
-#else
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-#endif
-
-int main (void)
-{
-
-      recvfrom(0, 0, 0, 0, 0, 0);
-
- ;
- return 0;
-}
-
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-    curl_cv_recvfrom="yes"
-
-else
-
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-    curl_cv_recvfrom="no"
-
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  #
-  if test "$curl_cv_recvfrom" = "yes"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking types of args and return type for recvfrom" >&5
-$as_echo_n "checking types of args and return type for recvfrom... " >&6; }
-if ${curl_cv_func_recvfrom_args+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-      curl_cv_func_recvfrom_args="unknown"
-      for recvfrom_retv in 'int' 'ssize_t'; do
-        for recvfrom_arg1 in 'int' 'ssize_t' 'SOCKET'; do
-          for recvfrom_arg2 in 'char *' 'void *'; do
-            for recvfrom_arg3 in 'size_t' 'int' 'socklen_t' 'unsigned int'; do
-              for recvfrom_arg4 in 'int' 'unsigned int'; do
-                for recvfrom_arg5 in 'struct sockaddr *' 'void *' 'const struct sockaddr *'; do
-                  for recvfrom_arg6 in 'socklen_t *' 'int *' 'unsigned int *' 'size_t *' 'void *'; do
-                    if test "$curl_cv_func_recvfrom_args" = "unknown"; then
-                      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-#undef inline
-#ifdef HAVE_WINDOWS_H
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#else
-#ifdef HAVE_WINSOCK_H
-#include <winsock.h>
-#endif
-#endif
-#define RECVFROMCALLCONV PASCAL
-#else
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-#define RECVFROMCALLCONV
-#endif
-                          extern $recvfrom_retv RECVFROMCALLCONV
-                          recvfrom($recvfrom_arg1, $recvfrom_arg2,
-                                   $recvfrom_arg3, $recvfrom_arg4,
-                                   $recvfrom_arg5, $recvfrom_arg6);
-
-int main (void)
-{
-
-                          $recvfrom_arg1 s=0;
-                          $recvfrom_arg2 buf=0;
-                          $recvfrom_arg3 len=0;
-                          $recvfrom_arg4 flags=0;
-                          $recvfrom_arg5 addr=0;
-                          $recvfrom_arg6 addrlen=0;
-                          $recvfrom_retv res=0;
-                          res = recvfrom(s, buf, len, flags, addr, addrlen);
-
- ;
- return 0;
-}
-
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-
-                        curl_cv_func_recvfrom_args="$recvfrom_arg1,$recvfrom_arg2,$recvfrom_arg3,$recvfrom_arg4,$recvfrom_arg5,$recvfrom_arg6,$recvfrom_retv"
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-                    fi
-                  done
-                done
-              done
-            done
-          done
-        done
-      done
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $curl_cv_func_recvfrom_args" >&5
-$as_echo "$curl_cv_func_recvfrom_args" >&6; } # AC-CACHE-CHECK
-    # Nearly last minute change for this release starts here
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_RECVFROM 1
-_ACEOF
-
-    ac_cv_func_recvfrom="yes"
-    # Nearly last minute change for this release ends here
-    if test "$curl_cv_func_recvfrom_args" = "unknown"; then
-      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Cannot find proper types to use for recvfrom args" >&5
-$as_echo "$as_me: WARNING: Cannot find proper types to use for recvfrom args" >&2;}
-    else
-      recvfrom_prev_IFS=$IFS; IFS=','
-      set dummy `echo "$curl_cv_func_recvfrom_args" | sed 's/\*/\*/g'`
-      IFS=$recvfrom_prev_IFS
-      shift
-      #
-      recvfrom_ptrt_arg2=$2
-      recvfrom_qual_ptrt_arg5=$5
-      recvfrom_ptrt_arg6=$6
-      #
-
-cat >>confdefs.h <<_ACEOF
-#define RECVFROM_TYPE_ARG1 $1
-_ACEOF
-
-
-cat >>confdefs.h <<_ACEOF
-#define RECVFROM_TYPE_ARG3 $3
-_ACEOF
-
-
-cat >>confdefs.h <<_ACEOF
-#define RECVFROM_TYPE_ARG4 $4
-_ACEOF
-
-
-cat >>confdefs.h <<_ACEOF
-#define RECVFROM_TYPE_RETV $7
-_ACEOF
-
-      #
-      prev_sh_opts=$-
-      #
-      case $prev_sh_opts in
-        *f*)
-          ;;
-        *)
-          set -f
-          ;;
-      esac
-      #
-      case "$recvfrom_qual_ptrt_arg5" in
-        const*)
-          recvfrom_qual_arg5=const
-          recvfrom_ptrt_arg5=`echo $recvfrom_qual_ptrt_arg5 | sed 's/^const //'`
-        ;;
-        *)
-          recvfrom_qual_arg5=
-          recvfrom_ptrt_arg5=$recvfrom_qual_ptrt_arg5
-        ;;
-      esac
-      #
-      recvfrom_type_arg2=`echo $recvfrom_ptrt_arg2 | sed 's/ \*//'`
-      recvfrom_type_arg5=`echo $recvfrom_ptrt_arg5 | sed 's/ \*//'`
-      recvfrom_type_arg6=`echo $recvfrom_ptrt_arg6 | sed 's/ \*//'`
-      #
-
-cat >>confdefs.h <<_ACEOF
-#define RECVFROM_TYPE_ARG2 $recvfrom_type_arg2
-_ACEOF
-
-
-cat >>confdefs.h <<_ACEOF
-#define RECVFROM_QUAL_ARG5 $recvfrom_qual_arg5
-_ACEOF
-
-
-cat >>confdefs.h <<_ACEOF
-#define RECVFROM_TYPE_ARG5 $recvfrom_type_arg5
-_ACEOF
-
-
-cat >>confdefs.h <<_ACEOF
-#define RECVFROM_TYPE_ARG6 $recvfrom_type_arg6
-_ACEOF
-
-      #
-      if test "$recvfrom_type_arg2" = "void"; then
-
-cat >>confdefs.h <<_ACEOF
-#define RECVFROM_TYPE_ARG2_IS_VOID 1
-_ACEOF
-
-      fi
-      if test "$recvfrom_type_arg5" = "void"; then
-
-cat >>confdefs.h <<_ACEOF
-#define RECVFROM_TYPE_ARG5_IS_VOID 1
-_ACEOF
-
-      fi
-      if test "$recvfrom_type_arg6" = "void"; then
-
-cat >>confdefs.h <<_ACEOF
-#define RECVFROM_TYPE_ARG6_IS_VOID 1
-_ACEOF
-
-      fi
-      #
-      case $prev_sh_opts in
-        *f*)
-          ;;
-        *)
-          set +f
-          ;;
-      esac
-      #
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_RECVFROM 1
-_ACEOF
-
-      ac_cv_func_recvfrom="yes"
-    fi
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Unable to link function recvfrom" >&5
-$as_echo "$as_me: WARNING: Unable to link function recvfrom" >&2;}
   fi
 
 
@@ -35930,155 +35813,6 @@ $as_echo "no" >&6; }
 
 
     #
-  tst_links_strcasestr="unknown"
-  tst_proto_strcasestr="unknown"
-  tst_compi_strcasestr="unknown"
-  tst_allow_strcasestr="unknown"
-  #
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking if strcasestr can be linked" >&5
-$as_echo_n "checking if strcasestr can be linked... " >&6; }
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-#define strcasestr innocuous_strcasestr
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-#undef strcasestr
-#ifdef __cplusplus
-extern "C"
-#endif
-char strcasestr ();
-#if defined __stub_strcasestr || defined __stub___strcasestr
-choke me
-#endif
-
-int main (void)
-{
-return strcasestr ();
- ;
- return 0;
-}
-
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-    tst_links_strcasestr="yes"
-
-else
-
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-    tst_links_strcasestr="no"
-
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  #
-  if test "$tst_links_strcasestr" = "yes"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking if strcasestr is prototyped" >&5
-$as_echo_n "checking if strcasestr is prototyped... " >&6; }
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-      $curl_includes_string
-
-_ACEOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  $EGREP "strcasestr" >/dev/null 2>&1; then :
-
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-      tst_proto_strcasestr="yes"
-
-else
-
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-      tst_proto_strcasestr="no"
-
-fi
-rm -f conftest*
-
-  fi
-  #
-  if test "$tst_proto_strcasestr" = "yes"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking if strcasestr is compilable" >&5
-$as_echo_n "checking if strcasestr is compilable... " >&6; }
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-        $curl_includes_string
-
-int main (void)
-{
-
-        if(0 != strcasestr(0, 0))
-          return 1;
-
- ;
- return 0;
-}
-
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-      tst_compi_strcasestr="yes"
-
-else
-
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-      tst_compi_strcasestr="no"
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-  fi
-  #
-  if test "$tst_compi_strcasestr" = "yes"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking if strcasestr usage allowed" >&5
-$as_echo_n "checking if strcasestr usage allowed... " >&6; }
-    if test "x$curl_disallow_strcasestr" != "xyes"; then
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-      tst_allow_strcasestr="yes"
-    else
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-      tst_allow_strcasestr="no"
-    fi
-  fi
-  #
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking if strcasestr might be used" >&5
-$as_echo_n "checking if strcasestr might be used... " >&6; }
-  if test "$tst_links_strcasestr" = "yes" &&
-     test "$tst_proto_strcasestr" = "yes" &&
-     test "$tst_compi_strcasestr" = "yes" &&
-     test "$tst_allow_strcasestr" = "yes"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_STRCASESTR 1
-_ACEOF
-
-    ac_cv_func_strcasestr="yes"
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-    ac_cv_func_strcasestr="no"
-  fi
-
-
-    #
   tst_links_strcmpi="unknown"
   tst_proto_strcmpi="unknown"
   tst_compi_strcmpi="unknown"
@@ -36934,155 +36668,6 @@ _ACEOF
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
     ac_cv_func_stricmp="no"
-  fi
-
-
-    #
-  tst_links_strlcat="unknown"
-  tst_proto_strlcat="unknown"
-  tst_compi_strlcat="unknown"
-  tst_allow_strlcat="unknown"
-  #
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking if strlcat can be linked" >&5
-$as_echo_n "checking if strlcat can be linked... " >&6; }
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-#define strlcat innocuous_strlcat
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-#undef strlcat
-#ifdef __cplusplus
-extern "C"
-#endif
-char strlcat ();
-#if defined __stub_strlcat || defined __stub___strlcat
-choke me
-#endif
-
-int main (void)
-{
-return strlcat ();
- ;
- return 0;
-}
-
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-    tst_links_strlcat="yes"
-
-else
-
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-    tst_links_strlcat="no"
-
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  #
-  if test "$tst_links_strlcat" = "yes"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking if strlcat is prototyped" >&5
-$as_echo_n "checking if strlcat is prototyped... " >&6; }
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-      $curl_includes_string
-
-_ACEOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  $EGREP "strlcat" >/dev/null 2>&1; then :
-
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-      tst_proto_strlcat="yes"
-
-else
-
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-      tst_proto_strlcat="no"
-
-fi
-rm -f conftest*
-
-  fi
-  #
-  if test "$tst_proto_strlcat" = "yes"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking if strlcat is compilable" >&5
-$as_echo_n "checking if strlcat is compilable... " >&6; }
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-        $curl_includes_string
-
-int main (void)
-{
-
-        if(0 != strlcat(0, 0, 0))
-          return 1;
-
- ;
- return 0;
-}
-
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-      tst_compi_strlcat="yes"
-
-else
-
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-      tst_compi_strlcat="no"
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-  fi
-  #
-  if test "$tst_compi_strlcat" = "yes"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking if strlcat usage allowed" >&5
-$as_echo_n "checking if strlcat usage allowed... " >&6; }
-    if test "x$curl_disallow_strlcat" != "xyes"; then
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-      tst_allow_strlcat="yes"
-    else
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-      tst_allow_strlcat="no"
-    fi
-  fi
-  #
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking if strlcat might be used" >&5
-$as_echo_n "checking if strlcat might be used... " >&6; }
-  if test "$tst_links_strlcat" = "yes" &&
-     test "$tst_proto_strlcat" = "yes" &&
-     test "$tst_compi_strlcat" = "yes" &&
-     test "$tst_allow_strlcat" = "yes"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_STRLCAT 1
-_ACEOF
-
-    ac_cv_func_strlcat="yes"
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-    ac_cv_func_strlcat="no"
   fi
 
 
@@ -39781,12 +39366,16 @@ else
   am__EXEEXT_FALSE=
 fi
 
-if test -z "${MIMPURE_TRUE}" && test -z "${MIMPURE_FALSE}"; then
-  as_fn_error $? "conditional \"MIMPURE\" was never defined.
+if test -z "${CURL_LT_SHLIB_USE_VERSION_INFO_TRUE}" && test -z "${CURL_LT_SHLIB_USE_VERSION_INFO_FALSE}"; then
+  as_fn_error $? "conditional \"CURL_LT_SHLIB_USE_VERSION_INFO\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${USE_CPPFLAG_BUILDING_LIBCURL_TRUE}" && test -z "${USE_CPPFLAG_BUILDING_LIBCURL_FALSE}"; then
-  as_fn_error $? "conditional \"USE_CPPFLAG_BUILDING_LIBCURL\" was never defined.
+if test -z "${CURL_LT_SHLIB_USE_NO_UNDEFINED_TRUE}" && test -z "${CURL_LT_SHLIB_USE_NO_UNDEFINED_FALSE}"; then
+  as_fn_error $? "conditional \"CURL_LT_SHLIB_USE_NO_UNDEFINED\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${CURL_LT_SHLIB_USE_MIMPURE_TEXT_TRUE}" && test -z "${CURL_LT_SHLIB_USE_MIMPURE_TEXT_FALSE}"; then
+  as_fn_error $? "conditional \"CURL_LT_SHLIB_USE_MIMPURE_TEXT\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${USE_CPPFLAG_CURL_STATICLIB_TRUE}" && test -z "${USE_CPPFLAG_CURL_STATICLIB_FALSE}"; then
@@ -39795,10 +39384,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${USE_EXPLICIT_LIB_DEPS_TRUE}" && test -z "${USE_EXPLICIT_LIB_DEPS_FALSE}"; then
   as_fn_error $? "conditional \"USE_EXPLICIT_LIB_DEPS\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${NO_UNDEFINED_TRUE}" && test -z "${NO_UNDEFINED_FALSE}"; then
-  as_fn_error $? "conditional \"NO_UNDEFINED\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${CURLDEBUG_TRUE}" && test -z "${CURLDEBUG_FALSE}"; then
@@ -39817,8 +39402,8 @@ if test -z "${HAVE_LIBZ_TRUE}" && test -z "${HAVE_LIBZ_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_LIBZ\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${VERSIONED_SYMBOLS_TRUE}" && test -z "${VERSIONED_SYMBOLS_FALSE}"; then
-  as_fn_error $? "conditional \"VERSIONED_SYMBOLS\" was never defined.
+if test -z "${CURL_LT_SHLIB_USE_VERSIONED_SYMBOLS_TRUE}" && test -z "${CURL_LT_SHLIB_USE_VERSIONED_SYMBOLS_FALSE}"; then
+  as_fn_error $? "conditional \"CURL_LT_SHLIB_USE_VERSIONED_SYMBOLS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${USE_MANUAL_TRUE}" && test -z "${USE_MANUAL_FALSE}"; then
@@ -40429,11 +40014,11 @@ AMDEP_TRUE="$AMDEP_TRUE" ac_aux_dir="$ac_aux_dir"
 sed_quote_subst='$sed_quote_subst'
 double_quote_subst='$double_quote_subst'
 delay_variable_subst='$delay_variable_subst'
+macro_version='`$ECHO "$macro_version" | $SED "$delay_single_quote_subst"`'
+macro_revision='`$ECHO "$macro_revision" | $SED "$delay_single_quote_subst"`'
 AS='`$ECHO "$AS" | $SED "$delay_single_quote_subst"`'
 DLLTOOL='`$ECHO "$DLLTOOL" | $SED "$delay_single_quote_subst"`'
 OBJDUMP='`$ECHO "$OBJDUMP" | $SED "$delay_single_quote_subst"`'
-macro_version='`$ECHO "$macro_version" | $SED "$delay_single_quote_subst"`'
-macro_revision='`$ECHO "$macro_revision" | $SED "$delay_single_quote_subst"`'
 enable_shared='`$ECHO "$enable_shared" | $SED "$delay_single_quote_subst"`'
 enable_static='`$ECHO "$enable_static" | $SED "$delay_single_quote_subst"`'
 pic_mode='`$ECHO "$pic_mode" | $SED "$delay_single_quote_subst"`'
@@ -41488,6 +41073,10 @@ available_tags=""
 
 # ### BEGIN LIBTOOL CONFIG
 
+# Which release of libtool.m4 was used?
+macro_version=$macro_version
+macro_revision=$macro_revision
+
 # Assembler program.
 AS=$lt_AS
 
@@ -41496,10 +41085,6 @@ DLLTOOL=$lt_DLLTOOL
 
 # Object dumper program.
 OBJDUMP=$lt_OBJDUMP
-
-# Which release of libtool.m4 was used?
-macro_version=$macro_version
-macro_revision=$macro_revision
 
 # Whether or not to build shared libraries.
 build_libtool_libs=$enable_shared

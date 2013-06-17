@@ -160,12 +160,12 @@ typedef struct
 //BBi All pointers replaced with 4-byte integers.
 //BBi Of course this structure must be identical to original one (g_script_status_t).
 struct GScriptStatus32 {
-    bbi::Int32 scriptStackHead;
-    bbi::Int32 scriptStackChangeTime;
-    bbi::Int32 scriptEventIndex;
-    bbi::Int32 scriptId;
-    bbi::Int32 scriptFlags;
-    bbi::Int32 animatingParams; // pointer
+    int32_t scriptStackHead;
+    int32_t scriptStackChangeTime;
+    int32_t scriptEventIndex;
+    int32_t scriptId;
+    int32_t scriptFlags;
+    int32_t animatingParams; // pointer
 }; // struct GScriptStatus32
 
 //
@@ -209,150 +209,150 @@ void G_Script_ScriptEvent( gentity_t *ent, char *eventStr, char *params );
 struct GEntity32 {
     entityState_t s;
     entityShared_t r;
-    bbi::Int32 client; // pointer
+    int32_t client; // pointer
     qboolean inuse;
-    bbi::Int32 classname; // pointer
-    bbi::Int32 spawnflags;
+    int32_t classname; // pointer
+    int32_t spawnflags;
     qboolean neverFree;
-    bbi::Int32 flags;
-    bbi::Int32 model; // pointer
-    bbi::Int32 model2; // pointer
-    bbi::Int32 freetime;
-    bbi::Int32 eventTime;
+    int32_t flags;
+    int32_t model; // pointer
+    int32_t model2; // pointer
+    int32_t freetime;
+    int32_t eventTime;
     qboolean freeAfterEvent;
     qboolean unlinkAfterEvent;
     qboolean physicsObject;
     float physicsBounce;
-    bbi::Int32 clipmask;
+    int32_t clipmask;
     moverState_t moverState;
-    bbi::Int32 soundPos1;
-    bbi::Int32 sound1to2;
-    bbi::Int32 sound2to1;
-    bbi::Int32 soundPos2;
-    bbi::Int32 soundLoop;
-    bbi::Int32 sound2to3;
-    bbi::Int32 sound3to2;
-    bbi::Int32 soundPos3;
-    bbi::Int32 soundKicked;
-    bbi::Int32 soundKickedEnd;
-    bbi::Int32 soundSoftopen;
-    bbi::Int32 soundSoftendo;
-    bbi::Int32 soundSoftclose;
-    bbi::Int32 soundSoftendc;
-    bbi::Int32 parent; // pointer
-    bbi::Int32 nextTrain; // pointer
-    bbi::Int32 prevTrain; // pointer
+    int32_t soundPos1;
+    int32_t sound1to2;
+    int32_t sound2to1;
+    int32_t soundPos2;
+    int32_t soundLoop;
+    int32_t sound2to3;
+    int32_t sound3to2;
+    int32_t soundPos3;
+    int32_t soundKicked;
+    int32_t soundKickedEnd;
+    int32_t soundSoftopen;
+    int32_t soundSoftendo;
+    int32_t soundSoftclose;
+    int32_t soundSoftendc;
+    int32_t parent; // pointer
+    int32_t nextTrain; // pointer
+    int32_t prevTrain; // pointer
     vec3_t pos1;
     vec3_t pos2;
     vec3_t pos3;
-    bbi::Int32 message; // pointer
-    bbi::Int32 timestamp;
+    int32_t message; // pointer
+    int32_t timestamp;
     float angle;
-    bbi::Int32 target; // pointer
-    bbi::Int32 targetdeath; // pointer
-    bbi::Int32 targetname; // pointer
-    bbi::Int32 team; // pointer
-    bbi::Int32 targetShaderName; // pointer
-    bbi::Int32 targetShaderNewName; // pointer
-    bbi::Int32 target_ent; // pointer
+    int32_t target; // pointer
+    int32_t targetdeath; // pointer
+    int32_t targetname; // pointer
+    int32_t team; // pointer
+    int32_t targetShaderName; // pointer
+    int32_t targetShaderNewName; // pointer
+    int32_t target_ent; // pointer
     float speed;
     float closespeed;
     vec3_t movedir;
-    bbi::Int32 gDuration;
-    bbi::Int32 gDurationBack;
+    int32_t gDuration;
+    int32_t gDurationBack;
     vec3_t gDelta;
     vec3_t gDeltaBack;
-    bbi::Int32 nextthink;
-    bbi::Int32 think; // pointer
-    bbi::Int32 reached; // pointer
-    bbi::Int32 blocked; // pointer
-    bbi::Int32 touch; // pointer
-    bbi::Int32 use; // pointer
-    bbi::Int32 pain; // pointer
-    bbi::Int32 die; // pointer
-    bbi::Int32 pain_debounce_time;
-    bbi::Int32 fly_sound_debounce_time;
-    bbi::Int32 last_move_time;
-    bbi::Int32 health;
+    int32_t nextthink;
+    int32_t think; // pointer
+    int32_t reached; // pointer
+    int32_t blocked; // pointer
+    int32_t touch; // pointer
+    int32_t use; // pointer
+    int32_t pain; // pointer
+    int32_t die; // pointer
+    int32_t pain_debounce_time;
+    int32_t fly_sound_debounce_time;
+    int32_t last_move_time;
+    int32_t health;
     qboolean takedamage;
-    bbi::Int32 damage;
-    bbi::Int32 splashDamage;
-    bbi::Int32 splashRadius;
-    bbi::Int32 methodOfDeath;
-    bbi::Int32 splashMethodOfDeath;
-    bbi::Int32 count;
-    bbi::Int32 chain; // pointer
-    bbi::Int32 enemy; // pointer
-    bbi::Int32 activator; // pointer
-    bbi::Int32 teamchain; // pointer
-    bbi::Int32 teammaster; // pointer
-    bbi::Int32 watertype;
-    bbi::Int32 waterlevel;
-    bbi::Int32 noise_index;
+    int32_t damage;
+    int32_t splashDamage;
+    int32_t splashRadius;
+    int32_t methodOfDeath;
+    int32_t splashMethodOfDeath;
+    int32_t count;
+    int32_t chain; // pointer
+    int32_t enemy; // pointer
+    int32_t activator; // pointer
+    int32_t teamchain; // pointer
+    int32_t teammaster; // pointer
+    int32_t watertype;
+    int32_t waterlevel;
+    int32_t noise_index;
     float wait;
     float random;
-    bbi::Int32 radius;
+    int32_t radius;
     float delay;
-    bbi::Int32 TargetFlag;
+    int32_t TargetFlag;
     float duration;
     vec3_t rotate;
     vec3_t TargetAngles;
-    bbi::Int32 item; // pointer
-    bbi::Int32 aiAttributes; // pointer
-    bbi::Int32 aiName; // pointer
-    bbi::Int32 aiTeam;
-    bbi::Int32 AIScript_AlertEntity; // pointer
+    int32_t item; // pointer
+    int32_t aiAttributes; // pointer
+    int32_t aiName; // pointer
+    int32_t aiTeam;
+    int32_t AIScript_AlertEntity; // pointer
     qboolean aiInactive;
-    bbi::Int32 aiCharacter;
-    bbi::Int32 aiSkin; // pointer
-    bbi::Int32 aihSkin; // pointer
+    int32_t aiCharacter;
+    int32_t aiSkin; // pointer
+    int32_t aihSkin; // pointer
     vec3_t dl_color;
-    bbi::Int32 dl_stylestring; // pointer
-    bbi::Int32 dl_shader; // pointer
-    bbi::Int32 dl_atten;
-    bbi::Int32 key;
+    int32_t dl_stylestring; // pointer
+    int32_t dl_shader; // pointer
+    int32_t dl_atten;
+    int32_t key;
     qboolean active;
     qboolean botDelayBegin;
     float harc;
     float varc;
     float activateArc;
-    bbi::Int32 props_frame_state;
-    bbi::Int32 missionLevel;
-    bbi::Int32 missionObjectives;
-    bbi::Int32 numSecretsFound;
-    bbi::Int32 numTreasureFound;
+    int32_t props_frame_state;
+    int32_t missionLevel;
+    int32_t missionObjectives;
+    int32_t numSecretsFound;
+    int32_t numTreasureFound;
     qboolean is_dead;
-    bbi::Int32 start_size;
-    bbi::Int32 end_size;
+    int32_t start_size;
+    int32_t end_size;
     qboolean isProp;
-    bbi::Int32 mg42BaseEnt;
-    bbi::Int32 melee; // pointer
-    bbi::Int32 spawnitem; // pointer
+    int32_t mg42BaseEnt;
+    int32_t melee; // pointer
+    int32_t spawnitem; // pointer
     qboolean nopickup;
-    bbi::Int32 flameQuota;
-    bbi::Int32 flameQuotaTime;
-    bbi::Int32 flameBurnEnt;
-    bbi::Int32 count2;
-    bbi::Int32 grenadeExplodeTime;
-    bbi::Int32 grenadeFired;
-    bbi::Int32 mg42ClampTime;
-    bbi::Int32 track; // pointer
-    bbi::Int32 scriptName; // pointer
-    bbi::Int32 numScriptEvents;
-    bbi::Int32 scriptEvents; // pointer
+    int32_t flameQuota;
+    int32_t flameQuotaTime;
+    int32_t flameBurnEnt;
+    int32_t count2;
+    int32_t grenadeExplodeTime;
+    int32_t grenadeFired;
+    int32_t mg42ClampTime;
+    int32_t track; // pointer
+    int32_t scriptName; // pointer
+    int32_t numScriptEvents;
+    int32_t scriptEvents; // pointer
     GScriptStatus32 scriptStatus; // struct
     GScriptStatus32 scriptStatusBackup; // struct
-    bbi::Int32 scriptAccumBuffer[G_MAX_SCRIPT_ACCUM_BUFFERS];
+    int32_t scriptAccumBuffer[G_MAX_SCRIPT_ACCUM_BUFFERS];
     qboolean AASblocking;
     float accuracy;
-    bbi::Int32 tagName; // pointer
-    bbi::Int32 tagParent; // pointer
+    int32_t tagName; // pointer
+    int32_t tagParent; // pointer
     float headshotDamageScale;
     GScriptStatus32 scriptStatusCurrent; // struct
-    bbi::Int32 emitID;
-    bbi::Int32 emitNum;
-    bbi::Int32 emitPressure;
-    bbi::Int32 emitTime;
+    int32_t emitID;
+    int32_t emitNum;
+    int32_t emitPressure;
+    int32_t emitTime;
 }; // struct GEntity32
 //BBi
 
@@ -714,50 +714,50 @@ struct GClient32 {
     clientSession_t sess;
     qboolean readyToExit;
     qboolean noclip;
-    bbi::Int32 lastCmdTime;
-    bbi::Int32 buttons;
-    bbi::Int32 oldbuttons;
-    bbi::Int32 latched_buttons;
-    bbi::Int32 wbuttons;
-    bbi::Int32 oldwbuttons;
-    bbi::Int32 latched_wbuttons;
+    int32_t lastCmdTime;
+    int32_t buttons;
+    int32_t oldbuttons;
+    int32_t latched_buttons;
+    int32_t wbuttons;
+    int32_t oldwbuttons;
+    int32_t latched_wbuttons;
     vec3_t oldOrigin;
-    bbi::Int32 damage_armor;
-    bbi::Int32 damage_blood;
-    bbi::Int32 damage_knockback;
+    int32_t damage_armor;
+    int32_t damage_blood;
+    int32_t damage_knockback;
     vec3_t damage_from;
     qboolean damage_fromWorld;
-    bbi::Int32 accurateCount;
-    bbi::Int32 accuracy_shots;
-    bbi::Int32 accuracy_hits;
-    bbi::Int32 lastkilled_client;
-    bbi::Int32 lasthurt_client;
-    bbi::Int32 lasthurt_mod;
-    bbi::Int32 respawnTime;
-    bbi::Int32 inactivityTime;
+    int32_t accurateCount;
+    int32_t accuracy_shots;
+    int32_t accuracy_hits;
+    int32_t lastkilled_client;
+    int32_t lasthurt_client;
+    int32_t lasthurt_mod;
+    int32_t respawnTime;
+    int32_t inactivityTime;
     qboolean inactivityWarning;
-    bbi::Int32 rewardTime;
-    bbi::Int32 airOutTime;
-    bbi::Int32 lastKillTime;
+    int32_t rewardTime;
+    int32_t airOutTime;
+    int32_t lastKillTime;
     qboolean fireHeld;
-    bbi::Int32 hook; // pointer
-    bbi::Int32 switchTeamTime;
-    bbi::Int32 timeResidual;
+    int32_t hook; // pointer
+    int32_t switchTeamTime;
+    int32_t timeResidual;
     float currentAimSpreadScale;
-    bbi::Int32 medicHealAmt;
-    bbi::Int32 modelInfo; // pointer
-    bbi::Int32 persistantPowerup; // pointer
-    bbi::Int32 portalID;
-    bbi::Int32 ammoTimes[WP_NUM_WEAPONS];
-    bbi::Int32 invulnerabilityTime;
-    bbi::Int32 cameraPortal; // pointer
+    int32_t medicHealAmt;
+    int32_t modelInfo; // pointer
+    int32_t persistantPowerup; // pointer
+    int32_t portalID;
+    int32_t ammoTimes[WP_NUM_WEAPONS];
+    int32_t invulnerabilityTime;
+    int32_t cameraPortal; // pointer
     vec3_t cameraOrigin;
-    bbi::Int32 limboDropWeapon;
-    bbi::Int32 deployQueueNumber;
-    bbi::Int32 sniperRifleFiredTime;
+    int32_t limboDropWeapon;
+    int32_t deployQueueNumber;
+    int32_t sniperRifleFiredTime;
     float sniperRifleMuzzleYaw;
     float sniperRifleMuzzlePitch;
-    bbi::Int32 saved_persistant[MAX_PERSISTANT];
+    int32_t saved_persistant[MAX_PERSISTANT];
 }; // struct GClient32
 //BBi
 

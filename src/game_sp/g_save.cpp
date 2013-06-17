@@ -81,7 +81,7 @@ namespace {
     const int MAX_ENCODER_BUFFER_SIZE = 2 * sizeof (CastState32);
 
 
-    std::vector<bbi::UInt8> g_encoder_buffer;
+    std::vector<uint8_t> g_encoder_buffer;
 
 
 } // namespace
@@ -1478,7 +1478,7 @@ int s_save_encode (const T& dst_struct)
     if (g_encoder_buffer.empty ())
         g_encoder_buffer.resize (MAX_ENCODER_BUFFER_SIZE);
 
-    bbi::UInt8* out_bytes = &g_encoder_buffer[0];
+    uint8_t* out_bytes = &g_encoder_buffer[0];
 
     int raw_count = 0;
     int out_count = 0;
@@ -1490,7 +1490,7 @@ int s_save_encode (const T& dst_struct)
         int mode = (in_bytes[raw_count] != 0) ? 1 : 0;
 
         // calc the count
-        bbi::UInt8 count = 0;
+        uint8_t count = 0;
 
         while ((raw_count < raw_size) &&
             ((in_bytes[raw_count] != 0) == mode) &&
@@ -1558,8 +1558,8 @@ void G_Save_Decode (const byte* src_bytes, int src_size, T& dst_struct)
     static typename T::Struct32 tmp_struct;
     const bool is_struct_32 = (sizeof (T) == sizeof (typename T::Struct32));
     byte* dst_bytes = is_struct_32 ?
-        reinterpret_cast<bbi::UInt8*> (&dst_struct) :
-        reinterpret_cast<bbi::UInt8*> (&tmp_struct);
+        reinterpret_cast<uint8_t*> (&dst_struct) :
+        reinterpret_cast<uint8_t*> (&tmp_struct);
 
     byte count; //DAJ was "int" but caused endian bugs
     int src_count = 0;

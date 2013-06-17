@@ -1328,7 +1328,7 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
         // BBi
         int vertex_index = 0;
         color4ub_t col_buf;
-        bbi::UInt8* col;
+        uint8_t* col;
         const float* pos;
         // BBi
 
@@ -1362,9 +1362,9 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 
                     // BBi
                     if (!glConfigEx.is_path_ogl_1_x ()) {
-                        col_buf[0] = static_cast<bbi::UInt8> (vec[0] * 255.0F);
-                        col_buf[1] = static_cast<bbi::UInt8> (vec[1] * 255.0F);
-                        col_buf[2] = static_cast<bbi::UInt8> (vec[2] * 255.0F);
+                        col_buf[0] = static_cast<uint8_t> (vec[0] * 255.0F);
+                        col_buf[1] = static_cast<uint8_t> (vec[1] * 255.0F);
+                        col_buf[2] = static_cast<uint8_t> (vec[2] * 255.0F);
                         col_buf[3] = 255;
 
                         col = ogl_tess2.color[vertex_index];

@@ -129,7 +129,7 @@ aas_routingcache_t::Struct* aas_routingcache_t::convertFrom32 (
         reinterpret_cast<byte*> (&dst.traveltimes));
 
     if (!bbi::Endian::is_little ()) {
-        int tt_count = (dst.reachabilities - reinterpret_cast<const bbi::UChar*> (&dst.traveltimes)) / 2;
+        int tt_count = (dst.reachabilities - reinterpret_cast<const unsigned char*>(&dst.traveltimes)) / 2;
 
         bbi::Endian::le (src.traveltimes, tt_count, dst.traveltimes);
     }
@@ -164,7 +164,7 @@ void aas_routingcache_t::convertTo32 (
         reinterpret_cast<byte*> (&dst.traveltimes));
 
     if (!bbi::Endian::is_little ()) {
-        int tt_count = (src.reachabilities - reinterpret_cast<const bbi::UChar*> (&src.traveltimes)) / 2;
+        int tt_count = (src.reachabilities - reinterpret_cast<const unsigned char*>(&src.traveltimes)) / 2;
 
         bbi::Endian::le (src.traveltimes, tt_count, dst.traveltimes);
     }
@@ -1856,16 +1856,16 @@ void AAS_WriteRouteCache( void ) {
     }
 
     //create the header
-    routecacheheader.ident = bbi::Endian::le (static_cast<bbi::UInt32> (RCID));
-    routecacheheader.version = bbi::Endian::le (static_cast<bbi::UInt32> (RCVERSION));
+    routecacheheader.ident = bbi::Endian::le (static_cast<uint32_t> (RCID));
+    routecacheheader.version = bbi::Endian::le (static_cast<uint32_t> (RCVERSION));
     routecacheheader.numareas = bbi::Endian::le ( aasworld->numareas);
     routecacheheader.numclusters = bbi::Endian::le (aasworld->numclusters);
     routecacheheader.areacrc = bbi::Endian::le (::CRC_ProcessString (
-        reinterpret_cast<bbi::UChar*> (aasworld->areas), sizeof (aas_area_t) * aasworld->numareas));
+        reinterpret_cast<unsigned char*>(aasworld->areas), sizeof (aas_area_t) * aasworld->numareas));
     routecacheheader.clustercrc = bbi::Endian::le (::CRC_ProcessString (
-        reinterpret_cast<bbi::UChar*> (aasworld->clusters), sizeof (aas_cluster_t) * aasworld->numclusters));
+        reinterpret_cast<unsigned char*>(aasworld->clusters), sizeof (aas_cluster_t) * aasworld->numclusters));
     routecacheheader.reachcrc = bbi::Endian::le (::CRC_ProcessString (
-        reinterpret_cast<bbi::UChar*> (aasworld->reachability), sizeof (aas_reachability_t) * aasworld->reachabilitysize));
+        reinterpret_cast<unsigned char*>(aasworld->reachability), sizeof (aas_reachability_t) * aasworld->reachabilitysize));
     routecacheheader.numportalcache = bbi::Endian::le (numportalcache);
     routecacheheader.numareacache = bbi::Endian::le (numareacache);
 

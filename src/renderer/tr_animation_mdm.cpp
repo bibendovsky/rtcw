@@ -1517,7 +1517,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
         // BBi
         int vertex_index = 0;
         color4ub_t col_buf;
-        bbi::UInt8* col;
+        uint8_t* col;
         const float* pos;
         // BBi
 
@@ -1553,9 +1553,9 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 
                         // BBi
                         if (!glConfigEx.is_path_ogl_1_x ()) {
-                            col_buf[0] = static_cast<bbi::UInt8> (255.0F * vec[0]);
-                            col_buf[1] = static_cast<bbi::UInt8> (255.0F * vec[1]);
-                            col_buf[2] = static_cast<bbi::UInt8> (255.0F * vec[2]);
+                            col_buf[0] = static_cast<uint8_t> (255.0F * vec[0]);
+                            col_buf[1] = static_cast<uint8_t> (255.0F * vec[1]);
+                            col_buf[2] = static_cast<uint8_t> (255.0F * vec[2]);
                             col_buf[3] = 255;
 
                             col = ogl_tess2.color[vertex_index];
@@ -1779,9 +1779,9 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 
                             // BBi
                             if (!glConfigEx.is_path_ogl_1_x ()) {
-                                col_buf[0] = static_cast<bbi::UInt8> (255.0F * vec[0]);
-                                col_buf[1] = static_cast<bbi::UInt8> (255.0F * vec[1]);
-                                col_buf[2] = static_cast<bbi::UInt8> (255.0F * vec[2]);
+                                col_buf[0] = static_cast<uint8_t> (255.0F * vec[0]);
+                                col_buf[1] = static_cast<uint8_t> (255.0F * vec[1]);
+                                col_buf[2] = static_cast<uint8_t> (255.0F * vec[2]);
                                 col_buf[0] = 255;
 
                                 col = ogl_tess2.color[vertex_index];

@@ -489,10 +489,13 @@ If you have questions concerning this license or the applicable additional terms
 ////=============================================================
 //BBi
 
-typedef unsigned char byte;
+// BBi
+//typedef unsigned char byte;
+typedef uint8_t byte;
+// BBi
 
 //typedef enum {qfalse, qtrue}    qboolean;
-typedef bbi::Int32 qboolean;
+typedef int32_t qboolean;
 const qboolean qfalse = 0;
 const qboolean qtrue = 1;
 
@@ -1554,9 +1557,9 @@ PlaneTypeForNormal
 typedef struct cplane_s {
 	vec3_t normal;
 	float dist;
-	bbi::UInt8 type;              // for fast side tests: 0,1,2 = axial, 3 = nonaxial
-	bbi::UInt8 signbits;          // signx + (signy<<1) + (signz<<2), used as lookup during collision
-	bbi::UInt8 pad[2];
+	uint8_t type;              // for fast side tests: 0,1,2 = axial, 3 = nonaxial
+	uint8_t signbits;          // signx + (signy<<1) + (signz<<2), used as lookup during collision
+	uint8_t pad[2];
 } cplane_t;
 
 #if defined RTCW_ET
@@ -2156,16 +2159,16 @@ typedef enum {
 // usercmd_t is sent to the server each client frame
 typedef struct usercmd_s {
 	int serverTime;
-	bbi::UInt8 buttons;
-	bbi::UInt8 wbuttons;
-	bbi::UInt8 weapon;
+	uint8_t buttons;
+	uint8_t wbuttons;
+	uint8_t weapon;
 
 #if !defined RTCW_ET
-	bbi::UInt8 holdable;          //----(SA)	added
+	uint8_t holdable;          //----(SA)	added
 #endif // RTCW_XX
 
 #if defined RTCW_ET
-	bbi::UInt8 flags;
+	uint8_t flags;
 #endif // RTCW_XX
 
 	int angles[3];
@@ -2177,7 +2180,7 @@ typedef struct usercmd_s {
 #endif // RTCW_XX
 
 #if defined RTCW_ET
-	bbi::UInt8 doubleTap;             // Arnout: only 3 bits used
+	uint8_t doubleTap;             // Arnout: only 3 bits used
 #endif // RTCW_XX
 
 #if defined RTCW_SP
@@ -2188,7 +2191,7 @@ typedef struct usercmd_s {
 #else
 	// rain - in ET, this can be any entity, and it's used as an array
 	// index, so make sure it's unsigned
-	bbi::UInt8 identClient;           // NERVE - SMF
+	uint8_t identClient;           // NERVE - SMF
 #endif // RTCW_XX
 
 } usercmd_t;

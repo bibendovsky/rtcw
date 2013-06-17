@@ -2368,7 +2368,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 
     // BBi
     if (!glConfigEx.is_path_ogl_1_x ()) {
-        bbi::UInt8* col;
+        uint8_t* col;
 
         //
         col = ogl_tess2.color[0];
@@ -2514,7 +2514,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 
     // BBi
     if (!glConfigEx.is_path_ogl_1_x ()) {
-        bbi::UInt8* col;
+        uint8_t* col;
 
         //
         col = ogl_tess2.color[0];

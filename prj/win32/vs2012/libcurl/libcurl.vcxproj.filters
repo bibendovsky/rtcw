@@ -345,5 +345,8 @@
     <ClCompile Include="..\..\..\..\src\curl\lib\wildcard.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\curl\lib\pipeline.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

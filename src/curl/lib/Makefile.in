@@ -60,12 +60,13 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-
-# Mostly for Windows build targets, when building libcurl library
-@USE_CPPFLAG_BUILDING_LIBCURL_TRUE@am__append_1 = -DBUILDING_LIBCURL
-
-# Mostly for Windows build targets, when building static libcurl
-@USE_CPPFLAG_CURL_STATICLIB_TRUE@am__append_2 = -DCURL_STATICLIB
+@CURL_LT_SHLIB_USE_VERSION_INFO_TRUE@am__append_1 = $(VERSIONINFO)
+@CURL_LT_SHLIB_USE_NO_UNDEFINED_TRUE@am__append_2 = -no-undefined
+@CURL_LT_SHLIB_USE_MIMPURE_TEXT_TRUE@am__append_3 = -mimpure-text
+@CURL_LT_SHLIB_USE_VERSIONED_SYMBOLS_TRUE@am__append_4 = -Wl,--version-script=libcurl.vers
+@USE_CPPFLAG_CURL_STATICLIB_TRUE@am__append_5 = -DCURL_STATICLIB
+@DOING_CURL_SYMBOL_HIDING_TRUE@am__append_6 = -DCURL_HIDDEN_SYMBOLS
+@DOING_CURL_SYMBOL_HIDING_TRUE@am__append_7 = $(CFLAG_CURL_SYMBOL_HIDING)
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/Makefile.inc $(srcdir)/curl_config.h.in \
 	$(srcdir)/libcurl.vers.in
@@ -80,6 +81,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/curl-compilers.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
 	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
 	$(top_srcdir)/m4/xc-cc-check.m4 \
+	$(top_srcdir)/m4/xc-lt-iface.m4 \
 	$(top_srcdir)/m4/xc-translit.m4 \
 	$(top_srcdir)/m4/xc-val-flgs.m4 \
 	$(top_srcdir)/m4/zz40-xc-ovr.m4 \
@@ -159,18 +161,19 @@ am__objects_1 = libcurl_la-file.lo libcurl_la-timeval.lo \
 	libcurl_la-pingpong.lo libcurl_la-rtsp.lo \
 	libcurl_la-curl_threads.lo libcurl_la-warnless.lo \
 	libcurl_la-hmac.lo libcurl_la-polarssl.lo \
-	libcurl_la-curl_rtmp.lo libcurl_la-openldap.lo \
-	libcurl_la-curl_gethostname.lo libcurl_la-gopher.lo \
-	libcurl_la-axtls.lo libcurl_la-idn_win32.lo \
-	libcurl_la-http_negotiate_sspi.lo libcurl_la-cyassl.lo \
-	libcurl_la-http_proxy.lo libcurl_la-non-ascii.lo \
-	libcurl_la-asyn-ares.lo libcurl_la-asyn-thread.lo \
-	libcurl_la-curl_gssapi.lo libcurl_la-curl_ntlm.lo \
-	libcurl_la-curl_ntlm_wb.lo libcurl_la-curl_ntlm_core.lo \
-	libcurl_la-curl_ntlm_msgs.lo libcurl_la-curl_sasl.lo \
-	libcurl_la-curl_schannel.lo libcurl_la-curl_multibyte.lo \
-	libcurl_la-curl_darwinssl.lo libcurl_la-hostcheck.lo \
-	libcurl_la-bundles.lo libcurl_la-conncache.lo
+	libcurl_la-polarssl_threadlock.lo libcurl_la-curl_rtmp.lo \
+	libcurl_la-openldap.lo libcurl_la-curl_gethostname.lo \
+	libcurl_la-gopher.lo libcurl_la-axtls.lo \
+	libcurl_la-idn_win32.lo libcurl_la-http_negotiate_sspi.lo \
+	libcurl_la-cyassl.lo libcurl_la-http_proxy.lo \
+	libcurl_la-non-ascii.lo libcurl_la-asyn-ares.lo \
+	libcurl_la-asyn-thread.lo libcurl_la-curl_gssapi.lo \
+	libcurl_la-curl_ntlm.lo libcurl_la-curl_ntlm_wb.lo \
+	libcurl_la-curl_ntlm_core.lo libcurl_la-curl_ntlm_msgs.lo \
+	libcurl_la-curl_sasl.lo libcurl_la-curl_schannel.lo \
+	libcurl_la-curl_multibyte.lo libcurl_la-curl_darwinssl.lo \
+	libcurl_la-hostcheck.lo libcurl_la-bundles.lo \
+	libcurl_la-conncache.lo libcurl_la-pipeline.lo
 am__objects_2 =
 am_libcurl_la_OBJECTS = $(am__objects_1) $(am__objects_2)
 libcurl_la_OBJECTS = $(am_libcurl_la_OBJECTS)
@@ -218,18 +221,19 @@ am__objects_3 = libcurlu_la-file.lo libcurlu_la-timeval.lo \
 	libcurlu_la-pingpong.lo libcurlu_la-rtsp.lo \
 	libcurlu_la-curl_threads.lo libcurlu_la-warnless.lo \
 	libcurlu_la-hmac.lo libcurlu_la-polarssl.lo \
-	libcurlu_la-curl_rtmp.lo libcurlu_la-openldap.lo \
-	libcurlu_la-curl_gethostname.lo libcurlu_la-gopher.lo \
-	libcurlu_la-axtls.lo libcurlu_la-idn_win32.lo \
-	libcurlu_la-http_negotiate_sspi.lo libcurlu_la-cyassl.lo \
-	libcurlu_la-http_proxy.lo libcurlu_la-non-ascii.lo \
-	libcurlu_la-asyn-ares.lo libcurlu_la-asyn-thread.lo \
-	libcurlu_la-curl_gssapi.lo libcurlu_la-curl_ntlm.lo \
-	libcurlu_la-curl_ntlm_wb.lo libcurlu_la-curl_ntlm_core.lo \
-	libcurlu_la-curl_ntlm_msgs.lo libcurlu_la-curl_sasl.lo \
-	libcurlu_la-curl_schannel.lo libcurlu_la-curl_multibyte.lo \
-	libcurlu_la-curl_darwinssl.lo libcurlu_la-hostcheck.lo \
-	libcurlu_la-bundles.lo libcurlu_la-conncache.lo
+	libcurlu_la-polarssl_threadlock.lo libcurlu_la-curl_rtmp.lo \
+	libcurlu_la-openldap.lo libcurlu_la-curl_gethostname.lo \
+	libcurlu_la-gopher.lo libcurlu_la-axtls.lo \
+	libcurlu_la-idn_win32.lo libcurlu_la-http_negotiate_sspi.lo \
+	libcurlu_la-cyassl.lo libcurlu_la-http_proxy.lo \
+	libcurlu_la-non-ascii.lo libcurlu_la-asyn-ares.lo \
+	libcurlu_la-asyn-thread.lo libcurlu_la-curl_gssapi.lo \
+	libcurlu_la-curl_ntlm.lo libcurlu_la-curl_ntlm_wb.lo \
+	libcurlu_la-curl_ntlm_core.lo libcurlu_la-curl_ntlm_msgs.lo \
+	libcurlu_la-curl_sasl.lo libcurlu_la-curl_schannel.lo \
+	libcurlu_la-curl_multibyte.lo libcurlu_la-curl_darwinssl.lo \
+	libcurlu_la-hostcheck.lo libcurlu_la-bundles.lo \
+	libcurlu_la-conncache.lo libcurlu_la-pipeline.lo
 am_libcurlu_la_OBJECTS = $(am__objects_3) $(am__objects_2)
 libcurlu_la_OBJECTS = $(am_libcurlu_la_OBJECTS)
 libcurlu_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -295,6 +299,7 @@ CURL_DISABLE_RTSP = @CURL_DISABLE_RTSP@
 CURL_DISABLE_SMTP = @CURL_DISABLE_SMTP@
 CURL_DISABLE_TELNET = @CURL_DISABLE_TELNET@
 CURL_DISABLE_TFTP = @CURL_DISABLE_TFTP@
+CURL_LT_SHLIB_VERSIONED_FLAVOUR = @CURL_LT_SHLIB_VERSIONED_FLAVOUR@
 CURL_NETWORK_AND_TIME_LIBS = @CURL_NETWORK_AND_TIME_LIBS@
 CURL_NETWORK_LIBS = @CURL_NETWORK_LIBS@
 CYGPATH_W = @CYGPATH_W@
@@ -388,7 +393,6 @@ USE_SCHANNEL = @USE_SCHANNEL@
 USE_SSLEAY = @USE_SSLEAY@
 USE_WINDOWS_SSPI = @USE_WINDOWS_SSPI@
 VERSION = @VERSION@
-VERSIONED_FLAVOUR = @VERSIONED_FLAVOUR@
 VERSIONNUM = @VERSIONNUM@
 ZLIB_LIBS = @ZLIB_LIBS@
 abs_builddir = @abs_builddir@
@@ -468,64 +472,23 @@ top_srcdir = @top_srcdir@
 #
 ###########################################################################
 AUTOMAKE_OPTIONS = foreign nostdinc
-DSP = vc6libcurl.dsp
-VCPROJ = libcurl.vcproj
 DOCS = README.encoding README.memoryleak README.ares README.curlx	\
  README.hostip README.multi_socket README.httpauth README.pipelining    \
  README.curl_off_t README.pingpong
 
 CMAKE_DIST = CMakeLists.txt curl_config.h.cmake
-EXTRA_DIST = Makefile.b32 Makefile.m32 Makefile.vc6 $(DSP)		\
- vc6libcurl.dsw config-win32.h config-win32ce.h config-riscos.h		\
- config-mac.h curl_config.h.in makefile.dj config-dos.h libcurl.plist	\
- libcurl.rc config-amigaos.h makefile.amiga Makefile.netware nwlib.c	\
- nwos.c msvcproj.head msvcproj.foot config-win32ce.h config-os400.h	\
- setup-os400.h config-symbian.h Makefile.Watcom config-tpf.h $(DOCS)	\
- $(VCPROJ) mk-ca-bundle.pl mk-ca-bundle.vbs firefox-db2pem.sh		\
- $(CMAKE_DIST) config-vxworks.h Makefile.vxworks checksrc.pl		\
+EXTRA_DIST = Makefile.b32 Makefile.m32 Makefile.vc6 config-win32.h	\
+ config-win32ce.h config-riscos.h config-mac.h curl_config.h.in		\
+ makefile.dj config-dos.h libcurl.plist libcurl.rc config-amigaos.h	\
+ makefile.amiga Makefile.netware nwlib.c nwos.c config-win32ce.h	\
+ config-os400.h setup-os400.h config-symbian.h Makefile.Watcom		\
+ config-tpf.h $(DOCS) mk-ca-bundle.pl mk-ca-bundle.vbs $(CMAKE_DIST)	\
+ firefox-db2pem.sh config-vxworks.h Makefile.vxworks checksrc.pl	\
  objnames-test08.sh objnames-test10.sh objnames.inc
 
-CLEANFILES = $(DSP) $(VCPROJ)
 lib_LTLIBRARIES = libcurl.la
-@USE_EMBEDDED_ARES_FALSE@AM_CPPFLAGS = -I$(top_builddir)/include/curl \
-@USE_EMBEDDED_ARES_FALSE@	-I$(top_builddir)/include \
-@USE_EMBEDDED_ARES_FALSE@	-I$(top_srcdir)/include \
-@USE_EMBEDDED_ARES_FALSE@	-I$(top_builddir)/lib \
-@USE_EMBEDDED_ARES_FALSE@	-I$(top_srcdir)/lib $(am__append_1) \
-@USE_EMBEDDED_ARES_FALSE@	$(am__append_2)
-
-# Specify our include paths here, and do it relative to $(top_srcdir) and
-# $(top_builddir), to ensure that these paths which belong to the library
-# being currently built and tested are searched before the library which
-# might possibly already be installed in the system.
-#
-# $(top_builddir)/include/curl for generated curlbuild.h included from curl.h
-# $(top_builddir)/include for generated curlbuild.h inc. from lib/curl_setup.h
-# $(top_srcdir)/include is for libcurl's external include files
-# $(top_builddir)/lib is for libcurl's generated lib/curl_config.h file
-# $(top_srcdir)/lib for libcurl's lib/curl_setup.h and other "private" files
-# $(top_builddir)/ares is for in-tree c-ares's generated ares_build.h file
-# $(top_srcdir)/ares is for in-tree c-ares's external include files
-@USE_EMBEDDED_ARES_TRUE@AM_CPPFLAGS = -I$(top_builddir)/include/curl \
-@USE_EMBEDDED_ARES_TRUE@	-I$(top_builddir)/include \
-@USE_EMBEDDED_ARES_TRUE@	-I$(top_srcdir)/include \
-@USE_EMBEDDED_ARES_TRUE@	-I$(top_builddir)/lib \
-@USE_EMBEDDED_ARES_TRUE@	-I$(top_srcdir)/lib \
-@USE_EMBEDDED_ARES_TRUE@	-I$(top_builddir)/ares \
-@USE_EMBEDDED_ARES_TRUE@	-I$(top_srcdir)/ares $(am__append_1) \
-@USE_EMBEDDED_ARES_TRUE@	$(am__append_2)
-@SONAME_BUMP_FALSE@VERSIONINFO = -version-info 7:0:3
-
-#
-# Bumping of SONAME conditionally may seem like a weird thing to do, and yeah
-# it is. The problem is that we try to avoid the bump as hard as possible, but
-# yet it is still necessary for a few rare situations. The configure script will
-# attempt to figure out these situations, and it can be forced to consider this
-# to be such a case! See README.curl_off_t for further details.
-#
-# This conditional soname bump SHOULD be removed at next "proper" bump.
-#
-@SONAME_BUMP_TRUE@VERSIONINFO = -version-info 8:0:3
+@BUILD_UNITTESTS_FALSE@noinst_LTLIBRARIES = 
+@BUILD_UNITTESTS_TRUE@noinst_LTLIBRARIES = libcurlu.la
 
 # This flag accepts an argument of the form current[:revision[:age]]. So,
 # passing -version-info 3:12:1 sets current to 3, revision to 12, and age to
@@ -539,25 +502,69 @@ lib_LTLIBRARIES = libcurl.la
 # 3. if interfaces were removed, then use C+1:0:0
 #
 # For the full guide on libcurl ABI rules, see docs/libcurl/ABI
+@USE_EMBEDDED_ARES_FALSE@AM_CPPFLAGS = -I$(top_builddir)/include/curl \
+@USE_EMBEDDED_ARES_FALSE@	-I$(top_builddir)/include \
+@USE_EMBEDDED_ARES_FALSE@	-I$(top_srcdir)/include \
+@USE_EMBEDDED_ARES_FALSE@	-I$(top_builddir)/lib \
+@USE_EMBEDDED_ARES_FALSE@	-I$(top_srcdir)/lib \
+@USE_EMBEDDED_ARES_FALSE@	-DBUILDING_LIBCURL
 
-# The -no-undefined flag is crucial to build fine on some platforms
-@NO_UNDEFINED_TRUE@UNDEF = -no-undefined
+# Specify our include paths here, and do it relative to $(top_srcdir) and
+# $(top_builddir), to ensure that these paths which belong to the library
+# being currently built and tested are searched before the library which
+# might possibly already be installed in the system.
+#
+# $(top_builddir)/include/curl for generated curlbuild.h included from curl.h
+# $(top_builddir)/include for generated curlbuild.h inc. from lib/curl_setup.h
+# $(top_srcdir)/include is for libcurl's external include files
+# $(top_builddir)/lib is for libcurl's generated lib/curl_config.h file
+# $(top_srcdir)/lib for libcurl's lib/curl_setup.h and other "private" files
+# $(top_builddir)/ares is for in-tree c-ares's generated ares_build.h file
+# $(top_srcdir)/ares is for in-tree c-ares's external include files
 
-# This is for gcc on Solaris (8+ ?) to avoid "relocations remain against
-# allocatable but non-writable sections" problems.
-@MIMPURE_TRUE@MIMPURE = -mimpure-text
-@VERSIONED_SYMBOLS_TRUE@VERSIONED_SYMBOLS = -Wl,--version-script=libcurl.vers
-libcurl_la_LDFLAGS = $(UNDEF) $(VERSIONINFO) $(MIMPURE) $(VERSIONED_SYMBOLS) $(LIBCURL_LIBS)
-@DOING_CURL_SYMBOL_HIDING_FALSE@libcurl_la_CPPFLAGS = $(AM_CPPFLAGS)
-@DOING_CURL_SYMBOL_HIDING_TRUE@libcurl_la_CPPFLAGS = $(AM_CPPFLAGS) -DCURL_HIDDEN_SYMBOLS
-@DOING_CURL_SYMBOL_HIDING_FALSE@libcurl_la_CFLAGS = $(AM_CFLAGS)
-@DOING_CURL_SYMBOL_HIDING_TRUE@libcurl_la_CFLAGS = $(AM_CFLAGS) $(CFLAG_CURL_SYMBOL_HIDING)
-@BUILD_UNITTESTS_FALSE@noinst_LTLIBRARIES = 
+# This flag accepts an argument of the form current[:revision[:age]]. So,
+# passing -version-info 3:12:1 sets current to 3, revision to 12, and age to
+# 1.
+#
+# Here's the simplified rule guide on how to change -version-info:
+# (current version is C:R:A)
+#
+# 1. if there are only source changes, use C:R+1:A
+# 2. if interfaces were added use C+1:0:A+1
+# 3. if interfaces were removed, then use C+1:0:0
+#
+# For the full guide on libcurl ABI rules, see docs/libcurl/ABI
+@USE_EMBEDDED_ARES_TRUE@AM_CPPFLAGS = -I$(top_builddir)/include/curl \
+@USE_EMBEDDED_ARES_TRUE@	-I$(top_builddir)/include \
+@USE_EMBEDDED_ARES_TRUE@	-I$(top_srcdir)/include \
+@USE_EMBEDDED_ARES_TRUE@	-I$(top_builddir)/lib \
+@USE_EMBEDDED_ARES_TRUE@	-I$(top_srcdir)/lib \
+@USE_EMBEDDED_ARES_TRUE@	-I$(top_builddir)/ares \
+@USE_EMBEDDED_ARES_TRUE@	-I$(top_srcdir)/ares \
+@USE_EMBEDDED_ARES_TRUE@	-DBUILDING_LIBCURL
+@SONAME_BUMP_FALSE@VERSIONINFO = -version-info 7:0:3
 
-# unit testing static library built only along with unit tests
-@BUILD_UNITTESTS_TRUE@noinst_LTLIBRARIES = libcurlu.la
-libcurlu_la_CPPFLAGS = $(AM_CPPFLAGS) -DUNITTESTS
-libcurlu_la_LDFLAGS = -static $(LIBCURL_LIBS)
+#
+# Bumping of SONAME conditionally may seem like a weird thing to do, and yeah
+# it is. The problem is that we try to avoid the bump as hard as possible, but
+# yet it is still necessary for a few rare situations. The configure script will
+# attempt to figure out these situations, and it can be forced to consider this
+# to be such a case! See README.curl_off_t for further details.
+#
+# This conditional soname bump SHOULD be removed at next "proper" bump.
+#
+@SONAME_BUMP_TRUE@VERSIONINFO = -version-info 8:0:3
+AM_LDFLAGS = 
+AM_CFLAGS = 
+libcurl_la_CPPFLAGS_EXTRA = $(am__append_5) $(am__append_6)
+libcurl_la_LDFLAGS_EXTRA = $(am__append_1) $(am__append_2) \
+	$(am__append_3) $(am__append_4)
+libcurl_la_CFLAGS_EXTRA = $(am__append_7)
+libcurl_la_CPPFLAGS = $(AM_CPPFLAGS) $(libcurl_la_CPPFLAGS_EXTRA)
+libcurl_la_LDFLAGS = $(AM_LDFLAGS) $(libcurl_la_LDFLAGS_EXTRA) $(LIBCURL_LIBS)
+libcurl_la_CFLAGS = $(AM_CFLAGS) $(libcurl_la_CFLAGS_EXTRA)
+libcurlu_la_CPPFLAGS = $(AM_CPPFLAGS) -DCURL_STATICLIB -DUNITTESTS
+libcurlu_la_LDFLAGS = $(AM_LDFLAGS) -static $(LIBCURL_LIBS)
 libcurlu_la_CFLAGS = $(AM_CFLAGS)
 CSOURCES = file.c timeval.c base64.c hostip.c progress.c formdata.c	\
   cookie.c http.c sendf.c ftp.c url.c dict.c if2ip.c speedcheck.c	\
@@ -572,12 +579,12 @@ CSOURCES = file.c timeval.c base64.c hostip.c progress.c formdata.c	\
   qssl.c rawstr.c curl_addrinfo.c socks_gssapi.c socks_sspi.c		\
   curl_sspi.c slist.c nonblock.c curl_memrchr.c imap.c pop3.c smtp.c	\
   pingpong.c rtsp.c curl_threads.c warnless.c hmac.c polarssl.c		\
-  curl_rtmp.c openldap.c curl_gethostname.c gopher.c axtls.c		\
-  idn_win32.c http_negotiate_sspi.c cyassl.c http_proxy.c non-ascii.c	\
-  asyn-ares.c asyn-thread.c curl_gssapi.c curl_ntlm.c curl_ntlm_wb.c	\
-  curl_ntlm_core.c curl_ntlm_msgs.c curl_sasl.c curl_schannel.c	        \
-  curl_multibyte.c curl_darwinssl.c hostcheck.c                         \
-  bundles.c conncache.c
+  polarssl_threadlock.c curl_rtmp.c openldap.c curl_gethostname.c	\
+  gopher.c axtls.c idn_win32.c http_negotiate_sspi.c cyassl.c		\
+  http_proxy.c non-ascii.c asyn-ares.c asyn-thread.c curl_gssapi.c	\
+  curl_ntlm.c curl_ntlm_wb.c curl_ntlm_core.c curl_ntlm_msgs.c		\
+  curl_sasl.c curl_schannel.c curl_multibyte.c curl_darwinssl.c		\
+  hostcheck.c bundles.c conncache.c pipeline.c
 
 HHEADERS = arpa_telnet.h netrc.h file.h timeval.h qssl.h hostip.h	\
   progress.h formdata.h cookie.h http.h sendf.h ftp.h url.h dict.h	\
@@ -588,24 +595,20 @@ HHEADERS = arpa_telnet.h netrc.h file.h timeval.h qssl.h hostip.h	\
   curl_md5.h http_digest.h http_negotiate.h inet_pton.h amigaos.h	\
   strtoofft.h strerror.h inet_ntop.h curlx.h curl_memory.h curl_setup.h	\
   transfer.h select.h easyif.h multiif.h parsedate.h sslgen.h gtls.h	\
-  tftp.h sockaddr.h splay.h strdup.h socks.h ssh.h nssg.h		\
-  curl_base64.h rawstr.h curl_addrinfo.h curl_sspi.h slist.h nonblock.h	\
+  tftp.h sockaddr.h splay.h strdup.h socks.h ssh.h nssg.h curl_base64.h	\
+  rawstr.h curl_addrinfo.h curl_sspi.h slist.h nonblock.h		\
   curl_memrchr.h imap.h pop3.h smtp.h pingpong.h rtsp.h curl_threads.h	\
-  warnless.h curl_hmac.h polarssl.h curl_rtmp.h curl_gethostname.h	\
-  gopher.h axtls.h cyassl.h http_proxy.h non-ascii.h asyn.h curl_ntlm.h	\
-  curl_gssapi.h curl_ntlm_wb.h curl_ntlm_core.h curl_ntlm_msgs.h	\
-  curl_sasl.h curl_schannel.h curl_multibyte.h curl_darwinssl.h	        \
-  hostcheck.h bundles.h conncache.h curl_setup_once.h multihandle.h     \
-  setup-vms.h
+  warnless.h curl_hmac.h polarssl.h polarssl_threadlock.h curl_rtmp.h	\
+  curl_gethostname.h gopher.h axtls.h cyassl.h http_proxy.h non-ascii.h	\
+  asyn.h curl_ntlm.h curl_gssapi.h curl_ntlm_wb.h curl_ntlm_core.h	\
+  curl_ntlm_msgs.h curl_sasl.h curl_schannel.h curl_multibyte.h		\
+  curl_darwinssl.h hostcheck.h bundles.h conncache.h curl_setup_once.h	\
+  multihandle.h setup-vms.h pipeline.h
 
 
 # Makefile.inc provides the CSOURCES and HHEADERS defines
 libcurl_la_SOURCES = $(CSOURCES) $(HHEADERS)
 libcurlu_la_SOURCES = $(CSOURCES) $(HHEADERS)
-WIN32SOURCES = $(CSOURCES)
-WIN32HEADERS = $(HHEADERS) config-win32.h
-DSPOUT = | awk '{printf("%s\r\n", $$0)}' >> $(DSP)
-VCPROJOUT = | awk '{printf("%s\r\n", $$0)}' >> $(VCPROJ)
 all: curl_config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -786,7 +789,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurl_la-openldap.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurl_la-parsedate.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurl_la-pingpong.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurl_la-pipeline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurl_la-polarssl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurl_la-polarssl_threadlock.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurl_la-pop3.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurl_la-progress.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurl_la-qssl.Plo@am__quote@
@@ -894,7 +899,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurlu_la-openldap.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurlu_la-parsedate.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurlu_la-pingpong.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurlu_la-pipeline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurlu_la-polarssl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurlu_la-polarssl_threadlock.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurlu_la-pop3.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurlu_la-progress.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcurlu_la-qssl.Plo@am__quote@
@@ -1537,6 +1544,13 @@ libcurl_la-polarssl.lo: polarssl.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcurl_la_CPPFLAGS) $(CPPFLAGS) $(libcurl_la_CFLAGS) $(CFLAGS) -c -o libcurl_la-polarssl.lo `test -f 'polarssl.c' || echo '$(srcdir)/'`polarssl.c
 
+libcurl_la-polarssl_threadlock.lo: polarssl_threadlock.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcurl_la_CPPFLAGS) $(CPPFLAGS) $(libcurl_la_CFLAGS) $(CFLAGS) -MT libcurl_la-polarssl_threadlock.lo -MD -MP -MF $(DEPDIR)/libcurl_la-polarssl_threadlock.Tpo -c -o libcurl_la-polarssl_threadlock.lo `test -f 'polarssl_threadlock.c' || echo '$(srcdir)/'`polarssl_threadlock.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libcurl_la-polarssl_threadlock.Tpo $(DEPDIR)/libcurl_la-polarssl_threadlock.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='polarssl_threadlock.c' object='libcurl_la-polarssl_threadlock.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcurl_la_CPPFLAGS) $(CPPFLAGS) $(libcurl_la_CFLAGS) $(CFLAGS) -c -o libcurl_la-polarssl_threadlock.lo `test -f 'polarssl_threadlock.c' || echo '$(srcdir)/'`polarssl_threadlock.c
+
 libcurl_la-curl_rtmp.lo: curl_rtmp.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcurl_la_CPPFLAGS) $(CPPFLAGS) $(libcurl_la_CFLAGS) $(CFLAGS) -MT libcurl_la-curl_rtmp.lo -MD -MP -MF $(DEPDIR)/libcurl_la-curl_rtmp.Tpo -c -o libcurl_la-curl_rtmp.lo `test -f 'curl_rtmp.c' || echo '$(srcdir)/'`curl_rtmp.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libcurl_la-curl_rtmp.Tpo $(DEPDIR)/libcurl_la-curl_rtmp.Plo
@@ -1704,6 +1718,13 @@ libcurl_la-conncache.lo: conncache.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='conncache.c' object='libcurl_la-conncache.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcurl_la_CPPFLAGS) $(CPPFLAGS) $(libcurl_la_CFLAGS) $(CFLAGS) -c -o libcurl_la-conncache.lo `test -f 'conncache.c' || echo '$(srcdir)/'`conncache.c
+
+libcurl_la-pipeline.lo: pipeline.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcurl_la_CPPFLAGS) $(CPPFLAGS) $(libcurl_la_CFLAGS) $(CFLAGS) -MT libcurl_la-pipeline.lo -MD -MP -MF $(DEPDIR)/libcurl_la-pipeline.Tpo -c -o libcurl_la-pipeline.lo `test -f 'pipeline.c' || echo '$(srcdir)/'`pipeline.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libcurl_la-pipeline.Tpo $(DEPDIR)/libcurl_la-pipeline.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pipeline.c' object='libcurl_la-pipeline.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcurl_la_CPPFLAGS) $(CPPFLAGS) $(libcurl_la_CFLAGS) $(CFLAGS) -c -o libcurl_la-pipeline.lo `test -f 'pipeline.c' || echo '$(srcdir)/'`pipeline.c
 
 libcurlu_la-file.lo: file.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcurlu_la_CPPFLAGS) $(CPPFLAGS) $(libcurlu_la_CFLAGS) $(CFLAGS) -MT libcurlu_la-file.lo -MD -MP -MF $(DEPDIR)/libcurlu_la-file.Tpo -c -o libcurlu_la-file.lo `test -f 'file.c' || echo '$(srcdir)/'`file.c
@@ -2293,6 +2314,13 @@ libcurlu_la-polarssl.lo: polarssl.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcurlu_la_CPPFLAGS) $(CPPFLAGS) $(libcurlu_la_CFLAGS) $(CFLAGS) -c -o libcurlu_la-polarssl.lo `test -f 'polarssl.c' || echo '$(srcdir)/'`polarssl.c
 
+libcurlu_la-polarssl_threadlock.lo: polarssl_threadlock.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcurlu_la_CPPFLAGS) $(CPPFLAGS) $(libcurlu_la_CFLAGS) $(CFLAGS) -MT libcurlu_la-polarssl_threadlock.lo -MD -MP -MF $(DEPDIR)/libcurlu_la-polarssl_threadlock.Tpo -c -o libcurlu_la-polarssl_threadlock.lo `test -f 'polarssl_threadlock.c' || echo '$(srcdir)/'`polarssl_threadlock.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libcurlu_la-polarssl_threadlock.Tpo $(DEPDIR)/libcurlu_la-polarssl_threadlock.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='polarssl_threadlock.c' object='libcurlu_la-polarssl_threadlock.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcurlu_la_CPPFLAGS) $(CPPFLAGS) $(libcurlu_la_CFLAGS) $(CFLAGS) -c -o libcurlu_la-polarssl_threadlock.lo `test -f 'polarssl_threadlock.c' || echo '$(srcdir)/'`polarssl_threadlock.c
+
 libcurlu_la-curl_rtmp.lo: curl_rtmp.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcurlu_la_CPPFLAGS) $(CPPFLAGS) $(libcurlu_la_CFLAGS) $(CFLAGS) -MT libcurlu_la-curl_rtmp.lo -MD -MP -MF $(DEPDIR)/libcurlu_la-curl_rtmp.Tpo -c -o libcurlu_la-curl_rtmp.lo `test -f 'curl_rtmp.c' || echo '$(srcdir)/'`curl_rtmp.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libcurlu_la-curl_rtmp.Tpo $(DEPDIR)/libcurlu_la-curl_rtmp.Plo
@@ -2461,6 +2489,13 @@ libcurlu_la-conncache.lo: conncache.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcurlu_la_CPPFLAGS) $(CPPFLAGS) $(libcurlu_la_CFLAGS) $(CFLAGS) -c -o libcurlu_la-conncache.lo `test -f 'conncache.c' || echo '$(srcdir)/'`conncache.c
 
+libcurlu_la-pipeline.lo: pipeline.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcurlu_la_CPPFLAGS) $(CPPFLAGS) $(libcurlu_la_CFLAGS) $(CFLAGS) -MT libcurlu_la-pipeline.lo -MD -MP -MF $(DEPDIR)/libcurlu_la-pipeline.Tpo -c -o libcurlu_la-pipeline.lo `test -f 'pipeline.c' || echo '$(srcdir)/'`pipeline.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libcurlu_la-pipeline.Tpo $(DEPDIR)/libcurlu_la-pipeline.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pipeline.c' object='libcurlu_la-pipeline.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcurlu_la_CPPFLAGS) $(CPPFLAGS) $(libcurlu_la_CFLAGS) $(CFLAGS) -c -o libcurlu_la-pipeline.lo `test -f 'pipeline.c' || echo '$(srcdir)/'`pipeline.c
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
@@ -2579,7 +2614,6 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
-	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
@@ -2676,51 +2710,6 @@ uninstall-am: uninstall-libLTLIBRARIES
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-libLTLIBRARIES
 
-
-$(DSP): msvcproj.head msvcproj.foot Makefile.am
-	echo "creating $(DSP)"
-	@(cp $(srcdir)/msvcproj.head $(DSP); \
-	echo "# Begin Group \"Source Files\"" $(DSPOUT); \
-        echo "" $(DSPOUT); \
-        echo "# PROP Default_Filter \"\"" $(DSPOUT); \
-        win32_srcs='$(WIN32SOURCES)'; \
-        sorted_srcs=`for file in $$win32_srcs; do echo $$file; done | sort`; \
-        for file in $$sorted_srcs; do \
-	echo "# Begin Source File" $(DSPOUT); \
-	echo "" $(DSPOUT); \
-	echo "SOURCE=.\\"$$file $(DSPOUT); \
-	echo "# End Source File" $(DSPOUT); \
-	done; \
-	echo "# End Group" $(DSPOUT); \
-	echo "# Begin Group \"Header Files\"" $(DSPOUT); \
-        echo "" $(DSPOUT); \
-        echo "# PROP Default_Filter \"\"" $(DSPOUT); \
-        win32_hdrs='$(WIN32HEADERS)'; \
-        sorted_hdrs=`for file in $$win32_hdrs; do echo $$file; done | sort`; \
-        for file in $$sorted_hdrs; do \
-	echo "# Begin Source File" $(DSPOUT); \
-	echo "" $(DSPOUT); \
-	echo "SOURCE=.\\"$$file $(DSPOUT); \
-	echo "# End Source File" $(DSPOUT); \
-	done; \
-	echo "# End Group" $(DSPOUT); \
-	cat $(srcdir)/msvcproj.foot $(DSPOUT) )
-
-$(VCPROJ): vc8proj.head vc8proj.foot Makefile.am
-	echo "creating $(VCPROJ)"
-	@(cp $(srcdir)/vc8proj.head $(VCPROJ); \
-        win32_srcs='$(WIN32SOURCES)'; \
-        sorted_srcs=`for file in $$win32_srcs; do echo $$file; done | sort`; \
-        for file in $$sorted_srcs; do \
-	echo "<File RelativePath=\""$$file"\"></File>" $(VCPROJOUT); \
-	done; \
-	echo "</Filter><Filter	Name=\"Header Files\">" $(VCPROJOUT); \
-        win32_hdrs='$(WIN32HEADERS)'; \
-        sorted_hdrs=`for file in $$win32_hdrs; do echo $$file; done | sort`; \
-        for file in $$sorted_hdrs; do \
-	echo "<File RelativePath=\""$$file"\"></File>" $(VCPROJOUT); \
-	done; \
-	cat $(srcdir)/vc8proj.foot $(VCPROJOUT) )
 
 checksrc:
 	@@PERL@ $(top_srcdir)/lib/checksrc.pl -D$(top_srcdir)/lib $(CSOURCES) $(HHEADERS)

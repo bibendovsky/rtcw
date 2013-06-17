@@ -722,7 +722,6 @@
     <ClInclude Include="..\..\..\..\src\game\botlib.h" />
     <ClInclude Include="..\..\..\..\src\cgame\cg_public.h" />
     <ClInclude Include="..\..\..\..\src\client\client.h" />
-    <ClInclude Include="..\..\..\..\src\jpeg-6\jchuff.h" />
     <ClInclude Include="..\..\..\..\src\qcommon\cm_local.h" />
     <ClInclude Include="..\..\..\..\src\qcommon\cm_patch.h" />
     <ClInclude Include="..\..\..\..\src\qcommon\cm_polylib.h" />
@@ -754,7 +753,6 @@
     <ClInclude Include="..\..\..\..\src\renderer\tr_public.h" />
     <ClInclude Include="..\..\..\..\src\cgame\tr_types.h" />
     <ClInclude Include="..\..\..\..\src\ui\ui_public.h" />
-    <ClInclude Include="..\..\..\..\src\qcommon\unzip.h" />
     <ClInclude Include="..\..\..\..\src\qcommon\vm_local.h" />
     <ClInclude Include="..\..\..\..\src\win32\glw_win.h" />
     <ClInclude Include="..\..\..\..\src\win32\rtcw_et_resource.h" />

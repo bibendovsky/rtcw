@@ -533,9 +533,6 @@
 /* Define to 1 if you have the recv function. */
 #undef HAVE_RECV
 
-/* Define to 1 if you have the recvfrom function. */
-#undef HAVE_RECVFROM
-
 /* Define to 1 if you have the <rsa.h> header file. */
 #undef HAVE_RSA_H
 
@@ -629,9 +626,6 @@
 /* Define to 1 if you have the strcasecmp function. */
 #undef HAVE_STRCASECMP
 
-/* Define to 1 if you have the strcasestr function. */
-#undef HAVE_STRCASESTR
-
 /* Define to 1 if you have the strcmpi function. */
 #undef HAVE_STRCMPI
 
@@ -649,9 +643,6 @@
 
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
-
-/* Define to 1 if you have the strlcat function. */
-#undef HAVE_STRLCAT
 
 /* Define to 1 if you have the `strlcpy' function. */
 #undef HAVE_STRLCPY
@@ -848,39 +839,6 @@
 
 /* a suitable file to read random data from */
 #undef RANDOM_FILE
-
-/* Define to the type qualifier pointed by arg 5 for recvfrom. */
-#undef RECVFROM_QUAL_ARG5
-
-/* Define to the type of arg 1 for recvfrom. */
-#undef RECVFROM_TYPE_ARG1
-
-/* Define to the type pointed by arg 2 for recvfrom. */
-#undef RECVFROM_TYPE_ARG2
-
-/* Define to 1 if the type pointed by arg 2 for recvfrom is void. */
-#undef RECVFROM_TYPE_ARG2_IS_VOID
-
-/* Define to the type of arg 3 for recvfrom. */
-#undef RECVFROM_TYPE_ARG3
-
-/* Define to the type of arg 4 for recvfrom. */
-#undef RECVFROM_TYPE_ARG4
-
-/* Define to the type pointed by arg 5 for recvfrom. */
-#undef RECVFROM_TYPE_ARG5
-
-/* Define to 1 if the type pointed by arg 5 for recvfrom is void. */
-#undef RECVFROM_TYPE_ARG5_IS_VOID
-
-/* Define to the type pointed by arg 6 for recvfrom. */
-#undef RECVFROM_TYPE_ARG6
-
-/* Define to 1 if the type pointed by arg 6 for recvfrom is void. */
-#undef RECVFROM_TYPE_ARG6_IS_VOID
-
-/* Define to the function return type for recvfrom. */
-#undef RECVFROM_TYPE_RETV
 
 /* Define to the type of arg 1 for recv. */
 #undef RECV_TYPE_ARG1

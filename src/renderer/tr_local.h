@@ -2685,7 +2685,7 @@ void RE_SetGlobalFog( qboolean restore, int duration, float r, float g, float b,
 
 void RE_BeginFrame( stereoFrame_t stereoFrame );
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
-void SaveJPG (const char* file_name, int quality, int width, int height, bbi::UInt8* src_data);
+void SaveJPG (const char* file_name, int quality, int width, int height, uint8_t* src_data);
 
 // font stuff
 void R_InitFreeType();

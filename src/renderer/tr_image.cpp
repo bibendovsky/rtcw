@@ -1462,22 +1462,22 @@ BMP LOADING
 //} BMPHeader_t;
 
 struct BMPHeader_t {
-    bbi::Int8 id[2];
-    bbi::UInt32 fileSize;
-    bbi::UInt32 reserved0;
-    bbi::UInt32 bitmapDataOffset;
-    bbi::UInt32 bitmapHeaderSize;
-    bbi::UInt32 width;
-    bbi::UInt32 height;
-    bbi::UInt16 planes;
-    bbi::UInt16 bitsPerPixel;
-    bbi::UInt32 compression;
-    bbi::UInt32 bitmapDataSize;
-    bbi::UInt32 hRes;
-    bbi::UInt32 vRes;
-    bbi::UInt32 colors;
-    bbi::UInt32 importantColors;
-    bbi::UInt8 palette[256][4];
+    int8_t id[2];
+    uint32_t fileSize;
+    uint32_t reserved0;
+    uint32_t bitmapDataOffset;
+    uint32_t bitmapHeaderSize;
+    uint32_t width;
+    uint32_t height;
+    uint16_t planes;
+    uint16_t bitsPerPixel;
+    uint32_t compression;
+    uint32_t bitmapDataSize;
+    uint32_t hRes;
+    uint32_t vRes;
+    uint32_t colors;
+    uint32_t importantColors;
+    uint8_t palette[256][4];
 }; // struct BMPHeader_t
 //BBi
 
@@ -1813,12 +1813,12 @@ LoadPCX
 
 static void LoadPCX (
     const char* filename,
-    bbi::UInt8** pic,
-    bbi::UInt8** palette,
+    uint8_t** pic,
+    uint8_t** palette,
     int* width,
     int* height)
 {
-    bbi::UInt8* raw;
+    uint8_t* raw;
     pcx_t* pcx;
 
 #if !defined RTCW_ET
@@ -2416,10 +2416,10 @@ breakOut:;
 //	/* And we're done! */
 //}
 
-static void LoadJPG (const char* filename, bbi::UInt8** pic,
+static void LoadJPG (const char* filename, uint8_t** pic,
     int* width, int* height)
 {
-    bbi::UInt8* fbuffer;
+    uint8_t* fbuffer;
 
     int flen = ::ri.FS_ReadFile (filename, reinterpret_cast<void**> (&fbuffer));
 
@@ -2442,7 +2442,7 @@ static void LoadJPG (const char* filename, bbi::UInt8** pic,
 
     int pitch = 4 * (*width);
 
-    auto out = static_cast<bbi::UInt8*> (
+    auto out = static_cast<uint8_t*> (
         ::R_GetImageBuffer (pitch * (*height), BUFFER_IMAGE));
 
     *pic = out;
@@ -2764,21 +2764,21 @@ static void LoadJPG (const char* filename, bbi::UInt8** pic,
 //}
 
 void SaveJPG (const char* file_name, int quality,
-    int width, int height, bbi::UInt8* src_data)
+    int width, int height, uint8_t* src_data)
 {
     auto tjh = ::tjInitCompress ();
 
     auto tj_buf_size = ::tjBufSize (width, height, TJSAMP_444);
 
-    auto jpg_data = static_cast<bbi::UChar*> (
+    auto jpg_data = static_cast<unsigned char*> (
         ri.Hunk_AllocateTempMemory (tj_buf_size));
 
     int pitch = 4 * width;
 
     int tj_result = 0;
 
-    bbi::ULong jpg_size = 0;
-    bbi::UChar* tj_buffer[1] = { jpg_data, };
+    unsigned long jpg_size = 0;
+    unsigned char* tj_buffer[1] = { jpg_data, };
 
     tj_result = ::tjCompress2 (tjh, src_data, width, pitch, height, TJPF_RGBA,
         tj_buffer, &jpg_size, TJSAMP_444, quality,

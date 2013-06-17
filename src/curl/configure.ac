@@ -198,74 +198,50 @@ CURL_CONFIGURE_REENTRANT
 dnl check for how to do large files
 AC_SYS_LARGEFILE
 
-dnl support building of Windows DLLs
-AC_LIBTOOL_WIN32_DLL
+XC_LIBTOOL
 
-dnl force libtool to build static libraries with PIC on AMD64-Linux & FreeBSD
-AC_MSG_CHECKING([if arch-OS host is AMD64-Linux/FreeBSD (to build static libraries with PIC)])
-case $host in
-  x86_64*linux*|amd64*freebsd*|ia64*freebsd*)
-    AC_MSG_RESULT([yes])
-    with_pic=yes
-    ;;
-  *)
-    AC_MSG_RESULT([no])
-    ;;
-esac
+#
+# Automake conditionals based on libtool related checks
+#
 
-AC_MSG_CHECKING([if compiler is icc (to build with PIC)])
-case $CC in
-  icc | */icc)
-    AC_MSG_RESULT([yes])
-    with_pic=yes
-    ;;
-  *)
-    AC_MSG_RESULT([no])
-    ;;
-esac
+AM_CONDITIONAL([CURL_LT_SHLIB_USE_VERSION_INFO],
+  [test "x$xc_lt_shlib_use_version_info" = 'xyes'])
+AM_CONDITIONAL([CURL_LT_SHLIB_USE_NO_UNDEFINED],
+  [test "x$xc_lt_shlib_use_no_undefined" = 'xyes'])
+AM_CONDITIONAL([CURL_LT_SHLIB_USE_MIMPURE_TEXT],
+  [test "x$xc_lt_shlib_use_mimpure_text" = 'xyes'])
 
-dnl libtool setup
-AC_PROG_LIBTOOL
+#
+# Due to libtool and automake machinery limitations of not allowing
+# specifying separate CPPFLAGS or CFLAGS when compiling objects for
+# inclusion of these in shared or static libraries, we are forced to
+# build using separate configure runs for shared and static libraries
+# on systems where different CPPFLAGS or CFLAGS are mandatory in order
+# to compile objects for each kind of library. Notice that relying on
+# the '-DPIC' CFLAG that libtool provides is not valid given that the
+# user might for example choose to build static libraries with PIC.
+#
 
-AC_MSG_CHECKING([if we need -mimpure-text])
-mimpure=no
-case $host in
-  *-*-solaris2*)
-    if test "$GCC" = "yes"; then
-      mimpure="yes"
-    fi
-    ;;
-  *)
-    ;;
-esac
-AC_MSG_RESULT($mimpure)
-AM_CONDITIONAL(MIMPURE, test x$mimpure = xyes)
+#
+# Make our Makefile.am files use the staticlib CPPFLAG only when strictly
+# targeting a static library and not building its shared counterpart.
+#
 
-AC_MSG_CHECKING([if we need BUILDING_LIBCURL])
-use_cppflag_building_libcurl="no"
-use_cppflag_curl_staticlib="no"
-CPPFLAG_CURL_STATICLIB=""
-case $host in
-  *-*-mingw*)
-    AC_MSG_RESULT(yes)
-    use_cppflag_building_libcurl="yes"
-    AC_MSG_CHECKING([if we need CURL_STATICLIB])
-    if test "X$enable_shared" = "Xno"
-    then
-      AC_MSG_RESULT(yes)
-      use_cppflag_curl_staticlib="yes"
-      CPPFLAG_CURL_STATICLIB="-DCURL_STATICLIB"
-    else
-      AC_MSG_RESULT(no)
-    fi
-    ;;
-  *)
-    AC_MSG_RESULT(no)
-    ;;
-esac
-AM_CONDITIONAL(USE_CPPFLAG_BUILDING_LIBCURL, test x$use_cppflag_building_libcurl = xyes)
-AM_CONDITIONAL(USE_CPPFLAG_CURL_STATICLIB, test x$use_cppflag_curl_staticlib = xyes)
-AC_SUBST(CPPFLAG_CURL_STATICLIB)
+AM_CONDITIONAL([USE_CPPFLAG_CURL_STATICLIB],
+  [test "x$xc_lt_build_static_only" = 'xyes'])
+
+#
+# Make staticlib CPPFLAG variable and its definition visible in output
+# files unconditionally, providing an empty definition unless strictly
+# targeting a static library and not building its shared counterpart.
+#
+
+CPPFLAG_CURL_STATICLIB=
+if test "x$xc_lt_build_static_only" = 'xyes'; then
+  CPPFLAG_CURL_STATICLIB='-DCURL_STATICLIB'
+fi
+AC_SUBST([CPPFLAG_CURL_STATICLIB])
+
 
 # Determine whether all dependent libraries must be specified when linking
 if test "X$enable_shared" = "Xyes" -a "X$link_all_deplibs" = "Xno"
@@ -276,10 +252,6 @@ else
 fi
 AC_SUBST(REQUIRE_LIB_DEPS)
 AM_CONDITIONAL(USE_EXPLICIT_LIB_DEPS, test x$REQUIRE_LIB_DEPS = xyes)
-
-dnl The install stuff has already been taken care of by the automake stuff
-dnl AC_PROG_INSTALL
-AC_PROG_MAKE_SET
 
 dnl check if there's a way to force code inline
 AC_C_INLINE
@@ -310,9 +282,6 @@ CURL_CHECK_COMPILER_HALT_ON_ERROR
 CURL_CHECK_COMPILER_ARRAY_SIZE_NEGATIVE
 CURL_CHECK_COMPILER_PROTOTYPE_MISMATCH
 CURL_CHECK_COMPILER_SYMBOL_HIDING
-
-CURL_CHECK_NO_UNDEFINED
-AM_CONDITIONAL(NO_UNDEFINED, test x$need_no_undefined = xyes)
 
 CURL_CHECK_CURLDEBUG
 AM_CONDITIONAL(CURLDEBUG, test x$want_curldebug = xyes)
@@ -2293,7 +2262,7 @@ fi
 
 if test "x$OPENSSL_ENABLED$GNUTLS_ENABLED$NSS_ENABLED$POLARSSL_ENABLED$AXTLS_ENABLED$CYASSL_ENABLED$WINSSL_ENABLED$DARWINSSL_ENABLED" = "x"; then
   AC_MSG_WARN([SSL disabled, you will not be able to use HTTPS, FTPS, NTLM and more.])
-  AC_MSG_WARN([Use --with-ssl, --with-gnutls, --with-polarssl, --with-cyassl, --with-nss, --with-axtls or --with-winssl to address this.])
+  AC_MSG_WARN([Use --with-ssl, --with-gnutls, --with-polarssl, --with-cyassl, --with-nss, --with-axtls, --with-winssl, or --with-darwinssl to address this.])
 else
   # SSL is enabled, genericly
   AC_SUBST(SSL_ENABLED)
@@ -2613,8 +2582,10 @@ AC_MSG_RESULT(no)
 ]
 )
 
-AC_SUBST(VERSIONED_FLAVOUR, ["$versioned_symbols_flavour"])
-AM_CONDITIONAL(VERSIONED_SYMBOLS, test "x$versioned_symbols" = "xyes")
+AC_SUBST([CURL_LT_SHLIB_VERSIONED_FLAVOUR],
+  ["$versioned_symbols_flavour"])
+AM_CONDITIONAL([CURL_LT_SHLIB_USE_VERSIONED_SYMBOLS],
+  [test "x$versioned_symbols" = 'xyes'])
 
 dnl -------------------------------------------------
 dnl check winidn option before other IDN libraries
@@ -2997,7 +2968,6 @@ AC_TYPE_SIGNAL
 CURL_CHECK_FUNC_SELECT
 
 CURL_CHECK_FUNC_RECV
-CURL_CHECK_FUNC_RECVFROM
 CURL_CHECK_FUNC_SEND
 CURL_CHECK_MSG_NOSIGNAL
 
@@ -3039,12 +3009,10 @@ CURL_CHECK_FUNC_SIGSETJMP
 CURL_CHECK_FUNC_SOCKET
 CURL_CHECK_FUNC_SOCKETPAIR
 CURL_CHECK_FUNC_STRCASECMP
-CURL_CHECK_FUNC_STRCASESTR
 CURL_CHECK_FUNC_STRCMPI
 CURL_CHECK_FUNC_STRDUP
 CURL_CHECK_FUNC_STRERROR_R
 CURL_CHECK_FUNC_STRICMP
-CURL_CHECK_FUNC_STRLCAT
 CURL_CHECK_FUNC_STRNCASECMP
 CURL_CHECK_FUNC_STRNCMPI
 CURL_CHECK_FUNC_STRNICMP

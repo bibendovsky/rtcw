@@ -53,7 +53,7 @@ namespace {
 
 
 typedef std::queue<ALuint> OalQueue;
-typedef std::vector<bbi::UChar> OalBuffer;
+typedef std::vector<uint8_t> OalBuffer;
 
 const int OAL_MAX_QUEUE_SIZE = 2;
 
@@ -360,7 +360,7 @@ int SNDDMA_GetDMAPos ()
         oal_free_buffers.pop ();
         oal_used_buffers.push (buffer);
 
-        bbi::UChar* data = nullptr;
+        unsigned char* data = nullptr;
 
         if ((read_offset + OAL_SLICE_SIZE) <= OAL_MIX_BUFFER_SIZE)
             data = &oal_mix_buffer[read_offset];

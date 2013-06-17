@@ -22,6 +22,8 @@
  *
  ***************************************************************************/
 
+#include "pingpong.h"
+
 /****************************************************************************
  * POP3 unique setup
  ***************************************************************************/
@@ -29,10 +31,10 @@ typedef enum {
   POP3_STOP,         /* do nothing state, stops the state machine */
   POP3_SERVERGREET,  /* waiting for the initial greeting immediately after
                         a connect */
+  POP3_CAPA,
   POP3_STARTTLS,
   POP3_UPGRADETLS,   /* asynchronously upgrade the connection to SSL/TLS
                        (multi mode only) */
-  POP3_CAPA,
   POP3_AUTH_PLAIN,
   POP3_AUTH_LOGIN,
   POP3_AUTH_LOGIN_PASSWD,
@@ -41,7 +43,7 @@ typedef enum {
   POP3_AUTH_DIGESTMD5_RESP,
   POP3_AUTH_NTLM,
   POP3_AUTH_NTLM_TYPE2MSG,
-  POP3_AUTH,
+  POP3_AUTH_FINAL,
   POP3_APOP,
   POP3_USER,
   POP3_PASS,
@@ -50,12 +52,22 @@ typedef enum {
   POP3_LAST          /* never used */
 } pop3state;
 
+/* This POP3 struct is used in the SessionHandle. All POP3 data that is
+   connection-oriented must be in pop3_conn to properly deal with the fact that
+   perhaps the SessionHandle is changed between the times the connection is
+   used. */
+struct POP3 {
+  curl_pp_transfer transfer;
+  char *id;               /* Message ID */
+  char *custom;           /* Custom Request */
+};
+
 /* pop3_conn is used for struct connection-oriented data in the connectdata
    struct */
 struct pop3_conn {
   struct pingpong pp;
-  char *mailbox;          /* Message ID */
-  char *custom;           /* Custom Request */
+  pop3state state;        /* Always use pop3.c:state() to change state! */
+  bool ssldone;           /* Is connect() over SSL done? */
   size_t eob;             /* Number of bytes of the EOB (End Of Body) that
                              have been received so far */
   size_t strip;           /* Number of bytes from the start to ignore as
@@ -64,8 +76,7 @@ struct pop3_conn {
   unsigned int authmechs; /* Accepted SASL authentication mechanisms */
   unsigned int authused;  /* SASL auth mechanism used for the connection */
   char *apoptimestamp;    /* APOP timestamp from the server greeting */
-  pop3state state;        /* Always use pop3.c:state() to change state! */
-  bool ssldone;           /* Is connect() over SSL done? */
+  bool tls_supported;     /* StartTLS capability supported by server */
 };
 
 extern const struct Curl_handler Curl_handler_pop3;

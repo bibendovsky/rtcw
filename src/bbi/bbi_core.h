@@ -10,25 +10,21 @@
 #define BBI_CORE_H
 
 
-#include <cstddef>
-#include <cstdint>
-
-
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 //
 // Defines
 //
 
 #ifndef __cplusplus
-    #error C++ required.
+    #error C++ compiler required.
 #endif
 
 
 #undef BBI_LE
-#define BBI_LE 1L
+#define BBI_LE (1L)
 
 #undef BBI_BE
-#define BBI_BE 2L
+#define BBI_BE (2L)
 
 #if (!defined BBI_ENDIANNESS) || (BBI_ENDIANNESS == 0L)
     #if (defined _M_AMD64) || (defined _M_IX86) || (defined _M_X64)
@@ -37,7 +33,7 @@
 #endif
 
 #if (!defined BBI_ENDIANNESS) || (BBI_ENDIANNESS == 0L)
-    #error Undefined platform's endianness (BBI_ENDIANNESS)
+    #error Undefined platform's endianness (BBI_ENDIANNESS).
 #endif
 
 
@@ -103,36 +99,19 @@
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 //
-// Basic types
+// Includes
 //
 
-namespace bbi {
+#include <cstddef>
+#include <cstdint>
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-typedef int8_t Int8;
-typedef uint8_t UInt8;
-
-typedef int16_t Int16;
-typedef uint16_t UInt16;
-
-typedef int32_t Int32;
-typedef uint32_t UInt32;
-
-typedef int64_t Int64;
-typedef uint64_t UInt64;
-
-typedef signed char SChar;
-typedef unsigned char UChar;
-typedef unsigned short int UShort;
-typedef unsigned int UInt;
-typedef unsigned long int ULong;
-typedef unsigned long long int ULLong;
-
-typedef ptrdiff_t IntPtr;
-typedef size_t UIntPtr;
-
-
-} // namespace bbi
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+//
+// Basic types
+//
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
