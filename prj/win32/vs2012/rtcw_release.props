@@ -9,11 +9,11 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <OptimizeReferences>true</OptimizeReferences>
