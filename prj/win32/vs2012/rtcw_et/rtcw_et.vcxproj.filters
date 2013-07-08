@@ -375,9 +375,6 @@
     <ClCompile Include="..\..\..\..\src\splines\util_str.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\client\snd_dma_core.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_program.cpp">
       <Filter>Source Files\bbi</Filter>
     </ClCompile>
@@ -407,6 +404,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\zlib\contrib\minizip\unzip.c">
       <Filter>Source Files\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\client\snd_dma_sdl.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

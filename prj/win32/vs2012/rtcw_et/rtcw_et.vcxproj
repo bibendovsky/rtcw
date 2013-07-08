@@ -147,7 +147,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
-      <AdditionalDependencies>libcurl.lib;libglew.lib;libjpeg_turbo.lib;libopenal_soft.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcurl.lib;libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -156,7 +156,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
-      <AdditionalDependencies>libcurl.lib;libglew.lib;libjpeg_turbo.lib;libopenal_soft.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcurl.lib;libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">
@@ -181,7 +181,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
-      <AdditionalDependencies>libcurl.lib;libglew.lib;libjpeg_turbo.lib;libopenal_soft.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcurl.lib;libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -190,7 +190,7 @@
     </ClCompile>
     <Link>
       <StackReserveSize>8388608</StackReserveSize>
-      <AdditionalDependencies>libcurl.lib;libglew.lib;libjpeg_turbo.lib;libopenal_soft.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcurl.lib;libglew.lib;libjpeg_turbo.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">
@@ -323,12 +323,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\client\snd_dma_core.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|x64'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\client\snd_dma_sdl.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\cm_load.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\cm_patch.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\cm_polylib.cpp" />

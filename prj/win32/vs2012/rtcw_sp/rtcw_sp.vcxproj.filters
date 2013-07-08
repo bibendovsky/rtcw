@@ -348,9 +348,6 @@
     <ClCompile Include="..\..\..\..\src\renderer\tr_model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\client\snd_dma_core.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_uniform_info.cpp">
       <Filter>Source Files\bbi</Filter>
     </ClCompile>
@@ -380,6 +377,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\zlib\contrib\minizip\unzip.c">
       <Filter>Source Files\minizip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\client\snd_dma_sdl.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

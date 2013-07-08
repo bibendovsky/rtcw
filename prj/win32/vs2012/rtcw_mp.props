@@ -21,7 +21,8 @@
     </ResourceCompile>
     <Link />
     <Link>
-      <AdditionalDependencies>libz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libsdl2.lib;libz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

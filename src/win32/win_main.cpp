@@ -48,6 +48,10 @@ If you have questions concerning this license or the applicable additional terms
 #include <io.h>
 #include <conio.h>
 
+// BBi
+#include "SDL.h"
+// BBi
+
 #if defined RTCW_SP
 //#define	CD_BASEDIR	"wolf"
 #define CD_BASEDIR  ""
@@ -1872,14 +1876,20 @@ WinMain
 
 ==================
 */
-int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow ) {
+
+// BBi
+//int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow ) {
+extern "C" int main(int argc, char* argv[]) {
+// BBi
 	char cwd[MAX_OSPATH];
 	int startTime, endTime;
 
-	// should never get a previous instance in Win32
-	if ( hPrevInstance ) {
-		return 0;
-	}
+// BBi
+	//// should never get a previous instance in Win32
+	//if ( hPrevInstance ) {
+	//	return 0;
+	//}
+// BBi
 
 //BBi
 //#if defined RTCW_ET
@@ -1889,8 +1899,31 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 //#endif // RTCW_XX
 //BBi
 
-	g_wv.hInstance = hInstance;
-	Q_strncpyz( sys_cmdline, lpCmdLine, sizeof( sys_cmdline ) );
+// BBi
+	//g_wv.hInstance = hInstance;
+    g_wv.hInstance = nullptr;
+// BBi
+
+// BBi
+	//Q_strncpyz( sys_cmdline, lpCmdLine, sizeof( sys_cmdline ) );
+
+    const size_t MAX_CMD_LINE_LENGTH = sizeof(sys_cmdline) - 1;
+    std::string cmd_line;
+    cmd_line.reserve(MAX_CMD_LINE_LENGTH);
+
+    for (int i = 1; i < argc; ++i) {
+        cmd_line += ' ';
+        cmd_line += argv[i];
+    }
+
+    if (cmd_line.size() > MAX_CMD_LINE_LENGTH)
+        cmd_line.resize(MAX_CMD_LINE_LENGTH);
+
+    std::string::traits_type::copy(
+        sys_cmdline,
+        cmd_line.c_str(),
+        cmd_line.size());
+// BBi
 
 	// done before Com/Sys_Init since we need this for error output
 	Sys_CreateConsole();

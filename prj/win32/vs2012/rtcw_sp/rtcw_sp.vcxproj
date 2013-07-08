@@ -154,7 +154,7 @@
     <ClCompile Include="..\..\..\..\src\client\cl_parse.cpp" />
     <ClCompile Include="..\..\..\..\src\client\cl_scrn.cpp" />
     <ClCompile Include="..\..\..\..\src\client\cl_ui.cpp" />
-    <ClCompile Include="..\..\..\..\src\client\snd_dma_core.cpp" />
+    <ClCompile Include="..\..\..\..\src\client\snd_dma_sdl.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\cm_load.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\cm_patch.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\cm_polylib.cpp" />
