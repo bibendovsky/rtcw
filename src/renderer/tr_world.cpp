@@ -378,7 +378,11 @@ static int R_DlightFace( srfSurfaceFace_t *face, int dlightBits ) {
 		tr.pc.c_dlightSurfacesCulled++;
 	}
 
+#if 0
 	face->dlightBits[ tr.smpFrame ] = dlightBits;
+#endif // 0
+    face->dlightBits = dlightBits;
+
 	return dlightBits;
 }
 
@@ -406,15 +410,24 @@ static int R_DlightGrid( srfGridMesh_t *grid, int dlightBits ) {
 		tr.pc.c_dlightSurfacesCulled++;
 	}
 
+#if 0
 	grid->dlightBits[ tr.smpFrame ] = dlightBits;
+#endif // 0
+    grid->dlightBits = dlightBits;
+
 	return dlightBits;
 }
 
 
 static int R_DlightTrisurf( srfTriangles_t *surf, int dlightBits ) {
 	// FIXME: more dlight culling to trisurfs...
+#if 0
 	surf->dlightBits[ tr.smpFrame ] = dlightBits;
+#endif // 0
+    surf->dlightBits = dlightBits;
+
 	return dlightBits;
+
 #if 0
 	int i;
 	dlight_t    *dl;
@@ -496,7 +509,10 @@ static int R_DlightSurface( msurface_t *surface, int dlightBits ) {
 		break;
 
 	default:
+#if 0
 		gen->dlightBits[ tr.smpFrame ] = 0;
+#endif // 0
+        gen->dlightBits = 0;
 		return 0;
 	}
 
@@ -546,7 +562,11 @@ static int R_DlightSurface( msurface_t *surface, int dlightBits ) {
 	}
 
 	// set surface dlight bits and return
+#if 0
 	gen->dlightBits[ tr.smpFrame ] = dlightBits;
+#endif // 0
+
+    gen->dlightBits = dlightBits;
 	return dlightBits;
 }
 #endif // RTCW_XX
@@ -771,12 +791,22 @@ void R_AddBrushModelSurfaces( trRefEntity_t *ent ) {
 	tr.currentBModel = bmodel;
 
 	// ydnar: set model state for decals and dynamic fog
+
+#if 0
 	VectorCopy( ent->e.origin, bmodel->orientation[ tr.smpFrame ].origin );
 	VectorCopy( ent->e.axis[ 0 ], bmodel->orientation[ tr.smpFrame ].axis[ 0 ] );
 	VectorCopy( ent->e.axis[ 1 ], bmodel->orientation[ tr.smpFrame ].axis[ 1 ] );
 	VectorCopy( ent->e.axis[ 2 ], bmodel->orientation[ tr.smpFrame ].axis[ 2 ] );
 	bmodel->visible[ tr.smpFrame ] = qtrue;
 	bmodel->entityNum[ tr.smpFrame ] = tr.currentEntityNum;
+#endif // 0
+
+    VectorCopy(ent->e.origin, bmodel->orientation.origin );
+    VectorCopy(ent->e.axis[0], bmodel->orientation.axis[0] );
+    VectorCopy(ent->e.axis[1], bmodel->orientation.axis[1] );
+    VectorCopy(ent->e.axis[2], bmodel->orientation.axis[2] );
+    bmodel->visible = qtrue;
+    bmodel->entityNum = tr.currentEntityNum;
 
 	R_DlightBmodel( bmodel );
 

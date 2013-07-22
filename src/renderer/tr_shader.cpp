@@ -2215,7 +2215,10 @@ sortedIndex.
 ==============
 */
 static void FixRenderCommandList( int newShader ) {
+#if 0
 	renderCommandList_t *cmdList = &backEndData[tr.smpFrame]->commands;
+#endif // 0
+    renderCommandList_t *cmdList = &backEndData->commands;
 
 	if ( cmdList ) {
 		const void *curCmd = cmdList->cmds;
@@ -3399,11 +3402,13 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 #endif
 #endif // RTCW_XX
 
+#if 0
 	// make sure the render thread is stopped, because we are probably
 	// going to have to upload an image
 	if ( r_smp->integer ) {
 		R_SyncRenderThread();
 	}
+#endif // 0
 
 	// Ridah, check the cache
 
@@ -3618,11 +3623,13 @@ qhandle_t RE_RegisterShaderFromImage( const char *name, int lightmapIndex, image
 		}
 	}
 
+#if 0
 	// make sure the render thread is stopped, because we are probably
 	// going to have to upload an image
 	if ( r_smp->integer ) {
 		R_SyncRenderThread();
 	}
+#endif // 0
 
 	// clear the global shader
 	Com_Memset( &shader, 0, sizeof( shader ) );

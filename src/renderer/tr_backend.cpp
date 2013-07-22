@@ -28,7 +28,11 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tr_local.h"
 
+#if 0
 backEndData_t   *backEndData[SMP_FRAMES];
+#endif // 0
+backEndData_t* backEndData;
+
 backEndState_t backEnd;
 
 
@@ -2709,11 +2713,15 @@ void RB_ExecuteRenderCommands( const void *data ) {
 
 	t1 = ri.Milliseconds();
 
+// BBi
+#if 0
 	if ( !r_smp->integer || data == backEndData[0]->commands.cmds ) {
 		backEnd.smpFrame = 0;
 	} else {
 		backEnd.smpFrame = 1;
 	}
+#endif // 0
+// BBi
 
 	while ( 1 ) {
 		switch ( *(const int *)data ) {
@@ -2771,7 +2779,8 @@ void RB_ExecuteRenderCommands( const void *data ) {
 
 }
 
-
+// BBi
+#if 0
 /*
 ================
 RB_RenderThread
@@ -2796,4 +2805,6 @@ void RB_RenderThread( void ) {
 		renderThreadActive = qfalse;
 	}
 }
+#endif // 0
+// BBi
 

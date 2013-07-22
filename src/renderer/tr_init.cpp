@@ -1416,9 +1416,12 @@ void GfxInfo_f( void ) {
 //	}
 //BBi
 
-	if ( glConfig.smpActive ) {
-		ri.Printf( PRINT_ALL, "Using dual processor acceleration\n" );
-	}
+// BBi
+//	if ( glConfig.smpActive ) {
+//		ri.Printf( PRINT_ALL, "Using dual processor acceleration\n" );
+//	}
+// BBi
+
 	if ( r_finish->integer ) {
 		ri.Printf( PRINT_ALL, "Forcing glFinish\n" );
 	}
@@ -2019,6 +2022,7 @@ void R_Init( void ) {
 		max_polyverts = MAX_POLYVERTS;
 	}
 
+#if 0
 //	backEndData[0] = ri.Hunk_Alloc( sizeof( *backEndData[0] ), h_low );
 	backEndData[0] = static_cast<backEndData_t*> (ri.Hunk_Alloc( sizeof( *backEndData[0] ) + sizeof( srfPoly_t ) * max_polys + sizeof( polyVert_t ) * max_polyverts, h_low ));
 
@@ -2028,6 +2032,12 @@ void R_Init( void ) {
 	} else {
 		backEndData[1] = NULL;
 	}
+#endif // 0
+
+    backEndData = static_cast<backEndData_t*>(ri.Hunk_Alloc(
+        sizeof(*backEndData) + (sizeof(srfPoly_t) * max_polys) +
+        (sizeof(polyVert_t) * max_polyverts), h_low));
+
 	R_ToggleSmpFrame();
 
 	InitOpenGL();

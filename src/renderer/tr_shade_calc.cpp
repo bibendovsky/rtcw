@@ -1203,7 +1203,11 @@ void RB_CalcFogTexCoords( float *st ) {
 
 	// offset fog surface
 	VectorCopy( fog->surface, fogSurface );
+
+#if 0
 	fogSurface[ 3 ] = fog->surface[ 3 ] + DotProduct( fogSurface, bmodel->orientation[ backEnd.smpFrame ].origin );
+#endif // 0
+    fogSurface[3] = fog->surface[3] + DotProduct(fogSurface, bmodel->orientation.origin);
 
 	// ydnar: general fog case
 	if ( fog->originalBrushNumber >= 0 ) {

@@ -63,10 +63,12 @@ typedef unsigned int glIndex_t;
 //#endif // RTCW_XX
 //BBi
 
-// everything that is needed by the backend needs
-// to be double buffered to allow it to run in
-// parallel on a dual cpu machine
-#define SMP_FRAMES      2
+// BBi
+//// everything that is needed by the backend needs
+//// to be double buffered to allow it to run in
+//// parallel on a dual cpu machine
+//#define SMP_FRAMES      2
+// BBi
 
 #if defined RTCW_SP
 #define MAX_SHADERS             2048
@@ -850,7 +852,11 @@ typedef struct srfGeneric_s
 	cplane_t plane;
 
 	// dynamic lighting information
-	int dlightBits[ SMP_FRAMES ];
+
+// BBi
+	//int dlightBits[ SMP_FRAMES ];
+    int dlightBits;
+// BBi
 }
 srfGeneric_t;
 #endif // RTCW_XX
@@ -867,7 +873,11 @@ typedef struct srfGridMesh_s {
 #endif // RTCW_XX
 
 	// dynamic lighting information
-	int dlightBits[SMP_FRAMES];
+
+// BBi
+	//int dlightBits[SMP_FRAMES];
+    int dlightBits;
+// BBi
 
 #if !defined RTCW_ET
 	// culling information
@@ -914,7 +924,11 @@ typedef struct srfSurfaceFace_s
 	cplane_t plane;
 
 	// dynamic lighting information
-	int dlightBits[SMP_FRAMES];
+
+// BBi
+//	int dlightBits[SMP_FRAMES];
+    int dlightBits;
+// BBi
 
 	// triangle definitions (no normals at points)
 	int numPoints;
@@ -938,7 +952,11 @@ typedef struct srfTriangles_s
 
 #if !defined RTCW_ET
 	// dynamic lighting information
-	int dlightBits[SMP_FRAMES];
+
+// BBi
+//	int dlightBits[SMP_FRAMES];
+    int dlightBits;
+// BBi
 #endif // RTCW_XX
 
 	// culling information (FIXME: use this!)
@@ -958,7 +976,11 @@ typedef struct srfTriangles_s
 	cplane_t plane;
 
 	// dynamic lighting information
-	int dlightBits[ SMP_FRAMES ];
+
+// BBi
+//	int dlightBits[ SMP_FRAMES ];
+    int dlightBits;
+// BBi
 #endif // RTCW_XX
 
 	// triangle definitions
@@ -982,7 +1004,11 @@ typedef struct srfTriangles2_s
 	cplane_t plane;
 
 	// dynamic lighting information
-	int dlightBits[ SMP_FRAMES ];
+
+// BBi
+//	int dlightBits[ SMP_FRAMES ];
+    int dlightBits;
+// BBi
 
 	// triangle definitions
 	int numIndexes;
@@ -1020,7 +1046,11 @@ typedef struct
 	cplane_t plane;
 
 	// dynamic lighting information
-	int dlightBits[ SMP_FRAMES ];
+
+// BBi
+//	int dlightBits[ SMP_FRAMES ];
+    int dlightBits;
+// BBi
 
 	// triangle definitions
 	int numIndexes;
@@ -1131,9 +1161,17 @@ typedef struct bmodel_s {
 	// ydnar: for fog volumes
 	int firstBrush;
 	int numBrushes;
+
+#if 0
 	orientation_t orientation[ SMP_FRAMES ];
 	qboolean visible[ SMP_FRAMES ];
 	int entityNum[ SMP_FRAMES ];
+#endif // 0
+
+    orientation_t orientation;
+    qboolean visible;
+    int entityNum;
+// BBi
 #endif // RTCW_XX
 
 } bmodel_t;
@@ -1450,7 +1488,10 @@ typedef struct {
 // all state modified by the back end is seperated
 // from the front end state
 typedef struct {
-	int smpFrame;
+// BBi
+	//int smpFrame;
+// BBi
+
 	trRefdef_t refdef;
 	viewParms_t viewParms;
 
@@ -2108,10 +2149,12 @@ void        GLimp_Init( void );
 void        GLimp_Shutdown( void );
 void        GLimp_EndFrame( void );
 
-qboolean GLimp_SpawnRenderThread( void ( *function )( void ) );
-void        *GLimp_RendererSleep( void );
-void        GLimp_FrontEndSleep( void );
-void        GLimp_WakeRenderer( void *data );
+// BBi
+//qboolean GLimp_SpawnRenderThread( void ( *function )( void ) );
+//void        *GLimp_RendererSleep( void );
+//void        GLimp_FrontEndSleep( void );
+//void        GLimp_WakeRenderer( void *data );
+// BBi
 
 void        GLimp_LogComment( char *comment );
 
@@ -2649,7 +2692,10 @@ typedef struct {
 extern int max_polys;
 extern int max_polyverts;
 
-extern backEndData_t   *backEndData[SMP_FRAMES];    // the second one may not be allocated
+// BBi
+//extern backEndData_t   *backEndData[SMP_FRAMES];    // the second one may not be allocated
+extern backEndData_t* backEndData;
+// BBi
 
 extern volatile renderCommandList_t    *renderCommandList;
 

@@ -704,28 +704,10 @@ void GLimp_SetGamma(
     }
 }
 
-void GLimp_WakeRenderer(void* data)
-{
-}
-
-void GLimp_FrontEndSleep()
-{
-}
-
 void GLimp_Activate (
     bool is_activated,
     bool is_minimized)
 {
-}
-
-void* GLimp_RendererSleep()
-{
-    return nullptr;
-}
-
-qboolean GLimp_SpawnRenderThread(void (*function)())
-{
-    return false;
 }
 
 bool GLimp_SetFullscreen(bool value)

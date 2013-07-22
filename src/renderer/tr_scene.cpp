@@ -63,6 +63,7 @@ int skyboxportal;
 int drawskyboxportal;
 #endif // RTCW_XX
 
+
 /*
 ====================
 R_ToggleSmpFrame
@@ -70,6 +71,7 @@ R_ToggleSmpFrame
 ====================
 */
 void R_ToggleSmpFrame( void ) {
+#if 0
 	if ( r_smp->integer ) {
 		// use the other buffers next frame, because another CPU
 		// may still be rendering into the current ones
@@ -79,6 +81,10 @@ void R_ToggleSmpFrame( void ) {
 	}
 
 	backEndData[tr.smpFrame]->commands.used = 0;
+#endif // 0
+
+    tr.smpFrame = 0;
+    backEndData->commands.used = 0;
 
 	r_firstSceneDrawSurf = 0;
 
@@ -110,7 +116,6 @@ void R_ToggleSmpFrame( void ) {
 
 }
 
-
 /*
 ====================
 RE_ClearScene
@@ -126,7 +131,10 @@ void RE_ClearScene( void ) {
 	// ydnar: clear model stuff for dynamic fog
 	if ( tr.world != NULL ) {
 		for ( i = 0; i < tr.world->numBModels; i++ )
+#if 0
 			tr.world->bmodels[ i ].visible[ tr.smpFrame ] = qfalse;
+#endif // 0
+            tr.world->bmodels[i].visible = qfalse;
 	}
 
 	// everything else
@@ -202,11 +210,19 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 		return;
 	}
 
-	poly = &backEndData[tr.smpFrame]->polys[r_numpolys];
+// BBi
+//	poly = &backEndData[tr.smpFrame]->polys[r_numpolys];
+    poly = &backEndData->polys[r_numpolys];
+// BBi
+
 	poly->surfaceType = SF_POLY;
 	poly->hShader = hShader;
 	poly->numVerts = numVerts;
-	poly->verts = &backEndData[tr.smpFrame]->polyVerts[r_numpolyverts];
+
+// BBi
+//	poly->verts = &backEndData[tr.smpFrame]->polyVerts[r_numpolyverts];
+    poly->verts = &backEndData->polyVerts[r_numpolyverts];
+// BBi
 
 	memcpy( poly->verts, verts, numVerts * sizeof( *verts ) );
 
@@ -282,11 +298,19 @@ void RE_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *vert
 			return;
 		}
 
-		poly = &backEndData[tr.smpFrame]->polys[r_numpolys];
+// BBi
+//		poly = &backEndData[tr.smpFrame]->polys[r_numpolys];
+        poly = &backEndData->polys[r_numpolys];
+// BBi
+
 		poly->surfaceType = SF_POLY;
 		poly->hShader = hShader;
 		poly->numVerts = numVerts;
-		poly->verts = &backEndData[tr.smpFrame]->polyVerts[r_numpolyverts];
+
+// BBi
+//		poly->verts = &backEndData[tr.smpFrame]->polyVerts[r_numpolyverts];
+        poly->verts = &backEndData->polyVerts[r_numpolyverts];
+// BBi
 
 		memcpy( poly->verts, &verts[numVerts * j], numVerts * sizeof( *verts ) );
 
@@ -378,7 +402,11 @@ void RE_AddPolyBufferToScene( polyBuffer_t* pPolyBuffer ) {
 		return;
 	}
 
+#if 0
 	pPolySurf = &backEndData[tr.smpFrame]->polybuffers[r_numpolybuffers];
+#endif // 0
+    pPolySurf = &backEndData->polybuffers[r_numpolybuffers];
+
 	r_numpolybuffers++;
 
 	pPolySurf->surfaceType = SF_POLYBUFFER;
@@ -429,8 +457,12 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 		ri.Error( ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", ent->reType );
 	}
 
-	backEndData[tr.smpFrame]->entities[r_numentities].e = *ent;
-	backEndData[tr.smpFrame]->entities[r_numentities].lightingCalculated = qfalse;
+// BBi
+//	backEndData[tr.smpFrame]->entities[r_numentities].e = *ent;
+//	backEndData[tr.smpFrame]->entities[r_numentities].lightingCalculated = qfalse;
+    backEndData->entities[r_numentities].e = *ent;
+    backEndData->entities[r_numentities].lightingCalculated = qfalse;
+// BBi
 
 	r_numentities++;
 
@@ -501,9 +533,19 @@ void RE_AddLightToScene( const vec3_t org, float radius, float intensity, float 
 		}
 
 #if !defined RTCW_ET
+// BBi
+#if 0
 		if ( r_dynamiclight->integer == 2 && !( backEndData[tr.smpFrame]->dlights[r_numdlights].forced ) ) {
 			return;
 		}
+#endif // 0
+
+        if (r_dynamiclight->integer == 2 &&
+            !backEndData->dlights[r_numdlights].forced)
+        {
+            return;
+        }
+// BBi
 #endif // RTCW_XX
 
 	}
@@ -524,7 +566,13 @@ void RE_AddLightToScene( const vec3_t org, float radius, float intensity, float 
 	overdraw &= ~REF_JUNIOR_DLIGHT; //----(SA)	added
 #endif // RTCW_XX
 
+// BBi
+#if 0
 	dl = &backEndData[tr.smpFrame]->dlights[r_numdlights++];
+#endif // 0
+    dl = &backEndData->dlights[r_numdlights++];
+// BBi
+
 	VectorCopy( org, dl->origin );
 
 #if defined RTCW_MP
@@ -596,7 +644,12 @@ void RE_AddCoronaToScene (const vec3_t org, float r, float g, float b,
 		return;
 	}
 
+#if 0
 	cor = &backEndData[tr.smpFrame]->coronas[r_numcoronas++];
+#endif // 0
+
+    cor = &backEndData->coronas[r_numcoronas++];
+
 	VectorCopy( org, cor->origin );
 	cor->color[0] = r;
 	cor->color[1] = g;
@@ -696,6 +749,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	// derived info
 
+#if 0
 	tr.refdef.floatTime = tr.refdef.time * 0.001f;
 
 	tr.refdef.numDrawSurfs = r_firstSceneDrawSurf;
@@ -726,6 +780,39 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	tr.refdef.numDecals = r_numDecals - r_firstSceneDecal;
 	tr.refdef.decals = &backEndData[ tr.smpFrame ]->decals[ r_firstSceneDecal ];
+#endif // RTCW_XX
+#endif // 0
+
+    tr.refdef.floatTime = tr.refdef.time * 0.001F;
+
+    tr.refdef.numDrawSurfs = r_firstSceneDrawSurf;
+    tr.refdef.drawSurfs = backEndData->drawSurfs;
+
+    tr.refdef.num_entities = r_numentities - r_firstSceneEntity;
+    tr.refdef.entities = &backEndData->entities[r_firstSceneEntity];
+
+    tr.refdef.num_dlights = r_numdlights - r_firstSceneDlight;
+    tr.refdef.dlights = &backEndData->dlights[r_firstSceneDlight];
+
+#if defined RTCW_ET
+    tr.refdef.dlightBits = 0;
+#endif // RTCW_XX
+
+    tr.refdef.num_coronas = r_numcoronas - r_firstSceneCorona;
+    tr.refdef.coronas = &backEndData->coronas[r_firstSceneCorona];
+
+    tr.refdef.numPolys = r_numpolys - r_firstScenePoly;
+    tr.refdef.polys = &backEndData->polys[r_firstScenePoly];
+
+#if defined RTCW_ET
+    tr.refdef.numPolyBuffers = r_numpolybuffers - r_firstScenePolybuffer;
+    tr.refdef.polybuffers = &backEndData->polybuffers[r_firstScenePolybuffer];
+
+    tr.refdef.numDecalProjectors = r_numDecalProjectors - r_firstSceneDecalProjector;
+    tr.refdef.decalProjectors = &backEndData->decalProjectors[r_firstSceneDecalProjector];
+
+    tr.refdef.numDecals = r_numDecals - r_firstSceneDecal;
+    tr.refdef.decals = &backEndData->decals[r_firstSceneDecal];
 #endif // RTCW_XX
 
 	// turn off dynamic lighting globally by clearing all the

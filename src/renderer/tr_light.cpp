@@ -162,6 +162,7 @@ void R_DlightBmodel( bmodel_t *bmodel ) {
 	for ( i = 0 ; i < bmodel->numSurfaces ; i++ ) {
 		surf = bmodel->firstSurface + i;
 
+#if 0
 		if ( *surf->data == SF_FACE ) {
 			( (srfSurfaceFace_t *)surf->data )->dlightBits[ tr.smpFrame ] = mask;
 		} else if ( *surf->data == SF_GRID ) {
@@ -181,6 +182,26 @@ void R_DlightBmodel( bmodel_t *bmodel ) {
 #endif // RTCW_XX
 
 		}
+#endif // 0
+
+        if (*surf->data == SF_FACE)
+            reinterpret_cast<srfSurfaceFace_t*>(surf->data)->dlightBits = mask;
+        else if (*surf->data == SF_GRID)
+            reinterpret_cast<srfGridMesh_t*>(surf->data)->dlightBits = mask;
+        else if ( *surf->data == SF_TRIANGLES ) {
+
+#if !defined RTCW_ET
+            reinterpret_cast<srfTriangles_t*>(surf->data)->dlightBits = mask;
+#else
+            reinterpret_cast<srfTriangles2_t*>(surf->data)->dlightBits = mask;
+#endif // RTCW_XX
+
+#if defined RTCW_ET
+        } else if (*surf->data == SF_FOLIAGE) { // ydnar
+            reinterpret_cast<srfFoliage_t*>(surf->data)->dlightBits = mask;
+#endif // RTCW_XX
+
+        }
 	}
 }
 

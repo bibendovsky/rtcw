@@ -512,7 +512,11 @@ void RB_SurfaceTriangles( srfTriangles_t *srf ) {
 	int dlightBits;
 	qboolean needsNormal;
 
+#if 0
 	dlightBits = srf->dlightBits[backEnd.smpFrame];
+#endif // 0
+    dlightBits = srf->dlightBits;
+
 	tess.dlightBits |= dlightBits;
 
 	RB_CHECKOVERFLOW( srf->numVerts, srf->numIndexes );
@@ -569,7 +573,11 @@ void RB_SurfaceTriangles( srfTriangles_t *srf ) {
 	// ydnar: moved before overflow so dlights work properly
 	RB_CHECKOVERFLOW( srf->numVerts, srf->numIndexes );
 
+#if 0
 	dlightBits = srf->dlightBits[backEnd.smpFrame];
+#endif // 0
+    dlightBits = srf->dlightBits;
+
 	tess.dlightBits |= dlightBits;
 
 	for ( i = 0 ; i < srf->numIndexes ; i += 3 ) {
@@ -672,7 +680,12 @@ void RB_SurfaceFoliage( srfFoliage_t *srf ) {
 	}
 
 	// set dlight bits
+
+#if 0
 	dlightBits = srf->dlightBits[ backEnd.smpFrame ];
+#endif // 0
+    dlightBits = srf->dlightBits;
+
 	tess.dlightBits |= dlightBits;
 
 	// iterate through origin list
@@ -1692,7 +1705,11 @@ void RB_SurfaceFace( srfSurfaceFace_t *surf ) {
 
 	RB_CHECKOVERFLOW( surf->numPoints, surf->numIndices );
 
+#if 0
 	dlightBits = surf->dlightBits[backEnd.smpFrame];
+#endif // 0
+    dlightBits = surf->dlightBits;
+
 	tess.dlightBits |= dlightBits;
 
 	indices = ( unsigned * )( ( ( char  * ) surf ) + surf->ofsIndices );
@@ -1864,7 +1881,11 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 
 	qboolean needsNormal;
 
+#if 0
 	dlightBits = cv->dlightBits[backEnd.smpFrame];
+#endif // 0
+    dlightBits = cv->dlightBits;
+
 	tess.dlightBits |= dlightBits;
 
 	// determine the allowable discrepance
