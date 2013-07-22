@@ -32,6 +32,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "qcommon.h"
 #include <setjmp.h>
 
+// BBi
+#include "SDL.h"
+// BBi
+
 #if defined RTCW_SP
 #define MAXPRINTMSG 4096
 #endif // RTCW_XX
@@ -2616,6 +2620,10 @@ extern qboolean consoleButtonWasPressed;
 #endif // RTCW_XX
 
 int Com_EventLoop( void ) {
+    // BBi
+    ::SDL_PumpEvents();
+    // BBi
+
 	sysEvent_t ev;
 	netadr_t evFrom;
 	byte bufData[MAX_MSGLEN];

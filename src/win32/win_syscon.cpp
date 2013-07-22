@@ -48,6 +48,13 @@ If you have questions concerning this license or the applicable additional terms
 #include <conio.h>
 
 
+// BBi
+#ifndef DEDICATED
+WinVars_t g_wv;
+#endif // DEDICATED
+// BBi
+
+
 #if !defined RTCW_SP
 #define SYSCON_DEFAULT_WIDTH    540
 #define SYSCON_DEFAULT_HEIGHT   450

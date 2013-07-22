@@ -50,6 +50,8 @@ If you have questions concerning this license or the applicable additional terms
 
 // BBi
 #include "SDL.h"
+
+#include "sys_events.h"
 // BBi
 
 #if defined RTCW_SP
@@ -296,7 +298,9 @@ void QDECL Sys_Error( const char *error, ... ) {
 	Sys_SetErrorText( text );
 	Sys_ShowConsole( 1, qtrue );
 
-	timeEndPeriod( 1 );
+    // BBi
+	//timeEndPeriod( 1 );
+    // BBi
 
 	IN_Shutdown();
 
@@ -320,7 +324,10 @@ Sys_Quit
 ==============
 */
 void Sys_Quit( void ) {
-	timeEndPeriod( 1 );
+    // BBi
+	//timeEndPeriod( 1 );
+    // BBi
+
 	IN_Shutdown();
 	Sys_DestroyConsole();
 
@@ -1626,17 +1633,23 @@ sysEvent_t Sys_GetEvent( void ) {
 	}
 
 	// pump the message loop
-	while ( PeekMessage( &msg, NULL, 0, 0, PM_NOREMOVE ) ) {
-		if ( !GetMessage( &msg, NULL, 0, 0 ) ) {
-			Com_Quit_f();
-		}
 
-		// save the msg time, because wndprocs don't have access to the timestamp
-		g_wv.sysMsgTime = msg.time;
+// BBi
+	//while ( PeekMessage( &msg, NULL, 0, 0, PM_NOREMOVE ) ) {
+	//	if ( !GetMessage( &msg, NULL, 0, 0 ) ) {
+	//		Com_Quit_f();
+	//	}
 
-		TranslateMessage( &msg );
-		DispatchMessage( &msg );
-	}
+	//	// save the msg time, because wndprocs don't have access to the timestamp
+	//	g_wv.sysMsgTime = msg.time;
+
+	//	TranslateMessage( &msg );
+	//	DispatchMessage( &msg );
+	//}
+#ifndef DEDICATED
+    ::sys_poll_events();
+#endif // DEDICATED
+// BBi
 
 	// check for console commands
 	s = Sys_ConsoleInput();
@@ -1724,9 +1737,11 @@ extern void Sys_ClearViewlog_f( void ); // fretn
 void Sys_Init( void ) {
 	int cpuid;
 
-	// make sure the timer is high precision, otherwise
-	// NT gets 18ms resolution
-	timeBeginPeriod( 1 );
+    // BBi
+	//// make sure the timer is high precision, otherwise
+	//// NT gets 18ms resolution
+	//timeBeginPeriod( 1 );
+    // BBi
 
 	Cmd_AddCommand( "in_restart", Sys_In_Restart_f );
 	Cmd_AddCommand( "net_restart", Sys_Net_Restart_f );
@@ -1785,14 +1800,6 @@ void Sys_Init( void ) {
     //BBi
 	//Cvar_Get( "win_hinstance", va( "%i", (int)g_wv.hInstance ), CVAR_ROM );
 	//Cvar_Get( "win_wndproc", va( "%i", (int)MainWndProc ), CVAR_ROM );
-
-    char valueBuffer[21];
-
-    ::sprintf (valueBuffer, "%lli", reinterpret_cast<intptr_t> (g_wv.hInstance));
-    ::Cvar_Get ("win_hinstance", valueBuffer, CVAR_ROM );
-
-    ::sprintf (valueBuffer, "%lli", reinterpret_cast<intptr_t> (MainWndProc));
-    ::Cvar_Get ("win_wndproc", valueBuffer, CVAR_ROM );
     //BBi
 
 	//
@@ -1881,6 +1888,14 @@ WinMain
 //int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow ) {
 extern "C" int main(int argc, char* argv[]) {
 // BBi
+
+// BBi
+    if (::SDL_Init(0) != 0) {
+        // TODO Print out some message.
+        return 1;
+    }
+// BBi
+
 	char cwd[MAX_OSPATH];
 	int startTime, endTime;
 
@@ -1901,7 +1916,6 @@ extern "C" int main(int argc, char* argv[]) {
 
 // BBi
 	//g_wv.hInstance = hInstance;
-    g_wv.hInstance = nullptr;
 // BBi
 
 // BBi

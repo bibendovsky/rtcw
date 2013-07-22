@@ -323,7 +323,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\client\snd_dma_sdl.cpp" />
+    <ClCompile Include="..\..\..\..\src\client\snd_dma_sdl.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\src\qcommon\cm_load.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\cm_patch.cpp" />
     <ClCompile Include="..\..\..\..\src\qcommon\cm_polylib.cpp" />
@@ -619,29 +621,31 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\win32\win_gamma.cpp">
+    <ClCompile Include="..\..\..\..\src\system\rtcw_input_joystick.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\win32\win_glimp.cpp">
+    <ClCompile Include="..\..\..\..\src\system\rtcw_input_keyboard.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\win32\win_input.cpp">
+    <ClCompile Include="..\..\..\..\src\system\rtcw_input_mouse.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\system\sys_events.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\system\sys_glimp.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\system\sys_input.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\win32\win_main.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_net.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_shared.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_syscon.cpp" />
-    <ClCompile Include="..\..\..\..\src\win32\win_wndproc.cpp" />
+    <ClCompile Include="..\..\..\..\src\win32\win_wndproc.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\src\qcommon\dl_main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|x64'">true</ExcludedFromBuild>
@@ -734,6 +738,11 @@
     <ClInclude Include="..\..\..\..\src\splines\splines.h" />
     <ClInclude Include="..\..\..\..\src\splines\util_list.h" />
     <ClInclude Include="..\..\..\..\src\splines\util_str.h" />
+    <ClInclude Include="..\..\..\..\src\system\rtcw_input_joystick.h" />
+    <ClInclude Include="..\..\..\..\src\system\rtcw_input_keyboard.h" />
+    <ClInclude Include="..\..\..\..\src\system\rtcw_input_mouse.h" />
+    <ClInclude Include="..\..\..\..\src\system\sys_events.h" />
+    <ClInclude Include="..\..\..\..\src\system\sys_input.h" />
     <ClInclude Include="..\..\..\..\src\ui\keycodes.h" />
     <ClInclude Include="..\..\..\..\src\client\keys.h" />
     <ClInclude Include="..\..\..\..\src\game\q_shared.h" />

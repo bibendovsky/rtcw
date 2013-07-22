@@ -220,14 +220,16 @@
     <ClCompile Include="..\..\..\..\src\splines\q_parse.cpp" />
     <ClCompile Include="..\..\..\..\src\splines\splines.cpp" />
     <ClCompile Include="..\..\..\..\src\splines\util_str.cpp" />
-    <ClCompile Include="..\..\..\..\src\win32\win_gamma.cpp" />
-    <ClCompile Include="..\..\..\..\src\win32\win_glimp.cpp" />
-    <ClCompile Include="..\..\..\..\src\win32\win_input.cpp" />
+    <ClCompile Include="..\..\..\..\src\system\rtcw_input_joystick.cpp" />
+    <ClCompile Include="..\..\..\..\src\system\rtcw_input_keyboard.cpp" />
+    <ClCompile Include="..\..\..\..\src\system\rtcw_input_mouse.cpp" />
+    <ClCompile Include="..\..\..\..\src\system\sys_glimp.cpp" />
+    <ClCompile Include="..\..\..\..\src\system\sys_events.cpp" />
+    <ClCompile Include="..\..\..\..\src\system\sys_input.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_main.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_net.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_shared.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_syscon.cpp" />
-    <ClCompile Include="..\..\..\..\src\win32\win_wndproc.cpp" />
     <ClCompile Include="..\..\..\..\src\zlib\contrib\minizip\ioapi.c" />
     <ClCompile Include="..\..\..\..\src\zlib\contrib\minizip\unzip.c" />
   </ItemGroup>
@@ -297,6 +299,11 @@
     <ClInclude Include="..\..\..\..\src\splines\splines.h" />
     <ClInclude Include="..\..\..\..\src\splines\util_list.h" />
     <ClInclude Include="..\..\..\..\src\splines\util_str.h" />
+    <ClInclude Include="..\..\..\..\src\system\rtcw_input_joystick.h" />
+    <ClInclude Include="..\..\..\..\src\system\rtcw_input_keyboard.h" />
+    <ClInclude Include="..\..\..\..\src\system\rtcw_input_mouse.h" />
+    <ClInclude Include="..\..\..\..\src\system\sys_events.h" />
+    <ClInclude Include="..\..\..\..\src\system\sys_input.h" />
     <ClInclude Include="..\..\..\..\src\ui\keycodes.h" />
     <ClInclude Include="..\..\..\..\src\client\keys.h" />
     <ClInclude Include="..\..\..\..\src\game\q_shared.h" />
