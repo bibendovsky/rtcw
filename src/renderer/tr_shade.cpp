@@ -2903,9 +2903,12 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
     // BBi
 
 	GL_SelectTexture( 0 );
+
 #ifdef REPLACE_MODE
-	GL_TexEnv( GL_MODULATE );
-	::glShadeModel( GL_SMOOTH );
+    ::GL_TexEnv( GL_MODULATE );
+
+    if (glConfigEx.is_path_ogl_1_x ())
+        ::glShadeModel(GL_SMOOTH);
 #endif
 
 	//

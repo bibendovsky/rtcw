@@ -1172,7 +1172,9 @@ void GL_SetDefaultState( void ) {
 
 	GL_TexEnv( GL_MODULATE );
 
-	::glShadeModel( GL_SMOOTH );
+    if (glConfigEx.is_path_ogl_1_x ())
+        ::glShadeModel( GL_SMOOTH );
+
 	::glDepthFunc( GL_LEQUAL );
 
     // BBi
