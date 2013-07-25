@@ -338,9 +338,8 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
         // BBi
         if (!glConfigEx.is_path_ogl_1_x ()) {
             if (glConfigEx.use_arb_draw_elements_base_vertex) {
-                //FIXME GLEW bug: non-const qualifier
-                ::glDrawElementsBaseVertex (GL_TRIANGLES, numIndexes, GL_INDEX_TYPE,
-                    const_cast<glIndex_t*> (indexes), ogl_tess_base_vertex);
+                ::glDrawElementsBaseVertex(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE,
+                    indexes, ogl_tess_base_vertex);
             } else {
                 ::glDrawElements (GL_TRIANGLES, numIndexes, GL_INDEX_TYPE,
                     &ogl_index_buffer[0]);

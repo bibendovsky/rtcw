@@ -147,7 +147,7 @@ my %regex = (
     prefix   => qr/^(?:[aw]?gl|glX)/, # gl | agl | wgl | glX
     tprefix  => qr/^(?:[AW]?GL|GLX)_/, # GL_ | AGL_ | WGL_ | GLX_
     section  => compile_regex('^(', join('|', @sections), ')$'), # sections in spec
-    token    => qr/^([A-Z0-9][A-Z0-9_x]*):?\s+((?:0x)?[0-9A-F]+)(.*)$/, # define tokens
+    token    => qr/^([A-Z0-9][A-Z0-9_x]*):?\s+((?:0x)?[0-9A-F]+)([^\?]*)$/, # define tokens
     types    => compile_regex('\b(', join('|', keys %typemap), ')\b'), # var types
     voidtype => compile_regex('\b(', keys %voidtypemap, ')\b '), # void type
 );
@@ -159,6 +159,7 @@ sub normalize_prototype
     s/\s+/ /g;                # multiple whitespace -> single space
     s/\<.*\>//g;              # remove <comments> from direct state access extension
     s/\<.*$//g;               # remove incomplete <comments> from direct state access extension
+    s#/\*.*\*/##g;            # remove /* ... */ comments
     s/\s*\(\s*/ \(/;          # exactly one space before ( and none after
     s/\s*\)\s*/\)/;           # no space before or after )
     s/\s*\*([a-zA-Z])/\* $1/; # "* identifier"
@@ -239,6 +240,7 @@ sub parse_spec($)
                             $return =~ s/void\*/GLvoid */og;
                             $parms =~ s/$regex{types}/$typemap{$1}/og;
                             $parms =~ s/$regex{voidtype}/$voidtypemap{$1}/og;
+                            $parms =~ s/ void\* / GLvoid */og;
                         }
                         # add to functions hash
                         $functions{$name} = {
@@ -305,8 +307,7 @@ my @speclist = ();
 my %extensions = ();
 
 my $ext_dir = shift;
-my $reg_http = "http://www.opengl.org/registry/specs/";
-#my $reg_http = "http://oss.sgi.com/projects/ogl-sample/";
+my $reg_http = "http://www.opengl.org/registry/specs/gl/";
 
 # Take command line arguments or read list from file
 if (@ARGV)
@@ -327,7 +328,7 @@ foreach my $spec (sort @speclist)
         open EXT, ">$info";
         print EXT $ext . "\n";                       # Extension name
         my $specname = $spec;
-        $specname =~ s/registry\///;
+        $specname =~ s/registry\/gl\/specs\///;
         print EXT $reg_http . $specname . "\n";      # Extension info URL
         print EXT $ext . "\n";                       # Extension string
 
