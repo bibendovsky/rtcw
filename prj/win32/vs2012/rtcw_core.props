@@ -15,7 +15,7 @@
       <PreprocessorDefinitions>WINVER=0x0501;_WIN32_WINNT=0x0501;NTDDI_VERSION=NTDDI_WINXPSP3;DIRECTINPUT_VERSION=0x0800;_CRT_SECURE_NO_WARNINGS;AL_LIBTYPE_STATIC;CURL_STATICLIB;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(rtcw_src_dir)bbi;$(rtcw_src_dir)botai;$(rtcw_src_dir)botlib;$(rtcw_src_dir)cgame;$(rtcw_src_dir)client;$(rtcw_src_dir)game;$(rtcw_src_dir)null;$(rtcw_src_dir)qcommon;$(rtcw_src_dir)renderer;$(rtcw_src_dir)server;$(rtcw_src_dir)splines;$(rtcw_src_dir)system;$(rtcw_src_dir)ui;$(rtcw_src_dir)win32;$(rtcw_src_dir)curl\include;$(rtcw_src_dir)glew\include;$(rtcw_src_dir)glm;$(rtcw_src_dir)libjpeg_turbo;$(rtcw_src_dir)libjpeg_turbo_win32;$(rtcw_src_dir)libsdl2\include;$(rtcw_src_dir)openal_soft\include;$(rtcw_src_dir)zlib;$(rtcw_src_dir)zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(rtcw_src_dir)botai;$(rtcw_src_dir)botlib;$(rtcw_src_dir)cgame;$(rtcw_src_dir)client;$(rtcw_src_dir)game;$(rtcw_src_dir)null;$(rtcw_src_dir)qcommon;$(rtcw_src_dir)renderer;$(rtcw_src_dir)server;$(rtcw_src_dir)splines;$(rtcw_src_dir)system;$(rtcw_src_dir)ui;$(rtcw_src_dir)win32;$(rtcw_src_dir)curl\include;$(rtcw_src_dir)glew\include;$(rtcw_src_dir)glm;$(rtcw_src_dir)libjpeg_turbo;$(rtcw_src_dir)libjpeg_turbo_win32;$(rtcw_src_dir)libsdl2\include;$(rtcw_src_dir)openal_soft\include;$(rtcw_src_dir)zlib;$(rtcw_src_dir)zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Lib>

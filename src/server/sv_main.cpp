@@ -136,7 +136,7 @@ void SVC_GameCompleteStatus( netadr_t from );       // NERVE - SMF
 #endif // RTCW_XX
 
 #if defined RTCW_ET
-#define LL( x ) x = bbi::Endian::le ( x )
+#define LL( x ) x = rtcw::Endian::le(x)
 #endif // RTCW_XX
 
 /*
@@ -419,11 +419,11 @@ void SV_MasterHeartbeat( const char *hbname ) {
 				continue;
 			}
 			if ( !strstr( ":", sv_master[i]->string ) ) {
-				adr[i].port = bbi::Endian::be( PORT_MASTER );
+				adr[i].port = rtcw::Endian::be( PORT_MASTER );
 			}
 			Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", sv_master[i]->string,
 						adr[i].ip[0], adr[i].ip[1], adr[i].ip[2], adr[i].ip[3],
-						bbi::Endian::be( adr[i].port ) );
+						rtcw::Endian::be( adr[i].port ) );
 		}
 
 
@@ -485,11 +485,11 @@ void SV_MasterGameCompleteStatus() {
 				continue;
 			}
 			if ( !strstr( ":", sv_master[i]->string ) ) {
-				adr[i].port = bbi::Endian::be ( PORT_MASTER );
+				adr[i].port = rtcw::Endian::be ( PORT_MASTER );
 			}
 			Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", sv_master[i]->string,
 						adr[i].ip[0], adr[i].ip[1], adr[i].ip[2], adr[i].ip[3],
-						bbi::Endian::be ( adr[i].port ) );
+						rtcw::Endian::be ( adr[i].port ) );
 		}
 
 		Com_Printf( "Sending gameCompleteStatus to %s\n", sv_master[i]->string );
@@ -1633,7 +1633,7 @@ int SV_LoadTag( const char *mod_name ) {
 
 	pinmodel = (tagHeader_t *)buffer;
 
-	version = bbi::Endian::le ( pinmodel->version );
+	version = rtcw::Endian::le( pinmodel->version );
 	if ( version != TAG_VERSION ) {
 		Com_Printf( S_COLOR_YELLOW "WARNING: SV_LoadTag: %s has wrong version (%i should be %i)\n", mod_name, version, TAG_VERSION );
 		return 0;
@@ -1668,10 +1668,10 @@ int SV_LoadTag( const char *mod_name ) {
 	readTag = ( md3Tag_t* )( buffer + sizeof( tagHeader_t ) );
 	for ( i = 0 ; i < pinmodel->numTags; i++, tag++, readTag++ ) {
 		for ( j = 0 ; j < 3 ; j++ ) {
-			bbi::Endian::lei (readTag->origin);
-			bbi::Endian::lei (readTag->axis[0]);
-            bbi::Endian::lei (readTag->axis[1]);
-            bbi::Endian::lei (readTag->axis[2]);
+			rtcw::Endian::lei(readTag->origin);
+			rtcw::Endian::lei(readTag->axis[0]);
+            rtcw::Endian::lei(readTag->axis[1]);
+            rtcw::Endian::lei(readTag->axis[2]);
 		}
 		Q_strncpyz( tag->name, readTag->name, 64 );
 	}

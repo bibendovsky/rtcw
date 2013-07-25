@@ -150,11 +150,11 @@ void SV_GetChallenge( netadr_t from ) {
 			Com_Printf( "Couldn't resolve address\n" );
 			return;
 		}
-		svs.authorizeAddress.port = bbi::Endian::be( PORT_AUTHORIZE );
+		svs.authorizeAddress.port = rtcw::Endian::be( PORT_AUTHORIZE );
 		Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
 					svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
 					svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3],
-					bbi::Endian::be( svs.authorizeAddress.port ) );
+					rtcw::Endian::be( svs.authorizeAddress.port ) );
 	}
 
 	// if they have been challenging for a long time and we

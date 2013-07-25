@@ -1,8 +1,6 @@
 #include "rtcw_ogl_tess_program.h"
 
-#include <GL/glew.h>
-
-#include "bbi_ogl_program.h"
+#include "rtcw_ogl_program.h"
 
 
 namespace rtcw {

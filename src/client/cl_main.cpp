@@ -332,12 +332,12 @@ void CL_WriteDemoMessage( msg_t *msg, int headerBytes ) {
 
 	// write the packet sequence
 	len = clc.serverMessageSequence;
-	swlen = bbi::Endian::le ( len );
+	swlen = rtcw::Endian::le( len );
 	FS_Write( &swlen, 4, clc.demofile );
 
 	// skip the packet sequencing information
 	len = msg->cursize - headerBytes;
-	swlen = bbi::Endian::le ( len );
+	swlen = rtcw::Endian::le( len );
 	FS_Write( &swlen, 4, clc.demofile );
 	FS_Write( msg->data + headerBytes, len, clc.demofile );
 }
@@ -571,10 +571,10 @@ void CL_Record_f( void ) {
 	MSG_WriteByte( &buf, svc_EOF );
 
 	// write it to the demo file
-	len = bbi::Endian::le ( clc.serverMessageSequence - 1 );
+	len = rtcw::Endian::le( clc.serverMessageSequence - 1 );
 	FS_Write( &len, 4, clc.demofile );
 
-	len = bbi::Endian::le ( buf.cursize );
+	len = rtcw::Endian::le( buf.cursize );
 	FS_Write( &len, 4, clc.demofile );
 	FS_Write( buf.data, buf.cursize, clc.demofile );
 
@@ -658,10 +658,10 @@ void CL_Record( const char* name ) {
 	MSG_WriteByte( &buf, svc_EOF );
 
 	// write it to the demo file
-	len = bbi::Endian::le ( clc.serverMessageSequence - 1 );
+	len = rtcw::Endian::le( clc.serverMessageSequence - 1 );
 	FS_Write( &len, 4, clc.demofile );
 
-	len = bbi::Endian::le ( buf.cursize );
+	len = rtcw::Endian::le( buf.cursize );
 	FS_Write( &len, 4, clc.demofile );
 	FS_Write( buf.data, buf.cursize, clc.demofile );
 
@@ -727,7 +727,7 @@ void CL_ReadDemoMessage( void ) {
 		CL_DemoCompleted();
 		return;
 	}
-	clc.serverMessageSequence = bbi::Endian::le ( s );
+	clc.serverMessageSequence = rtcw::Endian::le( s );
 
 	// init the message
 	MSG_Init( &buf, bufData, sizeof( bufData ) );
@@ -738,7 +738,7 @@ void CL_ReadDemoMessage( void ) {
 		CL_DemoCompleted();
 		return;
 	}
-	bbi::Endian::lei (buf.cursize);
+	rtcw::Endian::lei(buf.cursize);
 	if ( buf.cursize == -1 ) {
 		CL_DemoCompleted();
 		return;
@@ -1556,16 +1556,16 @@ void CL_RequestMotd( void ) {
 	}
 
 #if !defined RTCW_ET
-	cls.updateServer.port = bbi::Endian::be( PORT_UPDATE );
+	cls.updateServer.port = rtcw::Endian::be( PORT_UPDATE );
 	Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", UPDATE_SERVER_NAME,
 #else
-	cls.updateServer.port = bbi::Endian::be ( PORT_MOTD );
+	cls.updateServer.port = rtcw::Endian::be ( PORT_MOTD );
 	Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", MOTD_SERVER_NAME,
 #endif // RTCW_XX
 
 				cls.updateServer.ip[0], cls.updateServer.ip[1],
 				cls.updateServer.ip[2], cls.updateServer.ip[3],
-				bbi::Endian::be( cls.updateServer.port ) );
+				rtcw::Endian::be( cls.updateServer.port ) );
 
 	info[0] = 0;
 	Com_sprintf( cls.updateChallenge, sizeof( cls.updateChallenge ), "%i", rand() );
@@ -1629,11 +1629,11 @@ void CL_RequestAuthorization( void ) {
 			return;
 		}
 
-		cls.authorizeServer.port = bbi::Endian::be( PORT_AUTHORIZE );
+		cls.authorizeServer.port = rtcw::Endian::be( PORT_AUTHORIZE );
 		Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
 					cls.authorizeServer.ip[0], cls.authorizeServer.ip[1],
 					cls.authorizeServer.ip[2], cls.authorizeServer.ip[3],
-					bbi::Endian::be( cls.authorizeServer.port ) );
+					rtcw::Endian::be( cls.authorizeServer.port ) );
 	}
 	if ( cls.authorizeServer.type == NA_BAD ) {
 		return;
@@ -1851,14 +1851,14 @@ void CL_Connect_f( void ) {
 		return;
 	}
 	if ( clc.serverAddress.port == 0 ) {
-		clc.serverAddress.port = bbi::Endian::be( PORT_SERVER );
+		clc.serverAddress.port = rtcw::Endian::be( PORT_SERVER );
 	}
 
 #if !defined RTCW_ET
 	Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", cls.servername,
 				clc.serverAddress.ip[0], clc.serverAddress.ip[1],
 				clc.serverAddress.ip[2], clc.serverAddress.ip[3],
-				bbi::Endian::be( clc.serverAddress.port ) );
+				rtcw::Endian::be( clc.serverAddress.port ) );
 #else
 	Q_strncpyz( ip_port, NET_AdrToString( clc.serverAddress ), sizeof( ip_port ) );
 	Com_Printf( "%s resolved to %s\n", cls.servername, ip_port );
@@ -1981,7 +1981,7 @@ void CL_Rcon_f( void ) {
 		}
 		NET_StringToAdr( rconAddress->string, &to );
 		if ( to.port == 0 ) {
-			to.port = bbi::Endian::be( PORT_SERVER );
+			to.port = rtcw::Endian::be( PORT_SERVER );
 		}
 	}
 
@@ -2967,7 +2967,7 @@ void CL_ServersResponsePacket( netadr_t from, msg_t *msg ) {
 		// parse out port
 		addresses[numservers].port = ( *buffptr++ ) << 8;
 		addresses[numservers].port += *buffptr++;
-		bbi::Endian::bei (addresses[numservers].port);
+		rtcw::Endian::bei(addresses[numservers].port);
 
 		// syntax check
 		if ( *buffptr != '\\' ) {
@@ -3286,7 +3286,7 @@ void CL_PacketEvent( netadr_t from, msg_t *msg ) {
 	// track the last message received so it can be returned in
 	// client messages, allowing the server to detect a dropped
 	// gamestate
-	clc.serverMessageSequence = bbi::Endian::le ( *(int *)msg->data );
+	clc.serverMessageSequence = rtcw::Endian::le( *(int *)msg->data );
 
 	clc.lastPacketTime = cls.realtime;
 	CL_ParseServerMessage( msg );
@@ -3946,10 +3946,10 @@ void CL_CheckAutoUpdate( void ) {
 			return;
 		}
 	}
-	cls.autoupdateServer.port = bbi::Endian::be( PORT_SERVER );
+	cls.autoupdateServer.port = rtcw::Endian::be( PORT_SERVER );
 	Com_DPrintf( "%i.%i.%i.%i:%i\n", cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
 				 cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
-				 bbi::Endian::be( cls.autoupdateServer.port ) );
+				 rtcw::Endian::be( cls.autoupdateServer.port ) );
 
     //BBi
 	//NET_OutOfBandPrint( NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", Q3_VERSION, CPUSTRING );
@@ -3989,10 +3989,10 @@ void CL_CheckAutoUpdate( void ) {
 
 	cls.autoUpdateServerChecked[cls.autoupdatServerIndex] = qtrue;
 
-	cls.autoupdateServer.port = bbi::Endian::be ( PORT_SERVER );
+	cls.autoupdateServer.port = rtcw::Endian::be ( PORT_SERVER );
 	Com_DPrintf( "autoupdate server at: %i.%i.%i.%i:%i\n", cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
 				 cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
-				 bbi::Endian::be ( cls.autoupdateServer.port ) );
+				 rtcw::Endian::be ( cls.autoupdateServer.port ) );
 
     //BBi
 	//NET_OutOfBandPrint( NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", Q3_VERSION, CPUSTRING );
@@ -4051,10 +4051,10 @@ qboolean CL_NextUpdateServer( void ) {
 
 	cls.autoUpdateServerChecked[cls.autoupdatServerIndex] = qtrue;
 
-	cls.autoupdateServer.port = bbi::Endian::be ( PORT_SERVER );
+	cls.autoupdateServer.port = rtcw::Endian::be ( PORT_SERVER );
 	Com_DPrintf( "%i.%i.%i.%i:%i\n", cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
 				 cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
-				 bbi::Endian::be ( cls.autoupdateServer.port ) );
+				 rtcw::Endian::be ( cls.autoupdateServer.port ) );
 
 	return qtrue;
 }
@@ -4119,7 +4119,7 @@ void CL_GetAutoUpdate( void ) {
 	Com_DPrintf( "%s resolved to %i.%i.%i.%i:%i\n", cls.servername,
 				 clc.serverAddress.ip[0], clc.serverAddress.ip[1],
 				 clc.serverAddress.ip[2], clc.serverAddress.ip[3],
-				 bbi::Endian::be( clc.serverAddress.port ) );
+				 rtcw::Endian::be( clc.serverAddress.port ) );
 
 	cls.state = CA_CONNECTING;
 
@@ -5110,12 +5110,12 @@ void CL_UpdateInfoPacket( netadr_t from ) {
 	Com_DPrintf( "Auto-Updater resolved to %i.%i.%i.%i:%i\n",
 				 cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
 				 cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
-				 bbi::Endian::be ( cls.autoupdateServer.port ) );
+				 rtcw::Endian::be ( cls.autoupdateServer.port ) );
 
 	if ( !NET_CompareAdr( from, cls.autoupdateServer ) ) {
 		Com_DPrintf( "CL_UpdateInfoPacket:  Received packet from %i.%i.%i.%i:%i\n",
 					 from.ip[0], from.ip[1], from.ip[2], from.ip[3],
-					 bbi::Endian::be ( from.port ) );
+					 rtcw::Endian::be ( from.port ) );
 		return;
 	}
 
@@ -5357,7 +5357,7 @@ void CL_LocalServers_f( void ) {
 		// we support multiple server ports so a single machine
 		// can nicely run multiple servers
 		for ( j = 0 ; j < NUM_SERVER_PORTS ; j++ ) {
-			to.port = bbi::Endian::be( (short)( PORT_SERVER + j ) );
+			to.port = rtcw::Endian::be( (short)( PORT_SERVER + j ) );
 
 			to.type = NA_BROADCAST;
 			NET_SendPacket( NS_CLIENT, strlen( message ), message, to );
@@ -5407,7 +5407,7 @@ void CL_GlobalServers_f( void ) {
 		cls.pingUpdateSource = AS_GLOBAL;
 	}
 	to.type = NA_IP;
-	to.port = bbi::Endian::be( PORT_MASTER );
+	to.port = rtcw::Endian::be( PORT_MASTER );
 
 	sprintf( command, "getservers %s", Cmd_Argv( 2 ) );
 

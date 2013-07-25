@@ -60,7 +60,7 @@ void SetPlaneSignbits( cplane_t *out ) {
 #define BOX_LEAFS       2
 #define BOX_PLANES      12
 
-#define LL( x ) x = bbi::Endian::le ( x )
+#define LL( x ) x = rtcw::Endian::le( x )
 
 
 clipMap_t cm;
@@ -126,11 +126,11 @@ void CMod_LoadShaders( lump_t *l ) {
 	memcpy( cm.shaders, in, count * sizeof( *cm.shaders ) );
 #endif // RTCW_XX
 
-	if (!bbi::Endian::is_little ()) {
+	if (!rtcw::Endian::is_little ()) {
 		out = cm.shaders;
 		for ( i = 0 ; i < count ; i++, in++, out++ ) {
-			bbi::Endian::lei (out->contentFlags);
-			bbi::Endian::lei (out->surfaceFlags);
+			rtcw::Endian::lei(out->contentFlags);
+			rtcw::Endian::lei(out->surfaceFlags);
 		}
 	}
 }
@@ -169,8 +169,8 @@ void CMod_LoadSubmodels( lump_t *l ) {
 
 		for ( j = 0 ; j < 3 ; j++ )
 		{   // spread the mins / maxs by a pixel
-			out->mins[j] = bbi::Endian::le ( in->mins[j] ) - 1;
-			out->maxs[j] = bbi::Endian::le ( in->maxs[j] ) + 1;
+			out->mins[j] = rtcw::Endian::le( in->mins[j] ) - 1;
+			out->maxs[j] = rtcw::Endian::le( in->maxs[j] ) + 1;
 		}
 
 		if ( i == 0 ) {
@@ -178,18 +178,18 @@ void CMod_LoadSubmodels( lump_t *l ) {
 		}
 
 		// make a "leaf" just to hold the model's brushes and surfaces
-		out->leaf.numLeafBrushes = bbi::Endian::le ( in->numBrushes );
+		out->leaf.numLeafBrushes = rtcw::Endian::le( in->numBrushes );
 		indexes = static_cast<int*> (Hunk_Alloc( out->leaf.numLeafBrushes * 4, h_high ));
 		out->leaf.firstLeafBrush = indexes - cm.leafbrushes;
 		for ( j = 0 ; j < out->leaf.numLeafBrushes ; j++ ) {
-			indexes[j] = bbi::Endian::le ( in->firstBrush ) + j;
+			indexes[j] = rtcw::Endian::le( in->firstBrush ) + j;
 		}
 
-		out->leaf.numLeafSurfaces = bbi::Endian::le ( in->numSurfaces );
+		out->leaf.numLeafSurfaces = rtcw::Endian::le( in->numSurfaces );
 		indexes = static_cast<int*> (Hunk_Alloc( out->leaf.numLeafSurfaces * 4, h_high ));
 		out->leaf.firstLeafSurface = indexes - cm.leafsurfaces;
 		for ( j = 0 ; j < out->leaf.numLeafSurfaces ; j++ ) {
-			indexes[j] = bbi::Endian::le ( in->firstSurface ) + j;
+			indexes[j] = rtcw::Endian::le( in->firstSurface ) + j;
 		}
 	}
 }
@@ -223,10 +223,10 @@ void CMod_LoadNodes( lump_t *l ) {
 
 	for ( i = 0 ; i < count ; i++, out++, in++ )
 	{
-		out->plane = cm.planes + bbi::Endian::le ( in->planeNum );
+		out->plane = cm.planes + rtcw::Endian::le( in->planeNum );
 		for ( j = 0 ; j < 2 ; j++ )
 		{
-			child = bbi::Endian::le ( in->children[j] );
+			child = rtcw::Endian::le( in->children[j] );
 			out->children[j] = child;
 		}
 	}
@@ -274,10 +274,10 @@ void CMod_LoadBrushes( lump_t *l ) {
 	out = cm.brushes;
 
 	for ( i = 0 ; i < count ; i++, out++, in++ ) {
-		out->sides = cm.brushsides + bbi::Endian::le ( in->firstSide );
-		out->numsides = bbi::Endian::le ( in->numSides );
+		out->sides = cm.brushsides + rtcw::Endian::le( in->firstSide );
+		out->numsides = rtcw::Endian::le( in->numSides );
 
-		out->shaderNum = bbi::Endian::le ( in->shaderNum );
+		out->shaderNum = rtcw::Endian::le( in->shaderNum );
 		if ( out->shaderNum < 0 || out->shaderNum >= cm.numShaders ) {
 			Com_Error( ERR_DROP, "CMod_LoadBrushes: bad shaderNum: %i", out->shaderNum );
 		}
@@ -315,12 +315,12 @@ void CMod_LoadLeafs( lump_t *l ) {
 	out = cm.leafs;
 	for ( i = 0 ; i < count ; i++, in++, out++ )
 	{
-		out->cluster = bbi::Endian::le ( in->cluster );
-		out->area = bbi::Endian::le ( in->area );
-		out->firstLeafBrush = bbi::Endian::le ( in->firstLeafBrush );
-		out->numLeafBrushes = bbi::Endian::le ( in->numLeafBrushes );
-		out->firstLeafSurface = bbi::Endian::le ( in->firstLeafSurface );
-		out->numLeafSurfaces = bbi::Endian::le ( in->numLeafSurfaces );
+		out->cluster = rtcw::Endian::le( in->cluster );
+		out->area = rtcw::Endian::le( in->area );
+		out->firstLeafBrush = rtcw::Endian::le( in->firstLeafBrush );
+		out->numLeafBrushes = rtcw::Endian::le( in->numLeafBrushes );
+		out->firstLeafSurface = rtcw::Endian::le( in->firstLeafSurface );
+		out->numLeafSurfaces = rtcw::Endian::le( in->numLeafSurfaces );
 
 		if ( out->cluster >= cm.numClusters ) {
 			cm.numClusters = out->cluster + 1;
@@ -365,13 +365,13 @@ void CMod_LoadPlanes( lump_t *l ) {
 		bits = 0;
 		for ( j = 0 ; j < 3 ; j++ )
 		{
-			out->normal[j] = bbi::Endian::le ( in->normal[j] );
+			out->normal[j] = rtcw::Endian::le( in->normal[j] );
 			if ( out->normal[j] < 0 ) {
 				bits |= 1 << j;
 			}
 		}
 
-		out->dist = bbi::Endian::le ( in->dist );
+		out->dist = rtcw::Endian::le( in->dist );
 		out->type = PlaneTypeForNormal( out->normal );
 		out->signbits = bits;
 	}
@@ -406,7 +406,7 @@ void CMod_LoadLeafBrushes( lump_t *l ) {
 	out = cm.leafbrushes;
 
 	for ( i = 0 ; i < count ; i++, in++, out++ ) {
-		*out = bbi::Endian::le ( *in );
+		*out = rtcw::Endian::le( *in );
 	}
 }
 
@@ -432,7 +432,7 @@ void CMod_LoadLeafSurfaces( lump_t *l ) {
 
 	out = cm.leafsurfaces;
 
-    bbi::Endian::le (in, count, out);
+    rtcw::Endian::le(in, count, out);
 }
 
 /*
@@ -459,9 +459,9 @@ void CMod_LoadBrushSides( lump_t *l ) {
 	out = cm.brushsides;
 
 	for ( i = 0 ; i < count ; i++, in++, out++ ) {
-		num = bbi::Endian::le ( in->planeNum );
+		num = rtcw::Endian::le( in->planeNum );
 		out->plane = &cm.planes[num];
-		out->shaderNum = bbi::Endian::le ( in->shaderNum );
+		out->shaderNum = rtcw::Endian::le( in->shaderNum );
 		if ( out->shaderNum < 0 || out->shaderNum >= cm.numShaders ) {
 			Com_Error( ERR_DROP, "CMod_LoadBrushSides: bad shaderNum: %i", out->shaderNum );
 		}
@@ -514,8 +514,8 @@ void CMod_LoadVisibility( lump_t *l ) {
 
 	cm.vised = qtrue;
 	cm.visibility = static_cast<byte*> (Hunk_Alloc( len, h_high ));
-	cm.numClusters = bbi::Endian::le ( ( (int *)buf )[0] );
-	cm.clusterBytes = bbi::Endian::le ( ( (int *)buf )[1] );
+	cm.numClusters = rtcw::Endian::le( ( (int *)buf )[0] );
+	cm.clusterBytes = rtcw::Endian::le( ( (int *)buf )[1] );
 
 #if defined RTCW_SP
 	Com_Memcpy( cm.visibility, buf + VIS_HEADER, len - VIS_HEADER );
@@ -560,7 +560,7 @@ void CMod_LoadPatches( lump_t *surfs, lump_t *verts ) {
 	// scan through all the surfaces, but only load patches,
 	// not planar faces
 	for ( i = 0 ; i < count ; i++, in++ ) {
-		if ( bbi::Endian::le ( in->surfaceType ) != MST_PATCH ) {
+		if ( rtcw::Endian::le( in->surfaceType ) != MST_PATCH ) {
 			continue;       // ignore other surfaces
 		}
 		// FIXME: check for non-colliding patches
@@ -568,18 +568,18 @@ void CMod_LoadPatches( lump_t *surfs, lump_t *verts ) {
 		cm.surfaces[ i ] = patch = static_cast<cPatch_t*> (Hunk_Alloc( sizeof( *patch ), h_high ));
 
 		// load the full drawverts onto the stack
-		width = bbi::Endian::le ( in->patchWidth );
-		height = bbi::Endian::le ( in->patchHeight );
+		width = rtcw::Endian::le( in->patchWidth );
+		height = rtcw::Endian::le( in->patchHeight );
 		c = width * height;
 		if ( c > MAX_PATCH_VERTS ) {
 			Com_Error( ERR_DROP, "ParseMesh: MAX_PATCH_VERTS" );
 		}
 
-		dv_p = dv + bbi::Endian::le ( in->firstVert );
+		dv_p = dv + rtcw::Endian::le( in->firstVert );
 		for ( j = 0 ; j < c ; j++, dv_p++ )
-            bbi::Endian::le (dv_p->xyz, points[j]);
+            rtcw::Endian::le(dv_p->xyz, points[j]);
 
-		shaderNum = bbi::Endian::le ( in->shaderNum );
+		shaderNum = rtcw::Endian::le( in->shaderNum );
 		patch->contents = cm.shaders[shaderNum].contentFlags;
 		patch->surfaceFlags = cm.shaders[shaderNum].surfaceFlags;
 
@@ -619,7 +619,7 @@ void CM_FreeMap( void ) {
 #endif //BSPC
 
 unsigned CM_LumpChecksum( lump_t *lump ) {
-	return bbi::Endian::le ( Com_BlockChecksum( cmod_base + lump->fileofs, lump->filelen ) );
+	return rtcw::Endian::le( Com_BlockChecksum( cmod_base + lump->fileofs, lump->filelen ) );
 }
 
 unsigned CM_Checksum( dheader_t *header ) {
@@ -636,7 +636,7 @@ unsigned CM_Checksum( dheader_t *header ) {
 	checksums[9] = CM_LumpChecksum( &header->lumps[LUMP_SURFACES] );
 	checksums[10] = CM_LumpChecksum( &header->lumps[LUMP_DRAWVERTS] );
 
-	return bbi::Endian::le ( Com_BlockChecksum( checksums, 11 * 4 ) );
+	return rtcw::Endian::le( Com_BlockChecksum( checksums, 11 * 4 ) );
 }
 
 /*
@@ -706,12 +706,12 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 		Com_Error( ERR_DROP, "Couldn't load %s", name );
 	}
 
-	last_checksum = bbi::Endian::le ( Com_BlockChecksum( buf, length ) );
+	last_checksum = rtcw::Endian::le( Com_BlockChecksum( buf, length ) );
 	*checksum = last_checksum;
 
 	header = *(dheader_t *)buf;
 	for ( i = 0 ; i < sizeof( dheader_t ) / 4 ; i++ ) {
-		( (int *)&header )[i] = bbi::Endian::le ( ( (int *)&header )[i] );
+		( (int *)&header )[i] = rtcw::Endian::le( ( (int *)&header )[i] );
 	}
 
 #if !defined _SKIP_BSP_CHECK || !defined RTCW_SP

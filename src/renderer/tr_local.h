@@ -38,12 +38,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "qgl.h"
 
 // BBi GLSL
-#include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "bbi_ogl_version.h"
 #include "rtcw_ogl_tess_program.h"
 #include "rtcw_ogl_tess_state.h"
 #include "rtcw_ogl_matrix_stack.h"
@@ -2856,9 +2854,6 @@ qboolean R_inPVS( const vec3_t p1, const vec3_t p2 );
 #endif // RTCW_XX
 
 //BBi
-extern bbi::OglVersion ogl_version;
-
-
 class OglTessLayout {
 public:
     static const int MAX_VERTEX_COUNT = 2 * 4000;

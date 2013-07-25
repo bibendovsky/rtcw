@@ -218,12 +218,12 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 			msg->bit += 8;
 		} else if ( bits == 16 ) {
 			unsigned short *sp = (unsigned short *)&msg->data[msg->cursize];
-			*sp = bbi::Endian::le ( value );
+			*sp = rtcw::Endian::le( value );
 			msg->cursize += 2;
 			msg->bit += 16;
 		} else if ( bits == 32 ) {
 			unsigned int *ip = (unsigned int *)&msg->data[msg->cursize];
-			*ip = bbi::Endian::le ( value );
+			*ip = rtcw::Endian::le( value );
 			msg->cursize += 4;
 			msg->bit += 8;
 		} else {
@@ -276,12 +276,12 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
 			msg->bit += 8;
 		} else if ( bits == 16 ) {
 			unsigned short *sp = (unsigned short *)&msg->data[msg->readcount];
-			value = bbi::Endian::le ( *sp );
+			value = rtcw::Endian::le( *sp );
 			msg->readcount += 2;
 			msg->bit += 16;
 		} else if ( bits == 32 ) {
 			unsigned int *ip = (unsigned int *)&msg->data[msg->readcount];
-			value = bbi::Endian::le ( *ip );
+			value = rtcw::Endian::le( *ip );
 			msg->readcount += 4;
 			msg->bit += 32;
 		} else {

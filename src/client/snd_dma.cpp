@@ -2077,7 +2077,7 @@ void S_ByteSwapRawSamples( int samples, int width, int s_channels, short *data )
 		return;
 	}
 #ifndef __MACOS__   //DAJ save this test
-	if (!bbi::Endian::is_little ()) {
+	if (!rtcw::Endian::is_little ()) {
 		return;
 	}
 #endif
@@ -2089,7 +2089,7 @@ void S_ByteSwapRawSamples( int samples, int width, int s_channels, short *data )
 	}
 
 	do {
-		bbi::Endian::lei (*data++);
+		rtcw::Endian::lei(*data++);
 //DAJ		((short *)data)[i] = LittleShort( ((short *)data)[i] );
 	} while ( --i );
 }
@@ -3007,7 +3007,7 @@ int FGetLittleLong( fileHandle_t f ) {
 
 	FS_Read( &v, sizeof( v ), f );
 
-	return bbi::Endian::le ( v );
+	return rtcw::Endian::le( v );
 }
 
 #if !defined RTCW_MP
@@ -3020,7 +3020,7 @@ int FGetLittleShort( fileHandle_t f ) {
 
 	FS_Read( &v, sizeof( v ), f );
 
-	return bbi::Endian::le ( v );
+	return rtcw::Endian::le( v );
 }
 
 // returns the length of the data in the chunk, or 0 if not found

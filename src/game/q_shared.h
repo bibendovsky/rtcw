@@ -34,12 +34,12 @@ If you have questions concerning this license or the applicable additional terms
 
 //BBi
 #include <cstddef>
+#include <cstdint>
 
 #include <algorithm>
 #include <string>
 
-#include "bbi_core.h"
-#include "bbi_endian.h"
+#include "rtcw_endian.h"
 
 #include "rtcw_c.h"
 //BBi

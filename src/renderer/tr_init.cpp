@@ -30,9 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tr_local.h"
 
-// BBi
-#include "bbi_ogl_version.h"
-// BBi
 
 #if !defined RTCW_ET
 //#ifdef __USEA3D
@@ -44,9 +41,6 @@ If you have questions concerning this license or the applicable additional terms
 glconfig_t glConfig;
 
 //BBi
-bbi::OglVersion ogl_version;
-
-
 const GLintptr OglTessLayout::POS_OFS =
     offsetof (OglTessLayout, position);
 
@@ -585,10 +579,6 @@ static void InitOpenGL( void ) {
 		strcpy( renderer_buffer, glConfig.renderer_string );
 		Q_strlwr( renderer_buffer );
 
-        // BBi
-        ogl_version.assign (glConfig.version_string);
-        // BBi
-
         //BBi
 		//// OpenGL driver constants
 		//::glGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );
@@ -606,23 +596,23 @@ static void InitOpenGL( void ) {
     // BBi
     glConfigEx.renderer_path = RENDERER_PATH_OGL_1_X;
 
-    if (ogl_version.is_minimum_version (2, 1)) {
+    if (GLEW_VERSION_2_1) {
         glConfigEx.renderer_path = RENDERER_PATH_OGL_2_1;
 
-        if (::r_probe_programs ()) {
-            ::ri.Printf (PRINT_ALL, "\nUsing OpenGL 2.1 path...\n");
+        if (::r_probe_programs()) {
+            ::ri.Printf(PRINT_ALL, "\nUsing OpenGL 2.1 path...\n");
         } else {
             glConfigEx.renderer_path = RENDERER_PATH_OGL_1_X;
-            ::ri.Printf (PRINT_WARNING, "\nFalling back to OpenGL 1.x path...");
+            ::ri.Printf(PRINT_WARNING, "\nFalling back to OpenGL 1.x path...");
         }
     }
 
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ::r_reload_programs_f ();
-        ::r_tess_initialize ();
+    if (!glConfigEx.is_path_ogl_1_x()) {
+        ::r_reload_programs_f();
+        ::r_tess_initialize();
 
-        ::ri.Cvar_Set ("r_ext_NV_fog_dist", "1");
-        ::ri.Printf (PRINT_ALL, "Emulating %s...\n", "GL_NV_fog_distance");
+        ::ri.Cvar_Set("r_ext_NV_fog_dist", "1");
+        ::ri.Printf(PRINT_ALL, "Emulating %s...\n", "GL_NV_fog_distance");
     }
     // BBi
 

@@ -1505,33 +1505,33 @@ static void LoadBMP( const char *name, byte **pic, int *width, int *height ) {
 
 	bmpHeader.id[0] = *buf_p++;
 	bmpHeader.id[1] = *buf_p++;
-	bmpHeader.fileSize = bbi::Endian::le ( *( long * ) buf_p );
+	bmpHeader.fileSize = rtcw::Endian::le( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.reserved0 = bbi::Endian::le ( *( long * ) buf_p );
+	bmpHeader.reserved0 = rtcw::Endian::le( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.bitmapDataOffset = bbi::Endian::le ( *( long * ) buf_p );
+	bmpHeader.bitmapDataOffset = rtcw::Endian::le( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.bitmapHeaderSize = bbi::Endian::le ( *( long * ) buf_p );
+	bmpHeader.bitmapHeaderSize = rtcw::Endian::le( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.width = bbi::Endian::le ( *( long * ) buf_p );
+	bmpHeader.width = rtcw::Endian::le( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.height = bbi::Endian::le ( *( long * ) buf_p );
+	bmpHeader.height = rtcw::Endian::le( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.planes = bbi::Endian::le ( *( short * ) buf_p );
+	bmpHeader.planes = rtcw::Endian::le( *( short * ) buf_p );
 	buf_p += 2;
-	bmpHeader.bitsPerPixel = bbi::Endian::le ( *( short * ) buf_p );
+	bmpHeader.bitsPerPixel = rtcw::Endian::le( *( short * ) buf_p );
 	buf_p += 2;
-	bmpHeader.compression = bbi::Endian::le ( *( long * ) buf_p );
+	bmpHeader.compression = rtcw::Endian::le( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.bitmapDataSize = bbi::Endian::le ( *( long * ) buf_p );
+	bmpHeader.bitmapDataSize = rtcw::Endian::le( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.hRes = bbi::Endian::le ( *( long * ) buf_p );
+	bmpHeader.hRes = rtcw::Endian::le( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.vRes = bbi::Endian::le ( *( long * ) buf_p );
+	bmpHeader.vRes = rtcw::Endian::le( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.colors = bbi::Endian::le ( *( long * ) buf_p );
+	bmpHeader.colors = rtcw::Endian::le( *( long * ) buf_p );
 	buf_p += 4;
-	bmpHeader.importantColors = bbi::Endian::le ( *( long * ) buf_p );
+	bmpHeader.importantColors = rtcw::Endian::le( *( long * ) buf_p );
 	buf_p += 4;
 
 	memcpy( bmpHeader.palette, buf_p, sizeof( bmpHeader.palette ) );
@@ -1853,8 +1853,8 @@ static void LoadPCX (
     pcx = (pcx_t *)raw;
     raw = &pcx->data;
 
-    xmax = bbi::Endian::le ( pcx->xmax );
-    ymax = bbi::Endian::le ( pcx->ymax );
+    xmax = rtcw::Endian::le( pcx->xmax );
+    ymax = rtcw::Endian::le( pcx->ymax );
 
     if ( pcx->manufacturer != 0x0a
         || pcx->version != 5
@@ -2059,18 +2059,18 @@ void LoadTGA( const char *name, byte **pic, int *width, int *height ) {
 	targa_header.colormap_type = *buf_p++;
 	targa_header.image_type = *buf_p++;
 
-	targa_header.colormap_index = bbi::Endian::le ( *(short *)buf_p );
+	targa_header.colormap_index = rtcw::Endian::le( *(short *)buf_p );
 	buf_p += 2;
-	targa_header.colormap_length = bbi::Endian::le ( *(short *)buf_p );
+	targa_header.colormap_length = rtcw::Endian::le( *(short *)buf_p );
 	buf_p += 2;
 	targa_header.colormap_size = *buf_p++;
-	targa_header.x_origin = bbi::Endian::le ( *(short *)buf_p );
+	targa_header.x_origin = rtcw::Endian::le( *(short *)buf_p );
 	buf_p += 2;
-	targa_header.y_origin = bbi::Endian::le ( *(short *)buf_p );
+	targa_header.y_origin = rtcw::Endian::le( *(short *)buf_p );
 	buf_p += 2;
-	targa_header.width = bbi::Endian::le ( *(short *)buf_p );
+	targa_header.width = rtcw::Endian::le( *(short *)buf_p );
 	buf_p += 2;
-	targa_header.height = bbi::Endian::le ( *(short *)buf_p );
+	targa_header.height = rtcw::Endian::le( *(short *)buf_p );
 	buf_p += 2;
 	targa_header.pixel_size = *buf_p++;
 	targa_header.attributes = *buf_p++;

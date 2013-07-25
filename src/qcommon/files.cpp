@@ -2657,7 +2657,7 @@ static pack_t *FS_LoadZipFile( char *zipfile, const char *basename ) {
 			break;
 		}
 		if ( file_info.uncompressed_size > 0 ) {
-			fs_headerLongs[fs_numHeaderLongs++] = bbi::Endian::le ( file_info.crc );
+			fs_headerLongs[fs_numHeaderLongs++] = rtcw::Endian::le( file_info.crc );
 		}
 		Q_strlwr( filename_inzip );
 		hash = FS_HashFileName( filename_inzip, pack->hashSize );
@@ -2678,7 +2678,7 @@ static pack_t *FS_LoadZipFile( char *zipfile, const char *basename ) {
 	}
 
 	pack->checksum = Com_BlockChecksum( fs_headerLongs, 4 * fs_numHeaderLongs );
-	pack->pure_checksum = Com_BlockChecksumKey( fs_headerLongs, 4 * fs_numHeaderLongs, bbi::Endian::le ( fs_checksumFeed ) );
+	pack->pure_checksum = Com_BlockChecksumKey( fs_headerLongs, 4 * fs_numHeaderLongs, rtcw::Endian::le( fs_checksumFeed ) );
 
 #if defined RTCW_MP
 	// TTimo: DO_LIGHT_DEDICATED
@@ -2687,8 +2687,8 @@ static pack_t *FS_LoadZipFile( char *zipfile, const char *basename ) {
 	// cumulated for light dedicated: 21558 bytes
 #endif // RTCW_XX
 
-	bbi::Endian::lei ( pack->checksum );
-	bbi::Endian::lei ( pack->pure_checksum );
+	rtcw::Endian::lei( pack->checksum );
+	rtcw::Endian::lei( pack->pure_checksum );
 
 	Z_Free( fs_headerLongs );
 
@@ -5272,7 +5272,7 @@ unsigned int FS_ChecksumOSPath( char *OSPath ) {
 
 	// Com_BlockChecksum returns an indian-dependent value
 	// (better fix would have to be doing the LittleLong inside that function..)
-	checksum = bbi::Endian::le ( Com_BlockChecksum( buf, len ) );
+	checksum = rtcw::Endian::le( Com_BlockChecksum( buf, len ) );
 
     //BBi
 	//free( buf );

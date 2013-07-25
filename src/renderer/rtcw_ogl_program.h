@@ -19,13 +19,15 @@ public:
     GLuint program;
 
 
-    OglProgram (const std::string& glsl_dir, const std::string& base_name);
+    OglProgram(
+        const std::string& glsl_dir,
+        const std::string& base_name);
 
-    virtual ~OglProgram ();
+    virtual ~OglProgram();
 
-    virtual bool reload ();
-    virtual bool try_reload ();
-    virtual void unload ();
+    virtual bool reload();
+    virtual bool try_reload();
+    virtual void unload();
 
 
 protected:
@@ -44,16 +46,22 @@ protected:
     GLuint vertex_shader_;
     GLuint fragment_shader_;
 
-    virtual OglProgram* create_new (const std::string& glsl_dir,
+    virtual OglProgram* create_new(
+        const std::string& glsl_dir,
         const std::string& base_name) = 0;
 
 
 private:
-    OglProgram (const OglProgram& that);
-    OglProgram& operator = (const OglProgram& that);
+    ReloadShaderResult reload_shader(
+        GLenum shader_type,
+        const std::string& file_name,
+        GLuint& shaderObject);
 
-    ReloadShaderResult reload_shader (GLenum shader_type,
-        const std::string& file_name, GLuint& shaderObject);
+    static std::string get_compile_log(GLuint shader_object);
+    std::string get_link_log();
+
+    OglProgram(const OglProgram& that);
+    OglProgram& operator=(const OglProgram& that);
 }; // class OglProgram
 
 

@@ -111,10 +111,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_program.cpp" />
-    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_shader.cpp" />
-    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_uniform_info.cpp" />
-    <ClCompile Include="..\..\..\..\src\bbi\bbi_ogl_version.cpp" />
     <ClCompile Include="..\..\..\..\src\botlib\be_aas_bspq3.cpp" />
     <ClCompile Include="..\..\..\..\src\botlib\be_aas_cluster.cpp" />
     <ClCompile Include="..\..\..\..\src\botlib\be_aas_debug.cpp" />
@@ -235,11 +231,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\bbi\bbi_core.h" />
-    <ClInclude Include="..\..\..\..\src\bbi\bbi_endian.h" />
-    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_program.h" />
-    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_shader.h" />
-    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_uniform_info.h" />
-    <ClInclude Include="..\..\..\..\src\bbi\bbi_ogl_version.h" />
     <ClInclude Include="..\..\..\..\src\botlib\aasfile.h" />
     <ClInclude Include="..\..\..\..\src\botlib\be_aas_bsp.h" />
     <ClInclude Include="..\..\..\..\src\botlib\be_aas_cluster.h" />
@@ -299,6 +290,7 @@
     <ClInclude Include="..\..\..\..\src\splines\splines.h" />
     <ClInclude Include="..\..\..\..\src\splines\util_list.h" />
     <ClInclude Include="..\..\..\..\src\splines\util_str.h" />
+    <ClInclude Include="..\..\..\..\src\system\rtcw_endian.h" />
     <ClInclude Include="..\..\..\..\src\system\rtcw_input_joystick.h" />
     <ClInclude Include="..\..\..\..\src\system\rtcw_input_keyboard.h" />
     <ClInclude Include="..\..\..\..\src\system\rtcw_input_mouse.h" />
