@@ -37,6 +37,15 @@ More informations in GLM manual:
 http://glm.g-truc.net/glm.pdf
 
 ================================================================================
+GLM 0.9.4.5: 2013-08-12
+--------------------------------------------------------------------------------
+- Fixed CUDA support
+- Fixed inclusion of intrinsics in "pure" mode #92
+- Fixed language detection on GCC when the C++0x mode isn't enabled #95
+- Added missing value_ptr for quaternions #99
+- Added WINCE detection #92
+
+================================================================================
 GLM 0.9.4.4: 2013-05-29
 --------------------------------------------------------------------------------
 - Fixed slerp when costheta is close to 1 #65

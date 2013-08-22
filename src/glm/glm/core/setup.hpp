@@ -36,7 +36,7 @@
 #define GLM_VERSION_MAJOR			0
 #define GLM_VERSION_MINOR			9
 #define GLM_VERSION_PATCH			4
-#define GLM_VERSION_REVISION		3
+#define GLM_VERSION_REVISION		5
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Platform
@@ -50,6 +50,7 @@
 #define GLM_PLATFORM_CHROME_NACL	0x00200000
 #define GLM_PLATFORM_UNIX			0x00400000
 #define GLM_PLATFORM_QNXNTO			0x00800000
+#define GLM_PLATFORM_WINCE			0x01000000
 
 #ifdef GLM_FORCE_PLATFORM_UNKNOWN
 #	define GLM_PLATFORM GLM_PLATFORM_UNKNOWN
@@ -57,6 +58,8 @@
 #	define GLM_PLATFORM GLM_PLATFORM_QNXNTO
 #elif defined(__APPLE__)
 #	define GLM_PLATFORM GLM_PLATFORM_APPLE
+#elif defined(WINCE)
+#	define GLM_PLATFORM GLM_PLATFORM_WINCE
 #elif defined(_WIN32)
 #	define GLM_PLATFORM GLM_PLATFORM_WINDOWS
 #elif defined(__native_client__)
@@ -434,8 +437,12 @@
 #else
 #	if(__cplusplus >= 201103L)
 #		define GLM_LANG GLM_LANG_CXX11
-#	elif(((GLM_COMPILER & GLM_COMPILER_GCC) == GLM_COMPILER_GCC) && defined(__GXX_EXPERIMENTAL_CXX0X__)) 
-#		define GLM_LANG GLM_LANG_CXX0X
+#	elif((GLM_COMPILER & GLM_COMPILER_GCC) == GLM_COMPILER_GCC)
+#		if defined(__GXX_EXPERIMENTAL_CXX0X__)
+#			define GLM_LANG GLM_LANG_CXX0X
+#		else
+#			define GLM_LANG GLM_LANG_CXX98
+#		endif
 #	elif(((GLM_COMPILER & GLM_COMPILER_VC) == GLM_COMPILER_VC) && defined(_MSC_EXTENSIONS))
 #		define GLM_LANG GLM_LANG_CXXMS
 #	elif(((GLM_COMPILER & GLM_COMPILER_VC) == GLM_COMPILER_VC) && !defined(_MSC_EXTENSIONS))
