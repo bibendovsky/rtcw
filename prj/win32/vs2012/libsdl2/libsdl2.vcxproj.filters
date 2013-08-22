@@ -195,9 +195,6 @@
     <ClCompile Include="..\..\..\..\src\libsdl2\src\SDL_error.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\libsdl2\src\SDL_fatal.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\libsdl2\src\SDL_hints.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -364,6 +361,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\libsdl2\src\video\dummy\SDL_nullvideo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\libsdl2\src\thread\windows\SDL_systls.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

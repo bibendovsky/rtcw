@@ -104,7 +104,6 @@
     <ClCompile Include="..\..\..\..\src\libsdl2\src\SDL.c" />
     <ClCompile Include="..\..\..\..\src\libsdl2\src\SDL_assert.c" />
     <ClCompile Include="..\..\..\..\src\libsdl2\src\SDL_error.c" />
-    <ClCompile Include="..\..\..\..\src\libsdl2\src\SDL_fatal.c" />
     <ClCompile Include="..\..\..\..\src\libsdl2\src\SDL_hints.c" />
     <ClCompile Include="..\..\..\..\src\libsdl2\src\SDL_log.c" />
     <ClCompile Include="..\..\..\..\src\libsdl2\src\stdlib\SDL_getenv.c" />
@@ -118,6 +117,7 @@
     <ClCompile Include="..\..\..\..\src\libsdl2\src\thread\windows\SDL_sysmutex.c" />
     <ClCompile Include="..\..\..\..\src\libsdl2\src\thread\windows\SDL_syssem.c" />
     <ClCompile Include="..\..\..\..\src\libsdl2\src\thread\windows\SDL_systhread.c" />
+    <ClCompile Include="..\..\..\..\src\libsdl2\src\thread\windows\SDL_systls.c" />
     <ClCompile Include="..\..\..\..\src\libsdl2\src\timer\SDL_timer.c" />
     <ClCompile Include="..\..\..\..\src\libsdl2\src\timer\windows\SDL_systimer.c" />
     <ClCompile Include="..\..\..\..\src\libsdl2\src\video\dummy\SDL_nullevents.c" />

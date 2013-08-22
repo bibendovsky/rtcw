@@ -20,8 +20,26 @@
 */
 #include "SDL_config.h"
 
-/* General fatal signal handling code for SDL */
+#ifndef _SDL_sndioaudio_h
+#define _SDL_sndioaudio_h
 
-extern void SDL_InstallParachute(void);
-extern void SDL_UninstallParachute(void);
+#include <sndio.h>
+
+#include "../SDL_sysaudio.h"
+
+/* Hidden "this" pointer for the audio functions */
+#define _THIS   SDL_AudioDevice *this
+
+struct SDL_PrivateAudioData
+{
+    /* The audio device handle */
+    struct sio_hdl *dev;
+
+    /* Raw mixing buffer */
+    Uint8 *mixbuf;
+    int mixlen;
+};
+
+#endif /* _SDL_sndioaudio_h */
+
 /* vi: set ts=4 sw=4 expandtab: */

@@ -22,6 +22,7 @@
 
 /* This is the joystick API for Simple DirectMedia Layer */
 
+#include "SDL.h"
 #include "SDL_events.h"
 #include "SDL_sysjoystick.h"
 #include "SDL_assert.h"
@@ -31,17 +32,38 @@
 #include "../events/SDL_events_c.h"
 #endif
 
+static SDL_bool SDL_joystick_allows_background_events = SDL_FALSE;
 static SDL_Joystick *SDL_joysticks = NULL;
 static SDL_Joystick *SDL_updating_joystick = NULL;
+
+static void
+SDL_JoystickAllowBackgroundEventsChanged(void *userdata, const char *name, const char *oldValue, const char *hint)
+{
+    if (hint && *hint == '1') {
+        SDL_joystick_allows_background_events = SDL_TRUE;
+    } else {
+        SDL_joystick_allows_background_events = SDL_FALSE;
+    }
+}
 
 int
 SDL_JoystickInit(void)
 {
     int status;
 
+    /* See if we should allow joystick events while in the background */
+    SDL_AddHintCallback(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS,
+                        SDL_JoystickAllowBackgroundEventsChanged, NULL);
+
+#if !SDL_EVENTS_DISABLED
+    if (SDL_InitSubSystem(SDL_INIT_EVENTS) < 0) {
+        return -1;
+    }
+#endif /* !SDL_EVENTS_DISABLED */
+
     status = SDL_SYS_JoystickInit();
     if (status >= 0) {
-      status = 0;
+        status = 0;
     }
     return (status);
 }
@@ -331,7 +353,7 @@ SDL_JoystickGetButton(SDL_Joystick * joystick, int button)
 
 /*
  * Return if the joystick in question is currently attached to the system,
- *  \return 0 if not plugged in, 1 if still present.
+ *  \return SDL_FALSE if not plugged in, SDL_TRUE if still present.
  */
 SDL_bool
 SDL_JoystickGetAttached(SDL_Joystick * joystick)
@@ -449,23 +471,32 @@ SDL_JoystickQuit(void)
 
     /* Quit the joystick setup */
     SDL_SYS_JoystickQuit();
+
+#if !SDL_EVENTS_DISABLED
+    SDL_QuitSubSystem(SDL_INIT_EVENTS);
+#endif
 }
 
 
 static SDL_bool
 SDL_PrivateJoystickShouldIgnoreEvent()
 {
-    const char *hint;
-    if (SDL_GetKeyboardFocus() != NULL) {
+    if (SDL_joystick_allows_background_events)
+    {
         return SDL_FALSE;
     }
 
-    hint = SDL_GetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS);
-    if (hint && *hint == '1') {
-        return SDL_FALSE;
+    if (SDL_WasInit(SDL_INIT_VIDEO)) {
+        if (SDL_GetKeyboardFocus() == NULL) {
+            // Video is initialized and we don't have focus, ignore the event.
+            return SDL_TRUE;
+        } else {
+            return SDL_FALSE;
+        }
     }
 
-    return SDL_TRUE;
+    // Video subsystem wasn't initialized, always allow the event
+    return SDL_FALSE;
 }
 
 /* These are global for SDL_sysjoystick.c and SDL_events.c */
