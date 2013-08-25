@@ -70,8 +70,6 @@ int numStreamingSounds = 0;
 static vec3_t entityPositions[MAX_GENTITIES];
 #endif // RTCW_XX
 
-void    *crit;
-
 #if defined RTCW_MP
 typedef struct {
 	vec3_t origin;
@@ -334,8 +332,6 @@ void S_Init( void ) {
 		return;
 	}
 
-	crit = Sys_InitializeCriticalSection();
-
 	Cmd_AddCommand( "play", S_Play_f );
 	Cmd_AddCommand( "music", S_Music_f );
 
@@ -354,11 +350,6 @@ void S_Init( void ) {
 	Com_Printf( "------------------------------------\n" );
 
 	if ( r ) {
-
-#if defined RTCW_ET
-		Sys_EnterCriticalSection( crit );
-#endif // RTCW_XX
-
 #if !defined RTCW_MP
 		Com_Memset( &snd, 0, sizeof( snd ) );
 //		Com_Memset(snd.sfxHash, 0, sizeof(sfx_t *)*LOOP_HASH);
@@ -390,13 +381,7 @@ void S_Init( void ) {
 
 		S_SoundInfo_f();
 		S_ChannelSetup();
-
-#if defined RTCW_ET
-		Sys_LeaveCriticalSection( crit );
-#endif // RTCW_XX
-
 	}
-
 }
 
 /*
@@ -511,8 +496,6 @@ void S_Shutdown( void ) {
 		return;
 	}
 
-	Sys_EnterCriticalSection( crit );
-
 	SNDDMA_Shutdown();
 
 #if !defined RTCW_MP
@@ -521,10 +504,6 @@ void S_Shutdown( void ) {
 #else
 	s_soundStarted = 0;
 	s_soundMuted = qtrue;
-#endif // RTCW_XX
-
-#if defined RTCW_ET
-	Sys_LeaveCriticalSection( crit );
 #endif // RTCW_XX
 
 	Cmd_RemoveCommand( "play" );
@@ -751,16 +730,12 @@ void S_Reload( void ) {
 
 	Com_Printf( "reloading sounds...\n" );
 
-	Sys_EnterCriticalSection( crit );
-
 	S_StopAllSounds();
 
 	for ( sfx = s_knownSfx, i = 0; i < snd.s_numSfx; i++, sfx++ ) {
 		sfx->inMemory = qfalse;
 		S_memoryLoad( sfx );
 	}
-
-	Sys_LeaveCriticalSection( crit );
 }
 #endif // RTCW_XX
 
@@ -869,21 +844,12 @@ sfxHandle_t S_RegisterSound( const char *name, qboolean compressed ) {
 		return sfx - s_knownSfx;
 	}
 
-#if defined RTCW_ET
-	Sys_EnterCriticalSection( crit );
-#endif // RTCW_XX
-
-
 	sfx->inMemory = qfalse;
 	sfx->soundCompressed = compressed;
 
 //	if (!compressed) {
 	S_memoryLoad( sfx );
 //	}
-
-#if defined RTCW_ET
-	Sys_LeaveCriticalSection( crit );
-#endif // RTCW_XX
 
 	if ( sfx->defaultSound ) {
 		if ( com_developer->integer ) {
@@ -1203,10 +1169,6 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 		return;
 	}
 
-#if defined RTCW_ET
-	Sys_EnterCriticalSection( crit );
-#endif // RTCW_XX
-
 	sfx = &s_knownSfx[ sfxHandle ];
 
 	if ( s_show->integer == 1 ) {
@@ -1352,11 +1314,6 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 				}
 				if ( chosen == -1 ) {
 					//Com_Printf("dropping sound\n");
-
-#if defined RTCW_ET
-					Sys_LeaveCriticalSection( crit );
-#endif // RTCW_XX
-
 					return;
 				}
 			}
@@ -1369,11 +1326,6 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 #ifdef _DEBUG
 	if ( ch > &s_channels[MAX_CHANNELS] || ch < &s_channels[0] ) { //DAJ	extra check
 		Com_DPrintf( "s_channel OUT OF BOUNDS\n" );
-
-#if defined RTCW_ET
-		Sys_LeaveCriticalSection( crit );
-#endif // RTCW_XX
-
 		return;
 	}
 #endif
@@ -1423,11 +1375,6 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 
 	ch->startSample = START_SAMPLE_IMMEDIATE;
 	ch->threadReady = qtrue;
-
-#if defined RTCW_ET
-	Sys_LeaveCriticalSection( crit );
-#endif // RTCW_XX
-
 }
 
 /*
@@ -1551,8 +1498,6 @@ void S_StopAllSounds( void ) {
 		return;
 	}
 
-	Sys_EnterCriticalSection( crit );
-
 //DAJ BUGFIX	for(i=0;i<numStreamingSounds;i++) {
 
 #if !defined RTCW_ET
@@ -1567,7 +1512,6 @@ void S_StopAllSounds( void ) {
 
 		streamingSounds[i].kill = 1;
 	}
-	Sys_LeaveCriticalSection( crit );
 
 	// stop the background music
 	S_StopBackgroundTrack();
@@ -1616,16 +1560,12 @@ void S_ClearLoopingSounds( void ) {
 #else
 	int i;
 
-	Sys_EnterCriticalSection( crit );
-
 	for ( i = 0 ; i < snd.numLoopSounds ; i++ ) {
 		snd.loopSounds[i].active = qfalse;
 		//%	snd.loopSounds[i].sfx = NULL;
 	}
 	snd.numLoopSounds = 0;
 	numLoopChannels = 0;
-
-	Sys_LeaveCriticalSection( crit );
 #endif // RTCW_XX
 
 }
@@ -1686,10 +1626,6 @@ void S_AddLoopingSound( const vec3_t origin, const vec3_t velocity, const int ra
 #endif // RTCW_XX
 
 	}
-
-#if defined RTCW_ET
-	Sys_EnterCriticalSection( crit );
-#endif // RTCW_XX
 
 	sfx = &s_knownSfx[ sfxHandle ];
 
@@ -1796,11 +1732,7 @@ void S_AddLoopingSound( const vec3_t origin, const vec3_t velocity, const int ra
 
 	snd.loopSounds[snd.numLoopSounds].framenum = cls.framecount;
 	snd.numLoopSounds++;
-
-	Sys_LeaveCriticalSection( crit );
-
 #endif // RTCW_XX
-
 }
 
 #if defined RTCW_ET
@@ -1831,8 +1763,6 @@ void S_AddRealLoopingSound( const vec3_t origin, const vec3_t velocity, const in
 		Com_Printf( S_COLOR_YELLOW "S_AddRealLoopingSound: handle %i out of range\n", sfxHandle );
 		return;
 	}
-
-	Sys_EnterCriticalSection( crit );
 
 	sfx = &s_knownSfx[ sfxHandle ];
 
@@ -1879,8 +1809,6 @@ void S_AddRealLoopingSound( const vec3_t origin, const vec3_t velocity, const in
 
 	snd.loopSounds[snd.numLoopSounds].vol = (int)( (float)volume * snd.volCurrent );  //----(SA)	modified
 	snd.numLoopSounds++;
-
-	Sys_LeaveCriticalSection( crit );
 }
 #endif // RTCW_XX
 
@@ -1900,17 +1828,12 @@ void S_AddLoopSounds( void ) {
 	loopSound_t *loop, *loop2;
 	static int loopFrame;
 
-#if !defined RTCW_ET
-//	Sys_EnterCriticalSection(crit);
-#else
+#if defined RTCW_ET
 	if ( !snd.s_soundStarted || ( snd.s_soundMute == 1 ) ) {
 //		Com_DPrintf ("not started or muted\n");
 		return;
 	}
-
-	Sys_EnterCriticalSection( crit );
 #endif // RTCW_XX
-
 
 	numLoopChannels = 0;
 
@@ -2050,13 +1973,6 @@ void S_AddLoopSounds( void ) {
 
 		}
 	}
-
-#if !defined RTCW_ET
-//	Sys_LeaveCriticalSection(crit);
-#else
-	Sys_LeaveCriticalSection( crit );
-#endif // RTCW_XX
-
 }
 
 //=============================================================================
@@ -2506,8 +2422,6 @@ void S_ClearSounds( qboolean clearStreaming, qboolean clearMusic ) {
 	channel_t   *ch;
 	streamingSound_t *ss;
 
-	Sys_EnterCriticalSection( crit );
-
 	// stop looping sounds
 
 #if !defined RTCW_ET
@@ -2570,15 +2484,10 @@ void S_ClearSounds( qboolean clearStreaming, qboolean clearMusic ) {
 		}
 		SNDDMA_Submit();
 
-		Sys_LeaveCriticalSection( crit );
-
 #if defined RTCW_ET
 		// NERVE - SMF - clear out channels so they don't finish playing when audio restarts
 		S_ChannelSetup();
-	} else {
-		Sys_LeaveCriticalSection( crit );
 #endif // RTCW_XX
-
 	}
 }
 #endif // RTCW_XX
@@ -2613,21 +2522,17 @@ void S_UpdateThread( void ) {
 		S_ClearSounds( qtrue, (qboolean)( snd.s_clearSoundBuffer >= 4 ) );    //----(SA)	modified
 		snd.s_clearSoundBuffer = 0;
 	} else {
-		Sys_EnterCriticalSection( crit );
-
 		S_ThreadRespatialize();
 		// add raw data from streamed samples
 		S_UpdateStreamingSounds();
 		// mix some sound
 		S_Update_Mix();
-
-		Sys_LeaveCriticalSection( crit );
 	}
 #else
 	if ( s_clearSoundBuffer ) {
 		int clear;
 		int i;
-		Sys_EnterCriticalSection( crit );
+
 		// stop looping sounds
 		S_ClearLoopingSounds();
 
@@ -2651,20 +2556,15 @@ void S_UpdateThread( void ) {
 		}
 		SNDDMA_Submit();
 		s_clearSoundBuffer = 0;
-		Sys_LeaveCriticalSection( crit );
 
 		// NERVE - SMF - clear out channels so they don't finish playing when audio restarts
 		S_ChannelSetup();
 	} else {
-		Sys_EnterCriticalSection( crit );
-
 		S_ThreadRespatialize();
 		// add raw data from streamed samples
 		S_UpdateStreamingSounds();
 		// mix some sound
 		S_Update_Mix();
-
-		Sys_LeaveCriticalSection( crit );
 	}
 #endif // RTCW_XX
 
@@ -3115,11 +3015,8 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime
 //	snd.nextMusicTrack[0] = 0;
 //----(SA)	end
 
-	if ( !snd.s_soundStarted  || !crit ) {
-		return;
-	}
-
-	Sys_EnterCriticalSection( crit );
+    if (!snd.s_soundStarted)
+        return;
 
 	if ( !intro ) {
 		intro = "";
@@ -3143,14 +3040,12 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime
 
 	// close the current sound if present, but DON'T reset s_rawend
 	if ( ss->file ) {
-		Sys_EndStreamedFile( ss->file );
 		FS_FCloseFile( ss->file );
 		ss->file = 0;
 	}
 
 	if ( !intro[0] ) {
 		Com_DPrintf( "Fail to start: %s\n", ss->name );   // (SA) TEMP
-		Sys_LeaveCriticalSection( crit );
 		return;
 	}
 
@@ -3165,7 +3060,6 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime
 	FS_FOpenFileRead( ss->name, &fh, qtrue );
 	if ( !fh ) {
 		Com_Printf( "Couldn't open streaming sound file %s\n", ss->name );
-		Sys_LeaveCriticalSection( crit );
 		return;
 	}
 
@@ -3176,7 +3070,6 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime
 	if ( !S_FindWavChunk( fh, "fmt " ) ) {
 		Com_Printf( "No fmt chunk in %s\n", ss->name );
 		FS_FCloseFile( fh );
-		Sys_LeaveCriticalSection( crit );
 		return;
 	}
 
@@ -3191,7 +3084,6 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime
 	if ( ss->info.format != WAV_FORMAT_PCM ) {
 		FS_FCloseFile( fh );
 		Com_Printf( "Not a microsoft PCM format wav: %s\n", ss->name );
-		Sys_LeaveCriticalSection( crit );
 		return;
 	}
 
@@ -3202,7 +3094,6 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime
 	if ( ( len = S_FindWavChunk( fh, "data" ) ) == 0 ) {
 		FS_FCloseFile( fh );
 		Com_Printf( "No data chunk in %s\n", ss->name );
-		Sys_LeaveCriticalSection( crit );
 		return;
 	}
 
@@ -3229,11 +3120,6 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime
 		ss->fadeTargetVol   = 1.0;
 	}
 
-	//
-	// start the background streaming
-	//
-	Sys_BeginStreamedFile( fh, 0x10000 );
-
 	ss->looped = 0; //----(SA)	added
 
 	ss->file = fh;
@@ -3241,7 +3127,6 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime
 	numStreamingSounds++;
 
 	Com_DPrintf( "S_StartBackgroundTrack - Success\n" );
-	Sys_LeaveCriticalSection( crit );
 }
 #else
 void S_StartBackgroundTrack( const char *intro, const char *loop ) {
@@ -3255,8 +3140,6 @@ void S_StartBackgroundTrack( const char *intro, const char *loop ) {
 //	if (!s_soundStarted  || !crit) {
 //		return;
 //	}
-
-	Sys_EnterCriticalSection( crit );
 
 	if ( !intro ) {
 		intro = "";
@@ -3278,14 +3161,12 @@ void S_StartBackgroundTrack( const char *intro, const char *loop ) {
 
 	// close the current sound if present, but DON'T reset s_rawend
 	if ( ss->file ) {
-		Sys_EndStreamedFile( ss->file );
 		FS_FCloseFile( ss->file );
 		ss->file = 0;
 	}
 
 	if ( !intro[0] ) {
 		Com_DPrintf( "Fail to start: %s\n", name );
-		Sys_LeaveCriticalSection( crit );
 		return;
 	}
 
@@ -3299,7 +3180,6 @@ void S_StartBackgroundTrack( const char *intro, const char *loop ) {
 	FS_FOpenFileRead( name, &fh, qtrue );
 	if ( !fh ) {
 		Com_Printf( "Couldn't open streaming sound file %s\n", name );
-		Sys_LeaveCriticalSection( crit );
 		return;
 	}
 
@@ -3310,7 +3190,6 @@ void S_StartBackgroundTrack( const char *intro, const char *loop ) {
 	if ( !S_FindWavChunk( fh, "fmt " ) ) {
 		Com_Printf( "No fmt chunk in %s\n", name );
 		FS_FCloseFile( fh );
-		Sys_LeaveCriticalSection( crit );
 		return;
 	}
 
@@ -3325,7 +3204,6 @@ void S_StartBackgroundTrack( const char *intro, const char *loop ) {
 	if ( ss->info.format != WAV_FORMAT_PCM ) {
 		FS_FCloseFile( fh );
 		Com_Printf( "Not a microsoft PCM format wav: %s\n", name );
-		Sys_LeaveCriticalSection( crit );
 		return;
 	}
 
@@ -3336,25 +3214,16 @@ void S_StartBackgroundTrack( const char *intro, const char *loop ) {
 	if ( ( len = S_FindWavChunk( fh, "data" ) ) == 0 ) {
 		FS_FCloseFile( fh );
 		Com_Printf( "No data chunk in %s\n", name );
-		Sys_LeaveCriticalSection( crit );
 		return;
 	}
 
 	ss->info.samples = len / ( ss->info.width * ss->info.channels );
-
 	ss->samples = ss->info.samples;
-
-	//
-	// start the background streaming
-	//
-	Sys_BeginStreamedFile( fh, 0x10000 );
-
 	ss->file = fh;
 	ss->kill = qfalse;
 	numStreamingSounds++;
 
 	Com_DPrintf( "S_StartBackgroundTrack - Success\n", intro, loop );
-	Sys_LeaveCriticalSection( crit );
 }
 #endif // RTCW_XX
 
@@ -3513,9 +3382,9 @@ float S_StartStreamingSound( const char *intro, const char *loop, int entnum, in
 	fileHandle_t fh;
 
 #if !defined RTCW_MP
-	if ( !crit || !snd.s_soundStarted || snd.s_soundMute || cls.state != CA_ACTIVE ) {
+    if (!snd.s_soundStarted || snd.s_soundMute || cls.state != CA_ACTIVE) {
 #else
-	if ( !crit || !s_soundStarted || s_soundMuted || cls.state != CA_ACTIVE ) {
+    if (!s_soundStarted || s_soundMuted || cls.state != CA_ACTIVE ) {
 #endif // RTCW_XX
 
 #if !defined RTCW_ET
@@ -3526,7 +3395,6 @@ float S_StartStreamingSound( const char *intro, const char *loop, int entnum, in
 
 	}
 
-	Sys_EnterCriticalSection( crit );
 	if ( !intro || !intro[0] ) {
 		if ( loop && loop[0] ) {
 			intro = loop;
@@ -3571,7 +3439,6 @@ float S_StartStreamingSound( const char *intro, const char *loop, int entnum, in
 		if ( !s_mute->integer ) {  // don't do the print if you're muted
 			Com_Printf( "S_StartStreamingSound: No free streaming tracks\n" );
 		}
-		Sys_LeaveCriticalSection( crit );
 
 #if !defined RTCW_ET
 		return;
@@ -3597,14 +3464,11 @@ float S_StartStreamingSound( const char *intro, const char *loop, int entnum, in
 
 	// close the current sound if present, but DON'T reset s_rawend
 	if ( ss->file ) {
-		Sys_EndStreamedFile( ss->file );
 		FS_FCloseFile( ss->file );
 		ss->file = 0;
 	}
 
 	if ( !intro[0] ) {
-		Sys_LeaveCriticalSection( crit );
-
 #if !defined RTCW_ET
 		return;
 #else
@@ -3631,8 +3495,6 @@ float S_StartStreamingSound( const char *intro, const char *loop, int entnum, in
 		Com_Printf( "Couldn't open streaming sound file %s\n", name );
 #endif // RTCW_XX
 
-		Sys_LeaveCriticalSection( crit );
-
 #if !defined RTCW_ET
 		return;
 #else
@@ -3654,7 +3516,6 @@ float S_StartStreamingSound( const char *intro, const char *loop, int entnum, in
 #endif // RTCW_XX
 
 		FS_FCloseFile( fh );
-		Sys_LeaveCriticalSection( crit );
 
 #if !defined RTCW_ET
 		return;
@@ -3680,8 +3541,6 @@ float S_StartStreamingSound( const char *intro, const char *loop, int entnum, in
 #else
 		Com_Printf( "Not a microsoft PCM format wav: %s\n", name );
 #endif // RTCW_XX
-
-		Sys_LeaveCriticalSection( crit );
 
 #if !defined RTCW_ET
 		return;
@@ -3710,8 +3569,6 @@ float S_StartStreamingSound( const char *intro, const char *loop, int entnum, in
 		Com_Printf( "No data chunk in %s\n", name );
 #endif // RTCW_XX
 
-		Sys_LeaveCriticalSection( crit );
-
 #if !defined RTCW_ET
 		return;
 #else
@@ -3738,14 +3595,8 @@ float S_StartStreamingSound( const char *intro, const char *loop, int entnum, in
 	ss->kill = qfalse;
 #endif // RTCW_XX
 
-	//
-	// start the background streaming
-	//
-	Sys_BeginStreamedFile( fh, 0x10000 );
-
 	ss->file = fh;
 	numStreamingSounds++;
-	Sys_LeaveCriticalSection( crit );
 
 #if defined RTCW_ET
 	return ( ss->samples / (float)ss->info.rate ) * 1000.f;
@@ -3762,15 +3613,12 @@ void S_StopStreamingSound( int index ) {
 	if ( !streamingSounds[index].file ) {
 		return;
 	}
-	Sys_EnterCriticalSection( crit );
 
 #if !defined RTCW_MP
 	streamingSounds[index].kill = 1;
 #else
 	streamingSounds[index].kill = qtrue;
 #endif // RTCW_XX
-
-	Sys_LeaveCriticalSection( crit );
 }
 
 #if !defined RTCW_MP
@@ -3846,9 +3694,8 @@ void S_UpdateStreamingSounds( void ) {
 #if !defined RTCW_MP
 	float streamingVol = 1.0f;
 
-	if ( !snd.s_soundStarted  || !crit ) {
-		return;
-	}
+    if (!snd.s_soundStarted)
+        return;
 
 	// seems like the mute would be better down lower so no timing gets messed up
 //	if ( s_mute->value ) {	//----(SA)	sound is muted, skip everything
@@ -3893,7 +3740,6 @@ void S_UpdateStreamingSounds( void ) {
 			fileHandle_t file;
 			file = ss->file;
 			ss->file = 0;
-			Sys_EndStreamedFile( file );
 			FS_FCloseFile( file );
 			numStreamingSounds--;
 
@@ -3973,7 +3819,8 @@ void S_UpdateStreamingSounds( void ) {
 				fileSamples = fileBytes / ( ss->info.width * ss->info.channels );
 			}
 
-			r = Sys_StreamedRead( raw, 1, fileBytes, ss->file );
+            r = ::FS_Read(raw, fileBytes, ss->file);
+
 			if ( r != fileBytes ) {
 				Com_DPrintf( "StreamedRead failure on stream sound\n" );
 
@@ -4062,7 +3909,6 @@ void S_UpdateStreamingSounds( void ) {
 						fileHandle_t file;
 						file = ss->file;
 						ss->file = 0;
-						Sys_EndStreamedFile( file );
 						FS_FCloseFile( file );
 						numStreamingSounds--;
 //						memset( &s_rawsamples[i], 0, MAX_RAW_SAMPLES*sizeof(portable_samplepair_t) );	// really clear it
@@ -4083,7 +3929,7 @@ void S_UpdateStreamingSounds( void ) {
 					if ( ss->loop && ss->loop[0] ) {
 						if ( ss->looped ) {
 							char dump[16];
-							Sys_StreamSeek( ss->file, 0, FS_SEEK_SET );       // just go back to the beginning
+                            ::FS_Seek(ss->file, 0, FS_SEEK_SET);
 							FS_Read( dump, 12, ss->file );
 
 							if ( !S_FindWavChunk( ss->file, "fmt " ) ) {
@@ -4136,7 +3982,7 @@ void S_UpdateStreamingSounds( void ) {
 						break;
 					} else {
 						char dump[16];
-						Sys_StreamSeek( ss->file, 0, FS_SEEK_SET );
+                        ::FS_Seek(ss->file, 0, FS_SEEK_SET);
 						FS_Read( dump, 12, ss->file );
 
 						if ( !S_FindWavChunk( ss->file, "fmt " ) ) {

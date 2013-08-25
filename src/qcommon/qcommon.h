@@ -1311,10 +1311,6 @@ void    Sys_Init( void );
 qboolean Sys_IsNumLockDown( void );
 #endif // RTCW_XX
 
-void *Sys_InitializeCriticalSection();
-void Sys_EnterCriticalSection( void *ptr );
-void Sys_LeaveCriticalSection( void *ptr );
-
 const char* Sys_GetDLLName(
     const char* name);
 
@@ -1363,11 +1359,6 @@ void    Sys_SnapVector( float *v );
 void    Sys_DisplaySystemConsole( qboolean show );
 
 int     Sys_GetProcessorId( void );
-
-void    Sys_BeginStreamedFile( fileHandle_t f, int readahead );
-void    Sys_EndStreamedFile( fileHandle_t f );
-int     Sys_StreamedRead( void *buffer, int size, int count, fileHandle_t f );
-void    Sys_StreamSeek( fileHandle_t f, int offset, int origin );
 
 void    Sys_ShowConsole( int level, qboolean quitOnClose );
 void    Sys_SetErrorText( const char *text );
