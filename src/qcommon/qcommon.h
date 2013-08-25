@@ -1003,11 +1003,7 @@ qboolean    Com_SafeMode( void );
 
 void        Com_StartupVariable( const char *match );
 
-#if defined RTCW_SP
-void        Com_SetRecommended( qboolean vid_restart );
-#else
-void        Com_SetRecommended();
-#endif // RTCW_XX
+void Com_SetRecommended(bool restart_video);
 
 // checks for and removes command line "+set var arg" constructs
 // if match is NULL, all set commands will be executed, otherwise
@@ -1308,7 +1304,7 @@ sysEvent_t  Sys_GetEvent( void );
 void    Sys_Init( void );
 
 #if defined RTCW_ET
-qboolean Sys_IsNumLockDown( void );
+bool Sys_IsNumLockDown();
 #endif // RTCW_XX
 
 const char* Sys_GetDLLName(
@@ -1340,18 +1336,18 @@ void    *Sys_GetUIAPI( void );
 void    Sys_UnloadBotLib( void );
 void    *Sys_GetBotLibAPI( void *parms );
 
-char    *Sys_GetCurrentUser( void );
+const char* Sys_GetCurrentUser();
 
 void QDECL Sys_Error( const char *error, ... );
 void    Sys_Quit( void );
-char    *Sys_GetClipboardData( void );  // note that this isn't journaled...
+char* Sys_GetClipboardData();  // note that this isn't journaled...
 
 void    Sys_Print( const char *msg );
 
 
 // Sys_Milliseconds should only be used for profiling purposes,
 // any game related timing information should come from event timestamps
-int     Sys_Milliseconds( void );
+int Sys_Milliseconds();
 
 void    Sys_SnapVector( float *v );
 
@@ -1377,8 +1373,8 @@ void    Sys_Mkdir( const char *path );
 char    *Sys_Cwd( void );
 char    *Sys_DefaultCDPath( void );
 char    *Sys_DefaultBasePath( void );
-char    *Sys_DefaultInstallPath( void );
-char    *Sys_DefaultHomePath( void );
+const char* Sys_DefaultInstallPath();
+const char* Sys_DefaultHomePath();
 
 char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs );
 void    Sys_FreeFileList( char **list );
@@ -1402,12 +1398,6 @@ void Sys_StartProcess( char *exeName, qboolean doexit );            // NERVE - S
 void Sys_OpenURL( char *url, qboolean doexit );                     // NERVE - SMF
 #else
 void Sys_OpenURL( const char *url, qboolean doexit );                       // NERVE - SMF
-#endif // RTCW_XX
-
-int Sys_GetHighQualityCPU();
-
-#if defined RTCW_ET
-float Sys_GetCPUSpeed( void );
 #endif // RTCW_XX
 
 #if !defined RTCW_SP

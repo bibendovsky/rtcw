@@ -2038,26 +2038,6 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 		}
 	}
 
-#ifdef __linux__
-	if ( key == K_ENTER ) {
-		if ( down ) {
-			if ( keys[K_ALT].down ) {
-				Key_ClearStates();
-				if ( Cvar_VariableValue( "r_fullscreen" ) == 0 ) {
-					Com_Printf( "Switching to fullscreen rendering\n" );
-					Cvar_Set( "r_fullscreen", "1" );
-				} else
-				{
-					Com_Printf( "Switching to windowed rendering\n" );
-					Cvar_Set( "r_fullscreen", "0" );
-				}
-				Cbuf_ExecuteText( EXEC_APPEND, "vid_restart\n" );
-				return;
-			}
-		}
-	}
-#endif
-
 #if defined RTCW_MP
 	// are we waiting to clear stats and move to briefing screen
 	if ( down && cl_waitForFire && cl_waitForFire->integer ) {    //DAJ BUG in dedicated cl_waitForFire don't exist

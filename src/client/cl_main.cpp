@@ -3743,23 +3743,12 @@ void CL_MapRestart_f( void ) {
 }
 #endif // RTCW_XX
 
-/*
-================
-CL_SetRecommended_f
-================
-*/
-void CL_SetRecommended_f( void ) {
-
-#if defined RTCW_SP
-	if ( Cmd_Argc() > 1 ) {
-		Com_SetRecommended( qtrue );
-	} else {
-		Com_SetRecommended( qfalse );
-	}
-#else
-	Com_SetRecommended();
-#endif // RTCW_XX
-
+void CL_SetRecommended_f()
+{
+    if (::Cmd_Argc() > 1)
+        ::Com_SetRecommended(true);
+    else
+        ::Com_SetRecommended(false);
 }
 
 

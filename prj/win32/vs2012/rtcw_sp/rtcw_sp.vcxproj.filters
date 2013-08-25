@@ -294,9 +294,6 @@
     <ClCompile Include="..\..\..\..\src\qcommon\vm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\win32\win_shared.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\win32\win_syscon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -370,6 +367,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\system\rtcw_input_mouse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\system\sys_shared.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

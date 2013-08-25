@@ -1000,22 +1000,11 @@ Called after the common systems (cvars, files, etc)
 are initialized
 ================
 */
-#define OSR2_BUILD_NUMBER 1111
-#define WIN98_BUILD_NUMBER 1998
-
 #if defined RTCW_ET
 extern void Sys_ClearViewlog_f( void ); // fretn
 #endif // RTCW_XX
 
 void Sys_Init( void ) {
-	int cpuid;
-
-    // BBi
-	//// make sure the timer is high precision, otherwise
-	//// NT gets 18ms resolution
-	//timeBeginPeriod( 1 );
-    // BBi
-
 	Cmd_AddCommand( "in_restart", Sys_In_Restart_f );
 	Cmd_AddCommand( "net_restart", Sys_Net_Restart_f );
 
@@ -1023,126 +1012,26 @@ void Sys_Init( void ) {
 	Cmd_AddCommand( "clearviewlog", Sys_ClearViewlog_f );
 #endif // RTCW_XX
 
-	g_wv.osversion.dwOSVersionInfoSize = sizeof( g_wv.osversion );
+    // FIXME
+    ::Cvar_Set("arch", ::SDL_GetPlatform());
 
-	if ( !GetVersionEx( &g_wv.osversion ) ) {
-		Sys_Error( "Couldn't get OS info" );
-	}
+    int cpuid = CPUID_GENERIC;
+    ::Cvar_Get("sys_cpustring", "detect", 0);
 
-	if ( g_wv.osversion.dwMajorVersion < 4 ) {
+    const char* cpu_string = ::Cvar_VariableString("sys_cpustring");
 
-#if defined RTCW_SP
-		Sys_Error( "Wolf requires Windows version 4 or greater" );
-#elif defined RTCW_MP
-		Sys_Error( "Quake3 requires Windows version 4 or greater" );
-#else
-		Sys_Error( GAME_VERSION " requires Windows version 4 or greater" );
-#endif // RTCW_XX
+    if (::Q_stricmp(cpu_string, "detect") == 0)
+        ::Cvar_Set("sys_cpustring", "generic");
 
-	}
-	if ( g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32s ) {
+    ::Cvar_SetValue("sys_cpuid", cpuid);
 
-#if defined RTCW_SP
-		Sys_Error( "Wolf doesn't run on Win32s" );
-#elif defined RTCW_MP
-		Sys_Error( "Quake3 doesn't run on Win32s" );
-#else
-		Sys_Error( GAME_VERSION " doesn't run on Win32s" );
-#endif // RTCW_XX
+    cpu_string = ::Cvar_VariableString("sys_cpustring");
 
-	}
-
-	if ( g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32_NT ) {
-		Cvar_Set( "arch", "winnt" );
-	} else if ( g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS )   {
-		if ( LOWORD( g_wv.osversion.dwBuildNumber ) >= WIN98_BUILD_NUMBER ) {
-			Cvar_Set( "arch", "win98" );
-		} else if ( LOWORD( g_wv.osversion.dwBuildNumber ) >= OSR2_BUILD_NUMBER )   {
-			Cvar_Set( "arch", "win95 osr2.x" );
-		} else
-		{
-			Cvar_Set( "arch", "win95" );
-		}
-	} else
-	{
-		Cvar_Set( "arch", "unknown Windows variant" );
-	}
-
-	// save out a couple things in rom cvars for the renderer to access
-
-    //BBi
-	//Cvar_Get( "win_hinstance", va( "%i", (int)g_wv.hInstance ), CVAR_ROM );
-	//Cvar_Get( "win_wndproc", va( "%i", (int)MainWndProc ), CVAR_ROM );
-    //BBi
-
-	//
-	// figure out our CPU
-	//
-	Cvar_Get( "sys_cpustring", "detect", 0 );
-	if ( !Q_stricmp( Cvar_VariableString( "sys_cpustring" ), "detect" ) ) {
-		Com_Printf( "...detecting CPU, found " );
-
-		cpuid = Sys_GetProcessorId();
-
-		switch ( cpuid )
-		{
-		case CPUID_GENERIC:
-			Cvar_Set( "sys_cpustring", "generic" );
-			break;
-		case CPUID_INTEL_UNSUPPORTED:
-			Cvar_Set( "sys_cpustring", "x86 (pre-Pentium)" );
-			break;
-		case CPUID_INTEL_PENTIUM:
-			Cvar_Set( "sys_cpustring", "x86 (P5/PPro, non-MMX)" );
-			break;
-		case CPUID_INTEL_MMX:
-			Cvar_Set( "sys_cpustring", "x86 (P5/Pentium2, MMX)" );
-			break;
-		case CPUID_INTEL_KATMAI:
-			Cvar_Set( "sys_cpustring", "Intel Pentium III" );
-			break;
-		case CPUID_AMD_3DNOW:
-			Cvar_Set( "sys_cpustring", "AMD w/ 3DNow!" );
-			break;
-		case CPUID_AXP:
-			Cvar_Set( "sys_cpustring", "Alpha AXP" );
-			break;
-		default:
-			Com_Error( ERR_FATAL, "Unknown cpu type %d\n", cpuid );
-			break;
-		}
-	} else
-	{
-		Com_Printf( "...forcing CPU type to " );
-		if ( !Q_stricmp( Cvar_VariableString( "sys_cpustring" ), "generic" ) ) {
-			cpuid = CPUID_GENERIC;
-		} else if ( !Q_stricmp( Cvar_VariableString( "sys_cpustring" ), "x87" ) )     {
-			cpuid = CPUID_INTEL_PENTIUM;
-		} else if ( !Q_stricmp( Cvar_VariableString( "sys_cpustring" ), "mmx" ) )     {
-			cpuid = CPUID_INTEL_MMX;
-		} else if ( !Q_stricmp( Cvar_VariableString( "sys_cpustring" ), "3dnow" ) )     {
-			cpuid = CPUID_AMD_3DNOW;
-		} else if ( !Q_stricmp( Cvar_VariableString( "sys_cpustring" ), "PentiumIII" ) )     {
-			cpuid = CPUID_INTEL_KATMAI;
-		} else if ( !Q_stricmp( Cvar_VariableString( "sys_cpustring" ), "axp" ) )     {
-			cpuid = CPUID_AXP;
-		} else
-		{
-			Com_Printf( "WARNING: unknown sys_cpustring '%s'\n", Cvar_VariableString( "sys_cpustring" ) );
-			cpuid = CPUID_GENERIC;
-		}
-	}
-	Cvar_SetValue( "sys_cpuid", cpuid );
-	Com_Printf( "%s\n", Cvar_VariableString( "sys_cpustring" ) );
-
-	Cvar_Set( "username", Sys_GetCurrentUser() );
+    ::Cvar_Set("username", Sys_GetCurrentUser());
 
 #if !defined RTCW_ET
-	IN_Init();      // FIXME: not in dedicated?
-#else
-//	IN_Init();		// FIXME: not in dedicated?
+    IN_Init(); // FIXME: not in dedicated?
 #endif // RTCW_XX
-
 }
 
 
@@ -1159,37 +1048,17 @@ WinMain
 
 // BBi
 //int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow ) {
-extern "C" int main(int argc, char* argv[]) {
+extern "C" int main(int argc, char* argv[])
+{
 // BBi
 
-// BBi
     if (::SDL_Init(0) != 0) {
         // TODO Print out some message.
         return 1;
     }
-// BBi
 
 	char cwd[MAX_OSPATH];
 	int startTime, endTime;
-
-// BBi
-	//// should never get a previous instance in Win32
-	//if ( hPrevInstance ) {
-	//	return 0;
-	//}
-// BBi
-
-//BBi
-//#if defined RTCW_ET
-//#ifdef EXCEPTION_HANDLER
-//	WinSetExceptionVersion( Q3_VERSION );
-//#endif
-//#endif // RTCW_XX
-//BBi
-
-// BBi
-	//g_wv.hInstance = hInstance;
-// BBi
 
 // BBi
 	//Q_strncpyz( sys_cmdline, lpCmdLine, sizeof( sys_cmdline ) );
@@ -1257,8 +1126,6 @@ extern "C" int main(int argc, char* argv[]) {
 		Sys_ShowConsole( 0, qfalse );
 	}
 
-	SetFocus( g_wv.hWnd );
-
 	// main game loop
 	while ( 1 ) {
 		// if not running as a game client, sleep a bit
@@ -1277,12 +1144,7 @@ extern "C" int main(int argc, char* argv[]) {
 		// make sure mouse and joystick are only called once a frame
 		IN_Frame();
 
-#if !defined RTCW_ET
 		// run the game
-#else
-//		Com_FrameExt();
-#endif // RTCW_XX
-
 		Com_Frame();
 
 		endTime = Sys_Milliseconds();
@@ -1291,28 +1153,14 @@ extern "C" int main(int argc, char* argv[]) {
 	}
 
 	// never gets here
+    return 0;
 }
-
-#if !defined RTCW_SP
-char    *Sys_DefaultHomePath( void ) {
-	return NULL;
-}
-
-char *Sys_DefaultInstallPath( void ) {
-	return Sys_Cwd();
-}
-#endif // RTCW_XX
 
 #if defined RTCW_ET
-qboolean Sys_IsNumLockDown( void ) {
-	// thx juz ;)
-	SHORT state = GetKeyState( VK_NUMLOCK );
-
-	if ( state & 0x01 ) {
-		return qtrue;
-	}
-
-	return qfalse;
+bool Sys_IsNumLockDown()
+{
+    auto state = ::SDL_GetModState();
+    return (state & KMOD_NUM) != 0;
 }
 #endif // RTCW_XX
 

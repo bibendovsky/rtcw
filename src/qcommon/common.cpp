@@ -2812,13 +2812,9 @@ static void Com_Crash_f( void ) {
 }
 
 #if defined RTCW_ET
-/*
-=============
-Com_CPUSpeed_f
-=============
-*/
-void Com_CPUSpeed_f( void ) {
-	Com_Printf( "CPU Speed: %.2f Mhz\n", Sys_GetCPUSpeed() );
+void Com_CPUSpeed_f()
+{
+    Com_Printf(S_COLOR_YELLOW "Command %s deprecated.\n", "cpuspeed");
 }
 #endif // RTCW_XX
 
@@ -2955,136 +2951,32 @@ static void Com_WriteCDKey( const char *filename, const char *ikey ) {
 }
 #endif
 
-#if defined RTCW_SP
-void Com_SetRecommended( qboolean vidrestart ) {
-#else
-void Com_SetRecommended() {
-#endif // RTCW_XX
+void Com_SetRecommended(bool restart_video)
+{
+    cvar_t* r_highQualityVideo = nullptr;
+
+    r_highQualityVideo = ::Cvar_Get("r_highQualityVideo", "1", CVAR_ARCHIVE);
 
 #if !defined RTCW_ET
-	cvar_t *cv;
-	qboolean goodVideo;
-	qboolean goodCPU;
+    ::Cbuf_AddText("exec highVidhighCPU.cfg\n");
+
+    // (SA) set the cvar so the menu will reflect this on first run
+    ::Cvar_Set("ui_glCustom", "999"); // 'recommended'
 
 #if defined RTCW_SP
-	qboolean lowMemory;
-#endif // RTCW_XX
-
-	// will use this for recommended settings as well.. do i outside the lower check so it gets done even with command line stuff
-	cv = Cvar_Get( "r_highQualityVideo", "1", CVAR_ARCHIVE );
-	goodVideo = ( cv && cv->integer );
-	goodCPU = Sys_GetHighQualityCPU();
-
-#if defined RTCW_SP
-	lowMemory = Sys_LowPhysicalMemory();
-#endif // RTCW_XX
-
-	if ( goodVideo && goodCPU ) {
-		Com_Printf( "Found high quality video and CPU\n" );
-		Cbuf_AddText( "exec highVidhighCPU.cfg\n" );
-	} else if ( goodVideo && !goodCPU ) {
-		Cbuf_AddText( "exec highVidlowCPU.cfg\n" );
-		Com_Printf( "Found high quality video and low quality CPU\n" );
-	} else if ( !goodVideo && goodCPU ) {
-		Cbuf_AddText( "exec lowVidhighCPU.cfg\n" );
-		Com_Printf( "Found low quality video and high quality CPU\n" );
-	} else {
-		Cbuf_AddText( "exec lowVidlowCPU.cfg\n" );
-		Com_Printf( "Found low quality video and low quality CPU\n" );
-	}
-
-// (SA) set the cvar so the menu will reflect this on first run
-
-#if defined RTCW_SP
-	Cvar_Set( "ui_glCustom", "999" );   // 'recommended'
-
-
-	if ( lowMemory ) {
-		Com_Printf( "Found minimum memory requirement\n" );
-		Cvar_Set( "s_khz", "11" );
-		if ( !goodVideo ) {
-			Cvar_Set( "r_lowMemTextureSize", "256" );
-			Cvar_Set( "r_lowMemTextureThreshold", "40.0" );
-		}
-	}
-	if ( vidrestart ) {
-		Cbuf_AddText( "vid_restart\n" );
-	}
-#elif defined RTCW_MP
-//	Cvar_Set("ui_glCustom", "999");	// 'recommended'
+    if (restart_video)
+        ::Cbuf_AddText("vid_restart\n");
 #endif // RTCW_XX
 #else
-	cvar_t *r_highQualityVideo,* com_recommended;
-	qboolean goodVideo;
-	float cpuSpeed;
-	//qboolean goodCPU;
-	// will use this for recommended settings as well.. do i outside the lower check so it gets done even with command line stuff
-	r_highQualityVideo = Cvar_Get( "r_highQualityVideo", "1", CVAR_ARCHIVE );
-	com_recommended = Cvar_Get( "com_recommended", "-1", CVAR_ARCHIVE );
-	goodVideo = ( r_highQualityVideo && r_highQualityVideo->integer );
+    cvar_t* com_recommended = nullptr;
 
-	cpuSpeed = Sys_GetCPUSpeed();
+    com_recommended = ::Cvar_Get("com_recommended", "-1", CVAR_ARCHIVE);
 
-	if ( cpuSpeed > 1500 ) {
-		if ( goodVideo ) {
-			Com_Printf( "Found high quality video and fast CPU\n" );
-			Cbuf_AddText( "exec preset_high.cfg\n" );
-			Cvar_Set( "com_recommended", "0" );
-		} else {
-			Com_Printf( "Found low quality video and fast CPU\n" );
-			Cbuf_AddText( "exec preset_normal.cfg\n" );
-			Cvar_Set( "com_recommended", "1" );
-		}
-	} else if ( cpuSpeed > 850 ) {
-		if ( goodVideo ) {
-			Com_Printf( "Found high quality video and normal CPU\n" );
-		} else {
-			Com_Printf( "Found low quality video and normal CPU\n" );
-		}
-		Cbuf_AddText( "exec preset_normal.cfg\n" );
-		Cvar_Set( "com_recommended", "1" );
-	} else if ( cpuSpeed < 200 ) {   // do the < 200 check just in case we barf, better than falling back to ugly fast
-		if ( goodVideo ) {
-			Com_Printf( "Found high quality video but didn't manage to detect a CPU properly\n" );
-		} else {
-			Com_Printf( "Found low quality video but didn't manage to detect a CPU properly\n" );
-		}
-		Cbuf_AddText( "exec preset_normal.cfg\n" );
-		Cvar_Set( "com_recommended", "1" );
-	} else {
-		if ( goodVideo ) {
-			Com_Printf( "Found high quality video and slow CPU\n" );
-			Cbuf_AddText( "exec preset_fast.cfg\n" );
-			Cvar_Set( "com_recommended", "2" );
-		} else {
-			Com_Printf( "Found low quality video and slow CPU\n" );
-			Cbuf_AddText( "exec preset_fastest.cfg\n" );
-			Cvar_Set( "com_recommended", "3" );
-		}
-	}
-
-
-	/*goodCPU = Sys_GetHighQualityCPU();
-
-	if (goodVideo && goodCPU) {
-		Com_Printf ("Found high quality video and CPU\n");
-		Cbuf_AddText ("exec highVidhighCPU.cfg\n");
-	} else if (goodVideo && !goodCPU) {
-		Cbuf_AddText ("exec highVidlowCPU.cfg\n");
-		Com_Printf ("Found high quality video and low quality CPU\n");
-	} else if (!goodVideo && goodCPU) {
-		Cbuf_AddText ("exec lowVidhighCPU.cfg\n");
-		Com_Printf ("Found low quality video and high quality CPU\n");
-	} else {
-		Cbuf_AddText ("exec lowVidlowCPU.cfg\n");
-		Com_Printf ("Found low quality video and low quality CPU\n");
-	}*/
-
-// (SA) set the cvar so the menu will reflect this on first run
-//	Cvar_Set("ui_glCustom", "999");	// 'recommended'
+    ::Cbuf_AddText("exec preset_high.cfg\n");
+    ::Cvar_Set("com_recommended", "0");
 #endif // RTCW_XX
-
 }
+
 
 #if defined RTCW_ET
 // Arnout: gameinfo, to let the engine know which gametypes are SP and if we should use profiles.
@@ -3608,7 +3500,7 @@ void Com_Init( char *commandLine ) {
 #else
 	// NERVE - SMF - force recommendedSet and don't do vid_restart if in safe mode
 	if ( !com_recommendedSet->integer && !safeMode ) {
-		Com_SetRecommended();
+        Com_SetRecommended(false);
 		Cbuf_ExecuteText( EXEC_APPEND, "vid_restart\n" );
 	}
 	Cvar_Set( "com_recommendedSet", "1" );
