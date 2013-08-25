@@ -3953,7 +3953,12 @@ void CL_CheckAutoUpdate( void ) {
 
     //BBi
 	//NET_OutOfBandPrint( NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", Q3_VERSION, CPUSTRING );
-    ::NET_OutOfBandPrint (NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", RTCW_VERSION, CPUSTRING);
+    ::NET_OutOfBandPrint(
+        NS_CLIENT,
+        cls.autoupdateServer,
+        "getUpdateInfo \"%s\" \"%s\"\n",
+        RTCW_VERSION,
+        ::SDL_GetPlatform());
     //BBi
 
 	CL_RequestMotd();
@@ -3996,7 +4001,12 @@ void CL_CheckAutoUpdate( void ) {
 
     //BBi
 	//NET_OutOfBandPrint( NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", Q3_VERSION, CPUSTRING );
-    ::NET_OutOfBandPrint (NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", RTCW_VERSION, CPUSTRING);
+    ::NET_OutOfBandPrint(
+        NS_CLIENT,
+        cls.autoupdateServer,
+        "getUpdateInfo \"%s\" \"%s\"\n",
+        RTCW_VERSION,
+        ::SDL_GetPlatform());
     //BBi
 
 #endif // !PRE_RELEASE_DEMO

@@ -213,318 +213,42 @@ If you have questions concerning this license or the applicable additional terms
 #endif // RTCW_XX
 //BBi
 
-#if !defined RTCW_ET && defined _WIN32
-
-//#pragma intrinsic( memset, memcpy )
-
-#endif // RTCW_XX
-
 
 // this is the define for determining if we have an asm version of a C function
-
-//BBi
-//#if (!defined RTCW_ET && ((defined _M_IX86 || defined __i386__) && !defined __sun__  && !defined __LCC__)) || (defined RTCW_ET && defined _M_IX86)
-//#define id386   1
-//#else
-//#define id386   0
-//#endif
-
 #define id386   0
-//BBi
 
 // for windows fastcall option
 
 #define QDECL
 
-//BBi
-//#if defined RTCW_ET
-////bani
-////======================= GNUC DEFINES ==================================
-//#ifdef __GNUC__
-//#define _attribute( x ) __attribute__( x )
-//#else
-//#define _attribute( x )
-//#endif
-//#endif // RTCW_XX
-//BBi
-
 //======================= WIN32 DEFINES =================================
 
-//BBi
-//#ifdef _WIN32
-#if BBI_PLATFORM == BBI_WIN32
-//BBi
+#ifdef __WIN32__
 
 #define MAC_STATIC
 
 #undef QDECL
 #define QDECL __cdecl
 
-// buildstring will be incorporated into the version string
-
-//BBi
-//#ifdef NDEBUG
-//#ifdef _M_IX86
-//#define CPUSTRING   "win-x86"
-//#elif defined _M_X64
-//#define CPUSTRING   "win-x64"
-//#elif defined _M_ALPHA
-//#define CPUSTRING   "win-AXP"
-//#endif
-//#else
-//#ifdef _M_IX86
-//#define CPUSTRING   "win-x86-debug"
-//#elif defined _M_X64
-//#define CPUSTRING   "win-x64-debug"
-//#elif defined _M_ALPHA
-//#define CPUSTRING   "win-AXP-debug"
-//#endif
-//#endif
-
-#ifdef NDEBUG
-    #if BBI_PLATFORM_ARCH == BBI_X86
-        #define CPUSTRING "win-x86"
-    #elif BBI_PLATFORM_ARCH == BBI_X64
-        #define CPUSTRING "win-x64"
-    #else
-        #define CPUSTRING "gen"
-    #endif // BBI_PLATFORM_ARCH
-#else
-    #if BBI_PLATFORM_ARCH == BBI_X86
-        #define CPUSTRING "win-x86-debug"
-    #elif BBI_PLATFORM_ARCH == BBI_X64
-        #define CPUSTRING "win-x64-debug"
-    #else
-        #define CPUSTRING "gen-debug"
-    #endif // BBI_PLATFORM_ARCH
-#endif // NDEBUG
-//BBi
-
 #define PATH_SEP '\\'
 
-#endif // BBI_PLATFORM
+#else
+    #error Unknown platform
+#endif
 
-//BBi
-////======================= MAC OS X SERVER DEFINES =====================
-//
-//#if defined RTCW_SP
-//#if defined( __MACH__ ) && defined( __APPLE__ )
-//
-//#define MAC_STATIC
-//
-//#ifdef __ppc__
-//#define CPUSTRING   "MacOSXS-ppc"
-//#elif defined __i386__
-//#define CPUSTRING   "MacOSXS-i386"
-//#else
-//#define CPUSTRING   "MacOSXS-other"
-//#endif
-//
-//#define PATH_SEP    '/'
-//
-//#define GAME_HARD_LINKED
-//#define CGAME_HARD_LINKED
-//#define UI_HARD_LINKED
-//#define BOTLIB_HARD_LINKED
-//
-//#endif
-//#else
-//#if defined( MACOS_X )
-//
-//#if defined RTCW_ET
-//#error WTF
-//#endif // RTCW_XX
-//
-//#define MAC_STATIC
-//
-//#define CPUSTRING   "MacOS_X"
-//
-//#define PATH_SEP    '/'
-//
-//// Vanilla PPC code, but since PPC has a reciprocal square root estimate instruction,
-//// runs *much* faster than calling sqrt(). We'll use two Newton-Raphson
-//// refinement steps to get bunch more precision in the 1/sqrt() value for very little cost.
-//// We'll then multiply 1/sqrt times the original value to get the sqrt.
-//// This is about 12.4 times faster than sqrt() and according to my testing (not exhaustive)
-//// it returns fairly accurate results (error below 1.0e-5 up to 100000.0 in 0.1 increments).
-//
-//static inline float idSqrt( float x ) {
-//	const float half = 0.5;
-//	const float one = 1.0;
-//	float B, y0, y1;
-//
-//	// This'll NaN if it hits frsqrte. Handle both +0.0 and -0.0
-//
-//#if !defined RTCW_ET
-//	if ( c::fabs( x ) == 0.0 ) {
-//#else
-//	if ( Q_fabs( x ) == 0.0 ) {
-//#endif // RTCW_XX
-//
-//		return x;
-//	}
-//	B = x;
-//
-//#ifdef __GNUC__
-//	asm ( "frsqrte %0,%1" : "=f" ( y0 ) : "f" ( B ) );
-//#else
-//	y0 = __frsqrte( B );
-//#endif
-//	/* First refinement step */
-//
-//	y1 = y0 + half * y0 * ( one - B * y0 * y0 );
-//
-//	/* Second refinement step -- copy the output of the last step to the input of this step */
-//
-//	y0 = y1;
-//	y1 = y0 + half * y0 * ( one - B * y0 * y0 );
-//
-//	/* Get sqrt(x) from x * 1/sqrt(x) */
-//	return x * y1;
-//}
-//#define sqrt idSqrt
-//
-//
-//#endif
-//#endif // RTCW_XX
-//
-////======================= MAC DEFINES =================================
-//
-//#if defined RTCW_SP
-//#ifdef __MACOS__
-//
-//#include <MacTypes.h>
-////DAJ #define	MAC_STATIC	static
-//#define MAC_STATIC
-//
-//#define CPUSTRING   "MacOS-PPC"
-//
-//#define PATH_SEP ':'
-//
-//#define GAME_HARD_LINKED
-//#define CGAME_HARD_LINKED
-//#define UI_HARD_LINKED
-//#define BOTLIB_HARD_LINKED
-//
-//void Sys_PumpEvents( void );
-//
-//#endif
-//#elif defined RTCW_MP
-//#ifdef __MACOS__
-//
-//#include <MacTypes.h>
-//#define MAC_STATIC
-//
-//#define CPUSTRING   "MacOS-PPC"
-//
-//#define PATH_SEP ':'
-//
-//void Sys_PumpEvents( void );
-//
-//static inline float idSqrt( float x ) {
-//	const float half = 0.5;
-//	const float one = 1.0;
-//	float B, y0, y1;
-//
-//	// This'll NaN if it hits frsqrte. Handle both +0.0 and -0.0
-//	if ( c::fabs( x ) == 0.0 ) {
-//		return x;
-//	}
-//	B = x;
-//
-//#ifdef __GNUC__
-//	asm ( "frsqrte %0,%1" : "=f" ( y0 ) : "f" ( B ) );
-//#else
-//	y0 = __frsqrte( B );
-//#endif
-//	/* First refinement step */
-//
-//	y1 = y0 + half * y0 * ( one - B * y0 * y0 );
-//
-//	/* Second refinement step -- copy the output of the last step to the input of this step */
-//
-//	y0 = y1;
-//	y1 = y0 + half * y0 * ( one - B * y0 * y0 );
-//
-//	/* Get sqrt(x) from x * 1/sqrt(x) */
-//	return x * y1;
-//}
-//#define sqrt idSqrt
-//
-//#endif
-//#else
-//#ifdef __MACOS__
-//
-//#define MAC_STATIC
-//
-//#define CPUSTRING   "OSX-universal"
-//
-//#define PATH_SEP '/'
-//
-//void Sys_PumpEvents( void );
-//
-//#endif
-//#endif // RTCW_XX
-//
-////======================= LINUX DEFINES =================================
-//
-//// the mac compiler can't handle >32k of locals, so we
-//// just waste space and make big arrays static...
-//#ifdef __linux__
-//
-//#define MAC_STATIC
-//
-//#ifdef __i386__
-//#define CPUSTRING   "linux-i386"
-//#elif defined __axp__
-//#define CPUSTRING   "linux-alpha"
-//#else
-//#define CPUSTRING   "linux-other"
-//#endif
-//
-//#define PATH_SEP '/'
-//
-//#endif
-//
-////=============================================================
-//BBi
-
-// BBi
-//typedef unsigned char byte;
 typedef uint8_t byte;
-// BBi
 
-//typedef enum {qfalse, qtrue}    qboolean;
 typedef int32_t qboolean;
 const qboolean qfalse = 0;
 const qboolean qtrue = 1;
 
-//BBi
-//#if defined RTCW_SP
-//#if defined( __MACOS__ )
-//#define qboolean int    //DAJ
-//#endif
-//#endif // RTCW_XX
-//BBi
 
 typedef int qhandle_t;
 typedef int sfxHandle_t;
 typedef int fileHandle_t;
 typedef int clipHandle_t;
 
-//BBi
-//#if defined RTCW_SP
-//#ifndef ID_INLINE
-//#ifdef _WIN32
-//#define ID_INLINE __inline
-//#else
-//#define ID_INLINE inline
-//#endif
-//#endif
-//#endif // RTCW_XX
-
 #define ID_INLINE inline
-//BBi
 
 //#define	SND_NORMAL			0x000	// (default) Allow sound to be cut off only by the same sound on this channel
 #define     SND_OKTOCUT         0x001   // Allow sound to be cut off by any following sounds on this channel
@@ -536,26 +260,6 @@ typedef int clipHandle_t;
 #if defined RTCW_ET
 #define     SND_NO_ATTENUATION  0x020   // don't attenuate (even though the sound is in voice channel, for example)
 #endif // RTCW_XX
-
-#ifndef NULL
-#define NULL ( (void *)0 )
-#endif
-
-//BBi
-//#define MAX_QINT            0x7fffffff
-//#define MIN_QINT            ( -MAX_QINT - 1 )
-//BBi
-
-#if !defined RTCW_SP
-// TTimo gcc: was missing, added from Q3 source
-#endif // RTCW_XX
-
-//BBi
-//#ifndef max
-//#define max( x, y ) ( ( ( x ) > ( y ) ) ? ( x ) : ( y ) )
-//#define min( x, y ) ( ( ( x ) < ( y ) ) ? ( x ) : ( y ) )
-//#endif
-//BBi
 
 // angle indexes
 #define PITCH               0       // up / down
@@ -714,20 +418,17 @@ void Snd_Memset( void* dest, const int val, const size_t count );
 void Com_Memset( void* dest, const int val, const size_t count );
 void Com_Memcpy( void* dest, const void* src, const size_t count );
 
-#if defined RTCW_SP /* Revise for merging */
-#define CIN_system      0x01
-#define CIN_loop        0x02
-#define CIN_hold        0x04
-#define CIN_silent      0x08
-#define CIN_shader      0x10
-#define CIN_letterBox   0x20
-#elif !defined RTCW_SP
-#define CIN_system  1
-#define CIN_loop    2
-#define CIN_hold    4
-#define CIN_silent  8
-#define CIN_shader  16
+
+#define CIN_system      (0x01)
+#define CIN_loop        (0x02)
+#define CIN_hold        (0x04)
+#define CIN_silent      (0x08)
+#define CIN_shader      (0x10)
+
+#ifdef RTCW_SP
+#define CIN_letterBox   (0x20)
 #endif // RTCW_XX
+
 
 /*
 ==============================================================
@@ -744,11 +445,6 @@ typedef vec_t vec3_t[3];
 typedef vec_t vec4_t[4];
 typedef vec_t vec5_t[5];
 
-//BBi
-//typedef int fixed4_t;
-//typedef int fixed8_t;
-//typedef int fixed16_t;
-//BBi
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846F // matches value in gcc v2 math.h

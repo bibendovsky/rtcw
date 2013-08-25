@@ -165,9 +165,6 @@
     <ClCompile Include="..\..\..\..\src\win32\win_syscon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\win32\win_wndproc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\qcommon\dl_main.cpp">
       <Filter>download</Filter>
     </ClCompile>

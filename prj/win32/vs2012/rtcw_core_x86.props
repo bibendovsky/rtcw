@@ -13,6 +13,9 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <ClCompile />
+    <ClCompile>
+      <PreprocessorDefinitions>RTCW_32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="rtcw_platform">

@@ -1315,37 +1315,19 @@ void *Sys_InitializeCriticalSection();
 void Sys_EnterCriticalSection( void *ptr );
 void Sys_LeaveCriticalSection( void *ptr );
 
-//BBi
-//#if defined RTCW_SP
-//// general development dll loading for virtual machine testing
-//void    * QDECL Sys_LoadDll( const char *name, int( QDECL * *entryPoint ) ( int, ... ),
-//#else
-//// FIXME: wants win32 implementation
-//char* Sys_GetDLLName( const char *name );
-//// fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
-//void    * QDECL Sys_LoadDll( const char *name, char *fqpath, int( QDECL * *entryPoint ) ( int, ... ),
-//#endif // RTCW_XX
-//
-//							 int ( QDECL * systemcalls )( int, ... ) );
-
-#if defined RTCW_SP
-void* QDECL Sys_LoadDll (
-    const char* name,
-    intptr_t (QDECL** entryPoint) (intptr_t, ...),
-#else
-// FIXME: wants win32 implementation
-char* Sys_GetDLLName (
+const char* Sys_GetDLLName(
     const char* name);
 
+
+typedef intptr_t (QDECL* DllEntryPoint)(intptr_t, ...);
+
 // fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
-void* QDECL Sys_LoadDll (
+void* QDECL Sys_LoadDll(
     const char* name,
     char* fqpath,
-    intptr_t (QDECL** entryPoint) (intptr_t, ...),
-#endif // RTCW_XX
+    DllEntryPoint* entryPoint,
+    DllEntryPoint systemcalls);
 
-    intptr_t (QDECL* systemcalls) (intptr_t, ...));
-//BBi
 
 void    Sys_UnloadDll( void *dllHandle );
 

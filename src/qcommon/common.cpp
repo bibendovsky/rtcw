@@ -3268,7 +3268,7 @@ void Com_Init( char *commandLine ) {
 
     //BBi
 	//Com_Printf( "%s %s %s\n", Q3_VERSION, CPUSTRING, __DATE__ );
-    ::Com_Printf ("%s %s %s\n", RTCW_VERSION, CPUSTRING, __DATE__);
+    ::Com_Printf("%s %s %s\n", RTCW_VERSION, ::SDL_GetPlatform(), __DATE__);
     //BBi
 
 	if ( setjmp( abortframe ) ) {
@@ -3551,7 +3551,7 @@ void Com_Init( char *commandLine ) {
 
     //BBi
 	//s = va( "%s %s %s", Q3_VERSION, CPUSTRING, __DATE__ );
-    s = ::va ("%s %s %s", RTCW_VERSION, CPUSTRING, __DATE__);
+    s = ::va("%s %s %s", RTCW_VERSION, ::SDL_GetPlatform(), __DATE__);
     //BBi
 
 	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );

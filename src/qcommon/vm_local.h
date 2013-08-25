@@ -141,17 +141,15 @@ struct vm_s {
 
     //BBi
 	//int (*systemCall) (int* parms);
-    intptr_t (*systemCall) (intptr_t* parms);
+    intptr_t (*systemCall)(intptr_t* parms);
     //BBi
 
 	//------------------------------------
 
 	char name[MAX_QPATH];
 
-#if !defined RTCW_SP
 // fqpath member added 2/15/02 by T.Ray
-	char fqpath[MAX_QPATH + 1] ;
-#endif // RTCW_XX
+	char fqpath[MAX_QPATH + 1];
 
 	// for dynamic linked modules
 	void        *dllHandle;

@@ -619,9 +619,6 @@
     <ClCompile Include="..\..\..\..\src\win32\win_net.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_shared.cpp" />
     <ClCompile Include="..\..\..\..\src\win32\win_syscon.cpp" />
-    <ClCompile Include="..\..\..\..\src\win32\win_wndproc.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\qcommon\dl_main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|x64'">true</ExcludedFromBuild>

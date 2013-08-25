@@ -688,14 +688,12 @@ Sys_UnloadDll
 
 =================
 */
-void Sys_UnloadDll( void *dllHandle ) {
-	if ( !dllHandle ) {
-		return;
-	}
-	if ( !FreeLibrary( static_cast<HMODULE> (dllHandle) ) ) {
-		Com_Error( ERR_FATAL, "Sys_UnloadDll FreeLibrary failed" );
-	}
+
+void Sys_UnloadDll(void* dllHandle)
+{
+    ::SDL_UnloadObject(dllHandle);
 }
+
 
 /*
 =================
@@ -705,18 +703,22 @@ Used to load a development dll instead of a virtual machine
 =================
 */
 
-#if defined RTCW_SP
-extern char     *FS_BuildOSPath( const char *base, const char *game, const char *qpath );
-#elif defined RTCW_MP
+extern char* FS_BuildOSPath(
+    const char* base,
+    const char* game,
+    const char* qpath);
+
+#if defined RTCW_MP
 #ifdef UPDATE_SERVER
 int cl_connectedToPureServer;
 #else
 extern int cl_connectedToPureServer;
 #endif
-#else
+#elif defined RTCW_ET
 extern int cl_connectedToPureServer;
 #endif // RTCW_XX
 
+#if 0
 #if !defined RTCW_SP
 char* Sys_GetDLLName( const char *name ) {
 //BBi FIXME
@@ -729,8 +731,52 @@ char* Sys_GetDLLName( const char *name ) {
 //BBi
 }
 #endif // RTCW_XX
+#endif // 0
 
-//BBi
+const char* Sys_GetDLLName(const char* name)
+{
+    const std::string bits =
+#if defined RTCW_32
+        "x86"
+#elif defined RTCW_64
+        "x64"
+#else
+    #error Unknown CPU architecture
+#endif
+        ;
+
+    const std::string game =
+#ifdef RTCW_SP
+        ""
+#else
+        "_mp_"
+#endif
+        ;
+
+    const std::string is_demo =
+#ifndef WOLF_SP_DEMO
+        ""
+#else
+        "_d"
+#endif
+        ;
+
+    const std::string ext =
+#ifdef __WIN32__
+        ".dll"
+#else
+        ".so"
+#endif
+        ;
+
+    static std::string buffer;
+
+    buffer = name + game + bits + is_demo + ext;
+
+    return buffer.c_str();
+}
+
+#if 0
 //#if defined RTCW_SP
 //void * QDECL Sys_LoadDll( const char *name, int( QDECL **entryPoint ) ( int, ... ),
 //#else
@@ -916,6 +962,89 @@ found_dll:
 
 	return libHandle;
 }
+#endif // 0
+
+// fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
+// fqpath will be empty if dll not loaded, otherwise will hold fully qualified path of dll module loaded
+// fqpath buffersize must be at least MAX_QPATH+1 bytes long
+void* QDECL Sys_LoadDll(
+    const char* name,
+    char* fqpath,
+    DllEntryPoint* entryPoint,
+    DllEntryPoint systemcalls)
+{
+    typedef void (QDECL* DllEntry)(DllEntryPoint);
+
+    *fqpath = '\0'; // added 2/15/02 by T.Ray
+
+    const char* basepath = ::Cvar_VariableString("fs_basepath");
+    const char* cdpath = ::Cvar_VariableString("fs_cdpath");
+    const char* gamedir = ::Cvar_VariableString("fs_game");
+
+    std::string filename = ::Sys_GetDLLName(name);
+
+    // try gamepath first
+    char* fn = ::FS_BuildOSPath(basepath, gamedir, filename.c_str());
+
+#if !defined RTCW_SP
+    // TTimo - this is only relevant for full client
+    // if a full client runs a dedicated server, it's not affected by this
+#if !defined DEDICATED
+    // NERVE - SMF - extract dlls from pak file for security
+    // we have to handle the game dll a little differently
+    // TTimo - passing the exact path to check against
+    //   (compatibility with other OSes loading procedure)
+    if (cl_connectedToPureServer && Q_strncmp(name, "qagame", 6) != 0) {
+        if (!::FS_CL_ExtractFromPakFile(fn, gamedir, filename.c_str(), nullptr)) {
+            ::Com_Error(
+                ERR_DROP,
+                "Game code(%s) failed Pure Server check",
+                filename.c_str());
+        }
+    }
+#endif
+#endif // RTCW_XX
+
+    void* libHandle = ::SDL_LoadObject(fn);
+
+    if (libHandle == nullptr) {
+        if (cdpath[0] != '\0') {
+            fn = ::FS_BuildOSPath(cdpath, gamedir, filename.c_str());
+            libHandle = ::SDL_LoadObject(fn);
+        }
+    }
+
+    if (libHandle == nullptr) {
+        fn = ::FS_BuildOSPath(basepath, BASEGAME, filename.c_str());
+        libHandle = ::SDL_LoadObject(fn);
+    }
+
+    if (libHandle == nullptr) {
+        ::strcpy(fn, filename.c_str());
+        libHandle = ::SDL_LoadObject(fn);
+    }
+
+    if (libHandle == nullptr)
+        return nullptr;
+
+
+    Q_strncpyz(fqpath, fn, MAX_QPATH); // added 2/15/02 by T.Ray
+
+    DllEntry dllEntry = reinterpret_cast<DllEntry>(
+        ::SDL_LoadFunction(libHandle, "dllEntry"));
+
+    *entryPoint = reinterpret_cast<DllEntryPoint>(
+        ::SDL_LoadFunction(libHandle, "vmMain"));
+
+    if (*entryPoint == nullptr || dllEntry == nullptr) {
+        ::SDL_UnloadObject(libHandle);
+        return nullptr;
+    }
+
+    dllEntry(systemcalls);
+
+    return libHandle;
+}
 
 
 /*
@@ -925,10 +1054,6 @@ BACKGROUND FILE STREAMING
 
 ========================================================================
 */
-
-#if defined RTCW_ET
-//#define DO_STREAMING
-#endif // RTCW_XX
 
 typedef struct {
 	fileHandle_t file;
@@ -961,7 +1086,7 @@ int FS_ReadDirect( void *buffer, int len, fileHandle_t f );
 int FS_Read2( void *buffer, int len, fileHandle_t f );
 #endif // RTCW_XX
 
-#if defined RTCW_SP
+#if defined RTCW_SP || defined RTCW_ET
 void Sys_MusicThread( void ) {
 	while ( 1 ) {
 		Sleep( 33 );

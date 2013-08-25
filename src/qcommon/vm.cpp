@@ -684,11 +684,7 @@ vm_t* VM_Create (
     ::Q_strncpyz (vm->name, module, sizeof (vm->name));
     vm->systemCall = systemCalls;
 
-#if defined RTCW_SP
-    vm->dllHandle = ::Sys_LoadDll (module, &vm->entryPoint, VM_DllSyscall);
-#else
-    vm->dllHandle = ::Sys_LoadDll (module, vm->fqpath, &vm->entryPoint, VM_DllSyscall);
-#endif // RTCW_XX
+    vm->dllHandle = ::Sys_LoadDll(module, vm->fqpath, &vm->entryPoint, VM_DllSyscall);
 
     if (vm->dllHandle != 0)
         return vm;
