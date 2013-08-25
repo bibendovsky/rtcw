@@ -831,12 +831,7 @@ void Field_Paste( field_t *edit ) {
 		Field_CharEvent( edit, cbd[i] );
 	}
 
-#if !defined RTCW_ET
-	free( cbd );
-#else
-	Z_Free( cbd );
-#endif // RTCW_XX
-
+    ::SDL_free(cbd);
 }
 
 /*

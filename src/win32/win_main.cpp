@@ -40,13 +40,8 @@ If you have questions concerning this license or the applicable additional terms
     #include "rtcw_et_resource.h"
 #endif // RTCW_XX
 
-#include <errno.h>
-#include <float.h>
-#include <fcntl.h>
-#include <stdio.h>
 #include <direct.h>
 #include <io.h>
-#include <conio.h>
 
 // BBi
 #include "SDL.h"
@@ -645,33 +640,14 @@ qboolean    Sys_CheckCD( void ) {
 
 }
 
+char* Sys_GetClipboardData()
+{
+    if (::SDL_HasClipboardText())
+        return ::SDL_GetClipboardText();
 
-/*
-================
-Sys_GetClipboardData
-
-================
-*/
-char *Sys_GetClipboardData( void ) {
-	char *data = NULL;
-	char *cliptext;
-
-	if ( OpenClipboard( NULL ) != 0 ) {
-		HANDLE hClipboardData;
-
-		if ( ( hClipboardData = GetClipboardData( CF_TEXT ) ) != 0 ) {
-			if ( ( cliptext = static_cast<char*> (GlobalLock( hClipboardData )) ) != 0 ) {
-				data = static_cast<char*> (Z_Malloc( GlobalSize( hClipboardData ) + 1 ));
-				Q_strncpyz( data, cliptext, GlobalSize( hClipboardData ) );
-				GlobalUnlock( hClipboardData );
-
-				strtok( data, "\n\r\b" );
-			}
-		}
-		CloseClipboard();
-	}
-	return data;
+    return nullptr;
 }
+
 
 
 /*
@@ -775,194 +751,6 @@ const char* Sys_GetDLLName(const char* name)
 
     return buffer.c_str();
 }
-
-#if 0
-//#if defined RTCW_SP
-//void * QDECL Sys_LoadDll( const char *name, int( QDECL **entryPoint ) ( int, ... ),
-//#else
-//// fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
-//// fqpath will be empty if dll not loaded, otherwise will hold fully qualified path of dll module loaded
-//// fqpath buffersize must be at least MAX_QPATH+1 bytes long
-//void * QDECL Sys_LoadDll( const char *name, char *fqpath, int( QDECL **entryPoint ) ( int, ... ),
-//#endif // RTCW_XX
-//						  int ( QDECL *systemcalls )( int, ... ) ) {
-
-#if defined RTCW_SP
-void* QDECL Sys_LoadDll (
-    const char* name,
-    intptr_t (QDECL** entryPoint) (intptr_t, ...),
-#else
-// fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
-// fqpath will be empty if dll not loaded, otherwise will hold fully qualified path of dll module loaded
-// fqpath buffersize must be at least MAX_QPATH+1 bytes long
-void* QDECL Sys_LoadDll (
-    const char* name,
-    char* fqpath,
-    intptr_t (QDECL** entryPoint) (intptr_t, ...),
-#endif // RTCW_XX
-    intptr_t (QDECL* systemcalls) (intptr_t, ...))
-{
-//BBi
-
-#if !defined RTCW_ET
-	static int lastWarning = 0;
-#endif // RTCW_XX
-
-	HINSTANCE libHandle;
-
-    //BBi
-	//void ( QDECL * dllEntry )( int ( QDECL *syscallptr )( int, ... ) );
-    void (QDECL* dllEntry) (intptr_t (QDECL* syscallptr) (intptr_t, ...));
-    //BBi
-
-	char    *basepath;
-	char    *cdpath;
-	char    *gamedir;
-	char    *fn;
-
-#if defined RTCW_SP
-#ifdef NDEBUG
-	int timestamp;
-	int ret;
-#endif
-#endif // RTCW_XX
-
-	char filename[MAX_QPATH];
-
-#if defined RTCW_SP
-#ifdef WOLF_SP_DEMO
-	Com_sprintf( filename, sizeof( filename ), "%sx86_d.dll", name );
-#else
-	Com_sprintf( filename, sizeof( filename ),
-#ifdef _WIN64
-        "%sx64.dll",
-#else
-        "%sx86.dll",
-#endif
-        name );
-#endif
-
-
-#ifdef NDEBUG
-	timestamp = Sys_Milliseconds();
-	if ( ( ( timestamp - lastWarning ) > ( 5 * 60000 ) ) && !Cvar_VariableIntegerValue( "dedicated" )
-		 && !Cvar_VariableIntegerValue( "com_blindlyLoadDLLs" ) ) {
-		if ( FS_FileExists( filename ) ) {
-			lastWarning = timestamp;
-			ret = MessageBoxEx( NULL, "You are about to load a .DLL executable that\n"
-									  "has not been verified for use with Wolfenstein.\n"
-									  "This type of file can compromise the security of\n"
-									  "your computer.\n\n"
-									  "Select 'OK' if you choose to load it anyway.",
-								"Security Warning", MB_OKCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2 | MB_TOPMOST | MB_SETFOREGROUND,
-								MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ) );
-			if ( ret != IDOK ) {
-				return NULL;
-			}
-		}
-	}
-#endif
-
-	// check current folder only if we are a developer
-	if ( 1 ) { //----(SA)	always dll
-//	if (Cvar_VariableIntegerValue( "devdll" )) {
-		libHandle = LoadLibrary( filename );
-		if ( libHandle ) {
-			goto found_dll;
-		}
-	}
-#else
-	*fqpath = 0 ;       // added 2/15/02 by T.Ray
-
-	Q_strncpyz( filename, Sys_GetDLLName( name ), sizeof( filename ) );
-#endif // RTCW_XX
-
-	basepath = Cvar_VariableString( "fs_basepath" );
-	cdpath = Cvar_VariableString( "fs_cdpath" );
-	gamedir = Cvar_VariableString( "fs_game" );
-
-#if !defined RTCW_SP
-	// try gamepath first
-#endif // RTCW_XX
-
-	fn = FS_BuildOSPath( basepath, gamedir, filename );
-
-#if !defined RTCW_SP
-	// TTimo - this is only relevant for full client
-	// if a full client runs a dedicated server, it's not affected by this
-#if !defined( DEDICATED )
-	// NERVE - SMF - extract dlls from pak file for security
-	// we have to handle the game dll a little differently
-	// TTimo - passing the exact path to check against
-	//   (compatibility with other OSes loading procedure)
-	if ( cl_connectedToPureServer && Q_strncmp( name, "qagame", 6 ) ) {
-		if ( !FS_CL_ExtractFromPakFile( fn, gamedir, filename, NULL ) ) {
-			Com_Error( ERR_DROP, "Game code(%s) failed Pure Server check", filename );
-		}
-	}
-#endif
-#endif // RTCW_XX
-
-	libHandle = LoadLibrary( fn );
-
-	if ( !libHandle ) {
-
-#if defined RTCW_SP
-		if ( cdpath[0] ) {
-			fn = FS_BuildOSPath( cdpath, gamedir, filename );
-			libHandle = LoadLibrary( fn );
-		}
-
-		if ( !libHandle ) {
-			return NULL;
-		}
-	}
-
-found_dll:
-
-#else
-
-#if !defined RTCW_ET
-		// First try falling back to "main"
-		fn = FS_BuildOSPath( basepath, "main", filename );
-#else
-		// First try falling back to BASEGAME
-		fn = FS_BuildOSPath( basepath, BASEGAME, filename );
-#endif // RTCW_XX
-
-		libHandle = LoadLibrary( fn );
-
-		if ( !libHandle ) {
-			// Final fall-back to current directory
-			libHandle = LoadLibrary( filename );
-
-			if ( !libHandle ) {
-				return NULL;
-			}
-			Q_strncpyz( fqpath, filename, MAX_QPATH ) ;         // added 2/15/02 by T.Ray
-
-		} else {Q_strncpyz( fqpath, fn, MAX_QPATH ) ;       // added 2/15/02 by T.Ray
-		}
-	} else {Q_strncpyz( fqpath, fn, MAX_QPATH ) ;       // added 2/15/02 by T.Ray
-	}
-#endif // RTCW_XX
-
-    //BBi
-	//dllEntry = ( void ( QDECL * )( int ( QDECL * )( int, ... ) ) )GetProcAddress( libHandle, "dllEntry" );
-	//*entryPoint = ( int ( QDECL * )( int,... ) )GetProcAddress( libHandle, "vmMain" );
-    dllEntry = reinterpret_cast<void (QDECL*) (intptr_t (QDECL*) (intptr_t, ...))> (::GetProcAddress (libHandle, "dllEntry"));
-	*entryPoint = reinterpret_cast <intptr_t (QDECL*) (intptr_t, ...)> (::GetProcAddress (libHandle, "vmMain"));
-    //BBi
-
-	if ( !*entryPoint || !dllEntry ) {
-		FreeLibrary( libHandle );
-		return NULL;
-	}
-	dllEntry( systemcalls );
-
-	return libHandle;
-}
-#endif // 0
 
 // fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
 // fqpath will be empty if dll not loaded, otherwise will hold fully qualified path of dll module loaded

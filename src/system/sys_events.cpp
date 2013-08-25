@@ -64,20 +64,6 @@ void sys_poll_events()
 
     while (::SDL_PollEvent(&e)) {
         switch (e.type) {
-        case SDL_KEYDOWN:
-        case SDL_KEYUP:
-        case SDL_TEXTEDITING:
-        case SDL_TEXTINPUT:
-            ::sys_input_handle_keyboard_event(e);
-            break;
-
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-        case SDL_MOUSEMOTION:
-        case SDL_MOUSEWHEEL:
-            ::sys_input_handle_mouse_event(e);
-            break;
-
         case SDL_JOYAXISMOTION:
         case SDL_JOYBALLMOTION:
         case SDL_JOYHATMOTION:
@@ -85,11 +71,19 @@ void sys_poll_events()
         case SDL_JOYBUTTONUP:
         case SDL_JOYDEVICEADDED:
         case SDL_JOYDEVICEREMOVED:
-            ::sys_input_handle_joystick_event(e);
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+        case SDL_MOUSEMOTION:
+        case SDL_MOUSEWHEEL:
+        case SDL_TEXTEDITING:
+        case SDL_TEXTINPUT:
+            ::sys_input_handle_event(e);
             break;
 
         case SDL_WINDOWEVENT:
-            sys_handle_window_events(e.window);
+            ::sys_handle_window_events(e.window);
             break;
 
         case SDL_QUIT:

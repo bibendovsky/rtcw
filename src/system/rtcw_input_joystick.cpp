@@ -101,11 +101,13 @@ bool Joystick::initialize()
     bool is_succeed = true;
 
     if (is_succeed) {
-        sdl_result = ::SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+        if (::SDL_WasInit(SDL_INIT_JOYSTICK) == 0) {
+            sdl_result = ::SDL_InitSubSystem(SDL_INIT_JOYSTICK);
 
-        if (sdl_result != 0) {
-            is_succeed = false;
-            ::Com_Printf(S_COLOR_RED "  %s\n", ::SDL_GetError());
+            if (sdl_result != 0) {
+                is_succeed = false;
+                ::Com_Printf(S_COLOR_RED "  %s\n", ::SDL_GetError());
+            }
         }
     }
 
@@ -177,8 +179,6 @@ void Joystick::uninitialize(bool quiet)
     }
 
     buttons_states_.reset();
-
-    ::SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 }
 
 void Joystick::handle_event(const SDL_Event& e)

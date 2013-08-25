@@ -88,6 +88,8 @@ void IN_Startup()
 
 void IN_Shutdown()
 {
+    ::Com_Printf("%s input subsystems...\n", "Uninitializing");
+
     joystick.uninitialize();
     keyboard.uninitialize();
     mouse.uninitialize();
@@ -97,6 +99,8 @@ void IN_Shutdown()
 
 void IN_Init()
 {
+    ::Com_Printf("%s input subsystems...\n", "Initializing");
+
     // MIDI input controler variables
     in_midi = ::Cvar_Get("in_midi", "0", CVAR_ARCHIVE);
     in_midiport = ::Cvar_Get("in_midiport", "1", CVAR_ARCHIVE );
@@ -129,17 +133,35 @@ void IN_ClearStates()
     mouse.reset_state();
 }
 
-void sys_input_handle_joystick_event(const SDL_Event& e)
+void sys_input_handle_event(const SDL_Event& e)
 {
-    joystick.handle_event(e);
-}
+    switch (e.type) {
+    case SDL_KEYDOWN:
+    case SDL_KEYUP:
+    case SDL_TEXTEDITING:
+    case SDL_TEXTINPUT:
+        keyboard.handle_event(e);
+        break;
 
-void sys_input_handle_keyboard_event(const SDL_Event& e)
-{
-    keyboard.handle_event(e);
-}
+    case SDL_MOUSEBUTTONDOWN:
+    case SDL_MOUSEBUTTONUP:
+    case SDL_MOUSEMOTION:
+    case SDL_MOUSEWHEEL:
+        mouse.handle_event(e);
+        break;
 
-void sys_input_handle_mouse_event(const SDL_Event& e)
-{
-    mouse.handle_event(e);
+    case SDL_JOYAXISMOTION:
+    case SDL_JOYBALLMOTION:
+    case SDL_JOYHATMOTION:
+    case SDL_JOYBUTTONDOWN:
+    case SDL_JOYBUTTONUP:
+    case SDL_JOYDEVICEADDED:
+    case SDL_JOYDEVICEREMOVED:
+        joystick.handle_event(e);
+        break;
+
+    default:
+        assert(!"Expected input event.");
+        break;
+    }
 }
