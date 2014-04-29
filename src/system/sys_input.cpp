@@ -97,6 +97,11 @@ void IN_Shutdown()
     ::Cmd_RemoveCommand("midiinfo");
 }
 
+static void cmd_midi_info()
+{
+    Com_Printf("MIDI control not supported.\n");
+}
+
 void IN_Init()
 {
     ::Com_Printf("%s input subsystems...\n", "Initializing");
@@ -107,12 +112,7 @@ void IN_Init()
     in_midichannel = ::Cvar_Get("in_midichannel", "1", CVAR_ARCHIVE );
     in_mididevice = ::Cvar_Get("in_mididevice", "0", CVAR_ARCHIVE );
 
-    ::Cmd_AddCommand(
-        "midiinfo",
-        [] {
-            ::Com_Printf("MIDI control not supported.\n");
-        }
-    );
+    ::Cmd_AddCommand("midiinfo", cmd_midi_info);
 
     rtcw::input::Joystick::register_cvars();
     rtcw::input::Keyboard::register_cvars();
