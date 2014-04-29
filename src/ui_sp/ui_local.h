@@ -802,7 +802,7 @@ typedef struct {
 
 typedef struct {
 	char address[MAX_ADDRESSLENGTH];
-	char *lines[MAX_SERVERSTATUS_LINES][4];
+	const char* lines[MAX_SERVERSTATUS_LINES][4];
 	char text[MAX_SERVERSTATUS_TEXT];
 	char pings[MAX_CLIENTS * 3];
 	int numLines;
@@ -1151,7 +1151,7 @@ int UI_GetNumSPArenas( void );
 int UI_GetNumSPTiers( void );
 
 char *UI_GetBotInfoByNumber( int num );
-char *UI_GetBotInfoByName( const char *name );
+const char *UI_GetBotInfoByName( const char *name );
 int UI_GetNumBots( void );
 
 void UI_GetBestScore( int level, int *score, int *skill );

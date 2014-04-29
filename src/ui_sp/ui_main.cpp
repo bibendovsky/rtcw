@@ -118,7 +118,7 @@ static const char *sortKeys[] = {
 };
 static const int numSortKeys = sizeof( sortKeys ) / sizeof( const char* );
 
-static char* netnames[] = {
+static const char* netnames[] = {
 	"???",
 	"UDP",
 	"IPX",
@@ -1164,7 +1164,7 @@ static void UI_LoadTranslationStrings( void ) {
 void UI_Load() {
 	char lastName[1024];
 	menuDef_t *menu = Menu_GetFocused();
-	char *menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
+	const char *menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
 	if ( menu && menu->window.name ) {
 		strcpy( lastName, menu->window.name );
 	}
@@ -3697,7 +3697,7 @@ UI_ParseSavegame
 ==============
 */
 
-static char *monthStr[12] =
+static const char* monthStr[12] =
 {
 	"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
 };
@@ -3800,7 +3800,7 @@ void UI_ParseSavegame( int index ) {
 UI_LoadSavegames
 ==============
 */
-static void UI_LoadSavegames( char *dir ) {
+static void UI_LoadSavegames( const char *dir ) {
 	char sglist[4096];
 	char    *sgname;
 	int i, len;
@@ -4129,9 +4129,9 @@ static weaponType_t weaponTypes[] = {
 };
 
 typedef struct {
-	char        *name;
-	int flags;
-	char        *shader;
+    const char* name;
+    int flags;
+    const char* shader;
 } uiitemType_t;
 
 #define UI_KNIFE_PIC    "window_knife_pic"
@@ -5336,7 +5336,8 @@ static void UI_BuildServerDisplayList( qboolean force ) {
 
 typedef struct
 {
-	char *name, *altName;
+    const char *name;
+    const char* altName;
 } serverStatusCvar_t;
 
 serverStatusCvar_t serverStatusCvars[] = {
@@ -5359,7 +5360,7 @@ UI_SortServerStatusInfo
 */
 static void UI_SortServerStatusInfo( serverStatusInfo_t *info ) {
 	int i, j, index;
-	char *tmp1, *tmp2;
+	const char *tmp1, *tmp2;
 
 	// FIXME: if "gamename" == "baseq3" or "missionpack" then
 	// replace the gametype number by FFA, CTF etc.
@@ -7160,7 +7161,7 @@ to prevent it from blinking away too rapidly on local or lan games.
 ========================
 */
 void UI_DrawConnectScreen( qboolean overlay ) {
-	char            *s;
+	const char            *s;
 	uiClientState_t cstate;
 	char info[MAX_INFO_VALUE];
 	char text[256];
@@ -7255,10 +7256,10 @@ cvars
 */
 
 typedef struct {
-	vmCvar_t    *vmCvar;
-	char        *cvarName;
-	char        *defaultString;
-	int cvarFlags;
+    vmCvar_t* vmCvar;
+    const char* cvarName;
+    const char* defaultString;
+    int cvarFlags;
 } cvarTable_t;
 
 vmCvar_t ui_ffa_fraglimit;
