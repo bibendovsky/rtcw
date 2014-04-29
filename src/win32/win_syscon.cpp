@@ -49,10 +49,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // BBi
-#ifndef DEDICATED
 WinVars_t g_wv;
-#endif // DEDICATED
-// BBi
 
 
 #if !defined RTCW_SP
