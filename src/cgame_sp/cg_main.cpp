@@ -297,10 +297,10 @@ vmCvar_t mp_itemDesc;
 // -NERVE - SMF
 
 typedef struct {
-	vmCvar_t    *vmCvar;
-	char        *cvarName;
-	char        *defaultString;
-	int cvarFlags;
+    vmCvar_t* vmCvar;
+    const char* cvarName;
+    const char* defaultString;
+    int cvarFlags;
 } cvarTable_t;
 
 cvarTable_t cvarTable[] = {
@@ -712,7 +712,8 @@ The server says this item is used on this level
 static void CG_RegisterItemSounds( int itemNum ) {
 	gitem_t         *item;
 	char data[MAX_QPATH];
-	char            *s, *start;
+    const char* s;
+    const char* start;
 	int len;
 
 	item = &bg_itemlist[ itemNum ];
@@ -1110,7 +1111,7 @@ static void CG_RegisterGraphics( void ) {
 
 	int i;
 	char items[MAX_ITEMS + 1];
-	static char     *sb_nums[11] = {
+	static const char* sb_nums[11] = {
 		"gfx/2d/numbers/zero_32b",
 		"gfx/2d/numbers/one_32b",
 		"gfx/2d/numbers/two_32b",

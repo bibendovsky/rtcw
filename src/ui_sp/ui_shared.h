@@ -427,8 +427,8 @@ typedef struct {
 //----(SA)	added
 
 typedef struct {
-	char *name;
-	char *localname;
+    const char* name;
+    char* localname;
 } translateString_t;
 
 #define MAX_TRANSLATESTRINGS 64

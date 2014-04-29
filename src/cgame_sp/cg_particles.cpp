@@ -99,7 +99,7 @@ typedef enum
 
 #define MAX_SHADER_ANIMS        8
 #define MAX_SHADER_ANIM_FRAMES  64
-static char *shaderAnimNames[MAX_SHADER_ANIMS] = {
+static const char* shaderAnimNames[MAX_SHADER_ANIMS] = {
 	"explode1",
 	"blacksmokeanim",
 	"twiltb2",
@@ -1489,7 +1489,7 @@ void CG_ParticleDirtBulletDebris( vec3_t org, vec3_t vel, int duration ) {
 
 // NERVE - SMF :: the core of the dirt explosion
 void CG_ParticleDirtBulletDebris_Core( vec3_t org, vec3_t vel, int duration,
-									   float width, float height, float alpha, char *shadername ) { // JPW NERVE
+									   float width, float height, float alpha, const char *shadername ) { // JPW NERVE
 //	int r = rand(); // TTimo: unused
 	cparticle_t *p;
 
@@ -1538,7 +1538,7 @@ CG_ParticleExplosion
 ======================
 */
 
-void CG_ParticleExplosion( char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd ) {
+void CG_ParticleExplosion( const char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd ) {
 	cparticle_t *p;
 	int anim;
 

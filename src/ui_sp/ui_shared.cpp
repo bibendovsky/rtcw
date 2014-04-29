@@ -363,7 +363,7 @@ void PC_SourceWarning( int handle, char *format, ... ) {
 PC_SourceError
 =================
 */
-void PC_SourceError( int handle, char *format, ... ) {
+void PC_SourceError( int handle, const char *format, ... ) {
 	int line;
 	char filename[128];
 	va_list argptr;
@@ -3429,12 +3429,12 @@ void Item_Multi_Paint( itemDef_t *item ) {
 
 
 typedef struct {
-	char    *command;
-	int id;
-	int defaultbind1;
-	int defaultbind2;
-	int bind1;
-	int bind2;
+    const char* command;
+    int id;
+    int defaultbind1;
+    int defaultbind2;
+    int bind1;
+    int bind2;
 } bind_t;
 
 typedef struct
@@ -3568,7 +3568,7 @@ static const int g_bindCount = sizeof( g_bindings ) / sizeof( bind_t );
 Controls_GetKeyAssignment
 =================
 */
-static void Controls_GetKeyAssignment( char *command, int *twokeys ) {
+static void Controls_GetKeyAssignment( const char *command, int *twokeys ) {
 	int count;
 	int j;
 	char b[256];
@@ -4702,12 +4702,12 @@ Keyword Hash
 
 typedef struct keywordHash_s
 {
-	char *keyword;
-	qboolean ( *func )( itemDef_t *item, int handle );
-	struct keywordHash_s *next;
+    const char* keyword;
+    qboolean (*func)(itemDef_t* item, int handle);
+    struct keywordHash_s* next;
 } keywordHash_t;
 
-int KeywordHash_Key( char *keyword ) {
+int KeywordHash_Key( const char *keyword ) {
 	int register hash, i;
 
 	hash = 0;

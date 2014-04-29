@@ -38,7 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 #define SWING_RIGHT 1
 #define SWING_LEFT  2
 
-char    *cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
+const char    *cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
 	"*death1.wav",
 	"*death2.wav",
 	"*death3.wav",
@@ -179,7 +179,7 @@ CG_CalcMoveSpeeds
 ==================
 */
 void CG_CalcMoveSpeeds( clientInfo_t *ci ) {
-	char *tags[2] = {"tag_footleft", "tag_footright"};
+	const char *tags[2] = {"tag_footleft", "tag_footright"};
 	vec3_t oldPos[2];
 	refEntity_t refent;
 	animation_t *anim;
@@ -2891,7 +2891,7 @@ Returns the Z component of the surface being shadowed
 */
 #define SHADOW_DISTANCE     64
 typedef struct {
-	char *tagname;
+    const char* tagname;
 	float size;
 	float maxdist;
 	float maxalpha;
@@ -5077,7 +5077,7 @@ void CG_Player( centity_t *cent ) {
 				cent->currentState.aiChar == AICHAR_SUPERSOLDIER ||
 				cent->currentState.aiChar == AICHAR_HEINRICH ) {
 
-		char *protoTags[] = {   "tag_chest",
+		const char *protoTags[] = {   "tag_chest",
 								"tag_calfleft",
 								"tag_armleft",
 								"tag_back",
@@ -5087,7 +5087,7 @@ void CG_Player( centity_t *cent ) {
 								"tag_back",
 								"tag_legright"};
 
-		char *ssTags[] = {      "tag_chest",
+		const char *ssTags[] = {      "tag_chest",
 								"tag_calfleft",
 								"tag_armleft",
 								"tag_back",
@@ -5105,7 +5105,7 @@ void CG_Player( centity_t *cent ) {
 								"tag_calfleft",
 								"tag_calfright"};
 
-		char *heinrichTags[] = {"tag_chest",
+		const char *heinrichTags[] = {"tag_chest",
 								"tag_calfleft",
 								"tag_armleft",
 								"tag_back",
@@ -5132,7 +5132,7 @@ void CG_Player( centity_t *cent ) {
 
 		// TTimo: init
 		int totalparts = 0, dynamicparts = 0, protoParts = 9, superParts = 16, heinrichParts = 22;
-		char        **tags = NULL;
+		const char        **tags = NULL;
 		qhandle_t   *models = NULL;
 		int dmgbits = 16;         // 32/2;
 
@@ -5488,7 +5488,7 @@ void CG_GetBleedOrigin( vec3_t head_origin, vec3_t torso_origin, vec3_t legs_ori
 CG_GetTag
 ===============
 */
-qboolean CG_GetTag( int clientNum, char *tagname, orientation_t *or ) {
+qboolean CG_GetTag( int clientNum, char *tagname, orientation_t *orient ) {
 	clientInfo_t    *ci;
 	centity_t       *cent;
 	refEntity_t     *refent;
@@ -5513,24 +5513,24 @@ qboolean CG_GetTag( int clientNum, char *tagname, orientation_t *or ) {
 
 	refent = &cent->pe.legsRefEnt;
 
-	if ( trap_R_LerpTag( or, refent, tagname, 0 ) < 0 ) {
+	if ( trap_R_LerpTag( orient, refent, tagname, 0 ) < 0 ) {
 		return qfalse;
 	}
 
 	VectorCopy( refent->origin, org );
 
 	for ( i = 0 ; i < 3 ; i++ ) {
-		VectorMA( org, or->origin[i], refent->axis[i], org );
+		VectorMA( org, orient->origin[i], refent->axis[i], org );
 	}
 
-	VectorCopy( org, or->origin );
+	VectorCopy( org, orient->origin );
 
 	// add the origin of the entity
 	//VectorAdd( refent->origin, or->origin, or->origin );
 
 	// rotate with entity
-	MatrixMultiply( refent->axis, or->axis, tempAxis );
-	memcpy( or->axis, tempAxis, sizeof( vec3_t ) * 3 );
+	MatrixMultiply( refent->axis, orient->axis, tempAxis );
+	memcpy( orient->axis, tempAxis, sizeof( vec3_t ) * 3 );
 
 	return qtrue;
 }
@@ -5540,7 +5540,7 @@ qboolean CG_GetTag( int clientNum, char *tagname, orientation_t *or ) {
 CG_GetWeaponTag
 ===============
 */
-qboolean CG_GetWeaponTag( int clientNum, char *tagname, orientation_t *or ) {
+qboolean CG_GetWeaponTag( int clientNum, const char *tagname, orientation_t *orient ) {
 	clientInfo_t    *ci;
 	centity_t       *cent;
 	refEntity_t     *refent;
@@ -5569,24 +5569,24 @@ qboolean CG_GetWeaponTag( int clientNum, char *tagname, orientation_t *or ) {
 
 	refent = &cent->pe.gunRefEnt;
 
-	if ( trap_R_LerpTag( or, refent, tagname, 0 ) < 0 ) {
+	if ( trap_R_LerpTag( orient, refent, tagname, 0 ) < 0 ) {
 		return qfalse;
 	}
 
 	VectorCopy( refent->origin, org );
 
 	for ( i = 0 ; i < 3 ; i++ ) {
-		VectorMA( org, or->origin[i], refent->axis[i], org );
+		VectorMA( org, orient->origin[i], refent->axis[i], org );
 	}
 
-	VectorCopy( org, or->origin );
+	VectorCopy( org, orient->origin );
 
 	// add the origin of the entity
 	//VectorAdd( refent->origin, or->origin, or->origin );
 
 	// rotate with entity
-	MatrixMultiply( refent->axis, or->axis, tempAxis );
-	memcpy( or->axis, tempAxis, sizeof( vec3_t ) * 3 );
+	MatrixMultiply( refent->axis, orient->axis, tempAxis );
+	memcpy( orient->axis, tempAxis, sizeof( vec3_t ) * 3 );
 
 	return qtrue;
 }

@@ -165,13 +165,13 @@ CG_DrawStats
 */
 
 typedef struct {
-	char    *label;
+    const char* label;
 	int YOfs;
 	int labelX;
 	int labelFlags;
 	vec4_t labelColor;
 
-	char    *format;
+    const char* format;
 	int formatX;
 	int formatFlags;
 	vec4_t formatColor;

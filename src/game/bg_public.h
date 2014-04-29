@@ -1334,7 +1334,7 @@ typedef enum {
 
 #if defined RTCW_ET
 	KEY_LOCKED_PICKABLE, // Mad Doc - TDF: ent can be unlocked with the WP_LOCKPICK.
-#endif RTCW_X
+#endif // RTCW_X
 
 #if defined RTCW_SP
 	KEY_NUM_KEYS,
@@ -2361,8 +2361,8 @@ typedef enum {
 } animNumber_t;
 
 // text represenation for scripting
-extern char *animStrings[];     // defined in bg_misc.c
-extern char *animStringsOld[];      // defined in bg_misc.c
+extern const char* animStrings[];     // defined in bg_misc.c
+extern const char* animStringsOld[];      // defined in bg_misc.c
 
 
 typedef enum {
@@ -2811,13 +2811,13 @@ typedef enum {
 
 // JOSEPH 4-17-00
 typedef struct gitem_s {
-	char        *classname; // spawning name
-	char        *pickup_sound;
-	char        *world_model[MAX_ITEM_MODELS];
+    const char* classname; // spawning name
+    const char* pickup_sound;
+    const char* world_model[MAX_ITEM_MODELS];
 
-	char        *icon;
-	char        *ammoicon;
-	char        *pickup_name;   // for printing on pickup
+    const char* icon;
+    const char* ammoicon;
+    const char* pickup_name; // for printing on pickup
 
 	int quantity;               // for ammo how much, or duration of powerup (value not necessary for ammo/health.  that value set in gameskillnumber[] below)
 	itemType_t giType;          // IT_* flags
@@ -2827,8 +2827,8 @@ typedef struct gitem_s {
 	int giAmmoIndex;            // type of weapon ammo this uses.  (ex. WP_MP40 and WP_LUGER share 9mm ammo, so they both have WP_LUGER for giAmmoIndex)
 	int giClipIndex;            // which clip this weapon uses.  this allows the sniper rifle to use the same clip as the garand, etc.
 
-	char        *precaches;     // string of all models and images this item will use
-	char        *sounds;        // string of all sounds this item will use
+	const char        *precaches;     // string of all models and images this item will use
+	const char        *sounds;        // string of all sounds this item will use
 
 #if defined RTCW_SP
 	int gameskillnumber[4];
@@ -3433,7 +3433,7 @@ typedef enum
 
 typedef struct
 {
-	char    *string;
+	const char    *string;
 	int hash;
 } animStringItem_t;
 

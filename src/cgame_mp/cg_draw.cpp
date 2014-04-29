@@ -49,7 +49,7 @@ char teamChat1[256];
 char teamChat2[256];
 
 // NERVE - SMF
-void Controls_GetKeyAssignment( char *command, int *twokeys );
+void Controls_GetKeyAssignment( const char *command, int *twokeys );
 char* BindingFromName( const char *cvar );
 void Controls_GetConfig( void );
 // -NERVE - SMF

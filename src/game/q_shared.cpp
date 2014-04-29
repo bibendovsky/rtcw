@@ -139,7 +139,7 @@ COM_StripFilename
 */
 #endif // RTCW_XX
 
-void COM_StripFilename( char *in, char *out ) {
+void COM_StripFilename( const char *in, char *out ) {
 	char *end;
 
 #if !defined RTCW_ET
@@ -871,7 +871,7 @@ char *COM_ParseExt( char **data_p, qboolean allowLineBreaks ) {
 COM_MatchToken
 ==================
 */
-void COM_MatchToken( char **buf_p, char *match ) {
+void COM_MatchToken( char **buf_p, const char *match ) {
 	char    *token;
 
 	token = COM_Parse( buf_p );
@@ -1452,7 +1452,7 @@ void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... ) {
 
 #if !defined RTCW_ET
 // Ridah, ripped from l_bsp.c
-int Q_strncasecmp( char *s1, char *s2, int n ) {
+int Q_strncasecmp( const char *s1, const char *s2, int n ) {
 	int c1, c2;
 
 	do
@@ -1492,7 +1492,7 @@ int Q_strncasecmp( char *s1, char *s2, int n ) {
 	return 0;       // strings are equal
 }
 
-int Q_strcasecmp( char *s1, char *s2 ) {
+int Q_strcasecmp( const char *s1, const char *s2 ) {
 	return Q_strncasecmp( s1, s2, 99999 );
 }
 // done.
@@ -1510,7 +1510,7 @@ Ridah, modified this into a circular list, to further prevent stepping on
 previous strings
 ============
 */
-char    * QDECL va( char *format, ... ) {
+char    * QDECL va( const char *format, ... ) {
 	va_list argptr;
 	#define MAX_VA_STRING   32000
 	static char temp_buffer[MAX_VA_STRING];
@@ -1584,7 +1584,7 @@ key and returns the associated value, or an empty string.
 FIXME: overflow check?
 ===============
 */
-char *Info_ValueForKey( const char *s, const char *key ) {
+const char *Info_ValueForKey( const char *s, const char *key ) {
 	char pkey[BIG_INFO_KEY];
 	static char value[2][BIG_INFO_VALUE];   // use two buffers so compares
 											// work without stomping on each other

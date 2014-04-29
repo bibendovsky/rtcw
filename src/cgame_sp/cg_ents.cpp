@@ -51,7 +51,7 @@ tag location
 ======================
 */
 void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
-							 char *tagName, int startIndex, vec3_t *offset ) {
+							const char *tagName, int startIndex, vec3_t *offset ) {
 	int i;
 	orientation_t lerped;
 
@@ -88,7 +88,7 @@ tag location
 ======================
 */
 void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
-									char *tagName ) {
+									const char *tagName ) {
 	int i;
 	orientation_t lerped;
 	vec3_t tempAxis[3];
@@ -117,7 +117,7 @@ CG_LoseArmor
 ==============
 */
 void CG_LoseArmor( centity_t *cent, int index ) {
-	char *protoTags[] = {   "tag_chest",
+	const char *protoTags[] = {   "tag_chest",
 							"tag_calfleft",
 							"tag_armleft",
 							"tag_back",
@@ -127,7 +127,7 @@ void CG_LoseArmor( centity_t *cent, int index ) {
 							"tag_back",
 							"tag_legright"};
 
-	char *ssTags[] = {      "tag_chest",
+	const char *ssTags[] = {      "tag_chest",
 							"tag_calfleft",
 							"tag_armleft",
 							"tag_back",
@@ -145,7 +145,7 @@ void CG_LoseArmor( centity_t *cent, int index ) {
 							"tag_calfleft",
 							"tag_calfright"};
 
-	char *heinrichTags[] = {"tag_chest",
+	const char *heinrichTags[] = {"tag_chest",
 							"tag_calfleft",
 							"tag_armleft",
 							"tag_back",
@@ -173,7 +173,7 @@ void CG_LoseArmor( centity_t *cent, int index ) {
 	clientInfo_t *ci;
 	// TTimo: bunch of inits
 	int totalparts = 0, dynamicparts = 0, protoParts = 9, superParts = 16, heinrichParts = 22;
-	char        **tags = NULL;
+	const char        **tags = NULL;
 	qhandle_t   *models = NULL;
 	qhandle_t sound = 0;    //----(SA)	added
 	int dmgbits = 16;         // 32/2;

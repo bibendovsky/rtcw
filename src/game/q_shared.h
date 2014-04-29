@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 
 //BBi
 #include <cstddef>
-#include <cstdint>
+#include <stdint.h>
 
 #include <algorithm>
 #include <string>
@@ -834,7 +834,7 @@ void    COM_StripExtension( const char *in, char *out );
 void    COM_StripExtension2( const char *in, char *out, int destsize );
 #endif // RTCW_XX
 
-void    COM_StripFilename( char *in, char *out );
+void    COM_StripFilename( const char *in, char *out );
 void    COM_DefaultExtension( char *path, int maxSize, const char *extension );
 
 void    COM_BeginParseSession( const char *name );
@@ -902,7 +902,7 @@ typedef struct pc_token_s
 
 // data is an in/out parm, returns a parsed out token
 
-void    COM_MatchToken( char**buf_p, char *match );
+void    COM_MatchToken( char**buf_p, const char *match );
 
 void SkipBracedSection( char **program );
 
@@ -979,7 +979,7 @@ char *Q_CleanStr( char *string );
 #if !defined RTCW_ET
 // Ridah
 int Q_strncasecmp( char *s1, char *s2, int n );
-int Q_strcasecmp( char *s1, char *s2 );
+int Q_strcasecmp( const char *s1, const char *s2 );
 // done.
 #endif // RTCW_XX
 
@@ -1074,7 +1074,7 @@ void    Swap_Init( void );
 //char    * QDECL va( char *format, ... ) _attribute( ( format( printf,1,2 ) ) );
 //#endif // RTCW_XX
 
-char* QDECL va (char* format, ...);
+char* QDECL va (const char* format, ...);
 //BBi
 
 float   *tv( float x, float y, float z );
@@ -1084,7 +1084,7 @@ float   *tv( float x, float y, float z );
 //
 // key / value info strings
 //
-char *Info_ValueForKey( const char *s, const char *key );
+const char *Info_ValueForKey( const char *s, const char *key );
 void Info_RemoveKey( char *s, const char *key );
 void Info_RemoveKey_big( char *s, const char *key );
 void Info_SetValueForKey( char *s, const char *key, const char *value );

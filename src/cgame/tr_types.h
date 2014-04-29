@@ -308,12 +308,12 @@ typedef enum {
 	TC_EXT_COMP_S3TC,
 
 //BBi
-    TC_ARB,
+    TC_ARB
 //BBi
 } textureCompression_t;
 
 typedef enum {
-	GLDRV_ICD,                  // driver is integrated with window system
+	GLDRV_ICD                  // driver is integrated with window system
 								// WARNING: there are tests that check for
 								// > GLDRV_ICD for minidriverness, so this
 								// should always be the lowest value in this
@@ -326,7 +326,7 @@ typedef enum {
 } glDriverType_t;
 
 typedef enum {
-	GLHW_GENERIC,           // where everthing works the way it should
+	GLHW_GENERIC           // where everthing works the way it should
 
     //BBi
 	//GLHW_3DFX_2D3D,         // Voodoo Banshee or Voodoo3, relevant since if this is
@@ -407,7 +407,7 @@ enum RendererPath {
     // Fixed OpenGL.
     RENDERER_PATH_OGL_1_X,
     // Programmable OpenGL 2.1.
-    RENDERER_PATH_OGL_2_1,
+    RENDERER_PATH_OGL_2_1
 }; // enum RendererPath
 
 // Extends glconfig_t structure.
