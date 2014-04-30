@@ -456,7 +456,7 @@ typedef enum {
 #endif // RTCW_XX
 
 #if defined RTCW_MP
-	CG_CHECKCENTERVIEW,
+	CG_CHECKCENTERVIEW
 //	qboolean CG_CheckCenterView();
 #endif // RTCW_XX
 

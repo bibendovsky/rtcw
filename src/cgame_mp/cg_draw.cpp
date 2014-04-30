@@ -2118,7 +2118,7 @@ CG_DrawVote
 =================
 */
 static void CG_DrawVote( void ) {
-	char    *s;
+	const char    *s;
 	char str1[32], str2[32];
 	float color[4] = { 1, 1, 0, 1 };
 	int sec;

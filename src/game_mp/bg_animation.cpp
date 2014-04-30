@@ -504,7 +504,8 @@ BG_AnimParseAnimConfig
 ============
 */
 qboolean BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *filename, const char *input ) {
-	char    *text_p, *token;
+    const char* text_p;
+    char* token;
 	animation_t *animations;
 	headAnimation_t *headAnims;
 	int i, fps, skip = -1;
@@ -767,7 +768,7 @@ BG_ParseConditionBits
   convert the string into a single int containing bit flags, stopping at a ',' or end of line
 =================
 */
-void BG_ParseConditionBits( char **text_pp, animStringItem_t *stringTable, int condIndex, int result[2] ) {
+void BG_ParseConditionBits( const char **text_pp, animStringItem_t *stringTable, int condIndex, int result[2] ) {
 	qboolean endFlag = qfalse;
 	int indexFound;
 	int /*indexBits,*/ tempBits[2];
@@ -807,7 +808,7 @@ void BG_ParseConditionBits( char **text_pp, animStringItem_t *stringTable, int c
 		}
 
 		if ( !Q_stricmp( token, "NOT" ) ) {
-			token = "MINUS"; // NOT is equivalent to MINUS
+			token = const_cast<char*>("MINUS"); // NOT is equivalent to MINUS
 		}
 
 		if ( !endFlag && Q_stricmp( token, "AND" ) && Q_stricmp( token, "MINUS" ) ) { // must be a index
@@ -880,7 +881,7 @@ BG_ParseConditions
   returns qtrue if everything went ok, error drops otherwise
 =================
 */
-qboolean BG_ParseConditions( char **text_pp, animScriptItem_t *scriptItem ) {
+qboolean BG_ParseConditions( const char **text_pp, animScriptItem_t *scriptItem ) {
 	int conditionIndex, conditionValue[2];
 	char    *token;
 
@@ -943,7 +944,7 @@ qboolean BG_ParseConditions( char **text_pp, animScriptItem_t *scriptItem ) {
 BG_ParseCommands
 =================
 */
-void BG_ParseCommands( char **input, animScriptItem_t *scriptItem, animModelInfo_t *modelInfo, animScriptData_t *scriptData ) {
+void BG_ParseCommands( const char **input, animScriptItem_t *scriptItem, animModelInfo_t *modelInfo, animScriptData_t *scriptData ) {
 	char    *token;
 	// TTimo gcc: might be used uninitialized
 	animScriptCommand_t *command = NULL;
@@ -1075,7 +1076,8 @@ static animStringItem_t animParseModesStr[] =
 void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scriptData, int client, char *filename, char *input ) {
 	#define MAX_INDENT_LEVELS   3
 
-	char    *text_p, *token;
+    const char* text_p;
+    char* token;
 	animScriptParseMode_t parseMode;
 	animScript_t        *currentScript;
 	animScriptItem_t tempScriptItem;

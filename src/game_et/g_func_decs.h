@@ -60,7 +60,7 @@ extern void Parse3DMatrix ( char * * buf_p , int z , int y , int x , float * m )
 extern void Parse2DMatrix ( char * * buf_p , int y , int x , float * m ) ;
 extern void Parse1DMatrix ( char * * buf_p , int x , float * m ) ;
 extern void SkipRestOfLine ( char * * data ) ;
-extern void SkipBracedSection ( char * * program ) ;
+extern void SkipBracedSection ( const char * * program ) ;
 extern void SkipBracedSection_Depth ( char * * program , int depth ) ;
 extern void COM_MatchToken ( char * * buf_p , char * match ) ;
 extern char * COM_ParseExt ( char * * data_p , qboolean allowLineBreaks ) ;
@@ -71,7 +71,7 @@ extern char * COM_Parse ( char * * data_p ) ;
 extern int COM_GetCurrentParseLine ( void ) ;
 extern void COM_SetCurrentParseLine ( int line ) ;
 extern void COM_RestoreParseSession ( char * * data_p ) ;
-extern void COM_BackupParseSession ( char * * data_p ) ;
+extern void COM_BackupParseSession ( const char * * data_p ) ;
 extern void COM_BeginParseSession ( const char * name ) ;
 extern void Swap_Init ( void ) ;
 
@@ -1351,8 +1351,8 @@ extern void BG_ClearAnimTimer ( playerState_t * ps , animBodyPart_t bodyPart ) ;
 extern animScriptItem_t * BG_FirstValidItem ( int client , animScript_t * script ) ;
 extern qboolean BG_EvaluateConditions ( int client , animScriptItem_t * scriptItem ) ;
 extern void BG_AnimParseAnimScript ( animModelInfo_t * animModelInfo , animScriptData_t * scriptData , const char * filename , char * input ) ;
-extern qboolean BG_ParseConditions ( char * * text_pp , animScriptItem_t * scriptItem ) ;
-extern void BG_ParseConditionBits ( char * * text_pp , animStringItem_t * stringTable , int condIndex , int result [ 2 ] ) ;
+extern qboolean BG_ParseConditions ( const char * * text_pp , animScriptItem_t * scriptItem ) ;
+extern void BG_ParseConditionBits ( const char * * text_pp , animStringItem_t * stringTable , int condIndex , int result [ 2 ] ) ;
 extern void BG_InitWeaponStrings ( void ) ;
 extern char * BG_CopyStringIntoBuffer ( char * string , char * buffer , int bufSize , int * offset ) ;
 extern int BG_IndexForString ( char * token , animStringItem_t * strings , qboolean allowFail ) ;

@@ -938,7 +938,8 @@ CG_ParseWeaponConfig
 ======================
 */
 static qboolean CG_ParseWeaponConfig( const char *filename, weaponInfo_t *wi ) {
-	char        *text_p, *prev;
+    const char* text_p;
+    const char* prev;
 	int len;
 	int i;
 	float fps;
@@ -4737,7 +4738,7 @@ CG_AddDirtBulletParticles
 =================
 */
 void CG_AddDirtBulletParticles( vec3_t origin, vec3_t dir, int speed, int duration, int count, float randScale,
-								float width, float height, float alpha, char *shadername ) { // JPW NERVE
+								float width, float height, float alpha, const char *shadername ) { // JPW NERVE
 	vec3_t velocity, pos;
 	int i;
 
@@ -5847,7 +5848,7 @@ void CG_SpawnTracer( int sourceEnt, vec3_t pstart, vec3_t pend ) {
 	localEntity_t   *le;
 	float dist;
 	vec3_t dir, ofs;
-	orientation_t or;
+	orientation_t orient;
 	vec3_t start, end;
 
 	VectorCopy( pstart, start );
@@ -5869,8 +5870,8 @@ void CG_SpawnTracer( int sourceEnt, vec3_t pstart, vec3_t pend ) {
 		// for visual purposes, find the actual tag_weapon for this client
 		// and offset the start and end accordingly
 		if ( !( cg_entities[sourceEnt].currentState.eFlags & EF_MG42_ACTIVE ) ) {    // not MG42
-			if ( CG_GetWeaponTag( sourceEnt, "tag_flash", &or ) ) {
-				VectorSubtract( or.origin, start, ofs );
+			if ( CG_GetWeaponTag( sourceEnt, "tag_flash", &orient ) ) {
+				VectorSubtract( orient.origin, start, ofs );
 				if ( VectorLength( ofs ) < 64 ) {
 					VectorAdd( start, ofs, start );
 				}

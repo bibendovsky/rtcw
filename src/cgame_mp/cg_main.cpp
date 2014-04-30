@@ -308,8 +308,8 @@ vmCvar_t cg_antilag;
 
 typedef struct {
 	vmCvar_t    *vmCvar;
-	char        *cvarName;
-	char        *defaultString;
+    const char* cvarName;
+    const char* defaultString;
 	int cvarFlags;
 } cvarTable_t;
 
@@ -682,7 +682,7 @@ const char *CG_Argv( int arg ) {
 //========================================================================
 void CG_SetupDlightstyles( void ) {
 	int i, j;
-	char        *str;
+	const char        *str;
 	char        *token;
 	int entnum;
 	centity_t   *cent;
@@ -747,7 +747,7 @@ The server says this item is used on this level
 static void CG_RegisterItemSounds( int itemNum ) {
 	gitem_t         *item;
 	char data[MAX_QPATH];
-	char            *s, *start;
+	const char            *s, *start;
 	int len;
 
 	item = &bg_itemlist[ itemNum ];
@@ -1079,7 +1079,7 @@ static void CG_RegisterGraphics( void ) {
 
 	int i;
 	char items[MAX_ITEMS + 1];
-	static char     *sb_nums[11] = {
+	static const char* sb_nums[11] = {
 		"gfx/2d/numbers/zero_32b",
 		"gfx/2d/numbers/one_32b",
 		"gfx/2d/numbers/two_32b",
@@ -1628,7 +1628,7 @@ CG_StartMusic
 ======================
 */
 void CG_StartMusic( void ) {
-	char    *s;
+	const char    *s;
 	char parm1[MAX_QPATH], parm2[MAX_QPATH];
 
 	// start the background music
@@ -1867,7 +1867,7 @@ void CG_ParseMenu( const char *menuFile ) {
 	trap_PC_FreeSource( handle );
 }
 
-qboolean CG_Load_Menu( char **p ) {
+qboolean CG_Load_Menu( const char **p ) {
 	char *token;
 
 	token = COM_ParseExt( p, qtrue );
@@ -1897,7 +1897,7 @@ qboolean CG_Load_Menu( char **p ) {
 
 void CG_LoadMenus( const char *menuFile ) {
 	char    *token;
-	char *p;
+	const char *p;
 	int len, start;
 	fileHandle_t f;
 	static char buf[MAX_MENUDEFFILE];

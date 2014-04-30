@@ -40,7 +40,7 @@ static char text[100000];
 #define SWING_RIGHT 1
 #define SWING_LEFT  2
 
-char    *cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
+const char* cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
 	"*death1.wav",
 	"*death2.wav",
 	"*death3.wav",
@@ -142,7 +142,7 @@ Read a configuration file containing gib models for use with this character
 ======================
 */
 static qboolean CG_ParseGibModels( const char *filename, clientInfo_t *ci ) {
-	char        *text_p;
+	const char        *text_p;
 	int len;
 	int i;
 	char        *token;
@@ -185,7 +185,7 @@ CG_CalcMoveSpeeds
 ==================
 */
 void CG_CalcMoveSpeeds( clientInfo_t *ci ) {
-	char *tags[2] = {"tag_footleft", "tag_footright"};
+	const char *tags[2] = {"tag_footleft", "tag_footright"};
 	vec3_t oldPos[2];
 	refEntity_t refent;
 	animation_t *anim;
@@ -548,7 +548,7 @@ qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName, co
 //----(SA)	testing
 	{
 		char scaleString[MAX_QPATH];
-		char    *string_p;
+		const char    *string_p;
 		char    *scaleToken;
 		qboolean badscale = qfalse;
 
@@ -1009,7 +1009,7 @@ void CG_NewClientInfo( int clientNum ) {
 
 		trap_Cvar_VariableStringBuffer( "model", modelStr, sizeof( modelStr ) );
 		if ( ( skin = strchr( modelStr, '/' ) ) == NULL ) {
-			skin = "default";
+			skin = const_cast<char*>("default");
 		} else {
 			*skin++ = 0;
 		}
@@ -2185,7 +2185,7 @@ Returns the Z component of the surface being shadowed
 #define SHADOW_MAX_DIST 512.0
 
 typedef struct {
-	char *tagname;
+	const char *tagname;
 	float size;
 	float maxdist;
 	float maxalpha;
@@ -3009,7 +3009,7 @@ void CG_GetBleedOrigin( vec3_t head_origin, vec3_t torso_origin, vec3_t legs_ori
 CG_GetTag
 ===============
 */
-qboolean CG_GetTag( int clientNum, char *tagname, orientation_t *or ) {
+qboolean CG_GetTag( int clientNum, char *tagname, orientation_t *orient ) {
 	clientInfo_t    *ci;
 	centity_t       *cent;
 	refEntity_t     *refent;
@@ -3034,21 +3034,21 @@ qboolean CG_GetTag( int clientNum, char *tagname, orientation_t *or ) {
 
 	refent = &cent->pe.legsRefEnt;
 
-	if ( trap_R_LerpTag( or, refent, tagname, 0 ) < 0 ) {
+	if ( trap_R_LerpTag( orient, refent, tagname, 0 ) < 0 ) {
 		return qfalse;
 	}
 
 	VectorCopy( refent->origin, org );
 
 	for ( i = 0 ; i < 3 ; i++ ) {
-		VectorMA( org, or->origin[i], refent->axis[i], org );
+		VectorMA( org, orient->origin[i], refent->axis[i], org );
 	}
 
-	VectorCopy( org, or->origin );
+	VectorCopy( org, orient->origin );
 
 	// rotate with entity
-	MatrixMultiply( refent->axis, or->axis, tempAxis );
-	memcpy( or->axis, tempAxis, sizeof( vec3_t ) * 3 );
+	MatrixMultiply( refent->axis, orient->axis, tempAxis );
+	memcpy( orient->axis, tempAxis, sizeof( vec3_t ) * 3 );
 
 	return qtrue;
 }
@@ -3058,7 +3058,7 @@ qboolean CG_GetTag( int clientNum, char *tagname, orientation_t *or ) {
 CG_GetWeaponTag
 ===============
 */
-qboolean CG_GetWeaponTag( int clientNum, char *tagname, orientation_t *or ) {
+qboolean CG_GetWeaponTag( int clientNum, const char *tagname, orientation_t *orient ) {
 	clientInfo_t    *ci;
 	centity_t       *cent;
 	refEntity_t     *refent;
@@ -3087,21 +3087,21 @@ qboolean CG_GetWeaponTag( int clientNum, char *tagname, orientation_t *or ) {
 
 	refent = &cent->pe.gunRefEnt;
 
-	if ( trap_R_LerpTag( or, refent, tagname, 0 ) < 0 ) {
+	if ( trap_R_LerpTag( orient, refent, tagname, 0 ) < 0 ) {
 		return qfalse;
 	}
 
 	VectorCopy( refent->origin, org );
 
 	for ( i = 0 ; i < 3 ; i++ ) {
-		VectorMA( org, or->origin[i], refent->axis[i], org );
+		VectorMA( org, orient->origin[i], refent->axis[i], org );
 	}
 
-	VectorCopy( org, or->origin );
+	VectorCopy( org, orient->origin );
 
 	// rotate with entity
-	MatrixMultiply( refent->axis, or->axis, tempAxis );
-	memcpy( or->axis, tempAxis, sizeof( vec3_t ) * 3 );
+	MatrixMultiply( refent->axis, orient->axis, tempAxis );
+	memcpy( orient->axis, tempAxis, sizeof( vec3_t ) * 3 );
 
 	return qtrue;
 }

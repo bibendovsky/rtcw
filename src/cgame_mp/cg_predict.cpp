@@ -394,7 +394,7 @@ static void CG_TouchItem( centity_t *cent ) {
 }
 
 void CG_AddDirtBulletParticles( vec3_t origin, vec3_t dir, int speed, int duration, int count, float randScale,
-								float width, float height, float alpha, char *shadername );
+								float width, float height, float alpha, const char *shadername );
 
 
 /*

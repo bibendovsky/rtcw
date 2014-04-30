@@ -655,7 +655,7 @@ qboolean CG_DrawScoreboard( void ) {
 	int x = 0, y = 0, w;
 	float fade;
 	float   *fadeColor;
-	char    *s;
+	const char    *s;
 
 	// don't draw amuthing if the menu or console is up
 	if ( cg_paused.integer ) {

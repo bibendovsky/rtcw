@@ -283,7 +283,7 @@ void PC_SourceWarning( int handle, char *format, ... ) {
 PC_SourceError
 =================
 */
-void PC_SourceError( int handle, char *format, ... ) {
+void PC_SourceError( int handle, const char *format, ... ) {
 	int line;
 	char filename[128];
 	va_list argptr;
@@ -324,7 +324,7 @@ void LerpColor( vec4_t a, vec4_t b, vec4_t c, float t ) {
 Float_Parse
 =================
 */
-qboolean Float_Parse( char **p, float *f ) {
+qboolean Float_Parse( const char **p, float *f ) {
 	char    *token;
 	token = COM_ParseExt( p, qfalse );
 	if ( token && token[0] != 0 ) {
@@ -370,7 +370,7 @@ qboolean PC_Float_Parse( int handle, float *f ) {
 Color_Parse
 =================
 */
-qboolean Color_Parse( char **p, vec4_t *c ) {
+qboolean Color_Parse( const char **p, vec4_t *c ) {
 	int i;
 	float f;
 
@@ -406,7 +406,7 @@ qboolean PC_Color_Parse( int handle, vec4_t *c ) {
 Int_Parse
 =================
 */
-qboolean Int_Parse( char **p, int *i ) {
+qboolean Int_Parse( const char **p, int *i ) {
 	char    *token;
 	token = COM_ParseExt( p, qfalse );
 
@@ -452,7 +452,7 @@ qboolean PC_Int_Parse( int handle, int *i ) {
 Rect_Parse
 =================
 */
-qboolean Rect_Parse( char **p, rectDef_t *r ) {
+qboolean Rect_Parse( const char **p, rectDef_t *r ) {
 	if ( Float_Parse( p, &r->x ) ) {
 		if ( Float_Parse( p, &r->y ) ) {
 			if ( Float_Parse( p, &r->w ) ) {
@@ -488,7 +488,7 @@ qboolean PC_Rect_Parse( int handle, rectDef_t *r ) {
 String_Parse
 =================
 */
-qboolean String_Parse( char **p, const char **out ) {
+qboolean String_Parse( const char **p, const char **out ) {
 	char *token;
 
 	token = COM_ParseExt( p, qfalse );
@@ -926,7 +926,7 @@ itemDef_t *Menu_GetMatchingItemByNumber( menuDef_t *menu, int index, const char 
 
 
 
-void Script_SetColor( itemDef_t *item, char **args ) {
+void Script_SetColor( itemDef_t *item, const char **args ) {
 	const char *name;
 	int i;
 	float f;
@@ -955,7 +955,7 @@ void Script_SetColor( itemDef_t *item, char **args ) {
 	}
 }
 
-void Script_SetAsset( itemDef_t *item, char **args ) {
+void Script_SetAsset( itemDef_t *item, const char **args ) {
 	const char *name;
 	// expecting name to set asset to
 	if ( String_Parse( args, &name ) ) {
@@ -965,7 +965,7 @@ void Script_SetAsset( itemDef_t *item, char **args ) {
 	}
 }
 
-void Script_SetBackground( itemDef_t *item, char **args ) {
+void Script_SetBackground( itemDef_t *item, const char **args ) {
 	const char *name;
 	// expecting name to set asset to
 	if ( String_Parse( args, &name ) ) {
@@ -992,7 +992,7 @@ itemDef_t *Menu_FindItemByName( menuDef_t *menu, const char *p ) {
 	return NULL;
 }
 
-void Script_SetTeamColor( itemDef_t *item, char **args ) {
+void Script_SetTeamColor( itemDef_t *item, const char **args ) {
 	if ( DC->getTeamColor ) {
 		int i;
 		vec4_t color;
@@ -1003,7 +1003,7 @@ void Script_SetTeamColor( itemDef_t *item, char **args ) {
 	}
 }
 
-void Script_SetItemColor( itemDef_t *item, char **args ) {
+void Script_SetItemColor( itemDef_t *item, const char **args ) {
 	const char *itemname;
 	const char *name;
 	vec4_t color;
@@ -1140,28 +1140,28 @@ void Menus_CloseAll() {
 }
 
 
-void Script_Show( itemDef_t *item, char **args ) {
+void Script_Show( itemDef_t *item, const char **args ) {
 	const char *name;
 	if ( String_Parse( args, &name ) ) {
 		Menu_ShowItemByName( static_cast<menuDef_t*> (item->parent), name, qtrue );
 	}
 }
 
-void Script_Hide( itemDef_t *item, char **args ) {
+void Script_Hide( itemDef_t *item, const char **args ) {
 	const char *name;
 	if ( String_Parse( args, &name ) ) {
 		Menu_ShowItemByName( static_cast<menuDef_t*> (item->parent), name, qfalse );
 	}
 }
 
-void Script_FadeIn( itemDef_t *item, char **args ) {
+void Script_FadeIn( itemDef_t *item, const char **args ) {
 	const char *name;
 	if ( String_Parse( args, &name ) ) {
 		Menu_FadeItemByName( static_cast<menuDef_t*> (item->parent), name, qfalse );
 	}
 }
 
-void Script_FadeOut( itemDef_t *item, char **args ) {
+void Script_FadeOut( itemDef_t *item, const char **args ) {
 	const char *name;
 	if ( String_Parse( args, &name ) ) {
 		Menu_FadeItemByName( static_cast<menuDef_t*> (item->parent), name, qtrue );
@@ -1170,7 +1170,7 @@ void Script_FadeOut( itemDef_t *item, char **args ) {
 
 
 
-void Script_Open( itemDef_t *item, char **args ) {
+void Script_Open( itemDef_t *item, const char **args ) {
 	const char *name;
 	if ( String_Parse( args, &name ) ) {
 		Menus_OpenByName( name );
@@ -1179,7 +1179,7 @@ void Script_Open( itemDef_t *item, char **args ) {
 
 // DHM - Nerve
 
-void Script_ConditionalOpen( itemDef_t *item, char **args ) {
+void Script_ConditionalOpen( itemDef_t *item, const char **args ) {
 	const char *cvar;
 	const char *name1;
 	const char *name2;
@@ -1198,7 +1198,7 @@ void Script_ConditionalOpen( itemDef_t *item, char **args ) {
 
 // DHM - Nerve
 
-void Script_Close( itemDef_t *item, char **args ) {
+void Script_Close( itemDef_t *item, const char **args ) {
 	const char *name;
 	if ( String_Parse( args, &name ) ) {
 		Menus_CloseByName( name );
@@ -1213,7 +1213,7 @@ void Script_Close( itemDef_t *item, char **args ) {
 Script_Clipboard
 ==============
 */
-void Script_Clipboard( itemDef_t *item, char **args ) {
+void Script_Clipboard( itemDef_t *item, const char **args ) {
 	char curscript[64];
 	DC->getCVarString( "cg_clipboardName", curscript, sizeof( curscript ) ); // grab the string the client set
 	Menu_ShowItemByName( static_cast<menuDef_t*> (item->parent), curscript, qtrue );
@@ -1235,7 +1235,7 @@ Script_NotebookShowpage
 	inc == 999	- key number.  +999 is jump to last page, -999 is jump to cover page
 ==============
 */
-void Script_NotebookShowpage( itemDef_t *item, char **args ) {
+void Script_NotebookShowpage( itemDef_t *item, const char **args ) {
 	int i, inc, curpage, newpage = 0, pages;
 
 	pages = DC->getCVarValue( "cg_notebookpages" );
@@ -1351,7 +1351,7 @@ void Menu_TransitionItemByName( menuDef_t *menu, const char *p, rectDef_t rectFr
 }
 
 
-void Script_Transition( itemDef_t *item, char **args ) {
+void Script_Transition( itemDef_t *item, const char **args ) {
 	const char *name;
 	rectDef_t rectFrom, rectTo;
 	int time;
@@ -1384,7 +1384,7 @@ void Menu_OrbitItemByName( menuDef_t *menu, const char *p, float x, float y, flo
 }
 
 
-void Script_Orbit( itemDef_t *item, char **args ) {
+void Script_Orbit( itemDef_t *item, const char **args ) {
 	const char *name;
 	float cx, cy, x, y;
 	int time;
@@ -1398,7 +1398,7 @@ void Script_Orbit( itemDef_t *item, char **args ) {
 
 
 
-void Script_SetFocus( itemDef_t *item, char **args ) {
+void Script_SetFocus( itemDef_t *item, const char **args ) {
 	const char *name;
 	itemDef_t *focusItem;
 
@@ -1417,14 +1417,14 @@ void Script_SetFocus( itemDef_t *item, char **args ) {
 	}
 }
 
-void Script_SetPlayerModel( itemDef_t *item, char **args ) {
+void Script_SetPlayerModel( itemDef_t *item, const char **args ) {
 	const char *name;
 	if ( String_Parse( args, &name ) ) {
 		DC->setCVar( "team_model", name );
 	}
 }
 
-void Script_SetPlayerHead( itemDef_t *item, char **args ) {
+void Script_SetPlayerHead( itemDef_t *item, const char **args ) {
 	const char *name;
 	if ( String_Parse( args, &name ) ) {
 		DC->setCVar( "team_headmodel", name );
@@ -1434,35 +1434,35 @@ void Script_SetPlayerHead( itemDef_t *item, char **args ) {
 // ATVI Wolfenstein Misc #304
 // the parser misreads setCvar "bleh" ""
 // you have to use clearCvar "bleh"
-void Script_ClearCvar( itemDef_t *item, char **args ) {
+void Script_ClearCvar( itemDef_t *item, const char **args ) {
 	const char *cvar;
 	if ( String_Parse( args, &cvar ) ) {
 		DC->setCVar( cvar, "" );
 	}
 }
 
-void Script_SetCvar( itemDef_t *item, char **args ) {
+void Script_SetCvar( itemDef_t *item, const char **args ) {
 	const char *cvar, *val;
 	if ( String_Parse( args, &cvar ) && String_Parse( args, &val ) ) {
 		DC->setCVar( cvar, val );
 	}
 }
 
-void Script_Exec( itemDef_t *item, char **args ) {
+void Script_Exec( itemDef_t *item, const char **args ) {
 	const char *val;
 	if ( String_Parse( args, &val ) ) {
 		DC->executeText( EXEC_APPEND, va( "%s ; ", val ) );
 	}
 }
 
-void Script_Play( itemDef_t *item, char **args ) {
+void Script_Play( itemDef_t *item, const char **args ) {
 	const char *val;
 	if ( String_Parse( args, &val ) ) {
 		DC->startLocalSound( DC->registerSound( val ), CHAN_LOCAL_SOUND );      // all sounds are not 3d
 	}
 }
 
-void Script_playLooped( itemDef_t *item, char **args ) {
+void Script_playLooped( itemDef_t *item, const char **args ) {
 	const char *val;
 	if ( String_Parse( args, &val ) ) {
 		DC->stopBackgroundTrack();
@@ -1471,7 +1471,7 @@ void Script_playLooped( itemDef_t *item, char **args ) {
 }
 
 // NERVE - SMF
-void Script_AddListItem( itemDef_t *item, char **args ) {
+void Script_AddListItem( itemDef_t *item, const char **args ) {
 	const char *itemname, *val, *name;
 	itemDef_t *t;
 
@@ -1484,11 +1484,11 @@ void Script_AddListItem( itemDef_t *item, char **args ) {
 }
 // -NERVE - SMF
 // DHM - Nerve
-void Script_CheckAutoUpdate( itemDef_t *item, char **args ) {
+void Script_CheckAutoUpdate( itemDef_t *item, const char **args ) {
 	DC->checkAutoUpdate();
 }
 
-void Script_GetAutoUpdate( itemDef_t *item, char **args ) {
+void Script_GetAutoUpdate( itemDef_t *item, const char **args ) {
 	DC->getAutoUpdate();
 }
 // DHM - Nerve
@@ -1531,7 +1531,8 @@ int scriptCommandCount = sizeof( commandList ) / sizeof( commandDef_t );
 
 
 void Item_RunScript( itemDef_t *item, const char *s ) {
-	char script[1024], *p;
+	char script[1024];
+    const char* p;
 	int i;
 	qboolean bRan;
 	memset( script, 0, sizeof( script ) );
@@ -1567,7 +1568,8 @@ void Item_RunScript( itemDef_t *item, const char *s ) {
 
 
 qboolean Item_EnableShowViaCvar( itemDef_t *item, int flag ) {
-	char script[1024], *p;
+	char script[1024];
+    const char* p;
 	memset( script, 0, sizeof( script ) );
 	if ( item && item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest ) {
 		char buff[1024];
@@ -3437,7 +3439,7 @@ void Item_Multi_Paint( itemDef_t *item ) {
 
 
 typedef struct {
-	char    *command;
+    const char* command;
 	int id;
 	int defaultbind1;
 	int defaultbind2;
@@ -3601,7 +3603,7 @@ static configcvar_t g_configcvars[] =
 Controls_GetKeyAssignment
 =================
 */
-void Controls_GetKeyAssignment( char *command, int *twokeys ) {
+void Controls_GetKeyAssignment( const char *command, int *twokeys ) {
 	int count;
 	int j;
 	char b[256];
@@ -4757,12 +4759,12 @@ Keyword Hash
 
 typedef struct keywordHash_s
 {
-	char *keyword;
+    const char* keyword;
 	qboolean ( *func )( itemDef_t *item, int handle );
 	struct keywordHash_s *next;
 } keywordHash_t;
 
-int KeywordHash_Key( char *keyword ) {
+int KeywordHash_Key( const char *keyword ) {
 	int register hash, i;
 
 	hash = 0;

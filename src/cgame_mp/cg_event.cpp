@@ -47,7 +47,7 @@ Also called by scoreboard drawing
 */
 const char  *CG_PlaceString( int rank ) {
 	static char str[64];
-	char    *s, *t;
+	const char    *s, *t;
 
 	if ( rank & RANK_TIED_FLAG ) {
 		rank &= ~RANK_TIED_FLAG;
@@ -91,8 +91,8 @@ static void CG_Obituary( entityState_t *ent ) {
 	int mod;
 	int target, attacker;
 	int killtype = 0;               // DHM - Nerve :: 0==Axis; 1==Allied; 2==your kill
-	char        *message;
-	char        *message2;
+    const char* message;
+    const char* message2;
 	const char  *targetInfo;
 	const char  *attackerInfo;
 	char targetName[32];
@@ -566,7 +566,7 @@ Also called by playerstate transition
 ================
 */
 typedef struct {
-	char *tag;
+    const char* tag;
 	int refEntOfs;
 	int anim;
 } painAnimForTag_t;
@@ -574,7 +574,7 @@ typedef struct {
 #define PEFOFS( x ) ( (int)&( ( (playerEntity_t *)0 )->x ) )
 
 void CG_PainEvent( centity_t *cent, int health, qboolean crouching ) {
-	char    *snd;
+	const char    *snd;
 
 	#define STUNNED_ANIM    BOTH_PAIN8
 	painAnimForTag_t tagAnims[] = {

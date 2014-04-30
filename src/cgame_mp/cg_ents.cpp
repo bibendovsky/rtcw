@@ -49,7 +49,7 @@ tag location
 ======================
 */
 void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
-							 char *tagName, int startIndex, vec3_t *offset ) {
+							const char *tagName, int startIndex, vec3_t *offset ) {
 	int i;
 	orientation_t lerped;
 
@@ -86,7 +86,7 @@ tag location
 ======================
 */
 void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
-									char *tagName ) {
+									const char *tagName ) {
 	int i;
 	orientation_t lerped;
 	vec3_t tempAxis[3];
@@ -2011,7 +2011,8 @@ static void CG_AddEntityToTag( centity_t *cent ) {
 	centity_t           *centParent;
 	entityState_t       *sParent;
 	refEntity_t ent;
-	char *cs, *token = NULL;
+    const char* cs;
+    char* token = NULL;
 	int i, pi;
 	vec3_t ang;
 

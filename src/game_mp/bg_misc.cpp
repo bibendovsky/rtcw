@@ -220,7 +220,7 @@ int weapAlts[] = {
 
 
 // new (10/18/00)
-char *animStrings[] = {
+const char *animStrings[] = {
 	"BOTH_DEATH1",
 	"BOTH_DEAD1",
 	"BOTH_DEAD1_WATER",
@@ -378,7 +378,7 @@ char *animStrings[] = {
 
 
 // old
-char *animStringsOld[] = {
+const char *animStringsOld[] = {
 	"BOTH_DEATH1",
 	"BOTH_DEAD1",
 	"BOTH_DEATH2",
@@ -3698,7 +3698,7 @@ void BG_GetMarkDir( const vec3_t dir, const vec3_t normal, vec3_t out ) {
 }
 
 
-char *eventnames[] = {
+const char *eventnames[] = {
 	"EV_NONE",
 	"EV_FOOTSTEP",
 	"EV_FOOTSTEP_METAL",

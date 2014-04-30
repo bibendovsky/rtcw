@@ -907,7 +907,7 @@ void    COM_MatchToken( const char**buf_p, const char *match );
 void SkipBracedSection( const char **program );
 
 #if !defined RTCW_SP
-void SkipBracedSection_Depth( char **program, int depth ); // start at given depth if already matching stuff
+void SkipBracedSection_Depth( const char **program, int depth ); // start at given depth if already matching stuff
 #endif // RTCW_XX
 
 void SkipRestOfLine( char **data );

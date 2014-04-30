@@ -3475,7 +3475,13 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, void( trace ) ( tra
 		}
 	}
 
+// BBi
+// FIXME very suspicious...
+#if 0
 	tpm.trace = &trace;
+#else
+    tpm.trace = trace;
+#endif // 0
 //	tpm.trace (&trace, start, tmins, tmaxs, end, ps->clientNum, MASK_PLAYERSOLID);
 
 	PM_UpdateLean( ps, cmd, &tpm );

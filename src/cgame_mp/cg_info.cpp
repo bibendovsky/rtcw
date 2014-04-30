@@ -133,7 +133,7 @@ void CG_LoadingClient( int clientNum ) {
 	if ( skin ) {
 		*skin++ = '\0';
 	} else {
-		skin = "default";
+		skin = const_cast<char*>("default");
 	}
 
 	Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", model, skin );
@@ -162,13 +162,13 @@ CG_DrawStats
 */
 
 typedef struct {
-	char    *label;
+    const char* label;
 	int YOfs;
 	int labelX;
 	int labelFlags;
 	vec4_t  *labelColor;
 
-	char    *format;
+	const char    *format;
 	int formatX;
 	int formatFlags;
 	vec4_t  *formatColor;
@@ -198,7 +198,8 @@ void CG_DrawStats( char *stats ) {
 	int i, y, v, j;
 	#define MAX_STATS_VARS  64
 	int vars[MAX_STATS_VARS];
-	char *str, *token;
+    char* str;
+    char* token;
 	char *formatStr = NULL; // TTimo: init
 	int varIndex;
 	char string[MAX_QPATH];
@@ -224,7 +225,7 @@ void CG_DrawStats( char *stats ) {
 		if ( statsItems[i].numVars ) {
 			varIndex = v;
 			for ( j = 0; j < statsItems[i].numVars; j++ ) {
-				token = COM_Parse( &str );
+				token = COM_Parse( const_cast<const char**>(&str) );
 				if ( !token || !token[0] ) {
 					CG_Error( "error parsing mission stats\n" );
 					return;

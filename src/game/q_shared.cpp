@@ -481,7 +481,7 @@ void COM_BeginParseSession( const char *name ) {
 }
 
 #if !defined RTCW_SP
-void COM_BackupParseSession( char **data_p ) {
+void COM_BackupParseSession( const char **data_p ) {
 	backup_lines = com_lines;
 	backup_text = *data_p;
 }
@@ -602,7 +602,7 @@ a newline.
 #if defined RTCW_SP
 const char *SkipWhitespace( const char *data, qboolean *hasNewLines ) {
 #else
-static char *SkipWhitespace( char *data, qboolean *hasNewLines ) {
+static const char *SkipWhitespace( const char *data, qboolean *hasNewLines ) {
 #endif // RTCW_XX
 
 	int c;
@@ -916,7 +916,7 @@ Internal brace depths are properly skipped.
 #if !defined RTCW_MP
 void SkipBracedSection( const char **program ) {
 #else
-void SkipBracedSection_Depth( char **program, int depth ) {
+void SkipBracedSection_Depth( const char **program, int depth ) {
 #endif // RTCW_XX
 
 	char            *token;
@@ -949,7 +949,7 @@ Skips until a matching close brace is found.
 Internal brace depths are properly skipped.
 =================
 */
-void SkipBracedSection( char **program ) {
+void SkipBracedSection( const char **program ) {
 	SkipBracedSection_Depth( program, 0 );
 }
 #endif // RTCW_XX
