@@ -889,7 +889,8 @@ CG_ParseWeaponConfig
 ======================
 */
 static qboolean CG_ParseWeaponConfig( const char *filename, weaponInfo_t *wi ) {
-	char        *text_p, *prev;
+    const char* text_p;
+    const char* prev;
 	int len;
 	int i;
 	float fps;

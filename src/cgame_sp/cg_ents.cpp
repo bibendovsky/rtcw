@@ -2485,7 +2485,8 @@ static void CG_AddEntityToTag( centity_t *cent ) {
 	centity_t           *centParent;
 	entityState_t       *sParent;
 	refEntity_t ent;
-	char *cs, *token = NULL;
+    const char* cs;
+    char* token = NULL;
 	int i, pi;
 	vec3_t ang;
 

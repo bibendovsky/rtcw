@@ -208,7 +208,8 @@ void CG_DrawStats( char *stats ) {
 	int i, y, v, j;
 	#define MAX_STATS_VARS  64
 	int vars[MAX_STATS_VARS];
-	char *str, *token;
+    char* str;
+    char* token;
 	char *formatStr;
 	int varIndex;
 	char string[MAX_QPATH];
@@ -234,7 +235,7 @@ void CG_DrawStats( char *stats ) {
 		if ( statsItems[i].numVars ) {
 			varIndex = v;
 			for ( j = 0; j < statsItems[i].numVars; j++ ) {
-				token = COM_Parse( &str );
+				token = COM_Parse( const_cast<const char**>(&str) );
 				if ( !token || !token[0] ) {
 					CG_Error( "error parsing mission stats\n" );
 					return;
@@ -279,7 +280,8 @@ void CG_DrawExitStats( void ) {
 	float *color;   // faded color based on cursor hint drawing
 	float color2[4] = {0, 0, 0, 1};
 	const char *str;
-	char *mstats, *token;
+    char* mstats;
+    char* token;
 
 	#define MAX_STATS_VARS  64
 	int vars[MAX_STATS_VARS];
@@ -377,7 +379,7 @@ void CG_DrawExitStats( void ) {
 		if ( statsItems[i].numVars ) {
 			varIndex = v;
 			for ( j = 0; j < statsItems[i].numVars; j++ ) {
-				token = COM_Parse( &mstats );
+				token = COM_Parse( const_cast<const char**>(&mstats) );
 				if ( !token || !token[0] ) {
 					CG_Error( "error parsing mission stats\n" );
 					return;
@@ -425,7 +427,7 @@ void CG_DrawExitStats( void ) {
 		CG_Text_Paint( statsItems[i].labelX, y, 2, 0.3, color2, va( "%s:", CG_translateString( statsItems[i].label ) ), 0, 0, statsItems[i].labelFlags );
 
 	}
-	token = COM_Parse( &mstats );
+	token = COM_Parse( const_cast<const char**>(&mstats) );
 
 // end (parse it)
 }

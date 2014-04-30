@@ -1232,7 +1232,7 @@ void CG_DrawSkyBoxPortal( void ) {
 	float fov_x;
 	float fov_y;
 	float x;
-	char *cstr;
+	const char *cstr;
 	char *token;
 	float zoomFov;
 	float f;

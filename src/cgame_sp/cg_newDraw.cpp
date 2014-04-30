@@ -2576,7 +2576,7 @@ void CG_ShowResponseHead() {
 	cg.voiceTime = cg.time;
 }
 
-void CG_RunMenuScript( char **args ) {
+void CG_RunMenuScript( const char **args ) {
 }
 
 

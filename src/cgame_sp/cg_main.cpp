@@ -647,7 +647,7 @@ const char *CG_Argv( int arg ) {
 //========================================================================
 void CG_SetupDlightstyles( void ) {
 	int i, j;
-	char        *str;
+	const char        *str;
 	char        *token;
 	int entnum;
 	centity_t   *cent;
@@ -766,7 +766,7 @@ CG_LoadPickupNames
 #define MAX_BUFFER          20000
 static void CG_LoadPickupNames( void ) {
 	char buffer[MAX_BUFFER];
-	char *text;
+	const char *text;
 	char filename[MAX_QPATH];
 	fileHandle_t f;
 	int len, i;
@@ -809,7 +809,7 @@ static void CG_LoadPickupNames( void ) {
 // a straight dupe right now so I don't mess anything up while adding this
 static void CG_LoadTranslationStrings( void ) {
 	char buffer[MAX_BUFFER];
-	char *text;
+	const char *text;
 	char filename[MAX_QPATH];
 	fileHandle_t f;
 	int len, i, numStrings;
@@ -1595,7 +1595,7 @@ CG_StartMusic
 ======================
 */
 void CG_StartMusic( void ) {
-	char    *s;
+	const char    *s;
 	char parm1[MAX_QPATH], parm2[MAX_QPATH];
 
 	// start the background music
@@ -1615,7 +1615,7 @@ CG_QueueMusic
 ==============
 */
 void CG_QueueMusic( void ) {
-	char    *s;
+	const char    *s;
 	char parm[MAX_QPATH];
 
 	// prepare the next background track
@@ -1867,7 +1867,7 @@ void CG_ParseMenu( const char *menuFile ) {
 	trap_PC_FreeSource( handle );
 }
 
-qboolean CG_Load_Menu( char **p ) {
+qboolean CG_Load_Menu( const char **p ) {
 	char *token;
 
 	token = COM_ParseExt( p, qtrue );
@@ -1897,7 +1897,7 @@ qboolean CG_Load_Menu( char **p ) {
 
 void CG_LoadMenus( const char *menuFile ) {
 	char    *token;
-	char *p;
+	const char *p;
 	int len, start;
 	fileHandle_t f;
 	static char buf[MAX_MENUDEFFILE];

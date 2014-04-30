@@ -1900,7 +1900,7 @@ void CG_SelectPrevPlayer();
 void CG_SelectNextPlayer();
 float CG_GetValue( int ownerDraw, int type ); // 'type' is relative or absolute (fractional-'0.5' or absolute- '50' health)
 qboolean CG_OwnerDrawVisible( int flags );
-void CG_RunMenuScript( char **args );
+void CG_RunMenuScript( const char **args );
 void CG_ShowResponseHead();
 void CG_SetPrintString( int type, const char *p );
 void CG_InitTeamChat();

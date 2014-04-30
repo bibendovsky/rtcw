@@ -175,39 +175,39 @@ static void CG_ParseMissionStats( void ) {
 	info = CG_ConfigString( CS_MISSIONSTATS );
 
 // time
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );
 	cg.playTimeH = atoi( token );
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );
 	cg.playTimeM = atoi( token );
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );
 	cg.playTimeS = atoi( token );
 
 // objectives
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );
 	cg.numObjectivesFound = atoi( token );
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );
 	cg.numObjectives = atoi( token );
 
 // secrets
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );
 	cg.numSecretsFound = atoi( token );
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );
 	cg.numSecrets = atoi( token );
 
 // treasure
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );
 	cg.numTreasureFound = atoi( token );
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );
 	cg.numTreasure = atoi( token );
 
 // artifacts
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );
 	cg.numArtifactsFound = atoi( token );
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );
 	cg.numArtifacts = atoi( token );
 
 // attempts
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );
 	cg.attempts = atoi( token );
 
 }
@@ -249,11 +249,11 @@ static void CG_ParseScreenFade( void ) {
 	int fadestart, fadeduration;
 
 	info = CG_ConfigString( CS_SCREENFADE );
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );
 	fadealpha = atof( token );
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );
 	fadestart = atoi( token );
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );
 	fadeduration = atoi( token );
 
 	CG_Fade( 0, 0, 0, (int)( fadealpha * 255.0f ), fadestart, fadeduration );
@@ -277,8 +277,8 @@ static void CG_ParseFog( void ) {
 	int time;
 
 	info = CG_ConfigString( CS_FOGVARS );
-	token = COM_Parse( (char **)&info );    ne = atof( token );
-	token = COM_Parse( (char **)&info );
+	token = COM_Parse( &info );    ne = atof( token );
+	token = COM_Parse( &info );
 
 	if ( !token || !token[0] ) {
 		// set to  'no fog'
@@ -289,11 +289,11 @@ static void CG_ParseFog( void ) {
 
 	fa = atof( token );
 
-	token = COM_Parse( (char **)&info );    density = atof( token );
-	token = COM_Parse( (char **)&info );    r = atof( token );
-	token = COM_Parse( (char **)&info );    g = atof( token );
-	token = COM_Parse( (char **)&info );    b = atof( token );
-	token = COM_Parse( (char **)&info );    time = atoi( token );
+	token = COM_Parse( &info );    density = atof( token );
+	token = COM_Parse( &info );    r = atof( token );
+	token = COM_Parse( &info );    g = atof( token );
+	token = COM_Parse( &info );    b = atof( token );
+	token = COM_Parse( &info );    time = atoi( token );
 
 	trap_R_SetFog( FOG_SERVER, (int)ne, (int)fa, r, g, b, density );
 	trap_R_SetFog( FOG_CMD_SWITCHFOG, FOG_SERVER, time, 0, 0, 0, 0 );

@@ -135,7 +135,7 @@ Read a configuration file containing gib models for use with this character
 ======================
 */
 static qboolean CG_ParseGibModels( const char *filename, clientInfo_t *ci ) {
-	char        *text_p;
+	const char        *text_p;
 	int len;
 	int i;
 	char        *token;
@@ -608,7 +608,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 //----(SA)	testing
 	{
 		char scaleString[MAX_QPATH];
-		char    *string_p;
+		const char    *string_p;
 		char    *scaleToken;
 		qboolean badscale = qfalse;
 
