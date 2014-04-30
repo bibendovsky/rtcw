@@ -1120,7 +1120,7 @@ UI_LoadTranslationStrings
 #define MAX_BUFFER          20000
 static void UI_LoadTranslationStrings( void ) {
 	char buffer[MAX_BUFFER];
-	char *text;
+	const char *text;
 	char filename[MAX_QPATH];
 	fileHandle_t f;
 	int len, i, numStrings;
@@ -4548,7 +4548,7 @@ UI_RunMenuScript
 ==============
 */
 
-static void UI_RunMenuScript( char **args ) {
+static void UI_RunMenuScript( const char **args ) {
 	const char *name, *name2;
 	char buff[1024];
 
@@ -6322,7 +6322,7 @@ static void UI_ParseTeamInfo(const char *teamFile) {
 GameType_Parse
 ==============
 */
-static qboolean GameType_Parse( char **p, qboolean join ) {
+static qboolean GameType_Parse( const char **p, qboolean join ) {
 	char *token;
 
 	token = COM_ParseExt( p, qtrue );
@@ -6383,7 +6383,7 @@ static qboolean GameType_Parse( char **p, qboolean join ) {
 	return qfalse;
 }
 
-static qboolean MapList_Parse( char **p ) {
+static qboolean MapList_Parse( const char **p ) {
 	char *token;
 
 	token = COM_ParseExt( p, qtrue );
@@ -6449,7 +6449,7 @@ static qboolean MapList_Parse( char **p ) {
 
 static void UI_ParseGameInfo( const char *teamFile ) {
 	char    *token;
-	char *p;
+	const char *p;
 	char *buff = NULL;
 	//int mode = 0; // TTimo: unused
 

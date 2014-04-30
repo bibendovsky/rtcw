@@ -1008,7 +1008,8 @@ AnimParseAnimConfig
 ============
 */
 static qboolean AnimParseAnimConfig( playerInfo_t *animModelInfo, const char *filename, const char *input ) {
-	char    *text_p, *token;
+    const char* text_p;
+    char* token;
 	animation_t *animations;
 	headAnimation_t *headAnims;
 	int i, fps, skip = -1;
