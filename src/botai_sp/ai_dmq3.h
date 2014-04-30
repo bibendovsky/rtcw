@@ -70,11 +70,11 @@ qboolean EntityIsInvisible( aas_entityinfo_t *entinfo );
 //returns true if the entity is shooting
 qboolean EntityIsShooting( aas_entityinfo_t *entinfo );
 //returns the name of the client
-char *ClientName( int client, char *name, int size );
+const char *ClientName( int client, char *name, int size );
 //returns an simplyfied client name
-char *EasyClientName( int client, char *name, int size );
+const char *EasyClientName( int client, char *name, int size );
 //returns the skin used by the client
-char *ClientSkin( int client, char *skin, int size );
+const char *ClientSkin( int client, char *skin, int size );
 //returns the aggression of the bot in the range [0, 100]
 float BotAggression( bot_state_t *bs );
 //returns true if the bot wants to retreat

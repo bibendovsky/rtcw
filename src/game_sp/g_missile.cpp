@@ -948,7 +948,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 
 	switch ( grenadeWPID ) {
 	case WP_GRENADE_LAUNCHER:
-		bolt->classname             = "grenade";
+		bolt->classname             = const_cast<char*>("grenade");
 //			bolt->damage				= 100;
 //			bolt->splashDamage			= 100;
 		if ( self->aiCharacter ) {
@@ -961,7 +961,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 		bolt->s.eFlags              = EF_BOUNCE_HALF;
 		break;
 	case WP_GRENADE_PINEAPPLE:
-		bolt->classname             = "grenade";
+		bolt->classname             = const_cast<char*>("grenade");
 //			bolt->damage				= 80;
 //			bolt->splashDamage			= 80;
 		bolt->splashRadius          = 300;
@@ -971,7 +971,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 		break;
 // JPW NERVE
 	case WP_GRENADE_SMOKE:
-		bolt->classname             = "grenade";
+		bolt->classname             = const_cast<char*>("grenade");
 		bolt->s.eFlags              = EF_BOUNCE_HALF;
 		break;
 // jpw
@@ -1008,7 +1008,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 			}
 		}
 // jpw
-		bolt->classname             = "dynamite";
+		bolt->classname             = const_cast<char*>("dynamite");
 		bolt->damage                = 0;
 //			bolt->splashDamage			= 300;
 		bolt->splashRadius          = 400;
@@ -1076,7 +1076,7 @@ gentity_t *fire_rocket( gentity_t *self, vec3_t start, vec3_t dir ) {
 	VectorNormalize( dir );
 
 	bolt = G_Spawn();
-	bolt->classname = "rocket";
+	bolt->classname = const_cast<char*>("rocket");
 	bolt->nextthink = level.time + 20000;   // push it out a little
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
@@ -1155,7 +1155,7 @@ gentity_t *fire_zombiespit( gentity_t *self, vec3_t start, vec3_t dir ) {
 	VectorNormalize( dir );
 
 	bolt = G_Spawn();
-	bolt->classname = "zombiespit";
+	bolt->classname = const_cast<char*>("zombiespit");
 	bolt->nextthink = level.time + 10000;
 
 	bolt->think = G_ExplodeMissile;
@@ -1199,7 +1199,7 @@ gentity_t *fire_zombiespirit( gentity_t *self, gentity_t *bolt, vec3_t start, ve
 
 	VectorNormalize( dir );
 
-	bolt->classname = "zombiespirit";
+	bolt->classname = const_cast<char*>("zombiespirit");
 	bolt->nextthink = level.time + 10000;
 
 	bolt->think = G_ExplodeMissile;
@@ -1239,7 +1239,7 @@ gentity_t *fire_crowbar( gentity_t *self, vec3_t start, vec3_t dir ) {
 	VectorNormalize( dir );
 
 	bolt = G_Spawn();
-	bolt->classname = "crowbar";
+	bolt->classname = const_cast<char*>("crowbar");
 	bolt->nextthink = level.time + 50000;
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_CROWBAR;
@@ -1282,7 +1282,7 @@ gentity_t *fire_flamebarrel( gentity_t *self, vec3_t start, vec3_t dir ) {
 	VectorNormalize( dir );
 
 	bolt = G_Spawn();
-	bolt->classname = "flamebarrel";
+	bolt->classname = const_cast<char*>("flamebarrel");
 	bolt->nextthink = level.time + 3000;
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_FLAMEBARREL;
@@ -1441,7 +1441,7 @@ gentity_t *fire_mortar( gentity_t *self, vec3_t start, vec3_t dir ) {
 	}
 
 	bolt = G_Spawn();
-	bolt->classname = "mortar";
+	bolt->classname = const_cast<char*>("mortar");
 	bolt->nextthink = level.time + 20000;   // push it out a little
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;

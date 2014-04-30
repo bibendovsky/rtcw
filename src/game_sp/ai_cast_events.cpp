@@ -545,7 +545,7 @@ void AICast_ProcessActivate( int entNum, int activatorNum ) {
 
 		// create a goal at this position
 		newent = G_Spawn();
-		newent->classname = "AI_wait_goal";
+		newent->classname = const_cast<char*>("AI_wait_goal");
 		newent->r.ownerNum = entNum;
 		G_SetOrigin( newent, cs->bs->origin );
 		AIFunc_ChaseGoalStart( cs, newent->s.number, 128, qtrue );

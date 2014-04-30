@@ -1108,13 +1108,13 @@ void ClientThink_real( gentity_t *ent ) {
 			if ( !bogus ) {
 				// when an actor dies test if tag_head is in a contents_solid and stop slide
 				{
-					orientation_t   or;
+					orientation_t   orient;
 					trace_t tr;
 					vec3_t start, end;
 					qboolean slide = qtrue;
 
-					if ( trap_GetTag( ent->s.number, "tag_head", &or ) ) {
-						VectorCopy( or.origin, start );
+					if ( trap_GetTag( ent->s.number, "tag_head", &orient ) ) {
+						VectorCopy( orient.origin, start );
 						VectorCopy( start, end );
 						end[2] += 1.0;
 
@@ -1151,30 +1151,30 @@ void ClientThink_real( gentity_t *ent ) {
 
 	} else if ( ( ent->health <= 0 ) && !( ent->flags & FL_NO_HEADCHECK ) ) { // move bodies away from walls
 
-		orientation_t or;
+		orientation_t orient;
 		vec3_t src, vel;
 		trace_t tr;
 
 		if ( VectorLength( pm.ps->velocity ) < 100 && trap_InPVS( pm.ps->origin, g_entities[0].s.pos.trBase ) ) {
 			// find the head position
-			if ( trap_GetTag( ent->s.number, "tag_head", &or ) ) {
+			if ( trap_GetTag( ent->s.number, "tag_head", &orient ) ) {
 				// move up a tad
-				or.origin[2] += 3;
+				orient.origin[2] += 3;
 				// move to tip of head
-				VectorMA( or.origin, 12, or.axis[2], or.origin );
+				VectorMA( orient.origin, 12, orient.axis[2], orient.origin );
 
 				// trace from the base of our bounding box, to the head
 				VectorCopy( pm.ps->origin, src );
 				src[2] += pm.ps->mins[2] + 3;
-				if ( or.origin[2] < src[2] ) {
-					or.origin[2] = src[2];  // dont let the head sink into the ground (even if it is visually)
+				if ( orient.origin[2] < src[2] ) {
+					orient.origin[2] = src[2];  // dont let the head sink into the ground (even if it is visually)
 				}
-				trap_Trace( &tr, src, vec3_origin, vec3_origin, or.origin, ent->s.number, MASK_SOLID );
+				trap_Trace( &tr, src, vec3_origin, vec3_origin, orient.origin, ent->s.number, MASK_SOLID );
 
 				// if we hit something, move away from it
 				if ( !tr.startsolid && !tr.allsolid && tr.fraction < 1.0 ) {
 					// move towards feet
-					VectorSubtract( src, or.origin, vel );
+					VectorSubtract( src, orient.origin, vel );
 					vel[2] = 0;
 					VectorNormalize( vel );
 					VectorScale( vel, 80 /** (1.0-tr.fraction)*/, vel );

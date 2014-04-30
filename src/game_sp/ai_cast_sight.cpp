@@ -229,7 +229,7 @@ qboolean AICast_CheckVisibility( gentity_t *srcent, gentity_t *destent ) {
 	float fov, dist;
 	int viewer, ent;
 	cast_visibility_t   *vis;
-	orientation_t       or;
+	orientation_t       orient;
 
 	if ( destent->flags & FL_NOTARGET ) {
 		return qfalse;
@@ -286,14 +286,14 @@ qboolean AICast_CheckVisibility( gentity_t *srcent, gentity_t *destent ) {
 			vectoangles( clientHeadTags[srcent->s.number].axis[0], viewangles );
 			// and the actual position of the head
 			VectorCopy( clientHeadTags[srcent->s.number].origin, eye );
-		} else if ( trap_GetTag( srcent->s.number, "tag_head", &or ) ) {
+		} else if ( trap_GetTag( srcent->s.number, "tag_head", &orient ) ) {
 			// use the actual direction the head is facing
-			vectoangles( or.axis[0], viewangles );
+			vectoangles( orient.axis[0], viewangles );
 			// and the actual position of the head
-			VectorCopy( or.origin, eye );
-			VectorMA( eye, 12, or.axis[2], eye );
+			VectorCopy( orient.origin, eye );
+			VectorMA( eye, 12, orient.axis[2], eye );
 			// save orientation data
-			memcpy( &clientHeadTags[srcent->s.number], &or, sizeof( orientation_t ) );
+			memcpy( &clientHeadTags[srcent->s.number], &orient, sizeof( orientation_t ) );
 			clientHeadTagTimes[srcent->s.number] = level.time;
 		} else {
 			VectorCopy( srcent->client->ps.origin, eye );

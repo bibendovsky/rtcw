@@ -838,11 +838,11 @@ void    COM_StripFilename( const char *in, char *out );
 void    COM_DefaultExtension( char *path, int maxSize, const char *extension );
 
 void    COM_BeginParseSession( const char *name );
-void    COM_RestoreParseSession( char **data_p );
+void    COM_RestoreParseSession( const char **data_p );
 void    COM_SetCurrentParseLine( int line );
 int     COM_GetCurrentParseLine( void );
-char    *COM_Parse( char **data_p );
-char    *COM_ParseExt( char **data_p, qboolean allowLineBreak );
+char    *COM_Parse( const char **data_p );
+char    *COM_ParseExt( const char **data_p, qboolean allowLineBreak );
 int     COM_Compress( char *data_p );
 
 //BBi
@@ -902,9 +902,9 @@ typedef struct pc_token_s
 
 // data is an in/out parm, returns a parsed out token
 
-void    COM_MatchToken( char**buf_p, const char *match );
+void    COM_MatchToken( const char**buf_p, const char *match );
 
-void SkipBracedSection( char **program );
+void SkipBracedSection( const char **program );
 
 #if !defined RTCW_SP
 void SkipBracedSection_Depth( char **program, int depth ); // start at given depth if already matching stuff
@@ -912,9 +912,9 @@ void SkipBracedSection_Depth( char **program, int depth ); // start at given dep
 
 void SkipRestOfLine( char **data );
 
-void Parse1DMatrix( char **buf_p, int x, float *m );
-void Parse2DMatrix( char **buf_p, int y, int x, float *m );
-void Parse3DMatrix( char **buf_p, int z, int y, int x, float *m );
+void Parse1DMatrix( const char **buf_p, int x, float *m );
+void Parse2DMatrix( const char **buf_p, int y, int x, float *m );
+void Parse3DMatrix( const char **buf_p, int z, int y, int x, float *m );
 
 //BBi
 //#if !defined RTCW_ET
@@ -978,7 +978,7 @@ char *Q_CleanStr( char *string );
 
 #if !defined RTCW_ET
 // Ridah
-int Q_strncasecmp( char *s1, char *s2, int n );
+int Q_strncasecmp( const char *s1, const char *s2, int n );
 int Q_strcasecmp( const char *s1, const char *s2 );
 // done.
 #endif // RTCW_XX

@@ -78,13 +78,22 @@ NOTE TTimo: see show_bug.cgi?id=434 for v17 -> v18 savegames
 namespace {
 
 
-    const int MAX_ENCODER_BUFFER_SIZE = 2 * sizeof (CastState32);
+typedef void (*Function)();
 
+const int MAX_ENCODER_BUFFER_SIZE = 2 * sizeof (CastState32);
 
-    std::vector<uint8_t> g_encoder_buffer;
+std::vector<uint8_t> g_encoder_buffer;
 
+int ver;
 
 } // namespace
+
+
+void G_SaveWriteError();
+int G_SaveWrite(const void* buffer, int len, fileHandle_t f);
+
+template<class T>
+void G_Save_Decode (const byte* src_bytes, int src_size, T& dst_struct);
 
 
 void cast_state_t::convert_from_32 (
@@ -107,7 +116,7 @@ void cast_state_t::convert_from_32 (
     dst.aiState = rtcw::Endian::le(src.aiState);
     dst.movestate = rtcw::Endian::le(src.movestate);
     dst.movestateType = rtcw::Endian::le(src.movestateType);
-    std::uninitialized_copy_n (src.attributes, AICAST_MAX_ATTRIBUTES, dst.attributes);
+    std::uninitialized_copy(src.attributes, src.attributes + AICAST_MAX_ATTRIBUTES, dst.attributes);
     dst.numCastScriptEvents = rtcw::Endian::le(src.numCastScriptEvents);
     dst.castScriptEvents = reinterpret_cast<cast_script_event_t*> (rtcw::Endian::le(src.castScriptEvents));
     dst.castScriptStatus = rtcw::Endian::le(src.castScriptStatus);
@@ -120,11 +129,11 @@ void cast_state_t::convert_from_32 (
     dst.weaponInfo = reinterpret_cast<cast_weapon_info_t*> (rtcw::Endian::le(src.weaponInfo));
     rtcw::Endian::le(src.vislist, MAX_CLIENTS, dst.vislist);
     rtcw::Endian::le(src.weaponFireTimes, MAX_WEAPONS, dst.weaponFireTimes);
-    dst.aifunc = reinterpret_cast<char* (*) (cast_state_s*)> (rtcw::Endian::le(src.aifunc));
-    dst.oldAifunc = reinterpret_cast<char* (*) (cast_state_s*)> (rtcw::Endian::le(src.oldAifunc));
-    dst.aifuncAttack1 = reinterpret_cast<char* (*) (cast_state_s*)> (rtcw::Endian::le(src.aifuncAttack1));
-    dst.aifuncAttack2 = reinterpret_cast<char* (*) (cast_state_s*)> (rtcw::Endian::le(src.aifuncAttack2));
-    dst.aifuncAttack3 = reinterpret_cast<char* (*) (cast_state_s*)> (rtcw::Endian::le(src.aifuncAttack3));
+    dst.aifunc = reinterpret_cast<const char* (*) (cast_state_s*)> (rtcw::Endian::le(src.aifunc));
+    dst.oldAifunc = reinterpret_cast<const char* (*) (cast_state_s*)> (rtcw::Endian::le(src.oldAifunc));
+    dst.aifuncAttack1 = reinterpret_cast<const char* (*) (cast_state_s*)> (rtcw::Endian::le(src.aifuncAttack1));
+    dst.aifuncAttack2 = reinterpret_cast<const char* (*) (cast_state_s*)> (rtcw::Endian::le(src.aifuncAttack2));
+    dst.aifuncAttack3 = reinterpret_cast<const char* (*) (cast_state_s*)> (rtcw::Endian::le(src.aifuncAttack3));
     dst.painfunc = reinterpret_cast<void (*) (gentity_t*, gentity_t*, int, vec_t*)> (rtcw::Endian::le(src.painfunc));
     dst.deathfunc = reinterpret_cast<void (*) (gentity_t*, gentity_t*, int, int)> (rtcw::Endian::le(src.deathfunc));
     dst.sightfunc = reinterpret_cast<void (*) (gentity_t*, gentity_t*, int)> (rtcw::Endian::le(src.sightfunc));
@@ -235,8 +244,8 @@ void cast_state_t::convert_from_32 (
     dst.lastMoveThink = rtcw::Endian::le(src.lastMoveThink);
     dst.numEnemies = rtcw::Endian::le(src.numEnemies);
     dst.noReloadTime = rtcw::Endian::le(src.noReloadTime);
-    std::uninitialized_copy_n (src.lastValidAreaNum, 2, dst.lastValidAreaNum);
-    std::uninitialized_copy_n (src.lastValidAreaTime, 2, dst.lastValidAreaTime);
+    std::uninitialized_copy(src.lastValidAreaNum, src.lastValidAreaNum + 2, dst.lastValidAreaNum);
+    std::uninitialized_copy(src.lastValidAreaTime, src.lastValidAreaTime + 2, dst.lastValidAreaTime);
     dst.weaponNum = rtcw::Endian::le(src.weaponNum);
     dst.enemyNum = rtcw::Endian::le(src.enemyNum);
     rtcw::Endian::le(src.ideal_viewangles, 3, dst.ideal_viewangles);
@@ -398,8 +407,8 @@ void cast_state_t::convert_to_32 (
     dst.lastMoveThink = rtcw::Endian::le(src.lastMoveThink);
     dst.numEnemies = rtcw::Endian::le(src.numEnemies);
     dst.noReloadTime = rtcw::Endian::le(src.noReloadTime);
-    std::uninitialized_copy_n (src.lastValidAreaNum, 2, dst.lastValidAreaNum);
-    std::uninitialized_copy_n (src.lastValidAreaTime, 2, dst.lastValidAreaTime);
+    std::uninitialized_copy(src.lastValidAreaNum, src.lastValidAreaNum + 2, dst.lastValidAreaNum);
+    std::uninitialized_copy(src.lastValidAreaTime, lastValidAreaTime + 2, dst.lastValidAreaTime);
     dst.weaponNum = rtcw::Endian::le(src.weaponNum);
     dst.enemyNum = rtcw::Endian::le(src.enemyNum);
     rtcw::Endian::le(src.ideal_viewangles, 3, dst.ideal_viewangles);
@@ -902,20 +911,18 @@ static void g_read_struct (T& dst_struct, int size, fileHandle_t file_handle)
 template<class T>
 static void g_write_struct (const T& src_struct, fileHandle_t file_handle)
 {
-    int length = ::s_save_encode (src_struct);
+    int length = s_save_encode (src_struct);
 
-    if (::G_SaveWrite (&length, sizeof (length), file_handle) == 0)
-        ::G_SaveWriteError ();
+    if (G_SaveWrite (&length, sizeof (length), file_handle) == 0)
+        G_SaveWriteError ();
 
-    if (::G_SaveWrite (&g_encoder_buffer[0], length, file_handle) == 0)
-        ::G_SaveWriteError ();
+    if (G_SaveWrite (&g_encoder_buffer[0], length, file_handle) == 0)
+        G_SaveWriteError ();
 }
 //BBi
 
 vmCvar_t musicCvar;
 char musicString[MAX_STRING_CHARS];
-
-static int ver;
 
 typedef enum {
 	F_NONE,
@@ -1087,8 +1094,12 @@ static persField_t castStatePersFields[] = {
 //.......................................................................................
 // this stores all functions in the game code
 typedef struct {
-	char *funcStr;
-	byte *funcPtr;
+    const char* funcStr;
+#if 0
+    byte *funcPtr;
+#else
+    void (*funcPtr)();
+#endif // 0
 } funcList_t;
 
 //-----------------
@@ -1146,6 +1157,7 @@ int G_SaveWrite( const void *buffer, int len, fileHandle_t f ) {
 
 //=========================================================
 
+#if 0
 funcList_t *G_FindFuncAtAddress( byte *adr ) {
 	int i;
 
@@ -1156,7 +1168,20 @@ funcList_t *G_FindFuncAtAddress( byte *adr ) {
 	}
 	return NULL;
 }
+#else
+funcList_t* G_FindFuncAtAddress(
+    Function adr)
+{
+    for (int i = 0; funcList[i].funcStr; ++i) {
+        if (funcList[i].funcPtr == adr)
+            return &funcList[i];
+    }
 
+    return NULL;
+}
+#endif // 0
+
+#if 0
 byte *G_FindFuncByName( char *name ) {
 	int i;
 
@@ -1167,6 +1192,18 @@ byte *G_FindFuncByName( char *name ) {
 	}
 	return NULL;
 }
+#else
+Function G_FindFuncByName(
+    const char *name)
+{
+    for (int i = 0; funcList[i].funcStr; ++i) {
+        if (strcmp( name, funcList[i].funcStr) == 0)
+            return funcList[i].funcPtr;
+    }
+
+    return NULL;
+}
+#endif // 0
 
 void WriteField1( saveField_t *field, byte *base ) {
 	void        *p;
@@ -1249,7 +1286,7 @@ void WriteField1( saveField_t *field, byte *base ) {
 		if ( *(byte **)p == NULL ) {
 			len = 0;
 		} else {
-			func = G_FindFuncAtAddress( *(byte **)p );
+			func = G_FindFuncAtAddress(*static_cast<Function*>(p));
 			if ( !func ) {
 				G_Error( "WriteField1: unknown function, cannot save game" );
 			}
@@ -1291,7 +1328,7 @@ void WriteField2( fileHandle_t f, saveField_t *field, byte *base ) {
 		break;
 	case F_FUNCTION:
 		if ( *(byte **)p ) {
-			func = G_FindFuncAtAddress( *(byte **)p );
+			func = G_FindFuncAtAddress(*static_cast<Function*>(p));
 			if ( !func ) {
 				G_Error( "WriteField1: unknown function, cannot save game" );
 			}
@@ -1394,7 +1431,7 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base ) {
 				G_Error( "ReadField: function name is greater than buffer (%i chars)", sizeof( funcStr ) );
 			}
 			trap_FS_Read( funcStr, len, f );
-			if ( !( *(byte **)p = G_FindFuncByName( funcStr ) ) ) {
+			if ( !( *static_cast<Function*>(p) = G_FindFuncByName( funcStr ) ) ) {
 				G_Error( "ReadField: unknown function '%s'\ncannot load game", funcStr );
 			}
 		}
@@ -2137,7 +2174,7 @@ char *G_Save_TimeStr( void ) {
 			   ( tm.tm_hour < 12 ? "am" : "pm" ) );
 }
 
-static char *monthStr[12] =
+static const char *monthStr[12] =
 {
 	"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
 };
@@ -2179,7 +2216,7 @@ G_SaveGame
   so full disks don't result in lost saved games.
 ===============
 */
-qboolean G_SaveGame( char *username ) {
+qboolean G_SaveGame( const char *username ) {
 	char filename[MAX_QPATH];
 	char mapstr[MAX_QPATH];
 	char leveltime[MAX_QPATH];
@@ -2483,7 +2520,7 @@ G_LoadGame
   Always loads in "current.svg". So if loading a specific savegame, first copy it to that.
 ===============
 */
-void G_LoadGame( char *filename ) {
+void G_LoadGame( const char *filename ) {
 	char mapname[MAX_QPATH];
 	fileHandle_t f;
 	int i, leveltime, size, last;
@@ -2661,7 +2698,7 @@ void G_LoadGame( char *filename ) {
 	// clear all remaining entities
 	for ( ent = &g_entities[last] ; last < MAX_GENTITIES ; last++, ent++ ) {
 		memset( ent, 0, sizeof( *ent ) );
-		ent->classname = "freed";
+		ent->classname = const_cast<char*>("freed");
 		ent->freetime = level.time;
 		ent->inuse = qfalse;
 	}
@@ -2956,7 +2993,7 @@ G_LoadPersistant
 */
 void G_LoadPersistant( void ) {
 	fileHandle_t f;
-	char *filename;
+	const char *filename;
 	char mapstr[MAX_QPATH];
 	vmCvar_t cvar_mapname;
 	int persid;

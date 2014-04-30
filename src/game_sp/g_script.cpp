@@ -139,8 +139,8 @@ g_script_stack_action_t gScriptActions[] =
 	{NULL,                      NULL}
 };
 
-qboolean G_Script_EventMatch_StringEqual( g_script_event_t *event, char *eventParm );
-qboolean G_Script_EventMatch_IntInRange( g_script_event_t *event, char *eventParm );
+qboolean G_Script_EventMatch_StringEqual( g_script_event_t *event, const char *eventParm );
+qboolean G_Script_EventMatch_IntInRange( g_script_event_t *event, const char *eventParm );
 
 // the list of events that can start an action sequence
 g_script_event_define_t gScriptEvents[] =
@@ -161,7 +161,7 @@ g_script_event_define_t gScriptEvents[] =
 G_Script_EventMatch_StringEqual
 ===============
 */
-qboolean G_Script_EventMatch_StringEqual( g_script_event_t *event, char *eventParm ) {
+qboolean G_Script_EventMatch_StringEqual( g_script_event_t *event, const char *eventParm ) {
 	if ( eventParm && !Q_strcasecmp( event->params, eventParm ) ) {
 		return qtrue;
 	} else {
@@ -174,8 +174,9 @@ qboolean G_Script_EventMatch_StringEqual( g_script_event_t *event, char *eventPa
 G_Script_EventMatch_IntInRange
 ===============
 */
-qboolean G_Script_EventMatch_IntInRange( g_script_event_t *event, char *eventParm ) {
-	char *pString, *token;
+qboolean G_Script_EventMatch_IntInRange( g_script_event_t *event, const char *eventParm ) {
+    const char* pString;
+    char* token;
 	int int1, int2, eInt;
 
 	// get the cast name
@@ -285,8 +286,8 @@ G_Script_ScriptParse
 */
 void G_Script_ScriptParse( gentity_t *ent ) {
 	#define MAX_SCRIPT_EVENTS   64
-	char        *pScript;
-	char        *token;
+    const char* pScript;
+    char* token;
 	qboolean wantName;
 	qboolean inScript;
 	int eventNum;
@@ -514,7 +515,7 @@ G_Script_ScriptEvent
   An event has occured, for which a script may exist
 ================
 */
-void G_Script_ScriptEvent( gentity_t *ent, char *eventStr, char *params ) {
+void G_Script_ScriptEvent( gentity_t *ent, const char *eventStr, const char *params ) {
 	int i, eventNum;
 
 	eventNum = -1;

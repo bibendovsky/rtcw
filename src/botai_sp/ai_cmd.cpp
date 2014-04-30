@@ -1233,7 +1233,7 @@ void BotMatch_WhatIsMyCommand( bot_state_t *bs, bot_match_t *match ) {
 BotNearestVisibleItem
 ==================
 */
-float BotNearestVisibleItem( bot_state_t *bs, char *itemname, bot_goal_t *goal ) {
+float BotNearestVisibleItem( bot_state_t *bs, const char *itemname, bot_goal_t *goal ) {
 	int i;
 	char name[64];
 	bot_goal_t tmpgoal;
@@ -1272,7 +1272,7 @@ void BotMatch_WhereAreYou( bot_state_t *bs, bot_match_t *match ) {
 	float dist, bestdist;
 	int i, bestitem, redflagtt, blueflagtt, redtobluett;
 	bot_goal_t goal;
-	char *nearbyitems[] = {
+	const char *nearbyitems[] = {
 		"Shotgun",
 		"Grenade Launcher",
 		"Rocket Launcher",

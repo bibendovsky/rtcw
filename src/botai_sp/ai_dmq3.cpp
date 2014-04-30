@@ -265,7 +265,7 @@ int BotPointAreaNum( vec3_t origin ) {
 ClientName
 ==================
 */
-char *ClientName( int client, char *name, int size ) {
+const char *ClientName( int client, char *name, int size ) {
 	char buf[MAX_INFO_STRING];
 
 	if ( client < 0 || client >= MAX_CLIENTS ) {
@@ -284,7 +284,7 @@ char *ClientName( int client, char *name, int size ) {
 ClientSkin
 ==================
 */
-char *ClientSkin( int client, char *skin, int size ) {
+const char *ClientSkin( int client, char *skin, int size ) {
 	char buf[MAX_INFO_STRING];
 
 	if ( client < 0 || client >= MAX_CLIENTS ) {
@@ -347,7 +347,7 @@ char *stristr( char *str, char *charset ) {
 EasyClientName
 ==================
 */
-char *EasyClientName( int client, char *buf, int size ) {
+const char *EasyClientName( int client, char *buf, int size ) {
 	int i;
 	char *str1, *str2, *ptr, c;
 	char name[128];
@@ -1009,7 +1009,7 @@ int BotWantsToCamp( bot_state_t *bs ) {
 BotDontAvoid
 ==================
 */
-void BotDontAvoid( bot_state_t *bs, char *itemname ) {
+void BotDontAvoid( bot_state_t *bs, const char *itemname ) {
 	bot_goal_t goal;
 	int num;
 

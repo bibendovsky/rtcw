@@ -254,7 +254,7 @@ void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 
 
 // these are just for logging, the client prints its own messages
-char    *modNames[] = {
+const char    *modNames[] = {
 	"MOD_UNKNOWN",
 	"MOD_SHOTGUN",
 	"MOD_GAUNTLET",
@@ -341,7 +341,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	int contents = 0;
 	int killer;
 	int i;
-	char        *killerName, *obit;
+	const char        *killerName;
+    const char* obit;
 	qboolean nogib = qtrue;
 	gitem_t     *item = NULL; // JPW NERVE for flag drop
 	vec3_t launchvel;      // JPW NERVE
@@ -699,7 +700,7 @@ qboolean IsHeadShot( gentity_t *targ, gentity_t *attacker, vec3_t dir, vec3_t po
 	trace_t tr;
 	vec3_t start, end;
 	gentity_t   *traceEnt;
-	orientation_t or;
+	orientation_t orient;
 
 	qboolean head_shot_weapon = qfalse;
 
@@ -720,9 +721,9 @@ qboolean IsHeadShot( gentity_t *targ, gentity_t *attacker, vec3_t dir, vec3_t po
 		G_SetOrigin( head, targ->r.currentOrigin );
 
 		// RF, if there is a valid tag_head for this entity, then use that
-		if ( ( targ->r.svFlags & SVF_CASTAI ) && trap_GetTag( targ->s.number, "tag_head", &or ) ) {
-			VectorCopy( or.origin, head->r.currentOrigin );
-			VectorMA( head->r.currentOrigin, 6, or.axis[2], head->r.currentOrigin );    // tag is at base of neck
+		if ( ( targ->r.svFlags & SVF_CASTAI ) && trap_GetTag( targ->s.number, "tag_head", &orient ) ) {
+			VectorCopy( orient.origin, head->r.currentOrigin );
+			VectorMA( head->r.currentOrigin, 6, orient.axis[2], head->r.currentOrigin );    // tag is at base of neck
 		} else if ( targ->client->ps.pm_flags & PMF_DUCKED ) { // closer fake offset for 'head' box when crouching
 			head->r.currentOrigin[2] += targ->client->ps.crouchViewHeight + 8; // JPW NERVE 16 is kludge to get head height to match up
 		}

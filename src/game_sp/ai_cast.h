@@ -174,23 +174,23 @@ typedef enum
 } AIEventSounds_t;
 //
 typedef struct {
-	char *name;
+    const char* name;
 	float attributes[AICAST_MAX_ATTRIBUTES];
 
-	char    *soundScripts[MAX_AI_EVENT_SOUNDS];
+    const char* soundScripts[MAX_AI_EVENT_SOUNDS];
 
 	int aiTeam;
-	char *skin;
+    const char* skin;
 	int weapons[8];
 	int bboxType;
 	vec2_t crouchstandZ;
 	int aiFlags;
 
-	char    *( *aifuncAttack1 )( struct cast_state_s *cs );     //use this battle aifunc for monster_attack1
-	char    *( *aifuncAttack2 )( struct cast_state_s *cs );     //use this battle aifunc for monster_attack2
-	char    *( *aifuncAttack3 )( struct cast_state_s *cs );     //use this battle aifunc for monster_attack2
+    const char* (*aifuncAttack1)(struct cast_state_s* cs); //use this battle aifunc for monster_attack1
+    const char* (*aifuncAttack2)(struct cast_state_s* cs); //use this battle aifunc for monster_attack2
+    const char* (*aifuncAttack3)(struct cast_state_s* cs); //use this battle aifunc for monster_attack2
 
-	char *loopingSound;     // play this sound constantly while alive
+    const char* loopingSound;     // play this sound constantly while alive
 
 	aistateEnum_t aiState;
 } AICharacterDefaults_t;
@@ -205,7 +205,7 @@ typedef struct {
 //
 // attributes strings (used for per-entity attribute definitions)
 // NOTE: these must match the attributes above)
-extern char *castAttributeStrings[];
+extern const char *castAttributeStrings[];
 extern AICharacterDefaults_t aiDefaults[NUM_CHARACTERS];
 //
 // structure defines
@@ -251,7 +251,7 @@ typedef struct
 // scripting
 typedef struct
 {
-	char    *actionString;
+    const char* actionString;
 	qboolean ( *actionFunc )( struct cast_state_s *cs, char *params );
 } cast_script_stack_action_t;
 //
@@ -280,8 +280,8 @@ typedef struct
 //
 typedef struct
 {
-	char        *eventStr;
-	qboolean ( *eventMatch )( cast_script_event_t *event, char *eventParm );
+    const char* eventStr;
+	qboolean ( *eventMatch )( cast_script_event_t *event, const char *eventParm );
 } cast_script_event_define_t;
 //
 typedef struct
@@ -542,12 +542,12 @@ typedef struct cast_state_s
 	cast_visibility_t vislist[MAX_CLIENTS];         // array of all other client entities, allocated at level start-up
 	int weaponFireTimes[MAX_WEAPONS];
 
-	char    *( *aifunc )( struct cast_state_s *cs );            //current AI function
-	char    *( *oldAifunc )( struct cast_state_s *cs );         // just so we can restore the last aiFunc if required
+	const char    *( *aifunc )( struct cast_state_s *cs );            //current AI function
+	const char    *( *oldAifunc )( struct cast_state_s *cs );         // just so we can restore the last aiFunc if required
 
-	char    *( *aifuncAttack1 )( struct cast_state_s *cs );     //use this battle aifunc for monster_attack1
-	char    *( *aifuncAttack2 )( struct cast_state_s *cs );     //use this battle aifunc for monster_attack2
-	char    *( *aifuncAttack3 )( struct cast_state_s *cs );     //use this battle aifunc for monster_attack2
+	const char    *( *aifuncAttack1 )( struct cast_state_s *cs );     //use this battle aifunc for monster_attack1
+	const char    *( *aifuncAttack2 )( struct cast_state_s *cs );     //use this battle aifunc for monster_attack2
+	const char    *( *aifuncAttack3 )( struct cast_state_s *cs );     //use this battle aifunc for monster_attack2
 
 	void ( *painfunc )( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point );
 	void ( *deathfunc )( gentity_t *ent, gentity_t *attacker, int damage, int mod ); //----(SA)	added mod
@@ -787,11 +787,11 @@ extern vmCvar_t aicast_scripts;
 // ai_cast.c
 void    AIChar_SetBBox( gentity_t *ent, cast_state_t *cs, qboolean useHeadTag );
 void    AICast_Printf( int type, const char *fmt, ... );
-gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapon_info_t *weaponInfo, char *castname, char *model, char *head, char *sex, char *color, char *handicap );
+gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapon_info_t *weaponInfo, const char *castname, const char *model, const char *head, const char *sex, const char *color, const char *handicap );
 void    AICast_Init( void );
 void    AICast_DelayedSpawnCast( gentity_t *ent, int castType );
 qboolean AICast_SolidsInBBox( vec3_t pos, vec3_t mins, vec3_t maxs, int entnum, int mask );
-void    AICast_CheckLevelAttributes( cast_state_t *cs, gentity_t *ent, char **ppStr );
+void    AICast_CheckLevelAttributes( cast_state_t *cs, gentity_t *ent, const char **ppStr );
 //
 // ai_cast_sight.c
 void    AICast_SightUpdate( int numchecks );
@@ -802,7 +802,7 @@ qboolean AICast_CheckVisibility( gentity_t *srcent, gentity_t *destent );
 //
 // ai_cast_debug.c
 void    AICast_DBG_InitAIFuncs( void );
-void    AICast_DBG_AddAIFunc( cast_state_t *cs, char *funcname );
+void    AICast_DBG_AddAIFunc( cast_state_t *cs, const char *funcname );
 void    AICast_DBG_ListAIFuncs( cast_state_t *cs, int numprint );
 void    AICast_DBG_RouteTable_f( vec3_t org, char *param );
 int     Sys_MilliSeconds( void );
@@ -812,48 +812,48 @@ void    AICast_DebugFrame( cast_state_t *cs );
 void AICast_SpecialFunc( cast_state_t *cs );
 bot_moveresult_t *AICast_MoveToPos( cast_state_t *cs, vec3_t pos, int entnum );
 float   AICast_SpeedScaleForDistance( cast_state_t *cs, float startdist, float idealDist );
-char    *AIFunc_DefaultStart( cast_state_t *cs );
-char    *AIFunc_IdleStart( cast_state_t *cs );
-char    *AIFunc_ChaseGoalIdleStart( cast_state_t *cs, int entitynum, float reachdist );
-char    *AIFunc_ChaseGoalStart( cast_state_t *cs, int entitynum, float reachdist, qboolean slowApproach );
-char    *AIFunc_BattleChaseStart( cast_state_t *cs );
-char    *AIFunc_BattleStart( cast_state_t *cs );
-char    *AIFunc_DoorMarkerStart( cast_state_t *cs, int doornum, int markernum );
-char    *AIFunc_DoorMarker( cast_state_t *cs );
-char    *AIFunc_BattleTakeCoverStart( cast_state_t *cs );
-char    *AIFunc_GrenadeFlushStart( cast_state_t *cs );
-char    *AIFunc_AvoidDangerStart( cast_state_t *cs );
-char    *AIFunc_BattleMG42Start( cast_state_t *cs );
-char    *AIFunc_InspectBodyStart( cast_state_t *cs );
-char    *AIFunc_GrenadeKickStart( cast_state_t *cs );
-char    *AIFunc_InspectFriendlyStart( cast_state_t *cs, int entnum );
-char    *AIFunc_InspectBulletImpactStart( cast_state_t *cs );
-char    *AIFunc_InspectAudibleEventStart( cast_state_t *cs, int entnum );
-char    *AIFunc_BattleAmbushStart( cast_state_t *cs );
-char    *AIFunc_BattleHuntStart( cast_state_t *cs );
+const char    *AIFunc_DefaultStart( cast_state_t *cs );
+const char    *AIFunc_IdleStart( cast_state_t *cs );
+const char    *AIFunc_ChaseGoalIdleStart( cast_state_t *cs, int entitynum, float reachdist );
+const char    *AIFunc_ChaseGoalStart( cast_state_t *cs, int entitynum, float reachdist, qboolean slowApproach );
+const char    *AIFunc_BattleChaseStart( cast_state_t *cs );
+const char    *AIFunc_BattleStart( cast_state_t *cs );
+const char    *AIFunc_DoorMarkerStart( cast_state_t *cs, int doornum, int markernum );
+const char    *AIFunc_DoorMarker( cast_state_t *cs );
+const char    *AIFunc_BattleTakeCoverStart( cast_state_t *cs );
+const char    *AIFunc_GrenadeFlushStart( cast_state_t *cs );
+const char    *AIFunc_AvoidDangerStart( cast_state_t *cs );
+const char    *AIFunc_BattleMG42Start( cast_state_t *cs );
+const char    *AIFunc_InspectBodyStart( cast_state_t *cs );
+const char    *AIFunc_GrenadeKickStart( cast_state_t *cs );
+const char    *AIFunc_InspectFriendlyStart( cast_state_t *cs, int entnum );
+const char    *AIFunc_InspectBulletImpactStart( cast_state_t *cs );
+const char    *AIFunc_InspectAudibleEventStart( cast_state_t *cs, int entnum );
+const char    *AIFunc_BattleAmbushStart( cast_state_t *cs );
+const char    *AIFunc_BattleHuntStart( cast_state_t *cs );
 //
 // ai_cast_func_attack.c
-char    *AIFunc_ZombieFlameAttackStart( cast_state_t *cs );
-char    *AIFunc_ZombieAttack2Start( cast_state_t *cs );
-char    *AIFunc_ZombieMeleeStart( cast_state_t *cs );
-char    *AIFunc_LoperAttack1Start( cast_state_t *cs );
-char    *AIFunc_LoperAttack2Start( cast_state_t *cs );
-char    *AIFunc_LoperAttack3Start( cast_state_t *cs );
-char    *AIFunc_StimSoldierAttack1Start( cast_state_t *cs );
-char    *AIFunc_StimSoldierAttack2Start( cast_state_t *cs );
-char    *AIFunc_BlackGuardAttack1Start( cast_state_t *cs );
-char    *AIFunc_RejectAttack1Start( cast_state_t *cs ); //----(SA)
-char    *AIFunc_WarriorZombieMeleeStart( cast_state_t *cs );
-char    *AIFunc_WarriorZombieSightStart( cast_state_t *cs );
-char    *AIFunc_WarriorZombieDefenseStart( cast_state_t *cs );
+const char    *AIFunc_ZombieFlameAttackStart( cast_state_t *cs );
+const char    *AIFunc_ZombieAttack2Start( cast_state_t *cs );
+const char    *AIFunc_ZombieMeleeStart( cast_state_t *cs );
+const char    *AIFunc_LoperAttack1Start( cast_state_t *cs );
+const char    *AIFunc_LoperAttack2Start( cast_state_t *cs );
+const char    *AIFunc_LoperAttack3Start( cast_state_t *cs );
+const char    *AIFunc_StimSoldierAttack1Start( cast_state_t *cs );
+const char    *AIFunc_StimSoldierAttack2Start( cast_state_t *cs );
+const char    *AIFunc_BlackGuardAttack1Start( cast_state_t *cs );
+const char    *AIFunc_RejectAttack1Start( cast_state_t *cs ); //----(SA)
+const char    *AIFunc_WarriorZombieMeleeStart( cast_state_t *cs );
+const char    *AIFunc_WarriorZombieSightStart( cast_state_t *cs );
+const char    *AIFunc_WarriorZombieDefenseStart( cast_state_t *cs );
 //
 // ai_cast_func_boss1.c
-char    *AIFunc_Helga_SpiritAttack_Start( cast_state_t *cs );
-char    *AIFunc_Helga_MeleeStart( cast_state_t *cs );
-char    *AIFunc_FlameZombie_PortalStart( cast_state_t *cs );
-char    *AIFunc_Heinrich_MeleeStart( cast_state_t *cs );
-char    *AIFunc_Heinrich_RaiseDeadStart( cast_state_t *cs );
-char    *AIFunc_Heinrich_SpawnSpiritsStart( cast_state_t *cs );
+const char    *AIFunc_Helga_SpiritAttack_Start( cast_state_t *cs );
+const char    *AIFunc_Helga_MeleeStart( cast_state_t *cs );
+const char    *AIFunc_FlameZombie_PortalStart( cast_state_t *cs );
+const char    *AIFunc_Heinrich_MeleeStart( cast_state_t *cs );
+const char    *AIFunc_Heinrich_RaiseDeadStart( cast_state_t *cs );
+const char    *AIFunc_Heinrich_SpawnSpiritsStart( cast_state_t *cs );
 void    AICast_Heinrich_SoundPrecache( void );
 //
 // ai_cast_fight.c

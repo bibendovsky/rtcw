@@ -399,7 +399,7 @@ void weapon_callAirStrike( gentity_t *ent ) {
 		bomb->parent        = ent->parent;
 		bomb->damage        = 400; // maybe should un-hard-code these?
 		bomb->splashDamage  = 400;
-		bomb->classname             = "air strike";
+		bomb->classname             = const_cast<char*>("air strike");
 		bomb->splashRadius          = 400;
 		bomb->methodOfDeath         = MOD_AIRSTRIKE;
 		bomb->splashMethodOfDeath   = MOD_AIRSTRIKE;

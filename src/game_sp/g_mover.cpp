@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "g_local.h"
 
-char *hintStrings[] = {
+const char *hintStrings[] = {
 	"",                  // HINT_NONE
 	"HINT_NONE",     // actually HINT_FORCENONE, but since this is being specified in the ent, the designer actually means HINT_FORCENONE
 	"HINT_PLAYER",
@@ -3163,7 +3163,7 @@ void FuncBatsActivate( gentity_t *self, gentity_t * other, gentity_t * activator
 		// spawn "count" bats
 		for ( i = 0; i < self->count; i++ ) {
 			bat = G_Spawn();
-			bat->classname = "func_bat";
+			bat->classname = const_cast<char*>("func_bat");
 			bat->s.eType = ET_BAT;
 
 			VectorSet( vec, crandom(), crandom(), crandom() );

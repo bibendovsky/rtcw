@@ -1219,7 +1219,7 @@ void SP_corona( gentity_t *ent ) {
 
 // (SA) dlights and dlightstyles
 
-char* predef_lightstyles[] = {
+const char* predef_lightstyles[] = {
 	"mmnmmommommnonmmonqnmmo",
 	"abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",
 	"mmmmmaaaaammmmmaaaaaabcdefgabcdefg",
@@ -2323,7 +2323,7 @@ void mg42_spawn( gentity_t *ent ) {
 	}
 
 	gun = G_Spawn();
-	gun->classname = "misc_mg42";
+	gun->classname = const_cast<char*>("misc_mg42");
 	gun->clipmask = CONTENTS_SOLID;
 	gun->r.contents = CONTENTS_TRIGGER;
 	gun->r.svFlags = SVF_USE_CURRENT_ORIGIN;
@@ -2450,7 +2450,7 @@ void flak_spawn( gentity_t *ent ) {
 	vec3_t offset;
 
 	gun = G_Spawn();
-	gun->classname = "misc_flak";
+	gun->classname = const_cast<char*>("misc_flak");
 	gun->clipmask = CONTENTS_SOLID;
 	gun->r.contents = CONTENTS_TRIGGER;
 	gun->r.svFlags = SVF_USE_CURRENT_ORIGIN;
@@ -2606,7 +2606,7 @@ void misc_tagemitter_finishspawning( gentity_t *ent ) {
 
 	emitter = ent->target_ent;
 
-	emitter->classname = "misc_tagemitter";
+	emitter->classname = const_cast<char*>("misc_tagemitter");
 	emitter->r.contents = 0;
 	emitter->s.eType = ET_GENERAL;
 	emitter->tagParent = parent;
@@ -2659,12 +2659,12 @@ void misc_firetrails_finishspawning( gentity_t *ent ) {
 
 	// left fire trail
 	left = G_Spawn();
-	left->classname = "left_firetrail";
+	left->classname = const_cast<char*>("left_firetrail");
 	left->r.contents = 0;
 	left->s.eType = ET_RAMJET;
 	left->s.modelindex = G_ModelIndex( "models/ammo/rocket/rocket.md3" );
 	left->tagParent = airplane;
-	left->tagName = "tag_engine1";   // tag to connect to
+	left->tagName = const_cast<char*>("tag_engine1");   // tag to connect to
 	left->use = firetrail_use;
 	left->AIScript_AlertEntity = firetrail_die;
 	left->targetname = ent->targetname;
@@ -2673,12 +2673,12 @@ void misc_firetrails_finishspawning( gentity_t *ent ) {
 
 	// right fire trail
 	right = G_Spawn();
-	right->classname = "right_firetrail";
+	right->classname = const_cast<char*>("right_firetrail");
 	right->r.contents = 0;
 	right->s.eType = ET_RAMJET;
 	right->s.modelindex = G_ModelIndex( "models/ammo/rocket/rocket.md3" );
 	right->tagParent = airplane;
-	right->tagName = "tag_engine2";  // tag to connect to
+	right->tagName = const_cast<char*>("tag_engine2");  // tag to connect to
 	right->use = firetrail_use;
 	right->AIScript_AlertEntity = firetrail_die;
 	right->targetname = ent->targetname;

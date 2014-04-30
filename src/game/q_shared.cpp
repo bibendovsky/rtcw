@@ -465,7 +465,7 @@ static char com_parsename[MAX_TOKEN_CHARS];
 static int com_lines;
 
 static int backup_lines;
-static char    *backup_text;
+static const char* backup_text;
 
 #if !defined RTCW_ET
 /*
@@ -495,7 +495,7 @@ COM_RestoreParseSession
 */
 #endif // RTCW_XX
 
-void COM_RestoreParseSession( char **data_p ) {
+void COM_RestoreParseSession( const char **data_p ) {
 	com_lines = backup_lines;
 	*data_p = backup_text;
 }
@@ -532,7 +532,7 @@ COM_Parse
 */
 #endif // RTCW_XX
 
-char *COM_Parse( char **data_p ) {
+char *COM_Parse( const char **data_p ) {
 	return COM_ParseExt( data_p, qtrue );
 }
 
@@ -600,7 +600,7 @@ a newline.
 */
 
 #if defined RTCW_SP
-char *SkipWhitespace( char *data, qboolean *hasNewLines ) {
+const char *SkipWhitespace( const char *data, qboolean *hasNewLines ) {
 #else
 static char *SkipWhitespace( char *data, qboolean *hasNewLines ) {
 #endif // RTCW_XX
@@ -702,10 +702,10 @@ COM_ParseExt
 */
 #endif // RTCW_XX
 
-char *COM_ParseExt( char **data_p, qboolean allowLineBreaks ) {
+char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks ) {
 	int c = 0, len;
 	qboolean hasNewLines = qfalse;
-	char *data;
+	const char *data;
 
 	data = *data_p;
 	len = 0;
@@ -871,7 +871,7 @@ char *COM_ParseExt( char **data_p, qboolean allowLineBreaks ) {
 COM_MatchToken
 ==================
 */
-void COM_MatchToken( char **buf_p, const char *match ) {
+void COM_MatchToken( const char **buf_p, const char *match ) {
 	char    *token;
 
 	token = COM_Parse( buf_p );
@@ -914,7 +914,7 @@ Internal brace depths are properly skipped.
 */
 
 #if !defined RTCW_MP
-void SkipBracedSection( char **program ) {
+void SkipBracedSection( const char **program ) {
 #else
 void SkipBracedSection_Depth( char **program, int depth ) {
 #endif // RTCW_XX
@@ -982,7 +982,7 @@ Parse1DMatrix
 */
 #endif // RTCW_XX
 
-void Parse1DMatrix( char **buf_p, int x, float *m ) {
+void Parse1DMatrix( const char **buf_p, int x, float *m ) {
 	char    *token;
 	int i;
 
@@ -1004,7 +1004,7 @@ Parse2DMatrix
 */
 #endif // RTCW_XX
 
-void Parse2DMatrix( char **buf_p, int y, int x, float *m ) {
+void Parse2DMatrix( const char **buf_p, int y, int x, float *m ) {
 	int i;
 
 	COM_MatchToken( buf_p, "(" );
@@ -1024,7 +1024,7 @@ Parse3DMatrix
 */
 #endif // RTCW_XX
 
-void Parse3DMatrix( char **buf_p, int z, int y, int x, float *m ) {
+void Parse3DMatrix( const char **buf_p, int z, int y, int x, float *m ) {
 	int i;
 
 	COM_MatchToken( buf_p, "(" );

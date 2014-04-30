@@ -247,8 +247,8 @@ void trap_SnapVector( float *v ) {
 	return;
 }
 
-qboolean trap_GetTag( int clientNum, char *tagName, orientation_t *or ) {
-	return syscall( G_GETTAG, clientNum, tagName, or );
+qboolean trap_GetTag( int clientNum, const char *tagName, orientation_t *orient ) {
+	return syscall( G_GETTAG, clientNum, tagName, orient );
 }
 
 // BotLib traps start here
@@ -260,7 +260,7 @@ int trap_BotLibShutdown( void ) {
 	return syscall( BOTLIB_SHUTDOWN );
 }
 
-int trap_BotLibVarSet( char *var_name, char *value ) {
+int trap_BotLibVarSet( const char *var_name, const char *value ) {
 	return syscall( BOTLIB_LIBVAR_SET, var_name, value );
 }
 
@@ -340,19 +340,19 @@ int trap_AAS_NextBSPEntity( int ent ) {
 	return syscall( BOTLIB_AAS_NEXT_BSP_ENTITY, ent );
 }
 
-int trap_AAS_ValueForBSPEpairKey( int ent, char *key, char *value, int size ) {
+int trap_AAS_ValueForBSPEpairKey( int ent, const char *key, const char *value, int size ) {
 	return syscall( BOTLIB_AAS_VALUE_FOR_BSP_EPAIR_KEY, ent, key, value, size );
 }
 
-int trap_AAS_VectorForBSPEpairKey( int ent, char *key, vec3_t v ) {
+int trap_AAS_VectorForBSPEpairKey( int ent, const char *key, vec3_t v ) {
 	return syscall( BOTLIB_AAS_VECTOR_FOR_BSP_EPAIR_KEY, ent, key, v );
 }
 
-int trap_AAS_FloatForBSPEpairKey( int ent, char *key, float *value ) {
+int trap_AAS_FloatForBSPEpairKey( int ent, const char *key, float *value ) {
 	return syscall( BOTLIB_AAS_FLOAT_FOR_BSP_EPAIR_KEY, ent, key, value );
 }
 
-int trap_AAS_IntForBSPEpairKey( int ent, char *key, int *value ) {
+int trap_AAS_IntForBSPEpairKey( int ent, const char *key, int *value ) {
 	return syscall( BOTLIB_AAS_INT_FOR_BSP_EPAIR_KEY, ent, key, value );
 }
 
@@ -398,7 +398,7 @@ void trap_EA_Say( int client, char *str ) {
 	syscall( BOTLIB_EA_SAY, client, str );
 }
 
-void trap_EA_SayTeam( int client, char *str ) {
+void trap_EA_SayTeam( int client, const char *str ) {
 	syscall( BOTLIB_EA_SAY_TEAM, client, str );
 }
 
@@ -562,11 +562,11 @@ int trap_BotNumConsoleMessages( int chatstate ) {
 	return syscall( BOTLIB_AI_NUM_CONSOLE_MESSAGE, chatstate );
 }
 
-void trap_BotInitialChat( int chatstate, char *type, int mcontext, char *var0, char *var1, char *var2, char *var3, char *var4, char *var5, char *var6, char *var7 ) {
+void trap_BotInitialChat( int chatstate, const char *type, int mcontext, const char *var0, const char *var1, const char *var2, const char *var3, const char *var4, const char *var5, const char *var6, const char *var7 ) {
 	syscall( BOTLIB_AI_INITIAL_CHAT, chatstate, type, mcontext, var0, var1, var2, var3, var4, var5, var6, var7 );
 }
 
-int trap_BotNumInitialChats( int chatstate, char *type ) {
+int trap_BotNumInitialChats( int chatstate, const char *type ) {
 	return syscall( BOTLIB_AI_NUM_INITIAL_CHATS, chatstate, type );
 }
 
@@ -678,7 +678,7 @@ int trap_BotItemGoalInVisButNotVisible( int viewer, vec3_t eye, vec3_t viewangle
 	return syscall( BOTLIB_AI_ITEM_GOAL_IN_VIS_BUT_NOT_VISIBLE, viewer, eye, viewangles, goal );
 }
 
-int trap_BotGetLevelItemGoal( int index, char *classname, void /* struct bot_goal_s */ *goal ) {
+int trap_BotGetLevelItemGoal( int index, const char *classname, void /* struct bot_goal_s */ *goal ) {
 	return syscall( BOTLIB_AI_GET_LEVEL_ITEM_GOAL, index, classname, goal );
 }
 

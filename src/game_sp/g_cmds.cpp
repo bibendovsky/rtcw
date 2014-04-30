@@ -378,7 +378,7 @@ void Cmd_Give_f( gentity_t *ent ) {
 
 		it_ent = G_Spawn();
 		VectorCopy( ent->r.currentOrigin, it_ent->s.origin );
-		it_ent->classname = it->classname;
+		it_ent->classname = const_cast<char*>(it->classname);
 		G_SpawnItem( it_ent, it );
 		FinishSpawningItem( it_ent );
 		memset( &trace, 0, sizeof( trace ) );
@@ -402,7 +402,7 @@ argv(0) god
 ==================
 */
 void Cmd_God_f( gentity_t *ent ) {
-	char    *msg;
+	const char    *msg;
 
 	if ( !CheatsOk( ent ) ) {
 		return;
@@ -429,7 +429,7 @@ argv(0) nofatigue
 */
 
 void Cmd_Nofatigue_f( gentity_t *ent ) {
-	char    *msg;
+	const char    *msg;
 
 	if ( !CheatsOk( ent ) ) {
 		return;
@@ -455,7 +455,7 @@ argv(0) notarget
 ==================
 */
 void Cmd_Notarget_f( gentity_t *ent ) {
-	char    *msg;
+	const char    *msg;
 
 	if ( !CheatsOk( ent ) ) {
 		return;
@@ -480,7 +480,7 @@ argv(0) noclip
 ==================
 */
 void Cmd_Noclip_f( gentity_t *ent ) {
-	char    *msg;
+	const char    *msg;
 
 	if ( !CheatsOk( ent ) ) {
 		return;
@@ -550,7 +550,7 @@ void Cmd_Kill_f( gentity_t *ent ) {
 SetTeam
 =================
 */
-void SetTeam( gentity_t *ent, char *s ) {
+void SetTeam( gentity_t *ent, const char *s ) {
 	int team, oldTeam;
 	gclient_t           *client;
 	int clientNum;
@@ -1031,7 +1031,7 @@ static void Cmd_Tell_f( gentity_t *ent ) {
 }
 
 
-static char *gc_orders[] = {
+static const char *gc_orders[] = {
 	"hold your position",
 	"hold this position",
 	"come here",

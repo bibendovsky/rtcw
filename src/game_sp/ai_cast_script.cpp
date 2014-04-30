@@ -227,8 +227,8 @@ cast_script_stack_action_t scriptActions[] =
 	{NULL,              NULL}
 };
 
-qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, char *eventParm );
-qboolean AICast_EventMatch_IntInRange( cast_script_event_t *event, char *eventParm );
+qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, const char *eventParm );
+qboolean AICast_EventMatch_IntInRange( cast_script_event_t *event, const char *eventParm );
 
 // the list of events that can start an action sequence
 // NOTE!!: only append to this list, DO NOT INSERT!!
@@ -269,7 +269,7 @@ cast_script_event_define_t scriptEvents[] =
 AICast_EventMatch_StringEqual
 ===============
 */
-qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, char *eventParm ) {
+qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, const char *eventParm ) {
 	if ( !event->params || !event->params[0] || ( eventParm && !Q_strcasecmp( event->params, eventParm ) ) ) {
 		return qtrue;
 	} else {
@@ -282,8 +282,9 @@ qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, char *eventP
 AICast_EventMatch_IntInRange
 ===============
 */
-qboolean AICast_EventMatch_IntInRange( cast_script_event_t *event, char *eventParm ) {
-	char *pString, *token;
+qboolean AICast_EventMatch_IntInRange( cast_script_event_t *event, const char *eventParm ) {
+    const char* pString;
+    char* token;
 	int int1, int2, eInt;
 
 	// get the cast name
@@ -397,7 +398,7 @@ AICast_ScriptParse
 void AICast_ScriptParse( cast_state_t *cs ) {
 	#define MAX_SCRIPT_EVENTS   64
 	gentity_t   *ent;
-	char        *pScript;
+	const char        *pScript;
 	char        *token;
 	qboolean wantName;
 	qboolean inScript;
@@ -654,7 +655,7 @@ AICast_ScriptEvent
   An event has occured, for which a script may exist
 ================
 */
-void AICast_ScriptEvent( struct cast_state_s *cs, char *eventStr, char *params ) {
+void AICast_ScriptEvent( struct cast_state_s *cs, const char *eventStr, const char *params ) {
 	int i, eventNum;
 
 	eventNum = -1;
@@ -721,7 +722,7 @@ AICast_ForceScriptEvent
   Definately run this event now, overriding any paised state
 ================
 */
-void AICast_ForceScriptEvent( struct cast_state_s *cs, char *eventStr, char *params ) {
+void AICast_ForceScriptEvent( struct cast_state_s *cs, const char *eventStr, const char *params ) {
 	int oldPauseTime;
 
 	oldPauseTime = cs->scriptPauseTime;

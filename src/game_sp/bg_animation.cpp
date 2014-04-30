@@ -376,7 +376,7 @@ animModelInfo_t *BG_ModelInfoForModelname( char *modelname ) {
 BG_AnimationIndexForString
 =================
 */
-int BG_AnimationIndexForString( char *string, int client ) {
+int BG_AnimationIndexForString( const char *string, int client ) {
 	int i, hash;
 	animation_t *anim;
 	animModelInfo_t *modelInfo;
@@ -514,7 +514,9 @@ BG_AnimParseAnimConfig
 ============
 */
 qboolean BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *filename, const char *input ) {
-	char    *text_p, *token, *oldtext_p;
+    const char* text_p;
+    char* token;
+    const char* oldtext_p;
 	animation_t *animations;
 	headAnimation_t *headAnims;
 	int i, fps, skip = -1;
@@ -794,7 +796,7 @@ BG_ParseConditionBits
   convert the string into a single int containing bit flags, stopping at a ',' or end of line
 =================
 */
-void BG_ParseConditionBits( char **text_pp, animStringItem_t *stringTable, int condIndex, int result[2] ) {
+void BG_ParseConditionBits( const char **text_pp, animStringItem_t *stringTable, int condIndex, int result[2] ) {
 	qboolean endFlag = qfalse;
 	int indexFound;
 	int /*indexBits,*/ tempBits[2];
@@ -834,7 +836,7 @@ void BG_ParseConditionBits( char **text_pp, animStringItem_t *stringTable, int c
 		}
 
 		if ( !Q_stricmp( token, "NOT" ) ) {
-			token = "MINUS"; // NOT is equivalent to MINUS
+			token = const_cast<char*>("MINUS"); // NOT is equivalent to MINUS
 		}
 
 		if ( !endFlag && Q_stricmp( token, "AND" ) && Q_stricmp( token, "MINUS" ) ) { // must be a index
@@ -907,7 +909,7 @@ BG_ParseConditions
   returns qtrue if everything went ok, error drops otherwise
 =================
 */
-qboolean BG_ParseConditions( char **text_pp, animScriptItem_t *scriptItem ) {
+qboolean BG_ParseConditions( const char **text_pp, animScriptItem_t *scriptItem ) {
 	int conditionIndex, conditionValue[2];
 	char    *token;
 
@@ -970,7 +972,7 @@ qboolean BG_ParseConditions( char **text_pp, animScriptItem_t *scriptItem ) {
 BG_ParseCommands
 =================
 */
-void BG_ParseCommands( char **input, animScriptItem_t *scriptItem, animModelInfo_t *modelInfo, animScriptData_t *scriptData ) {
+void BG_ParseCommands( const char **input, animScriptItem_t *scriptItem, animModelInfo_t *modelInfo, animScriptData_t *scriptData ) {
 	char    *token;
 	animScriptCommand_t *command = NULL; // TTimo: init
 	int partIndex = 0;
@@ -1124,7 +1126,8 @@ static animStringItem_t animParseModesStr[] =
 void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scriptData, int client, char *filename, char *input ) {
 	#define MAX_INDENT_LEVELS   3
 
-	char    *text_p, *token;
+    const char* text_p;
+    char* token;
 	animScriptParseMode_t parseMode;
 	animScript_t        *currentScript;
 	animScriptItem_t tempScriptItem, *currentScriptItem = NULL;    // TTimo: init
@@ -1607,7 +1610,7 @@ int BG_PlayAnim( playerState_t *ps, int animNum, animBodyPart_t bodyPart, int fo
 BG_PlayAnimName
 ===============
 */
-int BG_PlayAnimName( playerState_t *ps, char *animName, animBodyPart_t bodyPart, qboolean setTimer, qboolean isContinue, qboolean force ) {
+int BG_PlayAnimName( playerState_t *ps, const char *animName, animBodyPart_t bodyPart, qboolean setTimer, qboolean isContinue, qboolean force ) {
 	return BG_PlayAnim( ps, BG_AnimationIndexForString( animName, ps->clientNum ), bodyPart, 0, setTimer, isContinue, force );
 }
 

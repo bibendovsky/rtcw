@@ -46,7 +46,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "ai_cast.h"
 
 static int numaifuncs;
-static char     *aifuncs[MAX_AIFUNCS];
+static const char     *aifuncs[MAX_AIFUNCS];
 
 /*
 ==========
@@ -62,7 +62,7 @@ void AICast_DBG_InitAIFuncs( void ) {
 AICast_DBG_AddAIFunc
 ==========
 */
-void AICast_DBG_AddAIFunc( cast_state_t *cs, char *funcname ) {
+void AICast_DBG_AddAIFunc( cast_state_t *cs, const char *funcname ) {
 	if ( aicast_debug.integer ) {
 		if ( aicast_debug.integer != 2 || ( g_entities[cs->entityNum].aiName && !strcmp( aicast_debugname.string, g_entities[cs->entityNum].aiName ) ) ) {
 			G_Printf( "%s: %s\n", g_entities[cs->entityNum].aiName, funcname );
@@ -148,7 +148,7 @@ void AICast_DBG_RouteTable_f( vec3_t org, char *param ) {
 AICast_DBG_Spawn_f
 ===============
 */
-void AICast_DBG_Spawn_f( gclient_t *client, char *cmd ) {
+void AICast_DBG_Spawn_f( gclient_t *client, const char *cmd ) {
 	extern qboolean G_CallSpawn( gentity_t *ent );
 	gentity_t   *ent;
 	vec3_t dir;
