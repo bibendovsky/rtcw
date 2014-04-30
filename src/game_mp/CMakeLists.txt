@@ -124,6 +124,7 @@ add_library(
 set_target_properties(
     ${RTCW_TARGET}
     PROPERTIES
+    PREFIX ""
     OUTPUT_NAME qagame_mp_x86
     RUNTIME_OUTPUT_DIRECTORY ${RTCW_MP_BIN_DIR}
 )

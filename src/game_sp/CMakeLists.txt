@@ -125,6 +125,7 @@ add_library(
 set_target_properties(
     ${RTCW_TARGET}
     PROPERTIES
+    PREFIX ""
     OUTPUT_NAME qagamex86
     RUNTIME_OUTPUT_DIRECTORY ${RTCW_SP_BIN_DIR}
 )
