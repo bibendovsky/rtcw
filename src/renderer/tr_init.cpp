@@ -91,7 +91,7 @@ rtcw::OglTessState ogl_tess_state;
 GLuint ogl_tess_vbo = 0;
 int ogl_tess_base_vertex = 0;
 
-rtcw::OglTessProgram* ogl_tess_program = nullptr;
+rtcw::OglTessProgram* ogl_tess_program = NULL;
 
 OglTessLayout ogl_tess2;
 GLuint ogl_tess2_vbo = 0;
@@ -493,14 +493,14 @@ void r_reload_programs_f ()
 
     bool is_try_successfull = true;
 
-    ogl_tess_state.set_program (nullptr);
+    ogl_tess_state.set_program (NULL);
 
-    if (ogl_tess_program == nullptr) {
+    if (ogl_tess_program == NULL) {
         ogl_tess_program = new rtcw::OglTessProgram (
             glsl_dir, "tess");
     }
 
-    if (ogl_tess_program != nullptr)
+    if (ogl_tess_program != NULL)
         is_try_successfull &= ogl_tess_program->try_reload ();
     else {
         is_try_successfull = false;
@@ -524,12 +524,12 @@ static void r_tess_initialize ()
 
     ::glGenBuffers (1, &ogl_tess_vbo);
     ::glBindBuffer (GL_ARRAY_BUFFER, ogl_tess_vbo);
-    ::glBufferData (GL_ARRAY_BUFFER, vbo_size, nullptr, GL_DYNAMIC_DRAW);
+    ::glBufferData (GL_ARRAY_BUFFER, vbo_size, NULL, GL_DYNAMIC_DRAW);
     ::glBindBuffer (GL_ARRAY_BUFFER, 0);
 
     ::glGenBuffers (1, &ogl_tess2_vbo);
     ::glBindBuffer (GL_ARRAY_BUFFER, ogl_tess2_vbo);
-    ::glBufferData (GL_ARRAY_BUFFER, vbo_size, nullptr, GL_DYNAMIC_DRAW);
+    ::glBufferData (GL_ARRAY_BUFFER, vbo_size, NULL, GL_DYNAMIC_DRAW);
     ::glBindBuffer (GL_ARRAY_BUFFER, 0);
 
     ogl_tess_base_vertex = 0;
@@ -2068,7 +2068,7 @@ void R_PurgeCache( void ) {
 static void r_shutdown_programs ()
 {
     delete ogl_tess_program;
-    ogl_tess_program = nullptr;
+    ogl_tess_program = NULL;
 }
 // BBi
 

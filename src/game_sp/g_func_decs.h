@@ -346,7 +346,7 @@ extern int Q_isprint ( int c ) ;
 extern void Parse3DMatrix ( const char * * buf_p , int z , int y , int x , float * m ) ;
 extern void Parse2DMatrix ( const char * * buf_p , int y , int x , float * m ) ;
 extern void Parse1DMatrix ( const char * * buf_p , int x , float * m ) ;
-extern void SkipRestOfLine ( char * * data ) ;
+extern void SkipRestOfLine ( const char * * data ) ;
 extern void SkipBracedSection ( const char * * program ) ;
 extern void COM_MatchToken ( const char * * buf_p , const char * match ) ;
 extern char * COM_ParseExt ( const char * * data_p , qboolean allowLineBreaks ) ;

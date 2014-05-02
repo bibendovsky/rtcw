@@ -36,11 +36,8 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include <cassert>
-
-#include <algorithm>
-
+#include <memory>
 #include "SDL.h"
-
 #include "snd_local.h"
 
 
@@ -68,17 +65,17 @@ void sdl_audio_callback(
     if (sdl_dma_position < 0 || sdl_dma_position > SDL_DMA_BUFFER_SIZE)
         sdl_dma_position = 0;
 
-    auto remain_length = SDL_DMA_BUFFER_SIZE - sdl_dma_position;
-    auto length1 = std::min(len, remain_length);
-    auto length2 = len - length1;
+    int remain_length = SDL_DMA_BUFFER_SIZE - sdl_dma_position;
+    int length1 = std::min(len, remain_length);
+    int length2 = len - length1;
 
-    auto src_data = &dma.buffer[sdl_dma_position];
+    byte* src_data = &dma.buffer[sdl_dma_position];
 
-    std::uninitialized_copy_n(src_data, length1, stream);
+    std::uninitialized_copy(src_data, src_data + length1, stream);
     sdl_dma_position += length1;
 
     if (length2 > 0) {
-        std::uninitialized_copy_n(dma.buffer, length2, &stream[length1]);
+        std::uninitialized_copy(dma.buffer, dma.buffer + length2, &stream[length1]);
         sdl_dma_position = length2;
     }
 }
@@ -98,7 +95,7 @@ void SNDDMA_Shutdown()
     ::SDL_PauseAudio(true);
 
     delete [] dma.buffer;
-    dma.buffer = nullptr;
+    dma.buffer = NULL;
 
     ::SDL_QuitSubSystem(SDL_INIT_AUDIO);
 
@@ -112,8 +109,8 @@ qboolean SNDDMA_Init()
 
     ::Com_Printf("Initializing SDL audio subsystem...\n");
 
-    auto sdl_result = 0;
-    auto is_succeed = true;
+    int sdl_result = 0;
+    bool is_succeed = true;
 
     sdl_dma_position = 0;
 
@@ -127,7 +124,7 @@ qboolean SNDDMA_Init()
     }
 
 
-    auto frequency = 0;
+    int frequency = 0;
 
     if (is_succeed) {
         switch (s_khz->integer) {
@@ -159,7 +156,7 @@ qboolean SNDDMA_Init()
         spec.freq = frequency;
         spec.samples = 512;
 
-        sdl_result = ::SDL_OpenAudio(&spec, nullptr);
+        sdl_result = ::SDL_OpenAudio(&spec, NULL);
 
         if (sdl_result != 0) {
             is_succeed = false;

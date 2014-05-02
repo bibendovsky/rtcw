@@ -257,7 +257,7 @@ void BotDrawDebugPolygons( BotPolyFunc drawPoly, int value ) {
 BotImport_Print
 ==================
 */
-void QDECL BotImport_Print( int type, char *fmt, ... ) {
+void QDECL BotImport_Print( int type, const char *fmt, ... ) {
 	char str[2048];
 	va_list ap;
 
@@ -632,7 +632,7 @@ qboolean BotImport_BotCheckAttackAtPos( int entnum, int enemy, vec3_t pos, qbool
 SV_BotClientCommand
 ==================
 */
-void BotClientCommand( int client, char *command ) {
+void BotClientCommand( int client, const char *command ) {
 
 #if !defined RTCW_ET
 	SV_ExecuteClientCommand( &svs.clients[client], command, qtrue );
@@ -930,7 +930,7 @@ int SV_BotGetConsoleMessage( int client, char *buf, int size ) {
 	int index;
 
 #if defined RTCW_SP
-	char        *msg;
+	const char        *msg;
 #endif // RTCW_XX
 
 	cl = &svs.clients[client];

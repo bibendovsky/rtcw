@@ -60,7 +60,7 @@ aas_t *aasworld;
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void QDECL AAS_Error( char *fmt, ... ) {
+void QDECL AAS_Error( const char *fmt, ... ) {
 	char str[1024];
 	va_list arglist;
 
@@ -100,7 +100,7 @@ void AAS_SetCurrentWorld( int index ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-char *AAS_StringFromIndex( char *indexname, char *stringindex[], int numindexes, int index ) {
+const char *AAS_StringFromIndex( char *indexname, char *stringindex[], int numindexes, int index ) {
 	if ( !( *aasworld ).indexessetup ) {
 		botimport.Print( PRT_ERROR, "%s: index %d not setup\n", indexname, index );
 		return "";
@@ -156,7 +156,7 @@ char *AAS_ModelFromIndex( int index ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_IndexFromModel( char *modelname ) {
+int AAS_IndexFromModel( const char *modelname ) {
 //	return AAS_IndexFromString("IndexFromModel", &(*aasworld).configstrings[CS_MODELS], MAX_MODELS, modelname);
 	return 0;   // removed so the CS_ defines could be removed from be_aas_def.h
 } //end of the function AAS_IndexFromModel

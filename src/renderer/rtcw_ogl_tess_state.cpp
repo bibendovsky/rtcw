@@ -9,7 +9,7 @@ namespace rtcw {
 
 
 OglTessState::OglTessState () :
-    program_ (nullptr)
+    program_ (NULL)
 {
     set_default_values ();
 }
@@ -298,7 +298,7 @@ void OglTessState::invalidate_and_commit ()
 
 bool OglTessState::is_program_valid () const
 {
-    if (program_ == nullptr)
+    if (program_ == NULL)
         return false;
 
     if (program_->program == 0)

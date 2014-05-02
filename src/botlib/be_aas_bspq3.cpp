@@ -275,7 +275,7 @@ int AAS_BSPEntityInRange( int ent ) {
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_ValueForBSPEpairKey( int ent, char *key, char *value, int size ) {
+int AAS_ValueForBSPEpairKey( int ent, const char *key, char *value, int size ) {
 	bsp_epair_t *epair;
 
 	value[0] = '\0';
@@ -298,7 +298,7 @@ int AAS_ValueForBSPEpairKey( int ent, char *key, char *value, int size ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_VectorForBSPEpairKey( int ent, char *key, vec3_t v ) {
+int AAS_VectorForBSPEpairKey( int ent, const char *key, vec3_t v ) {
 	char buf[MAX_EPAIRKEY];
 	double v1, v2, v3;
 
@@ -320,7 +320,7 @@ int AAS_VectorForBSPEpairKey( int ent, char *key, vec3_t v ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_FloatForBSPEpairKey( int ent, char *key, float *value ) {
+int AAS_FloatForBSPEpairKey( int ent, const char *key, float *value ) {
 	char buf[MAX_EPAIRKEY];
 
 	*value = 0;
@@ -336,7 +336,7 @@ int AAS_FloatForBSPEpairKey( int ent, char *key, float *value ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_IntForBSPEpairKey( int ent, char *key, int *value ) {
+int AAS_IntForBSPEpairKey( int ent, const char *key, int *value ) {
 	char buf[MAX_EPAIRKEY];
 
 	*value = 0;

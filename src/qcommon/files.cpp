@@ -2031,7 +2031,7 @@ TTimo - this was not in the 1.30 filesystem code
 using fs_homepath for the file to remove
 ==============
 */
-int FS_Delete( char *filename ) {
+int FS_Delete( const char *filename ) {
 	char *ospath;
 
 #if defined RTCW_ET
@@ -2760,7 +2760,7 @@ Returns a uniqued list of files that match the given criteria
 from all search paths
 ===============
 */
-char **FS_ListFilteredFiles( const char *path, const char *extension, char *filter, int *numfiles ) {
+char **FS_ListFilteredFiles( const char *path, const char *extension, const char *filter, int *numfiles ) {
 	int nfiles;
 	char            **listCopy;
 	char            *list[MAX_FOUND_FILES];
@@ -3192,8 +3192,8 @@ FS_Dir_f
 ================
 */
 void FS_Dir_f( void ) {
-	char    *path;
-	char    *extension;
+	const char    *path;
+	const char    *extension;
 	char    **dirnames;
 	int ndirs;
 	int i;
@@ -3320,7 +3320,7 @@ FS_NewDir_f
 ================
 */
 void FS_NewDir_f( void ) {
-	char    *filter;
+	const char    *filter;
 	char    **dirnames;
 	int ndirs;
 	int i;
@@ -3577,7 +3577,7 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 FS_idPak
 ================
 */
-qboolean FS_idPak( char *pak, char *base ) {
+qboolean FS_idPak( const char *pak, const char *base ) {
 	int i;
 
 #if !defined RTCW_SP

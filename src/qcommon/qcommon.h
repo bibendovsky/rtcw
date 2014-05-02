@@ -559,7 +559,7 @@ void Cmd_CommandCompletion( void ( *callback )( const char *s ) );
 // callback with each valid string
 
 int     Cmd_Argc( void );
-char    *Cmd_Argv( int arg );
+const char    *Cmd_Argv( int arg );
 void    Cmd_ArgvBuffer( int arg, char *buffer, int bufferLength );
 char    *Cmd_Args( void );
 char    *Cmd_ArgsFrom( int arg );
@@ -634,7 +634,7 @@ float   Cvar_VariableValue( const char *var_name );
 int     Cvar_VariableIntegerValue( const char *var_name );
 // returns 0 if not defined or non numeric
 
-char    *Cvar_VariableString( const char *var_name );
+const char    *Cvar_VariableString( const char *var_name );
 void    Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
 // returns an empty string if not defined
 
@@ -782,7 +782,7 @@ int FS_FOpenFileRead_Filtered( const char *qpath, fileHandle_t *file, qboolean u
 int     FS_FileIsInPAK( const char *filename, int *pChecksum );
 // returns 1 if a file is in the PAK file, otherwise -1
 
-int     FS_Delete( char *filename );    // only works inside the 'save' directory (for deleting savegames/images)
+int     FS_Delete( const char *filename );    // only works inside the 'save' directory (for deleting savegames/images)
 
 int     FS_Write( const void *buffer, int len, fileHandle_t f );
 
@@ -854,7 +854,7 @@ void FS_PureServerSetLoadedPaks( const char *pakSums, const char *pakNames );
 // separated checksums will be checked for files, with the
 // sole exception of .cfg files.
 
-qboolean FS_idPak( char *pak, char *base );
+qboolean FS_idPak( const char *pak, const char *base );
 
 #if defined RTCW_ET
 qboolean FS_VerifyOfficialPaks( void );
@@ -995,9 +995,9 @@ int         Com_EventLoop( void );
 int         Com_Milliseconds( void );   // will be journaled properly
 unsigned    Com_BlockChecksum( const void *buffer, int length );
 unsigned    Com_BlockChecksumKey( void *buffer, int length, int key );
-int         Com_HashKey( char *string, int maxlen );
-int         Com_Filter( char *filter, char *name, int casesensitive );
-int         Com_FilterPath( char *filter, char *name, int casesensitive );
+int         Com_HashKey( const char *string, int maxlen );
+int         Com_Filter( const char *filter, const char *name, int casesensitive );
+int         Com_FilterPath( const char *filter, const char *name, int casesensitive );
 int         Com_RealTime( qtime_t *qtime );
 qboolean    Com_SafeMode( void );
 
@@ -1250,7 +1250,7 @@ void SCR_DebugGraph( float value, int color );   // FIXME: move logging to commo
 // server interface
 //
 void SV_Init( void );
-void SV_Shutdown( char *finalmsg );
+void SV_Shutdown( const char *finalmsg );
 void SV_Frame( int msec );
 void SV_PacketEvent( netadr_t from, msg_t *msg );
 qboolean SV_GameCommand( void );
@@ -1371,12 +1371,12 @@ qboolean    Sys_CheckCD( void );
 
 void    Sys_Mkdir( const char *path );
 char    *Sys_Cwd( void );
-char    *Sys_DefaultCDPath( void );
-char    *Sys_DefaultBasePath( void );
+const char    *Sys_DefaultCDPath( void );
+const char    *Sys_DefaultBasePath( void );
 const char* Sys_DefaultInstallPath();
 const char* Sys_DefaultHomePath();
 
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs );
+char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs );
 void    Sys_FreeFileList( char **list );
 
 void    Sys_BeginProfiling( void );
@@ -1389,13 +1389,13 @@ unsigned int Sys_ProcessorCount();
 // NOTE TTimo - on win32 the cwd is prepended .. non portable behaviour
 #endif // RTCW_XX
 
-void Sys_StartProcess( char *exeName, qboolean doexit );            // NERVE - SMF
+void Sys_StartProcess( const char *exeName, qboolean doexit );            // NERVE - SMF
 
 #if defined RTCW_SP
 // TTimo
 // show_bug.cgi?id=447
 //int Sys_ShellExecute(char *op, char *file, qboolean doexit, char *params, char *dir);	//----(SA) added
-void Sys_OpenURL( char *url, qboolean doexit );                     // NERVE - SMF
+void Sys_OpenURL( const char *url, qboolean doexit );                     // NERVE - SMF
 #else
 void Sys_OpenURL( const char *url, qboolean doexit );                       // NERVE - SMF
 #endif // RTCW_XX

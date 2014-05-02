@@ -122,7 +122,7 @@ void EA_Gesture( int client ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void EA_Command( int client, char *command ) {
+void EA_Command( int client, const char *command ) {
 	botimport.BotClientCommand( client, command );
 } //end of the function EA_Command
 //===========================================================================

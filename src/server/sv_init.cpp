@@ -119,7 +119,7 @@ void SV_SetConfigstring( int index, const char *val ) {
 			if ( len >= maxChunkSize ) {
 				int sent = 0;
 				int remaining = len;
-				char    *cmd;
+				const char    *cmd;
 				char buf[MAX_STRING_CHARS];
 
 				while ( remaining > 0 ) {
@@ -428,8 +428,8 @@ void SV_FreeReliableCommandsForClient( client_t *cl ) {
 SV_GetReliableCommand
 ===============
 */
-char *SV_GetReliableCommand( client_t *cl, int index ) {
-	static char *nullStr = "";
+const char *SV_GetReliableCommand( client_t *cl, int index ) {
+	static const char *nullStr = "";
 	if ( !cl->reliableCommands.bufSize ) {
 		return nullStr;
 	}
@@ -723,9 +723,9 @@ SV_SetExpectedHunkUsage
 */
 void SV_SetExpectedHunkUsage( char *mapname ) {
 	int handle;
-	char *memlistfile = "hunkusage.dat";
+	const char *memlistfile = "hunkusage.dat";
 	char *buf;
-	char *buftrav;
+	const char *buftrav;
 	char *token;
 	int len;
 
@@ -1639,7 +1639,7 @@ not just stuck on the outgoing message list, because the server is going
 to totally exit after returning from this function.
 ==================
 */
-void SV_FinalMessage( char *message ) {
+void SV_FinalMessage( const char *message ) {
 #else
 /*
 ==================
@@ -1696,7 +1696,7 @@ Called when each game quits,
 before Sys_Quit or Sys_Error
 ================
 */
-void SV_Shutdown( char *finalmsg ) {
+void SV_Shutdown( const char *finalmsg ) {
 	if ( !com_sv_running || !com_sv_running->integer ) {
 		return;
 	}

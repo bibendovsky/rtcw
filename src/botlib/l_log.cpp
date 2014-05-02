@@ -61,7 +61,7 @@ static logfile_t logfile;
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void Log_AlwaysOpen( char *filename ) {
+void Log_AlwaysOpen( const char *filename ) {
 	if ( !filename || !strlen( filename ) ) {
 		botimport.Print( PRT_MESSAGE, "openlog <filename>\n" );
 		return;
@@ -84,7 +84,7 @@ void Log_AlwaysOpen( char *filename ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void Log_Open( char *filename ) {
+void Log_Open( const char *filename ) {
 	if ( !LibVarValue( "log", "0" ) ) {
 		return;
 	}
@@ -125,7 +125,7 @@ void Log_Shutdown( void ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void QDECL Log_Write( char *fmt, ... ) {
+void QDECL Log_Write( const char *fmt, ... ) {
 	va_list ap;
 
 	if ( !logfile.fp ) {
@@ -143,7 +143,7 @@ void QDECL Log_Write( char *fmt, ... ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void QDECL Log_WriteTimeStamped( char *fmt, ... ) {
+void QDECL Log_WriteTimeStamped( const char *fmt, ... ) {
 	va_list ap;
 
 	if ( !logfile.fp ) {

@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 extern SDL_Window* sys_gl_window;
 
 
-cvar_t* in_mouse = nullptr;
+cvar_t* in_mouse = NULL;
 
 
 void Sys_QueEvent(
@@ -70,7 +70,7 @@ bool Mouse::initialize()
 
     ::Com_Printf("Initializing mouse input...\n");
 
-    auto sdl_result = 0;
+    int sdl_result = 0;
 
     if (::SDL_WasInit(SDL_INIT_VIDEO) == 0) {
         sdl_result = ::SDL_InitSubSystem(SDL_INIT_VIDEO);
@@ -145,8 +145,8 @@ void Mouse::activate(bool value)
     else {
         ::SDL_SetRelativeMouseMode(SDL_FALSE);
 
-        auto window_flags = ::SDL_GetWindowFlags(sys_gl_window);
-        auto is_fullscreen = ((window_flags & SDL_WINDOW_FULLSCREEN) != 0);
+        Uint32 window_flags = ::SDL_GetWindowFlags(sys_gl_window);
+        bool is_fullscreen = ((window_flags & SDL_WINDOW_FULLSCREEN) != 0);
 
         if (is_fullscreen)
             ::SDL_ShowCursor(SDL_FALSE);
@@ -160,13 +160,13 @@ void Mouse::update()
     if (!is_initialized_)
         return;
 
-    auto activate_value = true;
+    bool activate_value = true;
 
     if (activate_value)
         activate_value = ((cls.keyCatchers & KEYCATCH_CONSOLE) == 0);
 
     if (activate_value) {
-        auto window_flags = ::SDL_GetWindowFlags(sys_gl_window);
+        Uint32 window_flags = ::SDL_GetWindowFlags(sys_gl_window);
         activate_value = ((window_flags & SDL_WINDOW_INPUT_FOCUS) != 0);
     }
 
@@ -178,15 +178,15 @@ void Mouse::reset_state()
     if (!buttons_states_.any())
         return;
 
-    auto timestamp = ::SDL_GetTicks();
+    Uint32 timestamp = ::SDL_GetTicks();
 
     for (int i = 0; i < MAX_BUTTONS_COUNT; ++i) {
-        auto state = buttons_states_.test(i);
+        bool state = buttons_states_.test(i);
 
         if (!state)
             continue;
 
-        auto game_button = get_game_button_by_state_index(i);
+        int game_button = get_game_button_by_state_index(i);
 
         ::Sys_QueEvent(
             timestamp,
@@ -194,7 +194,7 @@ void Mouse::reset_state()
             game_button,
             false,
             0,
-            nullptr);
+            NULL);
     }
 
     buttons_states_.reset();
@@ -208,16 +208,16 @@ void Mouse::register_cvars()
 
 void Mouse::handle_button_event(const SDL_MouseButtonEvent& e)
 {
-    auto button = e.button;
-    auto state_index = get_state_index_by_sys_button(button);
+    int button = e.button;
+    int state_index = get_state_index_by_sys_button(button);
 
     if (state_index < 0)
         return;
 
-    auto game_button = get_game_button_by_sys_button(button);
+    int game_button = get_game_button_by_sys_button(button);
 
     buttons_states_.flip(state_index);
-    auto state = buttons_states_.test(state_index);
+    bool state = buttons_states_.test(state_index);
 
     ::Sys_QueEvent(
         e.timestamp,
@@ -225,7 +225,7 @@ void Mouse::handle_button_event(const SDL_MouseButtonEvent& e)
         game_button,
         state,
         0,
-        nullptr);
+        NULL);
 }
 
 void Mouse::handle_motion_event(const SDL_MouseMotionEvent& e)
@@ -236,7 +236,7 @@ void Mouse::handle_motion_event(const SDL_MouseMotionEvent& e)
         e.xrel,
         e.yrel,
         0,
-        nullptr);
+        NULL);
 }
 
 void Mouse::handle_wheel_event(const SDL_MouseWheelEvent& e)
@@ -244,7 +244,7 @@ void Mouse::handle_wheel_event(const SDL_MouseWheelEvent& e)
     if (e.y == 0)
         return;
 
-    auto which = (e.y > 0 ? K_MWHEELUP : K_MWHEELDOWN);
+    int which = (e.y > 0 ? K_MWHEELUP : K_MWHEELDOWN);
 
     ::Sys_QueEvent(
         e.timestamp,
@@ -252,7 +252,7 @@ void Mouse::handle_wheel_event(const SDL_MouseWheelEvent& e)
         which,
         true,
         0,
-        nullptr);
+        NULL);
 
     ::Sys_QueEvent(
         e.timestamp,
@@ -260,7 +260,7 @@ void Mouse::handle_wheel_event(const SDL_MouseWheelEvent& e)
         which,
         false,
         0,
-        nullptr);
+        NULL);
 }
 
 // (static)

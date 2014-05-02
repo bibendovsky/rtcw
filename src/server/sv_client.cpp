@@ -225,8 +225,8 @@ challengeResponse to it
 void SV_AuthorizeIpPacket( netadr_t from ) {
 	int challenge;
 	int i;
-	char    *s;
-	char    *r;
+	const char    *s;
+	const char    *r;
 	char ret[1024];
 
 	if ( !NET_CompareBaseAdr( from, svs.authorizeAddress ) ) {
@@ -339,7 +339,7 @@ void SV_DirectConnect( netadr_t from ) {
 
 	int qport;
 	int challenge;
-	char        *password;
+	const char        *password;
 	int startIndex;
 	char        *denied;
 	int count;
@@ -1791,7 +1791,7 @@ into a more C friendly form.
 =================
 */
 void SV_UserinfoChanged( client_t *cl ) {
-	char    *val;
+	const char    *val;
 	int i;
 
 	// name for C code
@@ -1916,7 +1916,7 @@ static void SV_UpdateUserinfo_f( client_t *cl ) {
 
 
 typedef struct {
-	char    *name;
+	const char    *name;
 	void ( *func )( client_t *cl );
 
 #if defined RTCW_ET

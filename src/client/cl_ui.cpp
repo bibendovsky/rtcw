@@ -928,7 +928,7 @@ static void Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
 void Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
 #endif // RTCW_XX
 
-	char    *value;
+	const char    *value;
 
 	value = Key_GetBinding( keynum );
 	if ( value ) {

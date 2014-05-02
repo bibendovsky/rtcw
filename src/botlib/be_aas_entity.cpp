@@ -612,5 +612,5 @@ areas_again:
 		goto areas_again;
 	}
 }
-#endif RTCW_X
+#endif // RTCW_X
 

@@ -49,7 +49,7 @@ Returns the player with name from Cmd_Argv(1)
 static client_t *SV_GetPlayerByName( void ) {
 	client_t    *cl;
 	int i;
-	char        *s;
+	const char        *s;
 	char cleanName[64];
 
 	// make sure server is running
@@ -103,7 +103,7 @@ static client_t *SV_GetPlayerByNum( void ) {
 	client_t    *cl;
 	int i;
 	int idnum;
-	char        *s;
+	const char        *s;
 
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
@@ -194,8 +194,8 @@ Restart the server on a different map
 ==================
 */
 static void SV_Map_f( void ) {
-	char        *cmd;
-	char        *map;
+	const char        *cmd;
+	const char        *map;
 
 #if !defined RTCW_MP
 	char smapname[MAX_QPATH];
@@ -761,7 +761,7 @@ static void SV_MapRestart_f( void ) {
 		// open the current savegame, and find out what the time is, everything else we can ignore
 
 #if !defined RTCW_ET
-		char *savemap = "save/current.svg";
+		const char *savemap = "save/current.svg";
 #else
 		char savemap[MAX_QPATH];
 #endif // RTCW_XX

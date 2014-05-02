@@ -710,7 +710,7 @@ const char *Com_StringContains( const char *str1, const char *str2, int casesens
 //void    Swap_Init( void );
 //BBi
 
-char    * QDECL va( char *format, ... );
+char    * QDECL va( const char *format, ... );
 
 //#ifdef __cplusplus
 //}

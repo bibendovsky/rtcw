@@ -340,8 +340,8 @@ Set up argc/argv for the given command
 ===================
 */
 qboolean CL_GetServerCommand( int serverCommandNumber ) {
-	char    *s;
-	char    *cmd;
+	const char    *s;
+	const char    *cmd;
 	static char bigConfigString[BIG_INFO_STRING];
 
 #if !defined RTCW_SP
@@ -1490,9 +1490,10 @@ CL_UpdateLevelHunkUsage
 */
 void CL_UpdateLevelHunkUsage( void ) {
 	int handle;
-	char *memlistfile = "hunkusage.dat";
+	const char *memlistfile = "hunkusage.dat";
 	char *buf, *outbuf;
-	char *buftrav, *outbuftrav;
+	const char* buftrav;
+    char* outbuftrav;
 	char *token;
 	char outstr[256];
 	int len, memusage;
@@ -1977,10 +1978,10 @@ void CL_SetCGameTime( void ) {
 CL_GetTag
 ====================
 */
-qboolean CL_GetTag( int clientNum, char *tagname, orientation_t *or ) {
+qboolean CL_GetTag( int clientNum, char *tagname, orientation_t *orient ) {
 	if ( !cgvm ) {
 		return qfalse;
 	}
 
-	return VM_Call( cgvm, CG_GET_TAG, clientNum, tagname, or );
+	return VM_Call( cgvm, CG_GET_TAG, clientNum, tagname, orient );
 }

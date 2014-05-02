@@ -45,10 +45,10 @@ rtcw::input::Mouse mouse;
 } // namespace
 
 
-cvar_t* in_midi = nullptr;
-cvar_t* in_midiport = nullptr;
-cvar_t* in_midichannel = nullptr;
-cvar_t* in_mididevice = nullptr;
+cvar_t* in_midi = NULL;
+cvar_t* in_midiport = NULL;
+cvar_t* in_midichannel = NULL;
+cvar_t* in_mididevice = NULL;
 
 
 extern glconfig_t glConfig;

@@ -3010,7 +3010,8 @@ R_LoadCacheModels
 void R_LoadCacheModels( void ) {
 	int len;
 	byte *buf;
-	char    *token, *pString;
+	char    *token;
+    const char* pString;
 	char name[MAX_QPATH];
 
 #if defined RTCW_SP
@@ -3036,9 +3037,9 @@ void R_LoadCacheModels( void ) {
 	ri.FS_ReadFile( "model.cache", (void **)&buf );
 
 #if defined RTCW_SP
-	pString = reinterpret_cast<char*> (buf);       //DAJ added (char*)
+	pString = reinterpret_cast<const char*> (buf);       //DAJ added (char*)
 #else
-	pString = reinterpret_cast<char*> (buf);
+	pString = reinterpret_cast<const char*> (buf);
 #endif // RTCW_XX
 
 	while ( ( token = COM_ParseExt( &pString, qtrue ) ) && token[0] ) {

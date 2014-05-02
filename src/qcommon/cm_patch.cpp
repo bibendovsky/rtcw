@@ -1625,9 +1625,9 @@ void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollid
 	if ( !cm_playerCurveClip->integer && !tw->isPoint ) {
 		return;     // FIXME: until I get player sized clipping working right
 	}
-#endif  RTCW_XX
+#endif // RTCW_XX
 
-#endif BSPC
+#endif // BSPC
 
 	// determine the trace's relationship to all planes
 	planes = pc->planes;

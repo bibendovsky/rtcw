@@ -33,10 +33,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "keycodes.h"
 
 
-cvar_t* in_joystick = nullptr;
-cvar_t* in_joyBallScale = nullptr;
-cvar_t* in_debugJoystick = nullptr;
-cvar_t* joy_threshold = nullptr;
+cvar_t* in_joystick = NULL;
+cvar_t* in_joyBallScale = NULL;
+cvar_t* in_debugJoystick = NULL;
+cvar_t* joy_threshold = NULL;
 
 
 void Sys_QueEvent(
@@ -74,7 +74,7 @@ namespace input {
 Joystick::Joystick() :
     is_initialized_(false),
     id_(-1),
-    instance_(nullptr),
+    instance_(NULL),
     buttons_states_()
 {
 }
@@ -97,7 +97,7 @@ bool Joystick::initialize()
         return false;
     }
 
-    auto sdl_result = 0;
+    int sdl_result = 0;
     bool is_succeed = true;
 
     if (is_succeed) {
@@ -112,7 +112,7 @@ bool Joystick::initialize()
     }
 
     if (is_succeed) {
-        auto joystick_count = ::SDL_NumJoysticks();
+        int joystick_count = ::SDL_NumJoysticks();
 
         if (joystick_count > 0) {
             ::Com_Printf("  Found %d joysticks.\n", joystick_count);
@@ -126,28 +126,28 @@ bool Joystick::initialize()
     if (is_succeed) {
         instance_ = ::SDL_JoystickOpen(0);
 
-        if (instance_ == nullptr) {
+        if (instance_ == NULL) {
             is_succeed = false;
             ::Com_Printf(S_COLOR_RED "  %s\n", ::SDL_GetError());
         }
     }
 
     if (is_succeed) {
-        auto name = ::SDL_JoystickName(instance_);
+        const char* name = ::SDL_JoystickName(instance_);
 
-        if (name == nullptr)
+        if (name == NULL)
             name = '\0';
 
-        auto guid = ::SDL_JoystickGetGUID(instance_);
+        SDL_JoystickGUID guid = ::SDL_JoystickGetGUID(instance_);
 
         char guid_string[33];
         guid_string[0] = '\0';
         ::SDL_JoystickGetGUIDString(guid, guid_string, 33);
 
-        auto axes_count = ::SDL_JoystickNumAxes(instance_);
-        auto trackballs_count = ::SDL_JoystickNumBalls(instance_);
-        auto buttons_count = ::SDL_JoystickNumButtons(instance_);
-        auto pov_hats_count = ::SDL_JoystickNumHats(instance_);
+        int axes_count = ::SDL_JoystickNumAxes(instance_);
+        int trackballs_count = ::SDL_JoystickNumBalls(instance_);
+        int buttons_count = ::SDL_JoystickNumButtons(instance_);
+        int pov_hats_count = ::SDL_JoystickNumHats(instance_);
 
         ::Com_Printf("  Name: %s\n", name);
         ::Com_Printf("  GUID: %s\n", guid_string);
@@ -173,9 +173,9 @@ void Joystick::uninitialize(bool quiet)
     is_initialized_ = false;
     id_ = -1;
 
-    if (instance_ != nullptr) {
+    if (instance_ != NULL) {
         ::SDL_JoystickClose(instance_);
-        instance_ = nullptr;
+        instance_ = NULL;
     }
 
     buttons_states_.reset();
@@ -219,10 +219,10 @@ void Joystick::reset_state()
     if (!buttons_states_.any())
         return;
 
-    auto timestamp = ::SDL_GetTicks();
+    Uint32 timestamp = ::SDL_GetTicks();
 
     for (int i = 0; i < MAX_BUTTONS_STATES; ++i) {
-        auto state = buttons_states_.test(i);
+        bool state = buttons_states_.test(i);
 
         if (!state)
             continue;
@@ -233,7 +233,7 @@ void Joystick::reset_state()
             direction_keys[i],
             false,
             0,
-            nullptr);
+            NULL);
     }
 
     buttons_states_.reset();
@@ -258,17 +258,17 @@ void Joystick::handle_axis_event(const SDL_JoyAxisEvent& e)
     if (e.value == 0)
         return;
 
-    auto threshold = 0.15F;
+    float threshold = 0.15F;
 
-    if (joy_threshold != nullptr)
+    if (joy_threshold != NULL)
         threshold = joy_threshold->value;
     else
         ::Com_DPrintf(S_COLOR_YELLOW "Null cvar: %s\n", "joy_threshold");
 
-    auto value = e.value / 32768.0F;
+    float value = e.value / 32768.0F;
 
-    auto index = (value > threshold ? 1 : 0);
-    auto key_index = index * e.axis;
+    int index = (value > threshold ? 1 : 0);
+    int key_index = index * e.axis;
 
     buttons_states_.flip(key_index);
 
@@ -278,7 +278,7 @@ void Joystick::handle_axis_event(const SDL_JoyAxisEvent& e)
         direction_keys[key_index],
         buttons_states_[key_index],
         0,
-        nullptr);
+        NULL);
 
     if (can_debug()) {
         ::Com_Printf(
@@ -292,10 +292,10 @@ void Joystick::handle_ball_event(const SDL_JoyBallEvent& e)
 {
     assert(e.type == SDL_JOYBALLMOTION);
 
-    auto scale = in_joyBallScale->value;
+    float scale = in_joyBallScale->value;
 
-    auto x = static_cast<int>(e.xrel * scale);
-    auto y = static_cast<int>(e.yrel * scale);
+    int x = static_cast<int>(e.xrel * scale);
+    int y = static_cast<int>(e.yrel * scale);
 
     if (x == 0 && y == 0)
         return;
@@ -306,7 +306,7 @@ void Joystick::handle_ball_event(const SDL_JoyBallEvent& e)
         x,
         y,
         0,
-        nullptr);
+        NULL);
 
     if (can_debug()) {
         ::Com_Printf(
@@ -362,7 +362,7 @@ void Joystick::handle_hat_event(const SDL_JoyHatEvent& e)
     }
 
     for (int i = 0; i < 2; ++i) {
-        auto index = indices[i];
+        int index = indices[i];
 
         if (index < 0)
             continue;
@@ -375,7 +375,7 @@ void Joystick::handle_hat_event(const SDL_JoyHatEvent& e)
             direction_keys[index],
             buttons_states_[index],
             0,
-            nullptr);
+            NULL);
     }
 
     if (can_debug()) {
@@ -399,7 +399,7 @@ void Joystick::handle_button_event(const SDL_JoyButtonEvent& e)
         K_JOY1 + e.button,
         e.state == SDL_PRESSED,
         0,
-        nullptr);
+        NULL);
 
     if (can_debug()) {
         ::Com_Printf(
@@ -435,7 +435,7 @@ void Joystick::handle_device_event(const SDL_JoyDeviceEvent& e)
 // (static)
 bool Joystick::can_debug()
 {
-    if (in_debugJoystick != nullptr)
+    if (in_debugJoystick != NULL)
         return in_debugJoystick->integer != 0;
 
     ::Com_DPrintf(S_COLOR_YELLOW "Null cvar: %s\n", "in_debugJoystick");

@@ -583,7 +583,7 @@ intptr_t SV_GameSystemCalls (
 	{
 		const char  *s;
 
-		s = COM_Parse( &sv.entityParsePoint );
+		s = COM_Parse( const_cast<const char**>(&sv.entityParsePoint) );
 		Q_strncpyz( static_cast<char*> (VMA( 1 )), s, args[2] );
 		if ( !sv.entityParsePoint && !s[0] ) {
 			return qfalse;
@@ -1322,15 +1322,15 @@ SV_GetTag
 */
 
 #if defined RTCW_SP
-extern qboolean CL_GetTag( int clientNum, char *tagname, orientation_t *or );
+extern qboolean CL_GetTag( int clientNum, char *tagname, orientation_t *orient );
 #else
-extern qboolean CL_GetTag( int clientNum, char *tagname, orientation_t * or );
+extern qboolean CL_GetTag( int clientNum, char *tagname, orientation_t * orient );
 #endif // RTCW_XX
 
 #if !defined RTCW_ET
-qboolean SV_GetTag( int clientNum, char *tagname, orientation_t *or ) {
+qboolean SV_GetTag( int clientNum, char *tagname, orientation_t *orient ) {
 #else
-qboolean SV_GetTag( int clientNum, int tagFileNumber, char *tagname, orientation_t *or ) {
+qboolean SV_GetTag( int clientNum, int tagFileNumber, char *tagname, orientation_t *orient ) {
 	int i;
 #endif // RTCW_XX
 
@@ -1359,7 +1359,7 @@ qboolean SV_GetTag( int clientNum, int tagFileNumber, char *tagname, orientation
 		return qfalse;
 	}
 
-	return CL_GetTag( clientNum, tagname, or );
+	return CL_GetTag( clientNum, tagname, orient );
 #else
 	return qfalse;
 #endif // RTCW_XX

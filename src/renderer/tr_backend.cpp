@@ -911,7 +911,7 @@ extern vec_t VectorLengthSquared( const vec3_t v );
 #define ZOMBIEFX_PERHIT_TAKEALPHA       150
 #define ZOMBIEFX_MAX_HITS_PER_VERT      2
 
-static char *zombieFxFleshHitSurfaceNames[2] = {"u_body","l_legs"};
+static const char *zombieFxFleshHitSurfaceNames[2] = {"u_body","l_legs"};
 
 // this stores each of the flesh hits for each of the zombies in the game
 typedef struct {
@@ -1670,7 +1670,7 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 
-        auto clamp_mode = ::r_get_best_wrap_clamp ();
+        GLenum clamp_mode = ::r_get_best_wrap_clamp ();
 
         ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -1768,7 +1768,7 @@ void RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 
-        auto clamp_mode = ::r_get_best_wrap_clamp ();
+        GLenum clamp_mode = ::r_get_best_wrap_clamp ();
 
         ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

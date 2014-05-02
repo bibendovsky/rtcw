@@ -713,7 +713,7 @@ void IN_Salute( void );
 void CL_VerifyCode( void );
 
 float CL_KeyState( kbutton_t *key );
-char *Key_KeynumToString( int keynum, qboolean bTranslate );
+const char *Key_KeynumToString( int keynum, qboolean bTranslate );
 
 //
 // cl_parse.c

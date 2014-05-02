@@ -75,7 +75,7 @@ void Key_SetBinding( int keynum, const char *binding );
 void Key_GetBindingByString( const char* binding, int* key1, int* key2 );
 #endif // RTCW_XX
 
-char *Key_GetBinding( int keynum );
+const char *Key_GetBinding( int keynum );
 qboolean Key_IsDown( int keynum );
 qboolean Key_GetOverstrikeMode( void );
 void Key_SetOverstrikeMode( qboolean state );

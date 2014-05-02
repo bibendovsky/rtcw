@@ -159,7 +159,7 @@ static LRESULT CALLBACK ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		s_wcd.windowHeight = cy;
 		// -NERVE - SMF
 		break;
-#endif  RTCW_XX
+#endif // RTCW_XX
 
 	case WM_ACTIVATE:
 		if ( LOWORD( wParam ) != WA_INACTIVE ) {

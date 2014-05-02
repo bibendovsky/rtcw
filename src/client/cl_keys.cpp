@@ -61,7 +61,7 @@ qkey_t keys[MAX_KEYS];
 
 
 typedef struct {
-	char    *name;
+	const char    *name;
 	int keynum;
 } keyname_t;
 
@@ -1120,7 +1120,7 @@ static void PrintCvarMatches( const char *s ) {
 
 static void keyConcatArgs( void ) {
 	int i;
-	char    *arg;
+	const char    *arg;
 
 	for ( i = 1 ; i < Cmd_Argc() ; i++ ) {
 		Q_strcat( g_consoleField.buffer, sizeof( g_consoleField.buffer ), " " );
@@ -1572,7 +1572,7 @@ the K_* names are matched up.
 to be configured even if they don't have defined names.
 ===================
 */
-int Key_StringToKeynum( char *str ) {
+int Key_StringToKeynum( const char *str ) {
 	keyname_t   *kn;
 
 	if ( !str || !str[0] ) {
@@ -1643,7 +1643,7 @@ Returns a string (either a single ascii char, a K_* name, or a 0x11 hex string) 
 given keynum.
 ===================
 */
-char *Key_KeynumToString( int keynum, qboolean bTranslate ) {
+const char *Key_KeynumToString( int keynum, qboolean bTranslate ) {
 	keyname_t   *kn;
 	static char tinystr[5];
 	int i, j;
@@ -1785,7 +1785,7 @@ void Key_SetBinding( int keynum, const char *binding ) {
 Key_GetBinding
 ===================
 */
-char *Key_GetBinding( int keynum ) {
+const char *Key_GetBinding( int keynum ) {
 	if ( keynum == -1 ) {
 		return "";
 	}

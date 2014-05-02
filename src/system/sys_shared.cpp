@@ -70,7 +70,7 @@ const char* Sys_GetCurrentUser()
 
 const char* Sys_DefaultHomePath()
 {
-    return nullptr;
+    return NULL;
 }
 
 const char* Sys_DefaultInstallPath()

@@ -36,18 +36,18 @@ bool OglProgram::reload()
 
     ri.Printf(PRINT_ALL, "\"%s\"\n", p_name.c_str());
 
-    auto v_name = p_name + "_vs.txt";
-    auto f_name = p_name + "_fs.txt";
+    std::string v_name = p_name + "_vs.txt";
+    std::string f_name = p_name + "_fs.txt";
 
     bool compile_program = false;
 
-    auto v_result = reload_shader(
+    ReloadShaderResult v_result = reload_shader(
         GL_VERTEX_SHADER,
         v_name,
         vertex_shader_);
 
     if (v_result == RSR_COMPILED) {
-        auto f_result = reload_shader(
+        ReloadShaderResult f_result = reload_shader(
             GL_FRAGMENT_SHADER,
             f_name,
             fragment_shader_);
@@ -66,7 +66,7 @@ bool OglProgram::reload()
         ::glLinkProgram(program);
         ::glGetProgramiv(program, GL_LINK_STATUS, &link_status);
 
-        auto link_log = get_link_log();
+        std::string link_log = get_link_log();
 
         if (link_status != GL_FALSE) {
             if (!link_log.empty()) {
@@ -109,7 +109,7 @@ void OglProgram::unload()
 // (virtual)
 bool OglProgram::try_reload()
 {
-    std::unique_ptr<OglProgram> instance(create_new(glsl_dir_, base_name_));
+    std::auto_ptr<OglProgram> instance(create_new(glsl_dir_, base_name_));
 
     return instance->reload();
 }
@@ -119,9 +119,9 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
     const std::string& file_name,
     GLuint& shader_object)
 {
-    auto result = RSR_UNKNOWN;
+    ReloadShaderResult result = RSR_UNKNOWN;
 
-    void* source_buffer = nullptr;
+    void* source_buffer = NULL;
 
     int source_length = ri.FS_ReadFile(file_name.c_str(), &source_buffer);
 
@@ -141,7 +141,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 
         ::glGetShaderiv(shader_object, GL_COMPILE_STATUS, &compile_status);
 
-        auto compile_log = get_compile_log(shader_object);
+        std::string compile_log = get_compile_log(shader_object);
 
         if (compile_status != GL_FALSE) {
             if (!compile_log.empty()) {
@@ -157,7 +157,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
         }
     }
 
-    if (source_buffer != nullptr)
+    if (source_buffer != NULL)
         ri.FS_FreeFile(source_buffer);
 
     if (result != RSR_COMPILED) {
@@ -180,7 +180,7 @@ std::string OglProgram::get_compile_log(GLuint shader_object)
 
     GLsizei info_log_length; // without a null terminator
 
-    std::unique_ptr<GLchar> info_log(new GLchar[info_log_size]);
+    std::auto_ptr<GLchar> info_log(new GLchar[info_log_size]);
 
     ::glGetShaderInfoLog(
         shader_object,
@@ -206,7 +206,7 @@ std::string OglProgram::get_link_log()
 
     GLsizei info_log_length; // without a null terminator
 
-    std::unique_ptr<GLchar> infoLog(new GLchar[info_log_size]);
+    std::auto_ptr<GLchar> infoLog(new GLchar[info_log_size]);
 
     ::glGetProgramInfoLog(
         program,

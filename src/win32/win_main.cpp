@@ -145,7 +145,7 @@ int Sys_ShellExecute( char *op, char *file, qboolean doexit, char *params, char 
 Sys_StartProcess
 ==================
 */
-void Sys_StartProcess( char *exeName, qboolean doexit ) {           // NERVE - SMF
+void Sys_StartProcess( const char *exeName, qboolean doexit ) {           // NERVE - SMF
 #else
 /*
 ==================
@@ -154,7 +154,7 @@ Sys_StartProcess
 NERVE - SMF
 ==================
 */
-void Sys_StartProcess( char *exeName, qboolean doexit ) {
+void Sys_StartProcess( const char *exeName, qboolean doexit ) {
 #endif // RTCW_XX
 
 	TCHAR szPathOrig[_MAX_PATH];
@@ -199,7 +199,7 @@ void Sys_StartProcess( char *exeName, qboolean doexit ) {
 Sys_OpenURL
 ==================
 */
-void Sys_OpenURL( char *url, qboolean doexit ) {                // NERVE - SMF
+void Sys_OpenURL( const char *url, qboolean doexit ) {                // NERVE - SMF
 #else
 /*
 ==================
@@ -367,7 +367,7 @@ char *Sys_Cwd( void ) {
 Sys_DefaultCDPath
 ==============
 */
-char *Sys_DefaultCDPath( void ) {
+const char *Sys_DefaultCDPath( void ) {
 	return "";
 }
 
@@ -376,7 +376,7 @@ char *Sys_DefaultCDPath( void ) {
 Sys_DefaultBasePath
 ==============
 */
-char *Sys_DefaultBasePath( void ) {
+const char *Sys_DefaultBasePath( void ) {
 	return Sys_Cwd();
 }
 
@@ -390,7 +390,7 @@ DIRECTORY SCANNING
 
 #define MAX_FOUND_FILES 0x1000
 
-void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **list, int *numfiles ) {
+void Sys_ListFilteredFiles( const char *basedir, const char *subdirs, const char *filter, char **list, int *numfiles ) {
 	char search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
 	char filename[MAX_OSPATH];
 	int findhandle;
@@ -457,7 +457,7 @@ static qboolean strgtr( const char *s0, const char *s1 ) {
 	return qfalse;
 }
 
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs ) {
+char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs ) {
 	char search[MAX_OSPATH];
 	int nfiles;
 	char        **listCopy;
@@ -645,7 +645,7 @@ char* Sys_GetClipboardData()
     if (::SDL_HasClipboardText())
         return ::SDL_GetClipboardText();
 
-    return nullptr;
+    return NULL;
 }
 
 
@@ -783,7 +783,7 @@ void* QDECL Sys_LoadDll(
     // TTimo - passing the exact path to check against
     //   (compatibility with other OSes loading procedure)
     if (cl_connectedToPureServer && Q_strncmp(name, "qagame", 6) != 0) {
-        if (!::FS_CL_ExtractFromPakFile(fn, gamedir, filename.c_str(), nullptr)) {
+        if (!::FS_CL_ExtractFromPakFile(fn, gamedir, filename.c_str(), NULL)) {
             ::Com_Error(
                 ERR_DROP,
                 "Game code(%s) failed Pure Server check",
@@ -795,25 +795,25 @@ void* QDECL Sys_LoadDll(
 
     void* libHandle = ::SDL_LoadObject(fn);
 
-    if (libHandle == nullptr) {
+    if (libHandle == NULL) {
         if (cdpath[0] != '\0') {
             fn = ::FS_BuildOSPath(cdpath, gamedir, filename.c_str());
             libHandle = ::SDL_LoadObject(fn);
         }
     }
 
-    if (libHandle == nullptr) {
+    if (libHandle == NULL) {
         fn = ::FS_BuildOSPath(basepath, BASEGAME, filename.c_str());
         libHandle = ::SDL_LoadObject(fn);
     }
 
-    if (libHandle == nullptr) {
+    if (libHandle == NULL) {
         ::strcpy(fn, filename.c_str());
         libHandle = ::SDL_LoadObject(fn);
     }
 
-    if (libHandle == nullptr)
-        return nullptr;
+    if (libHandle == NULL)
+        return NULL;
 
 
     Q_strncpyz(fqpath, fn, MAX_QPATH); // added 2/15/02 by T.Ray
@@ -824,9 +824,9 @@ void* QDECL Sys_LoadDll(
     *entryPoint = reinterpret_cast<DllEntryPoint>(
         ::SDL_LoadFunction(libHandle, "vmMain"));
 
-    if (*entryPoint == nullptr || dllEntry == nullptr) {
+    if (*entryPoint == NULL || dllEntry == NULL) {
         ::SDL_UnloadObject(libHandle);
-        return nullptr;
+        return NULL;
     }
 
     dllEntry(systemcalls);

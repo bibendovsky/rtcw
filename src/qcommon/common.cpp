@@ -692,7 +692,7 @@ be after execing the config and default.
 */
 void Com_StartupVariable( const char *match ) {
 	int i;
-	char    *s;
+	const char    *s;
 	cvar_t  *cv;
 
 	for ( i = 0 ; i < com_numConsoleLines ; i++ ) {
@@ -795,7 +795,7 @@ void Info_Print( const char *s ) {
 Com_StringContains
 ============
 */
-char *Com_StringContains( char *str1, char *str2, int casesensitive ) {
+const char *Com_StringContains( const char *str1, const char *str2, int casesensitive ) {
 	int len, i, j;
 
 	len = strlen( str1 ) - strlen( str2 );
@@ -823,9 +823,9 @@ char *Com_StringContains( char *str1, char *str2, int casesensitive ) {
 Com_Filter
 ============
 */
-int Com_Filter( char *filter, char *name, int casesensitive ) {
+int Com_Filter( const char *filter, const char *name, int casesensitive ) {
 	char buf[MAX_TOKEN_CHARS];
-	char *ptr;
+	const char *ptr;
 	int i, found;
 
 	while ( *filter ) {
@@ -916,7 +916,7 @@ int Com_Filter( char *filter, char *name, int casesensitive ) {
 Com_FilterPath
 ============
 */
-int Com_FilterPath( char *filter, char *name, int casesensitive ) {
+int Com_FilterPath( const char *filter, const char *name, int casesensitive ) {
 	int i;
 	char new_filter[MAX_QPATH];
 	char new_name[MAX_QPATH];
@@ -945,7 +945,7 @@ int Com_FilterPath( char *filter, char *name, int casesensitive ) {
 Com_HashKey
 ============
 */
-int Com_HashKey( char *string, int maxlen ) {
+int Com_HashKey( const char *string, int maxlen ) {
 	int register hash, i;
 
 	hash = 0;
@@ -1945,7 +1945,7 @@ Com_InitZoneMemory
 void Com_InitHunkMemory( void ) {
 	cvar_t  *cv;
 	int nMinAlloc;
-	char *pMsg = NULL;
+	const char *pMsg = NULL;
 
 	// make sure the file system has allocated and "not" freed any temp blocks
 	// this allows the config and product id files ( journal files too ) to be loaded
@@ -2233,7 +2233,7 @@ void *Hunk_AllocateTempMemory( int size ) {
 		Hunk_Log();
 		Hunk_SmallLog();
 #endif
-#endif RCTW_XX
+#endif // RCTW_XX
 
 		Com_Error( ERR_DROP, "Hunk_AllocateTempMemory: failed on %i", size );
 	}
@@ -2953,7 +2953,7 @@ static void Com_WriteCDKey( const char *filename, const char *ikey ) {
 
 void Com_SetRecommended(bool restart_video)
 {
-    cvar_t* r_highQualityVideo = nullptr;
+    cvar_t* r_highQualityVideo = NULL;
 
     r_highQualityVideo = ::Cvar_Get("r_highQualityVideo", "1", CVAR_ARCHIVE);
 
@@ -2968,7 +2968,7 @@ void Com_SetRecommended(bool restart_video)
         ::Cbuf_AddText("vid_restart\n");
 #endif // RTCW_XX
 #else
-    cvar_t* com_recommended = nullptr;
+    cvar_t* com_recommended = NULL;
 
     com_recommended = ::Cvar_Get("com_recommended", "-1", CVAR_ARCHIVE);
 
@@ -3959,8 +3959,11 @@ void Com_Shutdown( qboolean badProfile ) {
 
 }
 
-#if !( defined __linux__ || defined __FreeBSD__ )  // r010123 - include FreeBSD
-#if ( ( !id386 ) && ( !defined __i386__ ) ) // rcg010212 - for PPC
+// BBi
+//#if !( defined __linux__ || defined __FreeBSD__ )  // r010123 - include FreeBSD
+//#if ( ( !id386 ) && ( !defined __i386__ ) ) // rcg010212 - for PPC
+#if 1
+#if 1
 
 void Com_Memcpy( void* dest, const void* src, const size_t count ) {
 	memcpy( dest, src, count );
@@ -4366,7 +4369,7 @@ static void PrintMatches( const char *s ) {
 
 static void keyConcatArgs( void ) {
 	int i;
-	char    *arg;
+	const char    *arg;
 
 	for ( i = 1 ; i < Cmd_Argc() ; i++ ) {
 		Q_strcat( completionField->buffer, sizeof( completionField->buffer ), " " );

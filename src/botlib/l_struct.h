@@ -53,7 +53,7 @@ If you have questions concerning this license or the applicable additional terms
 //structure field definition
 typedef struct fielddef_s
 {
-	char *name;                                     //name of the field
+	const char *name;                                     //name of the field
 	int offset;                                     //offset in the structure
 	int type;                                       //type of the field
 	//type specific fields

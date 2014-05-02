@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "keycodes.h"
 
 
-cvar_t* k_language = nullptr;
+cvar_t* k_language = NULL;
 
 
 void Sys_QueEvent(
@@ -68,7 +68,7 @@ bool Keyboard::initialize()
 
     ::Com_Printf("Initializing keyboard input...\n");
 
-    auto sdl_result = 0;
+    int sdl_result = 0;
 
     if (::SDL_WasInit(SDL_INIT_VIDEO) == 0) {
         sdl_result = ::SDL_InitSubSystem(SDL_INIT_VIDEO);
@@ -114,13 +114,13 @@ void Keyboard::handle_event(const SDL_Event& e)
 
 void Keyboard::handle_key_event(const SDL_KeyboardEvent& e)
 {
-    auto key_code = e.keysym.sym;
-    auto key = map_to_rtcw(key_code);
+    SDL_Keycode key_code = e.keysym.sym;
+    int key = map_to_rtcw(key_code);
 
     if (key == 0)
         return;
 
-    auto key_mod = e.keysym.mod;
+    Uint16 key_mod = e.keysym.mod;
 
     bool is_alt_pressed = ((key_mod & KMOD_ALT) != 0);
 
@@ -129,9 +129,9 @@ void Keyboard::handle_key_event(const SDL_KeyboardEvent& e)
         key_code == SDLK_RETURN);
 
     if (is_alt_pressed && is_enter_pressed) {
-        if (r_fullscreen != nullptr) {
+        if (r_fullscreen != NULL) {
             ::Cvar_SetValue("r_fullscreen", !r_fullscreen->integer);
-            auto is_fullscreen = (r_fullscreen->integer != 0);
+            bool is_fullscreen = (r_fullscreen->integer != 0);
 
             if (::GLimp_SetFullscreen(is_fullscreen))
                 glConfig.isFullscreen = is_fullscreen;
@@ -148,12 +148,12 @@ void Keyboard::handle_key_event(const SDL_KeyboardEvent& e)
         key,
         e.state == SDL_PRESSED,
         0,
-        nullptr);
+        NULL);
 
     if (e.state == SDL_RELEASED)
         return;
 
-    auto key_char = map_to_char(e);
+    char key_char = map_to_char(e);
 
     if (key_char != 0) {
         ::Sys_QueEvent(
@@ -162,7 +162,7 @@ void Keyboard::handle_key_event(const SDL_KeyboardEvent& e)
             key_char,
             0,
             0,
-            nullptr);
+            NULL);
     }
 }
 
@@ -178,7 +178,7 @@ void Keyboard::register_cvars()
 // (static)
 char Keyboard::map_to_char(const SDL_KeyboardEvent& e)
 {
-    auto flags = e.keysym.mod;
+    Uint16 flags = e.keysym.mod;
 
     if ((flags & (
         KMOD_LCTRL |
@@ -200,7 +200,7 @@ char Keyboard::map_to_char(const SDL_KeyboardEvent& e)
     if ((flags & (KMOD_LSHIFT | KMOD_RSHIFT)) != 0)
         is_caps = !is_caps;
 
-    auto key_code = e.keysym.sym;
+    SDL_Keycode key_code = e.keysym.sym;
 
     switch (key_code) {
         case SDLK_BACKSPACE:

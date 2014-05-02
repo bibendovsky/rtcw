@@ -55,7 +55,7 @@ static shader_t*       hashTable[FILE_HASH_SIZE];
 // values.
 typedef struct shaderStringPointer_s
 {
-	char *pStr;
+	const char *pStr;
 	struct shaderStringPointer_s *next;
 } shaderStringPointer_t;
 //
@@ -148,7 +148,7 @@ void R_RemapShader( const char *shaderName, const char *newShaderName, const cha
 ParseVector
 ===============
 */
-static qboolean ParseVector( char **text, int count, float *v ) {
+static qboolean ParseVector( const char **text, int count, float *v ) {
 	char    *token;
 	int i;
 
@@ -285,7 +285,7 @@ static genFunc_t NameToGenFunc( const char *funcname ) {
 ParseWaveForm
 ===================
 */
-static void ParseWaveForm( char **text, waveForm_t *wave ) {
+static void ParseWaveForm( const char **text, waveForm_t *wave ) {
 	char *token;
 
 	token = COM_ParseExt( text, qfalse );
@@ -331,9 +331,9 @@ static void ParseWaveForm( char **text, waveForm_t *wave ) {
 ParseTexMod
 ===================
 */
-static void ParseTexMod( char *_text, shaderStage_t *stage ) {
+static void ParseTexMod( const char *_text, shaderStage_t *stage ) {
 	const char *token;
-	char **text = &_text;
+	const char **text = &_text;
 	texModInfo_t *tmi;
 
 	if ( stage->bundle[0].numTexMods == TR_MAX_TEXMODS ) {
@@ -539,8 +539,8 @@ static void ParseTexMod( char *_text, shaderStage_t *stage ) {
 ParseStage
 ===================
 */
-static qboolean ParseStage( shaderStage_t *stage, char **text ) {
-	char *token;
+static qboolean ParseStage( shaderStage_t *stage, const char **text ) {
+	const char *token;
 	int depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0;
 	qboolean depthMaskExplicit = qfalse;
 
@@ -1084,7 +1084,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text ) {
 	}
 
 	// decide which agens we can skip
-	if ( stage->alphaGen == CGEN_IDENTITY ) {
+	if ( stage->alphaGen == static_cast<alphaGen_t>(CGEN_IDENTITY) ) {
 		if ( stage->rgbGen == CGEN_IDENTITY
 			 || stage->rgbGen == CGEN_LIGHTING_DIFFUSE ) {
 			stage->alphaGen = AGEN_SKIP;
@@ -1116,7 +1116,7 @@ deformVertexes autoSprite2
 deformVertexes text[0-7]
 ===============
 */
-static void ParseDeform( char **text ) {
+static void ParseDeform( const char **text ) {
 	char    *token;
 	deformStage_t   *ds;
 
@@ -1253,9 +1253,9 @@ ParseSkyParms
 skyParms <outerbox> <cloudheight> <innerbox>
 ===============
 */
-static void ParseSkyParms( char **text ) {
+static void ParseSkyParms( const char **text ) {
 	char        *token;
-	static char *suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
+	static const char *suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
 	char pathname[MAX_QPATH];
 	int i;
 
@@ -1339,7 +1339,7 @@ static void ParseSkyParms( char **text ) {
 ParseSort
 =================
 */
-void ParseSort( char **text ) {
+void ParseSort( const char **text ) {
 	char    *token;
 
 	token = COM_ParseExt( text, qfalse );
@@ -1376,7 +1376,7 @@ void ParseSort( char **text ) {
 // this table is also present in q3map
 
 typedef struct {
-	char    *name;
+	const char    *name;
 	int clearSolid, surfaceFlags, contents;
 } infoParm_t;
 
@@ -1477,7 +1477,7 @@ ParseSurfaceParm
 surfaceparm <name>
 ===============
 */
-static void ParseSurfaceParm( char **text ) {
+static void ParseSurfaceParm( const char **text ) {
 	char    *token;
 	int numInfoParms = sizeof( infoParms ) / sizeof( infoParms[0] );
 	int i;
@@ -1506,7 +1506,7 @@ shader.  Parse it into the global shader variable.  Later functions
 will optimize it.
 =================
 */
-static qboolean ParseShader( char **text ) {
+static qboolean ParseShader( const char **text ) {
 	char *token;
 	int s;
 
@@ -2170,7 +2170,7 @@ static qboolean CollapseMultitexture( void ) {
 			return qfalse;
 		}
 	}
-	if ( stages[0].alphaGen == CGEN_WAVEFORM ) {
+	if ( stages[0].alphaGen == static_cast<alphaGen_t>(CGEN_WAVEFORM) ) {
 		if ( memcmp( &stages[0].alphaWave,
 					 &stages[1].alphaWave,
 					 sizeof( stages[0].alphaWave ) ) ) {
@@ -3002,8 +3002,8 @@ return NULL if not found
 If found, it will return a valid shader
 =====================
 */
-static char *FindShaderInShaderText( const char *shadername ) {
-	char *p = s_shaderText;
+static const char *FindShaderInShaderText( const char *shadername ) {
+	const char *p = s_shaderText;
 	char *token;
 
 #if defined RTCW_ET
@@ -3311,7 +3311,7 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 	char strippedName[MAX_QPATH];
 	char fileName[MAX_QPATH];
 	int i, hash;
-	char        *shaderText;
+	const char        *shaderText;
 	image_t     *image;
 	shader_t    *sh;
 
@@ -4007,7 +4007,7 @@ static void BuildShaderChecksumLookup( void ) {
 #if 1
 static void BuildShaderChecksumLookup ()
 {
-    char* p = s_shaderText;
+    const char* p = s_shaderText;
 
     // initialize the checksums
     ::memset (shaderChecksumLookup, 0, sizeof (shaderChecksumLookup));
@@ -4015,7 +4015,7 @@ static void BuildShaderChecksumLookup ()
     if (p == NULL)
         return;
 
-    char* pOld;
+    const char* pOld;
     char* token;
     int numShaderStringPointers = 0;
 
@@ -4658,7 +4658,8 @@ R_LoadCacheShaders
 void R_LoadCacheShaders( void ) {
 	int len;
 	byte *buf;
-	char    *token, *pString;
+	char    *token;
+    const char* pString;
 	char name[MAX_QPATH];
 
 	if ( !r_cacheShaders->integer ) {
@@ -4680,9 +4681,9 @@ void R_LoadCacheShaders( void ) {
 	ri.FS_ReadFile( "shader.cache", (void **)&buf );
 
 #if defined RTCW_SP
-	pString = reinterpret_cast<char*> (buf);   //DAJ added (char*)
+	pString = reinterpret_cast<const char*> (buf);   //DAJ added (char*)
 #else
-	pString = reinterpret_cast<char*> (buf);
+	pString = reinterpret_cast<const char*> (buf);
 #endif // RTCW_XX
 
 #if defined RTCW_SP

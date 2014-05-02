@@ -3075,7 +3075,9 @@ R_LoadEntities
 ================
 */
 void R_LoadEntities( lump_t *l ) {
-	char *p, *token, *s;
+    const char* p;
+    char* token;
+    char* s;
 	char keyname[MAX_TOKEN_CHARS];
 	char value[MAX_TOKEN_CHARS];
 	world_t *w;
@@ -3117,7 +3119,7 @@ void R_LoadEntities( lump_t *l ) {
 
 #if !defined RTCW_ET
 		// check for remapping of shaders for vertex lighting
-		s = "vertexremapshader";
+		s = const_cast<char*>("vertexremapshader");
 		if ( !Q_strncmp( keyname, s, strlen( s ) ) ) {
 			s = strchr( value, ';' );
 			if ( !s ) {
@@ -3145,7 +3147,7 @@ void R_LoadEntities( lump_t *l ) {
 #endif // RTCW_XX
 
 		// check for remapping of shaders
-		s = "remapshader";
+		s = const_cast<char*>("remapshader");
 		if ( !Q_strncmp( keyname, s, strlen( s ) ) ) {
 			s = strchr( value, ';' );
 			if ( !s ) {
@@ -3172,7 +3174,7 @@ R_GetEntityToken
 qboolean R_GetEntityToken( char *buffer, int size ) {
 	const char  *s;
 
-	s = COM_Parse( &s_worldData.entityParsePoint );
+	s = COM_Parse( const_cast<const char**>(&s_worldData.entityParsePoint) );
 	Q_strncpyz( buffer, s, size );
 	if ( !s_worldData.entityParsePoint || !s[0] ) {
 		s_worldData.entityParsePoint = s_worldData.entityString;

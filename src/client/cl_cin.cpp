@@ -2015,7 +2015,7 @@ CL_PlayCinematic_f
 #endif // RTCW_XX
 
 void CL_PlayCinematic_f( void ) {
-	char    *arg, *s;
+	const char    *arg, *s;
 	qboolean holdatend;
 	int bits = CIN_system;
 

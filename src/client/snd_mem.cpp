@@ -202,7 +202,7 @@ static int GetLittleLong( void ) {
 FindNextChunk
 ================
 */
-static void FindNextChunk( char *name ) {
+static void FindNextChunk( const char *name ) {
 	while ( 1 )
 	{
 		data_p = last_chunk;
@@ -231,7 +231,7 @@ static void FindNextChunk( char *name ) {
 FindChunk
 ================
 */
-static void FindChunk( char *name ) {
+static void FindChunk( const char *name ) {
 	last_chunk = iff_data;
 	FindNextChunk( name );
 }

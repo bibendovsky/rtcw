@@ -112,13 +112,13 @@ typedef struct source_s
 //read a token from the source
 int PC_ReadToken( source_t *source, token_t *token );
 //expect a certain token
-int PC_ExpectTokenString( source_t *source, char *string );
+int PC_ExpectTokenString( source_t *source, const char *string );
 //expect a certain token type
 int PC_ExpectTokenType( source_t *source, int type, int subtype, token_t *token );
 //expect a token
 int PC_ExpectAnyToken( source_t *source, token_t *token );
 //returns true when the token is available
-int PC_CheckTokenString( source_t *source, char *string );
+int PC_CheckTokenString( source_t *source, const char *string );
 //returns true an reads the token when a token with the given type is available
 int PC_CheckTokenType( source_t *source, int type, int subtype, token_t *token );
 //skip tokens until the given token string is read
@@ -134,7 +134,7 @@ int PC_WhiteSpaceBeforeToken( token_t *token );
 //add a define to the source
 int PC_AddDefine( source_t *source, char *string );
 //add a globals define that will be added to all opened sources
-int PC_AddGlobalDefine( char *string );
+int PC_AddGlobalDefine( const char *string );
 //remove the given global define
 int PC_RemoveGlobalDefine( char *name );
 //remove all globals defines
@@ -154,9 +154,9 @@ source_t *LoadSourceMemory( char *ptr, int length, char *name );
 //free the given source
 void FreeSource( source_t *source );
 //print a source error
-void QDECL SourceError( source_t *source, char *str, ... );
+void QDECL SourceError( source_t *source, const char *str, ... );
 //print a source warning
-void QDECL SourceWarning( source_t *source, char *str, ... );
+void QDECL SourceWarning( source_t *source, const char *str, ... );
 
 #if defined RTCW_SP
 #ifdef BSPC

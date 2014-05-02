@@ -71,7 +71,7 @@ static byte localIP[MAX_IPS][4];
 NET_ErrorString
 ====================
 */
-char *NET_ErrorString( void ) {
+const char *NET_ErrorString( void ) {
 	int code;
 
 	code = WSAGetLastError();

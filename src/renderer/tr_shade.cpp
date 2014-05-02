@@ -53,10 +53,10 @@ bool ogl_tess_use_col_array = false;
 bool ogl_tess_use_tc0_array = true;
 bool ogl_tess_use_tc1_array = false;
 
-const void* ogl_tess_pos_array = nullptr;
-const void* ogl_tess_col_array = nullptr;
-const void* ogl_tess_tc0_array = nullptr;
-const void* ogl_tess_tc1_array = nullptr;
+const void* ogl_tess_pos_array = NULL;
+const void* ogl_tess_col_array = NULL;
+const void* ogl_tess_tc0_array = NULL;
+const void* ogl_tess_tc1_array = NULL;
 
 std::vector<glIndex_t> ogl_index_buffer;
 

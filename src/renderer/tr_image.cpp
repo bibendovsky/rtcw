@@ -168,7 +168,7 @@ void R_GammaCorrect( byte *buffer, int bufSize ) {
 }
 
 typedef struct {
-	char *name;
+	const char *name;
 	int minimize, maximize;
 } textureMode_t;
 
@@ -2423,15 +2423,15 @@ static void LoadJPG (const char* filename, uint8_t** pic,
 
     int flen = ::ri.FS_ReadFile (filename, reinterpret_cast<void**> (&fbuffer));
 
-    if (fbuffer == nullptr)
+    if (fbuffer == NULL)
         return;
 
 
     int tj_result = 0;
 
-    auto tjh = ::tjInitDecompress ();
+    tjhandle tjh = ::tjInitDecompress ();
 
-    if (tjh == nullptr)
+    if (tjh == NULL)
         ::ri.Error (ERR_FATAL, "JPEG-T: Failed to init decompressor.\n");
 
     int subsample = 0;
@@ -2442,7 +2442,7 @@ static void LoadJPG (const char* filename, uint8_t** pic,
 
     int pitch = 4 * (*width);
 
-    auto out = static_cast<uint8_t*> (
+    uint8_t* out = static_cast<uint8_t*> (
         ::R_GetImageBuffer (pitch * (*height), BUFFER_IMAGE));
 
     *pic = out;
@@ -2766,11 +2766,11 @@ static void LoadJPG (const char* filename, uint8_t** pic,
 void SaveJPG (const char* file_name, int quality,
     int width, int height, uint8_t* src_data)
 {
-    auto tjh = ::tjInitCompress ();
+    tjhandle tjh = ::tjInitCompress ();
 
-    auto tj_buf_size = ::tjBufSize (width, height, TJSAMP_444);
+    unsigned long tj_buf_size = ::tjBufSize (width, height, TJSAMP_444);
 
-    auto jpg_data = static_cast<unsigned char*> (
+    unsigned char* jpg_data = static_cast<unsigned char*> (
         ri.Hunk_AllocateTempMemory (tj_buf_size));
 
     int pitch = 4 * width;
@@ -3601,7 +3601,7 @@ This is unfortunate, but the skin files aren't
 compatable with our normal parsing rules.
 ==================
 */
-static char *CommaParse( char **data_p ) {
+static const char *CommaParse( char **data_p ) {
 	int c = 0, len;
 	char *data;
 	static char com_token[MAX_TOKEN_CHARS];
@@ -3822,7 +3822,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	skinSurface_t   *surf;
 	skinModel_t *model;          //----(SA) added
 	char        *text, *text_p;
-	char        *token;
+	const char        *token;
 	char surfName[MAX_QPATH];
 
 	if ( !name || !name[0] ) {
@@ -4493,7 +4493,7 @@ qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *heigh
 R_CropAndNumberImagesInDirectory
 ===============
 */
-void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, int maxHeight, int withAlpha ) {
+void    R_CropAndNumberImagesInDirectory( const char *dir, const char *ext, int maxWidth, int maxHeight, int withAlpha ) {
 
 #if !defined RTCW_ET
 #ifdef CROPIMAGES_ENABLED
@@ -5020,7 +5020,8 @@ R_LoadCacheImages
 void R_LoadCacheImages( void ) {
 	int len;
 	byte *buf;
-	char    *token, *pString;
+	char    *token;
+    const char* pString;
 	char name[MAX_QPATH];
 
 #if !defined RTCW_ET
@@ -5043,9 +5044,9 @@ void R_LoadCacheImages( void ) {
 	ri.FS_ReadFile( "image.cache", (void **)&buf );
 
 #if defined RTCW_SP
-	pString = reinterpret_cast<char*> (buf);   //DAJ added (char*)
+	pString = reinterpret_cast<const char*> (buf);   //DAJ added (char*)
 #else
-	pString = reinterpret_cast<char*> (buf);
+	pString = reinterpret_cast<const char*> (buf);
 #endif // RTCW_XX
 
 	while ( ( token = COM_ParseExt( &pString, qtrue ) ) && token[0] ) {

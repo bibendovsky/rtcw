@@ -503,7 +503,7 @@ extern cvar_t *sv_fullmsg;
 //
 
 #if !defined RTCW_ET
-void SV_FinalMessage( char *message );
+void SV_FinalMessage( const char *message );
 #endif // RTCW_XX
 
 #if defined RTCW_ET
@@ -564,7 +564,7 @@ void SV_SpawnServer( char *server, qboolean killBots );
 
 #if defined RTCW_SP
 //RF, reliable commands
-char *SV_GetReliableCommand( client_t *cl, int index );
+const char *SV_GetReliableCommand( client_t *cl, int index );
 void SV_FreeAcknowledgedReliableCommands( client_t *cl );
 qboolean SV_AddReliableCommand( client_t *cl, int index, const char *cmd );
 void SV_InitReliableCommandsForClient( client_t *cl, int commands );
@@ -648,9 +648,9 @@ void        SV_RestartGameProgs( void );
 qboolean    SV_inPVS( const vec3_t p1, const vec3_t p2 );
 
 #if !defined RTCW_ET
-qboolean SV_GetTag( int clientNum, char *tagname, orientation_t * or );
+qboolean SV_GetTag( int clientNum, char *tagname, orientation_t * orient );
 #else
-qboolean SV_GetTag( int clientNum, int tagFileNumber, char *tagname, orientation_t * or );
+qboolean SV_GetTag( int clientNum, int tagFileNumber, char *tagname, orientation_t * orient );
 #endif // RTCW_XX
 
 #if defined RTCW_ET

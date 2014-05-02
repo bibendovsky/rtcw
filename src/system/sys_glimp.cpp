@@ -71,15 +71,15 @@ void gl_print_extension(
     ExtensionStatus status,
     const char* extension_name)
 {
-    if (extension_name == nullptr)
+    if (extension_name == NULL)
         return;
 
     if (extension_name[0] == '\0')
         return;
 
 
-    const char* status_mark = nullptr;
-    const char* color_mark = nullptr;
+    const char* status_mark = NULL;
+    const char* color_mark = NULL;
 
     switch (status) {
     case EXT_STATUS_FOUND:
@@ -134,10 +134,10 @@ void gl_initialize_extensions()
         return;
     }
 
-    const char* extension_name1 = nullptr;
-    const char* extension_name2 = nullptr;
-    const char* extension_name3 = nullptr;
-    const char* extension_name4 = nullptr;
+    const char* extension_name1 = NULL;
+    const char* extension_name2 = NULL;
+    const char* extension_name3 = NULL;
+    const char* extension_name4 = NULL;
 
     ::ri.Printf(PRINT_ALL, "Initializing OpenGL extensions\n");
     ::ri.Printf(PRINT_ALL, "(Legend: [+] found; [-] not found; [*] ignored)\n");
@@ -296,11 +296,11 @@ void GLimp_Init()
     ::r_allowSoftwareGL = ::ri.Cvar_Get("r_allowSoftwareGL", "0", 0);
     ::r_maskMinidriver = ::ri.Cvar_Get("r_maskMinidriver", "0", 0);
 
-    auto r_lastValidRenderer = ::ri.Cvar_Get(
+    cvar_t* r_lastValidRenderer = ::ri.Cvar_Get(
         "r_lastValidRenderer", "(uninitialized)", CVAR_ARCHIVE);
 
-    auto is_succeed = true;
-    auto sdl_result = 0;
+    bool is_succeed = true;
+    int sdl_result = 0;
 
     if (is_succeed) {
         sdl_result = ::SDL_InitSubSystem(SDL_INIT_VIDEO);
@@ -312,9 +312,9 @@ void GLimp_Init()
     }
 
 
-    auto display_width = 0;
-    auto display_height = 0;
-    auto display_refresh_rate = 0;
+    int display_width = 0;
+    int display_height = 0;
+    int display_refresh_rate = 0;
 
     if (is_succeed) {
         SDL_DisplayMode dm;
@@ -333,15 +333,15 @@ void GLimp_Init()
         }
     }
 
-    auto width = 0;
-    auto height = 0;
-    auto aspect_ratio = 0.0F;
-    auto is_native_mode = false;
-    auto is_fullscreen = (r_fullscreen->integer != 0);
-    auto is_stereo = (r_stereo->integer != 0);
+    int width = 0;
+    int height = 0;
+    float aspect_ratio = 0.0F;
+    bool is_native_mode = false;
+    bool is_fullscreen = (r_fullscreen->integer != 0);
+    bool is_stereo = (r_stereo->integer != 0);
 
     if (is_succeed) {
-        auto api_result = qfalse;
+        qboolean api_result = qfalse;
 
         ::ri.Printf(PRINT_ALL, "  setting mode: %d\n", r_mode->integer);
 
@@ -380,11 +380,11 @@ void GLimp_Init()
         sdl_result = ::SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
         sdl_result = ::SDL_GL_SetAttribute(SDL_GL_STEREO, is_stereo);
 
-        auto x_cvar = ::ri.Cvar_Get("vid_xpos", "0", 0);
-        auto x = x_cvar->integer;
+        cvar_t* x_cvar = ::ri.Cvar_Get("vid_xpos", "0", 0);
+        int x = x_cvar->integer;
 
-        auto y_cvar = ::ri.Cvar_Get("vid_ypos", "0", 0);
-        auto y = y_cvar->integer;
+        cvar_t* y_cvar = ::ri.Cvar_Get("vid_ypos", "0", 0);
+        int y = y_cvar->integer;
 
         if (x < 0)
             x = 0;
@@ -424,7 +424,7 @@ void GLimp_Init()
                 height,
                 window_flags);
 
-            if (sys_gl_window != nullptr)
+            if (sys_gl_window != NULL)
                 break;
 
             x = 0;
@@ -479,7 +479,7 @@ void GLimp_Init()
     if (is_succeed) {
         gl_context = ::SDL_GL_CreateContext(sys_gl_window);
 
-        if (gl_context == nullptr) {
+        if (gl_context == NULL) {
             is_succeed = false;
             ::ri.Error(ERR_FATAL, "Failed to create an OpenGL context.\n");
         }
@@ -491,7 +491,7 @@ void GLimp_Init()
     std::string gl_extensions;
 
     if (is_succeed) {
-        auto glew_result = ::glewInit();
+        GLenum glew_result = ::glewInit();
 
         if (glew_result == GLEW_OK) {
             const int MAX_GL_STRING_LENGTH = MAX_STRING_CHARS - 1;
@@ -533,7 +533,7 @@ void GLimp_Init()
             "enabled",
         };
 
-        auto attribute = 0;
+        int attribute = 0;
 
         sdl_result = ::SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &attribute);
         ::ri.Printf(PRINT_ALL, "  GL red size: %d\n", attribute);
@@ -576,26 +576,26 @@ void GLimp_Init()
         glConfig.deviceSupportsGamma = is_support_gamma;
         glConfig.displayFrequency = display_refresh_rate;
         glConfig.driverType = GLDRV_ICD;
-        std::uninitialized_copy_n(
+        std::uninitialized_copy(
             gl_extensions.c_str(),
-            gl_extensions.size(),
+            gl_extensions.c_str() + gl_extensions.size(),
             glConfig.extensions_string);
         glConfig.hardwareType = GLHW_GENERIC;
         glConfig.isFullscreen = is_fullscreen;
-        std::uninitialized_copy_n(
+        std::uninitialized_copy(
             gl_renderer.c_str(),
-            gl_renderer.size(),
+            gl_renderer.c_str() + gl_renderer.size(),
             glConfig.renderer_string);
         glConfig.stencilBits = 8;
         glConfig.stereoEnabled = is_stereo;
         glConfig.textureCompression = TC_NONE;
-        std::uninitialized_copy_n(
+        std::uninitialized_copy(
             gl_vendor.c_str(),
-            gl_vendor.size(),
+            gl_vendor.c_str() + gl_vendor.size(),
             glConfig.vendor_string);
-        std::uninitialized_copy_n(
+        std::uninitialized_copy(
             gl_version.c_str(),
-            gl_version.size(),
+            gl_version.c_str() + gl_version.size(),
             glConfig.version_string);
         glConfig.vidHeight = height;
         glConfig.vidWidth = width;
@@ -608,15 +608,15 @@ void GLimp_Init()
 
         ::SDL_ShowWindow(sys_gl_window);
     } else {
-        if (gl_context != nullptr) {
-            ::SDL_GL_MakeCurrent(sys_gl_window, nullptr);
+        if (gl_context != NULL) {
+            ::SDL_GL_MakeCurrent(sys_gl_window, NULL);
             ::SDL_GL_DeleteContext(gl_context);
-            gl_context = nullptr;
+            gl_context = NULL;
         }
 
-        if (sys_gl_window != nullptr) {
+        if (sys_gl_window != NULL) {
             ::SDL_DestroyWindow(sys_gl_window);
-            sys_gl_window = nullptr;
+            sys_gl_window = NULL;
         }
     }
 
@@ -628,15 +628,15 @@ void GLimp_Init()
 
 void GLimp_Shutdown()
 {
-    if (gl_context != nullptr) {
-        ::SDL_GL_MakeCurrent(sys_gl_window, nullptr);
+    if (gl_context != NULL) {
+        ::SDL_GL_MakeCurrent(sys_gl_window, NULL);
         ::SDL_GL_DeleteContext(gl_context);
-        gl_context = nullptr;
+        gl_context = NULL;
     }
 
-    if (sys_gl_window != nullptr) {
+    if (sys_gl_window != NULL) {
         ::SDL_DestroyWindow(sys_gl_window);
-        sys_gl_window = nullptr;
+        sys_gl_window = NULL;
     }
 
     std::uninitialized_fill_n(
@@ -649,7 +649,7 @@ void GLimp_Shutdown()
 
 void GLimp_EndFrame()
 {
-    if (sys_gl_window == nullptr)
+    if (sys_gl_window == NULL)
         return;
 
     if (r_swapInterval->modified) {
@@ -669,7 +669,7 @@ void GLimp_SetGamma(
 {
     if (!glConfig.deviceSupportsGamma ||
         r_ignorehwgamma->integer != 0 ||
-        sys_gl_window == nullptr)
+        sys_gl_window == NULL)
     {
         return;
     }
@@ -690,7 +690,7 @@ void GLimp_SetGamma(
         }
     }
 
-    auto sdl_result = 0;
+    int sdl_result = 0;
 
     sdl_result = ::SDL_SetWindowGammaRamp(
         sys_gl_window,
@@ -715,12 +715,12 @@ bool GLimp_SetFullscreen(bool value)
     ::ri.Printf(PRINT_ALL, "Trying to set %s mode without video restart...\n",
         value ? "fullscreen" : "windowed");
 
-    if (sys_gl_window == nullptr) {
+    if (sys_gl_window == NULL) {
         ::ri.Printf(PRINT_ALL, S_COLOR_YELLOW "  no main window.\n");
         return false;
     }
 
-    auto sdl_result = 0;
+    int sdl_result = 0;
     uint32_t flags = 0;
 
     sdl_result = ::SDL_SetWindowFullscreen(

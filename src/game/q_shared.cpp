@@ -959,8 +959,8 @@ void SkipBracedSection( const char **program ) {
 SkipRestOfLine
 =================
 */
-void SkipRestOfLine( char **data ) {
-	char    *p;
+void SkipRestOfLine( const char **data ) {
+	const char    *p;
 	int c;
 
 	p = *data;

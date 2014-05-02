@@ -345,7 +345,7 @@ Inserts the current value of a variable as command text
 ===============
 */
 void Cmd_Vstr_f( void ) {
-	char    *v;
+	const char    *v;
 
 	if ( Cmd_Argc() != 2 ) {
 		Com_Printf( "vstr <variablename> : execute a variable command\n" );
@@ -422,7 +422,7 @@ int     Cmd_Argc( void ) {
 Cmd_Argv
 ============
 */
-char    *Cmd_Argv( int arg ) {
+const char    *Cmd_Argv( int arg ) {
 	if ( (unsigned)arg >= cmd_argc ) {
 		return "";
 	}
@@ -788,7 +788,7 @@ Cmd_List_f
 void Cmd_List_f( void ) {
 	cmd_function_t  *cmd;
 	int i;
-	char            *match;
+	const char            *match;
 
 	if ( Cmd_Argc() > 1 ) {
 		match = Cmd_Argv( 1 );

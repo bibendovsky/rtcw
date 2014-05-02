@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "client.h"
 
-char *svc_strings[256] = {
+const char *svc_strings[256] = {
 	"svc_bad",
 
 	"svc_nop",
@@ -49,7 +49,7 @@ char *svc_strings[256] = {
 
 };
 
-void SHOWNET( msg_t *msg, char *s ) {
+void SHOWNET( msg_t *msg, const char *s ) {
 	if ( cl_shownet->integer >= 2 ) {
 
 #if defined RTCW_SP
@@ -710,7 +710,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 	}
 #else
 	FS_ConditionalRestart( clc.checksumFeed );
-#endif RCTW_XX
+#endif // RCTW_XX
 
 	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the
 	// cgame

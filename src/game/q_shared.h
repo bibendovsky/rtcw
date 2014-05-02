@@ -910,7 +910,7 @@ void SkipBracedSection( const char **program );
 void SkipBracedSection_Depth( const char **program, int depth ); // start at given depth if already matching stuff
 #endif // RTCW_XX
 
-void SkipRestOfLine( char **data );
+void SkipRestOfLine( const char **data );
 
 void Parse1DMatrix( const char **buf_p, int x, float *m );
 void Parse2DMatrix( const char **buf_p, int y, int x, float *m );
