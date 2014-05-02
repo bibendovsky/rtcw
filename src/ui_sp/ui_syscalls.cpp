@@ -42,7 +42,7 @@ static intptr_t (QDECL* syscall) (intptr_t arg, ...) = (intptr_t (QDECL*) (intpt
 
 //BBi
 //void dllEntry( int ( QDECL *syscallptr )( int arg,... ) ) {
-void dllEntry (intptr_t (QDECL* syscallptr) (intptr_t arg, ...))
+extern "C" void dllEntry (intptr_t (QDECL* syscallptr) (intptr_t arg, ...))
 {
 //BBi
 
