@@ -758,7 +758,7 @@ void SVC_Info( netadr_t from ) {
 	char infostring[MAX_INFO_STRING];
 
 #if defined RTCW_MP
-	char    *antilag;
+	const char    *antilag;
 
 	// DHM - Nerve
 #ifdef UPDATE_SERVER

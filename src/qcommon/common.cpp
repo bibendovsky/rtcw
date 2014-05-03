@@ -1400,7 +1400,7 @@ void Z_CheckHeap( void ) {
 Z_LogZoneHeap
 ========================
 */
-void Z_LogZoneHeap( memzone_t *zone, char *name ) {
+void Z_LogZoneHeap( memzone_t *zone, const char *name ) {
 #ifdef ZONE_DEBUG
 	char dump[32], *ptr;
 	int i, j;

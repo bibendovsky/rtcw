@@ -484,9 +484,9 @@ CL_SetExpectedHunkUsage
 */
 void CL_SetExpectedHunkUsage( const char *mapname ) {
 	int handle;
-	char *memlistfile = "hunkusage.dat";
+	const char *memlistfile = "hunkusage.dat";
 	char *buf;
-	char *buftrav;
+	const char *buftrav;
 	char *token;
 	int len;
 

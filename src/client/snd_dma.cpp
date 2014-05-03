@@ -2928,7 +2928,7 @@ int FGetLittleShort( fileHandle_t f ) {
 #if !defined RTCW_MP
 int S_FindWavChunk( const fileHandle_t f, const char *chunk ) {
 #else
-int S_FindWavChunk( fileHandle_t f, char *chunk ) {
+int S_FindWavChunk( fileHandle_t f, const char *chunk ) {
 #endif // RTCW_XX
 
 	char name[5];

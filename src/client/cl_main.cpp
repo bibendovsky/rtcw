@@ -4934,7 +4934,7 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	int prot;
 
 #if !defined RTCW_SP
-	char    *gameName;
+	const char    *gameName;
 #endif // RTCW_XX
 
 #if defined RTCW_ET
@@ -6230,7 +6230,7 @@ void CL_LoadTransTable( const char *fileName ) {
 	qboolean aborted;
 	char *text;
 	fileHandle_t f;
-	char *text_p;
+	const char *text_p;
 	char *token;
 	int len, i;
 	trans_t *t;
