@@ -127,7 +127,7 @@ static const char *sortKeys[] = {
 };
 static const int numSortKeys = sizeof( sortKeys ) / sizeof( const char* );
 
-static char* netnames[] = {
+static const char* netnames[] = {
 	"???",
 	"UDP",
 	"IPX",
@@ -236,9 +236,9 @@ static weaponType_t weaponTypes[] = {
 };
 
 typedef struct {
-	char        *name;
+    const char* name;
 	int flags;
-	char        *shader;
+    const char* shader;
 } uiitemType_t;
 
 #define UI_KNIFE_PIC    "window_knife_pic"
@@ -1471,7 +1471,7 @@ void UI_LoadMenus( const char *menuFile, qboolean reset ) {
 void UI_Load() {
 	char lastName[1024];
 	menuDef_t *menu = Menu_GetFocused();
-	char *menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
+	const char *menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
 	if ( menu && menu->window.name ) {
 		strcpy( lastName, menu->window.name );
 	}
@@ -3791,7 +3791,7 @@ void WM_getWeaponAnim( const char **torso_anim, const char **legs_anim ) {
 	}
 }
 
-void WM_setItemPic( char *name, const char *shader ) {
+void WM_setItemPic( const char *name, const char *shader ) {
 	menuDef_t *menu = Menu_GetFocused();
 	itemDef_t *item;
 
@@ -3801,7 +3801,7 @@ void WM_setItemPic( char *name, const char *shader ) {
 	}
 }
 
-void WM_setVisibility( char *name, qboolean show ) {
+void WM_setVisibility( const char *name, qboolean show ) {
 	menuDef_t *menu = Menu_GetFocused();
 	itemDef_t *item;
 
@@ -3925,7 +3925,7 @@ void WM_setWeaponPics() {
 	// set player backgrounds
 	{
 		int val;
-		char *team_str = NULL; // TTimo: init
+		const char *team_str = NULL; // TTimo: init
 		qboolean skip = qfalse;
 
 		// set team background
@@ -4073,7 +4073,7 @@ void WM_SetObjective( int objectiveIndex ) {
 	itemDef_t *def_pic, *def_desc, *def_button;
 	menuDef_t *menu = Menu_GetFocused();
 	int team, numobjectives, i;
-	char *s, *teamStr;
+	const char *s, *teamStr;
 	qboolean playRoq = qfalse;
 
 	uiInfo.selectedObjective = objectiveIndex;
@@ -4532,7 +4532,7 @@ static void UI_UpdateVoteFlags( qboolean open ) {
 UI_RunMenuScript
 ==============
 */
-static void UI_RunMenuScript( char **args ) {
+static void UI_RunMenuScript( const char **args ) {
 	const char *name, *name2;
 	char *s;
 	char buff[1024];
@@ -5509,7 +5509,8 @@ static void UI_BuildServerDisplayList( qboolean force ) {
 
 typedef struct
 {
-	char *name, *altName;
+	const char* name;
+    const char* altName;
 } serverStatusCvar_t;
 
 serverStatusCvar_t serverStatusCvars[] = {
@@ -5532,7 +5533,7 @@ UI_SortServerStatusInfo
 */
 static void UI_SortServerStatusInfo( serverStatusInfo_t *info ) {
 	int i, j, index;
-	char *tmp1, *tmp2;
+	const char *tmp1, *tmp2;
 
 	// FIXME: if "gamename" == "baseq3" or "missionpack" then
 	// replace the gametype number by FFA, CTF etc.
@@ -6548,7 +6549,7 @@ static void UI_ParseTeamInfo(const char *teamFile) {
 GameType_Parse
 ==============
 */
-static qboolean GameType_Parse( char **p, qboolean join ) {
+static qboolean GameType_Parse( const char **p, qboolean join ) {
 	char *token;
 
 	token = COM_ParseExt( p, qtrue );
@@ -6609,7 +6610,7 @@ static qboolean GameType_Parse( char **p, qboolean join ) {
 	return qfalse;
 }
 
-static qboolean MapList_Parse( char **p ) {
+static qboolean MapList_Parse( const char **p ) {
 	char *token;
 
 	token = COM_ParseExt( p, qtrue );
@@ -6675,7 +6676,7 @@ static qboolean MapList_Parse( char **p ) {
 
 static void UI_ParseGameInfo( const char *teamFile ) {
 	char    *token;
-	char *p;
+	const char *p;
 	char *buff = NULL;
 	// int mode = 0; // TTimo: unused
 
@@ -7454,8 +7455,8 @@ cvars
 
 typedef struct {
 	vmCvar_t    *vmCvar;
-	char        *cvarName;
-	char        *defaultString;
+    const char* cvarName;
+    const char* defaultString;
 	int cvarFlags;
 } cvarTable_t;
 

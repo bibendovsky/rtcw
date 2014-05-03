@@ -340,7 +340,7 @@ UI_PositionEntityOnTag
 ======================
 */
 static void UI_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
-									clipHandle_t parentModel, char *tagName ) {
+									clipHandle_t parentModel, const char *tagName ) {
 	int i;
 	orientation_t lerped;
 
@@ -365,7 +365,7 @@ UI_PositionRotatedEntityOnTag
 ======================
 */
 static void UI_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
-										   clipHandle_t parentModel, char *tagName ) {
+										   clipHandle_t parentModel, const char *tagName ) {
 	int i;
 	orientation_t lerped;
 	vec3_t tempAxis[3];
@@ -1039,7 +1039,8 @@ AnimParseAnimConfig
 ============
 */
 static qboolean AnimParseAnimConfig( playerInfo_t *animModelInfo, const char *filename, const char *input ) {
-	char    *text_p, *token;
+	const char* text_p;
+    char* token;
 	animation_t *animations;
 	headAnimation_t *headAnims;
 	int i, fps, skip = -1;
@@ -1054,7 +1055,7 @@ static qboolean AnimParseAnimConfig( playerInfo_t *animModelInfo, const char *fi
 	animModelInfo->numAnimations = 0;
 //	headAnims = animModelInfo->headAnims;
 
-	text_p = (char *)input;
+	text_p = input;
 	COM_BeginParseSession( "AnimParseAnimConfig" );
 
 	animModelInfo->footsteps = FOOTSTEP_NORMAL;
