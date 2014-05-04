@@ -859,7 +859,7 @@ void CL_WriteWaveOpen() {
 #else
 	char name[MAX_OSPATH];
 	int len;
-	char        *s;
+	const char        *s;
 
 	if ( Cmd_Argc() > 2 ) {
 		Com_Printf( "wav_record <wavname>\n" );

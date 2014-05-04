@@ -1078,7 +1078,7 @@ SV_WWWDownload_f
 */
 void SV_WWWDownload_f( client_t *cl ) {
 
-	char *subcmd = Cmd_Argv( 1 );
+	const char *subcmd = Cmd_Argv( 1 );
 
 	// only accept wwwdl commands for clients which we first flagged as wwwdl ourselves
 	if ( !cl->bWWWDl ) {

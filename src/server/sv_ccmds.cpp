@@ -219,7 +219,7 @@ static void SV_Map_f( void ) {
 #endif // RTCW_XX
 
 #if defined RTCW_ET
-	char        *cl_profileStr = Cvar_VariableString( "cl_profile" );
+	const char        *cl_profileStr = Cvar_VariableString( "cl_profile" );
 #endif // RTCW_XX
 
 	map = Cmd_Argv( 1 );
@@ -770,7 +770,7 @@ static void SV_MapRestart_f( void ) {
 		int size, savegameTime;
 
 #if defined RTCW_ET
-		char *cl_profileStr = Cvar_VariableString( "cl_profile" );
+		const char *cl_profileStr = Cvar_VariableString( "cl_profile" );
 
 		if ( com_gameInfo.usesProfiles ) {
 			Com_sprintf( savemap, sizeof( savemap ), "profiles/%s/save/current.sav", cl_profileStr );
@@ -933,7 +933,7 @@ void    SV_LoadGame_f( void ) {
 	int size;
 
 #if defined RTCW_ET
-	char *cl_profileStr = Cvar_VariableString( "cl_profile" );
+	const char *cl_profileStr = Cvar_VariableString( "cl_profile" );
 #endif // RTCW_XX
 
 #if !defined RTCW_MP

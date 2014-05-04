@@ -388,7 +388,7 @@ static void Win_FindMatches( const char *s ) {
 
 static void Win_KeyConcatArgs( void ) {
 	int i;
-	char    *arg;
+	const char    *arg;
 
 	for ( i = 1 ; i < Cmd_Argc() ; i++ ) {
 		Q_strcat( win_consoleField.buffer, sizeof( win_consoleField.buffer ), " " );

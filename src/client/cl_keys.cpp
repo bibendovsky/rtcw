@@ -1579,13 +1579,25 @@ int Key_StringToKeynum( const char *str ) {
 		return -1;
 	}
 	if ( !str[1] ) {
+        // BBi
+        char result[2] = { str[0], '\0' };
 
 #if defined RTCW_ET
 		// Always lowercase
+// BBi
+#if 0
 		Q_strlwr( str );
+#else
+        Q_strlwr(result);
+#endif // 0
 #endif // RTCW_XX
 
+// BBi
+#if 0
 		return str[0];
+#else
+        return result[0];
+#endif // 0
 	}
 
 	// check for hex code

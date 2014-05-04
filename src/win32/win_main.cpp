@@ -1159,7 +1159,7 @@ extern "C" int main(int argc, char* argv[])
 #if defined RTCW_ET
 bool Sys_IsNumLockDown()
 {
-    auto state = ::SDL_GetModState();
+    SDL_Keymod state = ::SDL_GetModState();
     return (state & KMOD_NUM) != 0;
 }
 #endif // RTCW_XX

@@ -544,7 +544,7 @@ CONNECTIONLESS COMMANDS
 //bani - bugtraq 12534
 //returns qtrue if valid challenge
 //returns qfalse if m4d h4x0rz
-qboolean SV_VerifyChallenge( char *challenge ) {
+qboolean SV_VerifyChallenge( const char *challenge ) {
 	int i, j;
 
 	if ( !challenge ) {
@@ -767,9 +767,9 @@ void SVC_Info( netadr_t from ) {
 #endif // RTCW_XX
 
 #if defined RTCW_ET
-	char    *antilag;
-	char    *weaprestrict;
-	char    *balancedteams;
+	const char    *antilag;
+	const char    *weaprestrict;
+	const char    *balancedteams;
 
 	// ignore if we are in single player
 	if ( SV_GameIsSinglePlayer() ) {

@@ -43,6 +43,8 @@ If you have questions concerning this license or the applicable additional terms
 //#endif // RTCW_XX
 //BBi
 
+// BBi
+#if 0
 #ifdef DOOMSOUND    ///// (SA) DOOMSOUND
 #include "../mssdk/include/dinput.h"
 #include "../mssdk/include/dsound.h"
@@ -58,6 +60,7 @@ If you have questions concerning this license or the applicable additional terms
 #endif // RTCW_XX
 
 #endif  ///// (SA) DOOMSOUND
+#endif // 0
 
 #include <winsock.h>
 #include <wsipx.h>

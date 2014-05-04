@@ -1338,10 +1338,10 @@ qboolean SV_GetTag( int clientNum, int tagFileNumber, char *tagname, orientation
 	if ( tagFileNumber > 0 && tagFileNumber <= sv.num_tagheaders ) {
 		for ( i = sv.tagHeadersExt[tagFileNumber - 1].start; i < sv.tagHeadersExt[tagFileNumber - 1].start + sv.tagHeadersExt[tagFileNumber - 1].count; i++ ) {
 			if ( !Q_stricmp( sv.tags[i].name, tagname ) ) {
-				VectorCopy( sv.tags[i].origin, or->origin );
-				VectorCopy( sv.tags[i].axis[0], or->axis[0] );
-				VectorCopy( sv.tags[i].axis[1], or->axis[1] );
-				VectorCopy( sv.tags[i].axis[2], or->axis[2] );
+				VectorCopy( sv.tags[i].origin, orient->origin );
+				VectorCopy( sv.tags[i].axis[0], orient->axis[0] );
+				VectorCopy( sv.tags[i].axis[1], orient->axis[1] );
+				VectorCopy( sv.tags[i].axis[2], orient->axis[2] );
 				return qtrue;
 			}
 		}

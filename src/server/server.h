@@ -507,7 +507,7 @@ void SV_FinalMessage( const char *message );
 #endif // RTCW_XX
 
 #if defined RTCW_ET
-void SV_FinalCommand( char *cmd, qboolean disconnect ); // ydnar: added disconnect flag so map changes can use this function as well
+void SV_FinalCommand( const char *cmd, qboolean disconnect ); // ydnar: added disconnect flag so map changes can use this function as well
 #endif // RTCW_XX
 
 void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ... );
@@ -532,7 +532,7 @@ void SV_MasterGameCompleteStatus();     // NERVE - SMF
 
 #if defined RTCW_ET
 //bani - bugtraq 12534
-qboolean SV_VerifyChallenge( char *challenge );
+qboolean SV_VerifyChallenge( const char *challenge );
 #endif // RTCW_XX
 
 

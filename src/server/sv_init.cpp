@@ -204,7 +204,7 @@ void SV_UpdateConfigStrings( void ) {
 				if ( len >= maxChunkSize ) {
 					int sent = 0;
 					int remaining = len;
-					char    *cmd;
+					const char    *cmd;
 					char buf[MAX_STRING_CHARS];
 
 					while ( remaining > 0 ) {
@@ -1651,7 +1651,7 @@ not just stuck on the outgoing message list, because the server is going
 to totally exit after returning from this function.
 ==================
 */
-void SV_FinalCommand( char *cmd, qboolean disconnect ) {
+void SV_FinalCommand( const char *cmd, qboolean disconnect ) {
 #endif // RTCW_XX
 
 	int i, j;

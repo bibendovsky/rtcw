@@ -2908,7 +2908,8 @@ returns qtrue if request was successful, qfalse if the gods were angered
 qboolean RE_LoadDynamicShader( const char *shadername, const char *shadertext ) {
 	const char *func_err = "WARNING: RE_LoadDynamicShader";
 	dynamicshader_t *dptr, *lastdptr;
-	char *q, *token;
+	const char *q;
+    char* token;
 
 	if ( !shadername && shadertext ) {
 		ri.Printf( PRINT_WARNING, "%s called with NULL shadername and non-NULL shadertext:\n%s\n", func_err, shadertext );
@@ -3022,7 +3023,7 @@ static const char *FindShaderInShaderText( const char *shadername ) {
 	//bani - if we have any dynamic shaders loaded, check them first
 	if ( dshader ) {
 		dynamicshader_t *dptr;
-		char    *q;
+		const char    *q;
 		int i;
 
 		dptr = dshader;

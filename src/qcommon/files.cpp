@@ -1915,7 +1915,7 @@ qboolean FS_CL_ExtractFromPakFile( const char *fullpath, const char *gamedir, co
 FS_AllowDeletion
 ==============
 */
-qboolean FS_AllowDeletion( char *filename ) {
+qboolean FS_AllowDeletion( const char *filename ) {
 	// for safety, only allow deletion from the save, profiles and demo directory
 	if ( Q_strncmp( filename, "save/", 5 ) != 0 &&
 		 Q_strncmp( filename, "profiles/", 9 ) != 0 &&
@@ -1931,7 +1931,7 @@ qboolean FS_AllowDeletion( char *filename ) {
 FS_DeleteDir
 ==============
 */
-int FS_DeleteDir( char *dirname, qboolean nonEmpty, qboolean recursive ) {
+int FS_DeleteDir( const char *dirname, qboolean nonEmpty, qboolean recursive ) {
 	char *ospath;
 	char **pFiles = NULL;
 	int i, nFiles = 0;
@@ -5043,7 +5043,7 @@ void FS_Restart( int checksumFeed ) {
 			Cbuf_AddText( "exec wolfconfig_mp.cfg\n" );
 #endif // RTCW_XX
 #else
-			char *cl_profileStr = Cvar_VariableString( "cl_profile" );
+			const char *cl_profileStr = Cvar_VariableString( "cl_profile" );
 
 			if ( com_gameInfo.usesProfiles && cl_profileStr[0] ) {
 				// bani - check existing pid file and make sure it's ok

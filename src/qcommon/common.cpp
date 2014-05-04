@@ -2985,7 +2985,8 @@ void Com_SetRecommended(bool restart_video)
 gameInfo_t com_gameInfo;
 
 void Com_GetGameInfo() {
-	char    *f, *buf;
+	char    *f;
+    const char* buf;
 	char    *token;
 
 	memset( &com_gameInfo, 0, sizeof( com_gameInfo ) );
@@ -3259,7 +3260,7 @@ void Com_Init( char *commandLine ) {
 
 	// skip the q3config.cfg if "safe" is on the command line
 	if ( !Com_SafeMode() ) {
-		char *cl_profileStr = Cvar_VariableString( "cl_profile" );
+		const char *cl_profileStr = Cvar_VariableString( "cl_profile" );
 
 		safeMode = qfalse;
 		if ( com_gameInfo.usesProfiles ) {
@@ -3269,7 +3270,7 @@ void Com_Init( char *commandLine ) {
 				FS_ReadFile( "profiles/defaultprofile.dat", (void **)&defaultProfile );
 
 				if ( defaultProfile ) {
-					char *text_p = defaultProfile;
+					const char *text_p = defaultProfile;
 					char *token = COM_Parse( &text_p );
 
 					if ( token && *token ) {
@@ -3573,7 +3574,7 @@ void Com_WriteConfiguration( void ) {
 #endif
 
 #if defined RTCW_ET
-	char *cl_profileStr = Cvar_VariableString( "cl_profile" );
+	const char *cl_profileStr = Cvar_VariableString( "cl_profile" );
 #endif // RTCW_XX
 
 	// if we are quiting without fully initializing, make sure
@@ -3936,7 +3937,7 @@ void Com_Shutdown( qboolean badProfile ) {
 
 
 #if defined RTCW_ET
-	char *cl_profileStr = Cvar_VariableString( "cl_profile" );
+	const char *cl_profileStr = Cvar_VariableString( "cl_profile" );
 
 
 	// delete pid file
