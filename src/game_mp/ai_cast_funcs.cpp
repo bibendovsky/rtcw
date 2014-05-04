@@ -72,8 +72,8 @@ static int lastGrenadeFlush = 0;
 #define AICAST_LEADERDIST_MAX   240     // try and stay at least this close to them when nothing else to do
 #define AICAST_LEADERDIST_MIN   64      // get this close if we have a clear line of sight to them
 
-char *AIFunc_BattleChase( cast_state_t *cs );
-char *AIFunc_Battle( cast_state_t *cs );
+const char *AIFunc_BattleChase( cast_state_t *cs );
+const char *AIFunc_Battle( cast_state_t *cs );
 
 static bot_moveresult_t *moveresult;
 
@@ -84,7 +84,7 @@ AIFunc_Restore()
   restores the last aifunc that was backed up
 ============
 */
-char *AIFunc_Restore( cast_state_t *cs ) {
+const char *AIFunc_Restore( cast_state_t *cs ) {
 	// if the old aifunc was BattleChase, set it back to Battle, in case we have found a good position
 	if ( cs->oldAifunc == AIFunc_BattleChase ) {
 		cs->oldAifunc = AIFunc_Battle;
@@ -317,7 +317,7 @@ AIFunc_Idle()
   The cast AI is standing around, contemplating the meaning of life
 ============
 */
-char *AIFunc_Idle( cast_state_t *cs ) {
+const char *AIFunc_Idle( cast_state_t *cs ) {
 
 	// we are in an idle state, looking for something to do
 
@@ -348,7 +348,7 @@ char *AIFunc_Idle( cast_state_t *cs ) {
 	if ( numEnemies == -1 ) {     // query mode
 		return NULL;
 	} else if ( numEnemies == -2 )     { // inspection may be required
-		char *retval;
+		const char *retval;
 		// TTimo gcc: suggest parentheses around assignment used as truth value
 		if ( ( retval = AIFunc_InspectFriendlyStart( cs, enemies[0] ) ) ) {
 			return retval;
@@ -508,7 +508,7 @@ char *AIFunc_Idle( cast_state_t *cs ) {
 AIFunc_IdleStart()
 ============
 */
-char *AIFunc_IdleStart( cast_state_t *cs ) {
+const char *AIFunc_IdleStart( cast_state_t *cs ) {
 	g_entities[cs->entityNum].flags &= ~FL_AI_GRENADE_KICK;
 	// stop following
 	cs->followEntity = -1;
@@ -541,7 +541,7 @@ char *AIFunc_IdleStart( cast_state_t *cs ) {
 AIFunc_InspectFriendly()
 ============
 */
-char *AIFunc_InspectFriendly( cast_state_t *cs ) {
+const char *AIFunc_InspectFriendly( cast_state_t *cs ) {
 	gentity_t   *followent, *ent;
 	bot_state_t *bs;
 	vec3_t destorg;
@@ -776,7 +776,7 @@ char *AIFunc_InspectFriendly( cast_state_t *cs ) {
 AIFunc_InspectFriendlyStart
 ============
 */
-char *AIFunc_InspectFriendlyStart( cast_state_t *cs, int entnum ) {
+const char *AIFunc_InspectFriendlyStart( cast_state_t *cs, int entnum ) {
 	cast_state_t *ocs;
 
 	ocs = AICast_GetCastState( entnum );
@@ -833,7 +833,7 @@ char *AIFunc_InspectFriendlyStart( cast_state_t *cs, int entnum ) {
 AIFunc_InspectBulletImpact()
 ============
 */
-char *AIFunc_InspectBulletImpact( cast_state_t *cs ) {
+const char *AIFunc_InspectBulletImpact( cast_state_t *cs ) {
 	gentity_t *ent;
 	vec3_t v1;
 	gclient_t *client;
@@ -933,7 +933,7 @@ char *AIFunc_InspectBulletImpact( cast_state_t *cs ) {
 AIFunc_InspectBulletImpactStart()
 ============
 */
-char *AIFunc_InspectBulletImpactStart( cast_state_t *cs ) {
+const char *AIFunc_InspectBulletImpactStart( cast_state_t *cs ) {
 	int oldScriptIndex;
 	// set the impact timer so we ignore bullets while inspecting this one
 	cs->bulletImpactIgnoreTime = level.time + 5000;
@@ -960,7 +960,7 @@ char *AIFunc_InspectBulletImpactStart( cast_state_t *cs ) {
 AIFunc_InspectAudibleEvent()
 ============
 */
-char *AIFunc_InspectAudibleEvent( cast_state_t *cs ) {
+const char *AIFunc_InspectAudibleEvent( cast_state_t *cs ) {
 	gentity_t   *ent;
 	bot_state_t *bs;
 	vec3_t destorg;
@@ -1157,7 +1157,7 @@ char *AIFunc_InspectAudibleEvent( cast_state_t *cs ) {
 AIFunc_InspectAudibleEventStart
 ============
 */
-char *AIFunc_InspectAudibleEventStart( cast_state_t *cs, int entnum ) {
+const char *AIFunc_InspectAudibleEventStart( cast_state_t *cs, int entnum ) {
 	cast_state_t *ocs;
 	int oldScriptIndex;
 
@@ -1218,7 +1218,7 @@ char *AIFunc_InspectAudibleEventStart( cast_state_t *cs, int entnum ) {
 AIFunc_ChaseGoalIdle()
 ============
 */
-char *AIFunc_ChaseGoalIdle( cast_state_t *cs ) {
+const char *AIFunc_ChaseGoalIdle( cast_state_t *cs ) {
 	gentity_t   *followent;
 	vec3_t dir;
 
@@ -1299,7 +1299,7 @@ char *AIFunc_ChaseGoalIdle( cast_state_t *cs ) {
 	if ( numEnemies == -1 ) { // query mode
 		return NULL;
 	} else if ( numEnemies == -2 )     { // inspection may be required
-		char *retval;
+		const char *retval;
 		// TTimo gcc: suggest parentheses around assignment used as truth value
 		if ( ( retval = AIFunc_InspectFriendlyStart( cs, enemies[0] ) ) ) {
 			return retval;
@@ -1329,7 +1329,7 @@ char *AIFunc_ChaseGoalIdle( cast_state_t *cs ) {
 AIFunc_ChaseGoalIdleStart()
 ============
 */
-char *AIFunc_ChaseGoalIdleStart( cast_state_t *cs, int entitynum, float reachdist ) {
+const char *AIFunc_ChaseGoalIdleStart( cast_state_t *cs, int entitynum, float reachdist ) {
 	// make sure we don't avoid any areas when we start again
 	trap_BotInitAvoidReach( cs->bs->ms );
 
@@ -1358,7 +1358,7 @@ char *AIFunc_ChaseGoalIdleStart( cast_state_t *cs, int entitynum, float reachdis
 AIFunc_ChaseGoal()
 ============
 */
-char *AIFunc_ChaseGoal( cast_state_t *cs ) {
+const char *AIFunc_ChaseGoal( cast_state_t *cs ) {
 	gentity_t   *followent, *ent;
 	bot_state_t *bs;
 	vec3_t destorg;
@@ -1539,7 +1539,7 @@ char *AIFunc_ChaseGoal( cast_state_t *cs ) {
 		if ( numEnemies == -1 ) { // query mode
 			return NULL;
 		} else if ( numEnemies == -2 )     { // inspection may be required
-			char *retval;
+			const char *retval;
 			// TTimo gcc: suggest parentheses around assignment used as truth value
 			if ( ( retval = AIFunc_InspectFriendlyStart( cs, enemies[0] ) ) ) {
 				return retval;
@@ -1586,7 +1586,7 @@ char *AIFunc_ChaseGoal( cast_state_t *cs ) {
 AIFunc_ChaseGoalStart()
 ============
 */
-char *AIFunc_ChaseGoalStart( cast_state_t *cs, int entitynum, float reachdist, qboolean slowApproach ) {
+const char *AIFunc_ChaseGoalStart( cast_state_t *cs, int entitynum, float reachdist, qboolean slowApproach ) {
 	cs->followEntity = entitynum;
 	cs->followDist = reachdist;
 	cs->followIsGoto = qfalse;
@@ -1600,7 +1600,7 @@ char *AIFunc_ChaseGoalStart( cast_state_t *cs, int entitynum, float reachdist, q
 AIFunc_DoorMarker()
 ============
 */
-char *AIFunc_DoorMarker( cast_state_t *cs ) {
+const char *AIFunc_DoorMarker( cast_state_t *cs ) {
 	gentity_t   *followent, *door;
 	bot_state_t *bs;
 	vec3_t destorg;
@@ -1680,7 +1680,7 @@ char *AIFunc_DoorMarker( cast_state_t *cs ) {
 AIFunc_DoorMarkerStart()
 ============
 */
-char *AIFunc_DoorMarkerStart( cast_state_t *cs, int doornum, int markernum ) {
+const char *AIFunc_DoorMarkerStart( cast_state_t *cs, int doornum, int markernum ) {
 	cs->doorEntNum = doornum;
 	cs->doorMarker = markernum;
 	cs->oldAifunc = cs->aifunc;
@@ -1693,7 +1693,7 @@ char *AIFunc_DoorMarkerStart( cast_state_t *cs, int doornum, int markernum ) {
 AIFunc_BattleRoll()
 =============
 */
-char *AIFunc_BattleRoll( cast_state_t *cs ) {
+const char *AIFunc_BattleRoll( cast_state_t *cs ) {
 	gclient_t *client = &level.clients[cs->entityNum];
 	vec3_t dir;
 	//
@@ -1745,7 +1745,7 @@ char *AIFunc_BattleRoll( cast_state_t *cs ) {
 AIFunc_BattleRollStart()
 =============
 */
-char *AIFunc_BattleRollStart( cast_state_t *cs, vec3_t vec ) {
+const char *AIFunc_BattleRollStart( cast_state_t *cs, vec3_t vec ) {
 	int duration;
 	// TTimo unused
 	//gclient_t *client = &level.clients[cs->entityNum];
@@ -1786,7 +1786,7 @@ char *AIFunc_BattleRollStart( cast_state_t *cs, vec3_t vec ) {
 AIFunc_BattleDiveStart()
 =============
 */
-char *AIFunc_BattleDiveStart( cast_state_t *cs, vec3_t vec ) {
+const char *AIFunc_BattleDiveStart( cast_state_t *cs, vec3_t vec ) {
 	int duration;
 	// TTimo unused
 	//gclient_t *client = &level.clients[cs->entityNum];
@@ -1823,7 +1823,7 @@ char *AIFunc_BattleDiveStart( cast_state_t *cs, vec3_t vec ) {
 AIFunc_FlipMove()
 =============
 */
-char *AIFunc_FlipMove( cast_state_t *cs ) {
+const char *AIFunc_FlipMove( cast_state_t *cs ) {
 	gclient_t *client = &level.clients[cs->entityNum];
 	vec3_t dir;
 	//
@@ -1851,7 +1851,7 @@ char *AIFunc_FlipMove( cast_state_t *cs ) {
 AIFunc_FlipMoveStart()
 =============
 */
-char *AIFunc_FlipMoveStart( cast_state_t *cs, vec3_t vec ) {
+const char *AIFunc_FlipMoveStart( cast_state_t *cs, vec3_t vec ) {
 	int duration;
 	// TTimo unused
 	//gclient_t *client = &level.clients[cs->entityNum];
@@ -1885,7 +1885,7 @@ char *AIFunc_FlipMoveStart( cast_state_t *cs, vec3_t vec ) {
 AIFunc_BattleHunt()
 =============
 */
-char *AIFunc_BattleHunt( cast_state_t *cs ) {
+const char *AIFunc_BattleHunt( cast_state_t *cs ) {
 	const float chaseDist = 32;
 	gentity_t   *followent, *ent;
 	bot_state_t *bs;
@@ -1893,7 +1893,7 @@ char *AIFunc_BattleHunt( cast_state_t *cs ) {
 	qboolean moved = qfalse;
 	// TTimo unused
 	//gclient_t *client = &level.clients[cs->entityNum];
-	char *rval;
+	const char *rval;
 	// TTimo might be used uninitialized
 	float dist = 0;
 	cast_state_t *ocs;
@@ -1970,7 +1970,7 @@ char *AIFunc_BattleHunt( cast_state_t *cs ) {
 		if ( numEnemies == -1 ) { // query mode
 			return NULL;
 		} else if ( numEnemies == -2 )     { // inspection may be required
-			char *retval;
+			const char *retval;
 			if ( cs->aiState < AISTATE_COMBAT ) {
 				// TTimo gcc: suggest parentheses around assignment used as truth value
 				if ( ( retval = AIFunc_InspectFriendlyStart( cs, enemies[0] ) ) ) {
@@ -2088,7 +2088,7 @@ char *AIFunc_BattleHunt( cast_state_t *cs ) {
 AIFunc_BattleHuntStart()
 =============
 */
-char *AIFunc_BattleHuntStart( cast_state_t *cs ) {
+const char *AIFunc_BattleHuntStart( cast_state_t *cs ) {
 	cs->combatGoalTime = 0;
 	cs->battleChaseMarker = 0;
 	cs->battleHuntPauseTime = 0;
@@ -2102,7 +2102,7 @@ char *AIFunc_BattleHuntStart( cast_state_t *cs ) {
 AIFunc_BattleAmbush()
 =============
 */
-char *AIFunc_BattleAmbush( cast_state_t *cs ) {
+const char *AIFunc_BattleAmbush( cast_state_t *cs ) {
 	bot_state_t *bs;
 	vec3_t destorg, vec;
 	float dist, moveDist;
@@ -2167,7 +2167,7 @@ char *AIFunc_BattleAmbush( cast_state_t *cs ) {
 	if ( numEnemies == -1 ) { // query mode
 		return NULL;
 	} else if ( numEnemies == -2 )     { // inspection may be required
-		char *retval;
+		const char *retval;
 		// TTimo gcc: suggest parentheses around assignment used as truth value
 		if ( ( retval = AIFunc_InspectFriendlyStart( cs, enemies[0] ) ) ) {
 			return retval;
@@ -2349,7 +2349,7 @@ char *AIFunc_BattleAmbush( cast_state_t *cs ) {
 AIFunc_BattleAmbushStart()
 =============
 */
-char *AIFunc_BattleAmbushStart( cast_state_t *cs ) {
+const char *AIFunc_BattleAmbushStart( cast_state_t *cs ) {
 	if ( !AICast_CanMoveWhileFiringWeapon( cs->bs->weaponnum ) ) {
 		// always run to the cover point
 		cs->bs->attackcrouch_time = 0;
@@ -2382,14 +2382,14 @@ char *AIFunc_BattleAmbushStart( cast_state_t *cs ) {
 AIFunc_BattleChase()
 ============
 */
-char *AIFunc_BattleChase( cast_state_t *cs ) {
+const char *AIFunc_BattleChase( cast_state_t *cs ) {
 	const float chaseDist = 32;
 	gentity_t   *followent, *ent;
 	bot_state_t *bs;
 	vec3_t destorg;
 	qboolean moved = qfalse;
 	gclient_t *client = &level.clients[cs->entityNum];
-	char *rval;
+	const char *rval;
 	float dist;
 	cast_state_t *ocs;
 
@@ -2515,7 +2515,7 @@ char *AIFunc_BattleChase( cast_state_t *cs ) {
 	if ( numEnemies == -1 ) { // query mode
 		return NULL;
 	} else if ( numEnemies == -2 )     { // inspection may be required
-		char *retval;
+		const char *retval;
 		// TTimo gcc: suggest parentheses around assignment used as truth value
 		if ( ( retval = AIFunc_InspectFriendlyStart( cs, enemies[0] ) ) ) {
 			return retval;
@@ -2807,7 +2807,7 @@ char *AIFunc_BattleChase( cast_state_t *cs ) {
 AIFunc_BattleChaseStart()
 ============
 */
-char *AIFunc_BattleChaseStart( cast_state_t *cs ) {
+const char *AIFunc_BattleChaseStart( cast_state_t *cs ) {
 	cs->startBattleChaseTime = level.time;
 	cs->combatGoalTime = 0;
 	cs->battleChaseMarker = -99;
@@ -2833,7 +2833,7 @@ char *AIFunc_BattleChaseStart( cast_state_t *cs ) {
 AIFunc_AvoidDanger()
 ============
 */
-char *AIFunc_AvoidDanger( cast_state_t *cs ) {
+const char *AIFunc_AvoidDanger( cast_state_t *cs ) {
 	bot_state_t *bs;
 	vec3_t destorg, vec;
 	float dist;
@@ -3027,7 +3027,7 @@ char *AIFunc_AvoidDanger( cast_state_t *cs ) {
 AIFunc_AvoidDangerStart()
 ============
 */
-char *AIFunc_AvoidDangerStart( cast_state_t *cs ) {
+const char *AIFunc_AvoidDangerStart( cast_state_t *cs ) {
 	//
 	//if (!AICast_CanMoveWhileFiringWeapon( cs->bs->weaponnum )) {
 	// always run to the cover point
@@ -3047,7 +3047,7 @@ char *AIFunc_AvoidDangerStart( cast_state_t *cs ) {
 AIFunc_BattleTakeCover()
 ============
 */
-char *AIFunc_BattleTakeCover( cast_state_t *cs ) {
+const char *AIFunc_BattleTakeCover( cast_state_t *cs ) {
 	bot_state_t *bs;
 	vec3_t destorg, vec;
 	float dist, moveDist;
@@ -3094,7 +3094,7 @@ char *AIFunc_BattleTakeCover( cast_state_t *cs ) {
 	if ( numEnemies == -1 ) { // query mode
 		return NULL;
 	} else if ( numEnemies == -2 )     { // inspection may be required
-		char *retval;
+		const char *retval;
 		// TTimo gcc: suggest parentheses around assignment used as truth value
 		if ( ( retval = AIFunc_InspectFriendlyStart( cs, enemies[0] ) ) ) {
 			return retval;
@@ -3343,7 +3343,7 @@ char *AIFunc_BattleTakeCover( cast_state_t *cs ) {
 AIFunc_BattleTakeCoverStart()
 ============
 */
-char *AIFunc_BattleTakeCoverStart( cast_state_t *cs ) {
+const char *AIFunc_BattleTakeCoverStart( cast_state_t *cs ) {
 // debugging
 #ifdef DEBUG
 	if ( cs->attributes[AGGRESSION] >= 1.0 ) {
@@ -3376,7 +3376,7 @@ char *AIFunc_BattleTakeCoverStart( cast_state_t *cs ) {
 AIFunc_GrenadeFlush()
 ============
 */
-char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
+const char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 	vec3_t dir;
 	gentity_t   *followent, *grenade, *ent;
 	bot_state_t *bs;
@@ -3505,7 +3505,7 @@ char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 	if ( numEnemies == -1 ) { // query mode
 		return NULL;
 	} else if ( numEnemies == -2 )     { // inspection may be required
-		char *retval;
+		const char *retval;
 		// TTimo gcc: suggest parentheses around assignment used as truth value
 		if ( ( retval = AIFunc_InspectFriendlyStart( cs, enemies[0] ) ) ) {
 			return retval;
@@ -3667,7 +3667,7 @@ char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 AIFunc_GrenadeFlushStart()
 ============
 */
-char *AIFunc_GrenadeFlushStart( cast_state_t *cs ) {
+const char *AIFunc_GrenadeFlushStart( cast_state_t *cs ) {
 	lastGrenadeFlush = level.time; // + rand()%2000;
 	cs->startGrenadeFlushTime = level.time;
 	cs->grenadeFlushEndTime = -1;
@@ -3688,7 +3688,7 @@ char *AIFunc_GrenadeFlushStart( cast_state_t *cs ) {
 AIFunc_BattleMG42()
 ============
 */
-char *AIFunc_BattleMG42( cast_state_t *cs ) {
+const char *AIFunc_BattleMG42( cast_state_t *cs ) {
 	bot_state_t *bs;
 	gentity_t *mg42, *ent;
 	vec3_t angles, vec, bestangles;
@@ -3736,7 +3736,7 @@ char *AIFunc_BattleMG42( cast_state_t *cs ) {
 			return NULL;
 		}
 		if ( numEnemies == -2 ) { // inspection may be required
-			char *retval;
+			const char *retval;
 			// TTimo gcc: suggest parentheses around assignment used as truth value
 			if ( ( retval = AIFunc_InspectFriendlyStart( cs, enemies[0] ) ) ) {
 				return retval;
@@ -3816,7 +3816,7 @@ char *AIFunc_BattleMG42( cast_state_t *cs ) {
 AIFunc_BattleMG42Start()
 ============
 */
-char *AIFunc_BattleMG42Start( cast_state_t *cs ) {
+const char *AIFunc_BattleMG42Start( cast_state_t *cs ) {
 	cs->aifunc = AIFunc_BattleMG42;
 	return "AIFunc_BattleMG42";
 }
@@ -3828,7 +3828,7 @@ AIFunc_InspectBody()
   go up to the enemy, and have a good look at them, randomly taunt them
 ============
 */
-char *AIFunc_InspectBody( cast_state_t *cs ) {
+const char *AIFunc_InspectBody( cast_state_t *cs ) {
 	bot_state_t *bs;
 	vec3_t destorg, enemyOrg;
 	//
@@ -3868,7 +3868,7 @@ char *AIFunc_InspectBody( cast_state_t *cs ) {
 	if ( numEnemies == -1 ) { // query mode
 		return NULL;
 	} else if ( numEnemies == -2 )     { // inspection may be required
-		char *retval;
+		const char *retval;
 		// TTimo gcc: suggest parentheses around assignment used as truth value
 		if ( ( retval = AIFunc_InspectFriendlyStart( cs, enemies[0] ) ) ) {
 			return retval;
@@ -3963,7 +3963,7 @@ char *AIFunc_InspectBody( cast_state_t *cs ) {
 AIFunc_InspectBodyStart()
 ============
 */
-char *AIFunc_InspectBodyStart( cast_state_t *cs ) {
+const char *AIFunc_InspectBodyStart( cast_state_t *cs ) {
 	static int lastInspect;
 	//
 	// if an inspection was already started not long ago, forget it
@@ -3982,7 +3982,7 @@ char *AIFunc_InspectBodyStart( cast_state_t *cs ) {
 AIFunc_GrenadeKick()
 ============
 */
-char *AIFunc_GrenadeKick( cast_state_t *cs ) {
+const char *AIFunc_GrenadeKick( cast_state_t *cs ) {
 	bot_state_t *bs;
 	vec3_t destorg, vec;
 	float dist, speed;
@@ -4207,7 +4207,7 @@ char *AIFunc_GrenadeKick( cast_state_t *cs ) {
 			return NULL;
 		}
 		if ( numEnemies == -2 ) { // inspection may be required
-			char *retval;
+			const char *retval;
 			// TTimo gcc: suggest parentheses around assignment used as truth value
 			if ( ( retval = AIFunc_InspectFriendlyStart( cs, enemies[0] ) ) ) {
 				return retval;
@@ -4294,7 +4294,7 @@ char *AIFunc_GrenadeKick( cast_state_t *cs ) {
 AIFunc_GrenadeKickStart()
 =============
 */
-char *AIFunc_GrenadeKickStart( cast_state_t *cs ) {
+const char *AIFunc_GrenadeKickStart( cast_state_t *cs ) {
 	gentity_t *danger;
 	gentity_t *ent;
 	//gentity_t *trav;
@@ -4345,7 +4345,7 @@ char *AIFunc_GrenadeKickStart( cast_state_t *cs ) {
 AIFunc_Battle()
 ============
 */
-char *AIFunc_Battle( cast_state_t *cs ) {
+const char *AIFunc_Battle( cast_state_t *cs ) {
 	bot_moveresult_t moveresult;
 	int tfl;
 	bot_state_t *bs;
@@ -4607,8 +4607,8 @@ char *AIFunc_Battle( cast_state_t *cs ) {
 AIFunc_BattleStart()
 ============
 */
-char *AIFunc_BattleStart( cast_state_t *cs ) {
-	char *rval;
+const char *AIFunc_BattleStart( cast_state_t *cs ) {
+	const char *rval;
 	int lastweap;
 	// make sure we don't avoid any areas when we start again
 	trap_BotInitAvoidReach( cs->bs->ms );
@@ -4701,9 +4701,9 @@ recheck:
 AIFunc_DefaultStart()
 ============
 */
-char *AIFunc_DefaultStart( cast_state_t *cs ) {
+const char *AIFunc_DefaultStart( cast_state_t *cs ) {
 	qboolean first = qfalse;
-	char    *rval = NULL;
+	const char    *rval = NULL;
 	//
 	if ( cs->aiFlags & AIFL_JUST_SPAWNED ) {
 		first = qtrue;

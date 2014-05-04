@@ -101,7 +101,7 @@ typedef enum {
 
 typedef struct
 {
-	char    *name;
+	const char    *name;
 	int ofs;
 	fieldtype_t type;
 	int flags;
@@ -195,7 +195,7 @@ field_t fields[] = {
 
 
 typedef struct {
-	char    *name;
+	const char    *name;
 	void ( *spawn )( gentity_t *ent );
 } spawn_t;
 
@@ -1006,7 +1006,7 @@ void SP_worldspawn( void ) {
 	g_entities[ENTITYNUM_WORLD].r.worldflags = g_entities[ENTITYNUM_WORLD].spawnflags;
 
 	g_entities[ENTITYNUM_WORLD].s.number = ENTITYNUM_WORLD;
-	g_entities[ENTITYNUM_WORLD].classname = "worldspawn";
+	g_entities[ENTITYNUM_WORLD].classname = const_cast<char*>("worldspawn");
 
 	// see if we want a warmup time
 	trap_SetConfigstring( CS_WARMUP, "" );

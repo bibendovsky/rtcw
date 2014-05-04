@@ -1095,7 +1095,7 @@ gentity_t *fire_flamechunk( gentity_t *self, vec3_t start, vec3_t dir ) {
 	VectorNormalize( dir );
 
 	bolt = G_Spawn();
-	bolt->classname = "flamechunk";
+	bolt->classname = const_cast<char*>("flamechunk");
 
 	bolt->timestamp = level.time;
 	bolt->flameQuotaTime = level.time + 50;
@@ -1215,7 +1215,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 
 	switch ( grenadeWPID ) {
 	case WP_GRENADE_LAUNCHER:
-		bolt->classname             = "grenade";
+		bolt->classname             = const_cast<char*>("grenade");
 //			bolt->damage				= 100;
 //			bolt->splashDamage			= 100;
 		if ( g_gametype.integer >= GT_WOLF ) {
@@ -1228,7 +1228,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 		bolt->s.eFlags              = EF_BOUNCE_HALF | EF_BOUNCE;
 		break;
 	case WP_GRENADE_PINEAPPLE:
-		bolt->classname             = "grenade";
+		bolt->classname             = const_cast<char*>("grenade");
 //			bolt->damage				= 80;
 //			bolt->splashDamage			= 80;
 		bolt->splashRadius          = 300;
@@ -1238,7 +1238,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 		break;
 // JPW NERVE
 	case WP_SMOKE_GRENADE:
-		bolt->classname             = "grenade";
+		bolt->classname             = const_cast<char*>("grenade");
 		bolt->s.eFlags              = EF_BOUNCE_HALF | EF_BOUNCE;
 		break;
 // jpw
@@ -1249,7 +1249,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 		trap_SendServerCommand( self - g_entities, "cp \"Dynamite is set, but NOT armed!\"" );
 		// differentiate non-armed dynamite with non-pulsing dlight
 		bolt->s.teamNum = self->client->sess.sessionTeam + 4;
-		bolt->classname             = "dynamite";
+		bolt->classname             = const_cast<char*>("dynamite");
 		bolt->damage                = 0;
 //			bolt->splashDamage			= 300;
 		bolt->splashRadius          = 400;
@@ -1319,7 +1319,7 @@ gentity_t *fire_speargun( gentity_t *self, vec3_t start, vec3_t dir ) {
 	VectorNormalize( dir );
 
 	bolt = G_Spawn();
-	bolt->classname = "spear";
+	bolt->classname = const_cast<char*>("spear");
 	bolt->nextthink = level.time + 10000;
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
@@ -1366,7 +1366,7 @@ gentity_t *fire_rocket( gentity_t *self, vec3_t start, vec3_t dir ) {
 	VectorNormalize( dir );
 
 	bolt = G_Spawn();
-	bolt->classname = "rocket";
+	bolt->classname = const_cast<char*>("rocket");
 	bolt->nextthink = level.time + 20000;   // push it out a little
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
@@ -1424,7 +1424,7 @@ gentity_t *fire_flamebarrel( gentity_t *self, vec3_t start, vec3_t dir ) {
 	VectorNormalize( dir );
 
 	bolt = G_Spawn();
-	bolt->classname = "flamebarrel";
+	bolt->classname = const_cast<char*>("flamebarrel");
 	bolt->nextthink = level.time + 3000;
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_FLAMEBARREL;
@@ -1584,7 +1584,7 @@ gentity_t *fire_mortar( gentity_t *self, vec3_t start, vec3_t dir ) {
 	}
 
 	bolt = G_Spawn();
-	bolt->classname = "mortar";
+	bolt->classname = const_cast<char*>("mortar");
 	bolt->nextthink = level.time + 20000;   // push it out a little
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
@@ -1628,7 +1628,7 @@ gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t righ
 	float r, u, scale;
 
 	bolt = G_Spawn();
-	bolt->classname = "nail";
+	bolt->classname = const_cast<char*>("nail");
 	bolt->nextthink = level.time + 10000;
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
@@ -1683,7 +1683,7 @@ gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t dir ) {
 	VectorNormalize( dir );
 
 	bolt = G_Spawn();
-	bolt->classname = "prox mine";
+	bolt->classname = const_cast<char*>("prox mine");
 	bolt->nextthink = level.time + 3000;
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;

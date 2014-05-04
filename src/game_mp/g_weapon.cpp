@@ -754,7 +754,7 @@ void weapon_callAirStrike( gentity_t *ent ) {
 		bomb->parent        = ent->parent;
 		bomb->damage        = 400; // maybe should un-hard-code these?
 		bomb->splashDamage  = 400;
-		bomb->classname             = "air strike";
+		bomb->classname             = const_cast<char*>("air strike");
 		bomb->splashRadius          = 400;
 		bomb->methodOfDeath         = MOD_AIRSTRIKE;
 		bomb->splashMethodOfDeath   = MOD_AIRSTRIKE;
@@ -827,7 +827,7 @@ void artillerySpotterThink( gentity_t *ent ) {
 		bomb->r.ownerNum    = ent->s.number;
 		bomb->parent        = ent;
 		bomb->nextthink = level.time + 1000 + random() * 300;
-		bomb->classname = "WP"; // WP == White Phosphorous, so we can check for bounce noise in grenade bounce routine
+		bomb->classname = const_cast<char*>("WP"); // WP == White Phosphorous, so we can check for bounce noise in grenade bounce routine
 		bomb->damage        = 000; // maybe should un-hard-code these?
 		bomb->splashDamage  = 000;
 		bomb->splashRadius  = 000;
@@ -939,7 +939,7 @@ void Weapon_Artillery( gentity_t *ent ) {
 			if ( i == 0 ) {
 				bomb->nextthink = level.time + 5000;
 				bomb->r.svFlags     = SVF_USE_CURRENT_ORIGIN | SVF_BROADCAST;
-				bomb->classname = "props_explosion"; // was "air strike"
+				bomb->classname = const_cast<char*>("props_explosion"); // was "air strike"
 				bomb->damage        = 0; // maybe should un-hard-code these?
 				bomb->splashDamage  = 90;
 				bomb->splashRadius  = 50;
@@ -955,7 +955,7 @@ void Weapon_Artillery( gentity_t *ent ) {
 				bomb->think = artillerySpotterThink;
 			} else {
 				bomb->nextthink = level.time + 8950 + 2000 * i + crandom() * 800;
-				bomb->classname = "air strike";
+				bomb->classname = const_cast<char*>("air strike");
 				bomb->damage        = 0;
 				bomb->splashDamage  = 400;
 				bomb->splashRadius  = 400;
@@ -1001,7 +1001,7 @@ void Weapon_Artillery( gentity_t *ent ) {
 			bomb2->parent       = ent;
 			bomb2->damage       = 0;
 			bomb2->nextthink = bomb->nextthink - 600;
-			bomb2->classname = "air strike";
+			bomb2->classname = const_cast<char*>("air strike");
 			bomb2->clipmask = MASK_MISSILESHOT;
 			bomb2->s.pos.trType = TR_STATIONARY; // was TR_GRAVITY,  might wanna go back to this and drop from height
 			bomb2->s.pos.trTime = level.time;       // move a bit on the very first frame

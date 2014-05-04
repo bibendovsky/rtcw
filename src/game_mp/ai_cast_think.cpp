@@ -58,7 +58,7 @@ AICast_ProcessAIFunctions
 */
 void AICast_ProcessAIFunctions( cast_state_t *cs, float thinktime ) {
 	int i;
-	char    *funcname;
+	const char    *funcname;
 
 	//check for air
 	BotCheckAir( cs->bs );

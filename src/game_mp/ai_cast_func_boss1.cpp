@@ -63,7 +63,7 @@ void AICast_FZombie_StartLightning( gentity_t *ent ) {
 AIFunc_FZombie_Idle
 ===============
 */
-char *AIFunc_FZombie_Idle( cast_state_t *cs ) {
+const char *AIFunc_FZombie_Idle( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	//
 	if ( cs->thinkFuncChangeTime < level.time - PORTAL_FEMZOMBIE_SPAWNTIME ) {
@@ -84,7 +84,7 @@ char *AIFunc_FZombie_Idle( cast_state_t *cs ) {
 AIFunc_FZombie_IdleStart
 ===============
 */
-char *AIFunc_FZombie_IdleStart( cast_state_t *cs ) {
+const char *AIFunc_FZombie_IdleStart( cast_state_t *cs ) {
 	cs->aifunc = AIFunc_FZombie_Idle;
 	return "AIFunc_FZombie_Idle";
 }
@@ -108,7 +108,7 @@ AIFunc_FZombie_LightningAttack
   across the walls like an insect.
 ===============
 */
-char *AIFunc_FZombie_LightningAttack( cast_state_t *cs ) {
+const char *AIFunc_FZombie_LightningAttack( cast_state_t *cs ) {
 	bot_state_t *bs;
 	gentity_t *ent, *marker, *trav;
 	// TTimo gcc: 'best' might be used uninitialized in this function
@@ -337,7 +337,7 @@ char *AIFunc_FZombie_LightningAttack( cast_state_t *cs ) {
 AIFunc_FZombie_LightningAttackStart
 ===============
 */
-char *AIFunc_FZombie_LightningAttackStart( cast_state_t *cs ) {
+const char *AIFunc_FZombie_LightningAttackStart( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum], *marker, *best;
 	float bestdist, dist;
 	//
@@ -380,7 +380,7 @@ AIFunc_FZombie_HandLightningAttack
 */
 #define FEMZOMBIE_HANDATTACK_DURATION   3400
 
-char *AIFunc_FZombie_HandLightningAttack( cast_state_t *cs ) {
+const char *AIFunc_FZombie_HandLightningAttack( cast_state_t *cs ) {
 	bot_state_t *bs;
 	gentity_t *ent;
 	//
@@ -423,7 +423,7 @@ char *AIFunc_FZombie_HandLightningAttack( cast_state_t *cs ) {
 AIFunc_FZombie_HandLightningAttackStart
 ===============
 */
-char *AIFunc_FZombie_HandLightningAttackStart( cast_state_t *cs ) {
+const char *AIFunc_FZombie_HandLightningAttackStart( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	//
 	ent->client->ps.torsoAnim =
@@ -469,7 +469,7 @@ void AICast_Helga_Alert( gentity_t *ent ) {
 AIFunc_Helga_Idle
 ===============
 */
-char *AIFunc_Helga_Idle( cast_state_t *cs ) {
+const char *AIFunc_Helga_Idle( cast_state_t *cs ) {
 	bot_state_t *bs;
 	gentity_t *ent;
 	//
@@ -497,7 +497,7 @@ char *AIFunc_Helga_Idle( cast_state_t *cs ) {
 AIFunc_Helga_IdleStart
 ===============
 */
-char *AIFunc_Helga_IdleStart( cast_state_t *cs ) {
+const char *AIFunc_Helga_IdleStart( cast_state_t *cs ) {
 	gentity_t *ent;
 	//
 	ent = &g_entities[cs->entityNum];
@@ -518,7 +518,7 @@ char *AIFunc_Helga_IdleStart( cast_state_t *cs ) {
 AIFunc_FlameZombie_Portal
 ==============
 */
-char *AIFunc_FlameZombie_Portal( cast_state_t *cs ) {
+const char *AIFunc_FlameZombie_Portal( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	//
 	if ( cs->thinkFuncChangeTime < level.time - PORTAL_ZOMBIE_SPAWNTIME ) {
@@ -536,7 +536,7 @@ char *AIFunc_FlameZombie_Portal( cast_state_t *cs ) {
 AIFunc_FlameZombie_PortalStart
 ==============
 */
-char *AIFunc_FlameZombie_PortalStart( cast_state_t *cs ) {
+const char *AIFunc_FlameZombie_PortalStart( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	//
 	ent->s.time2 = level.time + 200;    // hijacking this for portal spawning effect

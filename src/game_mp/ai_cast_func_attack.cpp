@@ -65,7 +65,7 @@ AIFunc_ZombieFlameAttack()
 
 #define ZOMBIE_FLAME_DURATION       4000
 
-char *AIFunc_ZombieFlameAttack( cast_state_t *cs ) {
+const char *AIFunc_ZombieFlameAttack( cast_state_t *cs ) {
 	bot_state_t *bs;
 	gentity_t *ent;
 	//
@@ -135,7 +135,7 @@ char *AIFunc_ZombieFlameAttack( cast_state_t *cs ) {
 	return NULL;
 }
 
-char *AIFunc_ZombieFlameAttackStart( cast_state_t *cs ) {
+const char *AIFunc_ZombieFlameAttackStart( cast_state_t *cs ) {
 	gentity_t *ent;
 	//
 	ent = &g_entities[cs->entityNum];
@@ -185,7 +185,7 @@ extern void weapon_zombiespirit( gentity_t *ent, gentity_t *missile );
 
 int lastZombieSpiritAttack;
 
-char *AIFunc_ZombieAttack2( cast_state_t *cs ) {
+const char *AIFunc_ZombieAttack2( cast_state_t *cs ) {
 	bot_state_t *bs;
 	gentity_t *ent;
 	//
@@ -228,7 +228,7 @@ char *AIFunc_ZombieAttack2( cast_state_t *cs ) {
 	return NULL;
 }
 
-char *AIFunc_ZombieAttack2Start( cast_state_t *cs ) {
+const char *AIFunc_ZombieAttack2Start( cast_state_t *cs ) {
 	gentity_t *ent;
 	//
 	// don't allow 2 consecutive spirit attacks at once
@@ -279,7 +279,7 @@ AIFunc_LoperAttack1()
   Loper's close range melee attack
 ===============
 */
-char *AIFunc_LoperAttack1( cast_state_t *cs ) {
+const char *AIFunc_LoperAttack1( cast_state_t *cs ) {
 	trace_t *tr;
 	gentity_t *ent;
 	//
@@ -311,7 +311,7 @@ char *AIFunc_LoperAttack1( cast_state_t *cs ) {
 }
 
 
-char *AIFunc_LoperAttack1Start( cast_state_t *cs ) {
+const char *AIFunc_LoperAttack1Start( cast_state_t *cs ) {
 	gentity_t *ent;
 	//
 	ent = &g_entities[cs->entityNum];
@@ -369,7 +369,7 @@ AIFunc_LoperAttack2()
   Loper's leaping long range attack
 ===============
 */
-char *AIFunc_LoperAttack2( cast_state_t *cs ) {
+const char *AIFunc_LoperAttack2( cast_state_t *cs ) {
 	gentity_t *ent;
 	vec3_t vec;
 	qboolean onGround = qfalse;
@@ -446,7 +446,7 @@ char *AIFunc_LoperAttack2( cast_state_t *cs ) {
 	return NULL;
 }
 
-char *AIFunc_LoperAttack2Start( cast_state_t *cs ) {
+const char *AIFunc_LoperAttack2Start( cast_state_t *cs ) {
 	gentity_t *ent;
 	vec3_t vec, avec;
 	//
@@ -501,7 +501,7 @@ AIFunc_LoperAttack3()
   Loper's ground electrical attack
 ===============
 */
-char *AIFunc_LoperAttack3( cast_state_t *cs ) {
+const char *AIFunc_LoperAttack3( cast_state_t *cs ) {
 	gentity_t *ent;
 	qboolean hitClient = qfalse;
 	//
@@ -545,7 +545,7 @@ char *AIFunc_LoperAttack3( cast_state_t *cs ) {
 	return NULL;
 }
 
-char *AIFunc_LoperAttack3Start( cast_state_t *cs ) {
+const char *AIFunc_LoperAttack3Start( cast_state_t *cs ) {
 	gentity_t *ent;
 	//
 	ent = &g_entities[cs->entityNum];
@@ -587,7 +587,7 @@ char *AIFunc_LoperAttack3Start( cast_state_t *cs ) {
 
 #define STIMSOLDIER_STARTJUMP_DELAY         ( STIMSOLDIER_FLYJUMP_DURATION*0.5 )
 
-char *AIFunc_StimSoldierAttack1( cast_state_t *cs ) {
+const char *AIFunc_StimSoldierAttack1( cast_state_t *cs ) {
 	gentity_t   *ent;
 	vec3_t vec;
 	static vec3_t up = {0,0,1};
@@ -663,7 +663,7 @@ char *AIFunc_StimSoldierAttack1( cast_state_t *cs ) {
 	return NULL;
 }
 
-char *AIFunc_StimSoldierAttack1Start( cast_state_t *cs ) {
+const char *AIFunc_StimSoldierAttack1Start( cast_state_t *cs ) {
 	gentity_t   *ent;
 	//static vec3_t mins={-96,-96,0}, maxs={96,96,72};
 	vec3_t pos, dir;
@@ -714,11 +714,11 @@ char *AIFunc_StimSoldierAttack1Start( cast_state_t *cs ) {
 //
 //=================================================================================
 
-char *AIFunc_StimSoldierAttack2( cast_state_t *cs ) {
+const char *AIFunc_StimSoldierAttack2( cast_state_t *cs ) {
 	return NULL;
 }
 
-char *AIFunc_StimSoldierAttack2Start( cast_state_t *cs ) {
+const char *AIFunc_StimSoldierAttack2Start( cast_state_t *cs ) {
 	gentity_t   *ent;
 	//
 	cs->weaponFireTimes[cs->bs->weaponnum] = level.time;
@@ -739,11 +739,11 @@ char *AIFunc_StimSoldierAttack2Start( cast_state_t *cs ) {
 //
 //=================================================================================
 
-char *AIFunc_BlackGuardAttack1( cast_state_t *cs ) {
+const char *AIFunc_BlackGuardAttack1( cast_state_t *cs ) {
 	return NULL;
 }
 
-char *AIFunc_BlackGuardAttack1Start( cast_state_t *cs ) {
+const char *AIFunc_BlackGuardAttack1Start( cast_state_t *cs ) {
 	gentity_t   *ent;
 	//
 	cs->weaponFireTimes[cs->bs->weaponnum] = level.time;
@@ -778,7 +778,7 @@ char *AIFunc_BlackGuardAttack1Start( cast_state_t *cs ) {
 AIFunc_RejectAttack1
 ==============
 */
-char *AIFunc_RejectAttack1( cast_state_t *cs ) {
+const char *AIFunc_RejectAttack1( cast_state_t *cs ) {
 	return NULL;
 }
 
@@ -787,7 +787,7 @@ char *AIFunc_RejectAttack1( cast_state_t *cs ) {
 AIFunc_RejectAttack1Start
 ==============
 */
-char *AIFunc_RejectAttack1Start( cast_state_t *cs ) {
+const char *AIFunc_RejectAttack1Start( cast_state_t *cs ) {
 	gentity_t *ent;
 
 	ent = &g_entities[cs->entityNum];
@@ -828,7 +828,7 @@ int warriorHitTimes[NUM_WARRIOR_ANIMS][3] = {   // up to three hits per attack
 AIFunc_WarriorZombieMelee
 ================
 */
-char *AIFunc_WarriorZombieMelee( cast_state_t *cs ) {
+const char *AIFunc_WarriorZombieMelee( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	int hitDelay = -1, anim;
 	trace_t *tr;
@@ -883,7 +883,7 @@ char *AIFunc_WarriorZombieMelee( cast_state_t *cs ) {
 AIFunc_WarriorZombieMeleeStart
 ================
 */
-char *AIFunc_WarriorZombieMeleeStart( cast_state_t *cs ) {
+const char *AIFunc_WarriorZombieMeleeStart( cast_state_t *cs ) {
 	gentity_t *ent;
 
 	ent = &g_entities[cs->entityNum];
@@ -913,7 +913,7 @@ char *AIFunc_WarriorZombieMeleeStart( cast_state_t *cs ) {
 AIFunc_WarriorZombieSight
 ================
 */
-char *AIFunc_WarriorZombieSight( cast_state_t *cs ) {
+const char *AIFunc_WarriorZombieSight( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 
 	if ( !ent->client->ps.torsoTimer ) {
@@ -927,7 +927,7 @@ char *AIFunc_WarriorZombieSight( cast_state_t *cs ) {
 AIFunc_WarriorZombieSightStart
 ================
 */
-char *AIFunc_WarriorZombieSightStart( cast_state_t *cs ) {
+const char *AIFunc_WarriorZombieSightStart( cast_state_t *cs ) {
 	gentity_t *ent;
 
 // RF, disabled
@@ -953,7 +953,7 @@ char *AIFunc_WarriorZombieSightStart( cast_state_t *cs ) {
 AIFunc_WarriorZombieDefense
 ================
 */
-char *AIFunc_WarriorZombieDefense( cast_state_t *cs ) {
+const char *AIFunc_WarriorZombieDefense( cast_state_t *cs ) {
 	gentity_t *ent, *enemy;
 	vec3_t enemyDir, vec;
 	float dist;
@@ -1030,7 +1030,7 @@ char *AIFunc_WarriorZombieDefense( cast_state_t *cs ) {
 AIFunc_WarriorZombieDefenseStart
 ================
 */
-char *AIFunc_WarriorZombieDefenseStart( cast_state_t *cs ) {
+const char *AIFunc_WarriorZombieDefenseStart( cast_state_t *cs ) {
 	gentity_t *ent, *enemy;
 	vec3_t enemyDir, vec;
 	float dist;

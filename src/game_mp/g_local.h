@@ -119,8 +119,8 @@ typedef struct gclient_s gclient_t;
 // Scripting, these structure are not saved into savegames (parsed each start)
 typedef struct
 {
-	char    *actionString;
-	qboolean ( *actionFunc )( gentity_t *ent, char *params );
+	const char    *actionString;
+	qboolean ( *actionFunc )( gentity_t *ent, const char *params );
 } g_script_stack_action_t;
 //
 typedef struct
@@ -148,8 +148,8 @@ typedef struct
 //
 typedef struct
 {
-	char        *eventStr;
-	qboolean ( *eventMatch )( g_script_event_t *event, char *eventParm );
+	const char        *eventStr;
+	qboolean ( *eventMatch )( g_script_event_t *event, const char *eventParm );
 } g_script_event_define_t;
 //
 // Script Flags
@@ -164,12 +164,12 @@ typedef struct
 	// scripting system variables
 	int scriptId;                   // incremented each time the script changes
 	int scriptFlags;
-	char    *animatingParams;
+	const char    *animatingParams;
 } g_script_status_t;
 //
 #define G_MAX_SCRIPT_ACCUM_BUFFERS  8
 //
-void G_Script_ScriptEvent( gentity_t *ent, char *eventStr, char *params );
+void G_Script_ScriptEvent( gentity_t *ent, const char *eventStr, const char *params );
 //====================================================================
 
 
@@ -314,7 +314,7 @@ struct gentity_s {
 	gitem_t     *item;          // for bonus items
 
 	// Ridah, AI fields
-	char        *aiAttributes;
+	const char        *aiAttributes;
 	char        *aiName;
 	int aiTeam;
 	void ( *AIScript_AlertEntity )( gentity_t *ent );
@@ -326,8 +326,8 @@ struct gentity_s {
 	char        *aihSkin;
 
 	vec3_t dl_color;
-	char        *dl_stylestring;
-	char        *dl_shader;
+	const char        *dl_stylestring;
+	const char        *dl_shader;
 	int dl_atten;
 
 
@@ -378,7 +378,7 @@ struct gentity_s {
 	char        *track;
 
 	// entity scripting system
-	char                *scriptName;
+	const char                *scriptName;
 
 	int numScriptEvents;
 	g_script_event_t    *scriptEvents;  // contains a list of actions to perform for each event type
@@ -786,7 +786,7 @@ qboolean G_CallSpawn( gentity_t *ent );
 void Cmd_Score_f( gentity_t *ent );
 void StopFollowing( gentity_t *ent );
 //void BroadcastTeamChange( gclient_t *client, int oldTeam );
-void SetTeam( gentity_t *ent, char *s );
+void SetTeam( gentity_t *ent, const char *s );
 void SetWolfData( gentity_t *ent, char *ptype, char *weap, char *grenade, char *skinnum );  // DHM - Nerve
 void Cmd_FollowCycle_f( gentity_t *ent, int dir );
 
@@ -825,7 +825,7 @@ void Spawn_Shard( gentity_t *ent, gentity_t *inflictor, int quantity, int type )
 // Ridah
 int G_FindConfigstringIndex( const char *name, int start, int max, qboolean create );
 // done.
-int G_ModelIndex( char *name );
+int G_ModelIndex( const char *name );
 int     G_SoundIndex( const char *name );
 void    G_TeamCommand( team_t team, char *cmd );
 void    G_KillBox( gentity_t *ent );
@@ -975,10 +975,10 @@ qboolean SpotWouldTelefrag( gentity_t *spot );
 //
 qboolean    ConsoleCommand( void );
 void G_ProcessIPBans( void );
-qboolean G_FilterPacket( char *from );
-qboolean G_FilterMaxLivesPacket( char *from );
-void AddMaxLivesIP( char *str );
-void AddMaxLivesGUID( char *str );
+qboolean G_FilterPacket( const char *from );
+qboolean G_FilterMaxLivesPacket( const char *from );
+void AddMaxLivesIP( const char *str );
+void AddMaxLivesGUID( const char *str );
 void ClearMaxLivesIP();
 void ClearMaxLivesGUID();
 
@@ -1019,7 +1019,7 @@ void QDECL G_Error( const char *fmt, ... );
 //
 // g_client.c
 //
-char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot );
+const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot );
 void ClientUserinfoChanged( int clientNum );
 void ClientDisconnect( int clientNum );
 void ClientBegin( int clientNum );
@@ -1100,7 +1100,7 @@ void G_UpdatePlayTime ( void );*/
 // g_script.c
 void G_Script_ScriptParse( gentity_t *ent );
 qboolean G_Script_ScriptRun( gentity_t *ent );
-void G_Script_ScriptEvent( gentity_t *ent, char *eventStr, char *params );
+void G_Script_ScriptEvent( gentity_t *ent, const char *eventStr, const char *params );
 void G_Script_ScriptLoad( void );
 
 float AngleDifference( float ang1, float ang2 );
@@ -1268,16 +1268,16 @@ int     trap_BotAllocateClient( void );
 void    trap_BotFreeClient( int clientNum );
 void    trap_GetUsercmd( int clientNum, usercmd_t *cmd );
 qboolean    trap_GetEntityToken( char *buffer, int bufferSize );
-qboolean trap_GetTag( int clientNum, char *tagName, orientation_t * or );
+qboolean trap_GetTag( int clientNum, const char *tagName, orientation_t * orient );
 
 int     trap_DebugPolygonCreate( int color, int numPoints, vec3_t *points );
 void    trap_DebugPolygonDelete( int id );
 
 int     trap_BotLibSetup( void );
 int     trap_BotLibShutdown( void );
-int     trap_BotLibVarSet( char *var_name, char *value );
-int     trap_BotLibVarGet( char *var_name, char *value, int size );
-int     trap_BotLibDefine( char *string );
+int     trap_BotLibVarSet( const char *var_name, const char *value );
+int     trap_BotLibVarGet( const char *var_name, char *value, int size );
+int     trap_BotLibDefine( const char *string );
 int     trap_BotLibStartFrame( float time );
 int     trap_BotLibLoadMap( const char *mapname );
 int     trap_BotLibUpdateEntity( int ent, void /* struct bot_updateentity_s */ *bue );
@@ -1303,10 +1303,10 @@ int         trap_AAS_TraceAreas( vec3_t start, vec3_t end, int *areas, vec3_t *p
 
 int         trap_AAS_PointContents( vec3_t point );
 int         trap_AAS_NextBSPEntity( int ent );
-int         trap_AAS_ValueForBSPEpairKey( int ent, char *key, char *value, int size );
-int         trap_AAS_VectorForBSPEpairKey( int ent, char *key, vec3_t v );
-int         trap_AAS_FloatForBSPEpairKey( int ent, char *key, float *value );
-int         trap_AAS_IntForBSPEpairKey( int ent, char *key, int *value );
+int         trap_AAS_ValueForBSPEpairKey( int ent, const char *key, char *value, int size );
+int         trap_AAS_VectorForBSPEpairKey( int ent, const char *key, vec3_t v );
+int         trap_AAS_FloatForBSPEpairKey( int ent, const char *key, float *value );
+int         trap_AAS_IntForBSPEpairKey( int ent, const char *key, int *value );
 
 int         trap_AAS_AreaReachability( int areanum );
 
@@ -1322,14 +1322,14 @@ int         trap_AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int en
 void        trap_AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, qboolean blocking );
 // done.
 
-void    trap_EA_Say( int client, char *str );
-void    trap_EA_SayTeam( int client, char *str );
-void    trap_EA_UseItem( int client, char *it );
-void    trap_EA_DropItem( int client, char *it );
-void    trap_EA_UseInv( int client, char *inv );
-void    trap_EA_DropInv( int client, char *inv );
+void    trap_EA_Say( int client, const char *str );
+void    trap_EA_SayTeam( int client, const char *str );
+void    trap_EA_UseItem( int client, const char *it );
+void    trap_EA_DropItem( int client, const char *it );
+void    trap_EA_UseInv( int client, const char *inv );
+void    trap_EA_DropInv( int client, const char *inv );
 void    trap_EA_Gesture( int client );
-void    trap_EA_Command( int client, char *command );
+void    trap_EA_Command( int client, const char *command );
 
 void    trap_EA_SelectWeapon( int client, int weapon );
 void    trap_EA_Talk( int client );
@@ -1368,8 +1368,8 @@ void    trap_BotQueueConsoleMessage( int chatstate, int type, char *message );
 void    trap_BotRemoveConsoleMessage( int chatstate, int handle );
 int     trap_BotNextConsoleMessage( int chatstate, void /* struct bot_consolemessage_s */ *cm );
 int     trap_BotNumConsoleMessages( int chatstate );
-void    trap_BotInitialChat( int chatstate, char *type, int mcontext, char *var0, char *var1, char *var2, char *var3, char *var4, char *var5, char *var6, char *var7 );
-int     trap_BotNumInitialChats( int chatstate, char *type );
+void    trap_BotInitialChat( int chatstate, const char *type, int mcontext, char *var0, char *var1, char *var2, char *var3, char *var4, char *var5, char *var6, char *var7 );
+int     trap_BotNumInitialChats( int chatstate, const char *type );
 int     trap_BotReplyChat( int chatstate, char *message, int mcontext, int vcontext, char *var0, char *var1, char *var2, char *var3, char *var4, char *var5, char *var6, char *var7 );
 int     trap_BotChatLength( int chatstate );
 void    trap_BotEnterChat( int chatstate, int client, int sendto );
@@ -1399,7 +1399,7 @@ int     trap_BotTouchingGoal( vec3_t origin, void /* struct bot_goal_s */ *goal 
 int     trap_BotItemGoalInVisButNotVisible( int viewer, vec3_t eye, vec3_t viewangles, void /* struct bot_goal_s */ *goal );
 int     trap_BotGetNextCampSpotGoal( int num, void /* struct bot_goal_s */ *goal );
 int     trap_BotGetMapLocationGoal( char *name, void /* struct bot_goal_s */ *goal );
-int     trap_BotGetLevelItemGoal( int index, char *classname, void /* struct bot_goal_s */ *goal );
+int     trap_BotGetLevelItemGoal( int index, const char *classname, void /* struct bot_goal_s */ *goal );
 float   trap_BotAvoidGoalTime( int goalstate, int number );
 void    trap_BotInitLevelItems( void );
 void    trap_BotUpdateEntityItems( void );

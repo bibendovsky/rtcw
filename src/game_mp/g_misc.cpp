@@ -1193,7 +1193,7 @@ void SP_corona( gentity_t *ent ) {
 // char* predef_lightstyles[] = {
 //	{"mmnmmommommnonmmonqnmmo"},
 
-char* predef_lightstyles[] = {
+const char* predef_lightstyles[] = {
 	"mmnmmommommnonmmonqnmmo",
 	"abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",
 	"mmmmmaaaaammmmmaaaaaabcdefgabcdefg",
@@ -1977,7 +1977,7 @@ void mg42_spawn( gentity_t *ent ) {
 
 		// Spawn the barrel
 		gun = G_Spawn();
-		gun->classname = "misc_mg42";
+		gun->classname = const_cast<char*>("misc_mg42");
 		gun->clipmask = CONTENTS_SOLID;
 		gun->r.contents = CONTENTS_TRIGGER;
 		gun->r.svFlags = SVF_USE_CURRENT_ORIGIN;
@@ -2156,7 +2156,7 @@ void flak_spawn( gentity_t *ent ) {
 	vec3_t offset;
 
 	gun = G_Spawn();
-	gun->classname = "misc_flak";
+	gun->classname = const_cast<char*>("misc_flak");
 	gun->clipmask = CONTENTS_SOLID;
 	gun->r.contents = CONTENTS_TRIGGER;
 	gun->r.svFlags = SVF_USE_CURRENT_ORIGIN;
@@ -2474,23 +2474,23 @@ void miscGunnerSpawn( gentity_t *ent ) {
 
 	// create the ring (base)
 	sp = G_Spawn();
-	sp->classname = "misc_gunner_ring";
+	sp->classname = const_cast<char*>("misc_gunner_ring");
 	sp->r.contents = 0;
 	sp->s.eType = ET_GENERAL;
 	sp->s.modelindex = G_ModelIndex( "models/mapobjects/weapons/turret_c.md3" );
 	sp->tagParent = veh;
-	sp->tagName = "tag_ring";    // tag to connect to
+	sp->tagName = const_cast<char*>("tag_ring");    // tag to connect to
 	G_ProcessTagConnect( sp );
 	trap_LinkEntity( sp );
 
 	// create the gun
 	sp = G_Spawn();
-	sp->classname = "misc_gunner_gun";
+	sp->classname = const_cast<char*>("misc_gunner_gun");
 	sp->r.contents = 0;
 	sp->s.eType = ET_GENERAL;
 	sp->s.modelindex = G_ModelIndex( "models/mapobjects/weapons/turret_a.md3" );
 	sp->tagParent = veh;
-	sp->tagName = "tag_rider";   // tag to connect to
+	sp->tagName = const_cast<char*>("tag_rider");   // tag to connect to
 	G_ProcessTagConnect( sp );
 	trap_LinkEntity( sp );
 
@@ -2505,7 +2505,7 @@ void miscGunnerSpawn( gentity_t *ent ) {
 	sp->s.eType = ET_GENERAL;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/weapons/turret_b.md3" );
 	ent->tagParent = sp;
-	ent->tagName = "tag_hand";   // tag to connect to
+	ent->tagName = const_cast<char*>("tag_hand");   // tag to connect to
 	G_ProcessTagConnect( ent );
 	trap_LinkEntity( ent );
 
@@ -2612,12 +2612,12 @@ void misc_firetrails_think( gentity_t *ent ) {
 
 	// left fire trail
 	left = G_Spawn();
-	left->classname = "left_firetrail";
+	left->classname = const_cast<char*>("left_firetrail");
 	left->r.contents = 0;
 	left->s.eType = ET_RAMJET;
 	left->s.modelindex = G_ModelIndex( "models/ammo/rocket/rocket.md3" );
 	left->tagParent = airplane;
-	left->tagName = "tag_engine1";   // tag to connect to
+	left->tagName = const_cast<char*>("tag_engine1");   // tag to connect to
 	left->use = firetrail_use;
 	left->AIScript_AlertEntity = firetrail_die;
 	left->targetname = ent->targetname;
@@ -2626,12 +2626,12 @@ void misc_firetrails_think( gentity_t *ent ) {
 
 	// right fire trail
 	right = G_Spawn();
-	right->classname = "right_firetrail";
+	right->classname = const_cast<char*>("right_firetrail");
 	right->r.contents = 0;
 	right->s.eType = ET_RAMJET;
 	right->s.modelindex = G_ModelIndex( "models/ammo/rocket/rocket.md3" );
 	right->tagParent = airplane;
-	right->tagName = "tag_engine2";  // tag to connect to
+	right->tagName = const_cast<char*>("tag_engine2");  // tag to connect to
 	right->use = firetrail_use;
 	right->AIScript_AlertEntity = firetrail_die;
 	right->targetname = ent->targetname;

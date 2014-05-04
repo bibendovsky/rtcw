@@ -32,8 +32,8 @@ level_locals_t level;
 
 typedef struct {
 	vmCvar_t    *vmCvar;
-	char        *cvarName;
-	char        *defaultString;
+	const char        *cvarName;
+	const char        *defaultString;
 	int cvarFlags;
 	int modificationCount;          // for tracking changes
 	qboolean trackChange;           // track this variable, and announce if changed
@@ -1709,7 +1709,7 @@ void FindIntermissionPoint( void ) {
 	gentity_t   *ent, *target;
 	vec3_t dir;
 	char cs[MAX_STRING_CHARS];              // DHM - Nerve
-	char        *buf;                       // DHM - Nerve
+	const char        *buf;                       // DHM - Nerve
 	int winner;                             // DHM - Nerve
 
 	if ( g_gametype.integer >= GT_WOLF ) {
@@ -2092,7 +2092,7 @@ ScoreIsTied
 qboolean ScoreIsTied( void ) {
 	int a, b;
 	char cs[MAX_STRING_CHARS];
-	char    *buf;
+	const char    *buf;
 
 	// DHM - Nerve :: GT_WOLF checks the current value of
 	if ( g_gametype.integer >= GT_WOLF ) {
@@ -2118,7 +2118,7 @@ qboolean ScoreIsTied( void ) {
 	return a == b;
 }
 
-qboolean G_ScriptAction_SetWinner( gentity_t *ent, char *params );
+qboolean G_ScriptAction_SetWinner( gentity_t *ent, const char *params );
 
 /*
 =================

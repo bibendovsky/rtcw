@@ -153,7 +153,7 @@ void Team_FragBonuses( gentity_t *targ, gentity_t *inflictor, gentity_t *attacke
 	int flag_pw, enemy_flag_pw;
 	int otherteam;
 	gentity_t *flag, *carrier = NULL;
-	char *c;
+	const char *c;
 	vec3_t v1, v2;
 	int team;
 
@@ -352,7 +352,7 @@ void Team_CheckHurtCarrier( gentity_t *targ, gentity_t *attacker ) {
 
 
 gentity_t *Team_ResetFlag( int team ) {
-	char *c;
+	const char *c;
 	gentity_t *ent, *rent = NULL;
 
 	switch ( team ) {
@@ -812,7 +812,7 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team, int spawnObje
 	int count;
 	int selection;
 	gentity_t   *spots[MAX_TEAM_SPAWN_POINTS];
-	char        *classname;
+	const char        *classname;
 	qboolean initialSpawn = qfalse;     // DHM - Nerve
 	int i = 0,j;       // JPW NERVE
 	int closest;         // JPW NERVE
@@ -820,7 +820,7 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team, int spawnObje
 	vec3_t target;      // JPW NERVE
 	vec3_t farthest;      // JPW NERVE FIXME this is temp
 	char cs[MAX_STRING_CHARS];          // NERVE - SMF
-	char        *def;
+	const char        *def;
 	int defendingTeam;
 	qboolean defender = qfalse;
 

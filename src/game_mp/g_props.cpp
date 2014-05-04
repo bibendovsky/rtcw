@@ -511,7 +511,7 @@ void propExplosionLarge( gentity_t *ent ) {
 	gentity_t *bolt;
 
 	bolt = G_Spawn();
-	bolt->classname = "props_explosion_large";
+	bolt->classname = const_cast<char*>("props_explosion_large");
 	bolt->nextthink = level.time + FRAMETIME;
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
@@ -538,7 +538,7 @@ void propExplosion( gentity_t *ent ) {
 
 	extern void G_ExplodeMissile( gentity_t * ent );
 	bolt = G_Spawn();
-	bolt->classname = "props_explosion";
+	bolt->classname = const_cast<char*>("props_explosion");
 	bolt->nextthink = level.time + FRAMETIME;
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;

@@ -964,7 +964,7 @@ void SP_trigger_objective_info( gentity_t *ent ) {
 		e = G_Spawn();
 
 		e->r.svFlags = SVF_BROADCAST;
-		e->classname = "explosive_indicator";
+		e->classname = const_cast<char*>("explosive_indicator");
 		e->s.eType = ET_EXPLOSIVE_INDICATOR;
 		e->s.pos.trType = TR_STATIONARY;
 

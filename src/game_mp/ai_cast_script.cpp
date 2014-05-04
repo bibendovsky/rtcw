@@ -53,66 +53,66 @@ according to each different scenario.
 */
 
 // action functions need to be declared here so they can be accessed in the scriptAction table
-qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_WalkToMarker( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_CrouchToMarker( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_WalkToCast( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_CrouchToCast( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Wait( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Trigger( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_FollowCast( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_PlaySound( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_NoAttack( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Attack( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_PlayAnim( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_ClearAnim( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_SetAmmo( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_SetClip( cast_state_t *cs, char *params ); //----(SA)	added
-qboolean AICast_ScriptAction_SelectWeapon( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_GiveArmor( cast_state_t *cs, char *params );   //----(SA)	added
-qboolean AICast_ScriptAction_GiveWeapon( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_GiveInventory( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_TakeWeapon( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Movetype( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_AlertEntity( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_SaveGame( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_FireAtTarget( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_GodMode( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Accum( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_SpawnCast( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_MissionFailed( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_MissionSuccess( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_NoAIDamage( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Print( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_FaceTargetAngles( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_ResetScript( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Mount( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Unmount( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_SavePersistant( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_ChangeLevel( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_FoundSecret( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_NoSight( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Sight( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_NoAvoid( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Avoid( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Attrib( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_DenyAction( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_LightningDamage( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Headlook( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_BackupScript( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_RestoreScript( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_StateType( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_KnockBack( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Zoom( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Parachute( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_StartCam( cast_state_t *cs, char *params ); //----(SA)	added
-qboolean AICast_ScriptAction_StartCamBlack( cast_state_t *cs, char *params );    //----(SA)	added
-qboolean AICast_ScriptAction_EntityScriptName( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_AIScriptName( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_SetHealth( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_NoTarget( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Cvar( cast_state_t *cs, char *params );
+qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_WalkToMarker( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_CrouchToMarker( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_WalkToCast( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_CrouchToCast( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_Wait( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_Trigger( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_FollowCast( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_PlaySound( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_NoAttack( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_Attack( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_PlayAnim( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_ClearAnim( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_SetAmmo( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_SetClip( cast_state_t *cs, const char *params ); //----(SA)	added
+qboolean AICast_ScriptAction_SelectWeapon( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_GiveArmor( cast_state_t *cs, const char *params );   //----(SA)	added
+qboolean AICast_ScriptAction_GiveWeapon( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_GiveInventory( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_TakeWeapon( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_Movetype( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_AlertEntity( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_SaveGame( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_FireAtTarget( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_GodMode( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_Accum( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_SpawnCast( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_MissionFailed( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_MissionSuccess( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_NoAIDamage( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_Print( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_FaceTargetAngles( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_ResetScript( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_Mount( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_Unmount( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_SavePersistant( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_ChangeLevel( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_FoundSecret( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_NoSight( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_Sight( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_NoAvoid( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_Avoid( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_Attrib( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_DenyAction( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_LightningDamage( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_Headlook( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_BackupScript( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_RestoreScript( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_StateType( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_KnockBack( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_Zoom( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_Parachute( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_StartCam( cast_state_t *cs, const char *params ); //----(SA)	added
+qboolean AICast_ScriptAction_StartCamBlack( cast_state_t *cs, const char *params );    //----(SA)	added
+qboolean AICast_ScriptAction_EntityScriptName( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_AIScriptName( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_SetHealth( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_NoTarget( cast_state_t *cs, const char *params );
+qboolean AICast_ScriptAction_Cvar( cast_state_t *cs, const char *params );
 
 // these are the actions that each event can call
 cast_script_stack_action_t scriptActions[] =
@@ -184,8 +184,8 @@ cast_script_stack_action_t scriptActions[] =
 	{NULL,              NULL}
 };
 
-qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, char *eventParm );
-qboolean AICast_EventMatch_IntInRange( cast_script_event_t *event, char *eventParm );
+qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, const char *eventParm );
+qboolean AICast_EventMatch_IntInRange( cast_script_event_t *event, const char *eventParm );
 
 // the list of events that can start an action sequence
 // NOTE!!: only append to this list, DO NOT INSERT!!
@@ -224,7 +224,7 @@ int numSecrets;
 AICast_EventMatch_StringEqual
 ===============
 */
-qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, char *eventParm ) {
+qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, const char *eventParm ) {
 	if ( !event->params || !event->params[0] || ( eventParm && !Q_strcasecmp( event->params, eventParm ) ) ) {
 		return qtrue;
 	} else {
@@ -237,8 +237,9 @@ qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, char *eventP
 AICast_EventMatch_IntInRange
 ===============
 */
-qboolean AICast_EventMatch_IntInRange( cast_script_event_t *event, char *eventParm ) {
-	char *pString, *token;
+qboolean AICast_EventMatch_IntInRange( cast_script_event_t *event, const char *eventParm ) {
+	const char *pString;
+    char* token;
 	int int1, int2, eInt;
 
 	// get the cast name
@@ -348,7 +349,7 @@ AICast_ScriptParse
 void AICast_ScriptParse( cast_state_t *cs ) {
 	#define MAX_SCRIPT_EVENTS   64
 	gentity_t   *ent;
-	char        *pScript;
+	const char        *pScript;
 	char        *token;
 	qboolean wantName;
 	qboolean inScript;
@@ -579,7 +580,7 @@ AICast_ScriptEvent
   An event has occured, for which a script may exist
 ================
 */
-void AICast_ScriptEvent( struct cast_state_s *cs, char *eventStr, char *params ) {
+void AICast_ScriptEvent( struct cast_state_s *cs, const char *eventStr, const char *params ) {
 	int i, eventNum;
 
 	eventNum = -1;
@@ -646,7 +647,7 @@ AICast_ForceScriptEvent
   Definately run this event now, overriding any paised state
 ================
 */
-void AICast_ForceScriptEvent( struct cast_state_s *cs, char *eventStr, char *params ) {
+void AICast_ForceScriptEvent( struct cast_state_s *cs, const char *eventStr, const char *params ) {
 	int oldPauseTime;
 
 	oldPauseTime = cs->scriptPauseTime;

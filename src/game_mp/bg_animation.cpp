@@ -366,7 +366,7 @@ animModelInfo_t *BG_ModelInfoForModelname( char *modelname ) {
 BG_AnimationIndexForString
 =================
 */
-int BG_AnimationIndexForString( char *string, int client ) {
+int BG_AnimationIndexForString( const char *string, int client ) {
 	int i, hash;
 	animation_t *anim;
 	animModelInfo_t *modelInfo;
@@ -1552,7 +1552,7 @@ int BG_PlayAnim( playerState_t *ps, int animNum, animBodyPart_t bodyPart, int fo
 BG_PlayAnimName
 ===============
 */
-int BG_PlayAnimName( playerState_t *ps, char *animName, animBodyPart_t bodyPart, qboolean setTimer, qboolean isContinue, qboolean force ) {
+int BG_PlayAnimName( playerState_t *ps, const char *animName, animBodyPart_t bodyPart, qboolean setTimer, qboolean isContinue, qboolean force ) {
 	return BG_PlayAnim( ps, BG_AnimationIndexForString( animName, ps->clientNum ), bodyPart, 0, setTimer, isContinue, force );
 }
 

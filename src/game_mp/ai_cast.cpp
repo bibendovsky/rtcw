@@ -83,7 +83,7 @@ vmCvar_t aicast_debugname;
 vmCvar_t aicast_scripts;
 
 // string versions of the attributes used for per-level, per-character definitions
-char *castAttributeStrings[] =
+const char *castAttributeStrings[] =
 {
 	"RUNNING_SPEED", // max = 300	(running speed)
 	"WALKING_SPEED", // max = 300	(walking speed)
@@ -227,7 +227,7 @@ AICast_AddCastToGame
 ============
 */
 //----(SA) modified this for head separation
-gentity_t *AICast_AddCastToGame( gentity_t *ent, char *castname, char *model, char *head, char *sex, char *color, char *handicap ) {
+gentity_t *AICast_AddCastToGame( gentity_t *ent, const char *castname, const char *model, const char *head, const char *sex, const char *color, const char *handicap ) {
 	int clientNum;
 	gentity_t *bot;
 	char userinfo[MAX_INFO_STRING];
@@ -280,7 +280,7 @@ gentity_t *AICast_AddCastToGame( gentity_t *ent, char *castname, char *model, ch
 AICast_CheckLevelAttributes
 ============
 */
-void AICast_CheckLevelAttributes( cast_state_t *cs, gentity_t *ent, char **ppStr ) {
+void AICast_CheckLevelAttributes( cast_state_t *cs, gentity_t *ent, const char **ppStr ) {
 	char    *s;
 	int i;
 
@@ -337,11 +337,11 @@ AICast_CreateCharacter
   returns 0 if unable to create the character
 ============
 */
-gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapon_info_t *weaponInfo, char *castname, char *model, char *head, char *sex, char *color, char *handicap ) {
+gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapon_info_t *weaponInfo, const char *castname, const char *model, const char *head, const char *sex, const char *color, const char *handicap ) {
 	gentity_t       *newent;
 	gclient_t       *client;
 	cast_state_t    *cs;
-	char            **ppStr;
+	const char            **ppStr;
 	int j;
 
 	if ( g_gametype.integer != GT_SINGLE_PLAYER ) { // no cast AI in multiplayer
@@ -512,7 +512,7 @@ void AICast_Init( void ) {
 AICast_FindEntityForName
 ===============
 */
-gentity_t *AICast_FindEntityForName( char *name ) {
+gentity_t *AICast_FindEntityForName( const char *name ) {
 	gentity_t *trav;
 	int i;
 
@@ -539,7 +539,7 @@ gentity_t *AICast_FindEntityForName( char *name ) {
 AICast_TravEntityForName
 ===============
 */
-gentity_t *AICast_TravEntityForName( gentity_t *startent, char *name ) {
+gentity_t *AICast_TravEntityForName( gentity_t *startent, const char *name ) {
 	gentity_t *trav;
 
 	if ( !startent ) {

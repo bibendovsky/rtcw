@@ -98,7 +98,7 @@ void BotDumpNodeSwitches( bot_state_t *bs ) {
 BotRecordNodeSwitch
 ==================
 */
-void BotRecordNodeSwitch( bot_state_t *bs, char *node, char *str ) {
+void BotRecordNodeSwitch( bot_state_t *bs, const char *node, const char *str ) {
 	char netname[MAX_NETNAME];
 
 	ClientName( bs->client, netname, sizeof( netname ) );

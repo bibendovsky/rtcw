@@ -72,7 +72,7 @@ these are start points /after/ the level start
 the letter (a b c d) designates the checkpoint that needs to be complete in order to use this start position
 */
 void SP_info_player_checkpoint( gentity_t *ent ) {
-	ent->classname = "info_player_checkpoint";
+	ent->classname = const_cast<char*>("info_player_checkpoint");
 	SP_info_player_deathmatch( ent );
 }
 
@@ -83,7 +83,7 @@ void SP_info_player_checkpoint( gentity_t *ent ) {
 equivelant to info_player_deathmatch
 */
 void SP_info_player_start( gentity_t *ent ) {
-	ent->classname = "info_player_deathmatch";
+	ent->classname = const_cast<char*>("info_player_deathmatch");
 	SP_info_player_deathmatch( ent );
 }
 
@@ -296,7 +296,7 @@ void InitBodyQue( void ) {
 	level.bodyQueIndex = 0;
 	for ( i = 0; i < BODY_QUEUE_SIZE ; i++ ) {
 		ent = G_Spawn();
-		ent->classname = "bodyque";
+		ent->classname = const_cast<char*>("bodyque");
 		ent->neverFree = qtrue;
 		level.bodyQue[i] = ent;
 	}
@@ -354,7 +354,7 @@ void CopyToBodyQue( gentity_t *ent ) {
 
 	}
 	body->s.eType = ET_CORPSE;
-	body->classname = "corpse";
+	body->classname = const_cast<char*>("corpse");
 	body->s.powerups = 0;   // clear powerups
 	body->s.loopSound = 0;  // clear lava burning
 	body->s.number = body - g_entities;
@@ -526,7 +526,7 @@ reinforce
 */
 void reinforce( gentity_t *ent ) {
 	int p, team; // numDeployable=0, finished=0; // TTimo unused
-	char *classname;
+	const char *classname;
 	gclient_t *rclient;
 
 	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
@@ -1345,7 +1345,7 @@ if desired.
 void ClientUserinfoChanged( int clientNum ) {
 
 	gentity_t *ent;
-	char    *s;
+	const char    *s;
 	char model[MAX_QPATH], modelname[MAX_QPATH];
 
 //----(SA) added this for head separation
@@ -1353,7 +1353,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	char oldname[MAX_STRING_CHARS];
 	gclient_t   *client;
-	char    *c1;
+	const char    *c1;
 	char userinfo[MAX_INFO_STRING];
 
 	ent = g_entities + clientNum;
@@ -1554,8 +1554,8 @@ to the server machine, but qfalse on map changes and tournement
 restarts.
 ============
 */
-char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
-	char        *value;
+const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
+	const char        *value;
 	gclient_t   *client;
 	char userinfo[MAX_INFO_STRING];
 	gentity_t   *ent;
@@ -1763,7 +1763,7 @@ void ClientBegin( int clientNum ) {
 
 	// Xian - Check for maxlives enforcement
 	if ( g_enforcemaxlives.integer == 1 && ( g_maxlives.integer > 0 || g_axismaxlives.integer > 0 || g_alliedmaxlives.integer > 0 ) ) {
-		char *value;
+		const char *value;
 		char userinfo[MAX_INFO_STRING];
 		trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 		value = Info_ValueForKey( userinfo, "cl_guid" );
@@ -1814,7 +1814,7 @@ void ClientSpawn( gentity_t *ent, qboolean revived ) {
 		VectorCopy( ent->s.angles, spawn_angles );
 	} else
 	{
-		ent->aiName = "player";  // needed for script AI
+		ent->aiName = const_cast<char*>("player");  // needed for script AI
 		//ent->aiTeam = 1;		// member of allies
 		//ent->client->ps.teamNum = ent->aiTeam;
 		//AICast_ScriptParse( AICast_GetCastState(ent->s.number) );
@@ -1910,7 +1910,7 @@ void ClientSpawn( gentity_t *ent, qboolean revived ) {
 	ent->takedamage = qtrue;
 	ent->inuse = qtrue;
 	if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
-		ent->classname = "player";
+		ent->classname = const_cast<char*>("player");
 	}
 	ent->r.contents = CONTENTS_BODY;
 
@@ -2159,7 +2159,7 @@ void ClientDisconnect( int clientNum ) {
 	trap_UnlinkEntity( ent );
 	ent->s.modelindex = 0;
 	ent->inuse = qfalse;
-	ent->classname = "disconnected";
+	ent->classname = const_cast<char*>("disconnected");
 	ent->client->pers.connected = CON_DISCONNECTED;
 	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
 	ent->client->sess.sessionTeam = TEAM_FREE;
@@ -2182,7 +2182,8 @@ G_RetrieveMoveSpeedsFromClient
 ==================
 */
 void G_RetrieveMoveSpeedsFromClient( int entnum, char *text ) {
-	char *text_p, *token;
+	const char *text_p;
+    char* token;
 	animation_t *anim;
 	animModelInfo_t *modelInfo;
 

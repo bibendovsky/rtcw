@@ -93,7 +93,7 @@ static int numMaxLivesFilters = 0;
 StringToFilter
 =================
 */
-static qboolean StringToFilter( char *s, ipFilter_t *f ) {
+static qboolean StringToFilter( const char *s, ipFilter_t *f ) {
 	char num[128];
 	int i, j;
 	byte b[4];
@@ -200,11 +200,11 @@ void PrintMaxLivesGUID() {
 G_FilterPacket
 =================
 */
-qboolean G_FilterPacket( char *from ) {
+qboolean G_FilterPacket( const char *from ) {
 	int i;
 	unsigned in;
 	byte m[4];
-	char *p;
+	const char *p;
 
 	i = 0;
 	p = from;
@@ -233,7 +233,7 @@ qboolean G_FilterPacket( char *from ) {
 /*
  Check to see if the user is trying to sneak back in with g_enforcemaxlives enabled
 */
-qboolean G_FilterMaxLivesPacket( char *from ) {
+qboolean G_FilterMaxLivesPacket( const char *from ) {
 	int i;
 
 	for ( i = 0 ; i < numMaxLivesFilters ; i++ )
@@ -250,7 +250,7 @@ qboolean G_FilterMaxLivesPacket( char *from ) {
 AddIP
 =================
 */
-static void AddIP( char *str ) {
+static void AddIP( const char *str ) {
 	int i;
 
 	for ( i = 0 ; i < numIPFilters ; i++ )
@@ -278,7 +278,7 @@ Xian - with g_enforcemaxlives enabled, this adds a client GUID to a list
 that prevents them from quitting a disconnecting
 =================
 */
-void AddMaxLivesGUID( char *str ) {
+void AddMaxLivesGUID( const char *str ) {
 	if ( numMaxLivesFilters == MAX_IPFILTERS ) {
 		G_Printf( "MaxLives GUID filter list is full\n" );
 		return;

@@ -124,7 +124,7 @@ int G_FindConfigstringIndex( const char *name, int start, int max, qboolean crea
 }
 
 
-int G_ModelIndex( char *name ) {
+int G_ModelIndex( const char *name ) {
 	return G_FindConfigstringIndex( name, CS_MODELS, MAX_MODELS, qtrue );
 }
 
@@ -390,7 +390,7 @@ void G_SetMovedir( vec3_t angles, vec3_t movedir ) {
 
 void G_InitGentity( gentity_t *e ) {
 	e->inuse = qtrue;
-	e->classname = "noclass";
+	e->classname = const_cast<char*>("noclass");
 	e->s.number = e - g_entities;
 	e->r.ownerNum = ENTITYNUM_NONE;
 	e->headshotDamageScale = 1.0;   // RF, default value
@@ -497,7 +497,7 @@ void G_FreeEntity( gentity_t *ed ) {
 	}
 
 	memset( ed, 0, sizeof( *ed ) );
-	ed->classname = "freed";
+	ed->classname = const_cast<char*>("freed");
 	ed->freetime = level.time;
 	ed->inuse = qfalse;
 }
@@ -518,7 +518,7 @@ gentity_t *G_TempEntity( vec3_t origin, int event ) {
 	e = G_Spawn();
 	e->s.eType = ET_EVENTS + event;
 
-	e->classname = "tempEntity";
+	e->classname = const_cast<char*>("tempEntity");
 	e->eventTime = level.time;
 	e->r.eventTime = level.time;
 	e->freeAfterEvent = qtrue;

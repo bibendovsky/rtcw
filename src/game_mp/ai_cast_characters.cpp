@@ -1122,7 +1122,7 @@ AIChar_GetPainLocation
 =============
 */
 int AIChar_GetPainLocation( gentity_t *ent, vec3_t point ) {
-	static char *painTagNames[] = {
+	static const char *painTagNames[] = {
 		"tag_head",
 		"tag_chest",
 		"tag_torso",
@@ -1136,12 +1136,12 @@ int AIChar_GetPainLocation( gentity_t *ent, vec3_t point ) {
 
 	int tagIndex, bestTag;
 	float bestDist, dist;
-	orientation_t or;
+	orientation_t orient;
 
 	// first make sure the client is able to retrieve tag information
 	// TTimo gcc: warning: comparison is always false due to limited range of data type
 	// initial line: if (trap_GetTag( ent->s.number, painTagNames[0], &or ) < 0)
-	if ( !trap_GetTag( ent->s.number, painTagNames[0], &or ) ) {
+	if ( !trap_GetTag( ent->s.number, painTagNames[0], &orient ) ) {
 		return 0;
 	}
 
@@ -1150,8 +1150,8 @@ int AIChar_GetPainLocation( gentity_t *ent, vec3_t point ) {
 		// grab the tag with this name
 		// TTimo gcc: warning: comparison is always true due to limited range of data type
 		// initial line: if (trap_GetTag( ent->s.number, painTagNames[tagIndex], &or ) >= 0)
-		if ( trap_GetTag( ent->s.number, painTagNames[tagIndex], &or ) ) {
-			dist = VectorDistance( or.origin, point );
+		if ( trap_GetTag( ent->s.number, painTagNames[tagIndex], &orient ) ) {
+			dist = VectorDistance( orient.origin, point );
 			if ( !bestDist || dist < bestDist ) {
 				bestTag = tagIndex;
 				bestDist = dist;
@@ -1449,7 +1449,7 @@ void AIChar_spawn( gentity_t *ent ) {
 	//
 	// use the default skin if nothing specified
 	if ( !ent->aiSkin || !strlen( ent->aiSkin ) ) {
-		ent->aiSkin = aiCharDefaults->skin;
+		ent->aiSkin = const_cast<char*>(aiCharDefaults->skin);
 	}
 	// ............................
 	//

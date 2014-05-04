@@ -195,7 +195,7 @@ void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 
 
 // these are just for logging, the client prints its own messages
-char    *modNames[] = {
+const char    *modNames[] = {
 	"MOD_UNKNOWN",
 	"MOD_SHOTGUN",
 	"MOD_GAUNTLET",
@@ -281,7 +281,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	int contents = 0;
 	int killer;
 	int i;
-	char        *killerName, *obit;
+	const char        *killerName, *obit;
 	qboolean nogib = qtrue;
 	gitem_t     *item = NULL; // JPW NERVE for flag drop
 	vec3_t launchvel,launchspot;      // JPW NERVE
@@ -615,7 +615,7 @@ qboolean IsHeadShot( gentity_t *targ, qboolean isAICharacter, vec3_t dir, vec3_t
 	trace_t tr;
 	vec3_t start, end;
 	gentity_t   *traceEnt;
-	orientation_t or;           // DHM - Nerve
+	orientation_t orient;           // DHM - Nerve
 
 	qboolean head_shot_weapon = qfalse;
 
@@ -633,8 +633,8 @@ qboolean IsHeadShot( gentity_t *targ, qboolean isAICharacter, vec3_t dir, vec3_t
 	if ( head_shot_weapon ) {
 		head = G_Spawn();
 
-		if ( trap_GetTag( targ->s.number, "tag_head", &or ) ) {
-			G_SetOrigin( head, or.origin );
+		if ( trap_GetTag( targ->s.number, "tag_head", &orient ) ) {
+			G_SetOrigin( head, orient.origin );
 		} else {
 			float height, dest;
 			vec3_t v, angles, forward, up, right;
@@ -719,12 +719,12 @@ qboolean IsHeadShot( gentity_t *targ, qboolean isAICharacter, vec3_t dir, vec3_t
 
 gentity_t* G_BuildHead( gentity_t *ent ) {
 	gentity_t* head;
-	orientation_t or;           // DHM - Nerve
+	orientation_t orient;           // DHM - Nerve
 
 	head = G_Spawn();
 
-	if ( trap_GetTag( ent->s.number, "tag_head", &or ) ) {
-		G_SetOrigin( head, or.origin );
+	if ( trap_GetTag( ent->s.number, "tag_head", &orient ) ) {
+		G_SetOrigin( head, orient.origin );
 	} else {
 		float height, dest;
 		vec3_t v, angles, forward, up, right;
