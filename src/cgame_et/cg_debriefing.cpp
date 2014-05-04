@@ -2453,7 +2453,7 @@ const char* awardNames[NUM_ENDGAME_AWARDS] = {
 
 void CG_Debreifing2_Awards_Parse( void ) {
 	int i = 0;
-	char* cs = (char*)CG_ConfigString( CS_ENDGAME_STATS );
+	const char* cs = CG_ConfigString( CS_ENDGAME_STATS );
 	const char* token;
 	char* s;
 	int size, len;
@@ -2462,7 +2462,7 @@ void CG_Debreifing2_Awards_Parse( void ) {
 	Q_strncpyz( buffer, cs, sizeof( cgs.dbAwardNamesBuffer ) );
 	cs = buffer;
 
-	while ( ( s = strchr( cs, ';' ) ) ) {
+	while ( ( s = const_cast<char*>(strchr( cs, ';' )) ) ) {
 		*s = '"';
 	}
 

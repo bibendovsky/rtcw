@@ -243,7 +243,7 @@ void SP_trigger_objective_info( void ) {
 }
 
 typedef struct {
-	char    *name;
+	const char    *name;
 	void ( *spawn )( void );
 } spawn_t;
 

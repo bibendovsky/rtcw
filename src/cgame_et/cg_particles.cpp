@@ -99,7 +99,7 @@ typedef enum
 
 #define MAX_SHADER_ANIMS        8
 #define MAX_SHADER_ANIM_FRAMES  64
-static char *shaderAnimNames[MAX_SHADER_ANIMS] = {
+static const char *shaderAnimNames[MAX_SHADER_ANIMS] = {
 	"explode1",
 	"blacksmokeanim",
 	"twiltb2",
@@ -1427,7 +1427,7 @@ CG_ParticleExplosion
 ======================
 */
 
-void CG_ParticleExplosion( char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd, qboolean dlight ) {
+void CG_ParticleExplosion( const char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd, qboolean dlight ) {
 	cparticle_t *p;
 	int anim;
 
@@ -1498,7 +1498,7 @@ void CG_AddParticleShrapnel( localEntity_t *le ) {
 
 int CG_NewParticleArea( int num ) {
 	// const char *str;
-	char *str;
+	const char *str;
 	char *token;
 	int type;
 	vec3_t origin, origin2;

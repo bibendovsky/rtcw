@@ -909,7 +909,8 @@ CG_ParseWeaponConfig
 ======================
 */
 static qboolean CG_ParseWeaponConfig( const char *filename, weaponInfo_t *wi ) {
-	char        *text_p, *prev;
+    const char* text_p;
+    const char* prev;
 	int len;
 	int i;
 	float fps;
@@ -1041,7 +1042,7 @@ static qboolean CG_ParseWeaponConfig( const char *filename, weaponInfo_t *wi ) {
 }
 
 
-static qboolean CG_RW_ParseError( int handle, char *format, ... ) {
+static qboolean CG_RW_ParseError( int handle, const char *format, ... ) {
 	int line;
 	char filename[128];
 	va_list argptr;
@@ -1529,7 +1530,7 @@ CG_RegisterWeapon
 */
 void CG_RegisterWeapon( int weaponNum, qboolean force ) {
 	weaponInfo_t    *weaponInfo;
-	char            *filename;
+	const char* filename;
 
 	if ( weaponNum <= 0 || weaponNum >= WP_NUM_WEAPONS ) {
 		return;
@@ -5594,7 +5595,7 @@ void CG_SpawnTracer( int sourceEnt, vec3_t pstart, vec3_t pend ) {
 	localEntity_t   *le;
 	float dist;
 	vec3_t dir, ofs;
-	orientation_t or;
+	orientation_t orient;
 	vec3_t start, end;
 
 	VectorCopy( pstart, start );
@@ -5616,8 +5617,8 @@ void CG_SpawnTracer( int sourceEnt, vec3_t pstart, vec3_t pend ) {
 		// for visual purposes, find the actual tag_weapon for this client
 		// and offset the start and end accordingly
 		if ( !( cg_entities[sourceEnt].currentState.eFlags & EF_MG42_ACTIVE || cg_entities[sourceEnt].currentState.eFlags & EF_AAGUN_ACTIVE ) ) {    // not MG42
-			if ( CG_GetWeaponTag( sourceEnt, "tag_flash", &or ) ) {
-				VectorSubtract( or.origin, start, ofs );
+			if ( CG_GetWeaponTag( sourceEnt, "tag_flash", &orient ) ) {
+				VectorSubtract( orient.origin, start, ofs );
 				if ( VectorLength( ofs ) < 64 ) {
 					VectorAdd( start, ofs, start );
 				}

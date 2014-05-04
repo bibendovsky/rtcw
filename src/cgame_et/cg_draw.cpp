@@ -509,7 +509,7 @@ static float CG_DrawTimer( float y ) {
 	int w;
 	int mins, seconds, tens;
 	int msec;
-	char        *rt;
+	const char        *rt;
 	vec4_t color =             { 0.625f,   0.625f, 0.6f,   1.0f    };
 	vec4_t timerBackground =   { 0.16f,    0.2f,   0.17f,  0.8f    };
 	vec4_t timerBorder     =   { 0.5f,     0.5f,   0.5f,   0.5f    };
@@ -527,7 +527,7 @@ static float CG_DrawTimer( float y ) {
 
 	if ( cgs.gamestate != GS_PLAYING ) {
 		//%	s = va( "%s^*WARMUP", rt );
-		s = "^*WARMUP";  // ydnar: don't draw reinforcement time in warmup mode
+		s = const_cast<char*>("^*WARMUP");  // ydnar: don't draw reinforcement time in warmup mode
 		color[3] = c::fabs( c::sin( cg.time * 0.002 ) );
 	} else if ( msec < 0 && cgs.timelimit > 0.0f ) {
 		s = va( "^N0:00" );
@@ -2222,7 +2222,7 @@ CG_DrawVote
 =================
 */
 static void CG_DrawVote( void ) {
-	char    *s;
+	const char    *s;
 	char str1[32], str2[32];
 	float color[4] = { 1, 1, 0, 1 };
 	int sec;
@@ -2944,8 +2944,9 @@ static void CG_DrawFlashFade( void ) {
 		// OSP - Show who is speclocked
 		if ( fBlackout ) {
 			int i, nOffset = 90;
-			char *str, *format = "The %s team is speclocked!";
-			char *teams[TEAM_NUM_TEAMS] = { "??", "AXIS", "ALLIES", "???" };
+			char *str;
+            const char* format = "The %s team is speclocked!";
+			const char *teams[TEAM_NUM_TEAMS] = { "??", "AXIS", "ALLIES", "???" };
 			float color[4] = { 1, 1, 0, 1 };
 
 			for ( i = TEAM_AXIS; i <= TEAM_ALLIES; i++ ) {

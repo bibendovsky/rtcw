@@ -939,7 +939,7 @@ static void CG_CPM_f( void ) {
 }
 
 typedef struct {
-	char    *cmd;
+	const char    *cmd;
 	void ( *function )( void );
 } consoleCommand_t;
 

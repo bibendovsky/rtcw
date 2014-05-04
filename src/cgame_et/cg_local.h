@@ -1908,7 +1908,7 @@ typedef struct {
 	float nextTimeLimit;
 	int minclients;
 	gamestate_t gamestate;
-	char        *currentCampaign;
+	const char        *currentCampaign;
 	int currentCampaignMap;
 
 	int complaintClient;        // DHM - Nerve
@@ -2261,7 +2261,7 @@ float CG_Cvar_Get( const char *cvar );
 
 char *CG_generateFilename( void );
 int CG_findClientNum( char *s );
-void CG_printConsoleString( char *str );
+void CG_printConsoleString( const char *str );
 
 void CG_LoadObjectiveData( void );
 
@@ -2280,8 +2280,8 @@ void CG_KeyEvent( int key, qboolean down );
 void CG_MouseEvent( int x, int y );
 void CG_EventHandling( int type, qboolean fForced );
 
-qboolean CG_GetTag( int clientNum, char *tagname, orientation_t * or );
-qboolean CG_GetWeaponTag( int clientNum, char *tagname, orientation_t * or );
+qboolean CG_GetTag( int clientNum, char *tagname, orientation_t * orient );
+qboolean CG_GetWeaponTag( int clientNum, const char *tagname, orientation_t * orient );
 
 //
 // cg_view.c
@@ -2392,7 +2392,7 @@ int CG_Text_Height_Ext( const char *text, float scale, int limit, fontInfo_t* fo
 int CG_Text_Height( const char *text, float scale, int limit );
 float CG_GetValue( int ownerDraw, int type ); // 'type' is relative or absolute (fractional-'0.5' or absolute- '50' health)
 qboolean CG_OwnerDrawVisible( int flags );
-void CG_RunMenuScript( char **args );
+void CG_RunMenuScript( const char **args );
 void CG_GetTeamColor( vec4_t *color );
 void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles );
 void CG_Text_PaintChar_Ext( float x, float y, float w, float h, float scalex, float scaley, float s, float t, float s2, float t2, qhandle_t hShader );
@@ -2545,7 +2545,7 @@ void    CG_ParticleDust( centity_t *cent, vec3_t origin, vec3_t dir );
 void    CG_ParticleMisc( qhandle_t pshader, vec3_t origin, int size, int duration, float alpha );
 
 // Ridah
-void CG_ParticleExplosion( char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd, qboolean dlight );
+void CG_ParticleExplosion( const char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd, qboolean dlight );
 
 // Rafael snow pvs check
 void    CG_SnowLink( centity_t *cent, qboolean particleOn );
@@ -2618,7 +2618,7 @@ void    CG_AddLocalEntities( void );
 //
 // cg_effects.c
 //
-int CG_GetOriginForTag( centity_t * cent, refEntity_t * parent, char *tagName, int startIndex, vec3_t org, vec3_t axis[3] );
+int CG_GetOriginForTag( centity_t * cent, refEntity_t * parent, const char *tagName, int startIndex, vec3_t org, vec3_t axis[3] );
 localEntity_t *CG_SmokePuff( const vec3_t p,
 							 const vec3_t vel,
 							 float radius,
@@ -2790,9 +2790,9 @@ void CG_AddToNotify( const char *str );
 const char* CG_LocalizeServerCommand( const char *buf );
 void CG_wstatsParse_cmd( void );
 void CG_wtopshotsParse_cmd( qboolean doBest );
-void CG_parseWeaponStats_cmd( void( txt_dump ) ( char * ) );
-void CG_parseBestShotsStats_cmd( qboolean doTop, void( txt_dump ) ( char * ) );
-void CG_parseTopShotsStats_cmd( qboolean doTop, void( txt_dump ) ( char * ) );
+void CG_parseWeaponStats_cmd( void( txt_dump ) ( const char * ) );
+void CG_parseBestShotsStats_cmd( qboolean doTop, void( txt_dump ) ( const char * ) );
+void CG_parseTopShotsStats_cmd( qboolean doTop, void( txt_dump ) ( const char * ) );
 void CG_scores_cmd( void );
 
 //
@@ -3232,7 +3232,7 @@ void CG_mvZoomBinoc( float x, float y, float w, float h );
 void CG_mvZoomSniper( float x, float y, float w, float h );
 
 // cg_window.c
-qboolean CG_addString( cg_window_t *w, char *buf );
+qboolean CG_addString( cg_window_t *w, const char *buf );
 //void CG_createDemoHelpWindow(void);
 //void CG_createSpecHelpWindow(void);
 void CG_createStatsWindow( void );
@@ -3242,7 +3242,7 @@ void CG_createWtopshotsMsgWindow( void );
 void CG_createMOTDWindow( void );
 void CG_cursorUpdate( void );
 void CG_initStrings( void );
-void CG_printWindow( char *str );
+void CG_printWindow( const char *str );
 void CG_removeStrings( cg_window_t *w );
 cg_window_t *CG_windowAlloc( int fx, int startupLength );
 void CG_windowDraw( void );

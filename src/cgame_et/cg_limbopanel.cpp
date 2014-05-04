@@ -1397,7 +1397,9 @@ qboolean CG_LimboPanel_ObjectiveText_KeyDown( panel_button_t* button, int key ) 
 
 void CG_LimboPanel_RenderObjectiveText( panel_button_t* button ) {
 	const char* cs;
-	char *info, *s, *p;
+	const char* info;
+    char* s;
+    char* p;
 	float y;
 	char buffer[1024];
 	int status = 0;

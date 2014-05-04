@@ -36,7 +36,7 @@ const char* CG_NameForCampaign( void ) {
 	return cgs.campaignInfoLoaded ? cgs.campaignData.campaignName : NULL;
 }
 
-qboolean CG_FindCampaignInFile( char *filename, char *campaignShortName, cg_campaignInfo_t *info ) {
+qboolean CG_FindCampaignInFile( const char *filename, const char *campaignShortName, cg_campaignInfo_t *info ) {
 	int handle;
 	pc_token_t token;
 //	char* dummy;

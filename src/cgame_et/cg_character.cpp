@@ -87,7 +87,7 @@ CG_ParseHudHeadConfig
 ======================
 */
 static qboolean CG_ParseHudHeadConfig( const char *filename, animation_t* hha ) {
-	char        *text_p;
+	const char* text_p;
 	int len;
 	int i;
 	float fps;
@@ -164,7 +164,7 @@ CG_CalcMoveSpeeds
 ==================
 */
 static void CG_CalcMoveSpeeds( bg_character_t *character ) {
-	char            *tags[2] = {"tag_footleft", "tag_footright"};
+	const char            *tags[2] = {"tag_footleft", "tag_footright"};
 	vec3_t oldPos[2];
 	refEntity_t refent;
 	animation_t     *anim;
@@ -334,7 +334,7 @@ static qboolean CG_RegisterAcc( const char *modelName, int *model, const char* s
 }
 
 typedef struct {
-	char        *type;
+	const char        *type;
 	accType_t index;
 } acc_t;
 

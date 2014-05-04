@@ -387,7 +387,7 @@ qboolean CG_ViewingDraw() {
 		int w, wTag;
 		int tSpacing = 15;      // Should derive from CG_Text_Height_Ext
 		int pID = cg.mvCurrentMainview->mvInfo & MV_PID;
-		char *viewInfo = "Viewing:";
+		const char *viewInfo = "Viewing:";
 
 		wTag = CG_Text_Width_Ext( viewInfo, VD_SCALE_X_HDR, 0, FONT_HEADER );
 		w = wTag + 3 + CG_Text_Width_Ext( cgs.clientinfo[pID].name, VD_SCALE_X_NAME, 0, FONT_TEXT );
@@ -897,8 +897,8 @@ char *CG_getBindKeyName( const char *cmd, char *buf, int len ) {
 
 typedef struct
 {
-	char *cmd;
-	char *info;
+	const char *cmd;
+	const char *info;
 } helpType_t;
 
 

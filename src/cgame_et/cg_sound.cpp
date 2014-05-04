@@ -262,8 +262,9 @@ void CG_SoundPlayIndexedScript( int index, vec3_t org, int entnum ) {
 CG_SoundParseSounds
 ===============
 */
-static void CG_SoundParseSounds( char *filename, char *buffer ) {
-	char *token, **text;
+static void CG_SoundParseSounds( char *filename, const char *buffer ) {
+	char *token;
+    const char** text;
 	int s;
 	long hash;
 	soundScript_t sound;                // the current sound being read
@@ -414,7 +415,7 @@ extern char bigTextBuffer[100000];  // we got it anyway, might as well use it
 #define MAX_SOUND_FILES     128
 static void CG_SoundLoadSoundFiles( void ) {
 	char soundFiles[MAX_SOUND_FILES][MAX_QPATH];
-	char *text;
+	const char *text;
 	char filename[MAX_QPATH];
 	fileHandle_t f;
 	int numSounds;
@@ -541,7 +542,7 @@ qboolean CG_SaveSpeakersToScript( void ) {
 	int i;
 	bg_speaker_t    *speaker;
 	fileHandle_t fh;
-	char            *s;
+	const char* s;
 
 	if ( trap_FS_FOpenFile( va( "sound/maps/%s.sps", cgs.rawmapname ), &fh, FS_WRITE ) < 0 ) {
 		CG_Printf( S_COLOR_RED "ERROR: failed to save speakers to 'sound/maps/%s.sps'\n", cgs.rawmapname );

@@ -335,8 +335,8 @@ vmCvar_t cg_recording_statusline;
 
 typedef struct {
 	vmCvar_t    *vmCvar;
-	char        *cvarName;
-	char        *defaultString;
+	const char        *cvarName;
+	const char        *defaultString;
 	int cvarFlags;
 	int modificationCount;
 } cvarTable_t;
@@ -866,7 +866,7 @@ int CG_findClientNum( char *s ) {
 	return( -1 );
 }
 
-void CG_printConsoleString( char *str ) {
+void CG_printConsoleString( const char *str ) {
 	CG_Printf( "[skipnotify]%s", str );
 }
 
@@ -958,7 +958,7 @@ void CG_LoadObjectiveData( void ) {
 //========================================================================
 void CG_SetupDlightstyles( void ) {
 	int i, j;
-	char        *str;
+	const char        *str;
 	char        *token;
 	int entnum;
 	centity_t   *cent;
@@ -1023,7 +1023,8 @@ The server says this item is used on this level
 static void CG_RegisterItemSounds( int itemNum ) {
 	gitem_t         *item;
 	char data[MAX_QPATH];
-	char            *s, *start;
+    const char* s;
+    const char* start;
 	int len;
 
 	item = &bg_itemlist[ itemNum ];
@@ -1305,7 +1306,7 @@ void WM_RegisterWeaponTypeShaders();
 static void CG_RegisterGraphics( void ) {
 	char name[1024];
 	int i;
-	static char     *sb_nums[11] = {
+	static const char     *sb_nums[11] = {
 		"gfx/2d/numbers/zero_32b",
 		"gfx/2d/numbers/one_32b",
 		"gfx/2d/numbers/two_32b",
@@ -2057,7 +2058,7 @@ CG_StartMusic
 ======================
 */
 void CG_StartMusic( void ) {
-	char    *s;
+	const char    *s;
 	char parm1[MAX_QPATH], parm2[MAX_QPATH];
 
 	// start the background music
@@ -2076,11 +2077,11 @@ CG_QueueMusic
 ==============
 */
 void CG_QueueMusic( void ) {
-	char    *s;
+	const char    *s;
 	char parm[MAX_QPATH];
 
 	// prepare the next background track
-	s = (char *)CG_ConfigString( CS_MUSIC_QUEUE );
+	s = CG_ConfigString( CS_MUSIC_QUEUE );
 	Q_strncpyz( parm, COM_Parse( &s ), sizeof( parm ) );
 
 	// even if no strlen(parm).  we want to be able to clear the queue
@@ -2299,7 +2300,7 @@ void CG_ParseMenu( const char *menuFile ) {
 	trap_PC_FreeSource( handle );
 }
 
-qboolean CG_Load_Menu( char **p ) {
+qboolean CG_Load_Menu( const char **p ) {
 	char *token;
 
 	token = COM_ParseExt( p, qtrue );
@@ -2329,7 +2330,7 @@ qboolean CG_Load_Menu( char **p ) {
 
 void CG_LoadMenus( const char *menuFile ) {
 	char    *token;
-	char *p;
+	const char *p;
 	int len, start;
 	fileHandle_t f;
 	static char buf[MAX_MENUDEFFILE];

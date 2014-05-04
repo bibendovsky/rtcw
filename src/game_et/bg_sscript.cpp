@@ -76,7 +76,7 @@ qboolean BG_SS_StoreSpeaker( bg_speaker_t *speaker ) {
 	return qtrue;
 }
 
-static qboolean BG_SS_ParseError( int handle, char *format, ... ) {
+static qboolean BG_SS_ParseError( int handle, const char *format, ... ) {
 	int line;
 	char filename[128];
 	va_list argptr;

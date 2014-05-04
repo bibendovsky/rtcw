@@ -715,7 +715,7 @@ void CG_mvWindowOverlay( int pID, float b_x, float b_y, float b_w, float b_h, fl
 //
 ////////////////////////////////////////////////////
 
-char *strClassHighlights[] =
+const char *strClassHighlights[] =
 {
 	S_COLOR_RED,    S_COLOR_MDRED,      // Soldier
 	S_COLOR_WHITE,  S_COLOR_MDGREY,     // Medic
@@ -796,7 +796,7 @@ void CG_mvOverlayDisplay( void ) {
 			}
 
 			if ( cg.mvTotalTeam[j] == 0 ) {
-				char *flag = ( j == TEAM_AXIS ) ? "ui/assets/ger_flag.tga" : "ui/assets/usa_flag.tga";
+				const char *flag = ( j == TEAM_AXIS ) ? "ui/assets/ger_flag.tga" : "ui/assets/usa_flag.tga";
 				y += 2 * ( MVINFO_TEXTSIZE + 1 );
 				CG_DrawPic( MVINFO_RIGHT - ( 2 * MVINFO_TEXTSIZE ), y, 2 * MVINFO_TEXTSIZE, MVINFO_TEXTSIZE, trap_R_RegisterShaderNoMip( flag ) );
 			}
