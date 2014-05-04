@@ -119,7 +119,7 @@ typedef struct gclient_s gclient_t;
 typedef struct
 {
     const char* actionString;
-	qboolean ( *actionFunc )( gentity_t *ent, char *params );
+	qboolean ( *actionFunc )( gentity_t *ent, const char *params );
 } g_script_stack_action_t;
 //
 typedef struct
@@ -177,7 +177,7 @@ struct g_script_status_t
 	// scripting system variables
 	int scriptId;                   // incremented each time the script changes
 	int scriptFlags;
-	char    *animatingParams;
+	const char    *animatingParams;
 
 
     //BBi
@@ -1058,7 +1058,7 @@ int     G_SoundIndex( const char *name );
 void    G_TeamCommand( team_t team, char *cmd );
 void    G_KillBox( gentity_t *ent );
 gentity_t *G_Find( gentity_t *from, int fieldofs, const char *match );
-gentity_t *G_PickTarget( char *targetname );
+gentity_t *G_PickTarget( const char *targetname );
 void    G_UseTargets( gentity_t *ent, gentity_t *activator );
 void    G_SetMovedir( vec3_t angles, vec3_t movedir );
 
@@ -1319,7 +1319,7 @@ int Cmd_WolfKick_f( gentity_t *ent );
 // g_save.c
 qboolean G_SaveGame( const char *username );
 void G_LoadGame( const char *username );
-qboolean G_SavePersistant( char *nextmap );
+qboolean G_SavePersistant( const char *nextmap );
 void G_LoadPersistant( void );
 
 // g_script.c

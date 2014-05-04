@@ -57,7 +57,7 @@ G_ScriptAction_GotoMarker
   transitions
 ===============
 */
-qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_GotoMarker( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	gentity_t *target;
@@ -252,7 +252,7 @@ G_ScriptAction_Wait
   syntax: wait <duration>
 =================
 */
-qboolean G_ScriptAction_Wait( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_Wait( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	int duration;
@@ -277,7 +277,7 @@ G_ScriptAction_Trigger
   Calls the specified trigger for the given ai character or script entity
 =================
 */
-qboolean G_ScriptAction_Trigger( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_Trigger( gentity_t *ent, const char* params ) {
 	gentity_t *trent;
     const char* pString;
     char* token;
@@ -330,7 +330,7 @@ G_ScriptAction_PlaySound
   Use the optional LOOPING paramater to attach the sound to the entities looping channel.
 ================
 */
-qboolean G_ScriptAction_PlaySound( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_PlaySound( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	char sound[MAX_QPATH];
@@ -360,7 +360,7 @@ AICast_ScriptAction_MusicStart
 
 ==================
 */
-qboolean G_ScriptAction_MusicStart( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_MusicStart( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	char cvarName[MAX_QPATH];
@@ -389,7 +389,7 @@ AICast_ScriptAction_MusicPlay
 
 ==================
 */
-qboolean G_ScriptAction_MusicPlay( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_MusicPlay( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	char cvarName[MAX_QPATH];
@@ -413,7 +413,7 @@ qboolean G_ScriptAction_MusicPlay( gentity_t *ent, char *params ) {
 AICast_ScriptAction_MusicStop
 ==================
 */
-qboolean G_ScriptAction_MusicStop( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_MusicStop( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	int fadeoutTime = 0;
@@ -435,7 +435,7 @@ qboolean G_ScriptAction_MusicStop( gentity_t *ent, char *params ) {
 AICast_ScriptAction_MusicFade
 ==================
 */
-qboolean G_ScriptAction_MusicFade( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_MusicFade( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	float targetvol;
@@ -465,7 +465,7 @@ qboolean G_ScriptAction_MusicFade( gentity_t *ent, char *params ) {
 AICast_ScriptAction_MusicQueue
 ==================
 */
-qboolean G_ScriptAction_MusicQueue( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_MusicQueue( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	char cvarName[MAX_QPATH];
@@ -493,7 +493,7 @@ G_ScriptAction_PlayAnim
   NOTE: all source animations must be at 20fps
 =================
 */
-qboolean G_ScriptAction_PlayAnim( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_PlayAnim( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
     char tokens[2][MAX_QPATH];
@@ -598,7 +598,7 @@ G_ScriptAction_AlertEntity
   syntax: alertentity <targetname>
 =================
 */
-qboolean G_ScriptAction_AlertEntity( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_AlertEntity( gentity_t *ent, const char* params ) {
 	gentity_t   *alertent;
 
 	if ( !params || !params[0] ) {
@@ -648,7 +648,7 @@ G_ScriptAction_Accum
 	accum <n> abort_if_not_bitset <m>
 =================
 */
-qboolean G_ScriptAction_Accum( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_Accum( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
     char lastToken[MAX_QPATH];
@@ -761,7 +761,7 @@ G_ScriptAction_MissionFailed
   syntax: missionfailed
 =================
 */
-qboolean G_ScriptAction_MissionFailed( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_MissionFailed( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	int time = 6, mof = 0;
@@ -806,7 +806,7 @@ G_ScriptAction_MissionSuccess
   syntax: missionsuccess <mission_level>
 =================
 */
-qboolean G_ScriptAction_MissionSuccess( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_MissionSuccess( gentity_t *ent, const char* params ) {
 	gentity_t   *player;
 	vmCvar_t cvar;
 	int lvl;
@@ -862,7 +862,7 @@ G_ScriptAction_Print
   Mostly for debugging purposes
 =================
 */
-qboolean G_ScriptAction_Print( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_Print( gentity_t *ent, const char* params ) {
 	if ( !params || !params[0] ) {
 		G_Error( "G_Scripting: print requires some text\n" );
 	}
@@ -882,7 +882,7 @@ G_ScriptAction_FaceAngles
   last gotomarker command will be used instead.
 =================
 */
-qboolean G_ScriptAction_FaceAngles( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_FaceAngles( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	int duration, i;
@@ -978,7 +978,7 @@ G_ScriptAction_ResetScript
 	causes any currently running scripts to abort, in favour of the current script
 ===================
 */
-qboolean G_ScriptAction_ResetScript( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_ResetScript( gentity_t *ent, const char* params ) {
 	if ( level.time == ent->scriptStatus.scriptStackChangeTime ) {
 		return qfalse;
 	}
@@ -995,7 +995,7 @@ G_ScriptAction_TagConnect
 	connect this entity onto the tag of another entity
 ===================
 */
-qboolean G_ScriptAction_TagConnect( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_TagConnect( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	gentity_t *parent;
@@ -1037,7 +1037,7 @@ G_ScriptAction_Halt
   Stop moving.
 ====================
 */
-qboolean G_ScriptAction_Halt( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_Halt( gentity_t *ent, const char* params ) {
 	if ( level.time == ent->scriptStatus.scriptStackChangeTime ) {
 		ent->scriptStatus.scriptFlags &= ~SCFL_GOING_TO_MARKER;
 
@@ -1076,7 +1076,7 @@ G_ScriptAction_StopSound
   Stops any looping sounds for this entity.
 ===================
 */
-qboolean G_ScriptAction_StopSound( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_StopSound( gentity_t *ent, const char* params ) {
 	ent->s.loopSound = 0;
 	return qtrue;
 }
@@ -1088,7 +1088,7 @@ G_ScriptAction_StartCam
   syntax: startcam <camera filename>
 ===================
 */
-qboolean G_ScriptAction_StartCam( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_StartCam( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	gentity_t *player;
@@ -1117,7 +1117,7 @@ qboolean G_ScriptAction_StartCam( gentity_t *ent, char *params ) {
 G_ScriptAction_EntityScriptName
 =================
 */
-qboolean G_ScriptAction_EntityScriptName( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_EntityScriptName( gentity_t *ent, const char* params ) {
 	trap_Cvar_Set( "g_scriptName", params );
 	return qtrue;
 }
@@ -1128,7 +1128,7 @@ qboolean G_ScriptAction_EntityScriptName( gentity_t *ent, char *params ) {
 G_ScriptAction_AIScriptName
 =================
 */
-qboolean G_ScriptAction_AIScriptName( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_AIScriptName( gentity_t *ent, const char* params ) {
 	trap_Cvar_Set( "ai_scriptName", params );
 	return qtrue;
 }
@@ -1143,7 +1143,7 @@ G_ScriptAction_MapDescription
   syntax: wm_mapdescription <"long description of map in quotes">
 ===================
 */
-qboolean G_ScriptAction_MapDescription( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_MapDescription( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 
@@ -1162,7 +1162,7 @@ G_ScriptAction_AxisRespawntime
   syntax: wm_axis_respawntime <seconds>
 ===================
 */
-qboolean G_ScriptAction_AxisRespawntime( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_AxisRespawntime( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 
@@ -1184,7 +1184,7 @@ G_ScriptAction_AlliedRespawntime
   syntax: wm_allied_respawntime <seconds>
 ===================
 */
-qboolean G_ScriptAction_AlliedRespawntime( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_AlliedRespawntime( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 
@@ -1206,7 +1206,7 @@ G_ScriptAction_NumberofObjectives
   syntax: wm_number_of_objectives <number>
 ===================
 */
-qboolean G_ScriptAction_NumberofObjectives( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_NumberofObjectives( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	char cs[MAX_STRING_CHARS];
@@ -1240,7 +1240,7 @@ G_ScriptAction_ObjectiveAxisDesc
   syntax: wm_objective_axis_desc <objective_number "Description in quotes">
 ===================
 */
-qboolean G_ScriptAction_ObjectiveAxisDesc( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_ObjectiveAxisDesc( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	char cs[MAX_STRING_CHARS];
@@ -1282,7 +1282,7 @@ G_ScriptAction_ObjectiveAlliedDesc
   syntax: wm_objective_allied_desc <objective_number "Description in quotes">
 ===================
 */
-qboolean G_ScriptAction_ObjectiveAlliedDesc( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_ObjectiveAlliedDesc( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	char cs[MAX_STRING_CHARS];
@@ -1326,7 +1326,7 @@ G_ScriptAction_SetWinner
   team: 0==AXIS, 1==ALLIED
 ===================
 */
-qboolean G_ScriptAction_SetWinner( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_SetWinner( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	char cs[MAX_STRING_CHARS];
@@ -1362,7 +1362,7 @@ G_ScriptAction_SetObjectiveStatus
   status: -1==neutral, 0==held by axis, 1==held by allies
 ===================
 */
-qboolean G_ScriptAction_SetObjectiveStatus( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_SetObjectiveStatus( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 	char cs[MAX_STRING_CHARS];
@@ -1409,7 +1409,7 @@ G_ScriptAction_Announce
   syntax: wm_announce <"text to send to all clients">
 ===================
 */
-qboolean G_ScriptAction_Announce( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_Announce( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 
@@ -1434,7 +1434,7 @@ G_ScriptAction_EndRound
 
 extern void LogExit( const char *string );
 
-qboolean G_ScriptAction_EndRound( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_EndRound( gentity_t *ent, const char* params ) {
 	LogExit( "Wolf EndRound." );
 
 	return qtrue;
@@ -1447,7 +1447,7 @@ G_ScriptAction_SetRoundTimelimit
   syntax: wm_set_round_timelimit <number>
 ===================
 */
-qboolean G_ScriptAction_SetRoundTimelimit( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_SetRoundTimelimit( gentity_t *ent, const char* params ) {
     const char* pString;
     char* token;
 
@@ -1471,7 +1471,7 @@ G_ScriptAction_BackupScript
   were we left off (useful if player gets in our way)
 =================
 */
-qboolean G_ScriptAction_BackupScript( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_BackupScript( gentity_t *ent, const char* params ) {
 
 	// if we're not at the top of an event, then something is _probably_ wrong with the script
 //	if (ent->scriptStatus.scriptStackHead > 0) {
@@ -1519,7 +1519,7 @@ G_ScriptAction_RestoreScript
   restores the state of the scripting to the previous backup
 =================
 */
-qboolean G_ScriptAction_RestoreScript( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_RestoreScript( gentity_t *ent, const char* params ) {
 
 	ent->scriptStatus = ent->scriptStatusBackup;
 	ent->scriptStatus.scriptStackChangeTime = level.time;       // start moves again
@@ -1532,7 +1532,7 @@ qboolean G_ScriptAction_RestoreScript( gentity_t *ent, char *params ) {
 G_ScriptAction_SetHealth
 ==================
 */
-qboolean G_ScriptAction_SetHealth( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_SetHealth( gentity_t *ent, const char* params ) {
 	if ( !params || !params[0] ) {
 		G_Error( "G_ScriptAction_SetHealth: sethealth requires a health value\n" );
 	}

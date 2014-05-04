@@ -252,7 +252,7 @@ typedef struct
 typedef struct
 {
     const char* actionString;
-	qboolean ( *actionFunc )( struct cast_state_s *cs, char *params );
+	qboolean ( *actionFunc )( struct cast_state_s *cs, const char *params );
 } cast_script_stack_action_t;
 //
 typedef struct

@@ -49,47 +49,47 @@ vmCvar_t g_scriptDebug;
 //====================================================================
 //
 // action functions need to be declared here so they can be accessed in the scriptAction table
-qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Wait( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Trigger( gentity_t *ent, char *params );
-qboolean G_ScriptAction_PlaySound( gentity_t *ent, char *params );
-qboolean G_ScriptAction_PlayAnim( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AlertEntity( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Accum( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MissionFailed( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MissionSuccess( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Print( gentity_t *ent, char *params );
-qboolean G_ScriptAction_FaceAngles( gentity_t *ent, char *params );
-qboolean G_ScriptAction_ResetScript( gentity_t *ent, char *params );
-qboolean G_ScriptAction_TagConnect( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Halt( gentity_t *ent, char *params );
-qboolean G_ScriptAction_StopSound( gentity_t *ent, char *params );
-qboolean G_ScriptAction_StartCam( gentity_t *ent, char *params );
-qboolean G_ScriptAction_EntityScriptName( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AIScriptName( gentity_t *ent, char *params );
+qboolean G_ScriptAction_GotoMarker( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Wait( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Trigger( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_PlaySound( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_PlayAnim( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_AlertEntity( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Accum( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_MissionFailed( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_MissionSuccess( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Print( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_FaceAngles( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_ResetScript( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_TagConnect( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Halt( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_StopSound( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_StartCam( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_EntityScriptName( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_AIScriptName( gentity_t *ent, const char* params );
 // DHM - Nerve :: Multiplayer scripting commands
-qboolean G_ScriptAction_MapDescription( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AxisRespawntime( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AlliedRespawntime( gentity_t *ent, char *params );
-qboolean G_ScriptAction_NumberofObjectives( gentity_t *ent, char *params );
-qboolean G_ScriptAction_ObjectiveAxisDesc( gentity_t *ent, char *params );
-qboolean G_ScriptAction_ObjectiveAlliedDesc( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetWinner( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetObjectiveStatus( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Announce( gentity_t *ent, char *params );
-qboolean G_ScriptAction_EndRound( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetRoundTimelimit( gentity_t *ent, char *params );
+qboolean G_ScriptAction_MapDescription( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_AxisRespawntime( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_AlliedRespawntime( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_NumberofObjectives( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_ObjectiveAxisDesc( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_ObjectiveAlliedDesc( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetWinner( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetObjectiveStatus( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Announce( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_EndRound( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetRoundTimelimit( gentity_t *ent, const char* params );
 // dhm
-qboolean G_ScriptAction_BackupScript( gentity_t *ent, char *params );
-qboolean G_ScriptAction_RestoreScript( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetHealth( gentity_t *ent, char *params );
+qboolean G_ScriptAction_BackupScript( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_RestoreScript( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetHealth( gentity_t *ent, const char* params );
 
 //----(SA)	added
-qboolean G_ScriptAction_MusicStart( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MusicPlay( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MusicStop( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MusicFade( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MusicQueue( gentity_t *ent, char *params );
+qboolean G_ScriptAction_MusicStart( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_MusicPlay( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_MusicStop( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_MusicFade( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_MusicQueue( gentity_t *ent, const char* params );
 //----(SA)	end
 
 // these are the actions that each event can call

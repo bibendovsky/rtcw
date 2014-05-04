@@ -93,7 +93,7 @@ AICast_ScriptAction_GotoMarker
   syntax: gotomarker <targetname> [firetarget [noattack]] [nostop] OR runtomarker <targetname> [firetarget [noattack]] [nostop]
 ===============
 */
-qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, const char* params ) {
 #define SCRIPT_REACHGOAL_DIST   8
     const char* pString;
     char* token;
@@ -233,7 +233,7 @@ AICast_ScriptAction_WalkToMarker
   syntax: walktomarker <targetname> [firetarget [noattack]] [nostop]
 ===============
 */
-qboolean AICast_ScriptAction_WalkToMarker( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_WalkToMarker( cast_state_t *cs, const char* params ) {
 	// if we are avoiding danger, then wait for the danger to pass
 	if ( cs->castScriptStatus.scriptGotoId < 0 && cs->dangerEntityValidTime > level.time ) {
 		return qfalse;
@@ -260,7 +260,7 @@ AICast_ScriptAction_CrouchToMarker
   syntax: crouchtomarker <targetname> [firetarget [noattack]] [nostop]
 ===============
 */
-qboolean AICast_ScriptAction_CrouchToMarker( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_CrouchToMarker( cast_state_t *cs, const char* params ) {
 	// if we are avoiding danger, then wait for the danger to pass
 	if ( cs->castScriptStatus.scriptGotoId < 0 && cs->dangerEntityValidTime > level.time ) {
 		return qfalse;
@@ -286,7 +286,7 @@ AICast_ScriptAction_GotoCast
   syntax: gotocast <ainame> [firetarget [noattack]] OR runtocast <ainame> [firetarget [noattack]]
 ===============
 */
-qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, const char* params ) {
 #define SCRIPT_REACHCAST_DIST   64
 	const char    *pString;
     char* token;
@@ -408,7 +408,7 @@ AICast_ScriptAction_WalkToCast
   syntax: walktocast <ainame> [firetarget [noattack]]
 ===============
 */
-qboolean AICast_ScriptAction_WalkToCast( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_WalkToCast( cast_state_t *cs, const char* params ) {
 	// if we are avoiding danger, then wait for the danger to pass
 	if ( cs->castScriptStatus.scriptGotoId < 0 && cs->dangerEntityValidTime > level.time ) {
 		return qfalse;
@@ -435,7 +435,7 @@ AICast_ScriptAction_CrouchToCast
   syntax: crouchtocast <ainame> [firetarget [noattack]]
 ===============
 */
-qboolean AICast_ScriptAction_CrouchToCast( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_CrouchToCast( cast_state_t *cs, const char* params ) {
 	// if we are avoiding danger, then wait for the danger to pass
 	if ( cs->castScriptStatus.scriptGotoId < 0 && cs->dangerEntityValidTime > level.time ) {
 		return qfalse;
@@ -460,7 +460,7 @@ qboolean AICast_ScriptAction_CrouchToCast( cast_state_t *cs, char *params ) {
 AICast_ScriptAction_AbortIfLoadgame
 ==============
 */
-qboolean AICast_ScriptAction_AbortIfLoadgame( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_AbortIfLoadgame( cast_state_t *cs, const char* params ) {
 	char loading[4];
 
 	trap_Cvar_VariableStringBuffer( "savegame_loading", loading, sizeof( loading ) );
@@ -483,7 +483,7 @@ AICast_ScriptAction_Wait
   moverange defaults to 200, allows some monouverability to avoid fire or attack
 =================
 */
-qboolean AICast_ScriptAction_Wait( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Wait( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
     char* facetarget;
@@ -612,7 +612,7 @@ AICast_ScriptAction_Trigger
   Calls the specified trigger for the given ai character
 =================
 */
-qboolean AICast_ScriptAction_Trigger( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Trigger( cast_state_t *cs, const char* params ) {
 	gentity_t *ent;
     const char* pString;
     char* token;
@@ -659,7 +659,7 @@ AICast_ScriptAction_FollowCast
   syntax: followcast <ainame>
 ===================
 */
-qboolean AICast_ScriptAction_FollowCast( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_FollowCast( cast_state_t *cs, const char* params ) {
 	gentity_t *ent;
 
 	// find the cast/player with the given "name"
@@ -682,7 +682,7 @@ AICast_ScriptAction_PlaySound
   Currently only allows playing on the VOICE channel, unless you use a sound script (yay)
 ================
 */
-qboolean AICast_ScriptAction_PlaySound( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_PlaySound( cast_state_t *cs, const char* params ) {
 	if ( !params ) {
 		G_Error( "AI Scripting: syntax error\n\nplaysound <soundname OR scriptname>\n" );
 	}
@@ -711,7 +711,7 @@ AICast_ScriptAction_NoAttack
   syntax: noattack <duration>
 =================
 */
-qboolean AICast_ScriptAction_NoAttack( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_NoAttack( cast_state_t *cs, const char* params ) {
 	if ( !params ) {
 		G_Error( "AI Scripting: syntax error\n\nnoattack <duration>\n" );
 	}
@@ -732,7 +732,7 @@ AICast_ScriptAction_Attack
   if ainame is given, we will attack only that entity as long as they are alive
 =================
 */
-qboolean AICast_ScriptAction_Attack( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Attack( cast_state_t *cs, const char* params ) {
 	gentity_t *ent;
 
 	cs->castScriptStatus.scriptNoAttackTime = 0;
@@ -761,7 +761,7 @@ AICast_ScriptAction_PlayAnim
   NOTE: any new animations that are needed by the scripting system, will need to be added here
 =================
 */
-qboolean AICast_ScriptAction_PlayAnim( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_PlayAnim( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
     char tokens[3][MAX_QPATH];
@@ -1002,7 +1002,7 @@ AICast_ScriptAction_ClearAnim
   stops any animation that is currently playing
 =================
 */
-qboolean AICast_ScriptAction_ClearAnim( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_ClearAnim( cast_state_t *cs, const char* params ) {
 	gclient_t *client;
 
 	client = &level.clients[cs->entityNum];
@@ -1023,7 +1023,7 @@ AICast_ScriptAction_SetAmmo
   syntax: setammo <pickupname> <count>
 =================
 */
-qboolean AICast_ScriptAction_SetAmmo( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_SetAmmo( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 	int weapon;
@@ -1093,7 +1093,7 @@ AICast_ScriptAction_SetClip
 
 =================
 */
-qboolean AICast_ScriptAction_SetClip( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_SetClip( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 	int weapon;
@@ -1156,7 +1156,7 @@ qboolean AICast_ScriptAction_SetClip( cast_state_t *cs, char *params ) {
 AICast_ScriptAction_SuggestWeapon
 ==============
 */
-qboolean AICast_ScriptAction_SuggestWeapon( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_SuggestWeapon( cast_state_t *cs, const char* params ) {
 	int weapon;
 	int i;
 	//int		suggestedweaps = 0; // TTimo: unused
@@ -1195,7 +1195,7 @@ AICast_ScriptAction_SelectWeapon
   syntax: selectweapon <pickupname>
 =================
 */
-qboolean AICast_ScriptAction_SelectWeapon( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_SelectWeapon( cast_state_t *cs, const char* params ) {
 	int weapon;
 	int i;
 
@@ -1252,7 +1252,7 @@ AICast_ScriptAction_GiveArmor
 
 ==============
 */
-qboolean AICast_ScriptAction_SetArmor( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_SetArmor( cast_state_t *cs, const char* params ) {
 	if ( !params || !params[0] ) {
 		G_Error( "AI Scripting: setarmor requires an armor value" );
 	}
@@ -1272,7 +1272,7 @@ AICast_ScriptAction_GiveArmor
 		syntax: givearmor <type> <amount>
 ==============
 */
-qboolean AICast_ScriptAction_GiveArmor( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_GiveArmor( cast_state_t *cs, const char* params ) {
 	int i;
 	gitem_t     *item = 0;
 
@@ -1311,7 +1311,7 @@ AICast_ScriptAction_GiveWeapon
   syntax: giveweapon <pickupname>
 =================
 */
-qboolean AICast_ScriptAction_GiveWeapon( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_GiveWeapon( cast_state_t *cs, const char* params ) {
 	int weapon;
 	int i;
 	gentity_t   *ent = &g_entities[cs->entityNum];
@@ -1383,7 +1383,7 @@ AICast_ScriptAction_TakeWeapon
   syntax: takeweapon <pickupname>
 =================
 */
-qboolean AICast_ScriptAction_TakeWeapon( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_TakeWeapon( cast_state_t *cs, const char* params ) {
 	int weapon;
 	int i;
 
@@ -1470,7 +1470,7 @@ qboolean AICast_ScriptAction_TakeWeapon( cast_state_t *cs, char *params ) {
 AICast_ScriptAction_GiveInventory
 ==============
 */
-qboolean AICast_ScriptAction_GiveInventory( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_GiveInventory( cast_state_t *cs, const char* params ) {
 	int i;
 	gitem_t     *item = 0;
 
@@ -1512,7 +1512,7 @@ AICast_ScriptAction_Movetype
   Sets this character's movement type, will exist until another movetype command is called
 =================
 */
-qboolean AICast_ScriptAction_Movetype( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Movetype( cast_state_t *cs, const char* params ) {
 	if ( !Q_strcasecmp( params, "walk" ) ) {
 		cs->movestate = MS_WALK;
 		cs->movestateType = MSTYPE_PERMANENT;
@@ -1543,7 +1543,7 @@ AICast_ScriptAction_AlertEntity
   syntax: alertentity <targetname>
 =================
 */
-qboolean AICast_ScriptAction_AlertEntity( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_AlertEntity( cast_state_t *cs, const char* params ) {
 	gentity_t   *ent;
 
 	if ( !params || !params[0] ) {
@@ -1587,7 +1587,7 @@ AICast_ScriptAction_SaveGame
   syntax: savegame
 =================
 */
-qboolean AICast_ScriptAction_SaveGame( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_SaveGame( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* saveName;
 	pString = params;
@@ -1615,7 +1615,7 @@ AICast_ScriptAction_FireAtTarget
   syntax: fireattarget <targetname> [duration]
 =================
 */
-qboolean AICast_ScriptAction_FireAtTarget( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_FireAtTarget( cast_state_t *cs, const char* params ) {
 	gentity_t   *ent;
 	vec3_t vec, org, src;
     const char* pString;
@@ -1705,7 +1705,7 @@ AICast_ScriptAction_GodMode
   syntax: godmode <on/off>
 =================
 */
-qboolean AICast_ScriptAction_GodMode( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_GodMode( cast_state_t *cs, const char* params ) {
 	if ( !params || !params[0] ) {
 		G_Error( "AI Scripting: godmode requires an on/off specifier\n" );
 	}
@@ -1742,7 +1742,7 @@ AICast_ScriptAction_Accum
 	accum <n> abort_if_not_bitset <m>
 =================
 */
-qboolean AICast_ScriptAction_Accum( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Accum( cast_state_t *cs, const char* params ) {
 	const char* pString;
     char* token;
     char lastToken[MAX_QPATH];
@@ -1858,7 +1858,7 @@ AICast_ScriptAction_SpawnCast
   cast AI to spawn
 =================
 */
-qboolean AICast_ScriptAction_SpawnCast( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_SpawnCast( cast_state_t *cs, const char* params ) {
 //	char	*pString, *token;
 //	char	*classname;
 //	gentity_t	*targetEnt, *newCast;
@@ -1917,7 +1917,7 @@ AICast_ScriptAction_MissionFailed
   syntax: missionfailed  <time>
 =================
 */
-qboolean AICast_ScriptAction_MissionFailed( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_MissionFailed( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 	int time = 6, mof = 0;
@@ -1964,7 +1964,7 @@ AICast_ScriptAction_ObjectivesNeeded
   syntax: objectivesneeded <num_objectives>
 =================
 */
-qboolean AICast_ScriptAction_ObjectivesNeeded( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_ObjectivesNeeded( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 
@@ -1989,7 +1989,7 @@ AICast_ScriptAction_ObjectiveMet
   also (for backwards compaiblity): missionsuccess <num_objective> [nodisplay]
 =================
 */
-qboolean AICast_ScriptAction_ObjectiveMet( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_ObjectiveMet( cast_state_t *cs, const char* params ) {
 	gentity_t   *player;
 	vmCvar_t cvar;
 	int lvl;
@@ -2042,7 +2042,7 @@ AICast_ScriptAction_NoAIDamage
   syntax: noaidamage <on/off>
 =================
 */
-qboolean AICast_ScriptAction_NoAIDamage( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_NoAIDamage( cast_state_t *cs, const char* params ) {
 	if ( !params || !params[0] ) {
 		G_Error( "AI Scripting: noaidamage requires an on/off specifier\n" );
 	}
@@ -2066,7 +2066,7 @@ AICast_ScriptAction_Print
   Mostly for debugging purposes
 =================
 */
-qboolean AICast_ScriptAction_Print( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Print( cast_state_t *cs, const char* params ) {
 	if ( !params || !params[0] ) {
 		G_Error( "AI Scripting: print requires some text\n" );
 	}
@@ -2084,7 +2084,7 @@ AICast_ScriptAction_FaceTargetAngles
   The AI will face the same direction that the target entity is facing
 =================
 */
-qboolean AICast_ScriptAction_FaceTargetAngles( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_FaceTargetAngles( cast_state_t *cs, const char* params ) {
 	gentity_t   *targetEnt;
 
 	if ( !params || !params[0] ) {
@@ -2108,7 +2108,7 @@ AICast_ScriptAction_ResetScript
 	causes any currently running scripts to abort, in favour of the current script
 ===================
 */
-qboolean AICast_ScriptAction_ResetScript( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_ResetScript( cast_state_t *cs, const char* params ) {
 	gclient_t *client;
 
 	client = &level.clients[cs->entityNum];
@@ -2152,7 +2152,7 @@ AICast_ScriptAction_Mount
   Used to an AI to mount the MG42
 ===================
 */
-qboolean AICast_ScriptAction_Mount( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Mount( cast_state_t *cs, const char* params ) {
 	gentity_t   *targetEnt, *ent;
 	vec3_t vec;
 	float dist;
@@ -2205,7 +2205,7 @@ AICast_ScriptAction_Unmount
   Stop using their current mounted entity
 ===================
 */
-qboolean AICast_ScriptAction_Unmount( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Unmount( cast_state_t *cs, const char* params ) {
 	gentity_t   *ent, *mg42;
 
 	ent = &g_entities[cs->entityNum];
@@ -2239,7 +2239,7 @@ AICast_ScriptAction_SavePersistant
   accidentally read in persistant data that was intended for a different map.
 ====================
 */
-qboolean AICast_ScriptAction_SavePersistant( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_SavePersistant( cast_state_t *cs, const char* params ) {
 	G_SavePersistant( params );
 	return qtrue;
 }
@@ -2251,7 +2251,7 @@ qboolean AICast_ScriptAction_SavePersistant( cast_state_t *cs, char *params ) {
 AICast_ScriptAction_Teleport
 ==============
 */
-qboolean AICast_ScriptAction_Teleport( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Teleport( cast_state_t *cs, const char* params ) {
 	gentity_t   *dest;
 
 	dest =  G_PickTarget( params );
@@ -2273,7 +2273,7 @@ extern void G_EndGame( void );
 AICast_ScriptAction_EndGame
 ==============
 */
-qboolean AICast_ScriptAction_EndGame( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_EndGame( cast_state_t *cs, const char* params ) {
 	G_EndGame();
 	return qtrue;
 }
@@ -2294,7 +2294,7 @@ AICast_ScriptAction_ChangeLevel
 
 ====================
 */
-qboolean AICast_ScriptAction_ChangeLevel( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_ChangeLevel( cast_state_t *cs, const char* params ) {
 	int i;
 	char *pch, *pch2, *newstr;
 	gentity_t   *player;
@@ -2402,7 +2402,7 @@ qboolean AICast_ScriptAction_ChangeLevel( cast_state_t *cs, char *params ) {
 AICast_ScriptAction_FoundSecret
 ==================
 */
-qboolean AICast_ScriptAction_FoundSecret( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_FoundSecret( cast_state_t *cs, const char* params ) {
 	gentity_t *player = AICast_FindEntityForName( "player" );
 //	level.numSecretsFound++;
 	player->numSecretsFound++;
@@ -2418,7 +2418,7 @@ AICast_ScriptAction_NoSight
   syntax: nosight <duration>
 ==================
 */
-qboolean AICast_ScriptAction_NoSight( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_NoSight( cast_state_t *cs, const char* params ) {
 	if ( !params ) {
 		G_Error( "AI Scripting: syntax error\n\nnosight <duration>\n" );
 	}
@@ -2435,7 +2435,7 @@ AICast_ScriptAction_Sight
   syntax: sight
 ==================
 */
-qboolean AICast_ScriptAction_Sight( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Sight( cast_state_t *cs, const char* params ) {
 	cs->castScriptStatus.scriptNoSightTime = 0;
 	return qtrue;
 }
@@ -2447,7 +2447,7 @@ AICast_ScriptAction_NoAvoid
   syntax: noavoid
 ==================
 */
-qboolean AICast_ScriptAction_NoAvoid( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_NoAvoid( cast_state_t *cs, const char* params ) {
 	cs->aiFlags |= AIFL_NOAVOID;
 	return qtrue;
 }
@@ -2459,7 +2459,7 @@ AICast_ScriptAction_Avoid
   syntax: avoid
 ==================
 */
-qboolean AICast_ScriptAction_Avoid( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Avoid( cast_state_t *cs, const char* params ) {
 	cs->aiFlags &= ~AIFL_NOAVOID;
 	return qtrue;
 }
@@ -2471,7 +2471,7 @@ AICast_ScriptAction_Attrib
   syntax: attrib <attribute> <value>
 ==================
 */
-qboolean AICast_ScriptAction_Attrib( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Attrib( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 	int i;
@@ -2505,7 +2505,7 @@ AICast_ScriptAction_DenyAction
   syntax: deny
 =================
 */
-qboolean AICast_ScriptAction_DenyAction( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_DenyAction( cast_state_t *cs, const char* params ) {
 	cs->aiFlags |= AIFL_DENYACTION;
 	return qtrue;
 }
@@ -2515,13 +2515,26 @@ qboolean AICast_ScriptAction_DenyAction( cast_state_t *cs, char *params ) {
 AICast_ScriptAction_LightningDamage
 =================
 */
-qboolean AICast_ScriptAction_LightningDamage( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_LightningDamage( cast_state_t *cs, const char* params ) {
+// BBi
+#if 0
 	Q_strlwr( params );
 	if ( !Q_stricmp( params, "on" ) ) {
 		cs->aiFlags |= AIFL_ROLL_ANIM;  // hijacking this since the player doesn't use it
 	} else {
 		cs->aiFlags &= ~AIFL_ROLL_ANIM;
 	}
+#else
+    const int k_max_param_size = 64;
+    char param[k_max_param_size];
+    Q_strncpyz(param, params, k_max_param_size);
+
+    if (Q_stricmp(param, "on") == 0) {
+        // hijacking this since the player doesn't use it
+        cs->aiFlags |= AIFL_ROLL_ANIM;
+    } else
+        cs->aiFlags &= ~AIFL_ROLL_ANIM;
+#endif // 0
 	return qtrue;
 }
 
@@ -2530,7 +2543,7 @@ qboolean AICast_ScriptAction_LightningDamage( cast_state_t *cs, char *params ) {
 AICast_ScriptAction_Headlook
 =================
 */
-qboolean AICast_ScriptAction_Headlook( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Headlook( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 
@@ -2560,7 +2573,7 @@ AICast_ScriptAction_BackupScript
   were we left off (useful if player gets in our way)
 =================
 */
-qboolean AICast_ScriptAction_BackupScript( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_BackupScript( cast_state_t *cs, const char* params ) {
 
 	if ( !( cs->castScriptStatus.scriptFlags & SFL_WAITING_RESTORE ) ) {
 		cs->castScriptStatusBackup = cs->castScriptStatusCurrent;
@@ -2577,7 +2590,7 @@ AICast_ScriptAction_RestoreScript
   restores the state of the scripting to the previous backup
 =================
 */
-qboolean AICast_ScriptAction_RestoreScript( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_RestoreScript( cast_state_t *cs, const char* params ) {
 
 	cs->castScriptStatus = cs->castScriptStatusBackup;
 
@@ -2595,7 +2608,7 @@ AICast_ScriptAction_StateType
   set the current state for this character
 =================
 */
-qboolean AICast_ScriptAction_StateType( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_StateType( cast_state_t *cs, const char* params ) {
 
 	if ( !Q_stricmp( params, "alert" ) ) {
 		cs->aiState = AISTATE_ALERT;
@@ -2613,7 +2626,7 @@ AICast_ScriptAction_KnockBack
   syntax: knockback [ON/OFF]
 ================
 */
-qboolean AICast_ScriptAction_KnockBack( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_KnockBack( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 
@@ -2643,7 +2656,7 @@ AICast_ScriptAction_Zoom
   syntax: zoom [ON/OFF]
 ================
 */
-qboolean AICast_ScriptAction_Zoom( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Zoom( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 
@@ -2676,7 +2689,7 @@ AICast_ScriptAction_StartCam
   syntax: startcam <camera filename>
 ===================
 */
-qboolean ScriptStartCam( cast_state_t *cs, char *params, qboolean black ) {
+qboolean ScriptStartCam( cast_state_t *cs, const char* params, qboolean black ) {
     const char* pString;
     char* token;
 
@@ -2699,21 +2712,21 @@ qboolean ScriptStartCam( cast_state_t *cs, char *params, qboolean black ) {
 	return qtrue;
 }
 
-qboolean AICast_ScriptAction_StartCam( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_StartCam( cast_state_t *cs, const char* params ) {
 	return ScriptStartCam( cs, params, qfalse );
 }
-qboolean AICast_ScriptAction_StartCamBlack( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_StartCamBlack( cast_state_t *cs, const char* params ) {
 	return ScriptStartCam( cs, params, qtrue );
 }
 
 
 //----(SA)	added
-qboolean AICast_ScriptAction_StopCamBlack( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_StopCamBlack( cast_state_t *cs, const char* params ) {
 	trap_SendServerCommand( cs->entityNum, "stopCamblack" );
 	return qtrue;
 }
 
-qboolean AICast_ScriptAction_StopCam( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_StopCam( cast_state_t *cs, const char* params ) {
 	trap_SendServerCommand( cs->entityNum, "stopCam" );
 	return qtrue;
 }
@@ -2721,7 +2734,7 @@ qboolean AICast_ScriptAction_StopCam( cast_state_t *cs, char *params ) {
 
 
 //----(SA)	added
-qboolean AICast_ScriptAction_Cigarette( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Cigarette( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 	gentity_t *ent;
@@ -2754,7 +2767,7 @@ AICast_ScriptAction_Parachute
   syntax: parachute [ON/OFF]
 =================
 */
-qboolean AICast_ScriptAction_Parachute( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Parachute( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 
@@ -2786,7 +2799,7 @@ qboolean AICast_ScriptAction_Parachute( cast_state_t *cs, char *params ) {
 AICast_ScriptAction_EntityScriptName
 =================
 */
-qboolean AICast_ScriptAction_EntityScriptName( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_EntityScriptName( cast_state_t *cs, const char* params ) {
 	trap_Cvar_Set( "g_scriptName", params );
 	return qtrue;
 }
@@ -2797,7 +2810,7 @@ qboolean AICast_ScriptAction_EntityScriptName( cast_state_t *cs, char *params ) 
 AICast_ScriptAction_AIScriptName
 =================
 */
-qboolean AICast_ScriptAction_AIScriptName( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_AIScriptName( cast_state_t *cs, const char* params ) {
 	trap_Cvar_Set( "ai_scriptName", params );
 	return qtrue;
 }
@@ -2807,7 +2820,7 @@ qboolean AICast_ScriptAction_AIScriptName( cast_state_t *cs, char *params ) {
 AICast_ScriptAction_SetHealth
 =================
 */
-qboolean AICast_ScriptAction_SetHealth( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_SetHealth( cast_state_t *cs, const char* params ) {
 	if ( !params || !params[0] ) {
 		G_Error( "AI Scripting: sethealth requires a health value" );
 	}
@@ -2825,7 +2838,7 @@ AICast_ScriptAction_NoTarget
   syntax: notarget ON/OFF
 =================
 */
-qboolean AICast_ScriptAction_NoTarget( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_NoTarget( cast_state_t *cs, const char* params ) {
 	if ( !params || !params[0] ) {
 		G_Error( "AI Scripting: notarget requires ON or OFF as parameter" );
 	}
@@ -2846,7 +2859,7 @@ qboolean AICast_ScriptAction_NoTarget( cast_state_t *cs, char *params ) {
 AICast_ScriptAction_Cvar
 ==================
 */
-qboolean AICast_ScriptAction_Cvar( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_Cvar( cast_state_t *cs, const char* params ) {
 	vmCvar_t cvar;
     const char* pString;
     char* token;
@@ -2885,7 +2898,7 @@ AICast_ScriptAction_MusicStart
 
 ==================
 */
-qboolean AICast_ScriptAction_MusicStart( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_MusicStart( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 	char cvarName[MAX_QPATH];
@@ -2914,7 +2927,7 @@ AICast_ScriptAction_MusicPlay
 
 ==================
 */
-qboolean AICast_ScriptAction_MusicPlay( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_MusicPlay( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 	char cvarName[MAX_QPATH];
@@ -2938,7 +2951,7 @@ qboolean AICast_ScriptAction_MusicPlay( cast_state_t *cs, char *params ) {
 AICast_ScriptAction_MusicStop
 ==================
 */
-qboolean AICast_ScriptAction_MusicStop( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_MusicStop( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 	int fadeoutTime = 0;
@@ -2960,7 +2973,7 @@ qboolean AICast_ScriptAction_MusicStop( cast_state_t *cs, char *params ) {
 AICast_ScriptAction_MusicFade
 ==================
 */
-qboolean AICast_ScriptAction_MusicFade( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_MusicFade( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 	float targetvol;
@@ -2990,7 +3003,7 @@ qboolean AICast_ScriptAction_MusicFade( cast_state_t *cs, char *params ) {
 AICast_ScriptAction_MusicQueue
 ==================
 */
-qboolean AICast_ScriptAction_MusicQueue( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_MusicQueue( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 	char cvarName[MAX_QPATH];
@@ -3016,7 +3029,7 @@ AICast_ScriptAction_ExplicitRouting
 =================
 */
 
-qboolean AICast_ScriptAction_ExplicitRouting( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_ExplicitRouting( cast_state_t *cs, const char* params ) {
 	if ( !params || !params[0] ) {
 		G_Error( "AI Scripting: explicit_routing requires an on/off specifier\n" );
 	}
@@ -3039,7 +3052,7 @@ AICast_ScriptAction_LockPlayer
   syntax: lockplayer <ON/OFF>
 =================
 */
-qboolean AICast_ScriptAction_LockPlayer( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_LockPlayer( cast_state_t *cs, const char* params ) {
 	gentity_t *ent;
 
 	ent = &g_entities[cs->entityNum];
@@ -3066,7 +3079,7 @@ AICast_ScriptAction_AnimCondition
   syntax: anim_condition <condition> <string>
 ==================
 */
-qboolean AICast_ScriptAction_AnimCondition( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_AnimCondition( cast_state_t *cs, const char* params ) {
     const char* pString;
     char* token;
 	char condition[MAX_QPATH];
@@ -3095,7 +3108,7 @@ AICast_ScriptAction_PushAway
   syntax: pushaway <ainame>
 ================
 */
-qboolean AICast_ScriptAction_PushAway( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_PushAway( cast_state_t *cs, const char* params ) {
 	gentity_t *pushed;
 	vec3_t v, ang, f, r;
 
@@ -3125,7 +3138,7 @@ qboolean AICast_ScriptAction_PushAway( cast_state_t *cs, char *params ) {
 AICast_ScriptAction_CatchFire
 ==================
 */
-qboolean AICast_ScriptAction_CatchFire( cast_state_t *cs, char *params ) {
+qboolean AICast_ScriptAction_CatchFire( cast_state_t *cs, const char* params ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	//
 	ent->s.onFireEnd = level.time + 99999;  // make sure it goes for longer than they need to die

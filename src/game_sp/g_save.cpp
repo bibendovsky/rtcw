@@ -2930,7 +2930,7 @@ G_SavePersistant
   so full disks don't result in lost saved games.
 ===============
 */
-qboolean G_SavePersistant( char *nextmap ) {
+qboolean G_SavePersistant( const char *nextmap ) {
 	char filename[MAX_QPATH];
 	fileHandle_t f;
 	int persid;
