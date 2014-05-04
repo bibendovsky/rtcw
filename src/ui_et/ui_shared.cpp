@@ -324,7 +324,7 @@ void LerpColor( vec4_t a, vec4_t b, vec4_t c, float t ) {
 Float_Parse
 =================
 */
-qboolean Float_Parse( char **p, float *f ) {
+qboolean Float_Parse( const char **p, float *f ) {
 	char    *token;
 	token = COM_ParseExt( p, qfalse );
 	if ( token && token[0] != 0 ) {
@@ -340,7 +340,7 @@ qboolean Float_Parse( char **p, float *f ) {
 Color_Parse
 =================
 */
-qboolean Color_Parse( char **p, vec4_t *c ) {
+qboolean Color_Parse( const char **p, vec4_t *c ) {
 	int i;
 	float f = 0.0f;
 
@@ -358,7 +358,7 @@ qboolean Color_Parse( char **p, vec4_t *c ) {
 Int_Parse
 =================
 */
-qboolean Int_Parse( char **p, int *i ) {
+qboolean Int_Parse( const char **p, int *i ) {
 	char    *token;
 	token = COM_ParseExt( p, qfalse );
 
@@ -375,7 +375,7 @@ qboolean Int_Parse( char **p, int *i ) {
 Rect_Parse
 =================
 */
-qboolean Rect_Parse( char **p, rectDef_t *r ) {
+qboolean Rect_Parse( const char **p, rectDef_t *r ) {
 	if ( Float_Parse( p, &r->x ) ) {
 		if ( Float_Parse( p, &r->y ) ) {
 			if ( Float_Parse( p, &r->w ) ) {
@@ -393,7 +393,7 @@ qboolean Rect_Parse( char **p, rectDef_t *r ) {
 String_Parse
 =================
 */
-qboolean String_Parse( char **p, const char **out ) {
+qboolean String_Parse( const char **p, const char **out ) {
 	char *token;
 
 	token = COM_ParseExt( p, qfalse );
@@ -818,7 +818,7 @@ itemDef_t *Menu_GetMatchingItemByNumber( menuDef_t *menu, int index, const char 
 	return NULL;
 }
 
-void Script_SetColor( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_SetColor( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	int i;
 	float f = 0.0f;
@@ -847,7 +847,7 @@ void Script_SetColor( itemDef_t *item, qboolean *bAbort, char **args ) {
 	}
 }
 
-void Script_SetAsset( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_SetAsset( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name;
 	// expecting name to set asset to
 	if ( String_Parse( args, &name ) ) {
@@ -857,7 +857,7 @@ void Script_SetAsset( itemDef_t *item, qboolean *bAbort, char **args ) {
 	}
 }
 
-void Script_SetBackground( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_SetBackground( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	// expecting name to set asset to
 	if ( String_Parse( args, &name ) ) {
@@ -884,7 +884,7 @@ itemDef_t *Menu_FindItemByName( menuDef_t *menu, const char *p ) {
 	return NULL;
 }
 
-void Script_SetTeamColor( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_SetTeamColor( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	if ( DC->getTeamColor ) {
 		int i;
 		vec4_t color;
@@ -895,7 +895,7 @@ void Script_SetTeamColor( itemDef_t *item, qboolean *bAbort, char **args ) {
 	}
 }
 
-void Script_SetItemColor( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_SetItemColor( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *itemname = NULL;
 	const char *name = NULL;
 	vec4_t color;
@@ -935,7 +935,7 @@ void Script_SetItemColor( itemDef_t *item, qboolean *bAbort, char **args ) {
 	}
 }
 
-void Script_SetMenuItemColor( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_SetMenuItemColor( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *menuname = NULL;
 	const char *itemname = NULL;
 	const char *name = NULL;
@@ -1100,35 +1100,35 @@ void Menus_CloseAll() {
 }
 
 
-void Script_Show( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_Show( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	if ( String_Parse( args, &name ) ) {
 		Menu_ShowItemByName( static_cast<menuDef_t*> (item->parent), name, qtrue );
 	}
 }
 
-void Script_Hide( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_Hide( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	if ( String_Parse( args, &name ) ) {
 		Menu_ShowItemByName( static_cast<menuDef_t*> (item->parent), name, qfalse );
 	}
 }
 
-void Script_FadeIn( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_FadeIn( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	if ( String_Parse( args, &name ) ) {
 		Menu_FadeItemByName( static_cast<menuDef_t*> (item->parent), name, qfalse );
 	}
 }
 
-void Script_FadeOut( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_FadeOut( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	if ( String_Parse( args, &name ) ) {
 		Menu_FadeItemByName( static_cast<menuDef_t*> (item->parent), name, qtrue );
 	}
 }
 
-void Script_Open( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_Open( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	if ( String_Parse( args, &name ) ) {
 		Menus_OpenByName( name );
@@ -1154,14 +1154,14 @@ void Menu_FadeMenuByName( const char *p, qboolean *bAbort, qboolean fadeOut ) {
 	}
 }
 
-void Script_FadeInMenu( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_FadeInMenu( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	if ( String_Parse( args, &name ) ) {
 		Menu_FadeMenuByName( name, bAbort, qfalse );
 	}
 }
 
-void Script_FadeOutMenu( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_FadeOutMenu( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	if ( String_Parse( args, &name ) ) {
 		Menu_FadeMenuByName( name, bAbort, qtrue );
@@ -1170,7 +1170,7 @@ void Script_FadeOutMenu( itemDef_t *item, qboolean *bAbort, char **args ) {
 
 // DHM - Nerve
 
-void Script_ConditionalOpen( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_ConditionalOpen( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *cvar = NULL;
 	const char *name1 = NULL;
 	const char *name2 = NULL;
@@ -1203,7 +1203,7 @@ void Script_ConditionalOpen( itemDef_t *item, qboolean *bAbort, char **args ) {
 	}
 }
 
-void Script_ConditionalScript( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_ConditionalScript( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *cvar;
 	const char *script1;
 	const char *script2;
@@ -1439,18 +1439,18 @@ void Script_ConditionalScript( itemDef_t *item, qboolean *bAbort, char **args ) 
 
 // DHM - Nerve
 
-void Script_Close( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_Close( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	if ( String_Parse( args, &name ) ) {
 		Menus_CloseByName( name );
 	}
 }
 
-void Script_CloseAll( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_CloseAll( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	Menus_CloseAll();
 }
 
-void Script_CloseAllOtherMenus( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_CloseAllOtherMenus( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	int i;
 	for ( i = 0; i < menuCount; i++ ) {
 		if ( &Menus[i] == item->parent ) {
@@ -1466,7 +1466,7 @@ void Script_CloseAllOtherMenus( itemDef_t *item, qboolean *bAbort, char **args )
 Script_Clipboard
 ==============
 */
-void Script_Clipboard( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_Clipboard( itemDef_t *item, qboolean *bAbort, const char **args ) {
 }
 
 /*
@@ -1479,7 +1479,7 @@ Script_NotebookShowpage
 	inc == 999	- key number.  +999 is jump to last page, -999 is jump to cover page
 ==============
 */
-void Script_NotebookShowpage( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_NotebookShowpage( itemDef_t *item, qboolean *bAbort, const char **args ) {
 }
 
 
@@ -1505,7 +1505,7 @@ void Menu_TransitionItemByName( menuDef_t *menu, const char *p, rectDef_t rectFr
 }
 
 
-void Script_Transition( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_Transition( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	rectDef_t rectFrom, rectTo;
 	int time = 0;
@@ -1538,7 +1538,7 @@ void Menu_OrbitItemByName( menuDef_t *menu, const char *p, float x, float y, flo
 }
 
 
-void Script_Orbit( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_Orbit( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	float cx = 0.0f, cy = 0.0f, x = 0.0f, y = 0.0f;
 	int time = 0;
@@ -1552,7 +1552,7 @@ void Script_Orbit( itemDef_t *item, qboolean *bAbort, char **args ) {
 
 
 
-void Script_SetFocus( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_SetFocus( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	itemDef_t *focusItem;
 
@@ -1571,18 +1571,18 @@ void Script_SetFocus( itemDef_t *item, qboolean *bAbort, char **args ) {
 	}
 }
 
-void Script_ClearFocus( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_ClearFocus( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	Menu_ClearFocus( static_cast<menuDef_t*> (item->parent) );
 }
 
-void Script_SetPlayerModel( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_SetPlayerModel( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	if ( String_Parse( args, &name ) ) {
 		DC->setCVar( "team_model", name );
 	}
 }
 
-void Script_SetPlayerHead( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_SetPlayerHead( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	if ( String_Parse( args, &name ) ) {
 		DC->setCVar( "team_headmodel", name );
@@ -1592,21 +1592,21 @@ void Script_SetPlayerHead( itemDef_t *item, qboolean *bAbort, char **args ) {
 // ATVI Wolfenstein Misc #304
 // the parser misreads setCvar "bleh" ""
 // you have to use clearCvar "bleh"
-void Script_ClearCvar( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_ClearCvar( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *cvar;
 	if ( String_Parse( args, &cvar ) ) {
 		DC->setCVar( cvar, "" );
 	}
 }
 
-void Script_SetCvar( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_SetCvar( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *cvar = NULL, *val = NULL;
 	if ( String_Parse( args, &cvar ) && String_Parse( args, &val ) ) {
 		DC->setCVar( cvar, val );
 	}
 }
 
-void Script_CopyCvar( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_CopyCvar( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *cvar_src = NULL, *cvar_dst = NULL;
 	if ( String_Parse( args, &cvar_src ) && String_Parse( args, &cvar_dst ) ) {
 		char buff[256];
@@ -1616,28 +1616,28 @@ void Script_CopyCvar( itemDef_t *item, qboolean *bAbort, char **args ) {
 	}
 }
 
-void Script_Exec( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_Exec( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *val = NULL;
 	if ( String_Parse( args, &val ) ) {
 		DC->executeText( EXEC_APPEND, va( "%s ; ", val ) );
 	}
 }
 
-void Script_ExecNOW( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_ExecNOW( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *val = NULL;
 	if ( String_Parse( args, &val ) ) {
 		DC->executeText( EXEC_NOW, va( "%s ; ", val ) );
 	}
 }
 
-void Script_Play( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_Play( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *val = NULL;
 	if ( String_Parse( args, &val ) ) {
 		DC->startLocalSound( DC->registerSound( val, qfalse ), CHAN_LOCAL_SOUND );      // all sounds are not 3d
 	}
 }
 
-void Script_playLooped( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_playLooped( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *val = NULL;
 	if ( String_Parse( args, &val ) ) {
 		DC->stopBackgroundTrack();
@@ -1646,7 +1646,7 @@ void Script_playLooped( itemDef_t *item, qboolean *bAbort, char **args ) {
 }
 
 // NERVE - SMF
-void Script_AddListItem( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_AddListItem( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *itemname = NULL, *val = NULL, *name = NULL;
 	itemDef_t *t;
 
@@ -1659,16 +1659,16 @@ void Script_AddListItem( itemDef_t *item, qboolean *bAbort, char **args ) {
 }
 // -NERVE - SMF
 // DHM - Nerve
-void Script_CheckAutoUpdate( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_CheckAutoUpdate( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	DC->checkAutoUpdate();
 }
 
-void Script_GetAutoUpdate( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_GetAutoUpdate( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	DC->getAutoUpdate();
 }
 // DHM - Nerve
 
-void Script_SetMenuFocus( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_SetMenuFocus( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name;
 
 	if ( String_Parse( args, &name ) ) {
@@ -1748,7 +1748,7 @@ qboolean Script_WriteProfile( char *profile_path ) {
 	return qtrue;
 }
 
-void Script_ExecWolfConfig( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_ExecWolfConfig( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	char cl_profileStr[256];
 	int useprofile = 1;
 
@@ -1776,7 +1776,7 @@ void Script_ExecWolfConfig( itemDef_t *item, qboolean *bAbort, char **args ) {
 	}
 }
 
-void Script_SetEditFocus( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_SetEditFocus( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	const char *name = NULL;
 	itemDef_t *editItem;
 
@@ -1810,7 +1810,7 @@ void Script_SetEditFocus( itemDef_t *item, qboolean *bAbort, char **args ) {
 	}
 }
 
-void Script_Abort( itemDef_t *item, qboolean *bAbort, char **args ) {
+void Script_Abort( itemDef_t *item, qboolean *bAbort, const char **args ) {
 	*bAbort = qtrue;
 }
 
@@ -1867,7 +1867,8 @@ int scriptCommandCount = sizeof( commandList ) / sizeof( commandDef_t );
 
 
 void Item_RunScript( itemDef_t *item, qboolean *bAbort, const char *s ) {
-	char script[4096], *p;
+	char script[4096];
+    const char* p;
 	int i;
 	qboolean bRan;
 	qboolean b_localAbort = qfalse;
@@ -1911,7 +1912,8 @@ void Item_RunScript( itemDef_t *item, qboolean *bAbort, const char *s ) {
 
 
 qboolean Item_EnableShowViaCvar( itemDef_t *item, int flag ) {
-	char script[1024], *p;
+	char script[1024];
+    const char* p;
 	memset( script, 0, sizeof( script ) );
 	if ( item && item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest ) {
 		char buff[1024];
@@ -4115,7 +4117,7 @@ void Item_Multi_Paint( itemDef_t *item ) {
 
 
 typedef struct {
-	char    *command;
+	const char    *command;
 	int id;
 	int defaultbind1_right;
 	int defaultbind2_right;
@@ -4127,7 +4129,7 @@ typedef struct {
 
 typedef struct
 {
-	char*   name;
+	const char*   name;
 	float defaultvalue;
 	float value;
 } configcvar_t;
@@ -5522,12 +5524,12 @@ Keyword Hash
 
 typedef struct keywordHash_s
 {
-	char *keyword;
+	const char *keyword;
 	qboolean ( *func )( itemDef_t *item, int handle );
 	struct keywordHash_s *next;
 } keywordHash_t;
 
-int KeywordHash_Key( char *keyword ) {
+int KeywordHash_Key( const char *keyword ) {
 	int register hash, i;
 
 	hash = 0;

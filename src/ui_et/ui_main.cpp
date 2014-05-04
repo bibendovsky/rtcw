@@ -86,7 +86,7 @@ static int const numETGameTypes = sizeof(ETGameTypes) / sizeof(const char*);*/
 
 static const int numServerFilters = sizeof( serverFilters ) / sizeof( serverFilter_t );
 
-static char* netnames[] = {
+static const char* netnames[] = {
 	"???",
 	"UDP",
 	"IPX",
@@ -1409,7 +1409,7 @@ void UI_LoadMenus( const char *menuFile, qboolean reset ) {
 void UI_Load() {
 	char lastName[1024];
 	menuDef_t *menu = Menu_GetFocused();
-	char *menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
+	const char *menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
 	if ( menu && menu->window.name ) {
 		strcpy( lastName, menu->window.name );
 	}
@@ -4380,7 +4380,7 @@ void UI_Update( const char *name ) {
 UI_RunMenuScript
 ==============
 */
-void UI_RunMenuScript( char **args ) {
+void UI_RunMenuScript( const char **args ) {
 	const char *name, *name2;
 	char *s;
 	char buff[1024];
@@ -5856,7 +5856,7 @@ static void UI_BuildServerDisplayList( qboolean force ) {
 			}
 			// insert the server into the list
 			if ( uiInfo.serverStatus.numDisplayServers == 0 ) {
-				char *s = Info_ValueForKey( info, "mapname" );
+				const char *s = Info_ValueForKey( info, "mapname" );
 
 				if ( s && *s ) {
 					uiInfo.serverStatus.currentServerPreview = trap_R_RegisterShaderNoMip( va( "levelshots/%s", Info_ValueForKey( info, "mapname" ) ) );
@@ -5885,7 +5885,8 @@ static void UI_BuildServerDisplayList( qboolean force ) {
 
 typedef struct
 {
-	char *name, *altName;
+    const char* name;
+    const char* altName;
 } serverStatusCvar_t;
 
 serverStatusCvar_t serverStatusCvars[] = {
@@ -5908,7 +5909,8 @@ UI_SortServerStatusInfo
 */
 static void UI_SortServerStatusInfo( serverStatusInfo_t *info ) {
 	int i, j, index;
-	char *tmp1, *tmp2;
+    const char* tmp1;
+    const char* tmp2;
 
 	// FIXME: if "gamename" == "baseq3" or "missionpack" then
 	// replace the gametype number by FFA, CTF etc.
@@ -7124,7 +7126,7 @@ static void UI_ParseTeamInfo(const char *teamFile) {
 GameType_Parse
 ==============
 */
-static qboolean GameType_Parse( char **p, qboolean join ) {
+static qboolean GameType_Parse( const char **p, qboolean join ) {
 	char *token;
 
 	token = COM_ParseExt( p, qtrue );
@@ -7264,7 +7266,7 @@ static qboolean MapList_Parse( char **p ) {
 
 static void UI_ParseGameInfo( const char *teamFile ) {
 	char    *token;
-	char *p;
+	const char *p;
 	char *buff = NULL;
 	// int mode = 0; // TTimo: unused
 
@@ -8183,8 +8185,8 @@ cvars
 
 typedef struct {
 	vmCvar_t    *vmCvar;
-	char        *cvarName;
-	char        *defaultString;
+	const char        *cvarName;
+	const char        *defaultString;
 	int cvarFlags;
 	int modificationCount;          // for tracking changes
 } cvarTable_t;

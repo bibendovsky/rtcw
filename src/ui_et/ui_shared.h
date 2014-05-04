@@ -391,7 +391,7 @@ typedef struct {
 
 typedef struct {
 	const char *name;
-	void ( *handler )( itemDef_t *item, qboolean *bAbort, char** args );
+	void ( *handler )( itemDef_t *item, qboolean *bAbort, const char** args );
 } commandDef_t;
 
 typedef struct {
@@ -421,7 +421,7 @@ typedef struct {
 	void ( *ownerDrawItem )( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle );
 	float ( *getValue )( int ownerDraw, int type );
 	qboolean ( *ownerDrawVisible )( int flags );
-	void ( *runScript )( char **p );
+	void ( *runScript )( const char **p );
 	void ( *getTeamColor )( vec4_t *color );
 	void ( *getCVarString )( const char *cvar, char *buffer, int bufsize );
 	float ( *getCVarValue )( const char *cvar );
@@ -553,7 +553,7 @@ void        Controls_GetConfig( void );
 void        Controls_SetConfig( qboolean restart );
 void        Controls_SetDefaults( qboolean lefthanded );
 
-int         trap_PC_AddGlobalDefine( char *define );
+int         trap_PC_AddGlobalDefine( const char *define );
 int         trap_PC_RemoveAllGlobalDefines( void );
 int         trap_PC_LoadSource( const char *filename );
 int         trap_PC_FreeSource( int handle );

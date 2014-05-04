@@ -52,7 +52,7 @@ static int ui_numArenas;
 UI_ParseInfos
 ===============
 */
-int UI_ParseInfos( char *buf, int max, char *infos[], int totalmax ) {
+int UI_ParseInfos( const char *buf, int max, char *infos[], int totalmax ) {
 	char    *token;
 	int count;
 	char key[MAX_TOKEN_CHARS];
@@ -720,7 +720,7 @@ static void UI_LoadCampaignsFromFile( const char *filename ) {
 
 const char* UI_DescriptionForCampaign( void ) {
 	int i = 0, j = 0;
-	char* mapname;
+	const char* mapname;
 	char info[MAX_INFO_STRING];
 
 	trap_GetConfigString( CS_SERVERINFO, info, sizeof( info ) );
@@ -740,7 +740,7 @@ const char* UI_DescriptionForCampaign( void ) {
 
 const char* UI_NameForCampaign( void ) {
 	int i = 0, j = 0;
-	char* mapname;
+	const char* mapname;
 	char info[MAX_INFO_STRING];
 
 	trap_GetConfigString( CS_SERVERINFO, info, sizeof( info ) );
@@ -873,7 +873,7 @@ void UI_LoadCampaigns( void ) {
 UI_LoadBotsFromFile
 ===============
 */
-static void UI_LoadBotsFromFile( char *filename ) {
+static void UI_LoadBotsFromFile( const char *filename ) {
 	int len;
 	fileHandle_t f;
 	char buf[MAX_BOTS_TEXT];
@@ -955,7 +955,7 @@ UI_GetBotInfoByName
 */
 char *UI_GetBotInfoByName( const char *name ) {
 	int n;
-	char    *value;
+	const char    *value;
 
 	for ( n = 0; n < ui_numBots ; n++ ) {
 		value = Info_ValueForKey( ui_botInfos[n], "name" );
@@ -972,7 +972,7 @@ int UI_GetNumBots() {
 }
 
 
-char *UI_GetBotNameByNumber( int num ) {
+const char *UI_GetBotNameByNumber( int num ) {
 	char *info = UI_GetBotInfoByNumber( num );
 	if ( info ) {
 		return Info_ValueForKey( info, "name" );

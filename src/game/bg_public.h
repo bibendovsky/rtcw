@@ -3891,7 +3891,7 @@ void BG_RotatePoint( vec3_t point, const vec3_t matrix[3] );
 void BG_TransposeMatrix( const vec3_t matrix[3], vec3_t transpose[3] );
 void BG_CreateRotationMatrix( const vec3_t angles, vec3_t matrix[3] );
 
-int trap_PC_AddGlobalDefine( char *define );
+int trap_PC_AddGlobalDefine( const char *define );
 int trap_PC_LoadSource( const char *filename );
 int trap_PC_FreeSource( int handle );
 int trap_PC_ReadToken( int handle, pc_token_t *pc_token );
@@ -3963,7 +3963,7 @@ int BG_strRelPos( char *in, int index );
 int BG_cleanName( const char *pszIn, char *pszOut, unsigned int dwMaxLength, qboolean fCRLF );
 
 // Crosshair support
-void BG_setCrosshair( char *colString, float *col, float alpha, char *cvarName );
+void BG_setCrosshair( const char *colString, float *col, float alpha, const char *cvarName );
 
 // Voting
 #define VOTING_DISABLED     ( ( 1 << numVotesAvailable ) - 1 )

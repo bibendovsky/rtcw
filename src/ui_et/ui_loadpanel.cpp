@@ -389,7 +389,8 @@ void UI_LoadPanel_RenderLoadingText( panel_button_t* button ) {
 	char buff[2560];
 	static connstate_t lastConnState;
 	static char lastLoadingText[MAX_INFO_VALUE];
-	char            *p, *s = "";
+	char            *p;
+    const char* s = "";
 	float y;
 
 	trap_GetClientState( &cstate );
