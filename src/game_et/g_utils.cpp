@@ -129,7 +129,7 @@ int G_FindConfigstringIndex( const char *name, int start, int max, qboolean crea
 }
 
 
-int G_ModelIndex( char *name ) {
+int G_ModelIndex( const char *name ) {
 	return G_FindConfigstringIndex( name, CS_MODELS, MAX_MODELS, qtrue );
 }
 
@@ -498,7 +498,7 @@ void G_SetMovedir( vec3_t angles, vec3_t movedir ) {
 
 void G_InitGentity( gentity_t *e ) {
 	e->inuse = qtrue;
-	e->classname = "noclass";
+	e->classname = const_cast<char*>("noclass");
 	e->s.number = e - g_entities;
 	e->r.ownerNum = ENTITYNUM_NONE;
 	e->aiInactive = 0xffffffff;
@@ -619,7 +619,7 @@ void G_FreeEntity( gentity_t *ed ) {
 	spawnCount = ed->spawnCount;
 
 	memset( ed, 0, sizeof( *ed ) );
-	ed->classname = "freed";
+	ed->classname = const_cast<char*>("freed");
 	ed->freetime = level.time;
 	ed->inuse = qfalse;
 	ed->spawnCount = spawnCount;
@@ -641,7 +641,7 @@ gentity_t *G_TempEntity( vec3_t origin, int event ) {
 	e = G_Spawn();
 	e->s.eType = entityType_t (ET_EVENTS + event);
 
-	e->classname = "tempEntity";
+	e->classname = const_cast<char*>("tempEntity");
 	e->eventTime = level.time;
 	e->r.eventTime = level.time;
 	e->freeAfterEvent = qtrue;
@@ -661,7 +661,7 @@ gentity_t* G_PopupMessage( popupMessageType_t type ) {
 
 	e = G_Spawn();
 	e->s.eType = entityType_t (ET_EVENTS + EV_POPUPMESSAGE);
-	e->classname = "messageent";
+	e->classname = const_cast<char*>("messageent");
 	e->eventTime = level.time;
 	e->r.eventTime = level.time;
 	e->freeAfterEvent = qtrue;
@@ -1353,7 +1353,7 @@ void G_ParseCampaigns( void ) {
 	}
 }
 
-void G_PrintClientSpammyCenterPrint( int entityNum, char* text ) {
+void G_PrintClientSpammyCenterPrint( int entityNum, const char* text ) {
 	if ( !g_entities[entityNum].client ) {
 		return;
 	}

@@ -1295,7 +1295,7 @@ void Think_SetupObjectiveInfo( gentity_t *ent ) {
 			e = G_Spawn();
 
 			e->r.svFlags = SVF_BROADCAST;
-			e->classname = "explosive_indicator";
+			e->classname = const_cast<char*>("explosive_indicator");
 			if ( ent->spawnflags & 8 ) {
 				e->s.eType = ET_TANK_INDICATOR;
 			} else {
@@ -1379,7 +1379,7 @@ void Think_SetupObjectiveInfo( gentity_t *ent ) {
 			e = G_Spawn();
 
 			e->r.svFlags = SVF_BROADCAST;
-			e->classname = "constructible_indicator";
+			e->classname = const_cast<char*>("constructible_indicator");
 			if ( ent->spawnflags & 8 ) {
 				e->s.eType = ET_TANK_INDICATOR_DEAD;
 			} else {

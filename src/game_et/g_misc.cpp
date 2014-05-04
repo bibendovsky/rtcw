@@ -971,7 +971,7 @@ void SP_corona( gentity_t *ent ) {
 // char* predef_lightstyles[] = {
 //	{"mmnmmommommnonmmonqnmmo"},
 
-char* predef_lightstyles[] = {
+const char* predef_lightstyles[] = {
 	"mmnmmommommnonmmonqnmmo",
 	"abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",
 	"mmmmmaaaaammmmmaaaaaabcdefgabcdefg",
@@ -1867,7 +1867,7 @@ void mg42_spawn( gentity_t *ent ) {
 	if ( g_knifeonly.integer != 1 ) {
 		// Need to spawn the base even when no tripod cause the gun itself isn't solid
 		base = G_Spawn();
-		base->classname = "misc_mg42base";   // Arnout - ease tracking
+		base->classname = const_cast<char*>("misc_mg42base");   // Arnout - ease tracking
 
 		if ( !( ent->spawnflags & 2 ) ) { // no tripod
 			base->clipmask = CONTENTS_SOLID;
@@ -1908,7 +1908,7 @@ void mg42_spawn( gentity_t *ent ) {
 
 		// Spawn the barrel
 		gun =                   G_Spawn();
-		gun->classname =        "misc_mg42";
+		gun->classname =        const_cast<char*>("misc_mg42");
 		gun->clipmask =         CONTENTS_SOLID;
 		gun->r.contents =       CONTENTS_TRIGGER;
 		gun->r.svFlags =        0;
@@ -2083,7 +2083,7 @@ void flak_spawn( gentity_t *ent ) {
 	vec3_t offset;
 
 	gun = G_Spawn();
-	gun->classname = "misc_flak";
+	gun->classname = const_cast<char*>("misc_flak");
 	gun->clipmask = CONTENTS_SOLID;
 	gun->r.contents = CONTENTS_TRIGGER;
 	gun->r.svFlags = 0;
@@ -2403,7 +2403,7 @@ void misc_firetrails_think( gentity_t *ent ) {
 
 	// left fire trail
 	left = G_Spawn();
-	left->classname = "left_firetrail";
+	left->classname = const_cast<char*>("left_firetrail");
 	left->r.contents = 0;
 	left->s.eType = ET_RAMJET;
 	left->s.modelindex = G_ModelIndex( "models/ammo/rocket/rocket.md3" );
@@ -2417,7 +2417,7 @@ void misc_firetrails_think( gentity_t *ent ) {
 
 	// right fire trail
 	right = G_Spawn();
-	right->classname = "right_firetrail";
+	right->classname = const_cast<char*>("right_firetrail");
 	right->r.contents = 0;
 	right->s.eType = ET_RAMJET;
 	right->s.modelindex = G_ModelIndex( "models/ammo/rocket/rocket.md3" );
@@ -2538,7 +2538,7 @@ void landmine_setup( gentity_t *ent ) {
 	ent->splashDamage   = G_GetWeaponDamage( WP_LANDMINE );
 
 	ent->accuracy       = 0;
-	ent->classname      = "landmine";
+	ent->classname      = const_cast<char*>("landmine");
 	ent->damage         = 0;
 	ent->splashRadius   = 225;  // was: 400
 	ent->methodOfDeath  = MOD_LANDMINE;

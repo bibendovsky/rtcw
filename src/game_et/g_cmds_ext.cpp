@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 
 int iWeap = WS_MAX;
 
-char *lock_status[2] = { "unlock", "lock" };
+const char *lock_status[2] = { "unlock", "lock" };
 
 //
 // Update info:
@@ -45,7 +45,7 @@ char *lock_status[2] = { "unlock", "lock" };
 //	2. Add implementation for specific command (see an existing command for an example)
 //
 typedef struct {
-	char *pszCommandName;
+	const char *pszCommandName;
 	qboolean fAnytime;
 	qboolean fValue;
 	void ( *pCommand )( gentity_t *ent, unsigned int dwCommand, qboolean fValue );
@@ -135,7 +135,7 @@ qboolean G_commandCheck( gentity_t *ent, char *cmd, qboolean fDoAnytime ) {
 
 
 // Prints specific command help info.
-qboolean G_commandHelp( gentity_t *ent, char *pszCommand, unsigned int dwCommand ) {
+qboolean G_commandHelp( gentity_t *ent, const char *pszCommand, unsigned int dwCommand ) {
 	char arg[MAX_TOKEN_CHARS];
 
 	if ( !ent ) {
@@ -247,7 +247,7 @@ void G_lock_cmd( gentity_t *ent, unsigned int dwCommand, qboolean fLock ) {
 //
 // Pause/unpause a match.
 void G_pause_cmd( gentity_t *ent, unsigned int dwCommand, qboolean fPause ) {
-	char *status[2] = { "^5UN", "^1" };
+	const char *status[2] = { "^5UN", "^1" };
 
 	if ( team_nocontrols.integer ) {
 		G_noTeamControls( ent ); return;
@@ -305,7 +305,10 @@ void G_players_cmd( gentity_t *ent, unsigned int dwCommand, qboolean fValue ) {
 	gclient_t *cl;
 	gentity_t *cl_ent;
 	char n2[MAX_NETNAME], ready[16], ref[16], rate[256];
-	char *s, *tc, *coach, userinfo[MAX_INFO_STRING];
+	const char *s;
+    const char* tc;
+    const char* coach;
+    char userinfo[MAX_INFO_STRING];
 
 
 	if ( g_gamestate.integer == GS_PLAYING ) {
@@ -413,7 +416,7 @@ void G_players_cmd( gentity_t *ent, unsigned int dwCommand, qboolean fValue ) {
 //
 // Sets a player's "ready" status.
 void G_ready_cmd( gentity_t *ent, unsigned int dwCommand, qboolean state ) {
-	char *status[2] = { " NOT", "" };
+	const char *status[2] = { " NOT", "" };
 
 	if ( g_gamestate.integer == GS_PLAYING || g_gamestate.integer == GS_INTERMISSION ) {
 		CP( "cpm \"Match is already in progress!\n\"" );

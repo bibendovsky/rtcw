@@ -1180,7 +1180,7 @@ gentity_t *fire_flamechunk( gentity_t *self, vec3_t start, vec3_t dir ) {
 	VectorNormalize( dir );
 
 	bolt = G_Spawn();
-	bolt->classname = "flamechunk";
+	bolt->classname = const_cast<char*>("flamechunk");
 
 	bolt->timestamp = level.time;
 	bolt->flameQuotaTime = level.time + 50;
@@ -1799,7 +1799,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 
 	switch ( grenadeWPID ) {
 	case WP_GPG40:
-		bolt->classname             = "gpg40_grenade";
+		bolt->classname             = const_cast<char*>("gpg40_grenade");
 		bolt->splashRadius          = 300;
 		bolt->methodOfDeath         = MOD_GPG40;
 		bolt->splashMethodOfDeath   = MOD_GPG40;
@@ -1807,7 +1807,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 		bolt->nextthink             = level.time + 4000;
 		break;
 	case WP_M7:
-		bolt->classname             = "m7_grenade";
+		bolt->classname             = const_cast<char*>("m7_grenade");
 		bolt->splashRadius          = 300;
 		bolt->methodOfDeath         = MOD_M7;
 		bolt->splashMethodOfDeath   = MOD_M7;
@@ -1816,20 +1816,20 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 		break;
 	case WP_SMOKE_BOMB:
 		// xkan 11/25/2002, fixed typo, classname used to be "somke_bomb"
-		bolt->classname             = "smoke_bomb";
+		bolt->classname             = const_cast<char*>("smoke_bomb");
 		bolt->s.eFlags              = EF_BOUNCE_HALF | EF_BOUNCE;
 		// rain - this is supposed to be MOD_SMOKEBOMB, not SMOKEGRENADE
 		bolt->methodOfDeath         = MOD_SMOKEBOMB;
 		break;
 	case WP_GRENADE_LAUNCHER:
-		bolt->classname             = "grenade";
+		bolt->classname             = const_cast<char*>("grenade");
 		bolt->splashRadius          = 300;
 		bolt->methodOfDeath         = MOD_GRENADE_LAUNCHER;
 		bolt->splashMethodOfDeath   = MOD_GRENADE_LAUNCHER;
 		bolt->s.eFlags              = EF_BOUNCE_HALF | EF_BOUNCE;
 		break;
 	case WP_GRENADE_PINEAPPLE:
-		bolt->classname             = "grenade";
+		bolt->classname             = const_cast<char*>("grenade");
 		bolt->splashRadius          = 300;
 		bolt->methodOfDeath         = MOD_GRENADE_LAUNCHER;
 		bolt->splashMethodOfDeath   = MOD_GRENADE_LAUNCHER;
@@ -1837,7 +1837,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 		break;
 // JPW NERVE
 	case WP_SMOKE_MARKER:
-		bolt->classname             = "grenade";
+		bolt->classname             = const_cast<char*>("grenade");
 		bolt->s.eFlags              = EF_BOUNCE_HALF | EF_BOUNCE;
 		// rain - properly set MOD
 		bolt->methodOfDeath         = MOD_SMOKEGRENADE;
@@ -1845,7 +1845,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 		break;
 // jpw
 	case WP_MORTAR_SET:
-		bolt->classname             = "mortar_grenade";
+		bolt->classname             = const_cast<char*>("mortar_grenade");
 		bolt->splashRadius          = 800;
 		bolt->methodOfDeath         = MOD_MORTAR;
 		bolt->splashMethodOfDeath   = MOD_MORTAR;
@@ -1854,7 +1854,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 	case WP_LANDMINE:
 		bolt->accuracy              = 0;
 		bolt->s.teamNum             = self->client->sess.sessionTeam + 4;
-		bolt->classname             = "landmine";
+		bolt->classname             = const_cast<char*>("landmine");
 		bolt->damage                = 0;
 		bolt->splashRadius          = 225;      // was: 400
 		bolt->methodOfDeath         = MOD_LANDMINE;
@@ -1873,7 +1873,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 		break;
 	case WP_SATCHEL:
 		bolt->accuracy              = 0;
-		bolt->classname             = "satchel_charge";
+		bolt->classname             = const_cast<char*>("satchel_charge");
 		bolt->damage                = 0;
 		bolt->splashRadius          = 300;
 		bolt->methodOfDeath         = MOD_SATCHEL;
@@ -1894,7 +1894,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 		trap_SendServerCommand( self - g_entities, "cp \"Dynamite is set, but NOT armed!\"" );
 		// differentiate non-armed dynamite with non-pulsing dlight
 		bolt->s.teamNum = self->client->sess.sessionTeam + 4;
-		bolt->classname             = "dynamite";
+		bolt->classname             = const_cast<char*>("dynamite");
 		bolt->damage                = 0;
 //			bolt->splashDamage			= 300;
 		bolt->splashRadius          = 400;
@@ -1962,7 +1962,7 @@ gentity_t *fire_rocket( gentity_t *self, vec3_t start, vec3_t dir ) {
 	VectorNormalize( dir );
 
 	bolt = G_Spawn();
-	bolt->classname = "rocket";
+	bolt->classname = const_cast<char*>("rocket");
 	bolt->nextthink = level.time + 20000;   // push it out a little
 	bolt->think = G_ExplodeMissile;
 	bolt->accuracy = 4;
@@ -2015,7 +2015,7 @@ gentity_t *fire_flamebarrel( gentity_t *self, vec3_t start, vec3_t dir ) {
 	// Gordon: for explosion type
 	bolt->accuracy      = 3;
 
-	bolt->classname = "flamebarrel";
+	bolt->classname = const_cast<char*>("flamebarrel");
 	bolt->nextthink = level.time + 3000;
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_FLAMEBARREL;
@@ -2156,7 +2156,7 @@ gentity_t *fire_mortar( gentity_t *self, vec3_t start, vec3_t dir ) {
 	}
 
 	bolt = G_Spawn();
-	bolt->classname = "mortar";
+	bolt->classname = const_cast<char*>("mortar");
 	bolt->nextthink = level.time + 20000;   // push it out a little
 	bolt->think = G_ExplodeMissile;
 

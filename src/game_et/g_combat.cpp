@@ -273,7 +273,7 @@ void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 
 
 // these are just for logging, the client prints its own messages
-char *modNames[] =
+const char *modNames[] =
 {
 	"MOD_UNKNOWN",
 	"MOD_MACHINEGUN",
@@ -368,7 +368,7 @@ void BotRecordTeamDeath( int client );
 
 void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
 	int contents = 0, i, killer = ENTITYNUM_WORLD;
-	char        *killerName = "<world>";
+	const char        *killerName = "<world>";
 	qboolean nogib = qtrue;
 	gitem_t     *item = NULL;
 	gentity_t   *ent;
@@ -486,7 +486,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	if ( g_gamestate.integer == GS_PLAYING ) {
-		char *obit;
+		const char *obit;
 
 		if ( meansOfDeath < 0 || meansOfDeath >= sizeof( modNames ) / sizeof( modNames[0] ) ) {
 			obit = "<bad obituary>";
@@ -780,12 +780,12 @@ qboolean IsHeadShotWeapon( int mod ) {
 
 gentity_t* G_BuildHead( gentity_t *ent ) {
 	gentity_t* head;
-	orientation_t or;           // DHM - Nerve
+	orientation_t orient;           // DHM - Nerve
 
 	head = G_Spawn();
 
-	if ( trap_GetTag( ent->s.number, 0, "tag_head", &or ) ) {
-		G_SetOrigin( head, or.origin );
+	if ( trap_GetTag( ent->s.number, 0, "tag_head", &orient ) ) {
+		G_SetOrigin( head, orient.origin );
 	} else {
 		float height, dest;
 		vec3_t v, angles, forward, up, right;

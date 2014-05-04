@@ -220,8 +220,8 @@ void G_refLockTeams_cmd( gentity_t *ent, qboolean fLock ) {
 
 // Pause/unpause a match.
 void G_refPause_cmd( gentity_t *ent, qboolean fPause ) {
-	char *status[2] = { "^5UN", "^1" };
-	char *referee = ( ent ) ? "Referee" : "ref";
+	const char *status[2] = { "^5UN", "^1" };
+	const char *referee = ( ent ) ? "Referee" : "ref";
 
 	if ( ( PAUSE_UNPAUSING >= level.match_pause && !fPause ) || ( PAUSE_NONE != level.match_pause && fPause ) ) {
 		G_refPrintf( ent, "The match is already %sPAUSED!\n\"", status[fPause] );

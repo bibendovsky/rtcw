@@ -461,7 +461,7 @@ qboolean BotFindNearbyTriggerGoal( bot_state_t *bs ) {
 	gentity_t *trav;
 	vec3_t loc;
 	int i;
-	char *goalnames[] = {"trigger_ammo", "trigger_heal", NULL};
+	const char *goalnames[] = {"trigger_ammo", "trigger_heal", NULL};
 
 	for ( i = 0; goalnames[i]; i++ )
 	{
@@ -597,7 +597,7 @@ qboolean BotFindNearbyGoal( bot_state_t *bs ) {
 ClientName
 ==================
 */
-char *ClientName( int client, char *name, int size ) {
+const char *ClientName( int client, char *name, int size ) {
 	char buf[MAX_INFO_STRING];
 
 	if ( client < 0 || client >= MAX_CLIENTS ) {
@@ -616,7 +616,7 @@ char *ClientName( int client, char *name, int size ) {
 ClientSkin
 ==================
 */
-char *ClientSkin( int client, char *skin, int size ) {
+const char *ClientSkin( int client, char *skin, int size ) {
 	char buf[MAX_INFO_STRING];
 
 	if ( client < 0 || client >= MAX_CLIENTS ) {
@@ -682,7 +682,7 @@ char *stristr( char *str, char *charset ) {
 EasyClientName
 ==================
 */
-char *EasyClientName( int client, char *buf, int size ) {
+const char *EasyClientName( int client, char *buf, int size ) {
 	int i;
 	char *str1, *str2, *ptr, c;
 	char name[128];
@@ -1792,7 +1792,7 @@ BotWantsToCamp
 BotDontAvoid
 ==================
 */
-void BotDontAvoid( bot_state_t *bs, char *itemname ) {
+void BotDontAvoid( bot_state_t *bs, const char *itemname ) {
 	bot_goal_t goal;
 	int num;
 
@@ -5472,7 +5472,7 @@ BotMoveToIntermission
 */
 void BotMoveToIntermission( int client ) {
 	char cs[MAX_STRING_CHARS];              // DHM - Nerve
-	char        *buf;                       // DHM - Nerve
+	const char        *buf;                       // DHM - Nerve
 	int winner;                             // DHM - Nerve
 	bot_state_t *bs;
 
@@ -6180,7 +6180,7 @@ void BotCalculateMg42Spots( void ) {
 		//
 		// spawn an mg42 spot
 		newent = G_Spawn();
-		newent->classname = "bot_mg42_spot";
+		newent->classname = const_cast<char*>("bot_mg42_spot");
 
 		// try and place it into the bot game entities
 //		newent = BotCheckBotGameEntity( newent );
@@ -6242,7 +6242,7 @@ void BotCalculateMg42Spots( void ) {
 BotMovementAutonomyForString
 =================
 */
-int BotMovementAutonomyForString( char *string ) {
+int BotMovementAutonomyForString( const char *string ) {
 	if ( !Q_stricmp( string, "high" ) ) {
 		return BMA_HIGH;
 	} else if ( !Q_stricmp( string, "medium" ) ) {
@@ -6259,7 +6259,7 @@ int BotMovementAutonomyForString( char *string ) {
 BotStringForMovementAutonomy
 =================
 */
-char *BotStringForMovementAutonomy( int value ) {
+const char *BotStringForMovementAutonomy( int value ) {
 	switch ( value ) {
 	case BMA_LOW: return "LOW";
 	case BMA_MEDIUM: return "MEDIUM";
@@ -6291,7 +6291,7 @@ int BotWeaponAutonomyForString( char *string ) {
 BotStringForWeaponAutonomy
 =================
 */
-char *BotStringForWeaponAutonomy( int value ) {
+const char *BotStringForWeaponAutonomy( int value ) {
 	switch ( value ) {
 	case BMA_LOW: return "LOW";
 	case BMA_MEDIUM: return "MEDIUM";
@@ -6307,7 +6307,7 @@ char *BotStringForWeaponAutonomy( int value ) {
 BotScriptAutonomyForString
 =================
 */
-int BotScriptAutonomyForString( char *string ) {
+int BotScriptAutonomyForString( const char *string ) {
 	if ( !Q_stricmp( string, "quitscript" ) ) {
 		return BSA_QUITSCRIPT;
 	} else if ( !Q_stricmp( string, "nochase" ) ) {

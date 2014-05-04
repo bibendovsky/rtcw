@@ -32,8 +32,8 @@ level_locals_t level;
 
 typedef struct {
 	vmCvar_t    *vmCvar;
-	char        *cvarName;
-	char        *defaultString;
+	const char        *cvarName;
+	const char        *defaultString;
 	int cvarFlags;
 	int modificationCount;          // for tracking changes
 	qboolean trackChange;           // track this variable, and announce if changed
@@ -2336,7 +2336,7 @@ void FindIntermissionPoint( void ) {
 	gentity_t   *ent = NULL, *target;
 	vec3_t dir;
 	char cs[MAX_STRING_CHARS];              // DHM - Nerve
-	char        *buf;                       // DHM - Nerve
+	const char        *buf;                       // DHM - Nerve
 	int winner;                             // DHM - Nerve
 
 	// NERVE - SMF - if the match hasn't ended yet, and we're just a spectator
@@ -2816,7 +2816,7 @@ ScoreIsTied
 qboolean ScoreIsTied( void ) {
 	int a /*, b*/;
 	char cs[MAX_STRING_CHARS];
-	char    *buf;
+	const char    *buf;
 
 	// DHM - Nerve :: GT_WOLF checks the current value of
 	trap_GetConfigstring( CS_MULTI_MAPWINNER, cs, sizeof( cs ) );

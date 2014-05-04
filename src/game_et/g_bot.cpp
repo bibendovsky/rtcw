@@ -185,7 +185,7 @@ G_AddRandomBot
 ===============
 */
 void G_AddRandomBot( int team ) {
-	char    *teamstr;
+	const char    *teamstr;
 	int skill;
 
 	skill = trap_Cvar_VariableIntegerValue( "bot_defaultskill" );
@@ -647,9 +647,9 @@ static void G_AddBot( const char *name, int skill, const char *team, const char 
 	int clientNum;
 	char            *botinfo;
 	gentity_t       *bot;
-	char            *key;
-	char            *s;
-	char            *botname;
+	const char            *key;
+	const char            *s;
+	const char            *botname;
 //	char			*model;
 	char userinfo[MAX_INFO_STRING];
 
@@ -721,7 +721,11 @@ static void G_AddBot( const char *name, int skill, const char *team, const char 
 		fileHandle_t f;
 		int len, i, j, k;
 		qboolean setname = qfalse;
-		char botnames[8192], *pbotnames, *listbotnames[MAX_BOTNAMES], *token, *oldpbotnames;
+		char botnames[8192];
+        const char* pbotnames;
+        char* listbotnames[MAX_BOTNAMES];
+        char* token;
+        const char* oldpbotnames;
 		int lengthbotnames[MAX_BOTNAMES];
 
 		len = trap_FS_FOpenFile( "botfiles/botnames.txt", &f, FS_READ );
@@ -740,7 +744,7 @@ static void G_AddBot( const char *name, int skill, const char *team, const char 
 				if ( !token[0] ) {
 					break;
 				}
-				listbotnames[i] = strstr( oldpbotnames, token );
+				listbotnames[i] = const_cast<char*>(strstr( oldpbotnames, token ));
 				lengthbotnames[i] = strlen( token );
 				listbotnames[i][lengthbotnames[i]] = 0;
 				oldpbotnames = pbotnames;
@@ -878,10 +882,10 @@ void Svcmd_AddBot_f( void ) {
 
 typedef struct
 {
-	char    *cmd;
+	const char    *cmd;
 	char    *string;
 	qboolean appendParams;
-	char    *help;
+	const char    *help;
 	int count;
 } spawnBotCommand_t;
 
@@ -950,7 +954,8 @@ void G_SpawnBot( const char *text ) {
 	int weaponSpawnNumber = -1;
 
 	// parsing vars
-	char            *token, *pStr, *old_pStr;
+	char            *token;
+    const char* pStr, *old_pStr;
 	char cmd[MAX_TOKEN_CHARS], last_cmd[MAX_TOKEN_CHARS];
 	char cmd_var[MAX_TOKEN_CHARS];
 	char string[MAX_TOKEN_CHARS];
@@ -1138,7 +1143,8 @@ void G_SpawnBot( const char *text ) {
 	if ( botSkills[0] ) {
 		// parse the skills out
 		int i;
-		char *pString, *token;
+        const char* pString;
+        char* token;
 
 		pString = botSkills;
 		for ( i = 0; i < SK_NUM_SKILLS; i++ )
@@ -1259,7 +1265,7 @@ G_LoadBots
 */
 static void G_LoadBots( void ) {
 	int len;
-	char        *filename;
+	const char        *filename;
 	vmCvar_t botsFile;
 	fileHandle_t f;
 	char buf[MAX_BOTS_TEXT];
@@ -1318,7 +1324,7 @@ G_GetBotInfoByName
 */
 char *G_GetBotInfoByName( const char *name ) {
 	int n;
-	char    *value;
+	const char    *value;
 
 	for ( n = 0; n < g_numBots ; n++ ) {
 		value = Info_ValueForKey( g_botInfos[n], "name" );

@@ -107,8 +107,8 @@ float *BotGetEye( int entnum );
 int BotGetArea( int entnum );
 qboolean BotSeekCover( bot_state_t *bs );
 void BotShareLastAttacked( bot_state_t *bs );
-char *BotStringForMovementAutonomy( int value );
-char *BotStringForWeaponAutonomy( int value );
+const char *BotStringForMovementAutonomy( int value );
+const char *BotStringForWeaponAutonomy( int value );
 qboolean BotCanPursue( bot_state_t *bs, int enemy );
 int BotGetMovementAutonomyLevel( bot_state_t *bs );
 void BotEnemyFire( bot_state_t *bs );
@@ -118,8 +118,8 @@ qboolean BotCheckEmergencyTargets( bot_state_t *bs );
 qboolean BotFindSpecialGoals( bot_state_t *bs );
 void BotCheckVoiceChats( bot_state_t *bs );
 int BotWeaponAutonomyForString( char *string );
-int BotMovementAutonomyForString( char *string );
-int BotScriptAutonomyForString( char *string );
+int BotMovementAutonomyForString( const char *string );
+int BotScriptAutonomyForString( const char *string );
 float BotGetRawMovementAutonomyRange( bot_state_t *bs );
 float BotGetMovementAutonomyRange( bot_state_t *bs, bot_goal_t *goal );
 
@@ -206,11 +206,11 @@ qboolean EntityIsInvisible( aas_entityinfo_t *entinfo );
 //returns true if the entity is shooting
 qboolean EntityIsShooting( aas_entityinfo_t *entinfo );
 //returns the name of the client
-char *ClientName( int client, char *name, int size );
+const char *ClientName( int client, char *name, int size );
 //returns an simplyfied client name
-char *EasyClientName( int client, char *name, int size );
+const char *EasyClientName( int client, char *name, int size );
 //returns the skin used by the client
-char *ClientSkin( int client, char *skin, int size );
+const char *ClientSkin( int client, char *skin, int size );
 //returns the aggression of the bot in the range [0, 100]
 float BotAggression( bot_state_t *bs );
 //returns true if the bot wants to retreat

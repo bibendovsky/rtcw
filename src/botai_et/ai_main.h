@@ -242,8 +242,8 @@ typedef enum {
 //
 typedef struct
 {
-	char    *actionString;
-	qboolean ( *actionFunc )( struct bot_state_s *bs, char *params );
+	const char    *actionString;
+	qboolean ( *actionFunc )( struct bot_state_s *bs, const char *params );
 } bot_script_stack_action_t;
 //
 typedef struct
@@ -253,7 +253,7 @@ typedef struct
 	char                            *params;
 	// debugging info
 	int lineNum;
-	char                            *text;              // points to the item location in global script buffer
+	const char* text;              // points to the item location in global script buffer
 } bot_script_stack_item_t;
 //
 typedef struct
@@ -269,13 +269,13 @@ typedef struct
 	bot_script_stack_t stack;
 	// debugging info
 	int lineNum;
-	char                            *text;              // points to the item location in global script buffer
+	const char* text;              // points to the item location in global script buffer
 } bot_script_event_t;
 //
 typedef struct
 {
-	char        *eventStr;
-	qboolean ( *eventMatch )( bot_script_event_t *event, char *eventParm );
+	const char        *eventStr;
+	qboolean ( *eventMatch )( bot_script_event_t *event, const char *eventParm );
 } bot_script_event_define_t;
 //
 // Scripting Status (NOTE: this MUST NOT contain any pointer vars)
@@ -487,7 +487,7 @@ typedef struct bot_state_s
 	//
 	bot_settings_t settings;                        //several bot settings
 	int ( *ainode )( struct bot_state_s *bs );          //current AI node
-	char *ainodeText;
+	const char *ainodeText;
 	float thinktime;                                //time the bot thinks this frame
 	vec3_t origin;                                  //origin of the bot
 	vec3_t velocity;                                //velocity of the bot
@@ -830,7 +830,7 @@ void BotEntityInfo( int entnum, aas_entityinfo_t *info );
 int BotAI_GetNumBots( void );
 void BotAI_SetNumBots( int numbots );
 
-gentity_t *BotFindEntityForName( char *name );
+gentity_t *BotFindEntityForName( const char *name );
 
 int BotTravelFlagsForClient( int client );
 
@@ -843,10 +843,10 @@ int BotTravelFlagsForClient( int client );
 extern bot_script_global_data_t botCharacterScriptData[MAX_BOT_SCRIPT_CHARACTERS];
 
 void Bot_ScriptLoad( void );
-void Bot_ScriptParse( bot_script_data_t *bsd, char **text );
+void Bot_ScriptParse( bot_script_data_t *bsd, const char **text );
 qboolean Bot_ScriptInitBot( int entnum );
 qboolean Bot_ScriptRun( bot_state_t *bs, qboolean force );
-void Bot_ScriptLog_Entry( bot_state_t *bs, qboolean showDetails, char *preText, char *fmt, ... );
+void Bot_ScriptLog_Entry( bot_state_t *bs, qboolean showDetails, const char *preText, const char *fmt, ... );
 int Bot_Script_GetCurrentLine( bot_state_t *bs );
 void Bot_ScriptThink( void );
 int Bot_FindSriptGlobalData( bot_script_data_t *data );
@@ -862,8 +862,8 @@ void AICast_StartFrame ( int time);
 extern bot_state_t botstates[MAX_CLIENTS];
 
 // from the game source
-void QDECL BotAI_Print( int type, char *fmt, ... );
-void QDECL QDECL BotAI_BotInitialChat( bot_state_t *bs, char *type, ... );
+void QDECL BotAI_Print( int type, const char *fmt, ... );
+void QDECL QDECL BotAI_BotInitialChat( bot_state_t *bs, const char *type, ... );
 void    BotAI_Trace( bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask );
 int     BotAI_GetClientState( int clientNum, playerState_t *state );
 int     BotAI_GetEntityState( int entityNum, entityState_t *state );

@@ -249,11 +249,11 @@ ipXPStorage_t* G_FindIpData( ipXPStorageList_t *ipXPStorageList, char *from ) {
 G_FilterPacket
 =================
 */
-qboolean G_FilterPacket( ipFilterList_t *ipFilterList, char *from ) {
+qboolean G_FilterPacket( ipFilterList_t *ipFilterList, const char *from ) {
 	int i;
 	unsigned in;
 	byte m[4];
-	char *p;
+	const char *p;
 
 	i = 0;
 	p = from;
@@ -279,11 +279,11 @@ qboolean G_FilterPacket( ipFilterList_t *ipFilterList, char *from ) {
 	return g_filterBan.integer == 0;
 }
 
-qboolean G_FilterIPBanPacket( char *from ) {
+qboolean G_FilterIPBanPacket( const char *from ) {
 	return( G_FilterPacket( &ipFilters, from ) );
 }
 
-qboolean G_FilterMaxLivesIPPacket( char *from ) {
+qboolean G_FilterMaxLivesIPPacket( const char *from ) {
 	return( G_FilterPacket( &ipMaxLivesFilters, from ) );
 }
 
@@ -302,7 +302,7 @@ ipXPStorage_t* G_FindXPBackup( char *from ) {
 /*
  Check to see if the user is trying to sneak back in with g_enforcemaxlives enabled
 */
-qboolean G_FilterMaxLivesPacket( char *from ) {
+qboolean G_FilterMaxLivesPacket( const char *from ) {
 	int i;
 
 	for ( i = 0; i < numMaxLivesFilters; i++ )
@@ -453,7 +453,7 @@ Xian - with g_enforcemaxlives enabled, this adds a client GUID to a list
 that prevents them from quitting and reconnecting
 =================
 */
-void AddMaxLivesGUID( char *str ) {
+void AddMaxLivesGUID( const char *str ) {
 	if ( numMaxLivesFilters == MAX_IPFILTERS ) {
 		G_Printf( "MaxLives GUID filter list is full\n" );
 		return;
@@ -1034,7 +1034,7 @@ static void Svcmd_Kick_f( void ) {
 				}
 
 				if ( timeout != -1 ) {
-					char *ip;
+					const char *ip;
 					char userinfo[MAX_INFO_STRING];
 
 					trap_GetUserinfo( cl->ps.clientNum, userinfo, sizeof( userinfo ) );
@@ -1080,7 +1080,7 @@ static void Svcmd_Kick_f( void ) {
 		}
 
 		if ( timeout != -1 ) {
-			char *ip;
+			const char *ip;
 			char userinfo[MAX_INFO_STRING];
 
 			trap_GetUserinfo( cl->ps.clientNum, userinfo, sizeof( userinfo ) );
@@ -1119,7 +1119,7 @@ Kick a user off of the server
 static void Svcmd_KickNum_f( void ) {
 	gclient_t   *cl;
 	int timeout = -1;
-	char    *ip;
+	const char    *ip;
 	char userinfo[MAX_INFO_STRING];
 	char sTimeout[MAX_TOKEN_CHARS];
 	char name[MAX_TOKEN_CHARS];

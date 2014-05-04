@@ -544,7 +544,7 @@ COM_ParseError
 */
 #endif // RTCW_XX
 
-void COM_ParseError( char *format, ... ) {
+void COM_ParseError( const char *format, ... ) {
 	va_list argptr;
 	static char string[4096];
 
@@ -569,7 +569,7 @@ COM_ParseWarning
 */
 #endif // RTCW_XX
 
-void COM_ParseWarning( char *format, ... ) {
+void COM_ParseWarning( const char *format, ... ) {
 	va_list argptr;
 	static char string[4096];
 

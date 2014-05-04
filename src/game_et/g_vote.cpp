@@ -195,7 +195,7 @@ void G_voteFlags( void ) {
 // Prints specific callvote command help description.
 qboolean G_voteDescription( gentity_t *ent, qboolean fRefereeCmd, int cmd ) {
 	char arg[MAX_TOKEN_CHARS];
-	char *ref_cmd = ( fRefereeCmd ) ? "\\ref" : "\\callvote";
+	const char *ref_cmd = ( fRefereeCmd ) ? "\\ref" : "\\callvote";
 
 	if ( !ent ) {
 		return( qfalse );
@@ -927,7 +927,7 @@ int G_Timelimit_v( gentity_t *ent, unsigned int dwVoteIndex, char *arg, char *ar
 	return( G_OK );
 }
 
-char *warmupType[] = { "None", "Enemies Only", "Everyone" };
+const char *warmupType[] = { "None", "Enemies Only", "Everyone" };
 
 void G_WarmupDamageTypeList( gentity_t *ent ) {
 	int i;

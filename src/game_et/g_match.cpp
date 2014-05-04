@@ -89,7 +89,7 @@ void G_loadMatchGame( void ) {
 
 
 // Simple alias for sure-fire print :)
-void G_printFull( char *str, gentity_t *ent ) {
+void G_printFull( const char *str, gentity_t *ent ) {
 	if ( ent != NULL ) {
 		CP( va( "print \"%s\n\"", str ) );
 		CP( va( "cp \"%s\n\"", str ) );
@@ -101,7 +101,7 @@ void G_printFull( char *str, gentity_t *ent ) {
 
 
 // Plays specified sound globally.
-void G_globalSound( char *sound ) {
+void G_globalSound( const char *sound ) {
 	gentity_t *te = G_TempEntity( level.intermission_origin, EV_GLOBAL_SOUND );
 	te->s.eventParm = G_SoundIndex( sound );
 	te->r.svFlags |= SVF_BROADCAST;
@@ -184,7 +184,7 @@ void G_delayPrint( gentity_t *dpent ) {
 	}
 }
 
-static char *pszDPInfo[] = {
+static const char *pszDPInfo[] = {
 	"DPRINTF_PAUSEINFO",
 	"DPRINTF_UNPAUSING",
 	"DPRINTF_CONNECTINFO",
@@ -199,7 +199,7 @@ static char *pszDPInfo[] = {
 void G_spawnPrintf( int print_type, int print_time, gentity_t *owner ) {
 	gentity_t   *ent = G_Spawn();
 
-	ent->classname = pszDPInfo[print_type];
+	ent->classname = const_cast<char*>(pszDPInfo[print_type]);
 	ent->clipmask = 0;
 	ent->parent = owner;
 	ent->r.svFlags |= SVF_NOCLIENT;
@@ -507,7 +507,7 @@ void G_printMatchInfo( gentity_t *ent ) {
 	int i, j, cnt, eff;
 	int tot_kills, tot_deaths, tot_gp, tot_sui, tot_tk, tot_dg, tot_dr, tot_td;
 	gclient_t *cl;
-	char *ref;
+	const char *ref;
 	char n2[MAX_STRING_CHARS];
 
 
@@ -723,7 +723,7 @@ int G_checkServerToggle( vmCvar_t *cv ) {
 // Sends a player's stats to the requesting client.
 void G_statsPrint( gentity_t *ent, int nType ) {
 	int pid;
-	char *cmd = ( nType == 0 ) ? "ws" : ( ( nType == 1 ) ? "wws" : "gstats" );   // Yes, not the cleanest
+	const char *cmd = ( nType == 0 ) ? "ws" : ( ( nType == 1 ) ? "wws" : "gstats" );   // Yes, not the cleanest
 	char arg[MAX_TOKEN_CHARS];
 
 	if ( !ent || ( ent->r.svFlags & SVF_BOT ) ) {

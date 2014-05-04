@@ -312,7 +312,7 @@ CheckBotImpacts
 ==============
 */
 void CheckBotImpacts( gentity_t *ent, gentity_t *other ) {
-	char *blockEnts[] = {"func_explosive", NULL};
+	const char *blockEnts[] = {"func_explosive", NULL};
 	int j;
 
 	for ( j = 0; blockEnts[j]; j++ ) {

@@ -165,7 +165,7 @@ G_UpdateCharacter
 */
 void G_UpdateCharacter( gclient_t *client ) {
 	char infostring[MAX_INFO_STRING];
-	char            *s;
+	const char* s;
 	int characterIndex;
 	bg_character_t  *character;
 

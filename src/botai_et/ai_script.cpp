@@ -54,85 +54,85 @@ according to each different scenario.
 */
 
 // action functions need to be declared here so they can be accessed in the scriptAction table
-qboolean Bot_ScriptAction_Print( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_SetAccumToPlayerCount( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_SpawnBot( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_Accum( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_GlobalAccum( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_Wait( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_MoveToMarker( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_Trigger( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_Logging( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_AbortIfWarmup( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_SetAttribute( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_MountMG42( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_SetWeapon( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_SetClass( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_SetMovementAutonomy( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_FollowLeader( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_Cvar( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_MovementAutonomy( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_ResetScript( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_Print( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_SetAccumToPlayerCount( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_SpawnBot( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_Accum( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_GlobalAccum( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_Wait( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_MoveToMarker( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_Trigger( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_Logging( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_AbortIfWarmup( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_SetAttribute( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_MountMG42( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_SetWeapon( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_SetClass( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_SetMovementAutonomy( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_FollowLeader( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_Cvar( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_MovementAutonomy( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_ResetScript( bot_state_t *bs, const char* params );
 
 // Mad Doctor I, 8/12/2002. Add a script function to set a bot as untargettable
-qboolean Bot_ScriptAction_NoTarget( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_NoTarget( bot_state_t *bs, const char* params );
 
 // Mad Doctor I, 8/15/2002. Allow changing the FOV
-qboolean Bot_ScriptAction_SetFieldOfView( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_SetFieldOfView( bot_state_t *bs, const char* params );
 
 // Mad Doctor I, 8/15/2002. Change the hearing range
-qboolean Bot_ScriptAction_SetHearingRange( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_SetHearingRange( bot_state_t *bs, const char* params );
 
 // Mad Doctor I changes, 8/19/2002. Play a sound right where the player is
-qboolean Bot_ScriptAction_PlaySoundAtPlayer( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_PlaySoundAtPlayer( bot_state_t *bs, const char* params );
 
 // xkan, 8/20/2002
-qboolean Bot_ScriptAction_SetCrouch( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_SetProne( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_SetCrouch( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_SetProne( bot_state_t *bs, const char* params );
 
 // Mad Doc - TDF
-qboolean Bot_ScriptAction_PrintAccum( bot_state_t *bs, char *params );
-qboolean Bot_ScriptAction_PrintGlobalAccum( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_PrintAccum( bot_state_t *bs, const char* params );
+qboolean Bot_ScriptAction_PrintGlobalAccum( bot_state_t *bs, const char* params );
 
-qboolean Bot_ScriptAction_SetSpeed( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_SetSpeed( bot_state_t *bs, const char* params );
 
 // Mad Doc - TDF
-qboolean Bot_ScriptAction_BotDebugging( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_BotDebugging( bot_state_t *bs, const char* params );
 
 // Mad Doctor I, 10/23/2002.  Vision range settings.
-qboolean Bot_ScriptAction_SetVisionRange( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_SetVisionRange( bot_state_t *bs, const char* params );
 
 // Mad Doctor I, 10/23/2002.  Range for "spot & report", not attack.
-qboolean Bot_ScriptAction_SetFarSeeingRange( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_SetFarSeeingRange( bot_state_t *bs, const char* params );
 
 // Mad Doctor I, 10/23/2002.  When an enemy is this close, you can sense them outside FOV.
-qboolean Bot_ScriptAction_SetCloseHearingRange( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_SetCloseHearingRange( bot_state_t *bs, const char* params );
 
 // Mad Doctor I, 11/26/2002.  Set an individual bot's speed
-qboolean Bot_ScriptAction_SetSpeedCoefficient( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_SetSpeedCoefficient( bot_state_t *bs, const char* params );
 
 // xkan, 10/23/2002
-qboolean Bot_ScriptAction_SetFireRate( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_SetFireRate( bot_state_t *bs, const char* params );
 // xkan, 12/19/2002
-qboolean Bot_ScriptAction_SetFireCycleTime( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_SetFireCycleTime( bot_state_t *bs, const char* params );
 
 // TAT 11/16/2002 - Set the selected weapon of the bot - does NOT change which weapons the bot is holding
-qboolean Bot_ScriptAction_SetActiveWeapon( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_SetActiveWeapon( bot_state_t *bs, const char* params );
 
 // Gordon: 31/10/02, give players a centerprint message
-qboolean Bot_ScriptAction_Announce( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_Announce( bot_state_t *bs, const char* params );
 
 // TAT 11/21/2002 - From SP, bot will fire at target for duration
-qboolean Bot_ScriptAction_FireAtTarget( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_FireAtTarget( bot_state_t *bs, const char* params );
 
 // TAT 12/6/2002 - script autonomy is used to determine if bots will break their scripted actions to attack or chase
-qboolean Bot_ScriptAction_SetScriptAutonomy( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_SetScriptAutonomy( bot_state_t *bs, const char* params );
 
 // TAT 12/14/2002 - Set how much ammo we have for a particular weapon
 //		Doesn't change the current weapon loadout (which weapons we carry)
-qboolean Bot_ScriptAction_SetAmmoAmount( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_SetAmmoAmount( bot_state_t *bs, const char* params );
 
-qboolean Bot_ScriptAction_SetCivilian( bot_state_t *bs, char *params );
+qboolean Bot_ScriptAction_SetCivilian( bot_state_t *bs, const char* params );
 
 // these are the actions that each event can call
 static bot_script_stack_action_t botScriptActions[] =
@@ -217,8 +217,8 @@ static bot_script_stack_action_t botScriptActions[] =
 	{NULL,                          NULL}
 };
 
-qboolean Bot_EventMatch_StringEqual( bot_script_event_t *event, char *eventParm );
-qboolean Bot_EventMatch_IntInRange( bot_script_event_t *event, char *eventParm );
+qboolean Bot_EventMatch_StringEqual( bot_script_event_t *event, const char *eventParm );
+qboolean Bot_EventMatch_IntInRange( bot_script_event_t *event, const char *eventParm );
 
 // the list of events that can start an action sequence
 // NOTE!!: only append to this list, DO NOT INSERT!!
@@ -274,7 +274,7 @@ int Bot_FindSriptGlobalData( bot_script_data_t *data ) {
 Bot_EventMatch_StringEqual
 ===============
 */
-qboolean Bot_EventMatch_StringEqual( bot_script_event_t *event, char *eventParm ) {
+qboolean Bot_EventMatch_StringEqual( bot_script_event_t *event, const char *eventParm ) {
 	if ( !event->params || !event->params[0] || ( eventParm && !Q_stricmp( event->params, eventParm ) ) ) {
 		return qtrue;
 	} else {
@@ -287,8 +287,9 @@ qboolean Bot_EventMatch_StringEqual( bot_script_event_t *event, char *eventParm 
 Bot_EventMatch_IntInRange
 ===============
 */
-qboolean Bot_EventMatch_IntInRange( bot_script_event_t *event, char *eventParm ) {
-	char *pString, *token;
+qboolean Bot_EventMatch_IntInRange( bot_script_event_t *event, const char *eventParm ) {
+	const char *pString;
+    char* token;
 	int int1, int2, eInt;
 
 	// get the cast name
@@ -400,7 +401,7 @@ Bot_ScriptParseAllCharacters
 ==============
 */
 void Bot_ScriptParseAllCharacters() {
-	char        *pScript;
+	const char        *pScript;
 	char        *token;
 	bot_script_global_data_t *bsd;
 	char params[MAX_TOKEN_CHARS];
@@ -482,7 +483,7 @@ Bot_ScriptParse
   Parses the script for the given character
 ==============
 */
-void Bot_ScriptParse( bot_script_data_t *bsd, char **text ) {
+void Bot_ScriptParse( bot_script_data_t *bsd, const char **text ) {
 	char        *token;
 	qboolean inScript;
 	int eventNum;
@@ -654,11 +655,13 @@ qboolean Bot_ScriptInitBot( int entnum ) {
 	bot_state_t *bs;
 	char userinfo[MAX_INFO_STRING];
 	bot_script_global_data_t *bsgd;
-	char    *token, *p, *pBackup;
+	char    *token;
+    const char* p;
+    const char* pBackup;
 	int i, val = 0;
 	int weapons[2];
 	gitem_t *item = NULL;
-	char    *name;
+	const char    *name;
 	//
 	bs = &botstates[entnum];
 	if ( !bs->inuse ) {
@@ -808,7 +811,7 @@ qboolean Bot_ScriptInitBot( int entnum ) {
 Bot_LineText
 ================
 */
-char *Bot_LineText( char *text ) {
+const char *Bot_LineText( const char *text ) {
 	static char lineText[MAX_TOKEN_CHARS];
 	int len;
 	//
@@ -878,7 +881,7 @@ Bot_ScriptEvent
   An event has occured, for which a script may exist
 ================
 */
-void Bot_ScriptEvent( int entityNum, char *eventStr, char *params ) {
+void Bot_ScriptEvent( int entityNum, const char *eventStr, const char* params ) {
 	int i, eventNum;
 	bot_state_t *bs;
 
@@ -942,7 +945,7 @@ Bot_ForceScriptEvent
   Definately run this event now, overriding any paused state
 ================
 */
-void Bot_ForceScriptEvent( int entityNum, char *eventStr, char *params ) {
+void Bot_ForceScriptEvent( int entityNum, char *eventStr, const char* params ) {
 	int oldPauseTime;
 	bot_state_t *bs;
 
@@ -971,7 +974,7 @@ void Bot_ForceScriptEvent( int entityNum, char *eventStr, char *params ) {
 Bot_TeamScriptEvent
 ================
 */
-void Bot_TeamScriptEvent( int team, char *eventStr, char *params ) {
+void Bot_TeamScriptEvent( int team, const char *eventStr, const char* params ) {
 	int i;
 	bot_state_t *bs;
 	//
@@ -1089,9 +1092,11 @@ int Bot_Script_GetCurrentLine( bot_state_t *bs ) {
 Bot_ScriptLog_Entry
 =================
 */
-void Bot_ScriptLog_Entry( bot_state_t *bs, qboolean showDetails, char *preText, char *fmt, ... ) {
+void Bot_ScriptLog_Entry( bot_state_t *bs, qboolean showDetails, const char *preText, const char *fmt, ... ) {
 	va_list ap;
-	char text[1024], *pStr, *token;
+	char text[1024];
+    const char* pStr;
+    char* token;
 	fileHandle_t f;
 	int i;
 	//

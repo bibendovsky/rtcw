@@ -170,7 +170,7 @@ void G_smvAddView( gentity_t *ent, int pID ) {
 	mv->entID = pID;
 
 	v = mv->camera;
-	v->classname = "misc_portal_surface";
+	v->classname = const_cast<char*>("misc_portal_surface");
 	v->r.svFlags = SVF_PORTAL | SVF_SINGLECLIENT;   // Only merge snapshots for the target client
 	v->r.singleClient = ent->s.number;
 	v->s.eType = ET_PORTAL;

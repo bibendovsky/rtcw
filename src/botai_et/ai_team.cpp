@@ -535,7 +535,7 @@ BotFindDroppedFlag
 */
 qboolean BotFindDroppedFlag( gentity_t **returnEnt ) {
 	gentity_t *ent;
-	char *flagStr[2] = {"team_CTF_redflag", "team_CTF_blueflag"};
+	const char *flagStr[2] = {"team_CTF_redflag", "team_CTF_blueflag"};
 	int i, j;
 	//
 	ent = BotGetEntity( level.maxclients );
@@ -2458,7 +2458,7 @@ qboolean BotClass_LtCheckGiveAmmo( bot_state_t *bs, int maxTravelTime, bot_goal_
 extern void G_Voice( gentity_t *ent, gentity_t *target, int mode, const char *id, qboolean voiceonly );
 
 // NOTE!!! must be in synch with enum table in ai_team.h
-char    *vchat_idstr[] =
+const char    *vchat_idstr[] =
 {
 	"HealMe",
 	"NeedAmmo",
@@ -2873,7 +2873,8 @@ void BotSpawnSpecialEntities( void ) {
 	vmCvar_t cvar_mapname;
 	char keyname[MAX_QPATH];
 	char        *com_token;
-	char string[8192], *pStr;
+	char string[8192];
+    const char* pStr;
 	char filename[MAX_QPATH];
 	int len;
 	fileHandle_t f;

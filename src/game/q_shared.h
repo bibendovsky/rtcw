@@ -854,12 +854,12 @@ int     COM_Compress( char *data_p );
 //void    COM_ParseWarning( char *format, ... ) _attribute( ( format( printf,1,2 ) ) );
 //#endif // RTCW_XX
 
-void COM_ParseError (char* format, ...);
-void COM_ParseWarning (char* format, ...);
+void COM_ParseError (const char* format, ...);
+void COM_ParseWarning (const char* format, ...);
 //BBi
 
 #if defined RTCW_ET
-int Com_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] );
+int Com_ParseInfos( const char *buf, int max, char infos[][MAX_INFO_STRING] );
 #endif // RTCW_XX
 
 //BBi

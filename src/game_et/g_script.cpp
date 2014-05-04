@@ -50,103 +50,103 @@ vmCvar_t g_scriptDebug;
 //====================================================================
 //
 // action functions need to be declared here so they can be accessed in the scriptAction table
-qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Wait( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Trigger( gentity_t *ent, char *params );
-qboolean G_ScriptAction_PlaySound( gentity_t *ent, char *params );
-qboolean G_ScriptAction_PlayAnim( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AlertEntity( gentity_t *ent, char *params );
-qboolean G_ScriptAction_ToggleSpeaker( gentity_t *ent, char *params );
-qboolean G_ScriptAction_DisableSpeaker( gentity_t *ent, char *params );
-qboolean G_ScriptAction_EnableSpeaker( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Accum( gentity_t *ent, char *params );
-qboolean G_ScriptAction_GlobalAccum( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Print( gentity_t *ent, char *params );
-qboolean G_ScriptAction_FaceAngles( gentity_t *ent, char *params );
-qboolean G_ScriptAction_ResetScript( gentity_t *ent, char *params );
-qboolean G_ScriptAction_TagConnect( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Halt( gentity_t *ent, char *params );
-qboolean G_ScriptAction_StopSound( gentity_t *ent, char *params );
+qboolean G_ScriptAction_GotoMarker( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Wait( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Trigger( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_PlaySound( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_PlayAnim( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_AlertEntity( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_ToggleSpeaker( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_DisableSpeaker( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_EnableSpeaker( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Accum( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_GlobalAccum( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Print( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_FaceAngles( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_ResetScript( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_TagConnect( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Halt( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_StopSound( gentity_t *ent, const char* params );
 //qboolean G_ScriptAction_StartCam( gentity_t *ent, char *params );
-qboolean G_ScriptAction_EntityScriptName( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AIScriptName( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AxisRespawntime( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AlliedRespawntime( gentity_t *ent, char *params );
-qboolean G_ScriptAction_NumberofObjectives( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetWinner( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetDefendingTeam( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Announce( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Announce_Icon( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AddTeamVoiceAnnounce( gentity_t *ent, char *params );
-qboolean G_ScriptAction_RemoveTeamVoiceAnnounce( gentity_t *ent, char *params );
-qboolean G_ScriptAction_TeamVoiceAnnounce( gentity_t *ent, char *params );
-qboolean G_ScriptAction_EndRound( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetRoundTimelimit( gentity_t *ent, char *params );
-qboolean G_ScriptAction_RemoveEntity( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetState( gentity_t *ent, char *params );
-qboolean G_ScriptAction_VoiceAnnounce( gentity_t *ent, char *params );
-qboolean G_ScriptAction_FollowSpline( gentity_t *ent, char *params );
-qboolean G_ScriptAction_FollowPath( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AbortMove( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetSpeed( gentity_t* ent, char *params );
-qboolean G_ScriptAction_SetRotation( gentity_t* ent, char *params );
-qboolean G_ScriptAction_StopRotation( gentity_t* ent, char *params );
-qboolean G_ScriptAction_StartAnimation( gentity_t* ent, char *params );
-qboolean G_ScriptAction_AttatchToTrain( gentity_t* ent, char *params );
-qboolean G_ScriptAction_FreezeAnimation( gentity_t* ent, char *params );
-qboolean G_ScriptAction_UnFreezeAnimation( gentity_t* ent, char *params );
-qboolean G_ScriptAction_ShaderRemap( gentity_t* ent, char *params );
-qboolean G_ScriptAction_ShaderRemapFlush( gentity_t* ent, char *params );
-qboolean G_ScriptAction_ChangeModel( gentity_t* ent, char *params );
-qboolean G_ScriptAction_SetChargeTimeFactor( gentity_t* ent, char *params );
-qboolean G_ScriptAction_SetDamagable( gentity_t *ent, char *params );
-qboolean G_ScriptAction_StartCam( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetInitialCamera( gentity_t *ent, char *params );
-qboolean G_ScriptAction_StopCam( gentity_t *ent, char *params );
-qboolean G_ScriptAction_RepairMG42( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetHQStatus( gentity_t *ent, char *params );
-qboolean G_ScriptAction_PrintAccum( gentity_t *ent, char *params );
-qboolean G_ScriptAction_PrintGlobalAccum( gentity_t *ent, char *params );
-qboolean G_ScriptAction_RemoveBot( gentity_t *ent, char *params );
-qboolean G_ScriptAction_BotDebugging( gentity_t *ent, char *params );
-qboolean G_ScriptAction_ObjectiveStatus( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetModelFromBrushmodel( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetPosition( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetAutoSpawn( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetMainObjective( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SpawnRubble( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AllowTankExit( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AllowTankEnter( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetTankAmmo( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AddTankAmmo( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Kill( gentity_t *ent, char *params );
-qboolean G_ScriptAction_DisableMessage( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetGlobalFog( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SpawnBot( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Cvar( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AbortIfWarmup( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AbortIfNotSinglePlayer( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MusicStart( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MusicPlay( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MusicStop( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MusicQueue( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MusicFade( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetDebugLevel( gentity_t *ent, char *params );
-qboolean G_ScriptAction_FadeAllSounds( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetBotGoalState( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetBotGoalPriority( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetAASState( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Construct( gentity_t *ent, char *params ) ;
-qboolean G_ScriptAction_ConstructibleClass( gentity_t *ent, char *params ) ;
-qboolean G_ScriptAction_ConstructibleChargeBarReq( gentity_t *ent, char *params ) ;
-qboolean G_ScriptAction_ConstructibleConstructXPBonus( gentity_t *ent, char *params ) ;
-qboolean G_ScriptAction_ConstructibleDestructXPBonus( gentity_t *ent, char *params ) ;
-qboolean G_ScriptAction_ConstructibleHealth( gentity_t *ent, char *params ) ;
-qboolean G_ScriptAction_ConstructibleWeaponclass( gentity_t *ent, char *params ) ;
-qboolean G_ScriptAction_ConstructibleDuration( gentity_t *ent, char *params ) ;
+qboolean G_ScriptAction_EntityScriptName( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_AIScriptName( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_AxisRespawntime( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_AlliedRespawntime( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_NumberofObjectives( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetWinner( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetDefendingTeam( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Announce( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Announce_Icon( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_AddTeamVoiceAnnounce( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_RemoveTeamVoiceAnnounce( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_TeamVoiceAnnounce( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_EndRound( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetRoundTimelimit( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_RemoveEntity( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetState( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_VoiceAnnounce( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_FollowSpline( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_FollowPath( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_AbortMove( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetSpeed( gentity_t* ent, const char* params );
+qboolean G_ScriptAction_SetRotation( gentity_t* ent, const char* params );
+qboolean G_ScriptAction_StopRotation( gentity_t* ent, const char* params );
+qboolean G_ScriptAction_StartAnimation( gentity_t* ent, const char* params );
+qboolean G_ScriptAction_AttatchToTrain( gentity_t* ent, const char* params );
+qboolean G_ScriptAction_FreezeAnimation( gentity_t* ent, const char* params );
+qboolean G_ScriptAction_UnFreezeAnimation( gentity_t* ent, const char* params );
+qboolean G_ScriptAction_ShaderRemap( gentity_t* ent, const char* params );
+qboolean G_ScriptAction_ShaderRemapFlush( gentity_t* ent, const char* params );
+qboolean G_ScriptAction_ChangeModel( gentity_t* ent, const char* params );
+qboolean G_ScriptAction_SetChargeTimeFactor( gentity_t* ent, const char* params );
+qboolean G_ScriptAction_SetDamagable( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_StartCam( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetInitialCamera( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_StopCam( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_RepairMG42( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetHQStatus( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_PrintAccum( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_PrintGlobalAccum( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_RemoveBot( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_BotDebugging( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_ObjectiveStatus( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetModelFromBrushmodel( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetPosition( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetAutoSpawn( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetMainObjective( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SpawnRubble( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_AllowTankExit( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_AllowTankEnter( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetTankAmmo( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_AddTankAmmo( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Kill( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_DisableMessage( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetGlobalFog( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SpawnBot( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Cvar( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_AbortIfWarmup( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_AbortIfNotSinglePlayer( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_MusicStart( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_MusicPlay( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_MusicStop( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_MusicQueue( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_MusicFade( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetDebugLevel( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_FadeAllSounds( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetBotGoalState( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetBotGoalPriority( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_SetAASState( gentity_t *ent, const char* params );
+qboolean G_ScriptAction_Construct( gentity_t *ent, const char* params ) ;
+qboolean G_ScriptAction_ConstructibleClass( gentity_t *ent, const char* params ) ;
+qboolean G_ScriptAction_ConstructibleChargeBarReq( gentity_t *ent, const char* params ) ;
+qboolean G_ScriptAction_ConstructibleConstructXPBonus( gentity_t *ent, const char* params ) ;
+qboolean G_ScriptAction_ConstructibleDestructXPBonus( gentity_t *ent, const char* params ) ;
+qboolean G_ScriptAction_ConstructibleHealth( gentity_t *ent, const char* params ) ;
+qboolean G_ScriptAction_ConstructibleWeaponclass( gentity_t *ent, const char* params ) ;
+qboolean G_ScriptAction_ConstructibleDuration( gentity_t *ent, const char* params ) ;
 
 //bani
-qboolean etpro_ScriptAction_SetValues( gentity_t *ent, char *params );
+qboolean etpro_ScriptAction_SetValues( gentity_t *ent, const char* params );
 
 // these are the actions that each event can call
 g_script_stack_action_t gScriptActions[] =
@@ -259,8 +259,8 @@ g_script_stack_action_t gScriptActions[] =
 	{NULL,                              NULL}
 };
 
-qboolean G_Script_EventMatch_StringEqual( g_script_event_t *event, char *eventParm );
-qboolean G_Script_EventMatch_IntInRange( g_script_event_t *event, char *eventParm );
+qboolean G_Script_EventMatch_StringEqual( g_script_event_t *event, const char *eventParm );
+qboolean G_Script_EventMatch_IntInRange( g_script_event_t *event, const char *eventParm );
 
 // the list of events that can start an action sequence
 g_script_event_define_t gScriptEvents[] =
@@ -291,7 +291,7 @@ g_script_event_define_t gScriptEvents[] =
 G_Script_EventMatch_StringEqual
 ===============
 */
-qboolean G_Script_EventMatch_StringEqual( g_script_event_t *event, char *eventParm ) {
+qboolean G_Script_EventMatch_StringEqual( g_script_event_t *event, const char *eventParm ) {
 	if ( eventParm && !Q_stricmp( event->params, eventParm ) ) {
 		return qtrue;
 	} else {
@@ -304,8 +304,9 @@ qboolean G_Script_EventMatch_StringEqual( g_script_event_t *event, char *eventPa
 G_Script_EventMatch_IntInRange
 ===============
 */
-qboolean G_Script_EventMatch_IntInRange( g_script_event_t *event, char *eventParm ) {
-	char *pString, *token;
+qboolean G_Script_EventMatch_IntInRange( g_script_event_t *event, const char *eventParm ) {
+	const char *pString;
+    char* token;
 	int int1, int2, eInt;
 
 	// get the cast name
@@ -428,7 +429,7 @@ G_Script_ParseSpawnbot
   Parses "Spawnbot" command, precaching a custom character if specified
 ==============
 */
-void G_Script_ParseSpawnbot( char **ppScript, char params[], int paramsize ) {
+void G_Script_ParseSpawnbot( const char **ppScript, char params[], int paramsize ) {
 	qboolean parsingCharacter = qfalse;
 	char        *token;
 
@@ -487,7 +488,7 @@ G_Script_ScriptParse
 ==============
 */
 void G_Script_ScriptParse( gentity_t *ent ) {
-	char        *pScript;
+	const char        *pScript;
 	char        *token;
 	qboolean wantName;
 	qboolean inScript;
@@ -772,7 +773,7 @@ G_Script_GetEventIndex
   xkan, 10/28/2002 - extracted from G_Script_ScriptEvent.
 ================
 */
-int G_Script_GetEventIndex( gentity_t *ent, char *eventStr, char *params ) {
+int G_Script_GetEventIndex( gentity_t *ent, const char *eventStr, const char* params ) {
 	int i, eventNum = -1;
 
 	int hash = BG_StringHashValue_Lwr( eventStr );
@@ -816,7 +817,7 @@ G_Script_ScriptEvent
   An event has occured, for which a script may exist
 ================
 */
-void G_Script_ScriptEvent( gentity_t *ent, char *eventStr, char *params ) {
+void G_Script_ScriptEvent( gentity_t *ent, const char *eventStr, const char* params ) {
 	int i = G_Script_GetEventIndex( ent, eventStr, params );
 
 	if ( i >= 0 ) {

@@ -498,7 +498,7 @@ argv(0) god
 ==================
 */
 void Cmd_God_f( gentity_t *ent ) {
-	char    *msg;
+	const char    *msg;
 	char    *name;
 	qboolean godAll = qfalse;
 
@@ -573,7 +573,7 @@ argv(0) nofatigue
 */
 
 void Cmd_Nofatigue_f( gentity_t *ent ) {
-	char    *msg;
+	const char    *msg;
 
 	char    *name = ConcatArgs( 1 );
 
@@ -608,7 +608,7 @@ argv(0) notarget
 ==================
 */
 void Cmd_Notarget_f( gentity_t *ent ) {
-	char    *msg;
+	const char    *msg;
 
 	if ( !CheatsOk( ent ) ) {
 		return;
@@ -633,7 +633,7 @@ argv(0) noclip
 ==================
 */
 void Cmd_Noclip_f( gentity_t *ent ) {
-	char    *msg;
+	const char    *msg;
 
 	char    *name = ConcatArgs( 1 );
 
@@ -718,7 +718,7 @@ void G_TeamDataForString( const char* teamstr, int clientNum, team_t* team, spec
 SetTeam
 =================
 */
-qboolean SetTeam( gentity_t *ent, char *s, qboolean force, weapon_t w1, weapon_t w2, qboolean setweapons ) {
+qboolean SetTeam( gentity_t *ent, const char *s, qboolean force, weapon_t w1, weapon_t w2, qboolean setweapons ) {
 	team_t team, oldTeam;
 	gclient_t           *client;
 	int clientNum;
@@ -1133,7 +1133,7 @@ void Cmd_Team_f( gentity_t *ent, unsigned int dwCommand, qboolean fValue ) {
 	weapon_t w, w2;
 
 	if ( trap_Argc() < 2 ) {
-		char *pszTeamName;
+		const char *pszTeamName;
 
 		switch ( ent->client->sess.sessionTeam ) {
 		case TEAM_ALLIES:
@@ -1219,7 +1219,7 @@ void Cmd_TeamBot_f( gentity_t *foo ) {
 	char ptype[4], weap[4], fireteam[4];
 	char entNumStr[4];
 	int entNum;
-	char *weapon;
+	const char *weapon;
 	char weaponBuf[MAX_INFO_STRING];
 	char userinfo[MAX_INFO_STRING];
 
@@ -1562,7 +1562,7 @@ extern void BotRecordVoiceChat( int client, int destclient, const char *id, int 
 // NERVE - SMF
 void G_VoiceTo( gentity_t *ent, gentity_t *other, int mode, const char *id, qboolean voiceonly ) {
 	int color;
-	char *cmd;
+	const char *cmd;
 
 	if ( !other ) {
 		return;
@@ -1910,7 +1910,7 @@ qboolean Cmd_CallVote_f( gentity_t *ent, unsigned int dwCommand, qboolean fRefCo
 	trap_Argv( 2, arg2, sizeof( arg2 ) );
 
 	if ( strchr( arg1, ';' ) || strchr( arg2, ';' ) ) {
-		char *strCmdBase = ( !fRefCommand ) ? "vote" : "ref command";
+		const char *strCmdBase = ( !fRefCommand ) ? "vote" : "ref command";
 
 		G_refPrintf( ent, "Invalid %s string.", strCmdBase );
 		return( qfalse );
@@ -2411,7 +2411,7 @@ void Cmd_SetCameraOrigin_f( gentity_t *ent ) {
 	}
 }
 
-extern gentity_t *BotFindEntityForName( char *name );
+extern gentity_t *BotFindEntityForName( const char *name );
 
 /*
 ==============
@@ -3005,7 +3005,7 @@ void Cmd_SetSniperSpot_f( gentity_t *clent ) {
 	}
 	// drop a sniper spot here
 	spot = G_Spawn();
-	spot->classname = "bot_sniper_spot";
+	spot->classname = const_cast<char*>("bot_sniper_spot");
 	VectorCopy( clent->r.currentOrigin, spot->s.origin );
 	VectorCopy( clent->client->ps.viewangles, spot->s.angles );
 	spot->aiTeam = clent->client->sess.sessionTeam;

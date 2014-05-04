@@ -420,7 +420,8 @@ void G_InitWorldSession( void ) {
 	}
 
 	for ( i = 0; i < MAX_FIRETEAMS; i++ ) {
-		char *p, *c;
+		const char *p;
+        const char* c;
 
 		trap_Cvar_VariableStringBuffer( va( "fireteam%i", i ), s, sizeof( s ) );
 
@@ -453,7 +454,7 @@ void G_InitWorldSession( void ) {
 			c = p;
 			for ( c = strchr( c, ' ' ) + 1; c && *c; ) {
 				char str[8];
-				char* l = strchr( c, ' ' );
+				const char* l = strchr( c, ' ' );
 				if ( !l ) {
 					break;
 				}

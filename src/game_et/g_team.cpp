@@ -149,7 +149,7 @@ void Team_FragBonuses( gentity_t *targ, gentity_t *inflictor, gentity_t *attacke
 	int flag_pw, enemy_flag_pw;
 	int otherteam;
 	gentity_t *flag, *carrier = NULL;
-	char *c;
+	const char *c;
 	vec3_t v1, v2;
 	int team;
 
@@ -724,7 +724,7 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team, int spawnObje
 	int count, closest, defendingTeam;
 	int i = 0;
 
-	char        *classname;
+	const char        *classname;
 	float shortest, tmp;
 
 	vec3_t target;
@@ -1584,7 +1584,7 @@ int Team_ClassForString( char *string ) {
 }
 
 // OSP
-char *aTeams[TEAM_NUM_TEAMS] = { "FFA", "^1Axis^7", "^4Allies^7", "Spectators" };
+const char *aTeams[TEAM_NUM_TEAMS] = { "FFA", "^1Axis^7", "^4Allies^7", "Spectators" };
 team_info teamInfo[TEAM_NUM_TEAMS];
 
 

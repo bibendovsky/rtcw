@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "g_local.h"
 
-char *hintStrings[HINT_NUM_HINTS] = {
+const char *hintStrings[HINT_NUM_HINTS] = {
 	"",                  // HINT_NONE
 	"HINT_NONE",     // actually HINT_FORCENONE, but since this is being specified in the ent, the designer actually means HINT_FORCENONE
 	"HINT_PLAYER",
@@ -5072,7 +5072,7 @@ void func_constructiblespawn( gentity_t *ent ) {
 				e = G_Spawn();
 
 				e->r.svFlags = SVF_BROADCAST;
-				e->classname = "explosive_indicator";
+				e->classname = const_cast<char*>("explosive_indicator");
 				{
 					gentity_t* tent = NULL;
 					e->s.eType = ET_EXPLOSIVE_INDICATOR;

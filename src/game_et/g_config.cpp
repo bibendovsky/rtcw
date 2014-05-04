@@ -46,8 +46,8 @@ If you have questions concerning this license or the applicable additional terms
 
 typedef struct {
 	int modes;
-	char *cvar_name;
-	char *cvar_value;
+	const char *cvar_name;
+	const char *cvar_value;
 } modeCvarTable_t;
 
 static const modeCvarTable_t aCompSettings[] = {

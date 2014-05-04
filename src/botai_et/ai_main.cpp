@@ -81,7 +81,7 @@ vmCvar_t bot_findgoal;
 BotAI_Print
 ==================
 */
-void QDECL BotAI_Print( int type, char *fmt, ... ) {
+void QDECL BotAI_Print( int type, const char *fmt, ... ) {
 	char str[2048];
 	va_list ap;
 
@@ -210,7 +210,7 @@ int BotAI_GetSnapshotEntity( int clientNum, int sequence, entityState_t *state )
 BotAI_BotInitialChat
 ==================
 */
-void QDECL BotAI_BotInitialChat( bot_state_t *bs, char *type, ... ) {
+void QDECL BotAI_BotInitialChat( bot_state_t *bs, const char *type, ... ) {
 	int i, mcontext;
 	va_list ap;
 	char    *p;
@@ -946,7 +946,7 @@ int g_botDefaultValueCount = 0;
 //
 void ParseBotDefaultAttributes
 (
-	char *fileName
+	const char *fileName
 ) {
 	// Local Variables ////////////////////////////////////////////////////////
 
@@ -967,7 +967,7 @@ void ParseBotDefaultAttributes
 
 	// file data
 	char data[MAX_BOT_DEFAULT_FILE_SIZE];
-	char **p, *ptr;
+	const char **p, *ptr;
 	char *token;
 
 	// Level of autonomy setting
@@ -2199,7 +2199,7 @@ gentity_t *BotCheckBotGameEntity( gentity_t *ent )
 }
 */
 
-gentity_t *BotFindEntity( gentity_t *from, int fieldofs, char *match ) {
+gentity_t *BotFindEntity( gentity_t *from, int fieldofs, const char *match ) {
 	return G_Find( from, fieldofs, match );
 }
 
@@ -2266,7 +2266,7 @@ gentity_t *BotGetEntity( int entityNum ) {
 //	Used to speed up searching of common entities
 //	!!! NOTE: must be in synch with enum list in ai_main.h
 
-char *botStaticEntityStrings[NUM_BOTSTATICENTITY] = {
+const char *botStaticEntityStrings[NUM_BOTSTATICENTITY] = {
 	"team_WOLF_checkpoint",
 	"trigger_flagonly",
 	"misc_mg42",
@@ -2345,7 +2345,7 @@ gentity_t *BotFindNextStaticEntity( gentity_t *start, botStaticEntityEnum_t enti
 BotFindEntityForName
 ===============
 */
-gentity_t *BotFindEntityForName( char *name ) {
+gentity_t *BotFindEntityForName( const char *name ) {
 	gentity_t *trav;
 	int i;
 

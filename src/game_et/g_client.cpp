@@ -74,7 +74,7 @@ these are start points /after/ the level start
 the letter (a b c d) designates the checkpoint that needs to be complete in order to use this start position
 */
 void SP_info_player_checkpoint( gentity_t *ent ) {
-	ent->classname = "info_player_checkpoint";
+	ent->classname = const_cast<char*>("info_player_checkpoint");
 	SP_info_player_deathmatch( ent );
 }
 
@@ -85,7 +85,7 @@ void SP_info_player_checkpoint( gentity_t *ent ) {
 equivelant to info_player_deathmatch
 */
 void SP_info_player_start( gentity_t *ent ) {
-	ent->classname = "info_player_deathmatch";
+	ent->classname = const_cast<char*>("info_player_deathmatch");
 	SP_info_player_deathmatch( ent );
 }
 
@@ -299,7 +299,7 @@ void InitBodyQue( void ) {
 	level.bodyQueIndex = 0;
 	for ( i = 0; i < BODY_QUEUE_SIZE ; i++ ) {
 		ent = G_Spawn();
-		ent->classname = "bodyque";
+		ent->classname = const_cast<char*>("bodyque");
 		ent->neverFree = qtrue;
 		level.bodyQue[i] = ent;
 	}
@@ -391,7 +391,7 @@ void CopyToBodyQue( gentity_t *ent ) {
 	}
 
 	body->s.eType = ET_CORPSE;
-	body->classname = "corpse";
+	body->classname = const_cast<char*>("corpse");
 	body->s.powerups = 0;   // clear powerups
 	body->s.loopSound = 0;  // clear lava burning
 	body->s.number = body - g_entities;
@@ -596,9 +596,10 @@ reinforce
 */
 void reinforce( gentity_t *ent ) {
 	int p, team; // numDeployable=0, finished=0; // TTimo unused
-	char *classname;
+	const char *classname;
 	gclient_t *rclient;
-	char userinfo[MAX_INFO_STRING], *respawnStr;
+	char userinfo[MAX_INFO_STRING];
+    const char* respawnStr;
 
 	if ( ent->r.svFlags & SVF_BOT ) {
 		trap_GetUserinfo( ent->s.number, userinfo, sizeof( userinfo ) );
@@ -1298,7 +1299,7 @@ if desired.
 */
 void ClientUserinfoChanged( int clientNum ) {
 	gentity_t *ent;
-	char    *s;
+	const char    *s;
 	char oldname[MAX_STRING_CHARS];
 	char userinfo[MAX_INFO_STRING];
 	gclient_t   *client;
@@ -1481,8 +1482,8 @@ to the server machine, but qfalse on map changes and tournement
 restarts.
 ============
 */
-char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
-	char        *value;
+const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
+	const char        *value;
 	gclient_t   *client;
 	char userinfo[MAX_INFO_STRING];
 	gentity_t   *ent;
@@ -1592,7 +1593,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 			Q_strncpyz( client->pers.botScriptName, value, sizeof( client->pers.botScriptName ) );
 			ent->scriptName = client->pers.botScriptName;
 		}
-		ent->aiName = ent->scriptName;
+		ent->aiName = const_cast<char*>(ent->scriptName);
 		ent->s.number = clientNum;
 
 		ent->r.svFlags |= SVF_BOT;
@@ -1639,7 +1640,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 // START	Mad Doctor I changes, 8/14/2002
 			// We must store this here, so that BotFindEntityForName can find the
 			// player.
-			ent->aiName = "player";
+			ent->aiName = const_cast<char*>("player");
 // END		Mad Doctor I changes, 8/12/2002
 
 			G_Script_ScriptParse( ent );
@@ -1802,7 +1803,7 @@ void ClientBegin( int clientNum ) {
 	// Xian - Check for maxlives enforcement
 	if ( g_gametype.integer != GT_WOLF_LMS ) {
 		if ( g_enforcemaxlives.integer == 1 && ( g_maxlives.integer > 0 || g_axismaxlives.integer > 0 || g_alliedmaxlives.integer > 0 ) ) {
-			char *value;
+			const char *value;
 			char userinfo[MAX_INFO_STRING];
 			trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 			value = Info_ValueForKey( userinfo, "cl_guid" );
@@ -1828,7 +1829,8 @@ void ClientBegin( int clientNum ) {
 }
 
 gentity_t *SelectSpawnPointFromList( char *list, vec3_t spawn_origin, vec3_t spawn_angles ) {
-	char *pStr, *token;
+    const char* pStr;
+    char* token;
 	gentity_t   *spawnPoint = NULL, *trav;
 	#define MAX_SPAWNPOINTFROMLIST_POINTS   16
 	int valid[MAX_SPAWNPOINTFROMLIST_POINTS];
@@ -2023,9 +2025,9 @@ void ClientSpawn( gentity_t *ent, qboolean revived ) {
 	ent->takedamage = qtrue;
 	ent->inuse = qtrue;
 	if ( ent->r.svFlags & SVF_BOT ) {
-		ent->classname = "bot";
+		ent->classname = const_cast<char*>("bot");
 	} else {
-		ent->classname = "player";
+		ent->classname = const_cast<char*>("player");
 	}
 	ent->r.contents = CONTENTS_BODY;
 
@@ -2384,7 +2386,7 @@ void ClientDisconnect( int clientNum ) {
 	trap_UnlinkEntity( ent );
 	ent->s.modelindex = 0;
 	ent->inuse = qfalse;
-	ent->classname = "disconnected";
+	ent->classname = const_cast<char*>("disconnected");
 	ent->client->pers.connected = CON_DISCONNECTED;
 	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
 	i = ent->client->sess.sessionTeam;
