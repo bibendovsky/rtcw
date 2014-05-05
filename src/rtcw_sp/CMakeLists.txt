@@ -292,11 +292,11 @@ set_target_properties(
     RUNTIME_OUTPUT_DIRECTORY ${RTCW_SP_BIN_DIR}
 )
 
-if (WIN32)
+if (MINGW)
 set_target_properties(
     ${RTCW_TARGET}
     PROPERTIES
-    WIN32_EXECUTABLE TRUE
+    LINK_FLAGS -static -static-libgcc -static-libstdc++
 )
 endif ()
 
@@ -305,5 +305,13 @@ set_target_properties(
     ${RTCW_TARGET}
     PROPERTIES
     LINK_FLAGS /STACK:8388608
+)
+endif ()
+
+if (WIN32)
+set_target_properties(
+    ${RTCW_TARGET}
+    PROPERTIES
+    WIN32_EXECUTABLE TRUE
 )
 endif ()

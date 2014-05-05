@@ -122,7 +122,8 @@ set(
 endif ()
 
 add_library(
-    ${RTCW_TARGET} SHARED
+    ${RTCW_TARGET}
+    SHARED
     ${RTCW_HEADERS}
     ${RTCW_SOURCES}
     ${RTCW_EXTRA_SOURCES}
@@ -135,3 +136,11 @@ set_target_properties(
     OUTPUT_NAME qagame_mp_x86
     RUNTIME_OUTPUT_DIRECTORY ${RTCW_ET_BIN_DIR}
 )
+
+if (MINGW)
+set_target_properties(
+    ${RTCW_TARGET}
+    PROPERTIES
+    LINK_FLAGS -static -static-libgcc -static-libstdc++
+)
+endif ()
