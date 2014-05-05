@@ -256,12 +256,19 @@ add_executable(
     ${RTCW_EXTRA_SOURCES}
 )
 
+if (MINGW)
+target_link_libraries(
+    ${RTCW_TARGET}
+    mingw32
+)
+endif ()
+
 target_link_libraries(
     ${RTCW_TARGET}
     ${GLEW_LIBRARY}
     ${JPEG_LIBRARY}
-    ${SDL_LIBRARY}
     ${SDLMAIN_LIBRARY}
+    ${SDL_LIBRARY}
     ${ZLIB_LIBRARY}
 )
 
@@ -280,6 +287,14 @@ set_target_properties(
     OUTPUT_NAME rtcw_mp_x86
     RUNTIME_OUTPUT_DIRECTORY ${RTCW_MP_BIN_DIR}
 )
+
+if (WIN32)
+set_target_properties(
+    ${RTCW_TARGET}
+    PROPERTIES
+    WIN32_EXECUTABLE TRUE
+)
+endif ()
 
 if (MSVC)
 set_target_properties(

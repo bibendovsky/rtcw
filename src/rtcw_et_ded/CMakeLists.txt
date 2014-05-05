@@ -199,10 +199,17 @@ add_executable(
     ${RTCW_EXTRA_SOURCES}
 )
 
+if (MINGW)
 target_link_libraries(
     ${RTCW_TARGET}
-    ${SDL_LIBRARY}
+    mingw32
+)
+endif ()
+
+target_link_libraries(
+    ${RTCW_TARGET}
     ${SDLMAIN_LIBRARY}
+    ${SDL_LIBRARY}
     ${ZLIB_LIBRARY}
 )
 
@@ -221,6 +228,14 @@ set_target_properties(
     OUTPUT_NAME rtcw_et_ded_x86
     RUNTIME_OUTPUT_DIRECTORY ${RTCW_ET_BIN_DIR}
 )
+
+if (WIN32)
+set_target_properties(
+    ${RTCW_TARGET}
+    PROPERTIES
+    WIN32_EXECUTABLE TRUE
+)
+endif ()
 
 if (MSVC)
 set_target_properties(
