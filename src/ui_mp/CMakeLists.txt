@@ -60,14 +60,14 @@ set_target_properties(
     ${RTCW_TARGET}
     PROPERTIES
     PREFIX ""
-    OUTPUT_NAME ui_mp_x86
-    RUNTIME_OUTPUT_DIRECTORY ${RTCW_MP_BIN_DIR}
+    OUTPUT_NAME "ui_mp_x86"
+    RUNTIME_OUTPUT_DIRECTORY "${RTCW_MP_BIN_DIR}"
 )
 
 if (MINGW)
 set_target_properties(
     ${RTCW_TARGET}
     PROPERTIES
-    LINK_FLAGS -static -static-libgcc -static-libstdc++
+    LINK_FLAGS "-static -static-libgcc -static-libstdc++"
 )
 endif ()

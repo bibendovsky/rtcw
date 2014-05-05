@@ -288,15 +288,15 @@ endif ()
 set_target_properties(
     ${RTCW_TARGET}
     PROPERTIES
-    OUTPUT_NAME rtcw_sp_x86
-    RUNTIME_OUTPUT_DIRECTORY ${RTCW_SP_BIN_DIR}
+    OUTPUT_NAME "rtcw_sp_x86"
+    RUNTIME_OUTPUT_DIRECTORY "${RTCW_SP_BIN_DIR}"
 )
 
 if (MINGW)
 set_target_properties(
     ${RTCW_TARGET}
     PROPERTIES
-    LINK_FLAGS -static -static-libgcc -static-libstdc++
+    LINK_FLAGS "-static -static-libgcc -static-libstdc++"
 )
 endif ()
 
@@ -304,7 +304,7 @@ if (MSVC)
 set_target_properties(
     ${RTCW_TARGET}
     PROPERTIES
-    LINK_FLAGS /STACK:8388608
+    LINK_FLAGS "/STACK:8388608"
 )
 endif ()
 
