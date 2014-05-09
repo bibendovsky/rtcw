@@ -78,6 +78,8 @@ set(
     ../qcommon/rtcw_c.h
     ../qcommon/rtcw_mod_value.h
     ../renderer/anorms256.h
+    ../renderer/rtcw_jpeg_reader.h
+    ../renderer/rtcw_jpeg_writer.h
     ../renderer/rtcw_ogl_tess_state.h
     ../renderer/rtcw_ogl_tess_program.h
     ../renderer/rtcw_ogl_matrix_stack.h
@@ -185,6 +187,8 @@ set(
     ../client/snd_mem.cpp
     ../client/snd_mix.cpp
     ../client/snd_wavelet.cpp
+    ../renderer/rtcw_jpeg_reader.cpp
+    ../renderer/rtcw_jpeg_writer.cpp
     ../renderer/rtcw_ogl_tess_state.cpp
     ../renderer/rtcw_ogl_tess_program.cpp
     ../renderer/rtcw_ogl_matrix_stack.cpp

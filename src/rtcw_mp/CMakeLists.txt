@@ -75,6 +75,8 @@ set(
     ../qcommon/cm_public.h
     ../game/g_public.h
     ../renderer/anorms256.h
+    ../renderer/rtcw_jpeg_reader.h
+    ../renderer/rtcw_jpeg_writer.h
     ../renderer/rtcw_ogl_matrix_stack.h
     ../renderer/rtcw_ogl_program.h
     ../renderer/rtcw_ogl_tess_program.h
@@ -181,6 +183,8 @@ set(
     ../client/snd_mem.cpp
     ../client/snd_mix.cpp
     ../client/snd_wavelet.cpp
+    ../renderer/rtcw_jpeg_reader.cpp
+    ../renderer/rtcw_jpeg_writer.cpp
     ../renderer/rtcw_ogl_matrix_stack.cpp
     ../renderer/rtcw_ogl_program.cpp
     ../renderer/rtcw_ogl_tess_program.cpp
