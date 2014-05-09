@@ -80,12 +80,7 @@ static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
 		::glTexCoord2fv( tess.svars.texcoords[ 0 ][ index ] );
 	}
 
-#if !defined RTCW_ET
-	::glVertex3fv( tess.xyz[ index ] );
-#else
-	::glVertex3fv( tess.xyz[ index ].v );
-#endif // RTCW_XX
-
+	glVertex3fv( tess.xyz[ index ].v );
 }
 
 /*
@@ -767,24 +762,19 @@ static void DrawNormals( shaderCommands_t *input ) {
         glm::vec4 n;
 
         for (i = 0; i < input->numVertexes; ++i) {
-#if !defined RTCW_ET
-            ogl_tess2.position[index + 0] =
-                *reinterpret_cast<const glm::vec4*> (input->xyz[i]);
-
-            n = *reinterpret_cast<const glm::vec4*> (input->normal[i]);
-
-            ogl_tess2.position[index + 1] =
-                ogl_tess2.position[index + 0] + (2 * n);
-#else
+// FIXME Create cvar r_normallength for all projects
             ogl_tess2.position[index + 0] =
                 *reinterpret_cast<const glm::vec4*> (input->xyz[i].v);
 
             n = *reinterpret_cast<const glm::vec4*> (input->normal[i].v);
 
+#if !defined RTCW_ET
+            ogl_tess2.position[index + 1] =
+                ogl_tess2.position[index + 0] + (2 * n);
+#else
             ogl_tess2.position[index + 1] =
                 ogl_tess2.position[index + 0] + (r_normallength->value * n);
-#endif // RTCW_XX
-
+#endif // RTCW_X
             index += 2;
         }
 
@@ -795,14 +785,13 @@ static void DrawNormals( shaderCommands_t *input ) {
 	::glBegin( GL_LINES );
 
 	for ( i = 0 ; i < input->numVertexes ; i++ ) {
-
+// FIXME Create cvar r_normallength for all projects
+        glVertex3fv(input->xyz[i].v);
 #if !defined RTCW_ET
-		::glVertex3fv( input->xyz[i] );
-		VectorMA( input->xyz[i], 2, input->normal[i], temp );
+        VectorMA(input->xyz[i].v, 2, input->normal[i].v, temp);
 #else
-			::glVertex3fv( input->xyz[i].v );
-			VectorMA( input->xyz[i].v, r_normallength->value, input->normal[i].v, temp );
-#endif // RTCW_XX
+        VectorMA(input->xyz[i].v, r_normallength->value, input->normal[i].v, temp);
+#endif // RTCW_X
 
 		::glVertex3fv( temp );
 	}
@@ -1038,7 +1027,7 @@ static void ProjectDlightTexture( void ) {
 			}
 
 #if defined RTCW_SP
-			VectorSubtract( origin, tess.xyz[i], dist );
+			VectorSubtract( origin, tess.xyz[i].v, dist );
 
 //			if(!r_dlightBacks->integer) {
 //				vec3_t	dir;
@@ -1053,7 +1042,7 @@ static void ProjectDlightTexture( void ) {
 			backEnd.pc.c_dlightVertexes++;
 
 #if defined RTCW_MP
-			VectorSubtract( origin, tess.xyz[i], dist );
+			VectorSubtract( origin, tess.xyz[i].v, dist );
 #endif // RTCW_XX
 
 			texCoords[0] = 0.5f + dist[0] * scale;
@@ -1670,13 +1659,7 @@ static void ComputeColors( shaderStage_t *pStage ) {
 		RB_CalcDiffuseColor( ( unsigned char * ) tess.svars.colors );
 		break;
 	case CGEN_EXACT_VERTEX:
-
-#if !defined RTCW_ET
-		memcpy( tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof( tess.vertexColors[0] ) );
-#else
 		memcpy( tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof( tess.vertexColors[0].v ) );
-#endif // RTCW_XX
-
 		break;
 	case CGEN_CONST:
 		for ( i = 0; i < tess.numVertexes; i++ ) {
@@ -1685,30 +1668,15 @@ static void ComputeColors( shaderStage_t *pStage ) {
 		break;
 	case CGEN_VERTEX:
 		if ( tr.identityLight == 1 ) {
-
-#if !defined RTCW_ET
-			memcpy( tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof( tess.vertexColors[0] ) );
-#else
 			memcpy( tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof( tess.vertexColors[0].v ) );
-#endif // RTCW_XX
-
 		} else
 		{
 			for ( i = 0; i < tess.numVertexes; i++ )
 			{
-
-#if !defined RTCW_ET
-				tess.svars.colors[i][0] = tess.vertexColors[i][0] * tr.identityLight;
-				tess.svars.colors[i][1] = tess.vertexColors[i][1] * tr.identityLight;
-				tess.svars.colors[i][2] = tess.vertexColors[i][2] * tr.identityLight;
-				tess.svars.colors[i][3] = tess.vertexColors[i][3];
-#else
 				tess.svars.colors[i][0] = tess.vertexColors[i].v[0] * tr.identityLight;
 				tess.svars.colors[i][1] = tess.vertexColors[i].v[1] * tr.identityLight;
 				tess.svars.colors[i][2] = tess.vertexColors[i].v[2] * tr.identityLight;
 				tess.svars.colors[i][3] = tess.vertexColors[i].v[3];
-#endif // RTCW_XX
-
 			}
 		}
 		break;
@@ -1716,33 +1684,17 @@ static void ComputeColors( shaderStage_t *pStage ) {
 		if ( tr.identityLight == 1 ) {
 			for ( i = 0; i < tess.numVertexes; i++ )
 			{
-
-#if !defined RTCW_ET
-				tess.svars.colors[i][0] = 255 - tess.vertexColors[i][0];
-				tess.svars.colors[i][1] = 255 - tess.vertexColors[i][1];
-				tess.svars.colors[i][2] = 255 - tess.vertexColors[i][2];
-#else
 				tess.svars.colors[i][0] = 255 - tess.vertexColors[i].v[0];
 				tess.svars.colors[i][1] = 255 - tess.vertexColors[i].v[1];
 				tess.svars.colors[i][2] = 255 - tess.vertexColors[i].v[2];
-#endif // RTCW_XX
-
 			}
 		} else
 		{
 			for ( i = 0; i < tess.numVertexes; i++ )
 			{
-
-#if !defined RTCW_ET
-				tess.svars.colors[i][0] = ( 255 - tess.vertexColors[i][0] ) * tr.identityLight;
-				tess.svars.colors[i][1] = ( 255 - tess.vertexColors[i][1] ) * tr.identityLight;
-				tess.svars.colors[i][2] = ( 255 - tess.vertexColors[i][2] ) * tr.identityLight;
-#else
 				tess.svars.colors[i][0] = ( 255 - tess.vertexColors[i].v[0] ) * tr.identityLight;
 				tess.svars.colors[i][1] = ( 255 - tess.vertexColors[i].v[1] ) * tr.identityLight;
 				tess.svars.colors[i][2] = ( 255 - tess.vertexColors[i].v[2] ) * tr.identityLight;
-#endif // RTCW_XX
-
 			}
 		}
 		break;
@@ -1839,12 +1791,7 @@ static void ComputeColors( shaderStage_t *pStage ) {
 		}
 		range = highest - lowest;
 		for ( i = 0; i < tess.numVertexes; i++ ) {
-
-#if !defined RTCW_ET
-			dot = DotProduct( tess.normal[i], worldUp );
-#else
 			dot = DotProduct( tess.normal[i].v, worldUp );
-#endif // RTCW_XX
 
 			// special handling for Zombie fade effect
 			if ( zombieEffect ) {
@@ -1891,26 +1838,14 @@ static void ComputeColors( shaderStage_t *pStage ) {
 	case AGEN_VERTEX:
 		if ( pStage->rgbGen != CGEN_VERTEX ) {
 			for ( i = 0; i < tess.numVertexes; i++ ) {
-
-#if !defined RTCW_ET
-				tess.svars.colors[i][3] = tess.vertexColors[i][3];
-#else
 				tess.svars.colors[i][3] = tess.vertexColors[i].v[3];
-#endif // RTCW_XX
-
 			}
 		}
 		break;
 	case AGEN_ONE_MINUS_VERTEX:
 		for ( i = 0; i < tess.numVertexes; i++ )
 		{
-
-#if !defined RTCW_ET
-			tess.svars.colors[i][3] = 255 - tess.vertexColors[i][3];
-#else
 			tess.svars.colors[i][3] = 255 - tess.vertexColors[i].v[3];
-#endif // RTCW_XX
-
 		}
 		break;
 	case AGEN_PORTAL:
@@ -1922,15 +1857,7 @@ static void ComputeColors( shaderStage_t *pStage ) {
 			float len;
 			vec3_t v;
 
-#if !defined RTCW_ET
-            // BBi
-			//VectorSubtract( tess.xyz[i], backEnd.viewParms.or.origin, v );
-            VectorSubtract (::tess.xyz[i],
-                ::backEnd.viewParms.orientation.origin, v);
-            // BBi
-#else
 			VectorSubtract( tess.xyz[i].v, backEnd.viewParms.orientation.origin, v );
-#endif // RTCW_XX
 
 			len = VectorLength( v );
 
@@ -2000,41 +1927,20 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 			break;
 		case TCGEN_TEXTURE:
 			for ( i = 0 ; i < tess.numVertexes ; i++ ) {
-
-#if !defined RTCW_ET
-				tess.svars.texcoords[b][i][0] = tess.texCoords[i][0][0];
-				tess.svars.texcoords[b][i][1] = tess.texCoords[i][0][1];
-#else
 				tess.svars.texcoords[b][i][0] = tess.texCoords0[i].v[0];
 				tess.svars.texcoords[b][i][1] = tess.texCoords0[i].v[1];
-#endif // RTCW_XX
-
 			}
 			break;
 		case TCGEN_LIGHTMAP:
 			for ( i = 0 ; i < tess.numVertexes ; i++ ) {
-
-#if !defined RTCW_ET
-				tess.svars.texcoords[b][i][0] = tess.texCoords[i][1][0];
-				tess.svars.texcoords[b][i][1] = tess.texCoords[i][1][1];
-#else
 				tess.svars.texcoords[b][i][0] = tess.texCoords1[i].v[0];
 				tess.svars.texcoords[b][i][1] = tess.texCoords1[i].v[1];
-#endif // RTCW_XX
-
 			}
 			break;
 		case TCGEN_VECTOR:
 			for ( i = 0 ; i < tess.numVertexes ; i++ ) {
-
-#if !defined RTCW_ET
-				tess.svars.texcoords[b][i][0] = DotProduct( tess.xyz[i], pStage->bundle[b].tcGenVectors[0] );
-				tess.svars.texcoords[b][i][1] = DotProduct( tess.xyz[i], pStage->bundle[b].tcGenVectors[1] );
-#else
 				tess.svars.texcoords[b][i][0] = DotProduct( tess.xyz[i].v, pStage->bundle[b].tcGenVectors[0] );
 				tess.svars.texcoords[b][i][1] = DotProduct( tess.xyz[i].v, pStage->bundle[b].tcGenVectors[1] );
-#endif // RTCW_XX
-
 			}
 			break;
 		case TCGEN_FOG:
@@ -2605,25 +2511,13 @@ void RB_StageIteratorVertexLitTexture( void ) {
     if (!glConfigEx.is_path_ogl_1_x ()) {
         ogl_tess_pos_array = input->xyz;
         ogl_tess_col_array = tess.svars.colors;
-
-#if !defined RTCW_ET
-        ogl_tess_tc0_array = tess.texCoords[0][0];
-#else
         ogl_tess_tc0_array = tess.texCoords0;
-#endif // RTCW_XX
-
         ogl_tess_vertex_count = input->numVertexes;
     } else {
     // BBi
 
 	::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
-
-#if !defined RTCW_ET
-	::glTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][0] );
-#else
 	::glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords0 );
-#endif // RTCW_XX
-
 	::glVertexPointer( 3, GL_FLOAT, 16, input->xyz );
 
 	if ( glConfigEx.useExtCompiledVertexArray ) {
@@ -2787,19 +2681,11 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 
     // BBi
     if (!glConfigEx.is_path_ogl_1_x ()) {
-#if !defined RTCW_ET
-        ogl_tess_tc0_array = tess.texCoords[0][0];
-#else
         ogl_tess_tc0_array = tess.texCoords0;
-#endif // RTCW_XX
     } else {
     // BBi
 
-#if !defined RTCW_ET
-	::glTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][0] );
-#else
 	::glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords0 );
-#endif // RTCW_XX
 
     // BBi
     }
@@ -2839,24 +2725,13 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
     // BBi
     if (!glConfigEx.is_path_ogl_1_x ()) {
         ogl_tess_use_tc1_array = true;
-
-#if !defined RTCW_ET
-        ogl_tess_tc1_array = tess.texCoords[0][1];
-#else
         ogl_tess_tc1_array = tess.texCoords1;
-#endif // RTCW_XX
-
         ogl_tess_vertex_count = input->numVertexes;
     } else {
     // BBi
 
 	::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-
-#if !defined RTCW_ET
-	::glTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][1] );
-#else
 	::glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords1 );
-#endif // RTCW_XX
 
 	//
 	// lock arrays
@@ -2980,21 +2855,12 @@ void RB_EndSurface( void ) {
 		return;
 	}
 
-#if !defined RTCW_ET
-	if ( input->indexes[SHADER_MAX_INDEXES - 1] != 0 ) {
-		ri.Error( ERR_DROP, "RB_EndSurface() - SHADER_MAX_INDEXES hit" );
-	}
-	if ( input->xyz[SHADER_MAX_VERTEXES - 1][0] != 0 ) {
-		ri.Error( ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit" );
-	}
-#else
 	if ( input->indexes[input->maxShaderIndicies - 1] != 0 ) {
 		ri.Error( ERR_DROP, "RB_EndSurface() - input->maxShaderIndicies(%i) hit", input->maxShaderIndicies );
 	}
 	if ( input->xyz[input->maxShaderVerts - 1].v[0] != 0 ) {
 		ri.Error( ERR_DROP, "RB_EndSurface() - input->maxShaderVerts(%i) hit", input->maxShaderVerts );
 	}
-#endif // RTCW_XX
 
 	if ( tess.shader == tr.shadowShader ) {
 		RB_ShadowTessEnd();

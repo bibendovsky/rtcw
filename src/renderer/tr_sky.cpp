@@ -284,21 +284,9 @@ void RB_ClipSkyPolygons( shaderCommands_t *input ) {
 	{
 		for ( j = 0 ; j < 3 ; j++ )
 		{
-
-#if !defined RTCW_ET
-            // BBi
-			//VectorSubtract( input->xyz[input->indexes[i + j]],
-			//				backEnd.viewParms.or.origin,
-			//				p[j] );
-            VectorSubtract (input->xyz[input->indexes[i + j]],
-                ::backEnd.viewParms.orientation.origin, p[j] );
-            // BBi
-#else
 			VectorSubtract( input->xyz[input->indexes[i + j]].v,
 							backEnd.viewParms.orientation.origin,
 							p[j] );
-#endif // RTCW_XX
-
 		}
 		ClipSkyPolygon( 3, p[0], 0 );
 	}
@@ -738,35 +726,14 @@ static void FillCloudySkySide( const int mins[2], const int maxs[2], qboolean ad
 	{
 		for ( s = mins[0] + HALF_SKY_SUBDIVISIONS; s <= maxs[0] + HALF_SKY_SUBDIVISIONS; s++ )
 		{
-
-#if !defined RTCW_ET
-            // BBi
-			//VectorAdd( s_skyPoints[t][s], backEnd.viewParms.or.origin, tess.xyz[tess.numVertexes] );
-			//tess.texCoords[tess.numVertexes][0][0] = s_skyTexCoords[t][s][0];
-			//tess.texCoords[tess.numVertexes][0][1] = s_skyTexCoords[t][s][1];
-            VectorAdd (s_skyPoints[t][s],
-                ::backEnd.viewParms.orientation.origin,
-                ::tess.xyz[tess.numVertexes]);
-
-            ::tess.texCoords[::tess.numVertexes][0][0] = s_skyTexCoords[t][s][0];
-            ::tess.texCoords[::tess.numVertexes][0][1] = s_skyTexCoords[t][s][1];
-            // BBi
-#else
 			VectorAdd( s_skyPoints[t][s], backEnd.viewParms.orientation.origin, tess.xyz[tess.numVertexes].v );
 			tess.texCoords0[tess.numVertexes].v[0] = s_skyTexCoords[t][s][0];
 			tess.texCoords0[tess.numVertexes].v[1] = s_skyTexCoords[t][s][1];
-#endif // RTCW_XX
 
 			tess.numVertexes++;
 
-#if !defined RTCW_ET
-			if ( tess.numVertexes >= SHADER_MAX_VERTEXES ) {
-				ri.Error( ERR_DROP, "SHADER_MAX_VERTEXES hit in FillCloudySkySide()\n" );
-#else
 			if ( tess.numVertexes >= tess.maxShaderVerts ) {
 				ri.Error( ERR_DROP, "tess.maxShaderVerts(%i) hit in FillCloudySkySide()\n", tess.maxShaderVerts );
-#endif // RTCW_XX
-
 			}
 		}
 	}

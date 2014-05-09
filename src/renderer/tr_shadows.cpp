@@ -146,21 +146,6 @@ void R_RenderShadowEdges( void ) {
 			if ( hit[ 1 ] == 0 ) {
                 // BBi
                 if (!glConfigEx.is_path_ogl_1_x ()) {
-#if !defined RTCW_ET
-                    ogl_tess2.position[0] =
-                        *reinterpret_cast<const glm::vec4*> (tess.xyz[i]);
-
-                    ogl_tess2.position[1] =
-                        *reinterpret_cast<const glm::vec4*> (
-                            tess.xyz[i + tess.numVertexes]);
-
-                    ogl_tess2.position[2] =
-                        *reinterpret_cast<const glm::vec4*> (tess.xyz[i2]);
-
-                    ogl_tess2.position[3] =
-                        *reinterpret_cast<const glm::vec4*> (
-                        tess.xyz[i2 + tess.numVertexes]);
-#else
                     ogl_tess2.position[0] =
                         *reinterpret_cast<const glm::vec4*> (tess.xyz[i].v);
 
@@ -174,7 +159,6 @@ void R_RenderShadowEdges( void ) {
                     ogl_tess2.position[3] =
                         *reinterpret_cast<const glm::vec4*> (
                         tess.xyz[i2 + tess.numVertexes].v);
-#endif // RTCW_XX
 
                     ::ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, false, false);
                 } else {
@@ -182,17 +166,10 @@ void R_RenderShadowEdges( void ) {
 
 				::glBegin( GL_TRIANGLE_STRIP );
 
-#if !defined RTCW_ET
-				::glVertex3fv( tess.xyz[ i ] );
-				::glVertex3fv( tess.xyz[ i + tess.numVertexes ] );
-				::glVertex3fv( tess.xyz[ i2 ] );
-				::glVertex3fv( tess.xyz[ i2 + tess.numVertexes ] );
-#else
 				::glVertex3fv( tess.xyz[ i ].v );
 				::glVertex3fv( tess.xyz[ i + tess.numVertexes ].v );
 				::glVertex3fv( tess.xyz[ i2 ].v );
 				::glVertex3fv( tess.xyz[ i2 + tess.numVertexes ].v );
-#endif // RTCW_XX
 
 				::glEnd();
 
@@ -245,13 +222,7 @@ void RB_ShadowTessEnd( void ) {
 
 	// project vertexes away from light direction
 	for ( i = 0 ; i < tess.numVertexes ; i++ ) {
-
-#if !defined RTCW_ET
-		VectorMA( tess.xyz[i], -512, lightDir, tess.xyz[i + tess.numVertexes] );
-#else
 		VectorMA( tess.xyz[i].v, -512, lightDir, tess.xyz[i + tess.numVertexes].v );
-#endif // RTCW_XX
-
 	}
 
 	// decide which triangles face the light
@@ -268,15 +239,9 @@ void RB_ShadowTessEnd( void ) {
 		i2 = tess.indexes[ i * 3 + 1 ];
 		i3 = tess.indexes[ i * 3 + 2 ];
 
-#if !defined RTCW_ET
-		v1 = tess.xyz[ i1 ];
-		v2 = tess.xyz[ i2 ];
-		v3 = tess.xyz[ i3 ];
-#else
 		v1 = tess.xyz[ i1 ].v;
 		v2 = tess.xyz[ i2 ].v;
 		v3 = tess.xyz[ i3 ].v;
-#endif // RTCW_XX
 
 		VectorSubtract( v2, v1, d1 );
 		VectorSubtract( v3, v1, d2 );

@@ -996,7 +996,7 @@ void RB_ZombieFXProcessNewHits( trZombieFleshHitverts_t *fleshHitVerts, int oldN
 		foundHit = qfalse;
 
 		// for each vertex
-		for (   j = 0, bestHitDist = -1, xyzTrav = tess.xyz[oldNumVerts], normTrav = tess.normal[oldNumVerts];
+		for (   j = 0, bestHitDist = -1, xyzTrav = tess.xyz[oldNumVerts].v, normTrav = tess.normal[oldNumVerts].v;
 				j < numSurfVerts;
 				j++, xyzTrav += 4, normTrav += 4 ) {
 
@@ -1075,7 +1075,7 @@ void RB_ZombieFXShowFleshHits( trZombieFleshHitverts_t *fleshHitVerts, int oldNu
 // disabled for E3, are we still going to use this?
 	return;
 
-	vertColors = tess.vertexColors[oldNumVerts];
+	vertColors = tess.vertexColors[oldNumVerts].v;
 	vertHits = fleshHitVerts->vertHits;
 
 	// for each hit entry, adjust that verts alpha component
@@ -1097,9 +1097,9 @@ void RB_ZombieFXDecompose( int oldNumVerts, int numSurfVerts, float deltaTimeSca
 // disabled for E3, are we still going to use this?
 	return;
 
-	vertColors = tess.vertexColors[oldNumVerts];
-	xyz = tess.xyz[oldNumVerts];
-	norm = tess.normal[oldNumVerts];
+	vertColors = tess.vertexColors[oldNumVerts].v;
+	xyz = tess.xyz[oldNumVerts].v;
+	norm = tess.normal[oldNumVerts].v;
 
 	for ( i = 0; i < numSurfVerts; i++, vertColors += 4, xyz += 4, norm += 4 ) {
 		alpha = 255.0 * ( (float)( 1 + i % 3 ) / 3.0 ) * deltaTimeScale * 2;
@@ -1121,7 +1121,7 @@ void RB_ZombieFXFullAlpha( int oldNumVerts, int numSurfVerts ) {
 	byte *vertColors;
 	int i;
 
-	vertColors = tess.vertexColors[oldNumVerts];
+	vertColors = tess.vertexColors[oldNumVerts].v;
 
 	for ( i = 0; i < numSurfVerts; i++, vertColors += 4 ) {
 		vertColors[3] = 255;
@@ -1843,40 +1843,6 @@ const void *RB_StretchPic( const void *data ) {
 	tess.indexes[ numIndexes + 4 ] = numVerts + 0;
 	tess.indexes[ numIndexes + 5 ] = numVerts + 1;
 
-#if !defined RTCW_ET
-	*(int *)tess.vertexColors[ numVerts ] =
-		*(int *)tess.vertexColors[ numVerts + 1 ] =
-			*(int *)tess.vertexColors[ numVerts + 2 ] =
-				*(int *)tess.vertexColors[ numVerts + 3 ] = *(int *)backEnd.color2D;
-
-	tess.xyz[ numVerts ][0] = cmd->x;
-	tess.xyz[ numVerts ][1] = cmd->y;
-	tess.xyz[ numVerts ][2] = 0;
-
-	tess.texCoords[ numVerts ][0][0] = cmd->s1;
-	tess.texCoords[ numVerts ][0][1] = cmd->t1;
-
-	tess.xyz[ numVerts + 1 ][0] = cmd->x + cmd->w;
-	tess.xyz[ numVerts + 1 ][1] = cmd->y;
-	tess.xyz[ numVerts + 1 ][2] = 0;
-
-	tess.texCoords[ numVerts + 1 ][0][0] = cmd->s2;
-	tess.texCoords[ numVerts + 1 ][0][1] = cmd->t1;
-
-	tess.xyz[ numVerts + 2 ][0] = cmd->x + cmd->w;
-	tess.xyz[ numVerts + 2 ][1] = cmd->y + cmd->h;
-	tess.xyz[ numVerts + 2 ][2] = 0;
-
-	tess.texCoords[ numVerts + 2 ][0][0] = cmd->s2;
-	tess.texCoords[ numVerts + 2 ][0][1] = cmd->t2;
-
-	tess.xyz[ numVerts + 3 ][0] = cmd->x;
-	tess.xyz[ numVerts + 3 ][1] = cmd->y + cmd->h;
-	tess.xyz[ numVerts + 3 ][2] = 0;
-
-	tess.texCoords[ numVerts + 3 ][0][0] = cmd->s1;
-	tess.texCoords[ numVerts + 3 ][0][1] = cmd->t2;
-#else
 	*(int *)tess.vertexColors[ numVerts ].v =
 		*(int *)tess.vertexColors[ numVerts + 1 ].v =
 			*(int *)tess.vertexColors[ numVerts + 2 ].v =
@@ -1909,7 +1875,6 @@ const void *RB_StretchPic( const void *data ) {
 
 	tess.texCoords0[ numVerts + 3 ].v[0] = cmd->s1;
 	tess.texCoords0[ numVerts + 3 ].v[1] = cmd->t2;
-#endif // RTCW_XX
 
 	return (const void *)( cmd + 1 );
 }
@@ -2006,44 +1971,6 @@ const void *RB_RotatedPic( const void *data ) {
 	tess.indexes[ numIndexes + 4 ] = numVerts + 0;
 	tess.indexes[ numIndexes + 5 ] = numVerts + 1;
 
-#if !defined RTCW_ET
-	*(int *)tess.vertexColors[ numVerts ] =
-		*(int *)tess.vertexColors[ numVerts + 1 ] =
-			*(int *)tess.vertexColors[ numVerts + 2 ] =
-				*(int *)tess.vertexColors[ numVerts + 3 ] = *(int *)backEnd.color2D;
-
-	angle = cmd->angle * pi2;
-	tess.xyz[ numVerts ][0] = cmd->x + ( c::cos( angle ) * cmd->w );
-	tess.xyz[ numVerts ][1] = cmd->y + ( c::sin( angle ) * cmd->h );
-	tess.xyz[ numVerts ][2] = 0;
-
-	tess.texCoords[ numVerts ][0][0] = cmd->s1;
-	tess.texCoords[ numVerts ][0][1] = cmd->t1;
-
-	angle = cmd->angle * pi2 + 0.25 * pi2;
-	tess.xyz[ numVerts + 1 ][0] = cmd->x + ( c::cos( angle ) * cmd->w );
-	tess.xyz[ numVerts + 1 ][1] = cmd->y + ( c::sin( angle ) * cmd->h );
-	tess.xyz[ numVerts + 1 ][2] = 0;
-
-	tess.texCoords[ numVerts + 1 ][0][0] = cmd->s2;
-	tess.texCoords[ numVerts + 1 ][0][1] = cmd->t1;
-
-	angle = cmd->angle * pi2 + 0.50 * pi2;
-	tess.xyz[ numVerts + 2 ][0] = cmd->x + ( c::cos( angle ) * cmd->w );
-	tess.xyz[ numVerts + 2 ][1] = cmd->y + ( c::sin( angle ) * cmd->h );
-	tess.xyz[ numVerts + 2 ][2] = 0;
-
-	tess.texCoords[ numVerts + 2 ][0][0] = cmd->s2;
-	tess.texCoords[ numVerts + 2 ][0][1] = cmd->t2;
-
-	angle = cmd->angle * pi2 + 0.75 * pi2;
-	tess.xyz[ numVerts + 3 ][0] = cmd->x + ( c::cos( angle ) * cmd->w );
-	tess.xyz[ numVerts + 3 ][1] = cmd->y + ( c::sin( angle ) * cmd->h );
-	tess.xyz[ numVerts + 3 ][2] = 0;
-
-	tess.texCoords[ numVerts + 3 ][0][0] = cmd->s1;
-	tess.texCoords[ numVerts + 3 ][0][1] = cmd->t2;
-#else
 	*(int *)tess.vertexColors[ numVerts ].v =
 		*(int *)tess.vertexColors[ numVerts + 1 ].v =
 			*(int *)tess.vertexColors[ numVerts + 2 ].v =
@@ -2080,7 +2007,6 @@ const void *RB_RotatedPic( const void *data ) {
 
 	tess.texCoords0[ numVerts + 3 ].v[0] = cmd->s1;
 	tess.texCoords0[ numVerts + 3 ].v[1] = cmd->t2;
-#endif // RTCW_XX
 
 	return (const void *)( cmd + 1 );
 }
@@ -2126,46 +2052,6 @@ const void *RB_StretchPicGradient( const void *data ) {
 	tess.indexes[ numIndexes + 4 ] = numVerts + 0;
 	tess.indexes[ numIndexes + 5 ] = numVerts + 1;
 
-#if !defined RTCW_ET
-//	*(int *)tess.vertexColors[ numVerts ] =
-//		*(int *)tess.vertexColors[ numVerts + 1 ] =
-//		*(int *)tess.vertexColors[ numVerts + 2 ] =
-//		*(int *)tess.vertexColors[ numVerts + 3 ] = *(int *)backEnd.color2D;
-
-	*(int *)tess.vertexColors[ numVerts ] =
-		*(int *)tess.vertexColors[ numVerts + 1 ] = *(int *)backEnd.color2D;
-
-	*(int *)tess.vertexColors[ numVerts + 2 ] =
-		*(int *)tess.vertexColors[ numVerts + 3 ] = *(int *)cmd->gradientColor;
-
-	tess.xyz[ numVerts ][0] = cmd->x;
-	tess.xyz[ numVerts ][1] = cmd->y;
-	tess.xyz[ numVerts ][2] = 0;
-
-	tess.texCoords[ numVerts ][0][0] = cmd->s1;
-	tess.texCoords[ numVerts ][0][1] = cmd->t1;
-
-	tess.xyz[ numVerts + 1 ][0] = cmd->x + cmd->w;
-	tess.xyz[ numVerts + 1 ][1] = cmd->y;
-	tess.xyz[ numVerts + 1 ][2] = 0;
-
-	tess.texCoords[ numVerts + 1 ][0][0] = cmd->s2;
-	tess.texCoords[ numVerts + 1 ][0][1] = cmd->t1;
-
-	tess.xyz[ numVerts + 2 ][0] = cmd->x + cmd->w;
-	tess.xyz[ numVerts + 2 ][1] = cmd->y + cmd->h;
-	tess.xyz[ numVerts + 2 ][2] = 0;
-
-	tess.texCoords[ numVerts + 2 ][0][0] = cmd->s2;
-	tess.texCoords[ numVerts + 2 ][0][1] = cmd->t2;
-
-	tess.xyz[ numVerts + 3 ][0] = cmd->x;
-	tess.xyz[ numVerts + 3 ][1] = cmd->y + cmd->h;
-	tess.xyz[ numVerts + 3 ][2] = 0;
-
-	tess.texCoords[ numVerts + 3 ][0][0] = cmd->s1;
-	tess.texCoords[ numVerts + 3 ][0][1] = cmd->t2;
-#else
 //	*(int *)tess.vertexColors[ numVerts ].v =
 //		*(int *)tess.vertexColors[ numVerts + 1 ].v =
 //		*(int *)tess.vertexColors[ numVerts + 2 ].v =
@@ -2204,7 +2090,6 @@ const void *RB_StretchPicGradient( const void *data ) {
 
 	tess.texCoords0[ numVerts + 3 ].v[0] = cmd->s1;
 	tess.texCoords0[ numVerts + 3 ].v[1] = cmd->t2;
-#endif // RTCW_XX
 
 	return (const void *)( cmd + 1 );
 }

@@ -1721,15 +1721,7 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 		int j;
 		unsigned int pointFlags = 0;
 
-#if !defined RTCW_ET
-        // BBi
-		//R_TransformModelToClip( tess.xyz[i], tr.or.modelMatrix, tr.viewParms.projectionMatrix, eye, clip );
-        ::R_TransformModelToClip (::tess.xyz[i], ::tr.orientation.modelMatrix,
-            ::tr.viewParms.projectionMatrix, eye, clip);
-        // BBi
-#else
 		R_TransformModelToClip( tess.xyz[i].v, tr.orientation.modelMatrix, tr.viewParms.projectionMatrix, eye, clip );
-#endif // RTCW_XX
 
 		for ( j = 0; j < 3; j++ )
 		{
@@ -1761,27 +1753,14 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 		float dot;
 		float len;
 
-#if !defined RTCW_ET
-        // BBi
-		//VectorSubtract( tess.xyz[tess.indexes[i]], tr.viewParms.or.origin, normal );
-        VectorSubtract (::tess.xyz[tess.indexes[i]],
-            ::tr.viewParms.orientation.origin, normal);
-        // BBi
-#else
 		VectorSubtract( tess.xyz[tess.indexes[i]].v, tr.viewParms.orientation.origin, normal );
-#endif // RTCW_XX
 
 		len = VectorLengthSquared( normal );            // lose the sqrt
 		if ( len < shortest ) {
 			shortest = len;
 		}
 
-#if !defined RTCW_ET
-		if ( ( dot = DotProduct( normal, tess.normal[tess.indexes[i]] ) ) >= 0 ) {
-#else
 		if ( ( dot = DotProduct( normal, tess.normal[tess.indexes[i]].v ) ) >= 0 ) {
-#endif // RTCW_XX
-
 			numTriangles--;
 		}
 	}

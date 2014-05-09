@@ -778,7 +778,6 @@ typedef struct drawSurf_s {
 #define MAX_PATCH_SIZE      32          // max dimensions of a patch mesh in map file
 #define MAX_GRID_SIZE       65          // max dimensions of a grid mesh in memory
 
-#if defined RTCW_ET
 typedef byte color4ub_t[4];
 
 typedef struct color4ubhack_s {
@@ -792,7 +791,6 @@ typedef struct vec4hack_s {
 typedef struct vec2hack_s {
 	vec2_t v;
 } vec2hack_t;
-#endif // RTCW_XX
 
 // when cgame directly specifies a polygon, it becomes a srfPoly_t
 // as soon as it is called
@@ -2179,42 +2177,36 @@ typedef struct stageVars
 	vec2_t texcoords[NUM_TEXTURE_BUNDLES][SHADER_MAX_VERTEXES];
 } stageVars_t;
 
-#if defined RTCW_ET
 extern vec4hack_t tess_xyz[SHADER_MAX_VERTEXES];
 extern vec4hack_t tess_normal[SHADER_MAX_VERTEXES];
 extern vec2hack_t tess_texCoords0[SHADER_MAX_VERTEXES];
 extern vec2hack_t tess_texCoords1[SHADER_MAX_VERTEXES];
 extern glIndex_t tess_indexes[SHADER_MAX_INDEXES];
 extern color4ubhack_t tess_vertexColors[SHADER_MAX_VERTEXES];
-#endif // RTCW_XX
+
+#ifndef RTCW_ET
+extern int vertexDlightBits[SHADER_MAX_VERTEXES];
+#endif // RTCW_X
 
 typedef struct shaderCommands_s
 {
+    glIndex_t* indexes;
+    vec4hack_t* normal;
+    color4ubhack_t* vertexColors;
+    vec4hack_t* xyz;
+    vec2hack_t* texCoords0;
+    vec2hack_t* texCoords1;
 
 #if !defined RTCW_ET
-	glIndex_t indexes[SHADER_MAX_INDEXES];
-	vec4_t xyz[SHADER_MAX_VERTEXES];
-	vec4_t normal[SHADER_MAX_VERTEXES];
-	vec2_t texCoords[SHADER_MAX_VERTEXES][2];
-	color4ub_t vertexColors[SHADER_MAX_VERTEXES];
-	int vertexDlightBits[SHADER_MAX_VERTEXES];
-#else
-	glIndex_t*      indexes;
-	vec4hack_t*     normal;
-	color4ubhack_t* vertexColors;
-	vec4hack_t*     xyz;
-	vec2hack_t*     texCoords0;
-	vec2hack_t*     texCoords1;
-#endif // RTCW_XX
+    int* vertexDlightBits;
+#endif // RTCW_X
 
 	stageVars_t svars;
 
 	color4ub_t constantColor255[SHADER_MAX_VERTEXES];
 
-#if defined RTCW_ET
 	int maxShaderVerts;
 	int maxShaderIndicies;
-#endif // RTCW_XX
 
 	shader_t    *shader;
 	float shaderTime;

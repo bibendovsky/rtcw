@@ -256,13 +256,7 @@ RB_CalcBulgeVertexes
 */
 void RB_CalcBulgeVertexes( deformStage_t *ds ) {
 	int i;
-
-#if !defined RTCW_ET
-	const float *st = ( const float * ) tess.texCoords[0];
-#else
 	const float *st = ( const float * ) tess.texCoords0;
-#endif // RTCW_XX
-
 	float       *xyz = ( float * ) tess.xyz;
 	float       *normal = ( float * ) tess.normal;
 	float now;
@@ -334,34 +328,19 @@ void DeformText( const char *text ) {
 	height[1] = 0;
 	height[2] = -1;
 
-#if !defined RTCW_ET
-	CrossProduct( tess.normal[0], height, width );
-#else
 	CrossProduct( tess.normal[0].v, height, width );
-#endif // RTCW_XX
 
 	// find the midpoint of the box
 	VectorClear( mid );
 	bottom = 999999;
 	top = -999999;
 	for ( i = 0 ; i < 4 ; i++ ) {
-
-#if !defined RTCW_ET
-		VectorAdd( tess.xyz[i], mid, mid );
-		if ( tess.xyz[i][2] < bottom ) {
-			bottom = tess.xyz[i][2];
-		}
-		if ( tess.xyz[i][2] > top ) {
-			top = tess.xyz[i][2];
-#else
 		VectorAdd( tess.xyz[i].v, mid, mid );
 		if ( tess.xyz[i].v[2] < bottom ) {
 			bottom = tess.xyz[i].v[2];
 		}
 		if ( tess.xyz[i].v[2] > top ) {
 			top = tess.xyz[i].v[2];
-#endif // RTCW_XX
-
 		}
 	}
 	VectorScale( mid, 0.25f, origin );
@@ -480,12 +459,7 @@ static void AutospriteDeform( void ) {
 
 	for ( i = 0 ; i < oldVerts ; i += 4 ) {
 		// find the midpoint
-
-#if !defined RTCW_ET
-		xyz = tess.xyz[i];
-#else
 		xyz = tess.xyz[i].v;
-#endif // RTCW_XX
 
 		mid[0] = 0.25f * ( xyz[0] + xyz[4] + xyz[8] + xyz[12] );
 		mid[1] = 0.25f * ( xyz[1] + xyz[5] + xyz[9] + xyz[13] );
@@ -514,12 +488,7 @@ static void AutospriteDeform( void ) {
 			VectorScale( up, axisLength, up );
 		}
 
-#if !defined RTCW_ET
-		RB_AddQuadStamp( mid, left, up, tess.vertexColors[i] );
-#else
 		RB_AddQuadStamp( mid, left, up, tess.vertexColors[i].v );
-#endif // RTCW_XX
-
 	}
 }
 
@@ -581,12 +550,7 @@ static void Autosprite2Deform( void ) {
 		float   *v1, *v2;
 
 		// find the midpoint
-
-#if !defined RTCW_ET
-		xyz = tess.xyz[i];
-#else
 		xyz = tess.xyz[i].v;
-#endif // RTCW_XX
 
 		// identify the two shortest edges
 		nums[0] = nums[1] = 0;
@@ -1137,7 +1101,7 @@ void RB_CalcFogTexCoords( float *st ) {
 	fogDistanceVector[3] += 1.0 / 512;
 
 	// calculate density for each point
-	for ( i = 0, v = tess.xyz[0] ; i < tess.numVertexes ; i++, v += 4 ) {
+	for ( i = 0, v = tess.xyz[0].v ; i < tess.numVertexes ; i++, v += 4 ) {
 		// calculate the length in fog
 		s = DotProduct( v, fogDistanceVector ) + fogDistanceVector[3];
 		t = DotProduct( v, fogDepthVector ) + fogDepthVector[3];
@@ -1334,8 +1298,8 @@ void RB_CalcEnvironmentTexCoords( float *st ) {
 	vec3_t viewer, reflected;
 	float d;
 
-	v = tess.xyz[0];
-	normal = tess.normal[0];
+	v = tess.xyz[0].v;
+	normal = tess.normal[0].v;
 
 	for ( i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 )
 	{
@@ -1367,13 +1331,8 @@ void RB_CalcFireRiseEnvTexCoords( float *st ) {
 	vec3_t viewer, reflected;
 	float d;
 
-#if !defined RTCW_ET
-	v = tess.xyz[0];
-	normal = tess.normal[0];
-#else
 	v = tess.xyz[0].v;
 	normal = tess.normal[0].v;
-#endif // RTCW_XX
 
 	VectorNegate( backEnd.currentEntity->e.fireRiseDir, viewer );
 
@@ -1423,14 +1382,8 @@ void RB_CalcTurbulentTexCoords( const waveForm_t *wf, float *st ) {
 		float s = st[0];
 		float t = st[1];
 
-#if !defined RTCW_ET
-		st[0] = s + tr.sinTable[ ( ( int ) ( ( ( tess.xyz[i][0] + tess.xyz[i][2] ) * 1.0 / 128 * 0.125 + now ) * FUNCTABLE_SIZE ) ) & ( FUNCTABLE_MASK ) ] * wf->amplitude;
-		st[1] = t + tr.sinTable[ ( ( int ) ( ( tess.xyz[i][1] * 1.0 / 128 * 0.125 + now ) * FUNCTABLE_SIZE ) ) & ( FUNCTABLE_MASK ) ] * wf->amplitude;
-#else
 		st[0] = s + tr.sinTable[ ( ( int ) ( ( ( tess.xyz[i].v[0] + tess.xyz[i].v[2] ) * 1.0 / 128 * 0.125 + now ) * FUNCTABLE_SIZE ) ) & ( FUNCTABLE_MASK ) ] * wf->amplitude;
 		st[1] = t + tr.sinTable[ ( ( int ) ( ( tess.xyz[i].v[1] * 1.0 / 128 * 0.125 + now ) * FUNCTABLE_SIZE ) ) & ( FUNCTABLE_MASK ) ] * wf->amplitude;
-#endif // RTCW_XX
-
 	}
 }
 
@@ -1544,13 +1497,8 @@ void RB_CalcSpecularAlpha( unsigned char *alphas ) {
 	vec3_t lightDir;
 	int numVertexes;
 
-#if !defined RTCW_ET
-	v = tess.xyz[0];
-	normal = tess.normal[0];
-#else
 	v = tess.xyz[0].v;
 	normal = tess.normal[0].v;
-#endif // RTCW_XX
 
 	alphas += 3;
 
@@ -1661,8 +1609,8 @@ void RB_CalcDiffuseColor( unsigned char *colors ) {
 	VectorCopy( ent->directedLight, directedLight );
 	VectorCopy( ent->lightDir, lightDir );
 
-	v = tess.xyz[0];
-	normal = tess.normal[0];
+	v = tess.xyz[0].v;
+	normal = tess.normal[0].v;
 
 	numVertexes = tess.numVertexes;
 	for ( i = 0 ; i < numVertexes ; i++, v += 4, normal += 4 ) {

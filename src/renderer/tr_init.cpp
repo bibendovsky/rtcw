@@ -331,14 +331,16 @@ int max_polys;
 cvar_t  *r_maxpolyverts;
 int max_polyverts;
 
-#if defined RTCW_ET
 vec4hack_t tess_xyz[SHADER_MAX_VERTEXES];
 vec4hack_t tess_normal[SHADER_MAX_VERTEXES];
 vec2hack_t tess_texCoords0[SHADER_MAX_VERTEXES];
 vec2hack_t tess_texCoords1[SHADER_MAX_VERTEXES];
 glIndex_t tess_indexes[SHADER_MAX_INDEXES];
 color4ubhack_t tess_vertexColors[SHADER_MAX_VERTEXES];
-#endif // RTCW_XX
+
+#ifndef RTCW_ET
+int tess_vertexDlightBits[SHADER_MAX_VERTEXES];
+#endif // RTCW_X
 
 //BBi
 //void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
@@ -1944,7 +1946,6 @@ void R_Init( void ) {
 	memset( &backEnd, 0, sizeof( backEnd ) );
 	memset( &tess, 0, sizeof( tess ) );
 
-#if defined RTCW_ET
 	tess.xyz =              tess_xyz;
 	tess.texCoords0 =       tess_texCoords0;
 	tess.texCoords1 =       tess_texCoords1;
@@ -1954,7 +1955,10 @@ void R_Init( void ) {
 
 	tess.maxShaderVerts =       SHADER_MAX_VERTEXES;
 	tess.maxShaderIndicies =    SHADER_MAX_INDEXES;
-#endif // RTCW_XX
+
+#ifndef RTCW_ET
+    tess.vertexDlightBits = tess_vertexDlightBits;
+#endif // RTCW_X
 
     //BBi
 	//Swap_Init();
