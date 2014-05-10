@@ -46,6 +46,115 @@ static qboolean fontbase_init = qfalse;
 #endif // RTCW_XX
 
 
+// GL_ARB_multitexture, glActiveTextureARB
+PFNGLACTIVETEXTUREPROC glActiveTexture;
+
+// GL_ARB_shader_objects, glAttachObjectARB
+PFNGLATTACHSHADERPROC glAttachShader;
+
+// GL_ARB_vertex_buffer_object, glBindBufferARB
+PFNGLBINDBUFFERPROC glBindBuffer;
+
+// GL_ARB_vertex_buffer_object, glBufferDataARB
+PFNGLBUFFERDATAPROC glBufferData;
+
+// GL_ARB_vertex_buffer_object, glBufferSubDataARB
+PFNGLBUFFERSUBDATAPROC glBufferSubData;
+
+// GL_ARB_multitexture, glClientActiveTextureARB
+PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture;
+
+// GL_ARB_shader_objects, glCompileShaderARB
+PFNGLCOMPILESHADERPROC glCompileShader;
+
+// GL_ARB_shader_objects, glCreateProgramObjectARB
+PFNGLCREATEPROGRAMPROC glCreateProgram;
+
+// GL_ARB_shader_objects, glCreateShaderObjectARB
+PFNGLCREATESHADERPROC glCreateShader;
+
+// GL_ARB_vertex_buffer_object, glDeleteBuffersARB
+PFNGLDELETEBUFFERSPROC glDeleteBuffers;
+
+// GL_ARB_shader_objects, glDeleteObjectARB
+PFNGLDELETEPROGRAMPROC glDeleteProgram;
+
+// GL_ARB_shader_objects, glDeleteObjectARB
+PFNGLDELETESHADERPROC glDeleteShader;
+
+// GL_ARB_vertex_program, glDisableVertexAttribArrayARB
+PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray;
+
+// GL_ARB_draw_elements_base_vertex
+PFNGLDRAWELEMENTSBASEVERTEXPROC glDrawElementsBaseVertex;
+
+// GL_ARB_vertex_program, glEnableVertexAttribArrayARB
+PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+
+// GL_ARB_vertex_buffer_object, glGenBuffersARB
+PFNGLGENBUFFERSPROC glGenBuffers;
+
+// GL_ARB_framebuffer_object, glGenerateMipmap
+PFNGLGENERATEMIPMAPPROC glGenerateMipmap;
+
+// GL_ARB_vertex_shader, glGetAttribLocationARB
+PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation;
+
+// GL_ARB_shader_objects, glGetInfoLogARB
+PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
+
+// GL_ARB_vertex_program, glGetProgramivARB
+PFNGLGETPROGRAMIVPROC glGetProgramiv;
+
+// GL_ARB_shader_objects, glGetInfoLogARB
+PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
+
+// GL_ARB_shader_objects, glGetObjectParameterivARB
+PFNGLGETSHADERIVPROC glGetShaderiv;
+
+// GL_ARB_shader_objects, glGetUniformLocationARB
+PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
+
+// GL_ARB_shader_objects, glLinkProgramARB
+PFNGLLINKPROGRAMPROC glLinkProgram;
+
+// GL_EXT_compiled_vertex_array, glLockArraysEXT
+PFNGLLOCKARRAYSEXTPROC glLockArraysEXT;
+
+// GL_ARB_multitexture, glMultiTexCoord2fARB
+PFNGLMULTITEXCOORD2FPROC glMultiTexCoord2f;
+
+// GL_ARB_shader_objects, glShaderSourceARB
+PFNGLSHADERSOURCEPROC glShaderSource;
+
+// GL_ARB_shader_objects, glUniform1fARB
+PFNGLUNIFORM1FPROC glUniform1f;
+
+// GL_ARB_shader_objects, glUniform1iARB
+PFNGLUNIFORM1IPROC glUniform1i;
+
+// GL_ARB_shader_objects, glUniform4fvARB
+PFNGLUNIFORM4FVPROC glUniform4fv;
+
+// GL_ARB_shader_objects, glUniformMatrix4fvARB
+PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
+
+// GL_EXT_compiled_vertex_array, glUnlockArraysEXT
+PFNGLUNLOCKARRAYSEXTPROC glUnlockArraysEXT;
+
+// GL_ARB_shader_objects, glUseProgramObjectARB
+PFNGLUSEPROGRAMPROC glUseProgram;
+
+// GL_ARB_vertex_program, glVertexAttrib2fARB
+PFNGLVERTEXATTRIB2FPROC glVertexAttrib2f;
+
+// GL_ARB_vertex_program, glVertexAttrib4fARB
+PFNGLVERTEXATTRIB4FPROC glVertexAttrib4f;
+
+// GL_ARB_vertex_program, glVertexAttribPointerARB
+PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
+
+
 namespace {
 
 
@@ -62,9 +171,120 @@ enum ExtensionStatus {
 SDL_GLContext gl_context;
 
 
-bool gl_has_extension(const char* extension_name)
+template<class T>
+void gl_load_symbol(
+    T& variable,
+    const char* symbol_name)
 {
-    return ::SDL_GL_ExtensionSupported(extension_name) != SDL_FALSE;
+    variable = static_cast<T>(SDL_GL_GetProcAddress(symbol_name));
+}
+
+template<class T>
+void gl_load_symbol(
+    T& variable,
+    const char* symbol_name1,
+    const char* symbol_name2)
+{
+    void* symbol = SDL_GL_GetProcAddress(symbol_name1);
+
+    if (symbol == NULL)
+        symbol = SDL_GL_GetProcAddress(symbol_name2);
+
+    variable = static_cast<T>(symbol);
+}
+
+void gl_initialize_extension_functions()
+{
+    gl_load_symbol(glActiveTexture, "glActiveTexture", "glActiveTextureARB");
+    gl_load_symbol(glAttachShader, "glAttachShader", "glAttachObjectARB");
+    gl_load_symbol(glBindBuffer, "glBindBuffer", "glBindBufferARB");
+    gl_load_symbol(glBufferData, "glBufferData", "glBufferDataARB");
+    gl_load_symbol(glBufferSubData, "glBufferSubData", "glBufferSubDataARB");
+    gl_load_symbol(glClientActiveTexture, "glClientActiveTexture", "glClientActiveTextureARB");
+    gl_load_symbol(glCompileShader, "glCompileShader", "glCompileShaderARB");
+    gl_load_symbol(glCreateProgram, "glCreateProgram", "glCreateProgramObjectARB");
+    gl_load_symbol(glCreateShader, "glCreateShader", "glCreateShaderObjectARB");
+    gl_load_symbol(glDeleteBuffers, "glDeleteBuffers", "glDeleteBuffersARB");
+    gl_load_symbol(glDeleteProgram, "glDeleteProgram", "glDeleteObjectARB");
+    gl_load_symbol(glDeleteShader, "glDeleteShader", "glDeleteObjectARB");
+    gl_load_symbol(glDisableVertexAttribArray, "glDisableVertexAttribArray", "glDisableVertexAttribArrayARB");
+    gl_load_symbol(glDrawElementsBaseVertex, "glDrawElementsBaseVertex");
+    gl_load_symbol(glEnableVertexAttribArray, "glEnableVertexAttribArray", "glEnableVertexAttribArrayARB");
+    gl_load_symbol(glGenBuffers, "glGenBuffers", "glGenBuffersARB");
+    gl_load_symbol(glGenerateMipmap, "glGenerateMipmap");
+    gl_load_symbol(glGetAttribLocation, "glGetAttribLocation", "glGetAttribLocationARB");
+    gl_load_symbol(glGetProgramInfoLog, "glGetProgramInfoLog", "glGetInfoLogARB");
+    gl_load_symbol(glGetProgramiv, "glGetProgramiv", "glGetProgramivARB");
+    gl_load_symbol(glGetShaderInfoLog, "glGetShaderInfoLog", "glGetInfoLogARB");
+    gl_load_symbol(glGetShaderiv, "glGetShaderiv", "glGetObjectParameterivARB");
+    gl_load_symbol(glGetUniformLocation, "glGetUniformLocation", "glGetUniformLocationARB");
+    gl_load_symbol(glLinkProgram, "glLinkProgram", "glLinkProgramARB");
+    gl_load_symbol(glLockArraysEXT, "glLockArraysEXT");
+    gl_load_symbol(glMultiTexCoord2f, "glMultiTexCoord2f", "glMultiTexCoord2fARB");
+    gl_load_symbol(glShaderSource, "glShaderSource", "glShaderSourceARB");
+    gl_load_symbol(glUniform1f, "glUniform1f", "glUniform1fARB");
+    gl_load_symbol(glUniform1i, "glUniform1i", "glUniform1iARB");
+    gl_load_symbol(glUniform4fv, "glUniform4fv", "glUniform4fvARB");
+    gl_load_symbol(glUniformMatrix4fv, "glUniformMatrix4fv", "glUniformMatrix4fvARB");
+    gl_load_symbol(glUnlockArraysEXT, "glUnlockArraysEXT");
+    gl_load_symbol(glUseProgram, "glUseProgram", "glUseProgramObjectARB");
+    gl_load_symbol(glVertexAttrib2f, "glVertexAttrib2f", "glVertexAttrib2fARB");
+    gl_load_symbol(glVertexAttrib4f, "glVertexAttrib4f", "glVertexAttrib4fARB");
+    gl_load_symbol(glVertexAttribPointer, "glVertexAttribPointer", "glVertexAttribPointerARB");
+}
+
+bool gl_has_extension(
+    const char* extension_name)
+{
+    return SDL_GL_ExtensionSupported(extension_name) != SDL_FALSE;
+}
+
+bool gl_is_2_x_capable()
+{
+    if (!gl_has_extension("GL_ARB_multitexture") ||
+        !gl_has_extension("GL_ARB_shader_objects") ||
+        !gl_has_extension("GL_ARB_vertex_buffer_object") ||
+        !gl_has_extension("GL_ARB_vertex_program") ||
+        !gl_has_extension("GL_ARB_vertex_shader"))
+    {
+        return false;
+    }
+
+    if (glActiveTexture == NULL ||
+        glAttachShader == NULL ||
+        glBindBuffer == NULL ||
+        glBufferData == NULL ||
+        glBufferSubData == NULL ||
+        glCompileShader == NULL ||
+        glCreateProgram == NULL ||
+        glCreateShader == NULL ||
+        glDeleteBuffers == NULL ||
+        glDeleteProgram == NULL ||
+        glDeleteShader == NULL ||
+        glDisableVertexAttribArray == NULL ||
+        glEnableVertexAttribArray == NULL ||
+        glGenBuffers == NULL ||
+        glGetAttribLocation == NULL ||
+        glGetProgramInfoLog == NULL ||
+        glGetProgramiv == NULL ||
+        glGetShaderInfoLog == NULL ||
+        glGetShaderiv == NULL ||
+        glGetUniformLocation == NULL ||
+        glLinkProgram == NULL ||
+        glShaderSource == NULL ||
+        glUniform1f == NULL ||
+        glUniform1i == NULL ||
+        glUniform4fv == NULL ||
+        glUniformMatrix4fv == NULL ||
+        glUseProgram == NULL ||
+        glVertexAttrib2f == NULL ||
+        glVertexAttrib4f == NULL ||
+        glVertexAttribPointer == NULL)
+    {
+        return false;
+    }
+
+    return true;
 }
 
 void gl_print_extension(
@@ -103,7 +323,7 @@ void gl_print_extension(
         break;
     }
 
-    ::ri.Printf(
+    ri.Printf(
         PRINT_ALL,
         "  [%s%s%s] %s\n",
         color_mark,
@@ -130,7 +350,7 @@ void gl_print_ignored_extension(const char* extension_name)
 void gl_initialize_extensions()
 {
     if (r_allowExtensions->integer == 0) {
-        ::ri.Printf(PRINT_ALL, S_COLOR_YELLOW "Ignoring OpenGL extensions\n");
+        ri.Printf(PRINT_ALL, S_COLOR_YELLOW "Ignoring OpenGL extensions\n");
         return;
     }
 
@@ -139,8 +359,8 @@ void gl_initialize_extensions()
     const char* extension_name3 = NULL;
     const char* extension_name4 = NULL;
 
-    ::ri.Printf(PRINT_ALL, "Initializing OpenGL extensions\n");
-    ::ri.Printf(PRINT_ALL, "(Legend: [+] found; [-] not found; [*] ignored)\n");
+    ri.Printf(PRINT_ALL, "Initializing OpenGL extensions\n");
+    ri.Printf(PRINT_ALL, "(Legend: [+] found; [-] not found; [*] ignored)\n");
 
 
     extension_name1 = "GL_ARB_texture_compression";
@@ -199,7 +419,7 @@ void gl_initialize_extensions()
 
     if (gl_has_extension(extension_name1)) {
         if (r_ext_multitexture->integer != 0) {
-            ::glGetIntegerv (GL_MAX_TEXTURE_UNITS_ARB, &glConfig.maxActiveTextures);
+            glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glConfig.maxActiveTextures);
 
             if (glConfig.maxActiveTextures > 1) {
                 glConfigEx.useArbMultitexture = true;
@@ -230,14 +450,14 @@ void gl_initialize_extensions()
 
     if (gl_has_extension(extension_name1)) {
         if (r_ext_NV_fog_dist->integer != 0) {
-            ::glConfig.NVFogAvailable = true;
+            glConfig.NVFogAvailable = true;
             gl_print_found_extension(extension_name1);
         } else {
-            ::ri.Cvar_Set ("r_ext_NV_fog_dist", "0");
+            ri.Cvar_Set ("r_ext_NV_fog_dist", "0");
             gl_print_ignored_extension(extension_name1);
         }
     } else {
-        ::ri.Cvar_Set ("r_ext_NV_fog_dist", "0");
+        ri.Cvar_Set ("r_ext_NV_fog_dist", "0");
         gl_print_missed_extension(extension_name1);
     }
 
@@ -249,11 +469,11 @@ void gl_initialize_extensions()
             glConfig.anisotropicAvailable = true;
             gl_print_found_extension(extension_name1);
         } else {
-            ::ri.Cvar_Set ("r_ext_texture_filter_anisotropic", "0");
+            ri.Cvar_Set ("r_ext_texture_filter_anisotropic", "0");
             gl_print_ignored_extension(extension_name1);
         }
     } else {
-        ::ri.Cvar_Set ("r_ext_texture_filter_anisotropic", "0");
+        ri.Cvar_Set ("r_ext_texture_filter_anisotropic", "0");
         gl_print_missed_extension(extension_name1);
     }
 
@@ -275,6 +495,10 @@ void gl_initialize_extensions()
         gl_print_found_extension(extension_name1);
     } else
         gl_print_missed_extension(extension_name1);
+
+    gl_initialize_extension_functions();
+
+    glConfigEx.is_2_x_capable = gl_is_2_x_capable();
 }
 
 
@@ -283,23 +507,23 @@ void gl_initialize_extensions()
 
 void GLimp_Init()
 {
-    ::ri.Printf(PRINT_ALL, "Initializing OpenGL subsystem\n");
+    ri.Printf(PRINT_ALL, "Initializing OpenGL subsystem\n");
 
-    ::r_allowSoftwareGL = ::ri.Cvar_Get("r_allowSoftwareGL", "0", 0);
-    ::r_maskMinidriver = ::ri.Cvar_Get("r_maskMinidriver", "0", 0);
+    r_allowSoftwareGL = ri.Cvar_Get("r_allowSoftwareGL", "0", 0);
+    r_maskMinidriver = ri.Cvar_Get("r_maskMinidriver", "0", 0);
 
-    cvar_t* r_lastValidRenderer = ::ri.Cvar_Get(
+    cvar_t* r_lastValidRenderer = ri.Cvar_Get(
         "r_lastValidRenderer", "(uninitialized)", CVAR_ARCHIVE);
 
     bool is_succeed = true;
     int sdl_result = 0;
 
     if (is_succeed) {
-        sdl_result = ::SDL_InitSubSystem(SDL_INIT_VIDEO);
+        sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
 
         if (sdl_result != 0) {
             is_succeed = false;
-            ::ri.Error(ERR_FATAL, "%s\n", ::SDL_GetError());
+            ri.Error(ERR_FATAL, "%s\n", SDL_GetError());
         }
     }
 
@@ -311,7 +535,7 @@ void GLimp_Init()
     if (is_succeed) {
         SDL_DisplayMode dm;
 
-        sdl_result = ::SDL_GetCurrentDisplayMode(
+        sdl_result = SDL_GetCurrentDisplayMode(
             0,
             &dm);
 
@@ -321,7 +545,7 @@ void GLimp_Init()
             display_refresh_rate = dm.refresh_rate;
         } else {
             is_succeed = false;
-            ::ri.Error(ERR_FATAL, "Failed to get a current dispay mode.\n");
+            ri.Error(ERR_FATAL, "Failed to get a current dispay mode.\n");
         }
     }
 
@@ -335,7 +559,7 @@ void GLimp_Init()
     if (is_succeed) {
         qboolean api_result = qfalse;
 
-        ::ri.Printf(PRINT_ALL, "  setting mode: %d\n", r_mode->integer);
+        ri.Printf(PRINT_ALL, "  setting mode: %d\n", r_mode->integer);
 
         api_result = ::R_GetModeInfo(
             &width,
@@ -349,7 +573,7 @@ void GLimp_Init()
                 height == display_height);
         } else {
             is_succeed = false;
-            ::ri.Error(ERR_FATAL, "Invalid mode: %d.\n", r_mode->integer);
+            ri.Error(ERR_FATAL, "Invalid mode: %d.\n", r_mode->integer);
         }
     }
 
@@ -363,19 +587,19 @@ void GLimp_Init()
                 SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN;
         }
 
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_STEREO, is_stereo);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_STEREO, is_stereo);
 
-        cvar_t* x_cvar = ::ri.Cvar_Get("vid_xpos", "0", 0);
+        cvar_t* x_cvar = ri.Cvar_Get("vid_xpos", "0", 0);
         int x = x_cvar->integer;
 
-        cvar_t* y_cvar = ::ri.Cvar_Get("vid_ypos", "0", 0);
+        cvar_t* y_cvar = ri.Cvar_Get("vid_ypos", "0", 0);
         int y = y_cvar->integer;
 
         if (x < 0)
@@ -408,7 +632,7 @@ void GLimp_Init()
             height == FALLBACK_HEIGHT);
 
         while (is_succeed) {
-            sys_gl_window = ::SDL_CreateWindow(
+            sys_gl_window = SDL_CreateWindow(
                 window_title,
                 x,
                 y,
@@ -423,10 +647,10 @@ void GLimp_Init()
             y = 0;
 
             if (is_fullscreen) {
-                ::ri.Printf(PRINT_ALL, S_COLOR_YELLOW
+                ri.Printf(PRINT_ALL, S_COLOR_YELLOW
                     "  SDL: %s\n", ::SDL_GetError());
 
-                ::ri.Printf(PRINT_ALL, S_COLOR_YELLOW
+                ri.Printf(PRINT_ALL, S_COLOR_YELLOW
                     "  trying windowed mode...\n");
 
                 is_fullscreen = false;
@@ -437,13 +661,13 @@ void GLimp_Init()
                 if (is_fallback_mode) {
                     is_succeed = false;
 
-                    ::ri.Printf(PRINT_ALL, S_COLOR_RED
+                    ri.Printf(PRINT_ALL, S_COLOR_RED
                         "  SDL: %s\n", ::SDL_GetError());
                 } else {
-                    ::ri.Printf(PRINT_ALL, S_COLOR_YELLOW
+                    ri.Printf(PRINT_ALL, S_COLOR_YELLOW
                         "  SDL: %s\n", ::SDL_GetError());
 
-                    ::ri.Printf(PRINT_ALL, S_COLOR_YELLOW
+                    ri.Printf(PRINT_ALL, S_COLOR_YELLOW
                         "  trying fallback mode: %dx%d windowed...\n",
                         FALLBACK_WIDTH, FALLBACK_HEIGHT);
 
@@ -469,11 +693,11 @@ void GLimp_Init()
     }
 
     if (is_succeed) {
-        gl_context = ::SDL_GL_CreateContext(sys_gl_window);
+        gl_context = SDL_GL_CreateContext(sys_gl_window);
 
         if (gl_context == NULL) {
             is_succeed = false;
-            ::ri.Error(ERR_FATAL, "Failed to create an OpenGL context.\n");
+            ri.Error(ERR_FATAL, "Failed to create an OpenGL context.\n");
         }
     }
 
@@ -483,40 +707,32 @@ void GLimp_Init()
     std::string gl_extensions;
 
     if (is_succeed) {
-        GLenum glew_result = ::glewInit();
+        const int MAX_GL_STRING_LENGTH = MAX_STRING_CHARS - 1;
+        const int MAX_GL_EXT_STRING_LENGTH = (4 * MAX_STRING_CHARS) - 1;
 
-        if (glew_result == GLEW_OK) {
-            const int MAX_GL_STRING_LENGTH = MAX_STRING_CHARS - 1;
-            const int MAX_GL_EXT_STRING_LENGTH = (4 * MAX_STRING_CHARS) - 1;
+        gl_renderer = reinterpret_cast<const char*>(
+            ::glGetString(GL_RENDERER));
 
-            gl_renderer = reinterpret_cast<const char*>(
-                ::glGetString(GL_RENDERER));
+        if (gl_renderer.size() > MAX_GL_STRING_LENGTH)
+            gl_renderer.resize(MAX_GL_STRING_LENGTH);
 
-            if (gl_renderer.size() > MAX_GL_STRING_LENGTH)
-                gl_renderer.resize(MAX_GL_STRING_LENGTH);
+        gl_vendor = reinterpret_cast<const char*>(
+            glGetString(GL_VENDOR));
 
-            gl_vendor = reinterpret_cast<const char*>(
-                ::glGetString(GL_VENDOR));
+        if (gl_vendor.size() > MAX_GL_STRING_LENGTH)
+            gl_vendor.resize(MAX_GL_STRING_LENGTH);
 
-            if (gl_vendor.size() > MAX_GL_STRING_LENGTH)
-                gl_vendor.resize(MAX_GL_STRING_LENGTH);
+        gl_version = reinterpret_cast<const char*>(
+            glGetString(GL_VERSION));
 
-            gl_version = reinterpret_cast<const char*>(
-                ::glGetString(GL_VERSION));
+        if (gl_version.size() > MAX_GL_STRING_LENGTH)
+            gl_version.resize(MAX_GL_STRING_LENGTH);
 
-            if (gl_version.size() > MAX_GL_STRING_LENGTH)
-                gl_version.resize(MAX_GL_STRING_LENGTH);
+        gl_extensions = reinterpret_cast<const char*>(
+            glGetString(GL_EXTENSIONS));
 
-            gl_extensions = reinterpret_cast<const char*>(
-                ::glGetString(GL_EXTENSIONS));
-
-            if (gl_extensions.size() > MAX_GL_EXT_STRING_LENGTH)
-                gl_extensions.resize(MAX_GL_EXT_STRING_LENGTH);
-        } else {
-            is_succeed = false;
-            ::ri.Error(ERR_FATAL, "Failed to initialize GLEW: %s\n",
-                ::glewGetErrorString(glew_result));
-        }
+        if (gl_extensions.size() > MAX_GL_EXT_STRING_LENGTH)
+            gl_extensions.resize(MAX_GL_EXT_STRING_LENGTH);
     }
 
     if (is_succeed) {
@@ -528,29 +744,29 @@ void GLimp_Init()
         int attribute = 0;
 
         sdl_result = ::SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &attribute);
-        ::ri.Printf(PRINT_ALL, "  GL red size: %d\n", attribute);
+        ri.Printf(PRINT_ALL, "  GL red size: %d\n", attribute);
 
         sdl_result = ::SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &attribute);
-        ::ri.Printf(PRINT_ALL, "  GL green size: %d\n", attribute);
+        ri.Printf(PRINT_ALL, "  GL green size: %d\n", attribute);
 
         sdl_result = ::SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &attribute);
-        ::ri.Printf(PRINT_ALL, "  GL blue size: %d\n", attribute);
+        ri.Printf(PRINT_ALL, "  GL blue size: %d\n", attribute);
 
         sdl_result = ::SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &attribute);
-        ::ri.Printf(PRINT_ALL, "  GL alpha size: %d\n", attribute);
+        ri.Printf(PRINT_ALL, "  GL alpha size: %d\n", attribute);
 
         sdl_result = ::SDL_GL_GetAttribute(SDL_GL_DOUBLEBUFFER, &attribute);
-        ::ri.Printf(PRINT_ALL, "  GL double buffering: %s\n",
+        ri.Printf(PRINT_ALL, "  GL double buffering: %s\n",
             strings[attribute]);
 
         sdl_result = ::SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &attribute);
-        ::ri.Printf(PRINT_ALL, "  GL depth size: %d\n", attribute);
+        ri.Printf(PRINT_ALL, "  GL depth size: %d\n", attribute);
 
         sdl_result = ::SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &attribute);
-        ::ri.Printf(PRINT_ALL, "  GL stencil size: %d\n", attribute);
+        ri.Printf(PRINT_ALL, "  GL stencil size: %d\n", attribute);
 
         sdl_result = ::SDL_GL_GetAttribute(SDL_GL_STEREO, &attribute);
-        ::ri.Printf(PRINT_ALL, "  GL stereo mode: %s\n",
+        ri.Printf(PRINT_ALL, "  GL stereo mode: %s\n",
             strings[attribute]);
     }
 
@@ -595,19 +811,19 @@ void GLimp_Init()
 
         gl_initialize_extensions();
 
-        ::ri.Cvar_Set("r_highQualityVideo", "1");
-        ::ri.Cvar_Set("r_lastValidRenderer", gl_renderer.c_str());
+        ri.Cvar_Set("r_highQualityVideo", "1");
+        ri.Cvar_Set("r_lastValidRenderer", gl_renderer.c_str());
 
-        ::SDL_ShowWindow(sys_gl_window);
+        SDL_ShowWindow(sys_gl_window);
     } else {
         if (gl_context != NULL) {
-            ::SDL_GL_MakeCurrent(sys_gl_window, NULL);
-            ::SDL_GL_DeleteContext(gl_context);
+            SDL_GL_MakeCurrent(sys_gl_window, NULL);
+            SDL_GL_DeleteContext(gl_context);
             gl_context = NULL;
         }
 
         if (sys_gl_window != NULL) {
-            ::SDL_DestroyWindow(sys_gl_window);
+            SDL_DestroyWindow(sys_gl_window);
             sys_gl_window = NULL;
         }
     }
@@ -621,13 +837,13 @@ void GLimp_Init()
 void GLimp_Shutdown()
 {
     if (gl_context != NULL) {
-        ::SDL_GL_MakeCurrent(sys_gl_window, NULL);
-        ::SDL_GL_DeleteContext(gl_context);
+        SDL_GL_MakeCurrent(sys_gl_window, NULL);
+        SDL_GL_DeleteContext(gl_context);
         gl_context = NULL;
     }
 
     if (sys_gl_window != NULL) {
-        ::SDL_DestroyWindow(sys_gl_window);
+        SDL_DestroyWindow(sys_gl_window);
         sys_gl_window = NULL;
     }
 
@@ -647,11 +863,11 @@ void GLimp_EndFrame()
     if (r_swapInterval->modified) {
         r_swapInterval->modified = false;
 
-        ::SDL_GL_SetSwapInterval(r_swapInterval->integer);
+        SDL_GL_SetSwapInterval(r_swapInterval->integer);
     }
 
-    if (::Q_stricmp(r_drawBuffer->string, "GL_FRONT") != 0)
-        ::SDL_GL_SwapWindow(sys_gl_window);
+    if (Q_stricmp(r_drawBuffer->string, "GL_FRONT") != 0)
+        SDL_GL_SwapWindow(sys_gl_window);
 }
 
 void GLimp_SetGamma(
@@ -692,7 +908,7 @@ void GLimp_SetGamma(
 
     if (sdl_result != 0) {
         ri.Printf(PRINT_ALL, S_COLOR_YELLOW "SDL gamma: %s\n",
-            ::SDL_GetError());
+            SDL_GetError());
     }
 }
 
@@ -704,11 +920,11 @@ void GLimp_Activate (
 
 bool GLimp_SetFullscreen(bool value)
 {
-    ::ri.Printf(PRINT_ALL, "Trying to set %s mode without video restart...\n",
+    ri.Printf(PRINT_ALL, "Trying to set %s mode without video restart...\n",
         value ? "fullscreen" : "windowed");
 
     if (sys_gl_window == NULL) {
-        ::ri.Printf(PRINT_ALL, S_COLOR_YELLOW "  no main window.\n");
+        ri.Printf(PRINT_ALL, S_COLOR_YELLOW "  no main window.\n");
         return false;
     }
 
@@ -720,10 +936,10 @@ bool GLimp_SetFullscreen(bool value)
         value);
 
     if (sdl_result == 0) {
-        ::ri.Printf(PRINT_ALL, "  succeed.\n");
+        ri.Printf(PRINT_ALL, "  succeed.\n");
         return true;
     }
 
-    ::ri.Printf(PRINT_ALL, "  failed.\n");
+    ri.Printf(PRINT_ALL, "  failed.\n");
     return false;
 }

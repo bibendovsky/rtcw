@@ -1,7 +1,5 @@
 #include "rtcw_ogl_program.h"
-
 #include <memory>
-
 #include "tr_local.h"
 
 

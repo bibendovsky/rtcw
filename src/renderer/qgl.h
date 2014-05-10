@@ -693,7 +693,124 @@ If you have questions concerning this license or the applicable additional terms
 //
 //#endif  // _WIN32 && __linux__
 
-#include <GL/glew.h>
+
+#include "SDL_opengl.h"
+
+
+// FIXME Are GL_RGBA_S3TC and GL_RGBA_DXT5_S3TC same?
+#ifndef GL_RGBA_DXT5_S3TC
+    #define GL_RGBA_DXT5_S3TC (0x83A4)
+#endif // GL_RGBA_DXT5_S3TC
+
+
+// GL_ARB_multitexture, glActiveTextureARB
+extern PFNGLACTIVETEXTUREPROC glActiveTexture;
+
+// GL_ARB_shader_objects, glAttachObjectARB
+extern PFNGLATTACHSHADERPROC glAttachShader;
+
+// GL_ARB_vertex_buffer_object, glBindBufferARB
+extern PFNGLBINDBUFFERPROC glBindBuffer;
+
+// GL_ARB_vertex_buffer_object, glBufferDataARB
+extern PFNGLBUFFERDATAPROC glBufferData;
+
+// GL_ARB_vertex_buffer_object, glBufferSubDataARB
+extern PFNGLBUFFERSUBDATAPROC glBufferSubData;
+
+// GL_ARB_multitexture, glClientActiveTextureARB
+extern PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture;
+
+// GL_ARB_shader_objects, glCompileShaderARB
+extern PFNGLCOMPILESHADERPROC glCompileShader;
+
+// GL_ARB_shader_objects, glCreateProgramObjectARB
+extern PFNGLCREATEPROGRAMPROC glCreateProgram;
+
+// GL_ARB_shader_objects, glCreateShaderObjectARB
+extern PFNGLCREATESHADERPROC glCreateShader;
+
+// GL_ARB_vertex_buffer_object, glDeleteBuffersARB
+extern PFNGLDELETEBUFFERSPROC glDeleteBuffers;
+
+// GL_ARB_shader_objects, glDeleteObjectARB
+extern PFNGLDELETEPROGRAMPROC glDeleteProgram;
+
+// GL_ARB_shader_objects, glDeleteObjectARB
+extern PFNGLDELETESHADERPROC glDeleteShader;
+
+// GL_ARB_vertex_program, glDisableVertexAttribArrayARB
+extern PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray;
+
+// GL_ARB_draw_elements_base_vertex
+extern PFNGLDRAWELEMENTSBASEVERTEXPROC glDrawElementsBaseVertex;
+
+// GL_ARB_vertex_program, glEnableVertexAttribArrayARB
+extern PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+
+// GL_ARB_vertex_buffer_object, glGenBuffersARB
+extern PFNGLGENBUFFERSPROC glGenBuffers;
+
+// GL_ARB_framebuffer_object, glGenerateMipmap
+extern PFNGLGENERATEMIPMAPPROC glGenerateMipmap;
+
+// GL_ARB_vertex_shader, glGetAttribLocationARB
+extern PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation;
+
+// GL_ARB_shader_objects, glGetInfoLogARB
+extern PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
+
+// GL_ARB_vertex_program, glGetProgramivARB
+extern PFNGLGETPROGRAMIVPROC glGetProgramiv;
+
+// GL_ARB_shader_objects, glGetInfoLogARB
+extern PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
+
+// GL_ARB_shader_objects, glGetObjectParameterivARB
+extern PFNGLGETSHADERIVPROC glGetShaderiv;
+
+// GL_ARB_shader_objects, glGetUniformLocationARB
+extern PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
+
+// GL_ARB_shader_objects, glLinkProgramARB
+extern PFNGLLINKPROGRAMPROC glLinkProgram;
+
+// GL_EXT_compiled_vertex_array, glLockArraysEXT
+extern PFNGLLOCKARRAYSEXTPROC glLockArraysEXT;
+
+// GL_ARB_multitexture, glMultiTexCoord2fARB
+extern PFNGLMULTITEXCOORD2FPROC glMultiTexCoord2f;
+
+// GL_ARB_shader_objects, glShaderSourceARB
+extern PFNGLSHADERSOURCEPROC glShaderSource;
+
+// GL_ARB_shader_objects, glUniform1fARB
+extern PFNGLUNIFORM1FPROC glUniform1f;
+
+// GL_ARB_shader_objects, glUniform1iARB
+extern PFNGLUNIFORM1IPROC glUniform1i;
+
+// GL_ARB_shader_objects, glUniform4fvARB
+extern PFNGLUNIFORM4FVPROC glUniform4fv;
+
+// GL_ARB_shader_objects, glUniformMatrix4fvARB
+extern PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
+
+// GL_EXT_compiled_vertex_array, glUnlockArraysEXT
+extern PFNGLUNLOCKARRAYSEXTPROC glUnlockArraysEXT;
+
+// GL_ARB_shader_objects, glUseProgramObjectARB
+extern PFNGLUSEPROGRAMPROC glUseProgram;
+
+// GL_ARB_vertex_program, glVertexAttrib2fARB
+extern PFNGLVERTEXATTRIB2FPROC glVertexAttrib2f;
+
+// GL_ARB_vertex_program, glVertexAttrib4fARB
+extern PFNGLVERTEXATTRIB4FPROC glVertexAttrib4f;
+
+// GL_ARB_vertex_program, glVertexAttribPointerARB
+extern PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
 //BBi
+
 
 #endif

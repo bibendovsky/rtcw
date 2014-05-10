@@ -11,10 +11,6 @@ if (RTCW_STATIC_CURL)
     add_definitions(-DCURL_STATICLIB)
 endif ()
 
-if (RTCW_STATIC_GLEW)
-    add_definitions(-DGLEW_STATIC)
-endif ()
-
 include_directories(
     .
     ../botai
@@ -22,7 +18,6 @@ include_directories(
     ../cgame
     ../client
     ../game
-    ../glew
     ../glm
     ../qcommon
     ../renderer
@@ -30,7 +25,6 @@ include_directories(
     ../ui
     ../win32
     ${CURL_INCLUDE_DIR}
-    ${GLEW_INCLUDE_DIR}
     ${JPEG_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIR}/contrib/minizip
@@ -283,7 +277,6 @@ endif ()
 target_link_libraries(
     ${RTCW_TARGET}
     ${CURL_LIBRARY}
-    ${GLEW_LIBRARY}
     ${JPEG_LIBRARY}
     ${SDLMAIN_LIBRARY}
     ${SDL_LIBRARY}

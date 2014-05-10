@@ -184,13 +184,13 @@ void GL_SelectTexture( int unit ) {
 	if ( unit == 0 ) {
         // BBi
         if (!glConfigEx.is_path_ogl_1_x ()) {
-            ::glActiveTexture (GL_TEXTURE0);
+            glActiveTexture (GL_TEXTURE0);
         } else {
         // BBi
 
-		::glActiveTextureARB( GL_TEXTURE0_ARB );
+		glActiveTexture( GL_TEXTURE0_ARB );
 		//GLimp_LogComment( "glActiveTextureARB( GL_TEXTURE0_ARB )\n" );
-		::glClientActiveTextureARB( GL_TEXTURE0_ARB );
+		glClientActiveTexture( GL_TEXTURE0_ARB );
 		//GLimp_LogComment( "glClientActiveTextureARB( GL_TEXTURE0_ARB )\n" );
 
         // BBi
@@ -199,13 +199,13 @@ void GL_SelectTexture( int unit ) {
 	} else if ( unit == 1 )   {
         // BBi
         if (!glConfigEx.is_path_ogl_1_x ()) {
-            ::glActiveTexture (GL_TEXTURE1);
+            glActiveTexture (GL_TEXTURE1);
         } else {
         // BBi
 
-		::glActiveTextureARB( GL_TEXTURE1_ARB );
+		glActiveTexture( GL_TEXTURE1_ARB );
 		//GLimp_LogComment( "glActiveTextureARB( GL_TEXTURE1_ARB )\n" );
-		::glClientActiveTextureARB( GL_TEXTURE1_ARB );
+		glClientActiveTexture( GL_TEXTURE1_ARB );
 		//GLimp_LogComment( "glClientActiveTextureARB( GL_TEXTURE1_ARB )\n" );
 
         // BBi

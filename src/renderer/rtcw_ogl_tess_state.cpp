@@ -1,8 +1,7 @@
 #include "rtcw_ogl_tess_state.h"
-
 #include <cassert>
-
 #include <glm/gtc/type_ptr.hpp>
+#include "qgl.h"
 
 
 namespace rtcw {

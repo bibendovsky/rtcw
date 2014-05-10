@@ -350,7 +350,6 @@ typedef struct {
 
 #if defined RTCW_SP
 	char extensions_string[4 * MAX_STRING_CHARS];                       // this is actually too short for many current cards/drivers  // (SA) doubled from 2x to 4x MAX_STRING_CHARS
-
 #else
 	char extensions_string[MAX_STRING_CHARS * 4];                  // TTimo - bumping, some cards have a big extension string
 #endif // RTCW_XX
@@ -406,8 +405,8 @@ enum RendererPath {
     RENDERER_PATH_NONE,
     // Fixed OpenGL.
     RENDERER_PATH_OGL_1_X,
-    // Programmable OpenGL 2.1.
-    RENDERER_PATH_OGL_2_1
+    // Programmable OpenGL (2.x desktop).
+    RENDERER_PATH_OGL_2_X
 }; // enum RendererPath
 
 // Extends glconfig_t structure.
@@ -420,6 +419,7 @@ public:
     bool useArbFramebufferObject; // glGenerateMipmap, etc.
     bool useArbTextureNonPowerOfTwo;
     bool use_arb_draw_elements_base_vertex;
+    bool is_2_x_capable;
     RendererPath renderer_path;
 
     void reset ()
@@ -431,17 +431,18 @@ public:
         useArbFramebufferObject = false;
         useArbTextureNonPowerOfTwo = false;
         use_arb_draw_elements_base_vertex = false;
+        is_2_x_capable = false;
         renderer_path = RENDERER_PATH_NONE;
     }
 
-    bool is_path_ogl_1_x () const
+    bool is_path_ogl_1_x() const
     {
         return renderer_path == RENDERER_PATH_OGL_1_X;
     }
 
-    bool is_path_ogl_2_1 () const
+    bool is_path_ogl_2_x() const
     {
-        return renderer_path == RENDERER_PATH_OGL_2_1;
+        return renderer_path == RENDERER_PATH_OGL_2_X;
     }
 }; // class GlConfigEx
 //BBi

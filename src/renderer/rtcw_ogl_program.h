@@ -3,8 +3,7 @@
 
 
 #include <string>
-
-#include <GL/glew.h>
+#include "SDL_opengl.h"
 
 
 namespace rtcw {

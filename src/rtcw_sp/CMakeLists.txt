@@ -7,10 +7,6 @@ add_definitions(-DBOTLIB)
 add_definitions(-DRTCW_32)
 add_definitions(-DRTCW_SP)
 
-if (RTCW_STATIC_GLEW)
-    add_definitions(-DGLEW_STATIC)
-endif ()
-
 include_directories(
     .
     ../botai
@@ -23,7 +19,6 @@ include_directories(
     ../system
     ../ui
     ../win32
-    ${GLEW_INCLUDE_DIR}
     ${JPEG_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIR}/contrib/minizip
@@ -273,7 +268,6 @@ endif ()
 
 target_link_libraries(
     ${RTCW_TARGET}
-    ${GLEW_LIBRARY}
     ${JPEG_LIBRARY}
     ${SDLMAIN_LIBRARY}
     ${SDL_LIBRARY}

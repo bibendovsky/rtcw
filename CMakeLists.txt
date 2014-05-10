@@ -27,12 +27,7 @@ if (RTCW_BUILD_ET)
 endif ()
 
 if (RTCW_BUILD_ET OR RTCW_BUILD_MP OR RTCW_BUILD_SP)
-    find_package(GLEW 1.10 REQUIRED)
     find_package(JPEG REQUIRED)
-
-    if (WIN32)
-        option(RTCW_STATIC_GLEW "Link GLEW library statically" ON)
-    endif ()
 endif ()
 
 project(rtcw)

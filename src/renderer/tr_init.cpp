@@ -447,7 +447,7 @@ static int R_GetMaxTextureSize ()
 
 std::string r_get_glsl_path ()
 {
-    if (glConfigEx.is_path_ogl_2_1 ())
+    if (glConfigEx.is_path_ogl_2_x())
         return "glsl/120/";
     else
         return "";
@@ -598,23 +598,23 @@ static void InitOpenGL( void ) {
     // BBi
     glConfigEx.renderer_path = RENDERER_PATH_OGL_1_X;
 
-    if (GLEW_VERSION_2_1) {
-        glConfigEx.renderer_path = RENDERER_PATH_OGL_2_1;
+    if (glConfigEx.is_2_x_capable) {
+        glConfigEx.renderer_path = RENDERER_PATH_OGL_2_X;
 
-        if (::r_probe_programs()) {
-            ::ri.Printf(PRINT_ALL, "\nUsing OpenGL 2.1 path...\n");
+        if (r_probe_programs()) {
+            ri.Printf(PRINT_ALL, "\nUsing OpenGL 2.0+ path...\n");
         } else {
             glConfigEx.renderer_path = RENDERER_PATH_OGL_1_X;
-            ::ri.Printf(PRINT_WARNING, "\nFalling back to OpenGL 1.x path...");
+            ri.Printf(PRINT_WARNING, "\nFalling back to OpenGL 1.1+ path...");
         }
     }
 
     if (!glConfigEx.is_path_ogl_1_x()) {
-        ::r_reload_programs_f();
-        ::r_tess_initialize();
+        r_reload_programs_f();
+        r_tess_initialize();
 
-        ::ri.Cvar_Set("r_ext_NV_fog_dist", "1");
-        ::ri.Printf(PRINT_ALL, "Emulating %s...\n", "GL_NV_fog_distance");
+        ri.Cvar_Set("r_ext_NV_fog_dist", "1");
+        ri.Printf(PRINT_ALL, "Emulating %s...\n", "GL_NV_fog_distance");
     }
     // BBi
 

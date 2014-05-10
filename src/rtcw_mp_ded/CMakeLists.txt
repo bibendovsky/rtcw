@@ -9,10 +9,6 @@ add_definitions(-DDO_LIGHT_DEDICATED)
 add_definitions(-DRTCW_32)
 add_definitions(-DRTCW_MP)
 
-if (RTCW_STATIC_GLEW)
-    add_definitions(-DGLEW_STATIC)
-endif ()
-
 include_directories(
     .
     ../botai

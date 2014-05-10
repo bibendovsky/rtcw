@@ -74,10 +74,10 @@ This is just for OpenGL conformance testing, it should never be the fastest
 static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
 	::glColor4ubv( tess.svars.colors[ index ] );
 	if ( glState.currenttmu ) {
-		::glMultiTexCoord2fARB( 0, tess.svars.texcoords[ 0 ][ index ][0], tess.svars.texcoords[ 0 ][ index ][1] );
-		::glMultiTexCoord2fARB( 1, tess.svars.texcoords[ 1 ][ index ][0], tess.svars.texcoords[ 1 ][ index ][1] );
+		glMultiTexCoord2f(0, tess.svars.texcoords[ 0 ][ index ][0], tess.svars.texcoords[ 0 ][ index ][1]);
+		glMultiTexCoord2f(1, tess.svars.texcoords[ 1 ][ index ][0], tess.svars.texcoords[ 1 ][ index ][1]);
 	} else {
-		::glTexCoord2fv( tess.svars.texcoords[ 0 ][ index ] );
+		glTexCoord2fv( tess.svars.texcoords[ 0 ][ index ] );
 	}
 
 	glVertex3fv( tess.xyz[ index ].v );
