@@ -262,14 +262,6 @@ void gl_initialize_extensions()
 
     if (gl_has_extension(extension_name1)) {
         glConfigEx.useArbFramebufferObject = true;
-        gl_print_found_extension(extension_name1);
-    } else
-        gl_print_missed_extension(extension_name1);
-
-
-    extension_name1 = "GL_ARB_framebuffer_object";
-
-    if (gl_has_extension(extension_name1)) {
         glConfigEx.useArbTextureNonPowerOfTwo = true;
         gl_print_found_extension(extension_name1);
     } else
