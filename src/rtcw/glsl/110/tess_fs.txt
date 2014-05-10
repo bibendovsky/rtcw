@@ -7,7 +7,7 @@
 //
 
 
-#version 120
+//#version 110
 
 
 // Known constants.
@@ -35,14 +35,14 @@ uniform int tex_env_mode[2]; // texture environment mode
 uniform bool use_multitexturing; // mutitexturing switch
 uniform sampler2D tex_2d[2]; // textures
 
-uniform bool use_fog = false;
-uniform int fog_mode = GL_EXP;
-uniform int fog_hint = GL_DONT_CARE;
-uniform int fog_dist_mode = GL_NONE; // GL_NV_fog_distance emulation
-uniform vec4 fog_color = vec4 (0.0);
-uniform float fog_density = 1.0;
-uniform float fog_start = 0.0;
-uniform float fog_end = 1.0;
+uniform bool use_fog;
+uniform int fog_mode;
+uniform int fog_hint;
+uniform int fog_dist_mode; // GL_NV_fog_distance emulation
+uniform vec4 fog_color;
+uniform float fog_density;
+uniform float fog_start;
+uniform float fog_end;
 
 varying vec4 col; // interpolated color
 varying vec2 tc[2]; // interpolated texture coords

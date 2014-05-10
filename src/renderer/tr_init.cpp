@@ -448,9 +448,9 @@ static int R_GetMaxTextureSize ()
 std::string r_get_glsl_path ()
 {
     if (glConfigEx.is_path_ogl_2_x())
-        return "glsl/120/";
+        return "glsl/110/";
     else
-        return "";
+        return std::string();
 }
 
 bool r_probe_programs ()
