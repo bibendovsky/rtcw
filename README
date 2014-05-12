@@ -1,5 +1,5 @@
 RTCW: One source port for all Return to Castle Wolfenstein games
-(single-player, multi-player, Enemy Territory).
+(singleplayer, multi-player, Enemy Territory)
 
 
 Minimum system requirements
@@ -9,17 +9,11 @@ OS: Windows XP
 
 Used third-party libraries
 --------------------------
-GLEW: The OpenGL Extension Wrangler Library
-http://glew.sourceforge.net/
-
 libjpeg-turbo
 http://libjpeg-turbo.virtualgl.org/
 
 libcurl - the multiprotocol file transfer library 
 http://curl.haxx.se/libcurl/
-
-OpenAL Soft: A cross-platform 3D audio API
-http://kcat.strangesoft.net/openal.html
 
 GLM: OpenGL Mathematics
 http://glm.g-truc.net/
