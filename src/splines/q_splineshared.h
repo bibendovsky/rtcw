@@ -48,26 +48,6 @@ If you have questions concerning this license or the applicable additional terms
 #define ALIGN_ON
 #define ALIGN_OFF
 
-#if (!defined RTCW_ET && defined _WIN32) || (defined RTCW_ET && defined _WIN32 && !defined __GNUC__)
-#pragma warning(disable : 4018) // signed/unsigned mismatch
-#pragma warning(disable : 4032)
-#pragma warning(disable : 4051)
-#pragma warning(disable : 4057) // slightly different base types
-#pragma warning(disable : 4100) // unreferenced formal parameter
-#pragma warning(disable : 4115)
-#pragma warning(disable : 4125) // decimal digit terminates octal escape sequence
-#pragma warning(disable : 4127) // conditional expression is constant
-#pragma warning(disable : 4136)
-#pragma warning(disable : 4201)
-#pragma warning(disable : 4214)
-#pragma warning(disable : 4244)
-#pragma warning(disable : 4305) // truncation from const double to float
-#pragma warning(disable : 4310) // cast truncates constant value
-#pragma warning(disable : 4514)
-#pragma warning(disable : 4711) // selected for automatic inline expansion
-#pragma warning(disable : 4220) // varargs matches remaining parameters
-#endif // RTCW_XX
-
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>

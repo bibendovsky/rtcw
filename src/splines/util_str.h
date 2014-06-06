@@ -35,13 +35,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <string.h>
 #include <stdio.h>
 
-#ifdef _WIN32
-
-#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
-#pragma warning(disable : 4710) // function 'blah' not inlined
-#endif // RTCW_XX
-
-#endif
 
 void TestStringClass();
 
