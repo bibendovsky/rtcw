@@ -42,15 +42,6 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 #endif // RTCW_XX
 
-#ifdef _WIN32
-
-#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
-#pragma warning(disable : 4244) // 'conversion' conversion from 'type1' to 'type2', possible loss of data
-#pragma warning(disable : 4710) // function 'blah' not inlined
-#endif // RTCW_XX
-
-#endif
-
 static const int STR_ALLOC_GRAN = 20;
 
 char *idStr::tolower
@@ -458,13 +449,6 @@ void idStr::snprintf
 	strncpy( dst, buffer, size - 1 );
 }
 
-#ifdef _WIN32
-
-#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
-#pragma warning(disable : 4189) // local variable is initialized but not referenced
-#endif // RTCW_XX
-
-#endif
 
 #if defined RTCW_SP
 #if 0
@@ -816,12 +800,3 @@ void TestStringClass
 
 #endif
 #endif // RTCW_XX
-
-#ifdef _WIN32
-
-#if !defined RTCW_ET || (defined RTCW_ET && !defined __GNUC__)
-#pragma warning(default : 4189) // local variable is initialized but not referenced
-#pragma warning(disable : 4514) // unreferenced inline function has been removed
-#endif // RTCW_XX
-
-#endif

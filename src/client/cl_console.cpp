@@ -584,12 +584,6 @@ If no console is visible, the text will appear at the top of the game window
 ================
 */
 
-#if !defined RTCW_SP
-#if defined( _WIN32 ) && defined( NDEBUG )
-#pragma optimize( "g", off ) // SMF - msvc totally screws this function up with optimize on
-#endif
-#endif // RTCW_XX
-
 void CL_ConsolePrint( char *txt ) {
 	int y;
 	int c, l;
@@ -722,12 +716,6 @@ void CL_ConsolePrint( char *txt ) {
 
 	}
 }
-
-#if !defined RTCW_SP
-#if defined( _WIN32 ) && defined( NDEBUG )
-#pragma optimize( "g", on ) // SMF - re-enabled optimization
-#endif
-#endif // RTCW_XX
 
 /*
 ==============================================================================

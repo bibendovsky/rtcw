@@ -29,10 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __MATH_VECTOR_H__
 #define __MATH_VECTOR_H__
 
-#if defined( _WIN32 )
-#pragma warning(disable : 4244)
-#endif
-
 #include <math.h>
 #include <assert.h>
 
