@@ -176,7 +176,7 @@ void gl_load_symbol(
     T& variable,
     const char* symbol_name)
 {
-    variable = static_cast<T>(SDL_GL_GetProcAddress(symbol_name));
+    variable = reinterpret_cast<T>(::SDL_GL_GetProcAddress(symbol_name));
 }
 
 template<class T>
@@ -185,12 +185,12 @@ void gl_load_symbol(
     const char* symbol_name1,
     const char* symbol_name2)
 {
-    void* symbol = SDL_GL_GetProcAddress(symbol_name1);
+    void* symbol = ::SDL_GL_GetProcAddress(symbol_name1);
 
     if (symbol == NULL)
-        symbol = SDL_GL_GetProcAddress(symbol_name2);
+        symbol = ::SDL_GL_GetProcAddress(symbol_name2);
 
-    variable = static_cast<T>(symbol);
+    variable = reinterpret_cast<T>(symbol);
 }
 
 void gl_initialize_extension_functions()
@@ -236,7 +236,7 @@ void gl_initialize_extension_functions()
 bool gl_has_extension(
     const char* extension_name)
 {
-    return SDL_GL_ExtensionSupported(extension_name) != SDL_FALSE;
+    return ::SDL_GL_ExtensionSupported(extension_name) != SDL_FALSE;
 }
 
 bool gl_is_2_x_capable()
@@ -519,11 +519,11 @@ void GLimp_Init()
     int sdl_result = 0;
 
     if (is_succeed) {
-        sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
+        sdl_result = ::SDL_InitSubSystem(SDL_INIT_VIDEO);
 
         if (sdl_result != 0) {
             is_succeed = false;
-            ri.Error(ERR_FATAL, "%s\n", SDL_GetError());
+            ri.Error(ERR_FATAL, "%s\n", ::SDL_GetError());
         }
     }
 
@@ -535,7 +535,7 @@ void GLimp_Init()
     if (is_succeed) {
         SDL_DisplayMode dm;
 
-        sdl_result = SDL_GetCurrentDisplayMode(
+        sdl_result = ::SDL_GetCurrentDisplayMode(
             0,
             &dm);
 
@@ -587,19 +587,19 @@ void GLimp_Init()
                 SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN;
         }
 
-        sdl_result = SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-        sdl_result = SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-        sdl_result = SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-        sdl_result = SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-        sdl_result = SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-        sdl_result = SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-        sdl_result = SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-        sdl_result = SDL_GL_SetAttribute(SDL_GL_STEREO, is_stereo);
+        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_STEREO, is_stereo);
 
-        cvar_t* x_cvar = ri.Cvar_Get("vid_xpos", "0", 0);
+        cvar_t* x_cvar = ::ri.Cvar_Get("vid_xpos", "0", 0);
         int x = x_cvar->integer;
 
-        cvar_t* y_cvar = ri.Cvar_Get("vid_ypos", "0", 0);
+        cvar_t* y_cvar = ::ri.Cvar_Get("vid_ypos", "0", 0);
         int y = y_cvar->integer;
 
         if (x < 0)
@@ -632,7 +632,7 @@ void GLimp_Init()
             height == FALLBACK_HEIGHT);
 
         while (is_succeed) {
-            sys_gl_window = SDL_CreateWindow(
+            sys_gl_window = ::SDL_CreateWindow(
                 window_title,
                 x,
                 y,
@@ -693,7 +693,7 @@ void GLimp_Init()
     }
 
     if (is_succeed) {
-        gl_context = SDL_GL_CreateContext(sys_gl_window);
+        gl_context = ::SDL_GL_CreateContext(sys_gl_window);
 
         if (gl_context == NULL) {
             is_succeed = false;
@@ -814,16 +814,16 @@ void GLimp_Init()
         ri.Cvar_Set("r_highQualityVideo", "1");
         ri.Cvar_Set("r_lastValidRenderer", gl_renderer.c_str());
 
-        SDL_ShowWindow(sys_gl_window);
+        ::SDL_ShowWindow(sys_gl_window);
     } else {
         if (gl_context != NULL) {
-            SDL_GL_MakeCurrent(sys_gl_window, NULL);
-            SDL_GL_DeleteContext(gl_context);
+            ::SDL_GL_MakeCurrent(sys_gl_window, NULL);
+            ::SDL_GL_DeleteContext(gl_context);
             gl_context = NULL;
         }
 
         if (sys_gl_window != NULL) {
-            SDL_DestroyWindow(sys_gl_window);
+            ::SDL_DestroyWindow(sys_gl_window);
             sys_gl_window = NULL;
         }
     }
@@ -837,13 +837,13 @@ void GLimp_Init()
 void GLimp_Shutdown()
 {
     if (gl_context != NULL) {
-        SDL_GL_MakeCurrent(sys_gl_window, NULL);
-        SDL_GL_DeleteContext(gl_context);
+        ::SDL_GL_MakeCurrent(sys_gl_window, NULL);
+        ::SDL_GL_DeleteContext(gl_context);
         gl_context = NULL;
     }
 
     if (sys_gl_window != NULL) {
-        SDL_DestroyWindow(sys_gl_window);
+        ::SDL_DestroyWindow(sys_gl_window);
         sys_gl_window = NULL;
     }
 
@@ -863,11 +863,11 @@ void GLimp_EndFrame()
     if (r_swapInterval->modified) {
         r_swapInterval->modified = false;
 
-        SDL_GL_SetSwapInterval(r_swapInterval->integer);
+        ::SDL_GL_SetSwapInterval(r_swapInterval->integer);
     }
 
     if (Q_stricmp(r_drawBuffer->string, "GL_FRONT") != 0)
-        SDL_GL_SwapWindow(sys_gl_window);
+        ::SDL_GL_SwapWindow(sys_gl_window);
 }
 
 void GLimp_SetGamma(
@@ -908,7 +908,7 @@ void GLimp_SetGamma(
 
     if (sdl_result != 0) {
         ri.Printf(PRINT_ALL, S_COLOR_YELLOW "SDL gamma: %s\n",
-            SDL_GetError());
+            ::SDL_GetError());
     }
 }
 
