@@ -35,7 +35,7 @@ static int ( QDECL * syscall )( int arg, ... ) = ( int ( QDECL * )( int, ... ) )
 #if defined( __MACOS__ )
 #pragma export on
 #endif
-void dllEntry( int ( QDECL  *syscallptr )( int arg,... ) ) {
+extern "C" void dllEntry( int ( QDECL  *syscallptr )( int arg,... ) ) {
 	syscall = syscallptr;
 }
 #if defined( __MACOS__ )

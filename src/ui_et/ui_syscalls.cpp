@@ -36,7 +36,7 @@ static int ( QDECL * syscall )( int arg, ... ) = ( int ( QDECL * )( int, ... ) )
 #if __GNUC__ >= 4
 #pragma GCC visibility push(default)
 #endif
-void dllEntry( int ( QDECL *syscallptr )( int arg,... ) ) {
+extern "C" void dllEntry( int ( QDECL *syscallptr )( int arg,... ) ) {
 	syscall = syscallptr;
 }
 #if __GNUC__ >= 4
