@@ -46,113 +46,468 @@ static qboolean fontbase_init = qfalse;
 #endif // RTCW_XX
 
 
-// GL_ARB_multitexture, glActiveTextureARB
-PFNGLACTIVETEXTUREPROC glActiveTexture;
+namespace {
 
-// GL_ARB_shader_objects, glAttachObjectARB
-PFNGLATTACHSHADERPROC glAttachShader;
 
-// GL_ARB_vertex_buffer_object, glBindBufferARB
-PFNGLBINDBUFFERPROC glBindBuffer;
+// GL_ARB_multitexture
+PFNGLACTIVETEXTUREPROC glActiveTexture_ = NULL;
 
-// GL_ARB_vertex_buffer_object, glBufferDataARB
-PFNGLBUFFERDATAPROC glBufferData;
+// GL_ARB_shader_objects
+PFNGLATTACHSHADERPROC glAttachShader_ = NULL;
 
-// GL_ARB_vertex_buffer_object, glBufferSubDataARB
-PFNGLBUFFERSUBDATAPROC glBufferSubData;
+// GL_ARB_vertex_buffer_object
+PFNGLBINDBUFFERPROC glBindBuffer_ = NULL;
 
-// GL_ARB_multitexture, glClientActiveTextureARB
-PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture;
+// GL_ARB_vertex_buffer_object
+PFNGLBUFFERDATAPROC glBufferData_ = NULL;
 
-// GL_ARB_shader_objects, glCompileShaderARB
-PFNGLCOMPILESHADERPROC glCompileShader;
+// GL_ARB_vertex_buffer_object
+PFNGLBUFFERSUBDATAPROC glBufferSubData_ = NULL;
 
-// GL_ARB_shader_objects, glCreateProgramObjectARB
-PFNGLCREATEPROGRAMPROC glCreateProgram;
+// GL_ARB_multitexture
+PFNGLCLIENTACTIVETEXTUREARBPROC glClientActiveTexture_ = NULL;
 
-// GL_ARB_shader_objects, glCreateShaderObjectARB
-PFNGLCREATESHADERPROC glCreateShader;
+// GL_ARB_shader_objects
+PFNGLCOMPILESHADERPROC glCompileShader_ = NULL;
 
-// GL_ARB_vertex_buffer_object, glDeleteBuffersARB
-PFNGLDELETEBUFFERSPROC glDeleteBuffers;
+// GL_ARB_shader_objects
+PFNGLCREATEPROGRAMPROC glCreateProgram_ = NULL;
 
-// GL_ARB_shader_objects, glDeleteObjectARB
-PFNGLDELETEPROGRAMPROC glDeleteProgram;
+// GL_ARB_shader_objects
+PFNGLCREATESHADERPROC glCreateShader_ = NULL;
 
-// GL_ARB_shader_objects, glDeleteObjectARB
-PFNGLDELETESHADERPROC glDeleteShader;
+// GL_ARB_vertex_buffer_object
+PFNGLDELETEBUFFERSPROC glDeleteBuffers_ = NULL;
 
-// GL_ARB_vertex_program, glDisableVertexAttribArrayARB
-PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray;
+// GL_ARB_shader_objects
+PFNGLDELETEPROGRAMPROC glDeleteProgram_ = NULL;
+
+// GL_ARB_shader_objects
+PFNGLDELETESHADERPROC glDeleteShader_ = NULL;
+
+// GL_ARB_vertex_program
+PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray_ = NULL;
 
 // GL_ARB_draw_elements_base_vertex
-PFNGLDRAWELEMENTSBASEVERTEXPROC glDrawElementsBaseVertex;
+PFNGLDRAWELEMENTSBASEVERTEXPROC glDrawElementsBaseVertex_ = NULL;
 
-// GL_ARB_vertex_program, glEnableVertexAttribArrayARB
-PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+// GL_ARB_vertex_program
+PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray_ = NULL;
 
-// GL_ARB_vertex_buffer_object, glGenBuffersARB
-PFNGLGENBUFFERSPROC glGenBuffers;
+// GL_ARB_vertex_buffer_object
+PFNGLGENBUFFERSPROC glGenBuffers_ = NULL;
 
-// GL_ARB_framebuffer_object, glGenerateMipmap
-PFNGLGENERATEMIPMAPPROC glGenerateMipmap;
+// GL_ARB_framebuffer_object
+PFNGLGENERATEMIPMAPPROC glGenerateMipmap_ = NULL;
 
-// GL_ARB_vertex_shader, glGetAttribLocationARB
-PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation;
+// GL_ARB_vertex_shader
+PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation_ = NULL;
 
-// GL_ARB_shader_objects, glGetInfoLogARB
-PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
+// GL_ARB_shader_objects
+PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog_ = NULL;
 
-// GL_ARB_vertex_program, glGetProgramivARB
-PFNGLGETPROGRAMIVPROC glGetProgramiv;
+// GL_ARB_vertex_program
+PFNGLGETPROGRAMIVPROC glGetProgramiv_ = NULL;
 
-// GL_ARB_shader_objects, glGetInfoLogARB
-PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
+// GL_ARB_shader_objects
+PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog_ = NULL;
 
-// GL_ARB_shader_objects, glGetObjectParameterivARB
-PFNGLGETSHADERIVPROC glGetShaderiv;
+// GL_ARB_shader_objects
+PFNGLGETSHADERIVPROC glGetShaderiv_ = NULL;
 
-// GL_ARB_shader_objects, glGetUniformLocationARB
-PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
+// GL_ARB_shader_objects
+PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation_ = NULL;
 
-// GL_ARB_shader_objects, glLinkProgramARB
-PFNGLLINKPROGRAMPROC glLinkProgram;
+// GL_ARB_shader_objects
+PFNGLLINKPROGRAMPROC glLinkProgram_ = NULL;
 
-// GL_EXT_compiled_vertex_array, glLockArraysEXT
-PFNGLLOCKARRAYSEXTPROC glLockArraysEXT;
+// GL_EXT_compiled_vertex_array
+PFNGLLOCKARRAYSEXTPROC glLockArraysEXT_ = NULL;
 
-// GL_ARB_multitexture, glMultiTexCoord2fARB
-PFNGLMULTITEXCOORD2FPROC glMultiTexCoord2f;
+// GL_ARB_multitexture
+PFNGLMULTITEXCOORD2FARBPROC glMultiTexCoord2f_ = NULL;
 
-// GL_ARB_shader_objects, glShaderSourceARB
-PFNGLSHADERSOURCEPROC glShaderSource;
+// GL_ARB_shader_objects
+PFNGLSHADERSOURCEPROC glShaderSource_ = NULL;
 
-// GL_ARB_shader_objects, glUniform1fARB
-PFNGLUNIFORM1FPROC glUniform1f;
+// GL_ARB_shader_objects
+PFNGLUNIFORM1FPROC glUniform1f_ = NULL;
 
-// GL_ARB_shader_objects, glUniform1iARB
-PFNGLUNIFORM1IPROC glUniform1i;
+// GL_ARB_shader_objects
+PFNGLUNIFORM1IPROC glUniform1i_ = NULL;
 
-// GL_ARB_shader_objects, glUniform4fvARB
-PFNGLUNIFORM4FVPROC glUniform4fv;
+// GL_ARB_shader_objects
+PFNGLUNIFORM4FVPROC glUniform4fv_ = NULL;
 
-// GL_ARB_shader_objects, glUniformMatrix4fvARB
-PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
+// GL_ARB_shader_objects
+PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv_ = NULL;
 
-// GL_EXT_compiled_vertex_array, glUnlockArraysEXT
-PFNGLUNLOCKARRAYSEXTPROC glUnlockArraysEXT;
+// GL_EXT_compiled_vertex_array
+PFNGLUNLOCKARRAYSEXTPROC glUnlockArraysEXT_ = NULL;
 
-// GL_ARB_shader_objects, glUseProgramObjectARB
-PFNGLUSEPROGRAMPROC glUseProgram;
+// GL_ARB_shader_objects
+PFNGLUSEPROGRAMPROC glUseProgram_ = NULL;
 
-// GL_ARB_vertex_program, glVertexAttrib2fARB
-PFNGLVERTEXATTRIB2FPROC glVertexAttrib2f;
+// GL_ARB_vertex_program
+PFNGLVERTEXATTRIB2FPROC glVertexAttrib2f_ = NULL;
 
-// GL_ARB_vertex_program, glVertexAttrib4fARB
-PFNGLVERTEXATTRIB4FPROC glVertexAttrib4f;
+// GL_ARB_vertex_program
+PFNGLVERTEXATTRIB4FPROC glVertexAttrib4f_ = NULL;
 
-// GL_ARB_vertex_program, glVertexAttribPointerARB
-PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
+// GL_ARB_vertex_program
+PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer_ = NULL;
+
+
+} // namespace
+
+
+GLAPI void GLAPIENTRY glActiveTexture(
+    GLenum texture)
+{
+    glActiveTexture_(
+        texture);
+}
+
+GLAPI void APIENTRY glAttachShader(
+    GLuint program,
+    GLuint shader)
+{
+    glAttachShader_(
+        program,
+        shader);
+}
+
+GLAPI void APIENTRY glBindBuffer(
+    GLenum target,
+    GLuint buffer)
+{
+    glBindBuffer_(
+        target,
+        buffer);
+}
+
+GLAPI void APIENTRY glBufferData(
+    GLenum target,
+    GLsizeiptr size,
+    const void* data,
+    GLenum usage)
+{
+    glBufferData_(
+        target,
+        size,
+        data,
+        usage);
+}
+
+GLAPI void APIENTRY glBufferSubData(
+    GLenum target,
+    GLintptr offset,
+    GLsizeiptr size,
+    const void* data)
+{
+    glBufferSubData_(
+        target,
+        offset,
+        size,
+        data);
+}
+
+GLAPI void APIENTRY glClientActiveTexture(
+    GLenum texture)
+{
+    glClientActiveTexture_(
+        texture);
+}
+
+GLAPI void APIENTRY glCompileShader(
+    GLuint shader)
+{
+    glCompileShader_(
+        shader);
+}
+
+GLAPI GLuint APIENTRY glCreateProgram()
+{
+    return glCreateProgram_();
+}
+
+GLAPI GLuint APIENTRY glCreateShader(
+    GLenum type)
+{
+    return glCreateShader_(
+        type);
+}
+
+GLAPI void APIENTRY glDeleteBuffers(
+    GLsizei n,
+    const GLuint* buffers)
+{
+    glDeleteBuffers_(
+        n,
+        buffers);
+}
+
+GLAPI void APIENTRY glDeleteProgram(
+    GLuint program)
+{
+    glDeleteProgram_(
+        program);
+}
+
+GLAPI void APIENTRY glDeleteShader(
+    GLuint shader)
+{
+    glDeleteShader_(
+        shader);
+}
+
+GLAPI void APIENTRY glDisableVertexAttribArray(
+    GLuint index)
+{
+    glDisableVertexAttribArray_(
+        index);
+}
+
+GLAPI void APIENTRY glDrawElementsBaseVertex(
+    GLenum mode,
+    GLsizei count,
+    GLenum type,
+    const void* indices,
+    GLint basevertex)
+{
+    glDrawElementsBaseVertex_(
+        mode,
+        count,
+        type,
+        indices,
+        basevertex);
+}
+
+GLAPI void APIENTRY glEnableVertexAttribArray(
+    GLuint index)
+{
+    glEnableVertexAttribArray_(
+        index);
+}
+
+GLAPI void APIENTRY glGenBuffers(
+    GLsizei n,
+    GLuint* buffers)
+{
+    glGenBuffers_(
+        n,
+        buffers);
+}
+
+GLAPI void APIENTRY glGenerateMipmap(
+    GLenum target)
+{
+    glGenerateMipmap_(
+        target);
+}
+
+GLAPI GLint APIENTRY glGetAttribLocation(
+    GLuint program,
+    const GLchar* name)
+{
+    return glGetAttribLocation_(
+        program,
+        name);
+}
+
+GLAPI void APIENTRY glGetProgramInfoLog(
+    GLuint program,
+    GLsizei bufSize,
+    GLsizei* length,
+    GLchar* infoLog)
+{
+    glGetProgramInfoLog_(
+        program,
+        bufSize,
+        length,
+        infoLog);
+}
+
+GLAPI void APIENTRY glGetProgramiv(
+    GLuint program,
+    GLenum pname,
+    GLint* params)
+{
+    glGetProgramiv_(
+        program,
+        pname,
+        params);
+}
+
+GLAPI void APIENTRY glGetShaderInfoLog(
+    GLuint shader,
+    GLsizei bufSize,
+    GLsizei* length,
+    GLchar* infoLog)
+{
+    glGetShaderInfoLog_(
+        shader,
+        bufSize,
+        length,
+        infoLog);
+}
+
+GLAPI void APIENTRY glGetShaderiv(
+    GLuint shader,
+    GLenum pname,
+    GLint* params)
+{
+    glGetShaderiv_(
+        shader,
+        pname,
+        params);
+}
+
+GLAPI GLint APIENTRY glGetUniformLocation(
+    GLuint program,
+    const GLchar* name)
+{
+    return glGetUniformLocation_(
+        program,
+        name);
+}
+
+GLAPI void APIENTRY glLinkProgram(
+    GLuint program)
+{
+    glLinkProgram_(
+        program);
+}
+
+GLAPI void APIENTRY glLockArraysEXT(
+    GLint first,
+    GLsizei count)
+{
+    glLockArraysEXT_(
+        first,
+        count);
+}
+
+GLAPI void APIENTRY glMultiTexCoord2f(
+    GLenum target,
+    GLfloat s,
+    GLfloat t)
+{
+    glMultiTexCoord2f_(
+        target,
+        s,
+        t);
+}
+
+GLAPI void APIENTRY glShaderSource(
+    GLuint shader,
+    GLsizei count,
+    const GLchar* const* string,
+    const GLint* length)
+{
+    glShaderSource_(
+        shader,
+        count,
+        string,
+        length);
+}
+
+GLAPI void APIENTRY glUniform1f(
+    GLint location,
+    GLfloat v0)
+{
+    glUniform1f_(
+        location,
+        v0);
+}
+
+GLAPI void APIENTRY glUniform1i(
+    GLint location,
+    GLint v0)
+{
+    glUniform1i_(
+        location,
+        v0);
+}
+
+GLAPI void APIENTRY glUniform4fv(
+    GLint location,
+    GLsizei count,
+    const GLfloat* value)
+{
+    glUniform4fv_(
+        location,
+        count,
+        value);
+}
+
+GLAPI void APIENTRY glUniformMatrix4fv(
+    GLint location,
+    GLsizei count,
+    GLboolean transpose,
+    const GLfloat* value)
+{
+    glUniformMatrix4fv_(
+        location,
+        count,
+        transpose,
+        value);
+}
+
+GLAPI void APIENTRY glUnlockArraysEXT()
+{
+    glUnlockArraysEXT_();
+}
+
+GLAPI void APIENTRY glUseProgram(
+    GLuint program)
+{
+    glUseProgram_(
+        program);
+}
+
+GLAPI void APIENTRY glVertexAttrib2f(
+    GLuint index,
+    GLfloat x,
+    GLfloat y)
+{
+    glVertexAttrib2f_(
+        index,
+        x,
+        y);
+}
+
+GLAPI void APIENTRY glVertexAttrib4f(
+    GLuint index,
+    GLfloat x,
+    GLfloat y,
+    GLfloat z,
+    GLfloat w)
+{
+    glVertexAttrib4f_(
+        index,
+        x,
+        y,
+        z,
+        w);
+}
+
+GLAPI void APIENTRY glVertexAttribPointer(
+    GLuint index,
+    GLint size,
+    GLenum type,
+    GLboolean normalized,
+    GLsizei stride,
+    const void* pointer)
+{
+    glVertexAttribPointer_(
+        index,
+        size,
+        type,
+        normalized,
+        stride,
+        pointer);
+}
 
 
 namespace {
@@ -195,42 +550,42 @@ void gl_load_symbol(
 
 void gl_initialize_extension_functions()
 {
-    gl_load_symbol(glActiveTexture, "glActiveTexture", "glActiveTextureARB");
-    gl_load_symbol(glAttachShader, "glAttachShader", "glAttachObjectARB");
-    gl_load_symbol(glBindBuffer, "glBindBuffer", "glBindBufferARB");
-    gl_load_symbol(glBufferData, "glBufferData", "glBufferDataARB");
-    gl_load_symbol(glBufferSubData, "glBufferSubData", "glBufferSubDataARB");
-    gl_load_symbol(glClientActiveTexture, "glClientActiveTexture", "glClientActiveTextureARB");
-    gl_load_symbol(glCompileShader, "glCompileShader", "glCompileShaderARB");
-    gl_load_symbol(glCreateProgram, "glCreateProgram", "glCreateProgramObjectARB");
-    gl_load_symbol(glCreateShader, "glCreateShader", "glCreateShaderObjectARB");
-    gl_load_symbol(glDeleteBuffers, "glDeleteBuffers", "glDeleteBuffersARB");
-    gl_load_symbol(glDeleteProgram, "glDeleteProgram", "glDeleteObjectARB");
-    gl_load_symbol(glDeleteShader, "glDeleteShader", "glDeleteObjectARB");
-    gl_load_symbol(glDisableVertexAttribArray, "glDisableVertexAttribArray", "glDisableVertexAttribArrayARB");
-    gl_load_symbol(glDrawElementsBaseVertex, "glDrawElementsBaseVertex");
-    gl_load_symbol(glEnableVertexAttribArray, "glEnableVertexAttribArray", "glEnableVertexAttribArrayARB");
-    gl_load_symbol(glGenBuffers, "glGenBuffers", "glGenBuffersARB");
-    gl_load_symbol(glGenerateMipmap, "glGenerateMipmap");
-    gl_load_symbol(glGetAttribLocation, "glGetAttribLocation", "glGetAttribLocationARB");
-    gl_load_symbol(glGetProgramInfoLog, "glGetProgramInfoLog", "glGetInfoLogARB");
-    gl_load_symbol(glGetProgramiv, "glGetProgramiv", "glGetProgramivARB");
-    gl_load_symbol(glGetShaderInfoLog, "glGetShaderInfoLog", "glGetInfoLogARB");
-    gl_load_symbol(glGetShaderiv, "glGetShaderiv", "glGetObjectParameterivARB");
-    gl_load_symbol(glGetUniformLocation, "glGetUniformLocation", "glGetUniformLocationARB");
-    gl_load_symbol(glLinkProgram, "glLinkProgram", "glLinkProgramARB");
-    gl_load_symbol(glLockArraysEXT, "glLockArraysEXT");
-    gl_load_symbol(glMultiTexCoord2f, "glMultiTexCoord2f", "glMultiTexCoord2fARB");
-    gl_load_symbol(glShaderSource, "glShaderSource", "glShaderSourceARB");
-    gl_load_symbol(glUniform1f, "glUniform1f", "glUniform1fARB");
-    gl_load_symbol(glUniform1i, "glUniform1i", "glUniform1iARB");
-    gl_load_symbol(glUniform4fv, "glUniform4fv", "glUniform4fvARB");
-    gl_load_symbol(glUniformMatrix4fv, "glUniformMatrix4fv", "glUniformMatrix4fvARB");
-    gl_load_symbol(glUnlockArraysEXT, "glUnlockArraysEXT");
-    gl_load_symbol(glUseProgram, "glUseProgram", "glUseProgramObjectARB");
-    gl_load_symbol(glVertexAttrib2f, "glVertexAttrib2f", "glVertexAttrib2fARB");
-    gl_load_symbol(glVertexAttrib4f, "glVertexAttrib4f", "glVertexAttrib4fARB");
-    gl_load_symbol(glVertexAttribPointer, "glVertexAttribPointer", "glVertexAttribPointerARB");
+    gl_load_symbol(glActiveTexture_, "glActiveTexture", "glActiveTextureARB");
+    gl_load_symbol(glAttachShader_, "glAttachShader", "glAttachObjectARB");
+    gl_load_symbol(glBindBuffer_, "glBindBuffer", "glBindBufferARB");
+    gl_load_symbol(glBufferData_, "glBufferData", "glBufferDataARB");
+    gl_load_symbol(glBufferSubData_, "glBufferSubData", "glBufferSubDataARB");
+    gl_load_symbol(glClientActiveTexture_, "glClientActiveTexture", "glClientActiveTextureARB");
+    gl_load_symbol(glCompileShader_, "glCompileShader", "glCompileShaderARB");
+    gl_load_symbol(glCreateProgram_, "glCreateProgram", "glCreateProgramObjectARB");
+    gl_load_symbol(glCreateShader_, "glCreateShader", "glCreateShaderObjectARB");
+    gl_load_symbol(glDeleteBuffers_, "glDeleteBuffers", "glDeleteBuffersARB");
+    gl_load_symbol(glDeleteProgram_, "glDeleteProgram", "glDeleteObjectARB");
+    gl_load_symbol(glDeleteShader_, "glDeleteShader", "glDeleteObjectARB");
+    gl_load_symbol(glDisableVertexAttribArray_, "glDisableVertexAttribArray", "glDisableVertexAttribArrayARB");
+    gl_load_symbol(glDrawElementsBaseVertex_, "glDrawElementsBaseVertex");
+    gl_load_symbol(glEnableVertexAttribArray_, "glEnableVertexAttribArray", "glEnableVertexAttribArrayARB");
+    gl_load_symbol(glGenBuffers_, "glGenBuffers", "glGenBuffersARB");
+    gl_load_symbol(glGenerateMipmap_, "glGenerateMipmap");
+    gl_load_symbol(glGetAttribLocation_, "glGetAttribLocation", "glGetAttribLocationARB");
+    gl_load_symbol(glGetProgramInfoLog_, "glGetProgramInfoLog", "glGetInfoLogARB");
+    gl_load_symbol(glGetProgramiv_, "glGetProgramiv", "glGetProgramivARB");
+    gl_load_symbol(glGetShaderInfoLog_, "glGetShaderInfoLog", "glGetInfoLogARB");
+    gl_load_symbol(glGetShaderiv_, "glGetShaderiv", "glGetObjectParameterivARB");
+    gl_load_symbol(glGetUniformLocation_, "glGetUniformLocation", "glGetUniformLocationARB");
+    gl_load_symbol(glLinkProgram_, "glLinkProgram", "glLinkProgramARB");
+    gl_load_symbol(glLockArraysEXT_, "glLockArraysEXT");
+    gl_load_symbol(glMultiTexCoord2f_, "glMultiTexCoord2f", "glMultiTexCoord2fARB");
+    gl_load_symbol(glShaderSource_, "glShaderSource", "glShaderSourceARB");
+    gl_load_symbol(glUniform1f_, "glUniform1f", "glUniform1fARB");
+    gl_load_symbol(glUniform1i_, "glUniform1i", "glUniform1iARB");
+    gl_load_symbol(glUniform4fv_, "glUniform4fv", "glUniform4fvARB");
+    gl_load_symbol(glUniformMatrix4fv_, "glUniformMatrix4fv", "glUniformMatrix4fvARB");
+    gl_load_symbol(glUnlockArraysEXT_, "glUnlockArraysEXT");
+    gl_load_symbol(glUseProgram_, "glUseProgram", "glUseProgramObjectARB");
+    gl_load_symbol(glVertexAttrib2f_, "glVertexAttrib2f", "glVertexAttrib2fARB");
+    gl_load_symbol(glVertexAttrib4f_, "glVertexAttrib4f", "glVertexAttrib4fARB");
+    gl_load_symbol(glVertexAttribPointer_, "glVertexAttribPointer", "glVertexAttribPointerARB");
 }
 
 bool gl_has_extension(
@@ -250,36 +605,36 @@ bool gl_is_2_x_capable()
         return false;
     }
 
-    if (glActiveTexture == NULL ||
-        glAttachShader == NULL ||
-        glBindBuffer == NULL ||
-        glBufferData == NULL ||
-        glBufferSubData == NULL ||
-        glCompileShader == NULL ||
-        glCreateProgram == NULL ||
-        glCreateShader == NULL ||
-        glDeleteBuffers == NULL ||
-        glDeleteProgram == NULL ||
-        glDeleteShader == NULL ||
-        glDisableVertexAttribArray == NULL ||
-        glEnableVertexAttribArray == NULL ||
-        glGenBuffers == NULL ||
-        glGetAttribLocation == NULL ||
-        glGetProgramInfoLog == NULL ||
-        glGetProgramiv == NULL ||
-        glGetShaderInfoLog == NULL ||
-        glGetShaderiv == NULL ||
-        glGetUniformLocation == NULL ||
-        glLinkProgram == NULL ||
-        glShaderSource == NULL ||
-        glUniform1f == NULL ||
-        glUniform1i == NULL ||
-        glUniform4fv == NULL ||
-        glUniformMatrix4fv == NULL ||
-        glUseProgram == NULL ||
-        glVertexAttrib2f == NULL ||
-        glVertexAttrib4f == NULL ||
-        glVertexAttribPointer == NULL)
+    if (!glActiveTexture_ ||
+        !glAttachShader_ ||
+        !glBindBuffer_ ||
+        !glBufferData_ ||
+        !glBufferSubData_ ||
+        !glCompileShader_ ||
+        !glCreateProgram_ ||
+        !glCreateShader_ ||
+        !glDeleteBuffers_ ||
+        !glDeleteProgram_ ||
+        !glDeleteShader_ ||
+        !glDisableVertexAttribArray_ ||
+        !glEnableVertexAttribArray_ ||
+        !glGenBuffers_ ||
+        !glGetAttribLocation_ ||
+        !glGetProgramInfoLog_ ||
+        !glGetProgramiv_ ||
+        !glGetShaderInfoLog_ ||
+        !glGetShaderiv_ ||
+        !glGetUniformLocation_ ||
+        !glLinkProgram_ ||
+        !glShaderSource_ ||
+        !glUniform1f_ ||
+        !glUniform1i_ ||
+        !glUniform4fv_ ||
+        !glUniformMatrix4fv_ ||
+        !glUseProgram_ ||
+        !glVertexAttrib2f_ ||
+        !glVertexAttrib4f_ ||
+        !glVertexAttribPointer_)
     {
         return false;
     }
@@ -357,7 +712,6 @@ void gl_initialize_extensions()
     const char* extension_name1 = NULL;
     const char* extension_name2 = NULL;
     const char* extension_name3 = NULL;
-    const char* extension_name4 = NULL;
 
     ri.Printf(PRINT_ALL, "Initializing OpenGL extensions\n");
     ri.Printf(PRINT_ALL, "(Legend: [+] found; [-] not found; [*] ignored)\n");
@@ -512,8 +866,10 @@ void GLimp_Init()
     r_allowSoftwareGL = ri.Cvar_Get("r_allowSoftwareGL", "0", 0);
     r_maskMinidriver = ri.Cvar_Get("r_maskMinidriver", "0", 0);
 
-    cvar_t* r_lastValidRenderer = ri.Cvar_Get(
-        "r_lastValidRenderer", "(uninitialized)", CVAR_ARCHIVE);
+    static_cast<void>(::ri.Cvar_Get(
+        "r_lastValidRenderer",
+        "(uninitialized)",
+        CVAR_ARCHIVE));
 
     bool is_succeed = true;
     int sdl_result = 0;
@@ -916,6 +1272,8 @@ void GLimp_Activate (
     bool is_activated,
     bool is_minimized)
 {
+    static_cast<void>(is_activated);
+    static_cast<void>(is_minimized);
 }
 
 bool GLimp_SetFullscreen(bool value)
@@ -929,7 +1287,6 @@ bool GLimp_SetFullscreen(bool value)
     }
 
     int sdl_result = 0;
-    uint32_t flags = 0;
 
     sdl_result = ::SDL_SetWindowFullscreen(
         sys_gl_window,
