@@ -1,6 +1,6 @@
 set(RTCW_TARGET "rtcw_et")
 
-add_definitions("-DBOTLIB" "-DRTCW_32" "-DRTCW_ET")
+add_definitions("-DBOTLIB" "-DRTCW_32" "-DRTCW_ET" "-DGL_GLEXT_PROTOTYPES")
 
 if (RTCW_STATIC_CURL)
     add_definitions("-DCURL_STATICLIB")

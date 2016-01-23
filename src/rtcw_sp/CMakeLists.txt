@@ -1,6 +1,6 @@
 set(RTCW_TARGET "rtcw_sp")
 
-add_definitions("-DBOTLIB" "-DRTCW_32" "-DRTCW_SP")
+add_definitions("-DBOTLIB" "-DRTCW_32" "-DRTCW_SP" "-DGL_GLEXT_PROTOTYPES")
 
 include_directories(
     "."
