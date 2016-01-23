@@ -1,6 +1,6 @@
 set(RTCW_TARGET "rtcw_mp")
 
-add_definitions("-DBOTLIB" "-DRTCW_32" "-DRTCW_MP")
+add_definitions("-DBOTLIB" "-DRTCW_32" "-DRTCW_MP" "-DGL_GLEXT_PROTOTYPES")
 
 include_directories(
     "."
