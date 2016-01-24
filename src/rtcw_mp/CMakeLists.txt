@@ -1,6 +1,11 @@
 set(RTCW_TARGET "rtcw_mp")
 
-add_definitions("-DBOTLIB" "-DRTCW_32" "-DRTCW_MP" "-DGL_GLEXT_PROTOTYPES")
+add_definitions("-DBOTLIB")
+add_definitions("-DRTCW_32")
+add_definitions("-DRTCW_MP")
+add_definitions("-DGL_GLEXT_PROTOTYPES")
+add_definitions("-DMINIZ_NO_STDIO")
+add_definitions("-DMINIZ_NO_TIME")
 
 include_directories(
     "."
@@ -16,7 +21,6 @@ include_directories(
     "../win32"
     "../zlib/contrib/minizip"
     "${JPEG_INCLUDE_DIR}"
-    "${ZLIB_INCLUDE_DIR}"
 )
 
 set(
@@ -102,6 +106,9 @@ set(
     "../win32/glw_win.h"
     "../win32/rtcw_mp_resource.h"
     "../win32/win_local.h"
+    "../zlib/contrib/minizip/ioapi.h"
+    "../zlib/contrib/minizip/miniz.h"
+    "../zlib/contrib/minizip/unzip.h"
 )
 
 if (WIN32)
@@ -262,7 +269,6 @@ target_link_libraries(
     "${JPEG_LIBRARY}"
     "${SDLMAIN_LIBRARY}"
     "${SDL_LIBRARY}"
-    "${ZLIB_LIBRARY}"
 )
 
 if (WIN32)

@@ -20,7 +20,6 @@ if (NOT (RTCW_BUILD_ET OR
 endif ()
 
 find_package(SDL 2 REQUIRED)
-find_package(ZLIB 1.2 REQUIRED)
 
 if (RTCW_BUILD_ET)
     find_package(CURL 7 REQUIRED)
