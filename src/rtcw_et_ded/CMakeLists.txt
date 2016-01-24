@@ -1,6 +1,12 @@
 set(RTCW_TARGET "rtcw_et_ded")
 
-add_definitions("-DBOTLIB" "-DDEDICATED" "-DRTCW_32" "-DRTCW_ET")
+add_definitions("-DDEDICATED")
+add_definitions("-DBOTLIB")
+add_definitions("-DRTCW_32")
+add_definitions("-DRTCW_ET")
+add_definitions("-DGL_GLEXT_PROTOTYPES")
+add_definitions("-DMINIZ_NO_STDIO")
+add_definitions("-DMINIZ_NO_TIME")
 
 include_directories(
     "."
@@ -14,7 +20,6 @@ include_directories(
     "../ui"
     "../win32"
     "../zlib/contrib/minizip"
-    "${ZLIB_INCLUDE_DIR}"
 )
 
 set(
@@ -101,6 +106,9 @@ set(
     "../win32/win_local.h"
     "../qcommon/dl_local.h"
     "../qcommon/dl_public.h"
+    "../zlib/contrib/minizip/ioapi.h"
+    "../zlib/contrib/minizip/miniz.h"
+    "../zlib/contrib/minizip/unzip.h"
 )
 
 if (WIN32)
@@ -204,7 +212,6 @@ target_link_libraries(
     "${RTCW_TARGET}"
     "${SDLMAIN_LIBRARY}"
     "${SDL_LIBRARY}"
-    "${ZLIB_LIBRARY}"
 )
 
 if (WIN32)
