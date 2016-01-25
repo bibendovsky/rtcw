@@ -770,7 +770,7 @@ static void DrawNormals( shaderCommands_t *input ) {
 
 #if !defined RTCW_ET
             ogl_tess2.position[index + 1] =
-                ogl_tess2.position[index + 0] + (2 * n);
+                ogl_tess2.position[index + 0] + (2.0F * n);
 #else
             ogl_tess2.position[index + 1] =
                 ogl_tess2.position[index + 0] + (r_normallength->value * n);
