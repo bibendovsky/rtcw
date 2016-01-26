@@ -7,7 +7,7 @@ add_definitions("-DGL_GLEXT_PROTOTYPES")
 add_definitions("-DMINIZ_NO_STDIO")
 add_definitions("-DMINIZ_NO_TIME")
 
-if (RTCW_STATIC_CURL)
+if (RTCW_USE_CURL AND RTCW_STATIC_CURL)
     add_definitions("-DCURL_STATICLIB")
 endif ()
 
@@ -25,8 +25,13 @@ include_directories(
     "../ui"
     "../win32"
     "../zlib/contrib/minizip"
-    "${CURL_INCLUDE_DIR}"
 )
+
+if (RTCW_USE_CURL)
+    include_directories(
+        "${CURL_INCLUDE_DIR}"
+    )
+endif ()
 
 set(
     RTCW_HEADERS
@@ -252,10 +257,23 @@ set(
     "../win32/win_main.cpp"
     "../win32/win_net.cpp"
     "../win32/win_syscon.cpp"
-    "../qcommon/dl_main_curl.cpp"
     "../zlib/contrib/minizip/ioapi.c"
     "../zlib/contrib/minizip/unzip.c"
 )
+
+if (RTCW_USE_CURL)
+    set(
+        RTCW_SOURCES
+        ${RTCW_SOURCES}
+        "../qcommon/dl_main_curl.cpp"
+    )
+else ()
+set(
+        RTCW_SOURCES
+        ${RTCW_SOURCES}
+        "../qcommon/dl_main_stubs.cpp"
+    )
+endif ()
 
 if (WIN32)
     set(
@@ -281,10 +299,16 @@ endif ()
 
 target_link_libraries(
     "${RTCW_TARGET}"
-    "${CURL_LIBRARY}"
     "${SDLMAIN_LIBRARY}"
     "${SDL_LIBRARY}"
 )
+
+if (RTCW_USE_CURL)
+    target_link_libraries(
+        "${RTCW_TARGET}"
+        "${CURL_LIBRARY}"
+    )
+endif ()
 
 if (WIN32)
     target_link_libraries(
