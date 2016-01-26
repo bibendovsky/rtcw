@@ -9,6 +9,7 @@ option(RTCW_BUILD_MP "Build multiplayer" ON)
 option(RTCW_BUILD_MP_DED "Build multiplayer (dedicated)" ON)
 option(RTCW_BUILD_ET "Build Enemy Territory" ON)
 option(RTCW_BUILD_ET_DED "Build Enemy Territory (dedicated)" ON)
+option(RTCW_USE_CURL "Use cURL (Enemy Territory)" ON)
 
 if (NOT (RTCW_BUILD_ET OR
     RTCW_BUILD_ET_DED OR
@@ -21,7 +22,7 @@ endif ()
 
 find_package(SDL 2 REQUIRED)
 
-if (RTCW_BUILD_ET)
+if (RTCW_BUILD_ET AND RTCW_USE_CURL)
     find_package(CURL 7 REQUIRED)
 
     if (WIN32)
