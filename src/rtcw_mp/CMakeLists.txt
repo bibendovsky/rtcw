@@ -20,7 +20,6 @@ include_directories(
     "../ui"
     "../win32"
     "../zlib/contrib/minizip"
-    "${JPEG_INCLUDE_DIR}"
 )
 
 set(
@@ -69,6 +68,8 @@ set(
     "../qcommon/cm_public.h"
     "../game/g_public.h"
     "../renderer/anorms256.h"
+    "../renderer/jpgd.h"
+    "../renderer/jpge.h"
     "../renderer/rtcw_jpeg_reader.h"
     "../renderer/rtcw_jpeg_writer.h"
     "../renderer/rtcw_ogl_matrix_stack.h"
@@ -181,6 +182,8 @@ set(
     "../client/snd_mem.cpp"
     "../client/snd_mix.cpp"
     "../client/snd_wavelet.cpp"
+    "../renderer/jpgd.cpp"
+    "../renderer/jpge.cpp"
     "../renderer/rtcw_jpeg_reader.cpp"
     "../renderer/rtcw_jpeg_writer.cpp"
     "../renderer/rtcw_ogl_matrix_stack.cpp"
@@ -266,7 +269,6 @@ endif ()
 
 target_link_libraries(
     "${RTCW_TARGET}"
-    "${JPEG_LIBRARY}"
     "${SDLMAIN_LIBRARY}"
     "${SDL_LIBRARY}"
 )
