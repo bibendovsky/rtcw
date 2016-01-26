@@ -29,10 +29,6 @@ if (RTCW_BUILD_ET)
     endif ()
 endif ()
 
-if (RTCW_BUILD_ET OR RTCW_BUILD_MP OR RTCW_BUILD_SP)
-    find_package(JPEG 6 REQUIRED)
-endif ()
-
 set(RTCW_BIN_DIR "${CMAKE_BINARY_DIR}/bin")
 set(RTCW_SP_BIN_DIR "${RTCW_BIN_DIR}/sp")
 set(RTCW_MP_BIN_DIR "${RTCW_BIN_DIR}/mp")

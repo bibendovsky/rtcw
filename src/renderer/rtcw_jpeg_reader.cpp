@@ -1,79 +1,28 @@
 //
-// A simple reader for JPEG codec.
+// A wrapper for JPEG reading.
 //
 
 
 #include "rtcw_jpeg_reader.h"
-#include "jerror.h"
-#include "jpeglib.h"
+#include <memory>
 
 
 namespace rtcw {
 
 
-namespace {
-
-
-enum AddonMessageCode {
-    k_amc_first_code = 1000,
-    k_amc_unexpected_end_of_source_data,
-    k_amc_last_code
-}; // enum AddonMessageCode
-
-
-const char* const k_addon_message_table[] = {
-    NULL,
-    "Unexpected end of source data."
-};
-
-
-} // namespace
-
-
-// ===============================
-// Class JpegReader::Exception
-//
-
-class JpegReader::Exception {
-}; // class JpegReader::Exception
-
-
-// ================
-// Class JpegReader
-//
-
 JpegReader::JpegReader() :
-    is_open_(),
-    is_decoded_(),
-    is_jds_valid_(),
-    error_message_(),
-    jem_(),
-    jsm_(),
-    jds_(),
-    line_buffer_()
+        width_(),
+        height_(),
+        is_grayscale_(),
+        decoder_(),
+        stream_(),
+        error_message_()
 {
-    jds_.client_data = this;
-
-    jds_.err = jpeg_std_error(&jem_);
-    jds_.err->first_addon_message = k_amc_first_code;
-    jds_.err->last_addon_message = k_amc_last_code;
-    jds_.err->addon_message_table = k_addon_message_table;
-    jds_.err->error_exit = j_error_exit_wrapper;
-    jds_.err->output_message = j_output_message_wrapper;
-
-    jsm_.init_source = j_init_source;
-    jsm_.fill_input_buffer = j_fill_input_buffer;
-    jsm_.skip_input_data = j_skip_input_data;
-    jsm_.resync_to_restart = jpeg_resync_to_restart;
-    jsm_.term_source = j_term_source;
 }
 
 JpegReader::~JpegReader()
 {
     close();
-
-    if (is_jds_valid_)
-        jpeg_destroy_decompress(&jds_);
 }
 
 bool JpegReader::open(
@@ -84,13 +33,13 @@ bool JpegReader::open(
 {
     close();
 
-    if (src_data == NULL) {
-        set_error_message("Null source data.");
+    if (!src_data) {
+        error_message_ = "Null source data.";
         return false;
     }
 
     if (src_size <= 0) {
-        set_error_message("Zero or negative source size.");
+        error_message_ = "Zero or negative source size.";
         return false;
     }
 
@@ -98,128 +47,138 @@ bool JpegReader::open(
     bool is_succeed = true;
 
     if (is_succeed) {
-        try {
-            if (!is_jds_valid_) {
-                jpeg_create_decompress(&jds_);
-                is_jds_valid_ = true;
-                jds_.src = &jsm_;
-            }
+        stream_ = new jpgd::jpeg_decoder_mem_stream(
+            static_cast<const jpgd::uint8*>(src_data),
+            src_size);
 
-            jsm_.next_input_byte = static_cast<const JOCTET*>(src_data);
-            jsm_.bytes_in_buffer = src_size;
+        decoder_ = new jpgd::jpeg_decoder(
+            stream_);
 
-            static_cast<void>(jpeg_read_header(&jds_, TRUE));
-        } catch (const Exception&) {
+        if (decoder_->get_error_code() != jpgd::JPGD_SUCCESS) {
+            error_message_ = "Failed to open an image.";
             is_succeed = false;
         }
     }
 
     if (is_succeed) {
-        switch (jds_.out_color_space) {
-        case JCS_GRAYSCALE:
-        case JCS_RGB:
+        switch (decoder_->get_num_components()) {
+        case 1:
+            is_grayscale_ = true;
+            break;
+
+        case 3:
+            is_grayscale_ = false;
             break;
 
         default:
             is_succeed = false;
-            set_error_message("Unsupported output color space.");
+            error_message_ = "Unsupported color space.";
+            break;
         }
     }
 
     if (is_succeed) {
-        is_open_ = true;
-        width = get_width();
-        height = get_height();
+        width_ = decoder_->get_width();
+        height_ = decoder_->get_height();
+
+        width = width_;
+        height = height_;
     }
 
-    return is_open();
+    if (!is_succeed) {
+        close();
+    }
+
+    return is_succeed;
 }
 
 bool JpegReader::decode(
     void* dst_data)
 {
-    if (!is_open()) {
-        set_error_message("Reader not open.");
+    if (!dst_data) {
+        error_message_ = "Null target buffer.";
         return false;
     }
 
-    if (is_decoded()) {
-        set_error_message("Already decoded.");
+    if (!decoder_) {
+        error_message_ = "Decoder not initialized.";
         return false;
-    }
-
-    clear_error_message();
-
-    if (get_width() == 0 || get_height() == 0) {
-        is_decoded_ = true;
-        return true;
     }
 
     bool is_succeed = true;
 
-    try {
-        jpeg_start_decompress(&jds_);
-
-        line_buffer_.resize(get_width() * jds_.out_color_components);
-
-        JOCTET* dst_data_ptr = static_cast<JOCTET*>(dst_data);
-
-        JSAMPROW buffer[1] = { &line_buffer_[0] };
-        const int dst_stride = 4 * get_width();
-
-        for (int i = 0; i < get_height(); ++i) {
-            static_cast<void>(jpeg_read_scanlines(&jds_, buffer, 1));
-
-            switch (jds_.out_color_components) {
-            case 1:
-                gray_to_rgba(&line_buffer_[0], get_width(), dst_data_ptr);
-                break;
-
-            case 3:
-                rgb_to_rgba(&line_buffer_[0], get_width(), dst_data_ptr);
-                break;
-            }
-
-            dst_data_ptr += dst_stride;
+    if (is_succeed) {
+        if (decoder_->begin_decoding() != jpgd::JPGD_SUCCESS) {
+            is_succeed = false;
+            error_message_ = "Failed to start decoding.";
         }
-
-        jpeg_finish_decompress(&jds_);
-    } catch(const Exception&) {
-        is_succeed = false;
     }
 
-    is_decoded_ = true;
+    if (is_succeed) {
+        const auto dst_pitch = 4 * width_;
+        auto dst_buffer = static_cast<unsigned char*>(dst_data);
+
+        for (int y = 0; y < height_; ++y) {
+            const void* raw_scanline = nullptr;
+            jpgd::uint scanline_length = 0;
+
+            auto decode_result = decoder_->decode(
+                &raw_scanline,
+                &scanline_length);
+
+            if (decode_result == jpgd::JPGD_SUCCESS ||
+                decode_result == jpgd::JPGD_DONE)
+            {
+                auto scanline = static_cast<const unsigned char*>(
+                    raw_scanline);
+
+                if (is_grayscale_) {
+                    gray_to_rgba(
+                        scanline,
+                        width_,
+                        dst_buffer);
+                } else {
+                    std::uninitialized_copy_n(
+                        scanline,
+                        dst_pitch,
+                        dst_buffer);
+                }
+
+                dst_buffer += dst_pitch;
+            } else {
+                is_succeed = false;
+                error_message_ = "Failed to decode a scanline.";
+                break;
+            }
+        }
+    }
 
     return is_succeed;
 }
 
 void JpegReader::close()
 {
-    if (!is_open())
-        return;
+    width_ = 0;
+    height_ = 0;
+    is_grayscale_ = false;
 
-    is_open_ = false;
-    is_decoded_ = false;
-}
+    delete decoder_;
+    decoder_ = nullptr;
 
-bool JpegReader::is_open() const
-{
-    return is_open_;
-}
+    delete stream_;
+    stream_ = nullptr;
 
-bool JpegReader::is_decoded() const
-{
-    return is_decoded_;
+    error_message_.clear();
 }
 
 int JpegReader::get_width() const
 {
-    return static_cast<int>(jds_.image_width);
+    return width_;
 }
 
 int JpegReader::get_height() const
 {
-    return static_cast<int>(jds_.image_height);
+    return height_;
 }
 
 const std::string& JpegReader::get_error_message() const
@@ -227,104 +186,18 @@ const std::string& JpegReader::get_error_message() const
     return error_message_;
 }
 
-void JpegReader::clear_error_message()
-{
-    error_message_.clear();
-}
-
-void JpegReader::set_error_message(
-    const char* message)
-{
-    error_message_.assign(message);
-}
-
-void JpegReader::j_error_exit(
-    j_common_ptr jcp)
-{
-    jcp->err->output_message(jcp);
-    is_jds_valid_ = false;
-    jpeg_destroy(jcp);
-    throw Exception();
-}
-
-void JpegReader::j_output_message(
-    j_common_ptr jcp)
-{
-    char buffer[JMSG_LENGTH_MAX];
-    jcp->err->format_message(jcp, buffer);
-    set_error_message(buffer);
-}
-
-// (static)
-void JpegReader::j_error_exit_wrapper(
-    j_common_ptr jcp)
-{
-    static_cast<JpegReader*>(jcp->client_data)->j_error_exit(jcp);
-}
-
-// (static)
-void JpegReader::j_output_message_wrapper(
-    j_common_ptr jcp)
-{
-    static_cast<JpegReader*>(jcp->client_data)->j_output_message(jcp);
-}
-
-// (static)
-void JpegReader::j_init_source(
-    j_decompress_ptr jdp)
-{
-}
-
-// (static)
-boolean JpegReader::j_fill_input_buffer(
-    j_decompress_ptr jdp)
-{
-    ERREXIT(jdp, k_amc_unexpected_end_of_source_data);
-    throw Exception();
-}
-
-// (static)
-void JpegReader::j_skip_input_data(
-    j_decompress_ptr jdp,
-    long num_bytes)
-{
-    jdp->src->next_input_byte += num_bytes;
-    jdp->src->bytes_in_buffer -= num_bytes;
-}
-
-// (static)
-void JpegReader::j_term_source(
-    j_decompress_ptr jdp)
-{
-}
-
-// (static)
 void JpegReader::gray_to_rgba(
-    const JOCTET* src_row,
+    const unsigned char* src_row,
     int src_width,
-    JOCTET* dst_row)
+    unsigned char* dst_row)
 {
     for (int i = 0; i < src_width; ++i) {
         dst_row[(4 * i) + 0] = src_row[i];
         dst_row[(4 * i) + 1] = src_row[i];
         dst_row[(4 * i) + 2] = src_row[i];
-        dst_row[(4 * i) + 3] = static_cast<JOCTET>(0xFF);
-    }
-}
-
-// (static)
-void JpegReader::rgb_to_rgba(
-    const JOCTET* src_row,
-    int src_width,
-    JOCTET* dst_row)
-{
-    for (int i = 0; i < src_width; ++i) {
-        dst_row[(4 * i) + 0] = src_row[(3 * i) + 0];
-        dst_row[(4 * i) + 1] = src_row[(3 * i) + 1];
-        dst_row[(4 * i) + 2] = src_row[(3 * i) + 2];
-        dst_row[(4 * i) + 3] = static_cast<JOCTET>(0xFF);
+        dst_row[(4 * i) + 3] = static_cast<unsigned char>(0xFF);
     }
 }
 
 
-} // namespace rtcw
+} // rtcw

@@ -2275,22 +2275,22 @@ static void LoadJPG(
 
     bool jpeg_result;
 
-    jpeg_result = g_jpeg_reader.open(src_data, src_size, *width, *height);
+    jpeg_result = ::g_jpeg_reader.open(src_data, src_size, *width, *height);
 
     if (!jpeg_result) {
         ri.Error(ERR_FATAL, "JPEG: %s\n",
-            g_jpeg_reader.get_error_message().c_str());
+            ::g_jpeg_reader.get_error_message().c_str());
     }
 
     void* dst_data = R_GetImageBuffer(4 * (*width) * (*height), BUFFER_IMAGE);
 
-    jpeg_result = g_jpeg_reader.decode(dst_data);
+    jpeg_result = ::g_jpeg_reader.decode(dst_data);
 
     ri.FS_FreeFile(src_data);
 
     if (!jpeg_result) {
         ri.Error(ERR_FATAL, "JPEG: %s\n",
-            g_jpeg_reader.get_error_message().c_str());
+            ::g_jpeg_reader.get_error_message().c_str());
     }
 
     *pic = static_cast<byte*>(dst_data);
