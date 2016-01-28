@@ -22,6 +22,12 @@ endif ()
 
 find_package(SDL 2 REQUIRED)
 
+if (WIN32)
+    find_package(SDL_net 2.0.1 REQUIRED)
+else ()
+    find_package(SDL_net 2 REQUIRED)
+endif ()
+
 if (RTCW_BUILD_ET AND RTCW_USE_CURL)
     find_package(CURL 7 REQUIRED)
 
@@ -39,6 +45,7 @@ rtcw_set_common_options()
 
 include_directories(
     "${SDL_INCLUDE_DIR}"
+    "${SDL_NET_INCLUDE_DIR}"
 )
 
 if (RTCW_BUILD_SP)

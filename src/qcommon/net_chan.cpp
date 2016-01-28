@@ -607,49 +607,6 @@ qboolean    NET_IsLocalAddress( netadr_t adr ) {
 	return adr.type == NA_LOOPBACK;
 }
 
-#if defined RTCW_ET
-// rain - replaces old strlen(s) == 21 && s[8] == '.' checking in
-// Sys_StringToSockaddr
-// ffffffff.ffffffffffff:65535
-qboolean NET_IsIPXAddress( const char *buf ) {
-	int x, len = strlen( buf );
-
-	if ( len < 21 ) {
-		return qfalse;
-	}
-
-	for ( x = 0; x < 8 ; x++ ) {
-		if ( !isxdigit( buf[x] ) ) {
-			return qfalse;
-		}
-	}
-
-	if ( buf[8] != '.' ) {
-		return qfalse;
-	}
-
-	for ( x = 9; x < 21; x++ ) {
-		if ( !isxdigit( buf[x] ) ) {
-			return qfalse;
-		}
-	}
-
-	// default port
-	if ( buf[21] == '\0' ) {
-		return qtrue;
-	} else if ( buf[21] != ':' ) {
-		return qfalse;
-	}
-
-	for ( x = 22; x < len; x++ ) {
-		if ( !isdigit( buf[x] ) ) {
-			return qfalse;
-		}
-	}
-
-	return qtrue;
-}
-#endif // RTCW_XX
 
 /*
 =============================================================================
@@ -963,7 +920,7 @@ Traps "localhost" for loopback, passes everything else to system
 =============
 */
 qboolean    NET_StringToAdr( const char *s, netadr_t *a ) {
-	qboolean r;
+	bool r;
 	char base[MAX_STRING_CHARS];
 	char    *port;
 

@@ -241,9 +241,9 @@ set(
     "../system/sys_glimp.cpp"
     "../system/sys_events.cpp"
     "../system/sys_input.cpp"
+    "../system/sys_net.cpp"
     "../system/sys_shared.cpp"
     "../win32/win_main.cpp"
-    "../win32/win_net.cpp"
     "../win32/win_syscon.cpp"
     "../zlib/contrib/minizip/ioapi.c"
     "../zlib/contrib/minizip/unzip.c"
@@ -273,6 +273,7 @@ endif ()
 
 target_link_libraries(
     "${RTCW_TARGET}"
+    "${SDL_NET_LIBRARY}"
     "${SDLMAIN_LIBRARY}"
     "${SDL_LIBRARY}"
 )
