@@ -1559,7 +1559,7 @@ void CL_RequestMotd( void ) {
 	cls.updateServer.port = rtcw::Endian::be( PORT_UPDATE );
 	Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", UPDATE_SERVER_NAME,
 #else
-	cls.updateServer.port = rtcw::Endian::be ( PORT_MOTD );
+	cls.updateServer.port = rtcw::Endian::be ( static_cast<unsigned short>(PORT_MOTD) );
 	Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", MOTD_SERVER_NAME,
 #endif // RTCW_XX
 
