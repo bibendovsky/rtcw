@@ -212,7 +212,6 @@ typedef struct {
 void        NET_Init( void );
 void        NET_Shutdown( void );
 void        NET_Restart( void );
-void        NET_Config( qboolean enableNetworking );
 
 void        NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to );
 void QDECL NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *format, ... );
@@ -224,10 +223,6 @@ void QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len
 qboolean    NET_CompareAdr( netadr_t a, netadr_t b );
 qboolean    NET_CompareBaseAdr( netadr_t a, netadr_t b );
 qboolean    NET_IsLocalAddress( netadr_t adr );
-
-#if defined RTCW_ET
-qboolean    NET_IsIPXAddress( const char *buf );
-#endif // RTCW_XX
 
 const char  *NET_AdrToString( netadr_t a );
 qboolean    NET_StringToAdr( const char *s, netadr_t *a );
@@ -382,19 +377,19 @@ You or the server may be running older versions of the game. Press the auto-upda
 #endif
 #endif // RTCW_XX
 
-#define PORT_MASTER         27950
+const unsigned short PORT_MASTER = 27950;
 
 #if !defined RTCW_ET
-#define PORT_UPDATE         27951
-#define PORT_AUTHORIZE      27952
+const unsigned short PORT_UPDATE = 27951;
+const unsigned short PORT_AUTHORIZE = 27952;
 #else
-#define PORT_MOTD           27951
+const unsigned short PORT_MOTD = 27951;
 #ifdef AUTHORIZE_SUPPORT
-#define PORT_AUTHORIZE      27952
+const unsigned short PORT_AUTHORIZE = 27952;
 #endif // AUTHORIZE_SUPPORT
 #endif // RTCW_XX
 
-#define PORT_SERVER         27960
+const unsigned short PORT_SERVER = 27960;
 #define NUM_SERVER_PORTS    4       // broadcast scan this many ports after
 									// PORT_SERVER so a single machine can
 									// run multiple servers
@@ -1361,10 +1356,10 @@ void    Sys_SetErrorText( const char *text );
 
 void    Sys_SendPacket( int length, const void *data, netadr_t to );
 
-qboolean    Sys_StringToAdr( const char *s, netadr_t *a );
+bool    Sys_StringToAdr( const char *s, netadr_t *a );
 //Does NOT parse port numbers, only base addresses.
 
-qboolean    Sys_IsLANAddress( netadr_t adr );
+bool    Sys_IsLANAddress( netadr_t adr );
 void        Sys_ShowIP( void );
 
 qboolean    Sys_CheckCD( void );
