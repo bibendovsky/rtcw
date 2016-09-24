@@ -256,15 +256,6 @@ int main()
 {
 	int Error = 0;
 
-#ifdef GLM_META_PROG_HELPERS
-		assert(glm::simdMat4::rows == glm::simdMat4::row_type::components);
-		assert(glm::simdMat4::cols == glm::simdMat4::col_type::components);
-
-		assert(glm::simdMat4::components == glm::simdMat4::pure_type::components);
-		assert(glm::simdMat4::rows == glm::simdMat4::pure_row_type::components);
-		assert(glm::simdMat4::cols == glm::simdMat4::pure_col_type::components);
-#endif
-
 	std::vector<glm::mat4> Data(64 * 64 * 1);
 	for(std::size_t i = 0; i < Data.size(); ++i)
 		Data[i] = glm::mat4(
@@ -313,7 +304,6 @@ int main()
 
 	Error += test_compute_glm();
 	Error += test_compute_gtx();
-	
 	float Det = glm::determinant(glm::simdMat4(1.0));
 	Error += Det == 1.0f ? 0 : 1;
 	

@@ -1,13 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2014 G-Truc Creation (www.g-truc.net)
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Created : 2011-05-31
-// Updated : 2013-08-27
-// Licence : This source is under MIT License
-// File    : test/core/setup_message.cpp
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#define GLM_MESSAGES
+#define GLM_FORCE_MESSAGES
 #include <glm/vec3.hpp>
 #include <cstdio>
 
@@ -71,6 +62,30 @@ int test_compiler()
 		case GLM_COMPILER_GCC53:
 			std::printf("GLM_COMPILER_GCC53\n");
 			break;
+		case GLM_COMPILER_GCC54:
+			std::printf("GLM_COMPILER_GCC54\n");
+			break;
+		case GLM_COMPILER_GCC60:
+			std::printf("GLM_COMPILER_GCC60\n");
+			break;
+		case GLM_COMPILER_GCC61:
+			std::printf("GLM_COMPILER_GCC61\n");
+			break;
+		case GLM_COMPILER_GCC62:
+			std::printf("GLM_COMPILER_GCC62\n");
+			break;
+		case GLM_COMPILER_GCC70:
+			std::printf("GLM_COMPILER_GCC70\n");
+			break;
+		case GLM_COMPILER_GCC71:
+			std::printf("GLM_COMPILER_GCC71\n");
+			break;
+		case GLM_COMPILER_GCC72:
+			std::printf("GLM_COMPILER_GCC72\n");
+			break;
+		case GLM_COMPILER_GCC80:
+			std::printf("GLM_COMPILER_GCC80\n");
+			break;
 		default:
 			std::printf("GCC version not detected\n");
 			Error += 1;
@@ -81,63 +96,33 @@ int test_compiler()
 	{
 		std::printf("GLM_COMPILER_CUDA\n");
 	}
-	else if(GLM_COMPILER & GLM_COMPILER_APPLE_CLANG)
+	else if(GLM_COMPILER & GLM_COMPILER_CLANG)
 	{
 		switch(GLM_COMPILER)
 		{
-		case GLM_COMPILER_APPLE_CLANG40:
-			std::printf("GLM_COMPILER_APPLE_CLANG40\n");
+		case GLM_COMPILER_CLANG32:
+			std::printf("GLM_COMPILER_CLANG32\n");
 			break;
-		case GLM_COMPILER_APPLE_CLANG41:
-			std::printf("GLM_COMPILER_APPLE_CLANG41\n");
+		case GLM_COMPILER_CLANG33:
+			std::printf("GLM_COMPILER_CLANG33\n");
 			break;
-		case GLM_COMPILER_APPLE_CLANG42:
-			std::printf("GLM_COMPILER_APPLE_CLANG42\n");
+		case GLM_COMPILER_CLANG34:
+			std::printf("GLM_COMPILER_CLANG34\n");
 			break;
-		case GLM_COMPILER_APPLE_CLANG50:
-			std::printf("GLM_COMPILER_APPLE_CLANG50\n");
+		case GLM_COMPILER_CLANG35:
+			std::printf("GLM_COMPILER_CLANG35\n");
 			break;
-		case GLM_COMPILER_APPLE_CLANG51:
-			std::printf("GLM_COMPILER_APPLE_CLANG51\n");
+		case GLM_COMPILER_CLANG36:
+			std::printf("GLM_COMPILER_CLANG36\n");
 			break;
-		case GLM_COMPILER_APPLE_CLANG60:
-			std::printf("GLM_COMPILER_APPLE_CLANG60\n");	
+		case GLM_COMPILER_CLANG37:
+			std::printf("GLM_COMPILER_CLANG37\n");
 			break;
-		case GLM_COMPILER_APPLE_CLANG61:
-			std::printf("GLM_COMPILER_APPLE_CLANG61\n");	
+		case GLM_COMPILER_CLANG38:
+			std::printf("GLM_COMPILER_CLANG38\n");
 			break;
-		default:
-			std::printf("Apple Clang version not detected\n");
-			break;
-		}
-	}
-	else if(GLM_COMPILER & GLM_COMPILER_LLVM)
-	{
-		switch(GLM_COMPILER)
-		{
-		case GLM_COMPILER_LLVM32:
-			std::printf("GLM_COMPILER_LLVM32\n");
-			break;
-		case GLM_COMPILER_LLVM33:
-			std::printf("GLM_COMPILER_LLVM33\n");
-			break;
-		case GLM_COMPILER_LLVM34:
-			std::printf("GLM_COMPILER_LLVM34\n");
-			break;
-		case GLM_COMPILER_LLVM35:
-			std::printf("GLM_COMPILER_LLVM35\n");
-			break;
-		case GLM_COMPILER_LLVM36:
-			std::printf("GLM_COMPILER_LLVM36\n");
-			break;
-		case GLM_COMPILER_LLVM37:
-			std::printf("GLM_COMPILER_LLVM37\n");
-			break;
-		case GLM_COMPILER_LLVM38:
-			std::printf("GLM_COMPILER_LLVM38\n");
-			break;
-		case GLM_COMPILER_LLVM39:
-			std::printf("GLM_COMPILER_LLVM39\n");
+		case GLM_COMPILER_CLANG39:
+			std::printf("GLM_COMPILER_CLANG39\n");
 			break;
 		default:
 			std::printf("LLVM version not detected\n");
@@ -203,18 +188,24 @@ int test_instruction_set()
 
 	if(GLM_ARCH == GLM_ARCH_PURE)
 		std::printf("GLM_ARCH_PURE ");
-	if(GLM_ARCH & GLM_ARCH_ARM)
-		std::printf("GLM_ARCH_ARM ");
+	if(GLM_ARCH & GLM_ARCH_ARM_BIT)
+		std::printf("ARM ");
+	if(GLM_ARCH & GLM_ARCH_NEON_BIT)
+		std::printf("NEON ");
 	if(GLM_ARCH & GLM_ARCH_AVX2)
-		std::printf("GLM_ARCH_AVX2 ");
+		std::printf("AVX2 ");
 	if(GLM_ARCH & GLM_ARCH_AVX)
-		std::printf("GLM_ARCH_AVX ");
-	if(GLM_ARCH & GLM_ARCH_AVX)
-		std::printf("GLM_ARCH_SSE4 ");
-	if(GLM_ARCH & GLM_ARCH_SSE3)
-		std::printf("GLM_ARCH_SSE3 ");
-	if(GLM_ARCH & GLM_ARCH_SSE2)
-		std::printf("GLM_ARCH_SSE2 ");
+		std::printf("AVX ");
+	if(GLM_ARCH & GLM_ARCH_SSE42_BIT)
+		std::printf("SSE4.2 ");
+	if(GLM_ARCH & GLM_ARCH_SSE41_BIT)
+		std::printf("SSE4.1 ");
+	if(GLM_ARCH & GLM_ARCH_SSSE3_BIT)
+		std::printf("SSSE3 ");
+	if(GLM_ARCH & GLM_ARCH_SSE3_BIT)
+		std::printf("SSE3 ");
+	if(GLM_ARCH & GLM_ARCH_SSE2_BIT)
+		std::printf("SSE2 ");
 
 	std::printf("\n");
 
@@ -223,7 +214,7 @@ int test_instruction_set()
 
 int test_cpp_version()
 {
-	std::printf("__cplusplus: %ld\n", __cplusplus);
+	std::printf("__cplusplus: %lld\n", __cplusplus);
 	
 	return 0;
 }
