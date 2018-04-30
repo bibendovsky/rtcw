@@ -1,6 +1,1 @@
-/bin/
-/lib/
-/obj/
-*.vcxproj.user
-*.sdf
-*.v11.suo
+/build
