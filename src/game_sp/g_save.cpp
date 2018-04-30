@@ -37,6 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 
 //BBi
 #include <algorithm>
+#include <memory>
 #include <vector>
 
 #include "rtcw_endian.h"
