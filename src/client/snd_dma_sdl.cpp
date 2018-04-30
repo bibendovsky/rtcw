@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 // BBi
 
 
+#include <memory>
 #include <vector>
 #include "SDL.h"
 #include "snd_local.h"
