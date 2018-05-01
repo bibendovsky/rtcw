@@ -960,7 +960,7 @@ sysEvent_t Sys_GetEvent( void ) {
 	// create an empty event to return
 
 	memset( &ev, 0, sizeof( ev ) );
-	ev.evTime = timeGetTime();
+	ev.evTime = ::SDL_GetTicks();
 
 	return ev;
 }
