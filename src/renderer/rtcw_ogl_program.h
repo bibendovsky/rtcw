@@ -1,70 +1,86 @@
-#ifndef RTCW_OGL_PROGRAM_H
-#define RTCW_OGL_PROGRAM_H
+#ifndef RTCW_OGL_PROGRAM_INCLUDED
+#define RTCW_OGL_PROGRAM_INCLUDED
 
 
 #include <string>
 #include "SDL_opengl.h"
 
 
-namespace rtcw {
+namespace rtcw
+{
 
 
 //
 // Base class for GLSL programs.
 //
-class OglProgram {
+class OglProgram
+{
 public:
-    // Program object.
-    GLuint program;
+	// Program object.
+	GLuint program;
 
 
-    OglProgram(
-        const std::string& glsl_dir,
-        const std::string& base_name);
+	OglProgram(
+		const std::string& glsl_dir,
+		const std::string& base_name);
 
-    virtual ~OglProgram();
+	OglProgram(
+		const OglProgram& that) = delete;
 
-    virtual bool reload();
-    virtual bool try_reload();
-    virtual void unload();
+	OglProgram& operator=(
+		const OglProgram& that) = delete;
+
+	virtual ~OglProgram();
+
+	bool reload();
+	bool try_reload();
+	void unload();
 
 
 protected:
-    enum ReloadShaderResult {
-        RSR_UNKNOWN,
-        RSR_NO_SOURCE,
-        RSR_EMPTY_SOURCE,
-        RSR_COMPILED,
-        RSR_NOT_COMPILED,
-    }; // enum ReloadShaderResult
+	enum class ReloadShaderResult
+	{
+		none,
+		no_source,
+		empty_source,
+		compiled,
+		not_compiled,
+	}; // ReloadShaderResult
 
 
-    std::string glsl_dir_;
-    std::string base_name_;
+	std::string glsl_dir_;
+	std::string base_name_;
 
-    GLuint vertex_shader_;
-    GLuint fragment_shader_;
+	GLuint vertex_shader_;
+	GLuint fragment_shader_;
 
-    virtual OglProgram* create_new(
-        const std::string& glsl_dir,
-        const std::string& base_name) = 0;
+	virtual OglProgram* create_new(
+		const std::string& glsl_dir,
+		const std::string& base_name) = 0;
+
+	bool reload_internal();
+	void unload_internal();
 
 
 private:
-    ReloadShaderResult reload_shader(
-        GLenum shader_type,
-        const std::string& file_name,
-        GLuint& shaderObject);
+	virtual bool do_reload();
+	virtual bool do_try_reload();
+	virtual void do_unload();
 
-    static std::string get_compile_log(GLuint shader_object);
-    std::string get_link_log();
 
-    OglProgram(const OglProgram& that);
-    OglProgram& operator=(const OglProgram& that);
+	ReloadShaderResult reload_shader(
+		const GLenum shader_type,
+		const std::string& file_name,
+		GLuint& shaderObject);
+
+	static std::string get_compile_log(
+		const GLuint shader_object);
+
+	std::string get_link_log();
 }; // class OglProgram
 
 
-} // namespace rtcw
+} // rtcw
 
 
-#endif // RTCW_OGL_PROGRAM_H
+#endif // RTCW_OGL_PROGRAM_INCLUDED
