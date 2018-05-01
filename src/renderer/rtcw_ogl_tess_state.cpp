@@ -82,7 +82,7 @@ void OglTessState::commit_changes ()
     bool use_program = is_program_valid ();
 
     if (use_program)
-        ::glUseProgram (program_->program);
+        ::glUseProgram (program_->program_);
 
 
     if (model_view.is_modified ()) {
@@ -300,7 +300,7 @@ bool OglTessState::is_program_valid () const
     if (program_ == NULL)
         return false;
 
-    if (program_->program == 0)
+    if (program_->program_ == 0)
         return false;
 
     return true;

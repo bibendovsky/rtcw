@@ -41,6 +41,10 @@ public:
 		const std::string& base_name);
 
 	OglTessProgram(
+		const char* const v_shader_c_string,
+		const char* const f_shader_c_string);
+
+	OglTessProgram(
 		const OglTessProgram& that) = delete;
 
 	OglTessProgram& operator=(
@@ -52,6 +56,10 @@ public:
 	OglProgram* create_new(
 		const std::string& glsl_dir,
 		const std::string& base_name) override;
+
+	OglProgram* create_new(
+		const char* const v_shader_c_string,
+		const char* const f_shader_c_string) override;
 
 
 private:
