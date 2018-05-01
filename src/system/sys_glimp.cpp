@@ -162,14 +162,14 @@ PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer_ = NULL;
 } // namespace
 
 
-GLAPI void GLAPIENTRY glActiveTexture(
+void GLAPIENTRY glActiveTexture(
     GLenum texture)
 {
     glActiveTexture_(
         texture);
 }
 
-GLAPI void APIENTRY glAttachShader(
+void APIENTRY glAttachShader(
     GLuint program,
     GLuint shader)
 {
@@ -178,7 +178,7 @@ GLAPI void APIENTRY glAttachShader(
         shader);
 }
 
-GLAPI void APIENTRY glBindBuffer(
+void APIENTRY glBindBuffer(
     GLenum target,
     GLuint buffer)
 {
@@ -187,7 +187,7 @@ GLAPI void APIENTRY glBindBuffer(
         buffer);
 }
 
-GLAPI void APIENTRY glBufferData(
+void APIENTRY glBufferData(
     GLenum target,
     GLsizeiptr size,
     const void* data,
@@ -200,7 +200,7 @@ GLAPI void APIENTRY glBufferData(
         usage);
 }
 
-GLAPI void APIENTRY glBufferSubData(
+void APIENTRY glBufferSubData(
     GLenum target,
     GLintptr offset,
     GLsizeiptr size,
@@ -213,33 +213,33 @@ GLAPI void APIENTRY glBufferSubData(
         data);
 }
 
-GLAPI void APIENTRY glClientActiveTexture(
+void APIENTRY glClientActiveTexture(
     GLenum texture)
 {
     glClientActiveTexture_(
         texture);
 }
 
-GLAPI void APIENTRY glCompileShader(
+void APIENTRY glCompileShader(
     GLuint shader)
 {
     glCompileShader_(
         shader);
 }
 
-GLAPI GLuint APIENTRY glCreateProgram()
+GLuint APIENTRY glCreateProgram()
 {
     return glCreateProgram_();
 }
 
-GLAPI GLuint APIENTRY glCreateShader(
+GLuint APIENTRY glCreateShader(
     GLenum type)
 {
     return glCreateShader_(
         type);
 }
 
-GLAPI void APIENTRY glDeleteBuffers(
+void APIENTRY glDeleteBuffers(
     GLsizei n,
     const GLuint* buffers)
 {
@@ -248,28 +248,28 @@ GLAPI void APIENTRY glDeleteBuffers(
         buffers);
 }
 
-GLAPI void APIENTRY glDeleteProgram(
+void APIENTRY glDeleteProgram(
     GLuint program)
 {
     glDeleteProgram_(
         program);
 }
 
-GLAPI void APIENTRY glDeleteShader(
+void APIENTRY glDeleteShader(
     GLuint shader)
 {
     glDeleteShader_(
         shader);
 }
 
-GLAPI void APIENTRY glDisableVertexAttribArray(
+void APIENTRY glDisableVertexAttribArray(
     GLuint index)
 {
     glDisableVertexAttribArray_(
         index);
 }
 
-GLAPI void APIENTRY glDrawElementsBaseVertex(
+void APIENTRY glDrawElementsBaseVertex(
     GLenum mode,
     GLsizei count,
     GLenum type,
@@ -284,14 +284,14 @@ GLAPI void APIENTRY glDrawElementsBaseVertex(
         basevertex);
 }
 
-GLAPI void APIENTRY glEnableVertexAttribArray(
+void APIENTRY glEnableVertexAttribArray(
     GLuint index)
 {
     glEnableVertexAttribArray_(
         index);
 }
 
-GLAPI void APIENTRY glGenBuffers(
+void APIENTRY glGenBuffers(
     GLsizei n,
     GLuint* buffers)
 {
@@ -300,14 +300,14 @@ GLAPI void APIENTRY glGenBuffers(
         buffers);
 }
 
-GLAPI void APIENTRY glGenerateMipmap(
+void APIENTRY glGenerateMipmap(
     GLenum target)
 {
     glGenerateMipmap_(
         target);
 }
 
-GLAPI GLint APIENTRY glGetAttribLocation(
+GLint APIENTRY glGetAttribLocation(
     GLuint program,
     const GLchar* name)
 {
@@ -316,7 +316,7 @@ GLAPI GLint APIENTRY glGetAttribLocation(
         name);
 }
 
-GLAPI void APIENTRY glGetProgramInfoLog(
+void APIENTRY glGetProgramInfoLog(
     GLuint program,
     GLsizei bufSize,
     GLsizei* length,
@@ -329,7 +329,7 @@ GLAPI void APIENTRY glGetProgramInfoLog(
         infoLog);
 }
 
-GLAPI void APIENTRY glGetProgramiv(
+void APIENTRY glGetProgramiv(
     GLuint program,
     GLenum pname,
     GLint* params)
@@ -340,7 +340,7 @@ GLAPI void APIENTRY glGetProgramiv(
         params);
 }
 
-GLAPI void APIENTRY glGetShaderInfoLog(
+void APIENTRY glGetShaderInfoLog(
     GLuint shader,
     GLsizei bufSize,
     GLsizei* length,
@@ -353,7 +353,7 @@ GLAPI void APIENTRY glGetShaderInfoLog(
         infoLog);
 }
 
-GLAPI void APIENTRY glGetShaderiv(
+void APIENTRY glGetShaderiv(
     GLuint shader,
     GLenum pname,
     GLint* params)
@@ -364,7 +364,7 @@ GLAPI void APIENTRY glGetShaderiv(
         params);
 }
 
-GLAPI GLint APIENTRY glGetUniformLocation(
+GLint APIENTRY glGetUniformLocation(
     GLuint program,
     const GLchar* name)
 {
@@ -373,14 +373,14 @@ GLAPI GLint APIENTRY glGetUniformLocation(
         name);
 }
 
-GLAPI void APIENTRY glLinkProgram(
+void APIENTRY glLinkProgram(
     GLuint program)
 {
     glLinkProgram_(
         program);
 }
 
-GLAPI void APIENTRY glLockArraysEXT(
+void APIENTRY glLockArraysEXT(
     GLint first,
     GLsizei count)
 {
@@ -389,7 +389,7 @@ GLAPI void APIENTRY glLockArraysEXT(
         count);
 }
 
-GLAPI void APIENTRY glMultiTexCoord2f(
+void APIENTRY glMultiTexCoord2f(
     GLenum target,
     GLfloat s,
     GLfloat t)
@@ -400,7 +400,7 @@ GLAPI void APIENTRY glMultiTexCoord2f(
         t);
 }
 
-GLAPI void APIENTRY glShaderSource(
+void APIENTRY glShaderSource(
     GLuint shader,
     GLsizei count,
     const GLchar* const* string,
@@ -413,7 +413,7 @@ GLAPI void APIENTRY glShaderSource(
         length);
 }
 
-GLAPI void APIENTRY glUniform1f(
+void APIENTRY glUniform1f(
     GLint location,
     GLfloat v0)
 {
@@ -422,7 +422,7 @@ GLAPI void APIENTRY glUniform1f(
         v0);
 }
 
-GLAPI void APIENTRY glUniform1i(
+void APIENTRY glUniform1i(
     GLint location,
     GLint v0)
 {
@@ -431,7 +431,7 @@ GLAPI void APIENTRY glUniform1i(
         v0);
 }
 
-GLAPI void APIENTRY glUniform4fv(
+void APIENTRY glUniform4fv(
     GLint location,
     GLsizei count,
     const GLfloat* value)
@@ -442,7 +442,7 @@ GLAPI void APIENTRY glUniform4fv(
         value);
 }
 
-GLAPI void APIENTRY glUniformMatrix4fv(
+void APIENTRY glUniformMatrix4fv(
     GLint location,
     GLsizei count,
     GLboolean transpose,
@@ -455,19 +455,19 @@ GLAPI void APIENTRY glUniformMatrix4fv(
         value);
 }
 
-GLAPI void APIENTRY glUnlockArraysEXT()
+void APIENTRY glUnlockArraysEXT()
 {
     glUnlockArraysEXT_();
 }
 
-GLAPI void APIENTRY glUseProgram(
+void APIENTRY glUseProgram(
     GLuint program)
 {
     glUseProgram_(
         program);
 }
 
-GLAPI void APIENTRY glVertexAttrib2f(
+void APIENTRY glVertexAttrib2f(
     GLuint index,
     GLfloat x,
     GLfloat y)
@@ -478,7 +478,7 @@ GLAPI void APIENTRY glVertexAttrib2f(
         y);
 }
 
-GLAPI void APIENTRY glVertexAttrib4f(
+void APIENTRY glVertexAttrib4f(
     GLuint index,
     GLfloat x,
     GLfloat y,
@@ -493,7 +493,7 @@ GLAPI void APIENTRY glVertexAttrib4f(
         w);
 }
 
-GLAPI void APIENTRY glVertexAttribPointer(
+void APIENTRY glVertexAttribPointer(
     GLuint index,
     GLint size,
     GLenum type,
