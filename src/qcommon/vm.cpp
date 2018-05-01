@@ -1135,8 +1135,8 @@ void VM_LogSyscalls (
 
     ++callnum;
 
-    ::fprintf (f, "%i: %i (%i) = %i %i %i %i\n",
-        callnum, args, args[0], args[1], args[2], args[3], args[4]);
+    ::fprintf (f, "%i: (%i) = %i %i %i %i\n",
+        callnum, args[0], args[1], args[2], args[3], args[4]);
 }
 //BBi
 
