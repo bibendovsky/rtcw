@@ -38,9 +38,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "qgl.h"
 
 // BBi GLSL
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #include "rtcw_ogl_tess_program.h"
 #include "rtcw_ogl_tess_state.h"
