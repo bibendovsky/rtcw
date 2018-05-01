@@ -4468,7 +4468,7 @@ static const char* pak_purechecksums[5] = {
 };
 */
 
-static const int feeds[5] = {
+static const unsigned int feeds[5] = {
 
 #if !defined RTCW_ET
 	0xd6009839, 0x636bb1d5, 0x198df4c9, 0x7ffa631b, 0x8f89a69e
@@ -4540,7 +4540,7 @@ int FS_RandChecksumFeed() {
 		FS_InitRandomFeed();
 	}
 	feed_index = ( feed_index + 1 ) % 5;
-	return feeds[lookup_randomized[feed_index]];
+	return static_cast<int>(feeds[lookup_randomized[feed_index]]);
 }
 
 /*

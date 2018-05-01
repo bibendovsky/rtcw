@@ -136,7 +136,7 @@ bool Joystick::initialize()
         const char* name = ::SDL_JoystickName(instance_);
 
         if (name == NULL)
-            name = '\0';
+            name = "";
 
         SDL_JoystickGUID guid = ::SDL_JoystickGetGUID(instance_);
 

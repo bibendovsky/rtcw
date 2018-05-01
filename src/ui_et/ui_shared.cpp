@@ -3984,7 +3984,7 @@ void Item_TextField_Paint( itemDef_t *item ) {
 	do
 	{
 		field_offset++;
-		if ( buff + editPtr->paintOffset + field_offset == '\0' ) {
+		if ( buff[editPtr->paintOffset + field_offset] == '\0' ) {
 			break; // keep it safe
 		}
 		text_len = DC->textWidth( buff + editPtr->paintOffset + field_offset, item->textscale, 0 );
@@ -7431,7 +7431,7 @@ void BG_PanelButton_RenderEdit( panel_button_t* button ) {
 
 		do {
 			offset++;
-			if ( buffer + offset  == '\0' ) {
+			if ( buffer[offset]  == '\0' ) {
 				break;
 			}
 		} while ( DC->textWidthExt( buffer + offset, button->font->scalex, 0, button->font->font ) > button->rect.w );
@@ -7452,7 +7452,7 @@ void BG_PanelButton_RenderEdit( panel_button_t* button ) {
 
 		do {
 			offset++;
-			if ( s + offset  == '\0' ) {
+			if ( s[offset]  == '\0' ) {
 				break;
 			}
 		} while ( DC->textWidthExt( s + offset, button->font->scalex, 0, button->font->font ) > button->rect.w );
