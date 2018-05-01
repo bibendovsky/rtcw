@@ -11,11 +11,29 @@ OglProgram::OglProgram(
 	const std::string& glsl_dir,
 	const std::string& base_name)
 	:
-	program{GL_NONE},
+	source_type_{SourceType::file},
+	program_{GL_NONE},
 	glsl_dir_{glsl_dir},
 	base_name_{base_name},
-	vertex_shader_{GL_NONE},
-	fragment_shader_{GL_NONE}
+	v_shader_c_string_{},
+	f_shader_c_string_{},
+	ogl_vertex_shader_{GL_NONE},
+	ogl_fragment_shader_{GL_NONE}
+{
+}
+
+OglProgram::OglProgram(
+	const char* const v_shader_buffer,
+	const char* const f_shader_buffer)
+	:
+	source_type_{SourceType::c_string},
+	program_{GL_NONE},
+	glsl_dir_{},
+	base_name_{},
+	v_shader_c_string_{v_shader_buffer},
+	f_shader_c_string_{f_shader_buffer},
+	ogl_vertex_shader_{GL_NONE},
+	ogl_fragment_shader_{GL_NONE}
 {
 }
 
@@ -41,22 +59,22 @@ bool OglProgram::try_reload()
 
 void OglProgram::unload_internal()
 {
-	if (vertex_shader_ != GL_NONE)
+	if (ogl_vertex_shader_ != GL_NONE)
 	{
-		::glDeleteShader(vertex_shader_);
-		vertex_shader_ = GL_NONE;
+		::glDeleteShader(ogl_vertex_shader_);
+		ogl_vertex_shader_ = GL_NONE;
 	}
 
-	if (fragment_shader_ != GL_NONE)
+	if (ogl_fragment_shader_ != GL_NONE)
 	{
-		::glDeleteShader(fragment_shader_);
-		fragment_shader_ = GL_NONE;
+		::glDeleteShader(ogl_fragment_shader_);
+		ogl_fragment_shader_ = GL_NONE;
 	}
 
-	if (program != GL_NONE)
+	if (program_ != GL_NONE)
 	{
-		::glDeleteProgram(program);
-		program = GL_NONE;
+		::glDeleteProgram(program_);
+		program_ = GL_NONE;
 	}
 }
 
@@ -66,36 +84,53 @@ bool OglProgram::reload_internal()
 
 
 	auto result = false;
-
-	const auto p_name = glsl_dir_ + base_name_;
-
-	::ri.Printf(PRINT_ALL, "\"%s\"\n", p_name.c_str());
-
-	auto v_name = p_name + "_vs.txt";
-	auto f_name = p_name + "_fs.txt";
-
 	auto is_compile_program = false;
 
-	auto v_result = reload_shader(GL_VERTEX_SHADER, v_name, vertex_shader_);
-
-	if (v_result == ReloadShaderResult::compiled)
+	if (source_type_ == SourceType::file)
 	{
-		auto f_result = reload_shader(GL_FRAGMENT_SHADER, f_name, fragment_shader_);
+		const auto p_name = glsl_dir_ + base_name_;
 
-		is_compile_program = (f_result == ReloadShaderResult::compiled);
+		::ri.Printf(PRINT_ALL, "\"%s\"\n", p_name.c_str());
+
+		auto v_name = p_name + "_vs.txt";
+		auto f_name = p_name + "_fs.txt";
+
+		const auto v_result = reload_shader(GL_VERTEX_SHADER, v_name, ogl_vertex_shader_);
+
+		if (v_result == ReloadShaderResult::compiled)
+		{
+			const auto f_result = reload_shader(GL_FRAGMENT_SHADER, f_name, ogl_fragment_shader_);
+
+			is_compile_program = (f_result == ReloadShaderResult::compiled);
+		}
+	}
+	else if (source_type_ == SourceType::c_string)
+	{
+		const auto v_result = reload_shader(GL_VERTEX_SHADER, v_shader_c_string_, ogl_vertex_shader_);
+
+		if (v_result == ReloadShaderResult::compiled)
+		{
+			const auto f_result = reload_shader(GL_FRAGMENT_SHADER, f_shader_c_string_, ogl_fragment_shader_);
+
+			is_compile_program = (f_result == ReloadShaderResult::compiled);
+		}
+	}
+	else
+	{
+		return false;
 	}
 
 	if (is_compile_program)
 	{
-		program = ::glCreateProgram();
+		program_ = ::glCreateProgram();
 
-		::glAttachShader(program, vertex_shader_);
-		::glAttachShader(program, fragment_shader_);
+		::glAttachShader(program_, ogl_vertex_shader_);
+		::glAttachShader(program_, ogl_fragment_shader_);
 
 		auto link_status = GLint{GL_FALSE};
 
-		::glLinkProgram(program);
-		::glGetProgramiv(program, GL_LINK_STATUS, &link_status);
+		::glLinkProgram(program_);
+		::glGetProgramiv(program_, GL_LINK_STATUS, &link_status);
 
 		auto link_log = get_link_log();
 
@@ -134,9 +169,78 @@ void OglProgram::do_unload()
 
 bool OglProgram::do_try_reload()
 {
-	auto instance = std::unique_ptr<OglProgram>(create_new(glsl_dir_, base_name_));
+	if (source_type_ == SourceType::file)
+	{
+		auto instance = std::unique_ptr<OglProgram>(create_new(glsl_dir_, base_name_));
 
-	return instance->reload();
+		return instance->reload();
+	}
+	else if (source_type_ == SourceType::c_string)
+	{
+		auto instance = std::unique_ptr<OglProgram>(create_new(v_shader_c_string_, f_shader_c_string_));
+
+		return instance->reload();
+	}
+	else
+	{
+		return false;
+	}
+}
+
+OglProgram::ReloadShaderResult OglProgram::reload_shader(
+	const GLenum shader_type,
+	const char* const shader_c_string,
+	GLuint& shader_object)
+{
+	auto result = ReloadShaderResult::none;
+
+	const auto source_length = static_cast<GLint>(std::string::traits_type::length(shader_c_string));
+
+	shader_object = GL_NONE;
+
+	auto is_compiled = false;
+
+	if (source_length > 0)
+	{
+		const GLchar* lines[1] = {shader_c_string};
+		GLint lengths[1] = {source_length};
+
+		shader_object = ::glCreateShader(shader_type);
+		::glShaderSource(shader_object, 1, lines, lengths);
+		::glCompileShader(shader_object);
+
+		auto compile_status = GLint{GL_FALSE};
+
+		::glGetShaderiv(shader_object, GL_COMPILE_STATUS, &compile_status);
+
+		auto compile_log = get_compile_log(shader_object);
+
+		if (compile_status != GL_FALSE)
+		{
+			if (!compile_log.empty())
+			{
+				::ri.Printf(PRINT_ALL, "Compilation log of \"%s\" shader:\n%s\n",
+					get_shader_type_string(shader_type), compile_log.c_str());
+			}
+
+			result = ReloadShaderResult::compiled;
+		}
+		else
+		{
+			::ri.Printf(PRINT_ALL, "Failed to compile a \"%s\" shader:\n%s\n",
+				get_shader_type_string(shader_type), compile_log.c_str());
+
+			result = ReloadShaderResult::not_compiled;
+		}
+	}
+
+	if (result != ReloadShaderResult::compiled)
+	{
+		::glDeleteShader(shader_object);
+		shader_object = GL_NONE;
+	}
+
+	return result;
 }
 
 OglProgram::ReloadShaderResult OglProgram::reload_shader(
@@ -235,7 +339,7 @@ std::string OglProgram::get_link_log()
 {
 	auto info_log_size = GLint{}; // with a null terminator
 
-	::glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_log_size);
+	::glGetProgramiv(program_, GL_INFO_LOG_LENGTH, &info_log_size);
 
 	if (info_log_size == 0)
 	{
@@ -248,7 +352,7 @@ std::string OglProgram::get_link_log()
 	auto info_log = std::string{};
 	info_log.resize(info_log_size);
 
-	::glGetProgramInfoLog(program, info_log_size, &info_log_length, &info_log[0]);
+	::glGetProgramInfoLog(program_, info_log_size, &info_log_length, &info_log[0]);
 
 	if (info_log_length == 0)
 	{
@@ -258,6 +362,22 @@ std::string OglProgram::get_link_log()
 	info_log.resize(info_log_length);
 
 	return info_log;
+}
+
+const char* OglProgram::get_shader_type_string(
+	const GLenum shader_type)
+{
+	switch (shader_type)
+	{
+	case GL_VERTEX_SHADER:
+		return "vertex";
+
+	case GL_FRAGMENT_SHADER:
+		return "fragment";
+
+	default:
+		return "???";
+	}
 }
 
 

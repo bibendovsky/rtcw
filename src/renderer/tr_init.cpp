@@ -331,6 +331,11 @@ int max_polys;
 cvar_t  *r_maxpolyverts;
 int max_polyverts;
 
+// Controls the source of GLSL shaders.
+// Non-zero - external; zero - embeded.
+// Works in debug builds only.
+cvar_t* r_dbg_use_glsl_shader_files;
+
 vec4hack_t tess_xyz[SHADER_MAX_VERTEXES];
 vec4hack_t tess_normal[SHADER_MAX_VERTEXES];
 vec2hack_t tess_texCoords0[SHADER_MAX_VERTEXES];
@@ -445,79 +450,462 @@ static int R_GetMaxTextureSize ()
     return result;
 }
 
-std::string r_get_glsl_path ()
+std::string r_dbg_get_glsl_path()
 {
-    if (glConfigEx.is_path_ogl_2_x())
-        return "glsl/110/";
-    else
-        return std::string();
+	if (::glConfigEx.is_path_ogl_2_x())
+	{
+		return "glsl/110/";
+	}
+	else
+	{
+		return {};
+	}
 }
 
-bool r_probe_programs ()
+bool r_dbg_probe_programs()
 {
-    bool is_try_successfull = true;
+	auto is_try_successfull = true;
 
-    std::string glsl_dir = r_get_glsl_path ();
+	const auto glsl_dir = ::r_dbg_get_glsl_path();
 
-    if (glsl_dir.empty ()) {
-        ri.Printf (PRINT_WARNING, "Invalid OpenGL path value.\n");
-        return false;
-    }
+	if (glsl_dir.empty())
+	{
+		::ri.Printf(PRINT_WARNING, "Invalid OpenGL path value.\n");
+		return false;
+	}
 
-    rtcw::OglTessProgram tess_program (glsl_dir, "tess");
+	rtcw::OglTessProgram tess_program(glsl_dir, "tess");
 
-    ri.Printf (PRINT_ALL, "\n======== GLSL probe ========\n");
-    ri.Printf (PRINT_ALL, "%s...\n", "Trying to reload programs");
+	::ri.Printf(PRINT_ALL, "\n======== GLSL probe (debug) ========\n");
+	::ri.Printf(PRINT_ALL, "%s...\n", "Trying to reload programs");
 
-    is_try_successfull &= tess_program.try_reload ();
+	is_try_successfull &= tess_program.try_reload();
 
-    ri.Printf (PRINT_ALL, "======== GLSL probe ========\n");
+	::ri.Printf(PRINT_ALL, "======== GLSL probe (debug) ========\n");
 
-    return is_try_successfull;
+	return is_try_successfull;
 }
 
-void r_reload_programs_f ()
+void r_dbg_reload_programs_f()
 {
-    if (glConfigEx.is_path_ogl_1_x ()) {
-        ri.Printf (PRINT_WARNING, "%s.\n", "Not supported for OpenGL 1.X");
-        return;
-    }
+	if (::glConfigEx.is_path_ogl_1_x())
+	{
+		::ri.Printf(PRINT_WARNING, "%s.\n", "Not supported for OpenGL 1.X");
+		return;
+	}
 
-    ri.Printf (PRINT_ALL, "\n======== GLSL ========\n");
-    ri.Printf (PRINT_ALL, "%s...\n", "Trying to reload programs");
+	::ri.Printf(PRINT_ALL, "\n======== GLSL (debug) ========\n");
+	::ri.Printf(PRINT_ALL, "%s...\n", "Trying to reload programs");
 
-    const std::string glsl_dir = r_get_glsl_path ();
+	const auto glsl_dir = ::r_dbg_get_glsl_path();
 
-    if (glsl_dir.empty ()) {
-        ri.Printf (PRINT_WARNING, "Invalid OpenGL path value.\n");
-        return;
-    }
+	if (glsl_dir.empty())
+	{
+		::ri.Printf(PRINT_WARNING, "Invalid OpenGL path value.\n");
+		return;
+	}
 
-    bool is_try_successfull = true;
+	auto is_try_successfull = true;
 
-    ogl_tess_state.set_program (NULL);
+	::ogl_tess_state.set_program(nullptr);
 
-    if (ogl_tess_program == NULL) {
-        ogl_tess_program = new rtcw::OglTessProgram (
-            glsl_dir, "tess");
-    }
+	if (!::ogl_tess_program)
+	{
+		::ogl_tess_program = new rtcw::OglTessProgram(glsl_dir, "tess");
+	}
 
-    if (ogl_tess_program != NULL)
-        is_try_successfull &= ogl_tess_program->try_reload ();
-    else {
-        is_try_successfull = false;
-        ri.Printf (PRINT_ALL, "%s.\n", "Out of memory");
-    }
+	if (!ogl_tess_program)
+	{
+		is_try_successfull &= ::ogl_tess_program->try_reload();
+	}
+	else
+	{
+		is_try_successfull = false;
+		::ri.Printf(PRINT_ALL, "%s.\n", "Out of memory");
+	}
 
-    if (is_try_successfull) {
-        ri.Printf (PRINT_ALL, "\n%s...\n", "Reloading programs");
-        ogl_tess_program->reload ();
-    }
+	if (is_try_successfull)
+	{
+		::ri.Printf(PRINT_ALL, "\n%s...\n", "Reloading programs");
+		::ogl_tess_program->reload();
+	}
 
-    ogl_tess_state.set_program (ogl_tess_program);
-    ogl_tess_state.commit_changes ();
+	::ogl_tess_state.set_program(::ogl_tess_program);
+	::ogl_tess_state.commit_changes();
 
-    ri.Printf (PRINT_ALL, "======== GLSL ========\n");
+	::ri.Printf(PRINT_ALL, "======== GLSL (debug) ========\n");
+}
+
+
+static const char* r_get_embeded_vertex_shader()
+{
+	static const char* const result =
+R"VERTEX_SHADER(
+
+//
+// Project: RTCW
+// Author: Boris I. Bendovsky
+//
+// Shader type: vertex.
+// Purpose: Generic drawing.
+//
+
+
+//#version 110
+
+
+// Known GL constants.
+const int GL_DONT_CARE = 0x1100;
+const int GL_EXP = 0x0800;
+const int GL_FASTEST = 0x1101;
+const int GL_NICEST = 0x1102;
+const int GL_NONE = 0x0000;
+const int GL_EYE_PLANE = 0x2502;
+const int GL_EYE_RADIAL_NV = 0x855B;
+
+
+attribute vec4 pos_vec4; // position
+attribute vec4 col_vec4; // color
+attribute vec2 tc0_vec2; // texture coords (0)
+attribute vec2 tc1_vec2; // texture coords (1)
+
+uniform bool use_fog;
+uniform int fog_mode;
+uniform int fog_dist_mode; // GL_NV_fog_distance emulation
+uniform int fog_hint;
+
+uniform mat4 projection_mat4; // projection matrix
+uniform mat4 model_view_mat4; // model-view matrix
+
+varying vec4 col; // interpolated color
+varying vec2 tc[2]; // interpolated texture coords
+varying float fog_vc; // interpolated calculated fog coords
+varying vec4 fog_fc; // interpolated fog coords
+
+
+void main()
+{
+	col = col_vec4;
+	tc[0] = tc0_vec2;
+	tc[1] = tc1_vec2;
+
+	vec4 eye_pos = model_view_mat4 * pos_vec4;
+
+	if (use_fog)
+	{
+		if (fog_hint != GL_FASTEST)
+		{
+			fog_fc = eye_pos;
+		}
+		else
+		{
+			if (fog_dist_mode == GL_EYE_RADIAL_NV)
+			{
+				fog_vc = length(eye_pos.xyz);
+			}
+			else if (fog_dist_mode == GL_EYE_PLANE)
+			{
+				fog_vc = eye_pos.z;
+			}
+			else
+			{
+				fog_vc = abs(eye_pos.z);
+			}
+		}
+	}
+
+	gl_Position = projection_mat4 * eye_pos;
+}
+
+)VERTEX_SHADER"
+	;
+
+	return result;
+}
+
+static const char* r_get_embeded_fragment_shader()
+{
+	static const char* const result =
+R"FRAGMENT_SHADER(
+
+//
+// Project: RTCW
+// Author: Boris I. Bendovsky
+//
+// Shader type: fragment.
+// Purpose: Generic drawing.
+//
+
+
+//#version 110
+
+
+// Known constants.
+const int GL_ADD = 0x0104;
+const int GL_DECAL = 0x2101;
+const int GL_DONT_CARE = 0x1100;
+const int GL_EYE_PLANE = 0x2502;
+const int GL_EYE_RADIAL_NV = 0x855B;
+const int GL_EXP = 0x0800;
+const int GL_FASTEST = 0x1101;
+const int GL_GEQUAL = 0x0206;
+const int GL_GREATER = 0x0204;
+const int GL_LESS = 0x0201;
+const int GL_LINEAR = 0x2601;
+const int GL_MODULATE = 0x2100;
+const int GL_NICEST = 0x1102;
+const int GL_REPLACE = 0x1E01;
+
+
+uniform vec4 primary_color; // primary color
+uniform bool use_alpha_test; // alpha test switch
+uniform int alpha_test_func; // alpha test function
+uniform float alpha_test_ref; // alpha test reference value
+uniform int tex_env_mode[2]; // texture environment mode
+uniform bool use_multitexturing; // mutitexturing switch
+uniform sampler2D tex_2d[2]; // textures
+
+uniform bool use_fog;
+uniform int fog_mode;
+uniform int fog_hint;
+uniform int fog_dist_mode; // GL_NV_fog_distance emulation
+uniform vec4 fog_color;
+uniform float fog_density;
+uniform float fog_start;
+uniform float fog_end;
+
+varying vec4 col; // interpolated color
+varying vec2 tc[2]; // interpolated texture coords
+varying float fog_vc; // interpolated calculated fog coords
+varying vec4 fog_fc; // interpolated fog coords
+
+
+vec4 apply_tex_env(
+	vec4 previous_color,
+	int env_index)
+{
+	vec4 result = previous_color;
+	vec4 texel = texture2D(tex_2d[env_index], tc[env_index]);
+
+	if (tex_env_mode[env_index] == GL_REPLACE)
+	{
+		result = texel;
+	}
+	else if (tex_env_mode[env_index] == GL_MODULATE)
+	{
+		result *= texel;
+	}
+	else if (tex_env_mode[env_index] == GL_DECAL)
+	{
+		result.rgb = mix(result.rgb, texel.rgb, texel.a);
+	}
+	else if (tex_env_mode[env_index] == GL_ADD)
+	{
+		result.rgb += texel.rgb;
+		result.a *= texel.a;
+	}
+	else
+	{
+		// invalid mode
+		result *= vec4(0.5, 0.0, 0.0, 1.0);
+	}
+
+	return result;
+}
+
+vec4 apply_alpha_test(
+	vec4 color)
+{
+	float test_ref = clamp(alpha_test_ref, 0.0, 1.0);
+
+	if (alpha_test_func == GL_GEQUAL)
+	{
+		if (color.a < test_ref)
+		{
+			discard;
+		}
+	}
+	else if (alpha_test_func == GL_GREATER)
+	{
+		if (color.a <= test_ref)
+		{
+			discard;
+		}
+	}
+	else if (alpha_test_func == GL_LESS)
+	{
+		if (color.a >= test_ref)
+		{
+			discard;
+		}
+	}
+	else
+	{
+		// invalid function
+		color *= vec4(0.0, 0.5, 0.0, 1.0);
+	}
+
+	return color;
+}
+
+vec4 apply_fog(
+	vec4 color)
+{
+	float c;
+
+	if (fog_hint != GL_FASTEST)
+	{
+		vec4 r_fog_fc = fog_fc / fog_fc.w;
+
+		if (fog_dist_mode == GL_EYE_RADIAL_NV)
+		{
+			c = length(r_fog_fc.xyz);
+		}
+		else if (fog_dist_mode == GL_EYE_PLANE)
+		{
+			c = fog_fc.z;
+		}
+		else
+		{
+			c = abs(fog_fc.z);
+		}
+	}
+	else
+	{
+		c = fog_vc;
+	}
+
+
+	float f = 1.0;
+
+	if (fog_mode == GL_LINEAR)
+	{
+		float es = fog_end - fog_start;
+
+		if (es != 0.0)
+		{
+			f = (fog_end - c) / es;
+		}
+	}
+	else
+	{
+		f = exp(-fog_density * c);
+	}
+
+	f = clamp(f, 0.0, 1.0);
+	vec4 mixed_color = mix(fog_color, color, f);
+
+	return vec4(mixed_color.rgb, color.a);
+}
+
+
+void main()
+{
+	vec4 frag_color = primary_color * col;
+
+	frag_color = apply_tex_env(frag_color, 0);
+
+	if (use_multitexturing)
+	{
+		frag_color = apply_tex_env(frag_color, 1);
+	}
+
+	if (use_fog)
+	{
+		frag_color = apply_fog(frag_color);
+	}
+
+	if (use_alpha_test)
+	{
+		frag_color = apply_alpha_test(frag_color);
+	}
+
+	gl_FragColor = frag_color;
+}
+
+)FRAGMENT_SHADER"
+	;
+
+	return result;
+}
+
+bool r_probe_programs()
+{
+#ifdef _DEBUG
+	if (::r_dbg_use_glsl_shader_files->integer != 0)
+	{
+		return ::r_dbg_probe_programs();
+	}
+#endif // _DEBUG
+
+	if (!::glConfigEx.is_path_ogl_2_x())
+	{
+		ri.Printf(PRINT_WARNING, "No OpenGL 2.1+.\n");
+		return false;
+	}
+
+	bool is_try_successfull = true;
+
+	rtcw::OglTessProgram tess_program(r_get_embeded_vertex_shader(), r_get_embeded_fragment_shader());
+
+	ri.Printf(PRINT_ALL, "\n======== GLSL probe ========\n");
+	ri.Printf(PRINT_ALL, "%s...\n", "Trying to reload programs");
+
+	is_try_successfull &= tess_program.try_reload();
+
+	ri.Printf(PRINT_ALL, "======== GLSL probe ========\n");
+
+	return is_try_successfull;
+}
+
+void r_reload_programs_f()
+{
+#ifdef _DEBUG
+	if (::r_dbg_use_glsl_shader_files->integer != 0)
+	{
+		::r_dbg_reload_programs_f();
+		return;
+	}
+#endif // _DEBUG
+
+	if (!glConfigEx.is_path_ogl_2_x())
+	{
+		::ri.Printf(PRINT_WARNING, "%s.\n", "No OpenGL 2.1+.\n");
+		return;
+	}
+
+	ri.Printf(PRINT_ALL, "\n======== GLSL ========\n");
+	ri.Printf(PRINT_ALL, "%s...\n", "Trying to reload programs");
+
+	bool is_try_successfull = true;
+
+	ogl_tess_state.set_program(nullptr);
+
+	if (!::ogl_tess_program)
+	{
+		::ogl_tess_program = new rtcw::OglTessProgram{r_get_embeded_vertex_shader(), r_get_embeded_fragment_shader()};
+	}
+
+	if (::ogl_tess_program)
+	{
+		is_try_successfull &= ::ogl_tess_program->try_reload();
+	}
+	else
+	{
+		is_try_successfull = false;
+		::ri.Printf(PRINT_ALL, "%s.\n", "Out of memory");
+	}
+
+	if (is_try_successfull)
+	{
+		::ri.Printf(PRINT_ALL, "\n%s...\n", "Reloading programs");
+		::ogl_tess_program->reload();
+	}
+
+	::ogl_tess_state.set_program(::ogl_tess_program);
+	::ogl_tess_state.commit_changes();
+
+	::ri.Printf(PRINT_ALL, "======== GLSL ========\n");
 }
 
 static void r_tess_initialize ()
@@ -1899,7 +2287,10 @@ void R_Register( void ) {
 	r_maxpolys = ri.Cvar_Get( "r_maxpolys", va( "%d", MAX_POLYS ), 0 );
 	r_maxpolyverts = ri.Cvar_Get( "r_maxpolyverts", va( "%d", MAX_POLYVERTS ), 0 );
 
-	r_highQualityVideo = ri.Cvar_Get( "r_highQualityVideo", "1", CVAR_ARCHIVE );
+	r_highQualityVideo = ri.Cvar_Get( "r_highQualityVideo", "1", CVAR_ARCHIVE);
+
+	::r_dbg_use_glsl_shader_files = ::ri.Cvar_Get("r_dbg_use_glsl_shader_files", "0", CVAR_ARCHIVE | CVAR_CHEAT);
+
 	// make sure all the commands added here are also
 	// removed in R_Shutdown
 	ri.Cmd_AddCommand( "imagelist", R_ImageList_f );

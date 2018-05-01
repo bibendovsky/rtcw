@@ -53,7 +53,7 @@ void ogl_tess2_draw (GLenum mode, int vertex_count,
     if (vertex_count <= 0)
         return;
 
-    if (ogl_tess_program->program == 0)
+    if (ogl_tess_program->program_ == 0)
         return;
 
     if (ogl_tess2_vbo == 0)
@@ -75,7 +75,7 @@ void ogl_tess2_draw (GLenum mode, int vertex_count,
         ogl_tess2_base_vertex = 0;
     }
 
-    ::glUseProgram (ogl_tess_program->program);
+    ::glUseProgram (ogl_tess_program->program_);
 
     ::glBindBuffer (GL_ARRAY_BUFFER, ogl_tess2_vbo);
 

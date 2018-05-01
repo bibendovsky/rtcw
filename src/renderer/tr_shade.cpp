@@ -224,7 +224,7 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
             if (vertex_count == 0)
                 return;
 
-            if (ogl_tess_program->program == 0)
+            if (ogl_tess_program->program_ == 0)
                 return;
 
             if (ogl_tess_vbo == 0)
@@ -258,7 +258,7 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
                     ogl_index_buffer[i] = indexes[i] + ogl_tess_base_vertex;
             }
 
-            ::glUseProgram (ogl_tess_program->program);
+            ::glUseProgram (ogl_tess_program->program_);
 
             ::glBindBuffer (GL_ARRAY_BUFFER, ogl_tess_vbo);
 

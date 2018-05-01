@@ -17,12 +17,16 @@ class OglProgram
 {
 public:
 	// Program object.
-	GLuint program;
+	GLuint program_;
 
 
 	OglProgram(
 		const std::string& glsl_dir,
 		const std::string& base_name);
+
+	OglProgram(
+		const char* const v_shader_buffer,
+		const char* const f_shader_buffer);
 
 	OglProgram(
 		const OglProgram& that) = delete;
@@ -47,19 +51,36 @@ protected:
 		not_compiled,
 	}; // ReloadShaderResult
 
+	enum class SourceType
+	{
+		none,
+		file,
+		c_string,
+	}; // SourceType
 
+
+	SourceType source_type_;
 	std::string glsl_dir_;
 	std::string base_name_;
+	const char* v_shader_c_string_;
+	const char* f_shader_c_string_;
 
-	GLuint vertex_shader_;
-	GLuint fragment_shader_;
+	GLuint ogl_vertex_shader_;
+	GLuint ogl_fragment_shader_;
 
 	virtual OglProgram* create_new(
 		const std::string& glsl_dir,
 		const std::string& base_name) = 0;
 
+	virtual OglProgram* create_new(
+		const char* const v_shader_buffer,
+		const char* const f_shader_buffer) = 0;
+
 	bool reload_internal();
 	void unload_internal();
+
+	static const char* get_shader_type_string(
+		const GLenum shader_type);
 
 
 private:
@@ -67,6 +88,11 @@ private:
 	virtual bool do_try_reload();
 	virtual void do_unload();
 
+
+	ReloadShaderResult reload_shader(
+		const GLenum shader_type,
+		const char* const shader_c_string,
+		GLuint& shaderObject);
 
 	ReloadShaderResult reload_shader(
 		const GLenum shader_type,
