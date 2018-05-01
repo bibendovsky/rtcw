@@ -1,6 +1,6 @@
 #include "rtcw_ogl_matrix_stack.h"
 #include <cassert>
-#include <glm/gtc/type_ptr.hpp>
+#include "glm/gtc/type_ptr.hpp"
 
 
 namespace rtcw {
