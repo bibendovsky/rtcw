@@ -3,6 +3,8 @@ project(rtcw_cgame_et VERSION 1.0.0 LANGUAGES CXX)
 
 find_package(SDL 2.0.4 REQUIRED)
 
+option(RTCW_USE_MULTI_PROCESS_COMPILATION "Enables multi-process compilation if available." ON)
+
 set(
 	headers
 	../cgame/cg_public.h
@@ -113,6 +115,15 @@ if (MSVC)
 		rtcw_cgame_et
 		PRIVATE _CRT_SECURE_NO_WARNINGS
 	)
+endif ()
+
+if (RTCW_USE_MULTI_PROCESS_COMPILATION)
+	if (MSVC)
+		target_compile_options(
+			rtcw_cgame_et
+			PRIVATE -MP
+		)
+	endif ()
 endif ()
 
 set_target_properties(

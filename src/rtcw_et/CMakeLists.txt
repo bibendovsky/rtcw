@@ -13,6 +13,8 @@ if (RTCW_BUILD_ET AND RTCW_USE_CURL)
 	endif ()
 endif ()
 
+option(RTCW_USE_MULTI_PROCESS_COMPILATION "Enables multi-process compilation if available." ON)
+
 set(
 	headers
 	../botai/botai.h
@@ -317,6 +319,15 @@ if (MSVC)
 		rtcw_et
 		PRIVATE _CRT_SECURE_NO_WARNINGS
 	)
+endif ()
+
+if (RTCW_USE_MULTI_PROCESS_COMPILATION)
+	if (MSVC)
+		target_compile_options(
+			rtcw_et
+			PRIVATE -MP
+		)
+	endif ()
 endif ()
 
 if (MINGW)
