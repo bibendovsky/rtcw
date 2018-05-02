@@ -90,9 +90,9 @@ set(
 	../win32/glw_win.h
 	../win32/rtcw_et_resource.h
 	../win32/win_local.h
-	../zlib/contrib/minizip/ioapi.h
-	../zlib/contrib/minizip/miniz.h
-	../zlib/contrib/minizip/unzip.h
+	../lib/zlib/contrib/minizip/ioapi.h
+	../lib/zlib/contrib/minizip/miniz.h
+	../lib/zlib/contrib/minizip/unzip.h
 )
 
 if (WIN32)
@@ -166,8 +166,8 @@ set(
 	../system/sys_shared.cpp
 	../win32/win_main.cpp
 	../win32/win_syscon.cpp
-	../zlib/contrib/minizip/ioapi.c
-	../zlib/contrib/minizip/unzip.c
+	../lib/zlib/contrib/minizip/ioapi.c
+	../lib/zlib/contrib/minizip/unzip.c
 )
 
 if (WIN32)
@@ -194,12 +194,12 @@ target_include_directories(
 	PRIVATE ../cgame
 	PRIVATE ../client
 	PRIVATE ../game
+	PRIVATE ../lib/zlib/contrib/minizip
 	PRIVATE ../qcommon
 	PRIVATE ../renderer
 	PRIVATE ../system
 	PRIVATE ../ui
 	PRIVATE ../win32
-	PRIVATE ../zlib/contrib/minizip
 )
 
 target_compile_definitions(
