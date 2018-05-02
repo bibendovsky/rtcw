@@ -254,17 +254,17 @@ target_include_directories(
 	PRIVATE ${SDL_INCLUDE_DIR}
 	PRIVATE ${SDL_NET_INCLUDE_DIR}
 	PRIVATE .
-	PRIVATE ../../botai
-	PRIVATE ../../cgame
-	PRIVATE ../../client
-	PRIVATE ../../game
-	PRIVATE ../../lib/glm
-	PRIVATE ../../lib/zlib/contrib/minizip
-	PRIVATE ../../qcommon
-	PRIVATE ../../renderer
-	PRIVATE ../../system
-	PRIVATE ../../ui
-	PRIVATE ../../win32
+	PRIVATE ../botai
+	PRIVATE ../cgame
+	PRIVATE ../client
+	PRIVATE ../game
+	PRIVATE ../lib/glm
+	PRIVATE ../lib/zlib/contrib/minizip
+	PRIVATE ../qcommon
+	PRIVATE ../renderer
+	PRIVATE ../system
+	PRIVATE ../ui
+	PRIVATE ../win32
 )
 
 target_compile_definitions(
