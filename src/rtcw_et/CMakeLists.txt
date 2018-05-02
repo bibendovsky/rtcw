@@ -278,7 +278,7 @@ target_include_directories(
 	PRIVATE ${SDL_NET_INCLUDE_DIR}
 	PRIVATE .
 	PRIVATE ../botai
-	PRIVATE ../botai_et
+	PRIVATE ../botai/et
 	PRIVATE ../cgame
 	PRIVATE ../client
 	PRIVATE ../game
