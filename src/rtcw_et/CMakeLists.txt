@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.5.1 FATAL_ERROR)
 project(rtcw_et VERSION 1.0.0 LANGUAGES CXX C)
 
-find_package(OpenGL REQUIRED)
 find_package(SDL 2.0.4 REQUIRED)
 find_package(SDL_net 2.0.1 REQUIRED)
 
@@ -82,6 +81,8 @@ set(
 	../renderer/rtcw_ogl_program.h
 	../renderer/rtcw_ogl_tess_program.h
 	../renderer/rtcw_ogl_tess_state.h
+	../renderer/sdl_ogl11_loader.h
+	../renderer/sdl_ogl11_loader_gl.h
 	../renderer/tr_local.h
 	../renderer/tr_public.h
 	../server/server.h
@@ -187,6 +188,7 @@ set(
 	../renderer/rtcw_ogl_program.cpp
 	../renderer/rtcw_ogl_tess_program.cpp
 	../renderer/rtcw_ogl_tess_state.cpp
+	../renderer/sdl_ogl11_loader.cpp
 	../renderer/tr_animation_mdm.cpp
 	../renderer/tr_animation_mds.cpp
 	../renderer/tr_backend.cpp
@@ -342,7 +344,6 @@ target_link_libraries(
 	${SDLMAIN_LIBRARY}
 	${SDL_LIBRARY}
 	${SDL_NET_LIBRARY}
-	OpenGL::GL
 )
 
 if (RTCW_USE_CURL)

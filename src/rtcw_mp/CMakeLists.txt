@@ -71,6 +71,8 @@ set(
 	../renderer/rtcw_ogl_program.h
 	../renderer/rtcw_ogl_tess_program.h
 	../renderer/rtcw_ogl_tess_state.h
+	../renderer/sdl_ogl11_loader.h
+	../renderer/sdl_ogl11_loader_gl.h
 	../renderer/tr_local.h
 	../renderer/tr_public.h
 	../server/server.h
@@ -176,6 +178,7 @@ set(
 	../renderer/rtcw_ogl_program.cpp
 	../renderer/rtcw_ogl_tess_program.cpp
 	../renderer/rtcw_ogl_tess_state.cpp
+	../renderer/sdl_ogl11_loader.cpp
 	../renderer/tr_animation.cpp
 	../renderer/tr_backend.cpp
 	../renderer/tr_bsp.cpp
@@ -300,7 +303,6 @@ target_link_libraries(
 	${SDLMAIN_LIBRARY}
 	${SDL_LIBRARY}
 	${SDL_NET_LIBRARY}
-	OpenGL::GL
 )
 
 if (MINGW)
