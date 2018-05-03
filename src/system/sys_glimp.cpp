@@ -1171,6 +1171,12 @@ void GLimp_Init()
         ri.Cvar_Set("r_lastValidRenderer", gl_renderer.c_str());
 
         ::SDL_ShowWindow(sys_gl_window);
+
+		// Clear the screen.
+		//
+		::glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
+		::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		::SDL_GL_SwapWindow(sys_gl_window);
     } else {
         if (gl_context != NULL) {
             ::SDL_GL_MakeCurrent(sys_gl_window, NULL);
