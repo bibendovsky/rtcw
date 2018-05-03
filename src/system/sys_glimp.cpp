@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <memory>
 #include "SDL.h"
-
+#include "sdl_ogl11_loader.h"
 #include "tr_local.h"
 
 
@@ -162,7 +162,7 @@ PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer_ = NULL;
 } // namespace
 
 
-void GLAPIENTRY glActiveTexture(
+void APIENTRY glActiveTexture(
     GLenum texture)
 {
     glActiveTexture_(
@@ -876,12 +876,11 @@ void GLimp_Init()
     int sdl_result = 0;
 
     if (is_succeed) {
-        sdl_result = ::SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-        if (sdl_result != 0) {
-            is_succeed = false;
-            ri.Error(ERR_FATAL, "%s\n", ::SDL_GetError());
-        }
+		if (!SdlOgl11Loader::initialize())
+		{
+			is_succeed = false;
+			::ri.Error(ERR_FATAL, "%s\n", SdlOgl11Loader::get_error_message().c_str());
+		}
     }
 
 
@@ -1210,6 +1209,8 @@ void GLimp_Shutdown()
         0);
 
     glConfigEx.reset();
+
+	SdlOgl11Loader::uninitialize();
 }
 
 void GLimp_EndFrame()

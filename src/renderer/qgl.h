@@ -34,10 +34,11 @@ If you have questions concerning this license or the applicable additional terms
 #define __QGL_H__
 
 
-#include "SDL_opengl.h"
+#include "sdl_ogl11_loader_gl.h"
+#include "SDL_opengl_glext.h"
 
 
-void GLAPIENTRY glActiveTexture(
+void APIENTRY glActiveTexture(
 	GLenum texture);
 
 void APIENTRY glAttachShader(
