@@ -29,7 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <memory>
 #include "SDL.h"
-#include "sdl_ogl11_loader.h"
 #include "tr_local.h"
 
 
@@ -50,470 +49,6 @@ static qboolean fontbase_init = qfalse;
 namespace {
 
 
-// GL_ARB_multitexture
-PFNGLACTIVETEXTUREPROC glActiveTexture_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLATTACHSHADERPROC glAttachShader_ = NULL;
-
-// GL_ARB_vertex_buffer_object
-PFNGLBINDBUFFERPROC glBindBuffer_ = NULL;
-
-// GL_ARB_vertex_buffer_object
-PFNGLBUFFERDATAPROC glBufferData_ = NULL;
-
-// GL_ARB_vertex_buffer_object
-PFNGLBUFFERSUBDATAPROC glBufferSubData_ = NULL;
-
-// GL_ARB_multitexture
-PFNGLCLIENTACTIVETEXTUREARBPROC glClientActiveTexture_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLCOMPILESHADERPROC glCompileShader_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLCREATEPROGRAMPROC glCreateProgram_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLCREATESHADERPROC glCreateShader_ = NULL;
-
-// GL_ARB_vertex_buffer_object
-PFNGLDELETEBUFFERSPROC glDeleteBuffers_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLDELETEPROGRAMPROC glDeleteProgram_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLDELETESHADERPROC glDeleteShader_ = NULL;
-
-// GL_ARB_vertex_program
-PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray_ = NULL;
-
-// GL_ARB_draw_elements_base_vertex
-PFNGLDRAWELEMENTSBASEVERTEXPROC glDrawElementsBaseVertex_ = NULL;
-
-// GL_ARB_vertex_program
-PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray_ = NULL;
-
-// GL_ARB_vertex_buffer_object
-PFNGLGENBUFFERSPROC glGenBuffers_ = NULL;
-
-// GL_ARB_framebuffer_object
-PFNGLGENERATEMIPMAPPROC glGenerateMipmap_ = NULL;
-
-// GL_ARB_vertex_shader
-PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog_ = NULL;
-
-// GL_ARB_vertex_program
-PFNGLGETPROGRAMIVPROC glGetProgramiv_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLGETSHADERIVPROC glGetShaderiv_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLLINKPROGRAMPROC glLinkProgram_ = NULL;
-
-// GL_EXT_compiled_vertex_array
-PFNGLLOCKARRAYSEXTPROC glLockArraysEXT_ = NULL;
-
-// GL_ARB_multitexture
-PFNGLMULTITEXCOORD2FARBPROC glMultiTexCoord2f_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLSHADERSOURCEPROC glShaderSource_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLUNIFORM1FPROC glUniform1f_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLUNIFORM1IPROC glUniform1i_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLUNIFORM4FVPROC glUniform4fv_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv_ = NULL;
-
-// GL_EXT_compiled_vertex_array
-PFNGLUNLOCKARRAYSEXTPROC glUnlockArraysEXT_ = NULL;
-
-// GL_ARB_shader_objects
-PFNGLUSEPROGRAMPROC glUseProgram_ = NULL;
-
-// GL_ARB_vertex_program
-PFNGLVERTEXATTRIB2FPROC glVertexAttrib2f_ = NULL;
-
-// GL_ARB_vertex_program
-PFNGLVERTEXATTRIB4FPROC glVertexAttrib4f_ = NULL;
-
-// GL_ARB_vertex_program
-PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer_ = NULL;
-
-
-} // namespace
-
-
-void APIENTRY glActiveTexture(
-    GLenum texture)
-{
-    glActiveTexture_(
-        texture);
-}
-
-void APIENTRY glAttachShader(
-    GLuint program,
-    GLuint shader)
-{
-    glAttachShader_(
-        program,
-        shader);
-}
-
-void APIENTRY glBindBuffer(
-    GLenum target,
-    GLuint buffer)
-{
-    glBindBuffer_(
-        target,
-        buffer);
-}
-
-void APIENTRY glBufferData(
-    GLenum target,
-    GLsizeiptr size,
-    const void* data,
-    GLenum usage)
-{
-    glBufferData_(
-        target,
-        size,
-        data,
-        usage);
-}
-
-void APIENTRY glBufferSubData(
-    GLenum target,
-    GLintptr offset,
-    GLsizeiptr size,
-    const void* data)
-{
-    glBufferSubData_(
-        target,
-        offset,
-        size,
-        data);
-}
-
-void APIENTRY glClientActiveTexture(
-    GLenum texture)
-{
-    glClientActiveTexture_(
-        texture);
-}
-
-void APIENTRY glCompileShader(
-    GLuint shader)
-{
-    glCompileShader_(
-        shader);
-}
-
-GLuint APIENTRY glCreateProgram()
-{
-    return glCreateProgram_();
-}
-
-GLuint APIENTRY glCreateShader(
-    GLenum type)
-{
-    return glCreateShader_(
-        type);
-}
-
-void APIENTRY glDeleteBuffers(
-    GLsizei n,
-    const GLuint* buffers)
-{
-    glDeleteBuffers_(
-        n,
-        buffers);
-}
-
-void APIENTRY glDeleteProgram(
-    GLuint program)
-{
-    glDeleteProgram_(
-        program);
-}
-
-void APIENTRY glDeleteShader(
-    GLuint shader)
-{
-    glDeleteShader_(
-        shader);
-}
-
-void APIENTRY glDisableVertexAttribArray(
-    GLuint index)
-{
-    glDisableVertexAttribArray_(
-        index);
-}
-
-void APIENTRY glDrawElementsBaseVertex(
-    GLenum mode,
-    GLsizei count,
-    GLenum type,
-    const void* indices,
-    GLint basevertex)
-{
-    glDrawElementsBaseVertex_(
-        mode,
-        count,
-        type,
-        indices,
-        basevertex);
-}
-
-void APIENTRY glEnableVertexAttribArray(
-    GLuint index)
-{
-    glEnableVertexAttribArray_(
-        index);
-}
-
-void APIENTRY glGenBuffers(
-    GLsizei n,
-    GLuint* buffers)
-{
-    glGenBuffers_(
-        n,
-        buffers);
-}
-
-void APIENTRY glGenerateMipmap(
-    GLenum target)
-{
-    glGenerateMipmap_(
-        target);
-}
-
-GLint APIENTRY glGetAttribLocation(
-    GLuint program,
-    const GLchar* name)
-{
-    return glGetAttribLocation_(
-        program,
-        name);
-}
-
-void APIENTRY glGetProgramInfoLog(
-    GLuint program,
-    GLsizei bufSize,
-    GLsizei* length,
-    GLchar* infoLog)
-{
-    glGetProgramInfoLog_(
-        program,
-        bufSize,
-        length,
-        infoLog);
-}
-
-void APIENTRY glGetProgramiv(
-    GLuint program,
-    GLenum pname,
-    GLint* params)
-{
-    glGetProgramiv_(
-        program,
-        pname,
-        params);
-}
-
-void APIENTRY glGetShaderInfoLog(
-    GLuint shader,
-    GLsizei bufSize,
-    GLsizei* length,
-    GLchar* infoLog)
-{
-    glGetShaderInfoLog_(
-        shader,
-        bufSize,
-        length,
-        infoLog);
-}
-
-void APIENTRY glGetShaderiv(
-    GLuint shader,
-    GLenum pname,
-    GLint* params)
-{
-    glGetShaderiv_(
-        shader,
-        pname,
-        params);
-}
-
-GLint APIENTRY glGetUniformLocation(
-    GLuint program,
-    const GLchar* name)
-{
-    return glGetUniformLocation_(
-        program,
-        name);
-}
-
-void APIENTRY glLinkProgram(
-    GLuint program)
-{
-    glLinkProgram_(
-        program);
-}
-
-void APIENTRY glLockArraysEXT(
-    GLint first,
-    GLsizei count)
-{
-    glLockArraysEXT_(
-        first,
-        count);
-}
-
-void APIENTRY glMultiTexCoord2f(
-    GLenum target,
-    GLfloat s,
-    GLfloat t)
-{
-    glMultiTexCoord2f_(
-        target,
-        s,
-        t);
-}
-
-void APIENTRY glShaderSource(
-    GLuint shader,
-    GLsizei count,
-    const GLchar* const* string,
-    const GLint* length)
-{
-    glShaderSource_(
-        shader,
-        count,
-        string,
-        length);
-}
-
-void APIENTRY glUniform1f(
-    GLint location,
-    GLfloat v0)
-{
-    glUniform1f_(
-        location,
-        v0);
-}
-
-void APIENTRY glUniform1i(
-    GLint location,
-    GLint v0)
-{
-    glUniform1i_(
-        location,
-        v0);
-}
-
-void APIENTRY glUniform4fv(
-    GLint location,
-    GLsizei count,
-    const GLfloat* value)
-{
-    glUniform4fv_(
-        location,
-        count,
-        value);
-}
-
-void APIENTRY glUniformMatrix4fv(
-    GLint location,
-    GLsizei count,
-    GLboolean transpose,
-    const GLfloat* value)
-{
-    glUniformMatrix4fv_(
-        location,
-        count,
-        transpose,
-        value);
-}
-
-void APIENTRY glUnlockArraysEXT()
-{
-    glUnlockArraysEXT_();
-}
-
-void APIENTRY glUseProgram(
-    GLuint program)
-{
-    glUseProgram_(
-        program);
-}
-
-void APIENTRY glVertexAttrib2f(
-    GLuint index,
-    GLfloat x,
-    GLfloat y)
-{
-    glVertexAttrib2f_(
-        index,
-        x,
-        y);
-}
-
-void APIENTRY glVertexAttrib4f(
-    GLuint index,
-    GLfloat x,
-    GLfloat y,
-    GLfloat z,
-    GLfloat w)
-{
-    glVertexAttrib4f_(
-        index,
-        x,
-        y,
-        z,
-        w);
-}
-
-void APIENTRY glVertexAttribPointer(
-    GLuint index,
-    GLint size,
-    GLenum type,
-    GLboolean normalized,
-    GLsizei stride,
-    const void* pointer)
-{
-    glVertexAttribPointer_(
-        index,
-        size,
-        type,
-        normalized,
-        stride,
-        pointer);
-}
-
-
-namespace {
-
-
 const int FALLBACK_WIDTH = 640;
 const int FALLBACK_HEIGHT = 480;
 
@@ -527,115 +62,47 @@ enum ExtensionStatus {
 SDL_GLContext gl_context;
 
 
-template<class T>
-void gl_load_symbol(
-    T& variable,
-    const char* symbol_name)
-{
-    variable = reinterpret_cast<T>(::SDL_GL_GetProcAddress(symbol_name));
-}
-
-template<class T>
-void gl_load_symbol(
-    T& variable,
-    const char* symbol_name1,
-    const char* symbol_name2)
-{
-    void* symbol = ::SDL_GL_GetProcAddress(symbol_name1);
-
-    if (symbol == NULL)
-        symbol = ::SDL_GL_GetProcAddress(symbol_name2);
-
-    variable = reinterpret_cast<T>(symbol);
-}
-
-void gl_initialize_extension_functions()
-{
-    gl_load_symbol(glActiveTexture_, "glActiveTexture", "glActiveTextureARB");
-    gl_load_symbol(glAttachShader_, "glAttachShader", "glAttachObjectARB");
-    gl_load_symbol(glBindBuffer_, "glBindBuffer", "glBindBufferARB");
-    gl_load_symbol(glBufferData_, "glBufferData", "glBufferDataARB");
-    gl_load_symbol(glBufferSubData_, "glBufferSubData", "glBufferSubDataARB");
-    gl_load_symbol(glClientActiveTexture_, "glClientActiveTexture", "glClientActiveTextureARB");
-    gl_load_symbol(glCompileShader_, "glCompileShader", "glCompileShaderARB");
-    gl_load_symbol(glCreateProgram_, "glCreateProgram", "glCreateProgramObjectARB");
-    gl_load_symbol(glCreateShader_, "glCreateShader", "glCreateShaderObjectARB");
-    gl_load_symbol(glDeleteBuffers_, "glDeleteBuffers", "glDeleteBuffersARB");
-    gl_load_symbol(glDeleteProgram_, "glDeleteProgram", "glDeleteObjectARB");
-    gl_load_symbol(glDeleteShader_, "glDeleteShader", "glDeleteObjectARB");
-    gl_load_symbol(glDisableVertexAttribArray_, "glDisableVertexAttribArray", "glDisableVertexAttribArrayARB");
-    gl_load_symbol(glDrawElementsBaseVertex_, "glDrawElementsBaseVertex");
-    gl_load_symbol(glEnableVertexAttribArray_, "glEnableVertexAttribArray", "glEnableVertexAttribArrayARB");
-    gl_load_symbol(glGenBuffers_, "glGenBuffers", "glGenBuffersARB");
-    gl_load_symbol(glGenerateMipmap_, "glGenerateMipmap");
-    gl_load_symbol(glGetAttribLocation_, "glGetAttribLocation", "glGetAttribLocationARB");
-    gl_load_symbol(glGetProgramInfoLog_, "glGetProgramInfoLog", "glGetInfoLogARB");
-    gl_load_symbol(glGetProgramiv_, "glGetProgramiv", "glGetProgramivARB");
-    gl_load_symbol(glGetShaderInfoLog_, "glGetShaderInfoLog", "glGetInfoLogARB");
-    gl_load_symbol(glGetShaderiv_, "glGetShaderiv", "glGetObjectParameterivARB");
-    gl_load_symbol(glGetUniformLocation_, "glGetUniformLocation", "glGetUniformLocationARB");
-    gl_load_symbol(glLinkProgram_, "glLinkProgram", "glLinkProgramARB");
-    gl_load_symbol(glLockArraysEXT_, "glLockArraysEXT");
-    gl_load_symbol(glMultiTexCoord2f_, "glMultiTexCoord2f", "glMultiTexCoord2fARB");
-    gl_load_symbol(glShaderSource_, "glShaderSource", "glShaderSourceARB");
-    gl_load_symbol(glUniform1f_, "glUniform1f", "glUniform1fARB");
-    gl_load_symbol(glUniform1i_, "glUniform1i", "glUniform1iARB");
-    gl_load_symbol(glUniform4fv_, "glUniform4fv", "glUniform4fvARB");
-    gl_load_symbol(glUniformMatrix4fv_, "glUniformMatrix4fv", "glUniformMatrix4fvARB");
-    gl_load_symbol(glUnlockArraysEXT_, "glUnlockArraysEXT");
-    gl_load_symbol(glUseProgram_, "glUseProgram", "glUseProgramObjectARB");
-    gl_load_symbol(glVertexAttrib2f_, "glVertexAttrib2f", "glVertexAttrib2fARB");
-    gl_load_symbol(glVertexAttrib4f_, "glVertexAttrib4f", "glVertexAttrib4fARB");
-    gl_load_symbol(glVertexAttribPointer_, "glVertexAttribPointer", "glVertexAttribPointerARB");
-}
-
-bool gl_has_extension(
-    const char* extension_name)
-{
-    return ::SDL_GL_ExtensionSupported(extension_name) != SDL_FALSE;
-}
-
 bool gl_is_2_x_capable()
 {
-    if (!gl_has_extension("GL_ARB_multitexture") ||
-        !gl_has_extension("GL_ARB_shader_objects") ||
-        !gl_has_extension("GL_ARB_vertex_buffer_object") ||
-        !gl_has_extension("GL_ARB_vertex_program") ||
-        !gl_has_extension("GL_ARB_vertex_shader"))
+	if (!(::GLAD_GL_ARB_multitexture &&
+        ::GLAD_GL_ARB_shader_objects &&
+        ::GLAD_GL_ARB_vertex_buffer_object &&
+        ::GLAD_GL_ARB_vertex_program &&
+        ::GLAD_GL_ARB_vertex_shader))
     {
         return false;
     }
 
-    if (!glActiveTexture_ ||
-        !glAttachShader_ ||
-        !glBindBuffer_ ||
-        !glBufferData_ ||
-        !glBufferSubData_ ||
-        !glCompileShader_ ||
-        !glCreateProgram_ ||
-        !glCreateShader_ ||
-        !glDeleteBuffers_ ||
-        !glDeleteProgram_ ||
-        !glDeleteShader_ ||
-        !glDisableVertexAttribArray_ ||
-        !glEnableVertexAttribArray_ ||
-        !glGenBuffers_ ||
-        !glGetAttribLocation_ ||
-        !glGetProgramInfoLog_ ||
-        !glGetProgramiv_ ||
-        !glGetShaderInfoLog_ ||
-        !glGetShaderiv_ ||
-        !glGetUniformLocation_ ||
-        !glLinkProgram_ ||
-        !glShaderSource_ ||
-        !glUniform1f_ ||
-        !glUniform1i_ ||
-        !glUniform4fv_ ||
-        !glUniformMatrix4fv_ ||
-        !glUseProgram_ ||
-        !glVertexAttrib2f_ ||
-        !glVertexAttrib4f_ ||
-        !glVertexAttribPointer_)
+    if (!(::glActiveTexture &&
+        ::glAttachShader &&
+        ::glBindBuffer &&
+        ::glBufferData &&
+        ::glBufferSubData &&
+        ::glCompileShader &&
+        ::glCreateProgram &&
+        ::glCreateShader &&
+        ::glDeleteBuffers &&
+        ::glDeleteProgram &&
+        ::glDeleteShader &&
+        ::glDisableVertexAttribArray &&
+        ::glEnableVertexAttribArray &&
+        ::glGenBuffers &&
+        ::glGetAttribLocation &&
+        ::glGetProgramInfoLog &&
+        ::glGetProgramiv &&
+        ::glGetShaderInfoLog &&
+        ::glGetShaderiv &&
+        ::glGetUniformLocation &&
+        ::glLinkProgram &&
+        ::glShaderSource &&
+        ::glUniform1f &&
+        ::glUniform1i &&
+        ::glUniform4fv &&
+        ::glUniformMatrix4fv &&
+        ::glUseProgram &&
+        ::glVertexAttrib2f &&
+        ::glVertexAttrib4f &&
+        ::glVertexAttribPointer))
     {
         return false;
     }
@@ -720,173 +187,243 @@ void gl_probe_swap_control()
 
 void gl_initialize_extensions()
 {
-    if (r_allowExtensions->integer == 0) {
-        ri.Printf(PRINT_ALL, S_COLOR_YELLOW "Ignoring OpenGL extensions\n");
-        return;
-    }
-
-    const char* extension_name1 = NULL;
-    const char* extension_name2 = NULL;
-    const char* extension_name3 = NULL;
-
-    ri.Printf(PRINT_ALL, "Initializing OpenGL extensions\n");
-    ri.Printf(PRINT_ALL, "(Legend: [+] found; [-] not found; [*] ignored)\n");
-
-
-    extension_name1 = "GL_ARB_texture_compression";
-    extension_name2 = "GL_EXT_texture_compression_s3tc";
-    extension_name3 = "GL_S3_s3tc";
-
-    if (gl_has_extension(extension_name1)) {
-        if (r_ext_compressed_textures->integer != 0) {
-            glConfig.textureCompression = TC_ARB;
-            gl_print_found_extension(extension_name1);
-        } else {
-            gl_print_ignored_extension(extension_name1);
-        }
-    } else if (gl_has_extension(extension_name2)) {
-        if (r_ext_compressed_textures->integer != 0) {
-            glConfig.textureCompression = TC_EXT_COMP_S3TC;
-            gl_print_found_extension(extension_name2);
-        } else {
-            gl_print_ignored_extension(extension_name2);
-        }
-    } else if (gl_has_extension(extension_name3)) {
-        if (r_ext_compressed_textures->integer != 0) {
-            glConfig.textureCompression = TC_S3TC;
-            gl_print_found_extension(extension_name3);
-        } else
-            gl_print_ignored_extension(extension_name3);
-    } else
-        gl_print_missed_extension("any supported texture compression");
-
-
-    extension_name1 = "GL_EXT_texture_env_add";
-
-    if (gl_has_extension(extension_name1)) {
-        if (r_ext_texture_env_add->integer != 0) {
-            glConfig.textureEnvAddAvailable = true;
-            gl_print_found_extension(extension_name1);
-        } else {
-            glConfig.textureEnvAddAvailable = false;
-            gl_print_ignored_extension(extension_name1);
-        }
-    } else
-        gl_print_missed_extension(extension_name1);
-
-
-	gl_probe_swap_control();
-
-	extension_name1 = "XXX_EXT_swap_control";
-
-	if (::glConfigEx.has_swap_control_)
+	if (::r_allowExtensions->integer == 0)
 	{
-		::r_swapInterval->modified = true;
-		::gl_print_found_extension(extension_name1);
+		::ri.Printf(PRINT_ALL, S_COLOR_YELLOW "Ignoring OpenGL extensions\n");
+		return;
+	}
+
+	::ri.Printf(PRINT_ALL, "Initializing OpenGL extensions\n");
+	::ri.Printf(PRINT_ALL, "(Legend: [+] found; [-] not found; [*] ignored)\n");
+
+
+	if (::GLAD_GL_ARB_texture_compression)
+	{
+		auto extension_name = "GL_ARB_texture_compression";
+
+		if (::r_ext_compressed_textures->integer != 0)
+		{
+			::glConfig.textureCompression = TC_ARB;
+			::gl_print_found_extension(extension_name);
+		}
+		else
+		{
+			::gl_print_ignored_extension(extension_name);
+		}
+	}
+	else if (::GLAD_GL_EXT_texture_compression_s3tc)
+	{
+		auto extension_name = "GL_EXT_texture_compression_s3tc";
+
+		if (::r_ext_compressed_textures->integer != 0)
+		{
+			::glConfig.textureCompression = TC_EXT_COMP_S3TC;
+			::gl_print_found_extension(extension_name);
+		}
+		else
+		{
+			::gl_print_ignored_extension(extension_name);
+		}
+	}
+	else if (::GLAD_GL_S3_s3tc)
+	{
+		auto extension_name = "GL_S3_s3tc";
+
+		if (::r_ext_compressed_textures->integer != 0)
+		{
+			::glConfig.textureCompression = TC_S3TC;
+			::gl_print_found_extension(extension_name);
+		}
+		else
+		{
+			::gl_print_ignored_extension(extension_name);
+		}
 	}
 	else
 	{
-		::gl_print_missed_extension(extension_name1);
+		::gl_print_missed_extension("any supported texture compression");
 	}
 
-
-	extension_name1 = "XXX_EXT_swap_control_tear";
-
-	if (::glConfigEx.has_adaptive_swap_control_)
 	{
-		::r_swapInterval->modified = true;
-		::gl_print_found_extension(extension_name1);
+		auto extension_name = "GL_EXT_texture_env_add";
+
+		if (::GLAD_GL_EXT_texture_env_add)
+		{
+			if (::r_ext_texture_env_add->integer != 0)
+			{
+				::glConfig.textureEnvAddAvailable = true;
+				::gl_print_found_extension(extension_name);
+			}
+			else
+			{
+				::glConfig.textureEnvAddAvailable = false;
+				::gl_print_ignored_extension(extension_name);
+			}
+		}
+		else
+		{
+			::gl_print_missed_extension(extension_name);
+		}
 	}
-	else
+
+	::gl_probe_swap_control();
+
 	{
-		::gl_print_missed_extension(extension_name1);
+		auto extension_name = "XXX_EXT_swap_control";
+
+		if (::glConfigEx.has_swap_control_)
+		{
+			::r_swapInterval->modified = true;
+			::gl_print_found_extension(extension_name);
+		}
+		else
+		{
+			::gl_print_missed_extension(extension_name);
+		}
 	}
 
-    extension_name1 = "GL_ARB_multitexture";
-    extension_name2 = "GL_ARB_multitexture/units less than 2";
+	{
+		auto extension_name = "XXX_EXT_swap_control_tear";
 
-    if (gl_has_extension(extension_name1)) {
-        if (r_ext_multitexture->integer != 0) {
-            glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glConfig.maxActiveTextures);
+		if (::glConfigEx.has_adaptive_swap_control_)
+		{
+			::r_swapInterval->modified = true;
+			::gl_print_found_extension(extension_name);
+		}
+		else
+		{
+			::gl_print_missed_extension(extension_name);
+		}
+	}
 
-            if (glConfig.maxActiveTextures > 1) {
-                glConfigEx.use_arb_multitexture_ = true;
-                gl_print_found_extension(extension_name1);
-            } else {
-                gl_print_missed_extension(extension_name2);
-            }
-        } else
-            gl_print_ignored_extension(extension_name1);
-    } else
-        gl_print_missed_extension(extension_name1);
+	{
+		auto extension_name = "GL_ARB_multitexture";
 
+		if (::GLAD_GL_ARB_multitexture)
+		{
+			if (::r_ext_multitexture->integer != 0)
+			{
+				::glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &::glConfig.maxActiveTextures);
 
-    extension_name1 = "GL_EXT_compiled_vertex_array";
-
-    if (gl_has_extension(extension_name1)) {
-        if (r_ext_compiled_vertex_array->integer != 0) {
-            glConfigEx.use_ext_compiled_vertex_array_ = true;
-            gl_print_found_extension(extension_name1);
-        } else {
-            gl_print_ignored_extension(extension_name1);
-        }
-    } else
-        gl_print_missed_extension(extension_name1);
-
-
-    extension_name1 = "GL_NV_fog_distance";
-
-    if (gl_has_extension(extension_name1)) {
-        if (r_ext_NV_fog_dist->integer != 0) {
-            glConfig.NVFogAvailable = true;
-            gl_print_found_extension(extension_name1);
-        } else {
-            ri.Cvar_Set ("r_ext_NV_fog_dist", "0");
-            gl_print_ignored_extension(extension_name1);
-        }
-    } else {
-        ri.Cvar_Set ("r_ext_NV_fog_dist", "0");
-        gl_print_missed_extension(extension_name1);
-    }
+				if (::glConfig.maxActiveTextures > 1)
+				{
+					::glConfigEx.use_arb_multitexture_ = true;
+					::gl_print_found_extension(extension_name);
+				}
+				else
+				{
+					::gl_print_missed_extension("GL_ARB_multitexture/units less than 2");
+				}
+			}
+			else
+			{
+				::gl_print_ignored_extension(extension_name);
+			}
+		}
+		else
+		{
+			::gl_print_missed_extension(extension_name);
+		}
+	}
 
 
-    extension_name1 = "GL_EXT_texture_filter_anisotropic";
+	{
+		auto extension_name = "GL_EXT_compiled_vertex_array";
 
-    if (gl_has_extension(extension_name1)) {
-        if (r_ext_texture_filter_anisotropic->integer != 0) {
-            glConfig.anisotropicAvailable = true;
-            gl_print_found_extension(extension_name1);
-        } else {
-            ri.Cvar_Set ("r_ext_texture_filter_anisotropic", "0");
-            gl_print_ignored_extension(extension_name1);
-        }
-    } else {
-        ri.Cvar_Set ("r_ext_texture_filter_anisotropic", "0");
-        gl_print_missed_extension(extension_name1);
-    }
+		if (::GLAD_GL_EXT_compiled_vertex_array)
+		{
+			if (::r_ext_compiled_vertex_array->integer != 0)
+			{
+				::glConfigEx.use_ext_compiled_vertex_array_ = true;
+				::gl_print_found_extension(extension_name);
+			}
+			else
+			{
+				::gl_print_ignored_extension(extension_name);
+			}
+		}
+		else
+		{
+			::gl_print_missed_extension(extension_name);
+		}
+	}
 
+	{
+		auto extension_name = "GL_NV_fog_distance";
 
-    extension_name1 = "GL_ARB_framebuffer_object";
+		if (::GLAD_GL_NV_fog_distance)
+		{
+			if (::r_ext_NV_fog_dist->integer != 0)
+			{
+				::glConfig.NVFogAvailable = true;
+				::gl_print_found_extension(extension_name);
+			}
+			else
+			{
+				::ri.Cvar_Set("r_ext_NV_fog_dist", "0");
+				::gl_print_ignored_extension(extension_name);
+			}
+		}
+		else
+		{
+			::ri.Cvar_Set("r_ext_NV_fog_dist", "0");
+			::gl_print_missed_extension(extension_name);
+		}
+	}
 
-    if (gl_has_extension(extension_name1)) {
-        glConfigEx.use_arb_framebuffer_object_ = true;
-        glConfigEx.use_arb_texture_non_power_of_two_ = true;
-        gl_print_found_extension(extension_name1);
-    } else
-        gl_print_missed_extension(extension_name1);
+	{
+		auto extension_name = "GL_EXT_texture_filter_anisotropic";
 
+		if (::GLAD_GL_EXT_texture_filter_anisotropic)
+		{
+			if (::r_ext_texture_filter_anisotropic->integer != 0)
+			{
+				::glConfig.anisotropicAvailable = true;
+				::gl_print_found_extension(extension_name);
+			}
+			else
+			{
+				::ri.Cvar_Set("r_ext_texture_filter_anisotropic", "0");
+				::gl_print_ignored_extension(extension_name);
+			}
+		}
+		else
+		{
+			::ri.Cvar_Set("r_ext_texture_filter_anisotropic", "0");
+			::gl_print_missed_extension(extension_name);
+		}
+	}
 
-    extension_name1 = "GL_ARB_draw_elements_base_vertex";
+	{
+		auto extension_name = "GL_ARB_framebuffer_object";
 
-    if (gl_has_extension(extension_name1)) {
-        glConfigEx.use_arb_draw_elements_base_vertex = true;
-        gl_print_found_extension(extension_name1);
-    } else
-        gl_print_missed_extension(extension_name1);
+		if (::GLAD_GL_ARB_framebuffer_object)
+		{
+			::glConfigEx.use_arb_framebuffer_object_ = true;
+			::glConfigEx.use_arb_texture_non_power_of_two_ = true;
+			::gl_print_found_extension(extension_name);
+		}
+		else
+		{
+			::gl_print_missed_extension(extension_name);
+		}
+	}
 
-    gl_initialize_extension_functions();
+	{
+		auto extension_name = "GL_ARB_draw_elements_base_vertex";
 
-    glConfigEx.is_2_x_capable_ = gl_is_2_x_capable();
+		if (::GLAD_GL_ARB_draw_elements_base_vertex)
+		{
+			::glConfigEx.use_arb_draw_elements_base_vertex = true;
+			::gl_print_found_extension(extension_name);
+		}
+		else
+		{
+			::gl_print_missed_extension(extension_name);
+		}
+	}
+
+	::glConfigEx.is_2_x_capable_ = ::gl_is_2_x_capable();
 }
 
 
@@ -908,14 +445,16 @@ void GLimp_Init()
     bool is_succeed = true;
     int sdl_result = 0;
 
-    if (is_succeed) {
-		if (!SdlOgl11Loader::initialize())
+    if (is_succeed)
+	{
+		const auto sdl_result = ::SDL_GL_LoadLibrary(nullptr);
+
+		if (sdl_result != 0)
 		{
 			is_succeed = false;
-			::ri.Error(ERR_FATAL, "%s\n", SdlOgl11Loader::get_error_message().c_str());
+			::ri.Error(ERR_FATAL, "Failed to load OpenGL library: %s\n", ::SDL_GetError());
 		}
     }
-
 
     int display_width = 0;
     int display_height = 0;
@@ -1090,6 +629,15 @@ void GLimp_Init()
         }
     }
 
+	if (is_succeed)
+	{
+		if (!::gladLoadGLLoader(::SDL_GL_GetProcAddress))
+		{
+			is_succeed = false;
+			::ri.Error(ERR_FATAL, "Failed to initialize GLAD\n");
+		}
+	}
+
     std::string gl_renderer;
     std::string gl_vendor;
     std::string gl_version;
@@ -1249,7 +797,7 @@ void GLimp_Shutdown()
 
     glConfigEx.reset();
 
-	SdlOgl11Loader::uninitialize();
+	::SDL_GL_UnloadLibrary();
 }
 
 void GLimp_EndFrame()

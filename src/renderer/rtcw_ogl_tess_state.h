@@ -2,7 +2,6 @@
 #define RTCW_OGL_TESS_STATE_H
 
 
-#include "SDL_opengl.h"
 #include "glm/glm.hpp"
 #include "rtcw_mod_value.h"
 #include "rtcw_ogl_tess_program.h"

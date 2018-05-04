@@ -62,6 +62,7 @@ set(
 	../qcommon/qfiles.h
 	../qcommon/vm_local.h
 	../renderer/anorms256.h
+	../renderer/glad.h
 	../renderer/jpgd.h
 	../renderer/jpge.h
 	../renderer/qgl.h
@@ -71,8 +72,6 @@ set(
 	../renderer/rtcw_ogl_program.h
 	../renderer/rtcw_ogl_tess_program.h
 	../renderer/rtcw_ogl_tess_state.h
-	../renderer/sdl_ogl11_loader.h
-	../renderer/sdl_ogl11_loader_gl.h
 	../renderer/tr_local.h
 	../renderer/tr_public.h
 	../server/server.h
@@ -170,6 +169,7 @@ set(
 	../qcommon/msg.cpp
 	../qcommon/net_chan.cpp
 	../qcommon/vm.cpp
+	../renderer/glad.c
 	../renderer/jpgd.cpp
 	../renderer/jpge.cpp
 	../renderer/rtcw_jpeg_reader.cpp
@@ -178,7 +178,6 @@ set(
 	../renderer/rtcw_ogl_program.cpp
 	../renderer/rtcw_ogl_tess_program.cpp
 	../renderer/rtcw_ogl_tess_state.cpp
-	../renderer/sdl_ogl11_loader.cpp
 	../renderer/tr_animation.cpp
 	../renderer/tr_backend.cpp
 	../renderer/tr_bsp.cpp

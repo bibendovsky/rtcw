@@ -3,7 +3,7 @@
 
 
 #include <string>
-#include "SDL_opengl.h"
+#include "glad.h"
 
 
 namespace rtcw
