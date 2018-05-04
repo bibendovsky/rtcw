@@ -420,19 +420,23 @@ public:
 	bool use_arb_framebuffer_object_; // glGenerateMipmap, etc.
 	bool use_arb_texture_non_power_of_two_;
 	bool use_arb_draw_elements_base_vertex;
+	bool has_swap_control_;
+	bool has_adaptive_swap_control_;
 	bool is_2_x_capable_;
 	RendererPath renderer_path_;
 
 	void reset()
 	{
-		is_native_resolution_ = false;
-		use_arb_multitexture_ = false;
-		use_ext_compiled_vertex_array_ = false;
-		use_ext_bgra_ = false;
-		use_arb_framebuffer_object_ = false;
-		use_arb_texture_non_power_of_two_ = false;
-		use_arb_draw_elements_base_vertex = false;
-		is_2_x_capable_ = false;
+		is_native_resolution_ = {};
+		use_arb_multitexture_ = {};
+		use_ext_compiled_vertex_array_ = {};
+		use_ext_bgra_ = {};
+		use_arb_framebuffer_object_ = {};
+		use_arb_texture_non_power_of_two_ = {};
+		use_arb_draw_elements_base_vertex = {};
+		has_swap_control_ = {};
+		has_adaptive_swap_control_ = {};
+		is_2_x_capable_ = {};
 		renderer_path_ = RENDERER_PATH_NONE;
 	}
 
