@@ -410,41 +410,42 @@ enum RendererPath {
 }; // enum RendererPath
 
 // Extends glconfig_t structure.
-class GlConfigEx {
+class GlConfigEx
+{
 public:
-    bool isNativeResolution;
-    bool useArbMultitexture;
-    bool useExtCompiledVertexArray;
-    bool useExtBgra;
-    bool useArbFramebufferObject; // glGenerateMipmap, etc.
-    bool useArbTextureNonPowerOfTwo;
-    bool use_arb_draw_elements_base_vertex;
-    bool is_2_x_capable;
-    RendererPath renderer_path;
+	bool is_native_resolution_;
+	bool use_arb_multitexture_;
+	bool use_ext_compiled_vertex_array_;
+	bool use_ext_bgra_;
+	bool use_arb_framebuffer_object_; // glGenerateMipmap, etc.
+	bool use_arb_texture_non_power_of_two_;
+	bool use_arb_draw_elements_base_vertex;
+	bool is_2_x_capable_;
+	RendererPath renderer_path_;
 
-    void reset ()
-    {
-        isNativeResolution = false;
-        useArbMultitexture = false;
-        useExtCompiledVertexArray = false;
-        useExtBgra = false;
-        useArbFramebufferObject = false;
-        useArbTextureNonPowerOfTwo = false;
-        use_arb_draw_elements_base_vertex = false;
-        is_2_x_capable = false;
-        renderer_path = RENDERER_PATH_NONE;
-    }
+	void reset()
+	{
+		is_native_resolution_ = false;
+		use_arb_multitexture_ = false;
+		use_ext_compiled_vertex_array_ = false;
+		use_ext_bgra_ = false;
+		use_arb_framebuffer_object_ = false;
+		use_arb_texture_non_power_of_two_ = false;
+		use_arb_draw_elements_base_vertex = false;
+		is_2_x_capable_ = false;
+		renderer_path_ = RENDERER_PATH_NONE;
+	}
 
-    bool is_path_ogl_1_x() const
-    {
-        return renderer_path == RENDERER_PATH_OGL_1_X;
-    }
+	bool is_path_ogl_1_x() const
+	{
+		return renderer_path_ == RENDERER_PATH_OGL_1_X;
+	}
 
-    bool is_path_ogl_2_x() const
-    {
-        return renderer_path == RENDERER_PATH_OGL_2_X;
-    }
-}; // class GlConfigEx
+	bool is_path_ogl_2_x() const
+	{
+		return renderer_path_ == RENDERER_PATH_OGL_2_X;
+	}
+}; // GlConfigEx
 //BBi
 
 #if !defined _WIN32

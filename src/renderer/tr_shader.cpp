@@ -2103,7 +2103,7 @@ static qboolean CollapseMultitexture( void ) {
 	int i;
 	textureBundle_t tmpBundle;
 
-	if ( !glConfigEx.useArbMultitexture ) {
+	if ( !glConfigEx.use_arb_multitexture_ ) {
 		return qfalse;
 	}
 
