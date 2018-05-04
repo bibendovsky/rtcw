@@ -703,6 +703,21 @@ void gl_print_ignored_extension(const char* extension_name)
     gl_print_extension(EXT_STATUS_IGNORED, extension_name);
 }
 
+void gl_probe_swap_control()
+{
+	const auto old_swap_interval = ::SDL_GL_GetSwapInterval();
+
+	const auto adaptive_result = ::SDL_GL_SetSwapInterval(-1);
+	::glConfigEx.has_adaptive_swap_control_ = (adaptive_result == 0);
+
+	const auto off_result = ::SDL_GL_SetSwapInterval(0);
+	const auto on_result = ::SDL_GL_SetSwapInterval(1);
+	::glConfigEx.has_swap_control_ = (off_result == 0 && on_result == 0);
+
+	const auto old_result = ::SDL_GL_SetSwapInterval(old_swap_interval);
+	static_cast<void>(old_result);
+}
+
 void gl_initialize_extensions()
 {
     if (r_allowExtensions->integer == 0) {
@@ -760,14 +775,32 @@ void gl_initialize_extensions()
         gl_print_missed_extension(extension_name1);
 
 
-    extension_name1 = "WGL_EXT_swap_control";
+	gl_probe_swap_control();
 
-    if (gl_has_extension(extension_name1)) {
-        r_swapInterval->modified = true;
-        gl_print_found_extension(extension_name1);
-    } else
-        gl_print_missed_extension(extension_name1);
+	extension_name1 = "XXX_EXT_swap_control";
 
+	if (::glConfigEx.has_swap_control_)
+	{
+		::r_swapInterval->modified = true;
+		::gl_print_found_extension(extension_name1);
+	}
+	else
+	{
+		::gl_print_missed_extension(extension_name1);
+	}
+
+
+	extension_name1 = "XXX_EXT_swap_control_tear";
+
+	if (::glConfigEx.has_adaptive_swap_control_)
+	{
+		::r_swapInterval->modified = true;
+		::gl_print_found_extension(extension_name1);
+	}
+	else
+	{
+		::gl_print_missed_extension(extension_name1);
+	}
 
     extension_name1 = "GL_ARB_multitexture";
     extension_name2 = "GL_ARB_multitexture/units less than 2";
@@ -1221,17 +1254,47 @@ void GLimp_Shutdown()
 
 void GLimp_EndFrame()
 {
-    if (sys_gl_window == NULL)
-        return;
+	if (!::sys_gl_window)
+	{
+		return;
+	}
 
-    if (r_swapInterval->modified) {
-        r_swapInterval->modified = false;
+	if (::r_swapInterval->modified)
+	{
+		::r_swapInterval->modified = false;
 
-        ::SDL_GL_SetSwapInterval(r_swapInterval->integer);
-    }
+		if (::glConfigEx.has_swap_control_)
+		{
+			auto swap_interval = 0;
 
-    if (Q_stricmp(r_drawBuffer->string, "GL_FRONT") != 0)
-        ::SDL_GL_SwapWindow(sys_gl_window);
+			if (::r_swapInterval->integer < 0)
+			{
+				if (::glConfigEx.has_adaptive_swap_control_)
+				{
+					swap_interval = -1;
+				}
+				else
+				{
+					swap_interval = 1;
+				}
+			}
+			else if (::r_swapInterval->integer == 0)
+			{
+				swap_interval = 0;
+			}
+			else
+			{
+				swap_interval = 1;
+			}
+
+			static_cast<void>(::SDL_GL_SetSwapInterval(swap_interval));
+		}
+	}
+
+	if (::Q_stricmp(::r_drawBuffer->string, "GL_FRONT") != 0)
+	{
+		::SDL_GL_SwapWindow(::sys_gl_window);
+	}
 }
 
 void GLimp_SetGamma(
