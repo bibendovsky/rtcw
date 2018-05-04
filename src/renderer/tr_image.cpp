@@ -915,7 +915,7 @@ static void Upload32(   unsigned *data,
 //BBi
 
     //BBi
-    bool canUseNpotTexture = (glConfigEx.useArbTextureNonPowerOfTwo && (!picmip));
+    bool canUseNpotTexture = (glConfigEx.use_arb_texture_non_power_of_two_ && (!picmip));
 
     if (canUseNpotTexture) {
         scaled_width = width;
@@ -1173,7 +1173,7 @@ static void Upload32(   unsigned *data,
 
     //BBi
 	//if ( mipmap ) {
-    if ((mipmap) && (!glConfigEx.useArbFramebufferObject)) {
+    if ((mipmap) && (!glConfigEx.use_arb_framebuffer_object_)) {
     //BBi
 		int miplevel;
 
@@ -1202,7 +1202,7 @@ done:
 
 	if ( mipmap ) {
         //BBi
-        if (glConfigEx.useArbFramebufferObject)
+        if (glConfigEx.use_arb_framebuffer_object_)
             ::glGenerateMipmap (GL_TEXTURE_2D);
         //BBi
 
@@ -1373,13 +1373,13 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	image->wrapClampMode = glWrapClampMode;
 
 	// lightmaps are always allocated on TMU 1
-	if ( glConfigEx.useArbMultitexture && isLightmap ) {
+	if ( glConfigEx.use_arb_multitexture_ && isLightmap ) {
 		image->TMU = 1;
 	} else {
 		image->TMU = 0;
 	}
 
-	if ( glConfigEx.useArbMultitexture ) {
+	if ( glConfigEx.use_arb_multitexture_ ) {
 		GL_SelectTexture( image->TMU );
 	}
 
@@ -2829,7 +2829,7 @@ static void R_CreateFogImage ()
     ::ri.Hunk_FreeTempMemory (data);
 
 #if !defined RTCW_ET
-    if (!glConfigEx.useArbFramebufferObject) {
+    if (!glConfigEx.use_arb_framebuffer_object_) {
         float borderColor[4] = { 1.0F, 1.0F, 1.0F, 1.0F, };
 
         ::glTexParameterfv (GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
@@ -3103,7 +3103,7 @@ void R_DeleteTextures( void ) {
 
 	memset( glState.currenttextures, 0, sizeof( glState.currenttextures ) );
 
-	if ( glConfigEx.useArbMultitexture ) {
+	if ( glConfigEx.use_arb_multitexture_ ) {
 		GL_SelectTexture( 1 );
 		::glBindTexture( GL_TEXTURE_2D, 0 );
 		GL_SelectTexture( 0 );
@@ -4341,7 +4341,7 @@ void R_PurgeImage( image_t *image ) {
 
 	memset( glState.currenttextures, 0, sizeof( glState.currenttextures ) );
 
-	if ( glConfigEx.useArbMultitexture ) {
+	if ( glConfigEx.use_arb_multitexture_ ) {
 		GL_SelectTexture( 1 );
 		::glBindTexture( GL_TEXTURE_2D, 0 );
 		GL_SelectTexture( 0 );
@@ -4418,7 +4418,7 @@ void R_BackupImages( void ) {
 
 	memset( glState.currenttextures, 0, sizeof( glState.currenttextures ) );
 
-	if ( glConfigEx.useArbMultitexture ) {
+	if ( glConfigEx.use_arb_multitexture_ ) {
 		GL_SelectTexture( 1 );
 		::glBindTexture( GL_TEXTURE_2D, 0 );
 		GL_SelectTexture( 0 );

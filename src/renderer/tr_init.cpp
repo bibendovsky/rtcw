@@ -984,15 +984,15 @@ static void InitOpenGL( void ) {
 	}
 
     // BBi
-    glConfigEx.renderer_path = RENDERER_PATH_OGL_1_X;
+    glConfigEx.renderer_path_ = RENDERER_PATH_OGL_1_X;
 
-    if (glConfigEx.is_2_x_capable) {
-        glConfigEx.renderer_path = RENDERER_PATH_OGL_2_X;
+    if (glConfigEx.is_2_x_capable_) {
+        glConfigEx.renderer_path_ = RENDERER_PATH_OGL_2_X;
 
         if (r_probe_programs()) {
             ri.Printf(PRINT_ALL, "\nUsing OpenGL 2.0+ path...\n");
         } else {
-            glConfigEx.renderer_path = RENDERER_PATH_OGL_1_X;
+            glConfigEx.renderer_path_ = RENDERER_PATH_OGL_1_X;
             ri.Printf(PRINT_WARNING, "\nFalling back to OpenGL 1.1+ path...");
         }
     }
@@ -1491,7 +1491,7 @@ void GL_SetDefaultState( void ) {
 
 	// initialize downstream texture unit if we're running
 	// in a multitexture environment
-	if (glConfigEx.useArbMultitexture) {
+	if (glConfigEx.use_arb_multitexture_) {
 		GL_SelectTexture( 1 );
 		GL_TextureMode( r_textureMode->string );
 
@@ -1722,7 +1722,7 @@ void GfxInfo_f( void ) {
 		ri.Printf( PRINT_ALL, "rendering primitives: " );
 		primitives = r_primitives->integer;
 		if ( primitives == 0 ) {
-			if (glConfigEx.useExtCompiledVertexArray) {
+			if (glConfigEx.use_ext_compiled_vertex_array_) {
 				primitives = 2;
 			} else {
 				primitives = 1;
@@ -1747,8 +1747,8 @@ void GfxInfo_f( void ) {
 #endif // RTCW_XX
 
 	ri.Printf( PRINT_ALL, "texture bits: %d\n", r_texturebits->integer );
-	ri.Printf( PRINT_ALL, "multitexture: %s\n", enablestrings[glConfigEx.useArbMultitexture] );
-	ri.Printf( PRINT_ALL, "compiled vertex arrays: %s\n", enablestrings[glConfigEx.useExtCompiledVertexArray] );
+	ri.Printf( PRINT_ALL, "multitexture: %s\n", enablestrings[glConfigEx.use_arb_multitexture_] );
+	ri.Printf( PRINT_ALL, "compiled vertex arrays: %s\n", enablestrings[glConfigEx.use_ext_compiled_vertex_array_] );
 	ri.Printf( PRINT_ALL, "texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0] );
 	ri.Printf( PRINT_ALL, "compressed textures: %s\n", enablestrings[glConfig.textureCompression != TC_NONE] );
 

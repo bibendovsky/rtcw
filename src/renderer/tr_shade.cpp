@@ -203,7 +203,7 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 
 	// default is to use triangles if compiled vertex arrays are present
 	if ( primitives == 0 ) {
-		if ( glConfigEx.useExtCompiledVertexArray ) {
+		if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
 			primitives = 2;
 		} else {
 			primitives = 1;
@@ -559,7 +559,7 @@ static void DrawTris( shaderCommands_t *input ) {
 
 	::glVertexPointer( 3, GL_FLOAT, 16, input->xyz ); // padded for SIMD
 
-	if ( glConfigEx.useExtCompiledVertexArray ) {
+	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
 		::glLockArraysEXT( 0, input->numVertexes );
 		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
@@ -577,7 +577,7 @@ static void DrawTris( shaderCommands_t *input ) {
     } else {
     // BBi
 
-	if ( glConfigEx.useExtCompiledVertexArray ) {
+	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
 		::glUnlockArraysEXT();
 		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
@@ -2340,7 +2340,7 @@ void RB_StageIteratorGeneric( void ) {
 	// lock XYZ
 	//
 	::glVertexPointer( 3, GL_FLOAT, 16, input->xyz ); // padded for SIMD
-	if ( glConfigEx.useExtCompiledVertexArray ) {
+	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
 		::glLockArraysEXT( 0, input->numVertexes );
 		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
@@ -2408,7 +2408,7 @@ void RB_StageIteratorGeneric( void ) {
 	//
 	// unlock arrays
 	//
-	if ( glConfigEx.useExtCompiledVertexArray ) {
+	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
 		::glUnlockArraysEXT();
 		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
@@ -2520,7 +2520,7 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	::glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords0 );
 	::glVertexPointer( 3, GL_FLOAT, 16, input->xyz );
 
-	if ( glConfigEx.useExtCompiledVertexArray ) {
+	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
 		::glLockArraysEXT( 0, input->numVertexes );
 		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
@@ -2570,7 +2570,7 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	//
 	// unlock arrays
 	//
-	if ( glConfigEx.useExtCompiledVertexArray ) {
+	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
 		::glUnlockArraysEXT();
 		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
@@ -2736,7 +2736,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	//
 	// lock arrays
 	//
-	if ( glConfigEx.useExtCompiledVertexArray ) {
+	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
 		::glLockArraysEXT( 0, input->numVertexes );
 		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
@@ -2819,7 +2819,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	//
 	// unlock arrays
 	//
-	if ( glConfigEx.useExtCompiledVertexArray ) {
+	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
 		::glUnlockArraysEXT();
 		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}

@@ -2666,7 +2666,7 @@ void R_RenderView( viewParms_t *parms ) {
 // BBi
 GLenum r_get_best_wrap_clamp ()
 {
-    if (glConfigEx.useArbFramebufferObject)
+    if (glConfigEx.use_arb_framebuffer_object_)
         return GL_CLAMP_TO_EDGE;
     else
         return GL_CLAMP;

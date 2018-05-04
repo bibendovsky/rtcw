@@ -777,7 +777,7 @@ void gl_initialize_extensions()
             glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glConfig.maxActiveTextures);
 
             if (glConfig.maxActiveTextures > 1) {
-                glConfigEx.useArbMultitexture = true;
+                glConfigEx.use_arb_multitexture_ = true;
                 gl_print_found_extension(extension_name1);
             } else {
                 gl_print_missed_extension(extension_name2);
@@ -792,7 +792,7 @@ void gl_initialize_extensions()
 
     if (gl_has_extension(extension_name1)) {
         if (r_ext_compiled_vertex_array->integer != 0) {
-            glConfigEx.useExtCompiledVertexArray = true;
+            glConfigEx.use_ext_compiled_vertex_array_ = true;
             gl_print_found_extension(extension_name1);
         } else {
             gl_print_ignored_extension(extension_name1);
@@ -836,8 +836,8 @@ void gl_initialize_extensions()
     extension_name1 = "GL_ARB_framebuffer_object";
 
     if (gl_has_extension(extension_name1)) {
-        glConfigEx.useArbFramebufferObject = true;
-        glConfigEx.useArbTextureNonPowerOfTwo = true;
+        glConfigEx.use_arb_framebuffer_object_ = true;
+        glConfigEx.use_arb_texture_non_power_of_two_ = true;
         gl_print_found_extension(extension_name1);
     } else
         gl_print_missed_extension(extension_name1);
@@ -853,7 +853,7 @@ void gl_initialize_extensions()
 
     gl_initialize_extension_functions();
 
-    glConfigEx.is_2_x_capable = gl_is_2_x_capable();
+    glConfigEx.is_2_x_capable_ = gl_is_2_x_capable();
 }
 
 
