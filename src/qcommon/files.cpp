@@ -39,10 +39,13 @@ If you have questions concerning this license or the applicable additional terms
 #define MP_LEGACY_PAK 0x7776DC09
 #endif // RTCW_XX
 
+#include <fstream>
+#include <limits>
+#include <memory>
+#include <string>
 #include "q_shared.h"
 #include "qcommon.h"
 #include "miniz.h"
-#include "unzip.h"
 
 #if defined RTCW_ET
 #ifdef _WIN32
@@ -216,6 +219,390 @@ or configs will never get loaded from disk!
 
 */
 
+
+namespace
+{
+
+
+class MinizIo
+{
+public:
+	MinizIo()
+		:
+		filebuf_{},
+		position_{},
+		is_position_valid_{}
+	{
+	}
+
+	MinizIo(
+		const MinizIo& that) = delete;
+
+	MinizIo& operator=(
+		MinizIo& that) = delete;
+
+	~MinizIo()
+	{
+	}
+
+	bool open(
+		const char* const file_name)
+	{
+		close();
+
+		if (!file_name || *file_name == '\0')
+		{
+			return false;
+		}
+
+		static_cast<void>(filebuf_.open(file_name, std::ios_base::in | std::ios_base::binary | std::ios_base::ate));
+
+		if (!filebuf_.is_open())
+		{
+			return false;
+		}
+
+		file_size_ = filebuf_.pubseekoff(0, std::ios_base::cur);
+
+		if (file_size_ < 0)
+		{
+			close();
+			return false;
+		}
+
+		return true;
+	}
+
+	void close()
+	{
+		filebuf_.close();
+		position_ = {};
+		is_position_valid_ = {};
+		file_size_ = {};
+	}
+
+	bool is_open() const
+	{
+		return filebuf_.is_open();
+	}
+
+	std::int64_t get_file_size() const
+	{
+		return file_size_;
+	}
+
+	std::size_t read(
+		const std::int64_t position,
+		void* buffer_ptr,
+		const std::size_t count)
+	{
+		if (!is_open() || !buffer_ptr || count == 0)
+		{
+			return 0;
+		}
+
+		if (!is_position_valid_ || position != position_)
+		{
+			position_ = position;
+
+			if (filebuf_.pubseekpos(position_) < 0)
+			{
+				is_position_valid_ = false;
+				return 0;
+			}
+
+			is_position_valid_ = true;
+		}
+
+		const auto read_result = filebuf_.sgetn(static_cast<char*>(buffer_ptr), count);
+
+		if (read_result < 0)
+		{
+			is_position_valid_ = false;
+			return 0;
+		}
+
+		position_ += count;
+
+		return static_cast<std::size_t>(read_result);
+	}
+
+
+private:
+	std::filebuf filebuf_;
+	std::int64_t position_;
+	bool is_position_valid_;
+	std::int64_t file_size_;
+}; // MinizIo
+
+class MinizZip
+{
+public:
+	struct FileStat
+	{
+		std::string file_name_;
+		std::uint32_t crc_;
+		int compressed_size_;
+		int uncompressed_size_;
+		bool is_directory_;
+		bool is_encrypted_;
+		bool is_supported_;
+	}; // FileStat
+
+
+	class File
+	{
+	public:
+		File(
+			const File& that) = delete;
+
+		File& operator=(
+			const File& that) = delete;
+
+		~File()
+		{
+			close();
+		}
+
+		bool is_open() const
+		{
+			return miniz_file_state_ != nullptr;
+		}
+
+		int read(
+			void* buffer_ptr,
+			const int count)
+		{
+			if (!is_open() || !buffer_ptr || count <= 0)
+			{
+				return 0;
+			}
+
+			const auto read_result = static_cast<int>(::mz_zip_reader_extract_iter_read(miniz_file_state_, buffer_ptr, count));
+
+			position_ += read_result;
+
+			return static_cast<int>(read_result);
+		}
+
+		int get_position() const
+		{
+			return position_;
+		}
+
+
+	private:
+		friend class MinizZip;
+
+
+		mz_zip_reader_extract_iter_state* miniz_file_state_;
+		int position_;
+
+
+		explicit File(
+			mz_zip_reader_extract_iter_state* miniz_file_state)
+			:
+			miniz_file_state_{miniz_file_state},
+			position_{}
+		{
+		}
+
+		void close()
+		{
+			if (miniz_file_state_)
+			{
+				static_cast<void>(::mz_zip_reader_extract_iter_free(miniz_file_state_));
+				miniz_file_state_ = nullptr;
+			}
+		}
+	}; // File
+
+
+	MinizZip()
+		:
+		is_open_{},
+		miniz_zip_{},
+		io_{},
+		file_count_{}
+	{
+	}
+
+	MinizZip(
+		const MinizZip& that) = delete;
+
+	MinizZip& operator=(
+		const MinizZip& that) = delete;
+
+	~MinizZip()
+	{
+		close();
+	}
+
+
+	bool open(
+		const char* const file_name)
+	{
+		close();
+
+		if (!io_.open(file_name))
+		{
+			return false;
+		}
+
+		miniz_zip_.m_pIO_opaque = &io_;
+		miniz_zip_.m_pRead = miniz_file_read_func;
+
+		if (!::mz_zip_reader_init(&miniz_zip_, io_.get_file_size(), MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY))
+		{
+			close();
+			return false;
+		}
+
+		const auto miniz_file_count = ::mz_zip_reader_get_num_files(&miniz_zip_);
+
+		if (miniz_file_count > static_cast<mz_uint>(std::numeric_limits<int>::max()))
+		{
+			close();
+			return false;
+		}
+
+		is_open_ = true;
+		file_count_ = static_cast<int>(miniz_file_count);
+
+		return true;
+	}
+
+	void close()
+	{
+		is_open_ = {};
+		::mz_zip_reader_end(&miniz_zip_);
+		io_.close();
+		file_count_ = {};
+
+		miniz_zip_ = mz_zip_archive{};
+	}
+
+	bool is_open() const
+	{
+		return is_open_;
+	}
+
+	File* open_file(
+		const int file_index)
+	{
+		if (!is_open() || file_index < 0 || file_index >= file_count_)
+		{
+			return {};
+		}
+
+		auto miniz_file_state  = ::mz_zip_reader_extract_iter_new(&miniz_zip_, static_cast<mz_uint>(file_index), 0);
+
+		if (!miniz_file_state)
+		{
+			return {};
+		}
+
+		return new File{miniz_file_state};
+	}
+
+	int get_file_count() const
+	{
+		return file_count_;
+	}
+
+	int calculate_file_names_size()
+	{
+		if (!is_open_)
+		{
+			return 0;
+		}
+
+		auto size = 0;
+
+		for (auto i = 0; i < file_count_; ++i)
+		{
+			const auto file_name_size = static_cast<int>(
+				::mz_zip_reader_get_filename(&miniz_zip_, static_cast<mz_uint>(i), nullptr, 0));
+
+			if (file_name_size == 0)
+			{
+				return 0;
+			}
+
+			size += file_name_size;
+		}
+
+		return size;
+	}
+
+	FileStat get_file_stat(
+		const int file_index)
+	{
+		if (!is_open_ || file_index < 0 || file_index >= file_count_)
+		{
+			return {};
+		}
+
+		auto miniz_file_stat = mz_zip_archive_file_stat{};
+
+		if (!::mz_zip_reader_file_stat(&miniz_zip_, static_cast<mz_uint>(file_index), &miniz_file_stat))
+		{
+			return {};
+		}
+
+		auto file_stat = FileStat{};
+
+		file_stat.file_name_ = miniz_file_stat.m_filename;
+		file_stat.crc_ = miniz_file_stat.m_crc32;
+		file_stat.compressed_size_ = static_cast<int>(miniz_file_stat.m_comp_size);
+		file_stat.uncompressed_size_ = static_cast<int>(miniz_file_stat.m_uncomp_size);
+		file_stat.is_directory_ = (miniz_file_stat.m_is_directory != MZ_FALSE);
+		file_stat.is_encrypted_ = (miniz_file_stat.m_is_encrypted != MZ_FALSE);
+		file_stat.is_supported_ = (miniz_file_stat.m_is_supported != MZ_FALSE);
+
+		return file_stat;
+	}
+
+
+private:
+	bool is_open_;
+	mz_zip_archive miniz_zip_;
+	MinizIo io_;
+	int file_count_;
+
+
+	mz_zip_reader_extract_iter_state* open_file_internal(
+		const int file_index)
+	{
+		if (!is_open_ || file_index < 0 || file_index >= file_count_)
+		{
+			return {};
+		}
+
+		return ::mz_zip_reader_extract_iter_new(&miniz_zip_, static_cast<mz_uint>(file_index), 0);
+	}
+
+	static size_t miniz_file_read_func(
+		void* opaque,
+		const mz_uint64 position,
+		void* buffer_ptr,
+		const size_t count)
+	{
+		if (!opaque)
+		{
+			return 0;
+		}
+
+		auto& miniz_io = *static_cast<MinizIo*>(opaque);
+
+		return miniz_io.read(static_cast<std::int64_t>(position), buffer_ptr, count);
+	}
+}; // MinizZip
+
+
+} // namespace
+
+
 #if !defined RTCW_ET
 // TTimo: moved to qcommon.h
 // NOTE: could really do with a cvar
@@ -253,12 +640,7 @@ or configs will never get loaded from disk!
 
 typedef struct fileInPack_s {
 	char                    *name;      // name of the file
-
-    //BBi
-	//unsigned long pos;                  // file info position in zip
-    unz_file_pos pos; // file info position in zip
-    //BBi
-
+	int miniz_file_index_; // file info position in zip
 	struct  fileInPack_s*   next;       // next file in the hash
 } fileInPack_t;
 
@@ -266,7 +648,7 @@ typedef struct {
 	char pakFilename[MAX_OSPATH];               // c:\quake3\baseq3\pak0.pk3
 	char pakBasename[MAX_OSPATH];               // pak0
 	char pakGamename[MAX_OSPATH];               // baseq3
-	unzFile handle;                             // handle to zip file
+	MinizZip* miniz_zip_ptr_;					// handle to zip file
 	int checksum;                               // regular checksum
 	int pure_checksum;                          // checksum for pure
 	int numfiles;                               // number of files in pk3
@@ -318,9 +700,10 @@ static int fs_packFiles;                    // total number of files in packs
 static int fs_fakeChkSum;
 static int fs_checksumFeed;
 
-typedef union qfile_gus {
-	FILE*       o;
-	unzFile z;
+typedef struct qfile_gus {
+	FILE* o;
+	MinizZip* miniz_zip_ptr_;
+	MinizZip::File* miniz_file_ptr_;
 } qfile_gut;
 
 typedef struct qfile_us {
@@ -331,14 +714,8 @@ typedef struct qfile_us {
 typedef struct {
 	qfile_ut handleFiles;
 	qboolean handleSync;
-	int baseOffset;
 	int fileSize;
-
-    //BBi
-	//int zipFilePos;
-    unz_file_pos zipFilePos;
-    //BBi
-
+	int zipFilePos;
 	qboolean zipFile;
 	qboolean streamed;
 	char name[MAX_ZPATH];
@@ -379,6 +756,7 @@ FILE*       missingFiles = NULL;
 #if defined RTCW_ET
 qboolean legacy_mp_bin = qfalse;
 #endif // RTCW_XX
+
 
 /*
 ==============
@@ -470,10 +848,13 @@ static fileHandle_t FS_HandleForFile( void ) {
 	int i;
 
 	for ( i = 1 ; i < MAX_FILE_HANDLES ; i++ ) {
-		if ( fsh[i].handleFiles.file.o == NULL ) {
+		const auto& file = fsh[i].handleFiles.file;
+
+		if (!(file.o || file.miniz_file_ptr_ || file.miniz_zip_ptr_)) {
 			return i;
 		}
 	}
+
 	Com_Error( ERR_DROP, "FS_HandleForFile: none free" );
 	return 0;
 }
@@ -1037,12 +1418,20 @@ void FS_FCloseFile( fileHandle_t f ) {
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
 	}
 
-	if ( fsh[f].zipFile == qtrue ) {
-		unzCloseCurrentFile( fsh[f].handleFiles.file.z );
-		if ( fsh[f].handleFiles.unique ) {
-			unzClose( fsh[f].handleFiles.file.z );
+	if (fsh[f].zipFile == qtrue)
+	{
+		auto& file = fsh[f].handleFiles.file;
+
+		delete file.miniz_file_ptr_;
+		file.miniz_file_ptr_ = nullptr;
+
+		if (fsh[f].handleFiles.unique)
+		{
+			delete file.miniz_zip_ptr_;
+			file.miniz_zip_ptr_ = nullptr;
 		}
-		Com_Memset( &fsh[f], 0, sizeof( fsh[f] ) );
+
+		Com_Memset(&fsh[f], 0, sizeof(fsh[f]));
 		return;
 	}
 
@@ -1345,11 +1734,6 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 	directory_t     *dir;
 	long hash;
 
-    //BBi
-	//unz_s           *zfi;
-    unzFile zfi;
-    //BBi
-
 	FILE            *temp;
 	int l;
 	char demoExt[16];
@@ -1518,11 +1902,11 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 					// for OS client/server interoperability, we expect binaries for .so and .dll to be in the same pk3
 					// so that when we reference the DLL files on any platform, this covers everyone else
 
-		  #if 0 // TTimo: use that stuff for shifted strings
+#if 0 // TTimo: use that stuff for shifted strings
 					Com_Printf( "SYS_DLLNAME_QAGAME + %d: '%s'\n", SYS_DLLNAME_QAGAME_SHIFT, FS_ShiftStr( "qagame_mp_x86.dll" /*"qagame.mp.i386.so"*/, SYS_DLLNAME_QAGAME_SHIFT ) );
 					Com_Printf( "SYS_DLLNAME_CGAME + %d: '%s'\n", SYS_DLLNAME_CGAME_SHIFT, FS_ShiftStr( "cgame_mp_x86.dll" /*"cgame.mp.i386.so"*/, SYS_DLLNAME_CGAME_SHIFT ) );
 					Com_Printf( "SYS_DLLNAME_UI + %d: '%s'\n", SYS_DLLNAME_UI_SHIFT, FS_ShiftStr( "ui_mp_x86.dll" /*"ui.mp.i386.so"*/, SYS_DLLNAME_UI_SHIFT ) );
-		  #endif
+#endif
 					// qagame dll
 					if ( !( pak->referenced & FS_QAGAME_REF ) && FS_ShiftedStrStr( filename, SYS_DLLNAME_QAGAME, -SYS_DLLNAME_QAGAME_SHIFT ) ) {
 						pak->referenced |= FS_QAGAME_REF;
@@ -1558,107 +1942,43 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 
 #endif // RTCW_XX
 
-					if ( uniqueFILE ) {
+					if (uniqueFILE)
+					{
 						// open a new file on the pakfile
+						auto miniz_zip_uptr = std::make_unique<MinizZip>();
 
-                        //BBi
-						//fsh[*file].handleFiles.file.z = unzReOpen( pak->pakFilename, pak->handle );
-                        fsh[*file].handleFiles.file.z = ::unzOpen (pak->pakFilename);
-                        //BBi
-
-						if ( fsh[*file].handleFiles.file.z == NULL ) {
-							Com_Error( ERR_FATAL, "Couldn't reopen %s", pak->pakFilename );
+						if (!miniz_zip_uptr->open(pak->pakFilename))
+						{
+							::Com_Error(ERR_FATAL, "Couldn't reopen %s", pak->pakFilename);
 						}
-					} else {
-						fsh[*file].handleFiles.file.z = pak->handle;
+
+						fsh[*file].handleFiles.file.miniz_zip_ptr_ = miniz_zip_uptr.release();
 					}
-					Q_strncpyz( fsh[*file].name, filename, sizeof( fsh[*file].name ) );
+					else
+					{
+						fsh[*file].handleFiles.file.miniz_zip_ptr_ = pak->miniz_zip_ptr_;
+					}
+
+					Q_strncpyz(fsh[*file].name, filename, sizeof(fsh[*file].name));
 					fsh[*file].zipFile = qtrue;
 
-                    //BBi
-					//zfi = (unz_s *)fsh[*file].handleFiles.file.z;
-					//// in case the file was new
-					//temp = zfi->file;
-                    int zResult;
-                    zfi = fsh[*file].handleFiles.file.z;
-                    //BBi
+					auto miniz_zip_ptr = fsh[*file].handleFiles.file.miniz_zip_ptr_;
+					auto miniz_file_ptr = miniz_zip_ptr->open_file(pakFile->miniz_file_index_);
+
+					fsh[*file].handleFiles.file.miniz_file_ptr_ = miniz_file_ptr;
+					fsh[*file].zipFilePos = pakFile->miniz_file_index_;
 
 					// set the file position in the zip file (also sets the current file info)
 
-                    //BBi
-					//unzSetCurrentFileInfoPosition( pak->handle, pakFile->pos );
-                    zResult = ::unzGoToFilePos (zfi, &pakFile->pos);
-                    //BBi
-
-//BBi
-//					// copy the file info into the unzip structure
-//
-//#if defined RTCW_ET
-//					// rain - don't copy zfi over itself
-//					if ( zfi != pak->handle ) {
-//#endif // RTCW_XX
-//
-//					Com_Memcpy( zfi, pak->handle, sizeof( unz_s ) );
-//
-//#if defined RTCW_ET
-//					}
-//#endif // RTCW_XX
-//					// we copy this back into the structure
-//					zfi->file = temp;
-//BBi
-
-					// open the file in the zip
-
-                    //BBi
-					//unzOpenCurrentFile( fsh[*file].handleFiles.file.z );
-                    zResult = ::unzOpenCurrentFile (zfi);
-					//fsh[*file].zipFilePos = pakFile->pos;
-                    zResult = ::unzGetFilePos (zfi, &fsh[*file].zipFilePos);
-                    //BBi
-
-					if ( fs_debug->integer ) {
-						Com_Printf( "FS_FOpenFileRead: %s (found in '%s')\n",
-									filename, pak->pakFilename );
+					if (fs_debug->integer)
+					{
+						Com_Printf("FS_FOpenFileRead: %s (found in '%s')\n",
+							filename, pak->pakFilename);
 					}
 
-#if defined RTCW_ET
-					// Arnout: let's make this thing work from pakfiles as well
-					// FIXME: doing this seems to break things?
-					/*if ( fs_copyfiles->integer && fs_buildpath->string[0] && Q_stricmpn( fs_buildpath->string, pak->pakFilename, strlen(fs_buildpath->string) ) ) {
-						char			copypath[MAX_OSPATH];
-						fileHandle_t	f;
-						byte			*srcData;
-						int				len = zfi->cur_file_info.uncompressed_size;
+					const auto file_info = miniz_zip_ptr->get_file_stat(pakFile->miniz_file_index_);
 
-						Q_strncpyz( copypath, FS_BuildOSPath( fs_buildpath->string, fs_buildgame->string, filename ), sizeof(copypath) );
-						netpath = FS_BuildOSPath( fs_basepath->string, fs_gamedir, filename );
-
-						f = FS_FOpenFileWrite( filename );
-						if ( !f ) {
-							Com_Printf( "FS_FOpenFileRead Failed to open %s for copying\n", filename );
-						} else {
-							srcData = Hunk_AllocateTempMemory( len) ;
-							FS_Read( srcData, len, *file );
-							FS_Write( srcData, len, f );
-							FS_FCloseFile( f );
-							Hunk_FreeTempMemory( srcData );
-
-							if (rename( netpath, copypath )) {
-								// Failed, try copying it and deleting the original
-								FS_CopyFile ( netpath, copypath );
-								FS_Remove ( netpath );
-							}
-						}
-					}*/
-#endif // RTCW_XX
-
-                    //BBi
-					//return zfi->cur_file_info.uncompressed_size;
-
-                    unz_file_info zFileInfo;
-                    zResult = ::unzGetCurrentFileInfo (zfi, &zFileInfo, 0, 0, 0, 0, 0, 0);
-                    return zFileInfo.uncompressed_size;
-                    //BBi
+					return file_info.uncompressed_size_;
 				}
 				pakFile = pakFile->next;
 			} while ( pakFile != NULL );
@@ -2157,7 +2477,14 @@ int FS_Read( void *buffer, int len, fileHandle_t f ) {
 		}
 		return len;
 	} else {
-		return unzReadCurrentFile( fsh[f].handleFiles.file.z, buffer, len );
+		auto miniz_file_ptr = fsh[f].handleFiles.file.miniz_file_ptr_;
+
+		if (!miniz_file_ptr)
+		{
+			return 0;
+		}
+
+		return miniz_file_ptr->read(buffer, len);
 	}
 }
 
@@ -2271,29 +2598,64 @@ int FS_Seek( fileHandle_t f, long offset, int origin ) {
 	}
 
 	if ( fsh[f].zipFile == qtrue ) {
-		if ( offset == 0 && origin == FS_SEEK_SET ) {
-			// set the file position in the zip file (also sets the current file info)
-
-            //BBi
-			//unzSetCurrentFileInfoPosition( fsh[f].handleFiles.file.z, fsh[f].zipFilePos );
-            ::unzGoToFilePos (fsh[f].handleFiles.file.z, &fsh[f].zipFilePos);
-            //BBi
-
-			return unzOpenCurrentFile( fsh[f].handleFiles.file.z );
-		} else if ( offset < 65536 ) {
-			// set the file position in the zip file (also sets the current file info)
-
-            //BBi
-			//unzSetCurrentFileInfoPosition( fsh[f].handleFiles.file.z, fsh[f].zipFilePos );
-            ::unzGoToFilePos (fsh[f].handleFiles.file.z, &fsh[f].zipFilePos);
-            //BBi
-
-			unzOpenCurrentFile( fsh[f].handleFiles.file.z );
-			return FS_Read( foo, offset, f );
-		} else {
-			Com_Error( ERR_FATAL, "ZIP FILE FSEEK NOT YET IMPLEMENTED\n" );
+		if (offset > 65536 || origin != FS_SEEK_SET)
+		{
+			::Com_Error(ERR_FATAL, "Full Zip file seeking not supported.\n" );
 			return -1;
 		}
+
+		auto& file = fsh[f].handleFiles.file;
+
+		const auto current_position = file.miniz_file_ptr_->get_position();
+
+		// Best case.
+		//
+		if (current_position == offset)
+		{
+			return 0;
+		}
+
+		// Average case.
+		//
+		if (current_position < offset)
+		{
+			const auto skip_count = offset - current_position;
+			const auto skip_result = file.miniz_file_ptr_->read(foo, skip_count);
+
+			if (skip_result != skip_count)
+			{
+				::Com_Error(ERR_FATAL, "Zip file seek error.\n" );
+				return -1;
+			}
+
+			return 0;
+		}
+
+		// Worst case: reopen zip file stream and possibly skip some bytes.
+		//
+		delete file.miniz_file_ptr_;
+		file.miniz_file_ptr_ = file.miniz_zip_ptr_->open_file(fsh[f].zipFilePos);
+
+		if (!file.miniz_file_ptr_)
+		{
+			::Com_Error(ERR_FATAL, "Failed to reopen Zip file stream.\n" );
+			return -1;
+		}
+
+		if (offset == 0)
+		{
+			return 0;
+		}
+
+		const auto skip_result = file.miniz_file_ptr_->read(foo, offset);
+
+		if (skip_result != offset)
+		{
+			::Com_Error(ERR_FATAL, "Zip file seek error.\n" );
+			return -1;
+		}
+
+		return 0;
 	} else {
 		FILE *file;
 		file = FS_FileForHandle( f );
@@ -2584,14 +2946,13 @@ Creates a new pak_t in the search chain for the contents
 of a zip file.
 =================
 */
-static pack_t *FS_LoadZipFile( char *zipfile, const char *basename ) {
+static pack_t* FS_LoadZipFile(
+	char* zipfile,
+	const char* basename)
+{
 	fileInPack_t    *buildBuffer;
 	pack_t          *pack;
-	unzFile uf;
-	int err;
-	unz_global_info gi;
-	char filename_inzip[MAX_ZPATH];
-	unz_file_info file_info;
+	auto filename_inzip = std::string{};
 	int i, len;
 	long hash;
 	int fs_numHeaderLongs;
@@ -2600,87 +2961,81 @@ static pack_t *FS_LoadZipFile( char *zipfile, const char *basename ) {
 
 	fs_numHeaderLongs = 0;
 
-	uf = unzOpen( zipfile );
-	err = unzGetGlobalInfo( uf,&gi );
+	auto miniz_zip_uptr = std::make_unique<MinizZip>();
 
-	if ( err != UNZ_OK ) {
-		return NULL;
-	}
-
-	fs_packFiles += gi.number_entry;
-
-	len = 0;
-	unzGoToFirstFile( uf );
-	for ( i = 0; i < gi.number_entry; i++ )
+	if (!miniz_zip_uptr->open(zipfile))
 	{
-		err = unzGetCurrentFileInfo( uf, &file_info, filename_inzip, sizeof( filename_inzip ), NULL, 0, NULL, 0 );
-		if ( err != UNZ_OK ) {
-			break;
-		}
-		len += strlen( filename_inzip ) + 1;
-		unzGoToNextFile( uf );
+		return nullptr;
 	}
 
-	buildBuffer = static_cast<fileInPack_t*> (Z_Malloc( ( gi.number_entry * sizeof( fileInPack_t ) ) + len ));
-	namePtr = ( (char *) buildBuffer ) + gi.number_entry * sizeof( fileInPack_t );
-	fs_headerLongs = static_cast<int*> (Z_Malloc( gi.number_entry * sizeof( int ) ));
+	const auto file_count = miniz_zip_uptr->get_file_count();
+
+	fs_packFiles += file_count;
+	len = miniz_zip_uptr->calculate_file_names_size();
+
+	buildBuffer = static_cast<fileInPack_t*> (Z_Malloc((file_count * sizeof(fileInPack_t)) + len));
+	namePtr = ((char *)buildBuffer) + file_count * sizeof(fileInPack_t);
+	fs_headerLongs = static_cast<int*> (Z_Malloc(file_count * sizeof(int)));
 
 	// get the hash table size from the number of files in the zip
 	// because lots of custom pk3 files have less than 32 or 64 files
-	for ( i = 1; i <= MAX_FILEHASH_SIZE; i <<= 1 ) {
-		if ( i > gi.number_entry ) {
+	for (i = 1; i <= MAX_FILEHASH_SIZE; i <<= 1)
+	{
+		if (i > file_count)
+		{
 			break;
 		}
 	}
 
-	pack = static_cast<pack_t*> (Z_Malloc( sizeof( pack_t ) + i * sizeof( fileInPack_t * ) ));
+	pack = static_cast<pack_t*> (Z_Malloc(sizeof(pack_t) + i * sizeof(fileInPack_t *)));
 	pack->hashSize = i;
-	pack->hashTable = ( fileInPack_t ** )( ( (char *) pack ) + sizeof( pack_t ) );
-	for ( i = 0; i < pack->hashSize; i++ ) {
+	pack->hashTable = (fileInPack_t **)(((char *)pack) + sizeof(pack_t));
+	for (i = 0; i < pack->hashSize; i++)
+	{
 		pack->hashTable[i] = NULL;
 	}
 
-	Q_strncpyz( pack->pakFilename, zipfile, sizeof( pack->pakFilename ) );
-	Q_strncpyz( pack->pakBasename, basename, sizeof( pack->pakBasename ) );
+	Q_strncpyz(pack->pakFilename, zipfile, sizeof(pack->pakFilename));
+	Q_strncpyz(pack->pakBasename, basename, sizeof(pack->pakBasename));
 
 	// strip .pk3 if needed
-	if ( strlen( pack->pakBasename ) > 4 && !Q_stricmp( pack->pakBasename + strlen( pack->pakBasename ) - 4, ".pk3" ) ) {
-		pack->pakBasename[strlen( pack->pakBasename ) - 4] = 0;
+	if (strlen(pack->pakBasename) > 4 && !Q_stricmp(pack->pakBasename + strlen(pack->pakBasename) - 4, ".pk3"))
+	{
+		pack->pakBasename[strlen(pack->pakBasename) - 4] = 0;
 	}
 
-	pack->handle = uf;
-	pack->numfiles = gi.number_entry;
-	unzGoToFirstFile( uf );
+	pack->miniz_zip_ptr_ = miniz_zip_uptr.release();
+	pack->numfiles = file_count;
 
-	for ( i = 0; i < gi.number_entry; i++ )
+	for (i = 0; i < file_count; ++i)
 	{
-		err = unzGetCurrentFileInfo( uf, &file_info, filename_inzip, sizeof( filename_inzip ), NULL, 0, NULL, 0 );
-		if ( err != UNZ_OK ) {
-			break;
+		const auto file_info = pack->miniz_zip_ptr_->get_file_stat(i);
+
+		if (file_info.uncompressed_size_ > 0)
+		{
+			fs_headerLongs[fs_numHeaderLongs++] = static_cast<int>(file_info.crc_);
 		}
-		if ( file_info.uncompressed_size > 0 ) {
-			fs_headerLongs[fs_numHeaderLongs++] = rtcw::Endian::le( file_info.crc );
-		}
-		Q_strlwr( filename_inzip );
-		hash = FS_HashFileName( filename_inzip, pack->hashSize );
+
+		filename_inzip = file_info.file_name_;
+		Q_strlwr(&filename_inzip[0]);
+		hash = FS_HashFileName(filename_inzip.c_str(), pack->hashSize);
 		buildBuffer[i].name = namePtr;
-		strcpy( buildBuffer[i].name, filename_inzip );
-		namePtr += strlen( filename_inzip ) + 1;
+		strcpy(buildBuffer[i].name, filename_inzip.c_str());
+		namePtr += filename_inzip.length() + 1;
 		// store the file position in the zip
 
-        //BBi
+		//BBi
 		//unzGetCurrentFileInfoPosition( uf, &buildBuffer[i].pos );
-        ::unzGetFilePos (uf, &buildBuffer[i].pos);
-        //BBi
+		buildBuffer[i].miniz_file_index_ = i;
+		//BBi
 
 		//
 		buildBuffer[i].next = pack->hashTable[hash];
 		pack->hashTable[hash] = &buildBuffer[i];
-		unzGoToNextFile( uf );
 	}
 
-	pack->checksum = Com_BlockChecksum( fs_headerLongs, 4 * fs_numHeaderLongs );
-	pack->pure_checksum = Com_BlockChecksumKey( fs_headerLongs, 4 * fs_numHeaderLongs, rtcw::Endian::le( fs_checksumFeed ) );
+	pack->checksum = Com_BlockChecksum(fs_headerLongs, 4 * fs_numHeaderLongs);
+	pack->pure_checksum = Com_BlockChecksumKey(fs_headerLongs, 4 * fs_numHeaderLongs, rtcw::Endian::le(fs_checksumFeed));
 
 #if defined RTCW_MP
 	// TTimo: DO_LIGHT_DEDICATED
@@ -2689,10 +3044,10 @@ static pack_t *FS_LoadZipFile( char *zipfile, const char *basename ) {
 	// cumulated for light dedicated: 21558 bytes
 #endif // RTCW_XX
 
-	rtcw::Endian::lei( pack->checksum );
-	rtcw::Endian::lei( pack->pure_checksum );
+	rtcw::Endian::lei(pack->checksum);
+	rtcw::Endian::lei(pack->pure_checksum);
 
-	Z_Free( fs_headerLongs );
+	Z_Free(fs_headerLongs);
 
 	pack->buildBuffer = buildBuffer;
 	return pack;
@@ -3832,7 +4187,8 @@ void FS_Shutdown( qboolean closemfp ) {
 		next = p->next;
 
 		if ( p->pack ) {
-			unzClose( p->pack->handle );
+			delete p->pack->miniz_zip_ptr_;
+
 			Z_Free( p->pack->buildBuffer );
 			Z_Free( p->pack );
 		}
@@ -5183,11 +5539,6 @@ int     FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) 
 	}
 
 	if ( *f ) {
-		if ( fsh[*f].zipFile == qtrue ) {
-			fsh[*f].baseOffset = unztell( fsh[*f].handleFiles.file.z );
-		} else {
-			fsh[*f].baseOffset = ftell( fsh[*f].handleFiles.file.o );
-		}
 		fsh[*f].fileSize = r;
 		fsh[*f].streamed = qfalse;
 
@@ -5210,7 +5561,14 @@ int     FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) 
 int     FS_FTell( fileHandle_t f ) {
 	int pos;
 	if ( fsh[f].zipFile == qtrue ) {
-		pos = unztell( fsh[f].handleFiles.file.z );
+		auto miniz_file_ptr = fsh[f].handleFiles.file.miniz_file_ptr_;
+
+		if (!miniz_file_ptr)
+		{
+			return 0;
+		}
+
+		pos = miniz_file_ptr->get_position();
 	} else {
 		pos = ftell( fsh[f].handleFiles.file.o );
 	}
