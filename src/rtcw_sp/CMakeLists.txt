@@ -232,6 +232,7 @@ set(
 	../win32/win_main.cpp
 	../win32/win_syscon.cpp
 	../lib/zlib/contrib/minizip/ioapi.c
+	../lib/zlib/contrib/minizip/miniz.c
 	../lib/zlib/contrib/minizip/unzip.c
 )
 
