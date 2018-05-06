@@ -96,9 +96,7 @@ set(
 	../win32/glw_win.h
 	../win32/rtcw_sp_resource.h
 	../win32/win_local.h
-	../lib/zlib/contrib/minizip/ioapi.h
-	../lib/zlib/contrib/minizip/miniz.h
-	../lib/zlib/contrib/minizip/unzip.h
+	../lib/miniz/miniz.h
 )
 
 if (WIN32)
@@ -231,9 +229,7 @@ set(
 	../system/sys_shared.cpp
 	../win32/win_main.cpp
 	../win32/win_syscon.cpp
-	../lib/zlib/contrib/minizip/ioapi.c
-	../lib/zlib/contrib/minizip/miniz.c
-	../lib/zlib/contrib/minizip/unzip.c
+	../lib/miniz/miniz.c
 )
 
 if (WIN32)
@@ -261,7 +257,7 @@ target_include_directories(
 	PRIVATE ../client
 	PRIVATE ../game
 	PRIVATE ../lib/glm
-	PRIVATE ../lib/zlib/contrib/minizip
+	PRIVATE ../lib/miniz
 	PRIVATE ../qcommon
 	PRIVATE ../renderer
 	PRIVATE ../system
