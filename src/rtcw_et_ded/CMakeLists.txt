@@ -54,6 +54,12 @@ set(
 	../game/g_public.h
 	../game/q_shared.h
 	../game/surfaceflags.h
+	../lib/dear_imgui/imconfig.h
+	../lib/dear_imgui/imgui.h
+	../lib/dear_imgui/imgui_internal.h
+	../lib/dear_imgui/stb_rect_pack.h
+	../lib/dear_imgui/stb_textedit.h
+	../lib/dear_imgui/stb_truetype.h
 	../qcommon/cm_local.h
 	../qcommon/cm_patch.h
 	../qcommon/cm_polylib.h
@@ -79,6 +85,7 @@ set(
 	../splines/splines.h
 	../splines/util_list.h
 	../splines/util_str.h
+	../system/imgui_sdl.h
 	../system/rtcw_endian.h
 	../system/rtcw_input_joystick.h
 	../system/rtcw_input_keyboard.h
@@ -134,6 +141,8 @@ set(
 	../botlib/l_struct.cpp
 	../game/q_math.cpp
 	../game/q_shared.cpp
+	../lib/dear_imgui/imgui.cpp
+	../lib/dear_imgui/imgui_draw.cpp
 	../null/null_client.cpp
 	../null/null_input.cpp
 	../null/null_snddma.cpp
@@ -160,10 +169,12 @@ set(
 	../server/sv_net_chan.cpp
 	../server/sv_snapshot.cpp
 	../server/sv_world.cpp
+	../system/imgui_sdl.cpp
+	../system/sys_events.cpp
 	../system/sys_net.cpp
 	../system/sys_shared.cpp
+	../system/sys_syscon.cpp
 	../win32/win_main.cpp
-	../win32/win_syscon.cpp
 	../lib/miniz/miniz.c
 )
 
@@ -191,6 +202,7 @@ target_include_directories(
 	PRIVATE ../cgame
 	PRIVATE ../client
 	PRIVATE ../game
+	PRIVATE ../lib/dear_imgui
 	PRIVATE ../lib/miniz
 	PRIVATE ../qcommon
 	PRIVATE ../renderer

@@ -1354,6 +1354,22 @@ int     Sys_GetProcessorId( void );
 void    Sys_ShowConsole( int level, qboolean quitOnClose );
 void    Sys_SetErrorText( const char *text );
 
+//
+// Runs console in exclusive mode until quit or close.
+//
+void sys_run_console();
+
+//
+// Handles one SDL event.
+//
+void sys_handle_console_sdl_event(
+	const SDL_Event& e);
+
+//
+// Updates the console content.
+//
+void sys_update_console();
+
 void    Sys_SendPacket( int length, const void *data, netadr_t to );
 
 bool    Sys_StringToAdr( const char *s, netadr_t *a );

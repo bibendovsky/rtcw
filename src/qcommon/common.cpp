@@ -3747,9 +3747,13 @@ void Com_Frame( void ) {
 
 	// if "viewlog" has been modified, show or hide the log console
 	if ( com_viewlog->modified ) {
+#ifdef DEDICATED
+		::Sys_ShowConsole(com_viewlog->integer, qfalse);
+#else
 		if ( !com_dedicated->value ) {
 			Sys_ShowConsole( com_viewlog->integer, qfalse );
 		}
+#endif // DEDICATED
 		com_viewlog->modified = qfalse;
 	}
 

@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 SDL_Window* sys_gl_window;
+Uint32 sys_main_window_id = 0;
 
 // don't abort out if the pixelformat claims software
 cvar_t* r_allowSoftwareGL;
@@ -432,6 +433,8 @@ void gl_initialize_extensions()
 
 void GLimp_Init()
 {
+	::sys_main_window_id = {};
+
     ri.Printf(PRINT_ALL, "Initializing OpenGL subsystem\n");
 
     r_allowSoftwareGL = ri.Cvar_Get("r_allowSoftwareGL", "0", 0);
@@ -775,6 +778,8 @@ void GLimp_Init()
         ri.Error(ERR_FATAL, "Failed to create a window.\n");
         throw 0;
     }
+
+	::sys_main_window_id = ::SDL_GetWindowID(sys_gl_window);
 }
 
 void GLimp_Shutdown()
@@ -789,6 +794,8 @@ void GLimp_Shutdown()
         ::SDL_DestroyWindow(sys_gl_window);
         sys_gl_window = NULL;
     }
+
+	::sys_main_window_id = {};
 
     std::uninitialized_fill_n(
         reinterpret_cast<char*>(&glConfig),
