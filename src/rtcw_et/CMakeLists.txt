@@ -62,6 +62,12 @@ set(
 	../game/g_public.h
 	../game/q_shared.h
 	../game/surfaceflags.h
+	../lib/dear_imgui/imconfig.h
+	../lib/dear_imgui/imgui.h
+	../lib/dear_imgui/imgui_internal.h
+	../lib/dear_imgui/stb_rect_pack.h
+	../lib/dear_imgui/stb_textedit.h
+	../lib/dear_imgui/stb_truetype.h
 	../qcommon/cm_local.h
 	../qcommon/cm_patch.h
 	../qcommon/cm_polylib.h
@@ -92,6 +98,7 @@ set(
 	../splines/splines.h
 	../splines/util_list.h
 	../splines/util_str.h
+	../system/imgui_sdl.h
 	../system/rtcw_endian.h
 	../system/rtcw_input_joystick.h
 	../system/rtcw_input_keyboard.h
@@ -163,6 +170,8 @@ set(
 	../client/snd_wavelet.cpp
 	../game/q_math.cpp
 	../game/q_shared.cpp
+	../lib/dear_imgui/imgui.cpp
+	../lib/dear_imgui/imgui_draw.cpp
 	../qcommon/cm_load.cpp
 	../qcommon/cm_patch.cpp
 	../qcommon/cm_polylib.cpp
@@ -228,6 +237,7 @@ set(
 	../splines/q_parse.cpp
 	../splines/splines.cpp
 	../splines/util_str.cpp
+	../system/imgui_sdl.cpp
 	../system/rtcw_input_joystick.cpp
 	../system/rtcw_input_keyboard.cpp
 	../system/rtcw_input_mouse.cpp
@@ -236,8 +246,8 @@ set(
 	../system/sys_input.cpp
 	../system/sys_net.cpp
 	../system/sys_shared.cpp
+	../system/sys_syscon.cpp
 	../win32/win_main.cpp
-	../win32/win_syscon.cpp
 	../lib/miniz/miniz.c
 )
 
@@ -280,6 +290,7 @@ target_include_directories(
 	PRIVATE ../cgame
 	PRIVATE ../client
 	PRIVATE ../game
+	PRIVATE ../lib/dear_imgui
 	PRIVATE ../lib/glm
 	PRIVATE ../lib/miniz
 	PRIVATE ../qcommon

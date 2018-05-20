@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 cvar_t* k_language = NULL;
+extern Uint32 sys_main_window_id;
 
 
 void Sys_QueEvent(
@@ -114,6 +115,11 @@ void Keyboard::handle_event(const SDL_Event& e)
 
 void Keyboard::handle_key_event(const SDL_KeyboardEvent& e)
 {
+	if (e.windowID != ::sys_main_window_id)
+	{
+		return;
+	}
+
     SDL_Keycode key_code = e.keysym.sym;
     int key = map_to_rtcw(key_code);
 

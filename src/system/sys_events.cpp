@@ -31,10 +31,22 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "SDL.h"
 
+#ifndef DEDICATED
 #include "client.h"
 #include "sys_input.h"
+#endif // DEDICATED
 
 
+extern Uint32 sys_main_window_id;
+
+
+void sys_update_console();
+
+void sys_handle_console_sdl_event(
+	const SDL_Event& e);
+
+
+#ifndef DEDICATED
 void SNDDMA_Activate(bool value);
 
 
@@ -43,6 +55,11 @@ namespace {
 
 void sys_handle_window_events(const SDL_WindowEvent& e)
 {
+	if (e.windowID != ::sys_main_window_id)
+	{
+		return;
+	}
+
     switch (e.event) {
     case SDL_WINDOWEVENT_FOCUS_GAINED:
         ::SNDDMA_Activate(true);
@@ -56,6 +73,7 @@ void sys_handle_window_events(const SDL_WindowEvent& e)
 
 
 } // namespace
+#endif // DEDICATED
 
 
 void sys_poll_events()
@@ -63,6 +81,9 @@ void sys_poll_events()
     SDL_Event e;
 
     while (::SDL_PollEvent(&e)) {
+		::sys_handle_console_sdl_event(e);
+
+#ifndef DEDICATED
         switch (e.type) {
         case SDL_JOYAXISMOTION:
         case SDL_JOYBALLMOTION:
@@ -90,5 +111,8 @@ void sys_poll_events()
             ::Com_Quit_f();
             break;
         }
+#endif // DEDICATED
     }
+
+	::sys_update_console();
 }

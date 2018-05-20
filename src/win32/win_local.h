@@ -94,42 +94,13 @@ LRESULT CALLBACK MainWndProc(
 	WPARAM wParam,
 	LPARAM lParam );
 
-void Conbuf_AppendText( const char *msg );
+void Conbuf_AppendText( const char * const msg );
 
 //BBi
 //void SNDDMA_Activate( void );
 void SNDDMA_Activate (
     bool isActive);
 //BBi
-
-typedef struct
-{
-
-	HINSTANCE reflib_library;           // Handle to refresh DLL
-
-    //BBi
-	//qboolean reflib_active;
-    bool reflib_active;
-    //BBi
-
-	HWND hWnd;
-	HINSTANCE hInstance;
-
-    //BBi
-	//qboolean activeApp;
-    bool activeApp;
-	//qboolean isMinimized;
-    bool isMinimized;
-    //BBi
-
-	OSVERSIONINFO osversion;
-
-	// when we get a windows message, we store the time off so keyboard processing
-	// can know the exact time of an event
-	unsigned sysMsgTime;
-} WinVars_t;
-
-extern WinVars_t g_wv;
 
 #ifdef DOOMSOUND    ///// (SA) DOOMSOUND
 #ifdef __cplusplus

@@ -299,6 +299,7 @@ void QDECL Sys_Error( const char *error, ... ) {
 
 	IN_Shutdown();
 
+#if 0
 	// wait for the user to quit
 	while ( 1 ) {
 		if ( !GetMessage( &msg, NULL, 0, 0 ) ) {
@@ -307,6 +308,10 @@ void QDECL Sys_Error( const char *error, ... ) {
 		TranslateMessage( &msg );
 		DispatchMessage( &msg );
 	}
+#else
+	::sys_run_console();
+	::Com_Quit_f();
+#endif
 
 	Sys_DestroyConsole();
 
@@ -919,9 +924,7 @@ sysEvent_t Sys_GetEvent( void ) {
 	//	TranslateMessage( &msg );
 	//	DispatchMessage( &msg );
 	//}
-#ifndef DEDICATED
     ::sys_poll_events();
-#endif // DEDICATED
 // BBi
 
 	// check for console commands
@@ -1000,17 +1003,12 @@ Called after the common systems (cvars, files, etc)
 are initialized
 ================
 */
-#if defined RTCW_ET
 extern void Sys_ClearViewlog_f( void ); // fretn
-#endif // RTCW_XX
 
 void Sys_Init( void ) {
 	Cmd_AddCommand( "in_restart", Sys_In_Restart_f );
 	Cmd_AddCommand( "net_restart", Sys_Net_Restart_f );
-
-#if defined RTCW_ET
 	Cmd_AddCommand( "clearviewlog", Sys_ClearViewlog_f );
-#endif // RTCW_XX
 
     // FIXME
     ::Cvar_Set("arch", ::SDL_GetPlatform());
@@ -1129,7 +1127,7 @@ extern "C" int main(int argc, char* argv[])
 	// main game loop
 	while ( 1 ) {
 		// if not running as a game client, sleep a bit
-		if ( g_wv.isMinimized || ( com_dedicated && com_dedicated->integer ) ) {
+		if (com_dedicated && com_dedicated->integer) {
 			Sleep( 5 );
 		}
 

@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 extern SDL_Window* sys_gl_window;
+extern Uint32 sys_main_window_id;
 
 
 cvar_t* in_mouse = NULL;
@@ -208,6 +209,11 @@ void Mouse::register_cvars()
 
 void Mouse::handle_button_event(const SDL_MouseButtonEvent& e)
 {
+	if (e.windowID != sys_main_window_id)
+	{
+		return;
+	}
+
     int button = e.button;
     int state_index = get_state_index_by_sys_button(button);
 
@@ -230,6 +236,11 @@ void Mouse::handle_button_event(const SDL_MouseButtonEvent& e)
 
 void Mouse::handle_motion_event(const SDL_MouseMotionEvent& e)
 {
+	if (e.windowID != sys_main_window_id)
+	{
+		return;
+	}
+
     ::Sys_QueEvent(
         e.timestamp,
         SE_MOUSE,
@@ -241,6 +252,11 @@ void Mouse::handle_motion_event(const SDL_MouseMotionEvent& e)
 
 void Mouse::handle_wheel_event(const SDL_MouseWheelEvent& e)
 {
+	if (e.windowID != sys_main_window_id)
+	{
+		return;
+	}
+
     if (e.y == 0)
         return;
 
