@@ -1,101 +1,102 @@
-cmake_minimum_required(VERSION 3.5.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 project(rtcw_ui_mp VERSION 1.0.0 LANGUAGES CXX)
 
 find_package(SDL 2.0.4 REQUIRED)
 
 option(RTCW_USE_MULTI_PROCESS_COMPILATION "Enables multi-process compilation if available." ON)
 
-set(
-	headers
-	../../cgame/tr_types.h
-	../../game/bg_public.h
-	../../game/q_shared.h
-	../../game/surfaceflags.h
-	../../ui/keycodes.h
-	../../ui/ui_public.h
-	menudef.h
-	ui_local.h
-	ui_shared.h
+add_library(${PROJECT_NAME} SHARED "")
+
+set_target_properties(
+	${PROJECT_NAME}
+	PROPERTIES
+		CXX_STANDARD 14
+		CXX_STANDARD_REQUIRED ON
+		CXX_EXTENSIONS OFF
 )
 
-set(
-	sources
-	../../game/q_math.cpp
-	../../game/q_shared.cpp
-	../../game/mp/bg_misc.cpp
-	ui_atoms.cpp
-	ui_gameinfo.cpp
-	ui_main.cpp
-	ui_players.cpp
-	ui_shared.cpp
-	ui_syscalls.cpp
-	ui_util.cpp
-)
-
-if (WIN32)
-	list(
-		APPEND
-		sources
-		ui_mp.def
-	)
-endif ()
-
-add_library(
-	rtcw_ui_mp
-	SHARED
-	${headers}
-	${sources}
+set_target_properties(
+	${PROJECT_NAME}
+	PROPERTIES
+		PREFIX ""
+		OUTPUT_NAME ui_mp_x86
 )
 
 target_include_directories(
-	rtcw_ui_mp
-	PRIVATE ${SDL_INCLUDE_DIR}
-	PRIVATE .
-	PRIVATE ../../cgame
-	PRIVATE ../../game
-	PRIVATE ../../qcommon
-	PRIVATE ../../system
-	PRIVATE ../../ui
+	${PROJECT_NAME}
+	PRIVATE
+		${SDL_INCLUDE_DIR}
+		.
+		../../cgame
+		../../game
+		../../qcommon
+		../../system
+		../../ui
 )
 
 target_compile_definitions(
-	rtcw_ui_mp
-	PRIVATE RTCW_MP
+	${PROJECT_NAME}
+	PRIVATE
+		RTCW_MP
 )
 
 if (MSVC)
 	target_compile_definitions(
-		rtcw_ui_mp
-		PRIVATE _CRT_SECURE_NO_WARNINGS
+		${PROJECT_NAME}
+		PRIVATE
+			_CRT_SECURE_NO_WARNINGS
 	)
 endif ()
 
 if (RTCW_USE_MULTI_PROCESS_COMPILATION)
 	if (MSVC)
 		target_compile_options(
-			rtcw_ui_mp
-			PRIVATE -MP
+			${PROJECT_NAME}
+			PRIVATE
+				-MP
 		)
 	endif ()
 endif ()
 
-set_target_properties(
-	rtcw_ui_mp
-	PROPERTIES
-	CXX_STANDARD 14
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
+target_sources(
+	${PROJECT_NAME}
+	PRIVATE
+		../../cgame/tr_types.h
+		../../game/bg_public.h
+		../../game/q_shared.h
+		../../game/surfaceflags.h
+		../../ui/keycodes.h
+		../../ui/ui_public.h
+		menudef.h
+		ui_local.h
+		ui_shared.h
 )
 
-set_target_properties(
-	rtcw_ui_mp
-	PROPERTIES
-	PREFIX ""
-	OUTPUT_NAME ui_mp_x86
+target_sources(
+	${PROJECT_NAME}
+	PRIVATE
+		../../game/q_math.cpp
+		../../game/q_shared.cpp
+		../../game/mp/bg_misc.cpp
+		ui_atoms.cpp
+		ui_gameinfo.cpp
+		ui_main.cpp
+		ui_players.cpp
+		ui_shared.cpp
+		ui_syscalls.cpp
+		ui_util.cpp
 )
+
+if (WIN32)
+	target_sources(
+		${PROJECT_NAME}
+		PRIVATE
+			ui_mp.def
+	)
+endif ()
 
 install(
 	TARGETS
-	rtcw_ui_mp
+	${PROJECT_NAME}
 	RUNTIME DESTINATION mp/Main
 )
