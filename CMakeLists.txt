@@ -1,5 +1,7 @@
-cmake_minimum_required(VERSION 3.5.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 project(rtcw VERSION 1.0.0)
+
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 option(RTCW_BUILD_SP "Build single player" ON)
 option(RTCW_BUILD_MP "Build multiplayer" ON)
