@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 project(rtcw_et VERSION 1.0.0 LANGUAGES CXX C)
 
-find_package(SDL 2.0.4 REQUIRED)
+find_package(SDL2W 2.0.4 REQUIRED)
 find_package(SDL_net 2.0.1 REQUIRED)
 
 if (RTCW_BUILD_ET AND RTCW_USE_CURL)
@@ -52,7 +52,6 @@ endif ()
 target_include_directories(
 	${PROJECT_NAME}
 	PRIVATE
-		${SDL_INCLUDE_DIR}
 		${SDL_NET_INCLUDE_DIR}
 		.
 		../botai
@@ -125,8 +124,7 @@ endif ()
 target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
-		${SDLMAIN_LIBRARY}
-		${SDL_LIBRARY}
+		SDL2W
 		${SDL_NET_LIBRARY}
 )
 
@@ -142,10 +140,7 @@ if (MINGW)
 	target_link_libraries(
 		${PROJECT_NAME}
 		PRIVATE
-			imm32
 			iphlpapi
-			version
-			winmm
 			ws2_32
 	)
 endif ()
