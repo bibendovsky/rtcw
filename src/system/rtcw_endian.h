@@ -7,7 +7,7 @@
 #define RTCW_ENDIAN_H
 
 
-#include "SDL.h"
+#include "SDL_endian.h"
 
 
 namespace rtcw {

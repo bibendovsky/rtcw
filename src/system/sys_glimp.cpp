@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include <memory>
-#include "SDL.h"
+#include "SDL_video.h"
 #include "tr_local.h"
 
 

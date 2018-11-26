@@ -52,6 +52,9 @@ If you have questions concerning this license or the applicable additional terms
 
 //============================================================================
 
+union SDL_Event;
+
+
 //
 // msg.c
 //

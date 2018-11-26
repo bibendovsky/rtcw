@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <deque>
 #include <string>
 #include <vector>
+#include "SDL.h"
 #include "client.h"
 #include "imgui_sdl.h"
 

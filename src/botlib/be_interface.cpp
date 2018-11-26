@@ -36,6 +36,8 @@ If you have questions concerning this license or the applicable additional terms
  *****************************************************************************/
 
 
+#include "SDL_timer.h"
+
 #include "q_shared.h"
 #include "l_memory.h"
 #include "l_log.h"

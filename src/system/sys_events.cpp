@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "sys_events.h"
 
-#include "SDL.h"
+#include "SDL_events.h"
 
 #ifndef DEDICATED
 #include "client.h"

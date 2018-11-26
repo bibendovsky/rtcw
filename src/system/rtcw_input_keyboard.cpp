@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "rtcw_input_keyboard.h"
-
+#include "SDL.h"
 #include "tr_local.h"
 #include "keycodes.h"
 
