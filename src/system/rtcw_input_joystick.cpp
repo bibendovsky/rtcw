@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "rtcw_input_joystick.h"
-
+#include "SDL.h"
 #include "qcommon.h"
 #include "keycodes.h"
 

@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <setjmp.h>
 
 // BBi
-#include "SDL.h"
+#include "SDL_events.h"
 // BBi
 
 #if defined RTCW_SP

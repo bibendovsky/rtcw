@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "rtcw_input_mouse.h"
-
+#include "SDL.h"
 #include "client.h"
 #include "keycodes.h"
 

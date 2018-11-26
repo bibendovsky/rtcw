@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <bitset>
 
-#include "SDL.h"
+#include "SDL_events.h"
 
 #include "q_shared.h"
 
