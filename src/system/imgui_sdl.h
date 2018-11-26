@@ -1,6 +1,21 @@
+// By Emil Ernerfeldt 2018
+// LICENSE:
+//   This software is dual-licensed to the public domain and under the following
+//   license: you are granted a perpetual, irrevocable license to copy, modify,
+//   publish, and distribute this file as you see fit.
+// WHAT:
+//   This is a software renderer for Dear ImGui.
+//   It is decently fast, but has a lot of room for optimization.
+//   The goal was to get something fast and decently accurate in not too many lines of code.
+// LIMITATIONS:
+//   * It is not pixel-perfect, but it is good enough for must use cases.
+
+
 /*
 
-Very simple software renderer powered by SDL2 for Dear ImGui
+Software renderer powered by SDL2 for Dear ImGui.
+Based on implementation by Emil Ernerfeldt.
+https://github.com/emilk/imgui_software_renderer
 
 Copyright (c) 2018 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors.
 
@@ -43,7 +58,7 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 #include <memory>
 #include <string>
 #include "imgui.h"
-#include "SDL.h"
+#include "SDL_events.h"
 
 
 class ImGuiSdl
