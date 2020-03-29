@@ -65,7 +65,6 @@ target_include_directories (
 		../cgame
 		../client
 		../game
-		../lib/dear_imgui
 		../lib/glm
 		../lib/miniz
 		../qcommon
@@ -152,6 +151,12 @@ if (WIN32)
 	)
 endif ()
 
+target_link_libraries (
+	${PROJECT_NAME}
+	PRIVATE
+		rtcw_lib_dear_imgui
+)
+
 target_sources (
 	${PROJECT_NAME}
 	PRIVATE
@@ -201,12 +206,6 @@ target_sources (
 		../game/g_public.h
 		../game/q_shared.h
 		../game/surfaceflags.h
-		../lib/dear_imgui/imconfig.h
-		../lib/dear_imgui/imgui.h
-		../lib/dear_imgui/imgui_internal.h
-		../lib/dear_imgui/imstb_rectpack.h
-		../lib/dear_imgui/imstb_textedit.h
-		../lib/dear_imgui/imstb_truetype.h
 		../qcommon/cm_local.h
 		../qcommon/cm_patch.h
 		../qcommon/cm_polylib.h
@@ -310,9 +309,6 @@ target_sources (
 		../client/snd_wavelet.cpp
 		../game/q_math.cpp
 		../game/q_shared.cpp
-		../lib/dear_imgui/imgui.cpp
-		../lib/dear_imgui/imgui_draw.cpp
-		../lib/dear_imgui/imgui_widgets.cpp
 		../qcommon/cm_load.cpp
 		../qcommon/cm_patch.cpp
 		../qcommon/cm_polylib.cpp

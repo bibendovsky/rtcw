@@ -29,6 +29,8 @@ if (NOT (RTCW_ET OR
 	message (FATAL_ERROR "[${PROJECT_NAME}] Nothing to build!")
 endif ()
 
+add_subdirectory (src/lib/dear_imgui)
+
 if (RTCW_SP)
 	add_subdirectory (src/cgame/sp)
 	add_subdirectory (src/game/sp)
