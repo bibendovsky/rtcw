@@ -1,22 +1,28 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(rtcw_et VERSION 1.0.0 LANGUAGES CXX C)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+project (rtcw_et VERSION 1.0.0 LANGUAGES CXX C)
 
-find_package(SDL2W 2.0.4 REQUIRED)
-find_package(SDL_net 2.0.1 REQUIRED)
+message (STATUS "")
+message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 
-if (RTCW_BUILD_ET AND RTCW_USE_CURL)
-	find_package(CURL 7.0.0 REQUIRED)
+option (RTCW_MULTI_PROCESS_COMPILATION "Enable multi-process compilation if available." ON)
+message (STATUS "[${PROJECT_NAME}] Multi-process compilation: ${RTCW_MULTI_PROCESS_COMPILATION}")
 
-	if (WIN32)
-		option(RTCW_STATIC_CURL "Link cURL library statically." ON)
-	endif ()
+option (RTCW_CURL "Use cURL (Enemy Territory)." ON)
+message (STATUS "[${PROJECT_NAME}] cURL (Enemy Territory): ${RTCW_CURL}")
+
+option (RTCW_CURL_STATIC "Link cURL statically." ON)
+message (STATUS "[${PROJECT_NAME}] Link cURL statically: ${RTCW_CURL_STATIC}")
+
+find_package (SDL2W 2.0.4 REQUIRED)
+find_package (SDL_net 2.0.1 REQUIRED)
+
+if (RTCW_CURL)
+	find_package (CURL 7.0.0 REQUIRED)
 endif ()
 
-option(RTCW_USE_MULTI_PROCESS_COMPILATION "Enables multi-process compilation if available." ON)
+add_executable (${PROJECT_NAME} "")
 
-add_executable(${PROJECT_NAME} "")
-
-set_target_properties(
+set_target_properties (
 	${PROJECT_NAME}
 	PROPERTIES
 		CXX_STANDARD 14
@@ -27,21 +33,21 @@ set_target_properties(
 		C_EXTENSIONS OFF
 )
 
-set_target_properties(
+set_target_properties (
 	${PROJECT_NAME}
 	PROPERTIES
 		OUTPUT_NAME rtcw_et_x86
 )
 
 if (WIN32)
-	set_target_properties(
+	set_target_properties (
 		${PROJECT_NAME}
 		PROPERTIES
 			WIN32_EXECUTABLE TRUE
 	)
 
 	if (MSVC)
-		set_target_properties(
+		set_target_properties (
 			${PROJECT_NAME}
 			PROPERTIES
 				LINK_FLAGS -STACK:8388608
@@ -49,7 +55,7 @@ if (WIN32)
 	endif ()
 endif ()
 
-target_include_directories(
+target_include_directories (
 	${PROJECT_NAME}
 	PRIVATE
 		${SDL_NET_INCLUDE_DIR}
@@ -69,15 +75,7 @@ target_include_directories(
 		../win32
 )
 
-if (RTCW_USE_CURL)
-	target_include_directories(
-		${PROJECT_NAME}
-		PRIVATE
-			${CURL_INCLUDE_DIR}
-	)
-endif ()
-
-target_compile_definitions(
+target_compile_definitions (
 	${PROJECT_NAME}
 	PRIVATE
 		BOTLIB
@@ -87,8 +85,8 @@ target_compile_definitions(
 		MINIZ_NO_TIME
 )
 
-if (RTCW_USE_CURL AND RTCW_STATIC_CURL)
-	target_compile_definitions(
+if (RTCW_CURL AND RTCW_CURL_STATIC)
+	target_compile_definitions (
 		${PROJECT_NAME}
 		PRIVATE
 			CURL_STATICLIB
@@ -96,16 +94,16 @@ if (RTCW_USE_CURL AND RTCW_STATIC_CURL)
 endif ()
 
 if (MSVC)
-	target_compile_definitions(
+	target_compile_definitions (
 		${PROJECT_NAME}
 		PRIVATE
 			_CRT_SECURE_NO_WARNINGS
 	)
 endif ()
 
-if (RTCW_USE_MULTI_PROCESS_COMPILATION)
+if (RTCW_MULTI_PROCESS_COMPILATION)
 	if (MSVC)
-		target_compile_options(
+		target_compile_options (
 			${PROJECT_NAME}
 			PRIVATE
 				-MP
@@ -114,30 +112,39 @@ if (RTCW_USE_MULTI_PROCESS_COMPILATION)
 endif ()
 
 if (MINGW)
-	target_link_libraries(
+	target_link_libraries (
 		${PROJECT_NAME}
 		PRIVATE
 			mingw32
 	)
 endif ()
 
-target_link_libraries(
+target_link_libraries (
 	${PROJECT_NAME}
 	PRIVATE
 		SDL2W
 		${SDL_NET_LIBRARY}
 )
 
-if (RTCW_USE_CURL)
-	target_link_libraries(
+if (RTCW_CURL)
+	if (WIN32)
+		target_link_libraries (
+			${PROJECT_NAME}
+			PRIVATE
+				crypt32
+				wldap32
+		)
+	endif ()
+
+	target_link_libraries (
 		${PROJECT_NAME}
 		PRIVATE
-			${CURL_LIBRARY}
+			CURL::libcurl
 	)
 endif ()
 
-if (MINGW)
-	target_link_libraries(
+if (WIN32)
+	target_link_libraries (
 		${PROJECT_NAME}
 		PRIVATE
 			iphlpapi
@@ -145,7 +152,7 @@ if (MINGW)
 	)
 endif ()
 
-target_sources(
+target_sources (
 	${PROJECT_NAME}
 	PRIVATE
 		../botai/botai.h
@@ -246,14 +253,14 @@ target_sources(
 )
 
 if (WIN32)
-	target_sources(
+	target_sources (
 		${PROJECT_NAME}
 		PRIVATE
 			../win32/rtcw_et_resource.h
 	)
 endif ()
 
-target_sources(
+target_sources (
 	${PROJECT_NAME}
 	PRIVATE
 		../botlib/be_aas_bspq3.cpp
@@ -384,14 +391,14 @@ target_sources(
 		../lib/miniz/miniz.c
 )
 
-if (RTCW_USE_CURL)
-	target_sources(
+if (RTCW_CURL)
+	target_sources (
 		${PROJECT_NAME}
 		PRIVATE
 			../qcommon/dl_main_curl.cpp
 	)
 else ()
-	target_sources(
+	target_sources (
 		${PROJECT_NAME}
 		PRIVATE
 			../qcommon/dl_main_stubs.cpp
@@ -399,7 +406,7 @@ else ()
 endif ()
 
 if (WIN32)
-	target_sources(
+	target_sources (
 		${PROJECT_NAME}
 		PRIVATE
 			../win32/rtcw_et.ico
@@ -407,7 +414,7 @@ if (WIN32)
 	)
 endif ()
 
-install(
+install (
 	TARGETS
 	${PROJECT_NAME}
 	RUNTIME DESTINATION et

@@ -1,14 +1,18 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(rtcw_et_ded VERSION 1.0.0 LANGUAGES CXX C)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+project (rtcw_et_ded VERSION 1.0.0 LANGUAGES CXX C)
 
-find_package(SDL2W 2.0.4 REQUIRED)
-find_package(SDL_net 2.0.1 REQUIRED)
+message (STATUS "")
+message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 
-option(RTCW_USE_MULTI_PROCESS_COMPILATION "Enables multi-process compilation if available." ON)
+option (RTCW_MULTI_PROCESS_COMPILATION "Enable multi-process compilation if available." ON)
+message (STATUS "[${PROJECT_NAME}] Multi-process compilation: ${RTCW_MULTI_PROCESS_COMPILATION}")
 
-add_executable(${PROJECT_NAME} "")
+find_package (SDL2W 2.0.4 REQUIRED)
+find_package (SDL_net 2.0.1 REQUIRED)
 
-set_target_properties(
+add_executable (${PROJECT_NAME} "")
+
+set_target_properties (
 	${PROJECT_NAME}
 	PROPERTIES
 		CXX_STANDARD 14
@@ -19,21 +23,21 @@ set_target_properties(
 		C_EXTENSIONS OFF
 )
 
-set_target_properties(
+set_target_properties (
 	${PROJECT_NAME}
 	PROPERTIES
 		OUTPUT_NAME rtcw_et_ded_x86
 )
 
 if (WIN32)
-	set_target_properties(
+	set_target_properties (
 		${PROJECT_NAME}
 		PROPERTIES
 			WIN32_EXECUTABLE TRUE
 	)
 
 	if (MSVC)
-		set_target_properties(
+		set_target_properties (
 			${PROJECT_NAME}
 			PROPERTIES
 				LINK_FLAGS -STACK:8388608
@@ -41,7 +45,7 @@ if (WIN32)
 	endif ()
 endif ()
 
-target_include_directories(
+target_include_directories (
 	${PROJECT_NAME}
 	PRIVATE
 		${SDL_NET_INCLUDE_DIR}
@@ -59,7 +63,7 @@ target_include_directories(
 		../win32
 )
 
-target_compile_definitions(
+target_compile_definitions (
 	${PROJECT_NAME}
 	PRIVATE
 		DEDICATED
@@ -71,16 +75,16 @@ target_compile_definitions(
 )
 
 if (MSVC)
-	target_compile_definitions(
+	target_compile_definitions (
 		${PROJECT_NAME}
 		PRIVATE
 			_CRT_SECURE_NO_WARNINGS
 	)
 endif ()
 
-if (RTCW_USE_MULTI_PROCESS_COMPILATION)
+if (RTCW_MULTI_PROCESS_COMPILATION)
 	if (MSVC)
-		target_compile_options(
+		target_compile_options (
 			${PROJECT_NAME}
 			PRIVATE
 				-MP
@@ -89,14 +93,14 @@ if (RTCW_USE_MULTI_PROCESS_COMPILATION)
 endif ()
 
 if (MINGW)
-	target_link_libraries(
+	target_link_libraries (
 		${PROJECT_NAME}
 		PRIVATE
 			mingw32
 	)
 endif ()
 
-target_link_libraries(
+target_link_libraries (
 	${PROJECT_NAME}
 	PRIVATE
 		SDL2W
@@ -104,7 +108,7 @@ target_link_libraries(
 )
 
 if (MINGW)
-	target_link_libraries(
+	target_link_libraries (
 		${PROJECT_NAME}
 		PRIVATE
 			iphlpapi
@@ -112,7 +116,7 @@ if (MINGW)
 	)
 endif ()
 
-target_sources(
+target_sources (
 	${PROJECT_NAME}
 	PRIVATE
 		../botai/botai.h
@@ -208,14 +212,14 @@ target_sources(
 )
 
 if (WIN32)
-	target_sources(
+	target_sources (
 		${PROJECT_NAME}
 		PRIVATE
 			../win32/rtcw_et_resource.h
 	)
 endif ()
 
-target_sources(
+target_sources (
 	${PROJECT_NAME}
 	PRIVATE
 		../botlib/be_aas_bspq3.cpp
@@ -287,7 +291,7 @@ target_sources(
 )
 
 if (WIN32)
-	target_sources(
+	target_sources (
 		${PROJECT_NAME}
 		PRIVATE
 			../win32/rtcw_et.ico
@@ -295,7 +299,7 @@ if (WIN32)
 	)
 endif ()
 
-install(
+install (
 	TARGETS
 	${PROJECT_NAME}
 	RUNTIME DESTINATION et
