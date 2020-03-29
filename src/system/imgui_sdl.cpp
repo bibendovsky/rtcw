@@ -49,6 +49,9 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
 
+#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+
+
 #include "imgui_sdl.h"
 #include <array>
 #include <bitset>

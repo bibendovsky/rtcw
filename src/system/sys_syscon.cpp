@@ -27,10 +27,14 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
+#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+
+
 #include <deque>
 #include <string>
 #include <vector>
 #include "SDL.h"
+#include "imgui.h"
 #include "client.h"
 #include "imgui_sdl.h"
 
@@ -106,7 +110,7 @@ auto is_quit_ = false;
 
 
 int edit_callback(
-	ImGuiTextEditCallbackData* data)
+	ImGuiInputTextCallbackData* data)
 {
 	if (data->EventFlag != ImGuiInputTextFlags_CallbackCharFilter)
 	{
@@ -554,6 +558,7 @@ void imgui_draw()
 
 	ImGui::Begin("main", nullptr, window_flags);
 	ImGui::SetWindowSize({static_cast<float>(screen_width), static_cast<float>(screen_height)}, ImGuiCond_Always);
+	ImGui::SetWindowPos({}, ImGuiCond_Always);
 
 
 	// Error message
@@ -606,7 +611,7 @@ void imgui_draw()
 
 		if (!is_log_scrolled_)
 		{
-			ImGui::SetScrollHere();
+			ImGui::SetScrollHereY(0.5F);
 
 			const auto y = ImGui::GetScrollY();
 			const auto max_y = ImGui::GetScrollMaxY();
