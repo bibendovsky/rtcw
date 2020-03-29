@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
-project (rtcw_sp VERSION 1.0.0 LANGUAGES CXX C)
+project (rtcw_sp VERSION 1.0.0 LANGUAGES CXX)
 
 message (STATUS "")
 message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
@@ -18,9 +18,6 @@ set_target_properties (
 		CXX_STANDARD 14
 		CXX_STANDARD_REQUIRED ON
 		CXX_EXTENSIONS OFF
-		C_STANDARD 99
-		C_STANDARD_REQUIRED ON
-		C_EXTENSIONS OFF
 )
 
 set_target_properties (
@@ -55,7 +52,6 @@ target_include_directories (
 		../client
 		../game
 		../lib/glm
-		../lib/miniz
 		../qcommon
 		../renderer
 		../system
@@ -69,8 +65,6 @@ target_compile_definitions (
 		BOTLIB
 		RTCW_32
 		RTCW_SP
-		MINIZ_NO_STDIO
-		MINIZ_NO_TIME
 )
 
 if (RTCW_MULTI_PROCESS_COMPILATION)
@@ -119,6 +113,7 @@ target_link_libraries (
 	${PROJECT_NAME}
 	PRIVATE
 		rtcw_lib_dear_imgui
+		rtcw_lib_miniz
 )
 
 target_sources (
@@ -213,7 +208,6 @@ target_sources (
 		../win32/glw_win.h
 		../win32/rtcw_sp_resource.h
 		../win32/win_local.h
-		../lib/miniz/miniz.h
 )
 
 if (WIN32)
@@ -348,7 +342,6 @@ target_sources (
 		../system/sys_shared.cpp
 		../system/sys_syscon.cpp
 		../win32/win_main.cpp
-		../lib/miniz/miniz.c
 )
 
 if (WIN32)

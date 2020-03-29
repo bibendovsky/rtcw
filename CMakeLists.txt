@@ -30,6 +30,7 @@ if (NOT (RTCW_ET OR
 endif ()
 
 add_subdirectory (src/lib/dear_imgui)
+add_subdirectory (src/lib/miniz)
 
 if (RTCW_SP)
 	add_subdirectory (src/cgame/sp)
