@@ -169,9 +169,9 @@ target_sources (
 		../lib/dear_imgui/imconfig.h
 		../lib/dear_imgui/imgui.h
 		../lib/dear_imgui/imgui_internal.h
-		../lib/dear_imgui/stb_rect_pack.h
-		../lib/dear_imgui/stb_textedit.h
-		../lib/dear_imgui/stb_truetype.h
+		../lib/dear_imgui/imstb_rectpack.h
+		../lib/dear_imgui/imstb_textedit.h
+		../lib/dear_imgui/imstb_truetype.h
 		../qcommon/cm_local.h
 		../qcommon/cm_patch.h
 		../qcommon/cm_polylib.h
@@ -254,6 +254,7 @@ target_sources (
 		../game/q_shared.cpp
 		../lib/dear_imgui/imgui.cpp
 		../lib/dear_imgui/imgui_draw.cpp
+		../lib/dear_imgui/imgui_widgets.cpp
 		../null/null_client.cpp
 		../null/null_input.cpp
 		../null/null_snddma.cpp

@@ -57,8 +57,10 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 #include <cstdint>
 #include <memory>
 #include <string>
-#include "imgui.h"
 #include "SDL_events.h"
+
+
+struct ImDrawData;
 
 
 class ImGuiSdl
