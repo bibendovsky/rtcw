@@ -1,13 +1,17 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(rtcw_ui_sp VERSION 1.0.0 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+project (rtcw_ui_sp VERSION 1.0.0 LANGUAGES CXX)
 
-find_package(SDL2W 2.0.4 REQUIRED)
+message (STATUS "")
+message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 
-option(RTCW_USE_MULTI_PROCESS_COMPILATION "Enables multi-process compilation if available." ON)
+option (RTCW_MULTI_PROCESS_COMPILATION "Enable multi-process compilation if available." ON)
+message (STATUS "[${PROJECT_NAME}] Multi-process compilation: ${RTCW_MULTI_PROCESS_COMPILATION}")
 
-add_library(${PROJECT_NAME} SHARED "")
+find_package (SDL2W 2.0.4 REQUIRED)
 
-set_target_properties(
+add_library (${PROJECT_NAME} SHARED "")
+
+set_target_properties (
 	${PROJECT_NAME}
 	PROPERTIES
 		CXX_STANDARD 14
@@ -15,14 +19,14 @@ set_target_properties(
 		CXX_EXTENSIONS OFF
 )
 
-set_target_properties(
+set_target_properties (
 	${PROJECT_NAME}
 	PROPERTIES
 		PREFIX ""
 		OUTPUT_NAME uix86
 )
 
-target_include_directories(
+target_include_directories (
 	${PROJECT_NAME}
 	PRIVATE
 		.
@@ -33,23 +37,23 @@ target_include_directories(
 		../../ui
 )
 
-target_compile_definitions(
+target_compile_definitions (
 	${PROJECT_NAME}
 	PRIVATE
 		RTCW_SP
 )
 
 if (MSVC)
-	target_compile_definitions(
+	target_compile_definitions (
 		${PROJECT_NAME}
 		PRIVATE
 			_CRT_SECURE_NO_WARNINGS
 	)
 endif ()
 
-if (RTCW_USE_MULTI_PROCESS_COMPILATION)
+if (RTCW_MULTI_PROCESS_COMPILATION)
 	if (MSVC)
-		target_compile_options(
+		target_compile_options (
 			${PROJECT_NAME}
 			PRIVATE
 				-MP
@@ -57,13 +61,13 @@ if (RTCW_USE_MULTI_PROCESS_COMPILATION)
 	endif ()
 endif ()
 
-target_link_libraries(
+target_link_libraries (
 	${PROJECT_NAME}
 	PRIVATE
 		SDL2W
 )
 
-target_sources(
+target_sources (
 	${PROJECT_NAME}
 	PRIVATE
 		../../cgame/tr_types.h
@@ -77,7 +81,7 @@ target_sources(
 		ui_shared.h
 )
 
-target_sources(
+target_sources (
 	${PROJECT_NAME}
 	PRIVATE
 		../../game/q_math.cpp
@@ -93,14 +97,14 @@ target_sources(
 )
 
 if (WIN32)
-	target_sources(
+	target_sources (
 		${PROJECT_NAME}
 		PRIVATE
 			ui_sp.def
 	)
 endif ()
 
-install(
+install (
 	TARGETS
 	${PROJECT_NAME}
 	RUNTIME DESTINATION sp
