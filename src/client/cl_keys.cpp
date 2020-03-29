@@ -4,7 +4,7 @@
 Return to Castle Wolfenstein single player GPL Source Code
 Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company. 
 
-This file is part of the Return to Castle Wolfenstein single player GPL Source Code (¬ìRTCW SP Source Code¬î).  
+This file is part of the Return to Castle Wolfenstein single player GPL Source Code (RTCW SP Source Code).  
 
 RTCW SP Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -204,7 +204,7 @@ keyname_t keynames_d[] =    //deutsch
 	{"EINGABETASTE", K_ENTER},
 	{"ESC", K_ESCAPE},
 	{"LEERTASTE", K_SPACE},
-	{"R‹CKTASTE", K_BACKSPACE},
+	{"R" "\xDC" "CKTASTE", K_BACKSPACE}, // "R√úCKTASTE"
 	{"PFEILT.AUF", K_UPARROW},
 	{"PFEILT.UNTEN", K_DOWNARROW},
 	{"PFEILT.LINKS", K_LEFTARROW},
@@ -467,9 +467,9 @@ keyname_t keynames_s[] =  //Spanish
 
 	{"ALT", K_ALT},
 	{"CTRL", K_CTRL},
-	{"MAY⁄S", K_SHIFT},
+	{"MAY" "\xDA" "S", K_SHIFT}, // "MAY√öS"
 
-	{"BLOQ_MAY⁄S", K_CAPSLOCK},
+	{"BLOQ_MAY" "\xDA" "S", K_CAPSLOCK}, // "BLOQ_MAY√öS"
 
 	{"F1", K_F1},
 	{"F2", K_F2},
@@ -486,16 +486,16 @@ keyname_t keynames_s[] =  //Spanish
 
 	{"INSERT", K_INS},
 	{"SUPR", K_DEL},
-	{"AV_P¡G", K_PGDN},
-	{"RE_P¡G", K_PGUP},
+	{"AV_P" "\xC1" "G", K_PGDN}, // "AV_P√ÅG"
+	{"RE_P" "\xC1" "G", K_PGUP}, // "RE_P√ÅG"
 	{"INICIO", K_HOME},
 	{"FIN", K_END},
 
-	{"RAT”N1", K_MOUSE1},
-	{"RAT”N2", K_MOUSE2},
-	{"RAT”N3", K_MOUSE3},
-	{"RAT”N4", K_MOUSE4},
-	{"RAT”N5", K_MOUSE5},
+	{"RAT" "\xD3" "N1", K_MOUSE1}, // "RAT√ìN1"
+	{"RAT" "\xD3" "N2", K_MOUSE2}, // "RAT√ìN2"
+	{"RAT" "\xD3" "N3", K_MOUSE3}, // "RAT√ìN3"
+	{"RAT" "\xD3" "N4", K_MOUSE4}, // "RAT√ìN4"
+	{"RAT" "\xD3" "N5", K_MOUSE5}, // "RAT√ìN5"
 
 	{"RUEDA_HACIA_ARRIBA",   K_MWHEELUP },
 	{"RUEDA_HACIA_ABAJO",    K_MWHEELDOWN },
@@ -552,13 +552,13 @@ keyname_t keynames_s[] =  //Spanish
 
 	{"INICIO(NUM)",          K_KP_HOME },
 	{"ARRIBA(NUM)",      K_KP_UPARROW },
-	{"RE_P¡G(NUM)",          K_KP_PGUP },
+	{"RE_P" "\xC1" "G(NUM)",          K_KP_PGUP }, // "RE_P√ÅG(NUM)"
 	{"IZQUIERDA(NUM)",   K_KP_LEFTARROW },
 	{"5(NUM)",           K_KP_5 },
 	{"DERECHA(NUM)", K_KP_RIGHTARROW },
 	{"FIN(NUM)",         K_KP_END },
 	{"ABAJO(NUM)",   K_KP_DOWNARROW },
-	{"AV_P¡G(NUM)",          K_KP_PGDN },
+	{"AV_P" "\xC1" "G(NUM)",          K_KP_PGDN }, // "AV_P√ÅG(NUM)"
 	{"INTRO(NUM)",       K_KP_ENTER },
 	{"INS(NUM)",         K_KP_INS },
 	{"SUPR(NUM)",            K_KP_DEL },
@@ -586,7 +586,7 @@ keyname_t keynames_i[] =  //Italian
 	{"SPAZIO", K_SPACE},
 	{"BACKSPACE", K_BACKSPACE},
 	{"FRECCIASU", K_UPARROW},
-	{"FRECCIAGIŸ", K_DOWNARROW},
+	{"FRECCIAGI" "\xD9", K_DOWNARROW}, // "FRECCIAGI√ô"
 	{"FRECCIASX", K_LEFTARROW},
 	{"FRECCIADX", K_RIGHTARROW},
 
@@ -611,7 +611,7 @@ keyname_t keynames_i[] =  //Italian
 
 	{"INS", K_INS},
 	{"CANC", K_DEL},
-	{"PAGGIŸ", K_PGDN},
+	{"PAGGI" "\xD9", K_PGDN}, // "PAGGI√ô"
 	{"PAGGSU", K_PGUP},
 	{"HOME", K_HOME},
 	{"FINE", K_END},
@@ -623,7 +623,7 @@ keyname_t keynames_i[] =  //Italian
 	{"MOUSE5", K_MOUSE5},
 
 	{"ROTELLASU",    K_MWHEELUP },
-	{"ROTELLAGIŸ",   K_MWHEELDOWN },
+	{"ROTELLAGI" "\xD9",   K_MWHEELDOWN }, // "ROTELLAGI√ô"
 
 	{"JOY1", K_JOY1},
 	{"JOY2", K_JOY2},
@@ -682,8 +682,8 @@ keyname_t keynames_i[] =  //Italian
 	{"TN_5",         K_KP_5 },
 	{"TN_FRECCIA_DX",    K_KP_RIGHTARROW },
 	{"TN_FINE",          K_KP_END },
-	{"TN_FRECCIAGIŸ",    K_KP_DOWNARROW },
-	{"TN_PAGGIŸ",            K_KP_PGDN },
+	{"TN_FRECCIAGI" "\xD9",    K_KP_DOWNARROW }, // "TN_FRECCIAGI√ô"
+	{"TN_PAGGI" "\xD9",            K_KP_PGDN }, // "TN_PAGGI√ô"
 	{"TN_INVIO",     K_KP_ENTER },
 	{"TN_INS",           K_KP_INS },
 	{"TN_CANC",          K_KP_DEL },
@@ -696,7 +696,7 @@ keyname_t keynames_i[] =  //Italian
 
 	{"PAUSA", K_PAUSE},
 
-	{"Ú", ';'},   // because a raw semicolon seperates commands
+	{"\xF2", ';'},   // "√≤" because a raw semicolon seperates commands
 
 	{"COMMAND", K_COMMAND},  //mac
 
@@ -2410,7 +2410,7 @@ void CL_CharEvent( int key ) {
 	// fretn - this should be fixed in Com_EventLoop
 	// but I can't be arsed to leave this as is
 
-	if ( key == (unsigned char) '`' || key == (unsigned char) '~' || key == (unsigned char) '¨' ) {
+	if ( key == (unsigned char) '`' || key == (unsigned char) '~' || key == (unsigned char) '¬¨' ) {
 #endif // RTCW_XX
 
 		return;
