@@ -67,11 +67,7 @@ If you have questions concerning this license or the applicable additional terms
 float Q_fabs( float f );
 
 #ifndef ID_INLINE
-#ifdef _WIN32
-#define ID_INLINE __inline
-#else
 #define ID_INLINE inline
-#endif
 #endif
 
 // if this is defined, vec3 will take four elements, which may allow
