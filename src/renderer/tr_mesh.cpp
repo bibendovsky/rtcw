@@ -47,10 +47,10 @@ static float ProjectRadius( float r, vec3_t location ) {
 //	c = DotProduct( tr.viewParms.orientation.axis[0], tr.viewParms.orientation.origin );
 //	dist = DotProduct( tr.viewParms.orientation.axis[0], location ) - c;
 //#endif // RTCW_XX
-    c = DotProduct (::tr.viewParms.orientation.axis[0],
-        ::tr.viewParms.orientation.origin);
+    c = DotProduct (tr.viewParms.orientation.axis[0],
+        tr.viewParms.orientation.origin);
 
-    dist = DotProduct (::tr.viewParms.orientation.axis[0], location) - c;
+    dist = DotProduct (tr.viewParms.orientation.axis[0], location) - c;
 // BBi
 
 	if ( dist <= 0 ) {

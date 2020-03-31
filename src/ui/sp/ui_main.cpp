@@ -1153,7 +1153,7 @@ static void UI_LoadTranslationStrings( void ) {
 
         //BBi
 		//translateStrings[i].localname = static_cast<char*> (malloc( strlen( token ) + 1 ));
-        translateStrings[i].localname = new char [::strlen (token) + 1];
+        translateStrings[i].localname = new char [strlen (token) + 1];
         //BBi
 
 		strcpy( translateStrings[i].localname, token );
@@ -2540,26 +2540,26 @@ static void UI_DrawGLInfo (
     vec4_t color,
     int textStyle)
 {
-    ::Text_Paint (
+    Text_Paint (
         rect->x + 2,
         rect->y,
         font,
         scale,
         color,
-        ::va (
+        va (
             "VENDOR: %s",
             uiInfo.uiDC.glconfig.vendor_string),
         0,
         60,
         textStyle);
 
-    ::Text_Paint (
+    Text_Paint (
         rect->x + 2,
         rect->y + 15,
         font,
         scale,
         color,
-        ::va (
+        va (
             "VERSION: %s: %s",
             uiInfo.uiDC.glconfig.version_string,
             uiInfo.uiDC.glconfig.renderer_string),
@@ -2567,13 +2567,13 @@ static void UI_DrawGLInfo (
         60,
         textStyle);
 
-    ::Text_Paint (
+    Text_Paint (
         rect->x + 2,
         rect->y + 30,
         font,
         scale,
         color,
-        ::va (
+        va (
             "FORMAT: color - %d bits, depth - %d bits, stencil - %d bits",
             uiInfo.uiDC.glconfig.colorBits,
             uiInfo.uiDC.glconfig.depthBits,
@@ -2582,7 +2582,7 @@ static void UI_DrawGLInfo (
         60,
         textStyle);
 
-    ::Text_Paint (
+    Text_Paint (
         rect->x + 2,
         rect->y + 55,
         font,

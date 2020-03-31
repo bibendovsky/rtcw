@@ -114,8 +114,8 @@ void R_DlightBmodel( bmodel_t *bmodel ) {
 //#else
 //	R_TransformDlights( tr.refdef.num_dlights, tr.refdef.dlights, &tr.orientation );
 //#endif // RTCW_XX
-    ::R_TransformDlights (
-        ::tr.refdef.num_dlights, ::tr.refdef.dlights, &::tr.orientation);
+    R_TransformDlights (
+        tr.refdef.num_dlights, tr.refdef.dlights, &::tr.orientation);
 // BBi
 
 	mask = 0;

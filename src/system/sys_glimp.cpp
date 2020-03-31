@@ -65,45 +65,45 @@ SDL_GLContext gl_context;
 
 bool gl_is_2_x_capable()
 {
-	if (!(::GLAD_GL_ARB_multitexture &&
-        ::GLAD_GL_ARB_shader_objects &&
-        ::GLAD_GL_ARB_vertex_buffer_object &&
-        ::GLAD_GL_ARB_vertex_program &&
-        ::GLAD_GL_ARB_vertex_shader))
+	if (!(GLAD_GL_ARB_multitexture &&
+        GLAD_GL_ARB_shader_objects &&
+        GLAD_GL_ARB_vertex_buffer_object &&
+        GLAD_GL_ARB_vertex_program &&
+        GLAD_GL_ARB_vertex_shader))
     {
         return false;
     }
 
-    if (!(::glActiveTexture &&
-        ::glAttachShader &&
-        ::glBindBuffer &&
-        ::glBufferData &&
-        ::glBufferSubData &&
-        ::glCompileShader &&
-        ::glCreateProgram &&
-        ::glCreateShader &&
-        ::glDeleteBuffers &&
-        ::glDeleteProgram &&
-        ::glDeleteShader &&
-        ::glDisableVertexAttribArray &&
-        ::glEnableVertexAttribArray &&
-        ::glGenBuffers &&
-        ::glGetAttribLocation &&
-        ::glGetProgramInfoLog &&
-        ::glGetProgramiv &&
-        ::glGetShaderInfoLog &&
-        ::glGetShaderiv &&
-        ::glGetUniformLocation &&
-        ::glLinkProgram &&
-        ::glShaderSource &&
-        ::glUniform1f &&
-        ::glUniform1i &&
-        ::glUniform4fv &&
-        ::glUniformMatrix4fv &&
-        ::glUseProgram &&
-        ::glVertexAttrib2f &&
-        ::glVertexAttrib4f &&
-        ::glVertexAttribPointer))
+    if (!(glActiveTexture &&
+        glAttachShader &&
+        glBindBuffer &&
+        glBufferData &&
+        glBufferSubData &&
+        glCompileShader &&
+        glCreateProgram &&
+        glCreateShader &&
+        glDeleteBuffers &&
+        glDeleteProgram &&
+        glDeleteShader &&
+        glDisableVertexAttribArray &&
+        glEnableVertexAttribArray &&
+        glGenBuffers &&
+        glGetAttribLocation &&
+        glGetProgramInfoLog &&
+        glGetProgramiv &&
+        glGetShaderInfoLog &&
+        glGetShaderiv &&
+        glGetUniformLocation &&
+        glLinkProgram &&
+        glShaderSource &&
+        glUniform1f &&
+        glUniform1i &&
+        glUniform4fv &&
+        glUniformMatrix4fv &&
+        glUseProgram &&
+        glVertexAttrib2f &&
+        glVertexAttrib4f &&
+        glVertexAttribPointer))
     {
         return false;
     }
@@ -173,157 +173,157 @@ void gl_print_ignored_extension(const char* extension_name)
 
 void gl_probe_swap_control()
 {
-	const auto old_swap_interval = ::SDL_GL_GetSwapInterval();
+	const auto old_swap_interval = SDL_GL_GetSwapInterval();
 
-	const auto adaptive_result = ::SDL_GL_SetSwapInterval(-1);
-	::glConfigEx.has_adaptive_swap_control_ = (adaptive_result == 0);
+	const auto adaptive_result = SDL_GL_SetSwapInterval(-1);
+	glConfigEx.has_adaptive_swap_control_ = (adaptive_result == 0);
 
-	const auto off_result = ::SDL_GL_SetSwapInterval(0);
-	const auto on_result = ::SDL_GL_SetSwapInterval(1);
-	::glConfigEx.has_swap_control_ = (off_result == 0 && on_result == 0);
+	const auto off_result = SDL_GL_SetSwapInterval(0);
+	const auto on_result = SDL_GL_SetSwapInterval(1);
+	glConfigEx.has_swap_control_ = (off_result == 0 && on_result == 0);
 
-	const auto old_result = ::SDL_GL_SetSwapInterval(old_swap_interval);
+	const auto old_result = SDL_GL_SetSwapInterval(old_swap_interval);
 	static_cast<void>(old_result);
 }
 
 void gl_initialize_extensions()
 {
-	if (::r_allowExtensions->integer == 0)
+	if (r_allowExtensions->integer == 0)
 	{
-		::ri.Printf(PRINT_ALL, S_COLOR_YELLOW "Ignoring OpenGL extensions\n");
+		ri.Printf(PRINT_ALL, S_COLOR_YELLOW "Ignoring OpenGL extensions\n");
 		return;
 	}
 
-	::ri.Printf(PRINT_ALL, "Initializing OpenGL extensions\n");
-	::ri.Printf(PRINT_ALL, "(Legend: [+] found; [-] not found; [*] ignored)\n");
+	ri.Printf(PRINT_ALL, "Initializing OpenGL extensions\n");
+	ri.Printf(PRINT_ALL, "(Legend: [+] found; [-] not found; [*] ignored)\n");
 
 
-	if (::GLAD_GL_ARB_texture_compression)
+	if (GLAD_GL_ARB_texture_compression)
 	{
 		auto extension_name = "GL_ARB_texture_compression";
 
-		if (::r_ext_compressed_textures->integer != 0)
+		if (r_ext_compressed_textures->integer != 0)
 		{
-			::glConfig.textureCompression = TC_ARB;
-			::gl_print_found_extension(extension_name);
+			glConfig.textureCompression = TC_ARB;
+			gl_print_found_extension(extension_name);
 		}
 		else
 		{
-			::gl_print_ignored_extension(extension_name);
+			gl_print_ignored_extension(extension_name);
 		}
 	}
-	else if (::GLAD_GL_EXT_texture_compression_s3tc)
+	else if (GLAD_GL_EXT_texture_compression_s3tc)
 	{
 		auto extension_name = "GL_EXT_texture_compression_s3tc";
 
-		if (::r_ext_compressed_textures->integer != 0)
+		if (r_ext_compressed_textures->integer != 0)
 		{
-			::glConfig.textureCompression = TC_EXT_COMP_S3TC;
-			::gl_print_found_extension(extension_name);
+			glConfig.textureCompression = TC_EXT_COMP_S3TC;
+			gl_print_found_extension(extension_name);
 		}
 		else
 		{
-			::gl_print_ignored_extension(extension_name);
+			gl_print_ignored_extension(extension_name);
 		}
 	}
-	else if (::GLAD_GL_S3_s3tc)
+	else if (GLAD_GL_S3_s3tc)
 	{
 		auto extension_name = "GL_S3_s3tc";
 
-		if (::r_ext_compressed_textures->integer != 0)
+		if (r_ext_compressed_textures->integer != 0)
 		{
-			::glConfig.textureCompression = TC_S3TC;
-			::gl_print_found_extension(extension_name);
+			glConfig.textureCompression = TC_S3TC;
+			gl_print_found_extension(extension_name);
 		}
 		else
 		{
-			::gl_print_ignored_extension(extension_name);
+			gl_print_ignored_extension(extension_name);
 		}
 	}
 	else
 	{
-		::gl_print_missed_extension("any supported texture compression");
+		gl_print_missed_extension("any supported texture compression");
 	}
 
 	{
 		auto extension_name = "GL_EXT_texture_env_add";
 
-		if (::GLAD_GL_EXT_texture_env_add)
+		if (GLAD_GL_EXT_texture_env_add)
 		{
-			if (::r_ext_texture_env_add->integer != 0)
+			if (r_ext_texture_env_add->integer != 0)
 			{
-				::glConfig.textureEnvAddAvailable = true;
-				::gl_print_found_extension(extension_name);
+				glConfig.textureEnvAddAvailable = true;
+				gl_print_found_extension(extension_name);
 			}
 			else
 			{
-				::glConfig.textureEnvAddAvailable = false;
-				::gl_print_ignored_extension(extension_name);
+				glConfig.textureEnvAddAvailable = false;
+				gl_print_ignored_extension(extension_name);
 			}
 		}
 		else
 		{
-			::gl_print_missed_extension(extension_name);
+			gl_print_missed_extension(extension_name);
 		}
 	}
 
-	::gl_probe_swap_control();
+	gl_probe_swap_control();
 
 	{
 		auto extension_name = "XXX_EXT_swap_control";
 
-		if (::glConfigEx.has_swap_control_)
+		if (glConfigEx.has_swap_control_)
 		{
-			::r_swapInterval->modified = true;
-			::gl_print_found_extension(extension_name);
+			r_swapInterval->modified = true;
+			gl_print_found_extension(extension_name);
 		}
 		else
 		{
-			::gl_print_missed_extension(extension_name);
+			gl_print_missed_extension(extension_name);
 		}
 	}
 
 	{
 		auto extension_name = "XXX_EXT_swap_control_tear";
 
-		if (::glConfigEx.has_adaptive_swap_control_)
+		if (glConfigEx.has_adaptive_swap_control_)
 		{
-			::r_swapInterval->modified = true;
-			::gl_print_found_extension(extension_name);
+			r_swapInterval->modified = true;
+			gl_print_found_extension(extension_name);
 		}
 		else
 		{
-			::gl_print_missed_extension(extension_name);
+			gl_print_missed_extension(extension_name);
 		}
 	}
 
 	{
 		auto extension_name = "GL_ARB_multitexture";
 
-		if (::GLAD_GL_ARB_multitexture)
+		if (GLAD_GL_ARB_multitexture)
 		{
-			if (::r_ext_multitexture->integer != 0)
+			if (r_ext_multitexture->integer != 0)
 			{
-				::glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &::glConfig.maxActiveTextures);
+				glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &::glConfig.maxActiveTextures);
 
-				if (::glConfig.maxActiveTextures > 1)
+				if (glConfig.maxActiveTextures > 1)
 				{
-					::glConfigEx.use_arb_multitexture_ = true;
-					::gl_print_found_extension(extension_name);
+					glConfigEx.use_arb_multitexture_ = true;
+					gl_print_found_extension(extension_name);
 				}
 				else
 				{
-					::gl_print_missed_extension("GL_ARB_multitexture/units less than 2");
+					gl_print_missed_extension("GL_ARB_multitexture/units less than 2");
 				}
 			}
 			else
 			{
-				::gl_print_ignored_extension(extension_name);
+				gl_print_ignored_extension(extension_name);
 			}
 		}
 		else
 		{
-			::gl_print_missed_extension(extension_name);
+			gl_print_missed_extension(extension_name);
 		}
 	}
 
@@ -331,100 +331,100 @@ void gl_initialize_extensions()
 	{
 		auto extension_name = "GL_EXT_compiled_vertex_array";
 
-		if (::GLAD_GL_EXT_compiled_vertex_array)
+		if (GLAD_GL_EXT_compiled_vertex_array)
 		{
-			if (::r_ext_compiled_vertex_array->integer != 0)
+			if (r_ext_compiled_vertex_array->integer != 0)
 			{
-				::glConfigEx.use_ext_compiled_vertex_array_ = true;
-				::gl_print_found_extension(extension_name);
+				glConfigEx.use_ext_compiled_vertex_array_ = true;
+				gl_print_found_extension(extension_name);
 			}
 			else
 			{
-				::gl_print_ignored_extension(extension_name);
+				gl_print_ignored_extension(extension_name);
 			}
 		}
 		else
 		{
-			::gl_print_missed_extension(extension_name);
+			gl_print_missed_extension(extension_name);
 		}
 	}
 
 	{
 		auto extension_name = "GL_NV_fog_distance";
 
-		if (::GLAD_GL_NV_fog_distance)
+		if (GLAD_GL_NV_fog_distance)
 		{
-			if (::r_ext_NV_fog_dist->integer != 0)
+			if (r_ext_NV_fog_dist->integer != 0)
 			{
-				::glConfig.NVFogAvailable = true;
-				::gl_print_found_extension(extension_name);
+				glConfig.NVFogAvailable = true;
+				gl_print_found_extension(extension_name);
 			}
 			else
 			{
-				::ri.Cvar_Set("r_ext_NV_fog_dist", "0");
-				::gl_print_ignored_extension(extension_name);
+				ri.Cvar_Set("r_ext_NV_fog_dist", "0");
+				gl_print_ignored_extension(extension_name);
 			}
 		}
 		else
 		{
-			::ri.Cvar_Set("r_ext_NV_fog_dist", "0");
-			::gl_print_missed_extension(extension_name);
+			ri.Cvar_Set("r_ext_NV_fog_dist", "0");
+			gl_print_missed_extension(extension_name);
 		}
 	}
 
 	{
 		auto extension_name = "GL_EXT_texture_filter_anisotropic";
 
-		if (::GLAD_GL_EXT_texture_filter_anisotropic)
+		if (GLAD_GL_EXT_texture_filter_anisotropic)
 		{
-			if (::r_ext_texture_filter_anisotropic->integer != 0)
+			if (r_ext_texture_filter_anisotropic->integer != 0)
 			{
-				::glConfig.anisotropicAvailable = true;
-				::gl_print_found_extension(extension_name);
+				glConfig.anisotropicAvailable = true;
+				gl_print_found_extension(extension_name);
 			}
 			else
 			{
-				::ri.Cvar_Set("r_ext_texture_filter_anisotropic", "0");
-				::gl_print_ignored_extension(extension_name);
+				ri.Cvar_Set("r_ext_texture_filter_anisotropic", "0");
+				gl_print_ignored_extension(extension_name);
 			}
 		}
 		else
 		{
-			::ri.Cvar_Set("r_ext_texture_filter_anisotropic", "0");
-			::gl_print_missed_extension(extension_name);
+			ri.Cvar_Set("r_ext_texture_filter_anisotropic", "0");
+			gl_print_missed_extension(extension_name);
 		}
 	}
 
 	{
 		auto extension_name = "GL_ARB_framebuffer_object";
 
-		if (::GLAD_GL_ARB_framebuffer_object)
+		if (GLAD_GL_ARB_framebuffer_object)
 		{
-			::glConfigEx.use_arb_framebuffer_object_ = true;
-			::glConfigEx.use_arb_texture_non_power_of_two_ = true;
-			::gl_print_found_extension(extension_name);
+			glConfigEx.use_arb_framebuffer_object_ = true;
+			glConfigEx.use_arb_texture_non_power_of_two_ = true;
+			gl_print_found_extension(extension_name);
 		}
 		else
 		{
-			::gl_print_missed_extension(extension_name);
+			gl_print_missed_extension(extension_name);
 		}
 	}
 
 	{
 		auto extension_name = "GL_ARB_draw_elements_base_vertex";
 
-		if (::GLAD_GL_ARB_draw_elements_base_vertex)
+		if (GLAD_GL_ARB_draw_elements_base_vertex)
 		{
-			::glConfigEx.use_arb_draw_elements_base_vertex = true;
-			::gl_print_found_extension(extension_name);
+			glConfigEx.use_arb_draw_elements_base_vertex = true;
+			gl_print_found_extension(extension_name);
 		}
 		else
 		{
-			::gl_print_missed_extension(extension_name);
+			gl_print_missed_extension(extension_name);
 		}
 	}
 
-	::glConfigEx.is_2_x_capable_ = ::gl_is_2_x_capable();
+	glConfigEx.is_2_x_capable_ = gl_is_2_x_capable();
 }
 
 
@@ -433,14 +433,14 @@ void gl_initialize_extensions()
 
 void GLimp_Init()
 {
-	::sys_main_window_id = {};
+	sys_main_window_id = {};
 
     ri.Printf(PRINT_ALL, "Initializing OpenGL subsystem\n");
 
     r_allowSoftwareGL = ri.Cvar_Get("r_allowSoftwareGL", "0", 0);
     r_maskMinidriver = ri.Cvar_Get("r_maskMinidriver", "0", 0);
 
-    static_cast<void>(::ri.Cvar_Get(
+    static_cast<void>(ri.Cvar_Get(
         "r_lastValidRenderer",
         "(uninitialized)",
         CVAR_ARCHIVE));
@@ -450,12 +450,12 @@ void GLimp_Init()
 
     if (is_succeed)
 	{
-		const auto sdl_result = ::SDL_GL_LoadLibrary(nullptr);
+		const auto sdl_result = SDL_GL_LoadLibrary(nullptr);
 
 		if (sdl_result != 0)
 		{
 			is_succeed = false;
-			::ri.Error(ERR_FATAL, "Failed to load OpenGL library: %s\n", ::SDL_GetError());
+			ri.Error(ERR_FATAL, "Failed to load OpenGL library: %s\n", SDL_GetError());
 		}
     }
 
@@ -466,7 +466,7 @@ void GLimp_Init()
     if (is_succeed) {
         SDL_DisplayMode dm;
 
-        sdl_result = ::SDL_GetCurrentDisplayMode(
+        sdl_result = SDL_GetCurrentDisplayMode(
             0,
             &dm);
 
@@ -492,7 +492,7 @@ void GLimp_Init()
 
         ri.Printf(PRINT_ALL, "  setting mode: %d\n", r_mode->integer);
 
-        api_result = ::R_GetModeInfo(
+        api_result = R_GetModeInfo(
             &width,
             &height,
             &aspect_ratio,
@@ -518,19 +518,19 @@ void GLimp_Init()
                 SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN;
         }
 
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-        sdl_result = ::SDL_GL_SetAttribute(SDL_GL_STEREO, is_stereo);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+        sdl_result = SDL_GL_SetAttribute(SDL_GL_STEREO, is_stereo);
 
-        cvar_t* x_cvar = ::ri.Cvar_Get("vid_xpos", "0", 0);
+        cvar_t* x_cvar = ri.Cvar_Get("vid_xpos", "0", 0);
         int x = x_cvar->integer;
 
-        cvar_t* y_cvar = ::ri.Cvar_Get("vid_ypos", "0", 0);
+        cvar_t* y_cvar = ri.Cvar_Get("vid_ypos", "0", 0);
         int y = y_cvar->integer;
 
         if (x < 0)
@@ -563,7 +563,7 @@ void GLimp_Init()
             height == FALLBACK_HEIGHT);
 
         while (is_succeed) {
-            sys_gl_window = ::SDL_CreateWindow(
+            sys_gl_window = SDL_CreateWindow(
                 window_title,
                 x,
                 y,
@@ -579,7 +579,7 @@ void GLimp_Init()
 
             if (is_fullscreen) {
                 ri.Printf(PRINT_ALL, S_COLOR_YELLOW
-                    "  SDL: %s\n", ::SDL_GetError());
+                    "  SDL: %s\n", SDL_GetError());
 
                 ri.Printf(PRINT_ALL, S_COLOR_YELLOW
                     "  trying windowed mode...\n");
@@ -593,10 +593,10 @@ void GLimp_Init()
                     is_succeed = false;
 
                     ri.Printf(PRINT_ALL, S_COLOR_RED
-                        "  SDL: %s\n", ::SDL_GetError());
+                        "  SDL: %s\n", SDL_GetError());
                 } else {
                     ri.Printf(PRINT_ALL, S_COLOR_YELLOW
-                        "  SDL: %s\n", ::SDL_GetError());
+                        "  SDL: %s\n", SDL_GetError());
 
                     ri.Printf(PRINT_ALL, S_COLOR_YELLOW
                         "  trying fallback mode: %dx%d windowed...\n",
@@ -614,7 +614,7 @@ void GLimp_Init()
     if (is_succeed) {
         Uint16 ramp[3][256];
 
-        sdl_result = ::SDL_GetWindowGammaRamp(
+        sdl_result = SDL_GetWindowGammaRamp(
             sys_gl_window,
             ramp[0],
             ramp[1],
@@ -624,7 +624,7 @@ void GLimp_Init()
     }
 
     if (is_succeed) {
-        gl_context = ::SDL_GL_CreateContext(sys_gl_window);
+        gl_context = SDL_GL_CreateContext(sys_gl_window);
 
         if (gl_context == NULL) {
             is_succeed = false;
@@ -634,10 +634,10 @@ void GLimp_Init()
 
 	if (is_succeed)
 	{
-		if (!::gladLoadGLLoader(::SDL_GL_GetProcAddress))
+		if (!::gladLoadGLLoader(SDL_GL_GetProcAddress))
 		{
 			is_succeed = false;
-			::ri.Error(ERR_FATAL, "Failed to initialize GLAD\n");
+			ri.Error(ERR_FATAL, "Failed to initialize GLAD\n");
 		}
 	}
 
@@ -651,7 +651,7 @@ void GLimp_Init()
         const int MAX_GL_EXT_STRING_LENGTH = (4 * MAX_STRING_CHARS) - 1;
 
         gl_renderer = reinterpret_cast<const char*>(
-            ::glGetString(GL_RENDERER));
+            glGetString(GL_RENDERER));
 
         if (gl_renderer.size() > MAX_GL_STRING_LENGTH)
             gl_renderer.resize(MAX_GL_STRING_LENGTH);
@@ -683,29 +683,29 @@ void GLimp_Init()
 
         int attribute = 0;
 
-        sdl_result = ::SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &attribute);
+        sdl_result = SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &attribute);
         ri.Printf(PRINT_ALL, "  GL red size: %d\n", attribute);
 
-        sdl_result = ::SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &attribute);
+        sdl_result = SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &attribute);
         ri.Printf(PRINT_ALL, "  GL green size: %d\n", attribute);
 
-        sdl_result = ::SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &attribute);
+        sdl_result = SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &attribute);
         ri.Printf(PRINT_ALL, "  GL blue size: %d\n", attribute);
 
-        sdl_result = ::SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &attribute);
+        sdl_result = SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &attribute);
         ri.Printf(PRINT_ALL, "  GL alpha size: %d\n", attribute);
 
-        sdl_result = ::SDL_GL_GetAttribute(SDL_GL_DOUBLEBUFFER, &attribute);
+        sdl_result = SDL_GL_GetAttribute(SDL_GL_DOUBLEBUFFER, &attribute);
         ri.Printf(PRINT_ALL, "  GL double buffering: %s\n",
             strings[attribute]);
 
-        sdl_result = ::SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &attribute);
+        sdl_result = SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &attribute);
         ri.Printf(PRINT_ALL, "  GL depth size: %d\n", attribute);
 
-        sdl_result = ::SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &attribute);
+        sdl_result = SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &attribute);
         ri.Printf(PRINT_ALL, "  GL stencil size: %d\n", attribute);
 
-        sdl_result = ::SDL_GL_GetAttribute(SDL_GL_STEREO, &attribute);
+        sdl_result = SDL_GL_GetAttribute(SDL_GL_STEREO, &attribute);
         ri.Printf(PRINT_ALL, "  GL stereo mode: %s\n",
             strings[attribute]);
     }
@@ -754,22 +754,22 @@ void GLimp_Init()
         ri.Cvar_Set("r_highQualityVideo", "1");
         ri.Cvar_Set("r_lastValidRenderer", gl_renderer.c_str());
 
-        ::SDL_ShowWindow(sys_gl_window);
+        SDL_ShowWindow(sys_gl_window);
 
 		// Clear the screen.
 		//
-		::glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
-		::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		::SDL_GL_SwapWindow(sys_gl_window);
+		glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		SDL_GL_SwapWindow(sys_gl_window);
     } else {
         if (gl_context != NULL) {
-            ::SDL_GL_MakeCurrent(sys_gl_window, NULL);
-            ::SDL_GL_DeleteContext(gl_context);
+            SDL_GL_MakeCurrent(sys_gl_window, NULL);
+            SDL_GL_DeleteContext(gl_context);
             gl_context = NULL;
         }
 
         if (sys_gl_window != NULL) {
-            ::SDL_DestroyWindow(sys_gl_window);
+            SDL_DestroyWindow(sys_gl_window);
             sys_gl_window = NULL;
         }
     }
@@ -779,23 +779,23 @@ void GLimp_Init()
         throw 0;
     }
 
-	::sys_main_window_id = ::SDL_GetWindowID(sys_gl_window);
+	sys_main_window_id = SDL_GetWindowID(sys_gl_window);
 }
 
 void GLimp_Shutdown()
 {
     if (gl_context != NULL) {
-        ::SDL_GL_MakeCurrent(sys_gl_window, NULL);
-        ::SDL_GL_DeleteContext(gl_context);
+        SDL_GL_MakeCurrent(sys_gl_window, NULL);
+        SDL_GL_DeleteContext(gl_context);
         gl_context = NULL;
     }
 
     if (sys_gl_window != NULL) {
-        ::SDL_DestroyWindow(sys_gl_window);
+        SDL_DestroyWindow(sys_gl_window);
         sys_gl_window = NULL;
     }
 
-	::sys_main_window_id = {};
+	sys_main_window_id = {};
 
     std::uninitialized_fill_n(
         reinterpret_cast<char*>(&glConfig),
@@ -804,7 +804,7 @@ void GLimp_Shutdown()
 
     glConfigEx.reset();
 
-	::SDL_GL_UnloadLibrary();
+	SDL_GL_UnloadLibrary();
 }
 
 void GLimp_EndFrame()
@@ -814,17 +814,17 @@ void GLimp_EndFrame()
 		return;
 	}
 
-	if (::r_swapInterval->modified)
+	if (r_swapInterval->modified)
 	{
-		::r_swapInterval->modified = false;
+		r_swapInterval->modified = false;
 
-		if (::glConfigEx.has_swap_control_)
+		if (glConfigEx.has_swap_control_)
 		{
 			auto swap_interval = 0;
 
-			if (::r_swapInterval->integer < 0)
+			if (r_swapInterval->integer < 0)
 			{
-				if (::glConfigEx.has_adaptive_swap_control_)
+				if (glConfigEx.has_adaptive_swap_control_)
 				{
 					swap_interval = -1;
 				}
@@ -833,7 +833,7 @@ void GLimp_EndFrame()
 					swap_interval = 1;
 				}
 			}
-			else if (::r_swapInterval->integer == 0)
+			else if (r_swapInterval->integer == 0)
 			{
 				swap_interval = 0;
 			}
@@ -842,13 +842,13 @@ void GLimp_EndFrame()
 				swap_interval = 1;
 			}
 
-			static_cast<void>(::SDL_GL_SetSwapInterval(swap_interval));
+			static_cast<void>(SDL_GL_SetSwapInterval(swap_interval));
 		}
 	}
 
-	if (::Q_stricmp(::r_drawBuffer->string, "GL_FRONT") != 0)
+	if (Q_stricmp(r_drawBuffer->string, "GL_FRONT") != 0)
 	{
-		::SDL_GL_SwapWindow(::sys_gl_window);
+		SDL_GL_SwapWindow(sys_gl_window);
 	}
 }
 
@@ -882,7 +882,7 @@ void GLimp_SetGamma(
 
     int sdl_result = 0;
 
-    sdl_result = ::SDL_SetWindowGammaRamp(
+    sdl_result = SDL_SetWindowGammaRamp(
         sys_gl_window,
         table[0],
         table[1],
@@ -890,7 +890,7 @@ void GLimp_SetGamma(
 
     if (sdl_result != 0) {
         ri.Printf(PRINT_ALL, S_COLOR_YELLOW "SDL gamma: %s\n",
-            ::SDL_GetError());
+            SDL_GetError());
     }
 }
 
@@ -914,7 +914,7 @@ bool GLimp_SetFullscreen(bool value)
 
     int sdl_result = 0;
 
-    sdl_result = ::SDL_SetWindowFullscreen(
+    sdl_result = SDL_SetWindowFullscreen(
         sys_gl_window,
         value);
 

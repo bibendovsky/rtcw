@@ -82,12 +82,12 @@ void OglTessState::commit_changes ()
     bool use_program = is_program_valid ();
 
     if (use_program)
-        ::glUseProgram (program_->program_);
+        glUseProgram (program_->program_);
 
 
     if (model_view.is_modified ()) {
         if (use_program && (program_->u_model_view_mat4 >= 0)) {
-            ::glUniformMatrix4fv (program_->u_model_view_mat4,
+            glUniformMatrix4fv (program_->u_model_view_mat4,
                 1, GL_FALSE, glm::value_ptr (model_view.get ()));
         }
 
@@ -96,7 +96,7 @@ void OglTessState::commit_changes ()
 
     if (projection.is_modified ()) {
         if (use_program && (program_->u_projection_mat4 >= 0)) {
-            ::glUniformMatrix4fv (program_->u_projection_mat4,
+            glUniformMatrix4fv (program_->u_projection_mat4,
                 1, GL_FALSE, glm::value_ptr (projection.get ()));
         }
 
@@ -105,7 +105,7 @@ void OglTessState::commit_changes ()
 
     if (use_multitexturing.is_modified ()) {
         if (use_program && (program_->u_use_multitexturing >= 0)) {
-            ::glUniform1i (program_->u_use_multitexturing,
+            glUniform1i (program_->u_use_multitexturing,
                 use_multitexturing.get ());
         }
 
@@ -114,7 +114,7 @@ void OglTessState::commit_changes ()
 
     if (tex_2d[0].is_modified ()) {
         if (use_program && (program_->u_tex_2d[0] >= 0)) {
-            ::glUniform1i (program_->u_tex_2d[0],
+            glUniform1i (program_->u_tex_2d[0],
                 tex_2d[0].get ());
         }
 
@@ -123,7 +123,7 @@ void OglTessState::commit_changes ()
 
     if (tex_2d[1].is_modified ()) {
         if (use_program && (program_->u_tex_2d[1] >= 0)) {
-            ::glUniform1i (program_->u_tex_2d[1],
+            glUniform1i (program_->u_tex_2d[1],
                 tex_2d[1].get ());
         }
 
@@ -132,7 +132,7 @@ void OglTessState::commit_changes ()
 
     if (tex_env_mode[0].is_modified ()) {
         if (use_program && (program_->u_tex_env_mode[0] >= 0)) {
-            ::glUniform1i (program_->u_tex_env_mode[0],
+            glUniform1i (program_->u_tex_env_mode[0],
                 tex_env_mode[0].get ());
         }
 
@@ -141,7 +141,7 @@ void OglTessState::commit_changes ()
 
     if (tex_env_mode[1].is_modified ()) {
         if (use_program && (program_->u_tex_env_mode[1] >= 0)) {
-            ::glUniform1i (program_->u_tex_env_mode[1],
+            glUniform1i (program_->u_tex_env_mode[1],
                 tex_env_mode[1].get ());
         }
 
@@ -150,7 +150,7 @@ void OglTessState::commit_changes ()
 
     if (primary_color.is_modified ()) {
         if (use_program && (program_->u_primary_color >= 0)) {
-            ::glUniform4fv (program_->u_primary_color,
+            glUniform4fv (program_->u_primary_color,
                 1, glm::value_ptr (primary_color.get ()));
         }
 
@@ -159,7 +159,7 @@ void OglTessState::commit_changes ()
 
     if (use_alpha_test.is_modified ()) {
         if (use_program && (program_->u_use_alpha_test >= 0)) {
-            ::glUniform1i (program_->u_use_alpha_test,
+            glUniform1i (program_->u_use_alpha_test,
                 use_alpha_test.get ());
         }
 
@@ -168,7 +168,7 @@ void OglTessState::commit_changes ()
 
     if (alpha_test_func.is_modified ()) {
         if (use_program && (program_->u_alpha_test_func >= 0)) {
-            ::glUniform1i (program_->u_alpha_test_func,
+            glUniform1i (program_->u_alpha_test_func,
                 alpha_test_func.get ());
         }
 
@@ -177,7 +177,7 @@ void OglTessState::commit_changes ()
 
     if (alpha_test_ref.is_modified ()) {
         if (use_program && (program_->u_alpha_test_ref >= 0)) {
-            ::glUniform1f (program_->u_alpha_test_ref,
+            glUniform1f (program_->u_alpha_test_ref,
                 alpha_test_ref.get ());
         }
 
@@ -186,7 +186,7 @@ void OglTessState::commit_changes ()
 
     if (use_fog.is_modified ()) {
         if (use_program && (program_->u_use_fog >= 0)) {
-            ::glUniform1i (program_->u_use_fog,
+            glUniform1i (program_->u_use_fog,
                 use_fog.get ());
         }
 
@@ -195,7 +195,7 @@ void OglTessState::commit_changes ()
 
     if (fog_mode.is_modified ()) {
         if (use_program && (program_->u_fog_mode >= 0)) {
-            ::glUniform1i (program_->u_fog_mode,
+            glUniform1i (program_->u_fog_mode,
                 fog_mode.get ());
         }
 
@@ -204,7 +204,7 @@ void OglTessState::commit_changes ()
 
     if (fog_dist_mode.is_modified ()) {
         if (use_program && (program_->u_fog_dist_mode >= 0)) {
-            ::glUniform1i (program_->u_fog_dist_mode,
+            glUniform1i (program_->u_fog_dist_mode,
                 fog_dist_mode.get ());
         }
 
@@ -213,7 +213,7 @@ void OglTessState::commit_changes ()
 
     if (fog_hint.is_modified ()) {
         if (use_program && (program_->u_fog_hint >= 0)) {
-            ::glUniform1i (program_->u_fog_hint,
+            glUniform1i (program_->u_fog_hint,
                 fog_hint.get ());
         }
 
@@ -222,7 +222,7 @@ void OglTessState::commit_changes ()
 
     if (fog_density.is_modified ()) {
         if (use_program && (program_->u_fog_density >= 0)) {
-            ::glUniform1f (program_->u_fog_density,
+            glUniform1f (program_->u_fog_density,
                 fog_density.get ());
         }
 
@@ -231,7 +231,7 @@ void OglTessState::commit_changes ()
 
     if (fog_start.is_modified ()) {
         if (use_program && (program_->u_fog_start >= 0)) {
-            ::glUniform1f (program_->u_fog_start,
+            glUniform1f (program_->u_fog_start,
                 fog_start.get ());
         }
 
@@ -240,7 +240,7 @@ void OglTessState::commit_changes ()
 
     if (fog_end.is_modified ()) {
         if (use_program && (program_->u_fog_end >= 0)) {
-            ::glUniform1f (program_->u_fog_end,
+            glUniform1f (program_->u_fog_end,
                 fog_end.get ());
         }
 
@@ -249,7 +249,7 @@ void OglTessState::commit_changes ()
 
     if (fog_color.is_modified ()) {
         if (use_program && (program_->u_fog_color >= 0)) {
-            ::glUniform4fv (program_->u_fog_color,
+            glUniform4fv (program_->u_fog_color,
                 1, glm::value_ptr (fog_color.get ()));
         }
 
@@ -257,7 +257,7 @@ void OglTessState::commit_changes ()
     }
 
     if (use_program)
-        ::glUseProgram (0);
+        glUseProgram (0);
 }
 
 void OglTessState::invalidate ()

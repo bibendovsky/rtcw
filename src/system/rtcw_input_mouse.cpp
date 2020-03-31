@@ -69,15 +69,15 @@ bool Mouse::initialize()
 {
     uninitialize(true);
 
-    ::Com_Printf("Initializing mouse input...\n");
+    Com_Printf("Initializing mouse input...\n");
 
     int sdl_result = 0;
 
-    if (::SDL_WasInit(SDL_INIT_VIDEO) == 0) {
-        sdl_result = ::SDL_InitSubSystem(SDL_INIT_VIDEO);
+    if (SDL_WasInit(SDL_INIT_VIDEO) == 0) {
+        sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
 
         if (sdl_result != 0) {
-            ::Com_Printf(S_COLOR_RED "  %s\n", ::SDL_GetError());
+            Com_Printf(S_COLOR_RED "  %s\n", SDL_GetError());
             return false;
         }
     }
@@ -85,7 +85,7 @@ bool Mouse::initialize()
     in_mouse->modified = false;
 
     if (in_mouse->integer == 0) {
-        ::Com_Printf(S_COLOR_YELLOW "  Ignored.\n");
+        Com_Printf(S_COLOR_YELLOW "  Ignored.\n");
         return false;
     }
 
@@ -96,7 +96,7 @@ bool Mouse::initialize()
 void Mouse::uninitialize(bool quiet)
 {
     if (!quiet)
-        ::Com_Printf("Uninitializing mouse input...\n");
+        Com_Printf("Uninitializing mouse input...\n");
 
     activate(false);
 
@@ -142,15 +142,15 @@ void Mouse::activate(bool value)
         return;
 
     if (value)
-        ::SDL_SetRelativeMouseMode(SDL_TRUE);
+        SDL_SetRelativeMouseMode(SDL_TRUE);
     else {
-        ::SDL_SetRelativeMouseMode(SDL_FALSE);
+        SDL_SetRelativeMouseMode(SDL_FALSE);
 
-        Uint32 window_flags = ::SDL_GetWindowFlags(sys_gl_window);
+        Uint32 window_flags = SDL_GetWindowFlags(sys_gl_window);
         bool is_fullscreen = ((window_flags & SDL_WINDOW_FULLSCREEN) != 0);
 
         if (is_fullscreen)
-            ::SDL_ShowCursor(SDL_FALSE);
+            SDL_ShowCursor(SDL_FALSE);
     }
 
     is_activated_ = value;
@@ -167,7 +167,7 @@ void Mouse::update()
         activate_value = ((cls.keyCatchers & KEYCATCH_CONSOLE) == 0);
 
     if (activate_value) {
-        Uint32 window_flags = ::SDL_GetWindowFlags(sys_gl_window);
+        Uint32 window_flags = SDL_GetWindowFlags(sys_gl_window);
         activate_value = ((window_flags & SDL_WINDOW_INPUT_FOCUS) != 0);
     }
 
@@ -179,7 +179,7 @@ void Mouse::reset_state()
     if (!buttons_states_.any())
         return;
 
-    Uint32 timestamp = ::SDL_GetTicks();
+    Uint32 timestamp = SDL_GetTicks();
 
     for (int i = 0; i < MAX_BUTTONS_COUNT; ++i) {
         bool state = buttons_states_.test(i);
@@ -189,7 +189,7 @@ void Mouse::reset_state()
 
         int game_button = get_game_button_by_state_index(i);
 
-        ::Sys_QueEvent(
+        Sys_QueEvent(
             timestamp,
             SE_KEY,
             game_button,
@@ -204,7 +204,7 @@ void Mouse::reset_state()
 // (static)
 void Mouse::register_cvars()
 {
-    in_mouse = ::Cvar_Get("in_mouse", "1", CVAR_ARCHIVE | CVAR_LATCH);
+    in_mouse = Cvar_Get("in_mouse", "1", CVAR_ARCHIVE | CVAR_LATCH);
 }
 
 void Mouse::handle_button_event(const SDL_MouseButtonEvent& e)
@@ -225,7 +225,7 @@ void Mouse::handle_button_event(const SDL_MouseButtonEvent& e)
     buttons_states_.flip(state_index);
     bool state = buttons_states_.test(state_index);
 
-    ::Sys_QueEvent(
+    Sys_QueEvent(
         e.timestamp,
         SE_KEY,
         game_button,
@@ -241,7 +241,7 @@ void Mouse::handle_motion_event(const SDL_MouseMotionEvent& e)
 		return;
 	}
 
-    ::Sys_QueEvent(
+    Sys_QueEvent(
         e.timestamp,
         SE_MOUSE,
         e.xrel,
@@ -262,7 +262,7 @@ void Mouse::handle_wheel_event(const SDL_MouseWheelEvent& e)
 
     int which = (e.y > 0 ? K_MWHEELUP : K_MWHEELDOWN);
 
-    ::Sys_QueEvent(
+    Sys_QueEvent(
         e.timestamp,
         SE_KEY,
         which,
@@ -270,7 +270,7 @@ void Mouse::handle_wheel_event(const SDL_MouseWheelEvent& e)
         0,
         NULL);
 
-    ::Sys_QueEvent(
+    Sys_QueEvent(
         e.timestamp,
         SE_KEY,
         which,

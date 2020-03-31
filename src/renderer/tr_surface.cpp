@@ -285,8 +285,8 @@ static void RB_SurfaceSprite( void ) {
 //		VectorScale( backEnd.viewParms.orientation.axis[1], radius, left );
 //		VectorScale( backEnd.viewParms.orientation.axis[2], radius, up );
 //#endif // RTCW_XX
-        VectorScale (::backEnd.viewParms.orientation.axis[1], radius, left);
-        VectorScale (::backEnd.viewParms.orientation.axis[2], radius, up);
+        VectorScale (backEnd.viewParms.orientation.axis[1], radius, left);
+        VectorScale (backEnd.viewParms.orientation.axis[2], radius, up);
 // BBi
 	} else {
 		float s, c;
@@ -310,11 +310,11 @@ static void RB_SurfaceSprite( void ) {
 //		VectorScale( backEnd.viewParms.orientation.axis[2], c * radius, up );
 //		VectorMA( up, s * radius, backEnd.viewParms.orientation.axis[1], up );
 //#endif // RTCW_XX
-        VectorScale (::backEnd.viewParms.orientation.axis[1], c * radius, left);
-        VectorMA (left, -s * radius, ::backEnd.viewParms.orientation.axis[2], left);
+        VectorScale (backEnd.viewParms.orientation.axis[1], c * radius, left);
+        VectorMA (left, -s * radius, backEnd.viewParms.orientation.axis[2], left);
 
-        VectorScale (::backEnd.viewParms.orientation.axis[2], c * radius, up);
-        VectorMA (up, s * radius, ::backEnd.viewParms.orientation.axis[1], up);
+        VectorScale (backEnd.viewParms.orientation.axis[2], c * radius, up);
+        VectorMA (up, s * radius, backEnd.viewParms.orientation.axis[1], up);
 // BBi
 	}
 	if ( backEnd.viewParms.isMirror ) {
@@ -662,18 +662,18 @@ void RB_SurfaceBeam( void ) {
                 v[0], v[1], v[2], 1.0F);
         }
 
-        ::ogl_tess2_draw (GL_TRIANGLE_STRIP, 2 * NUM_BEAM_SEGS, false, false);
+        ogl_tess2_draw (GL_TRIANGLE_STRIP, 2 * NUM_BEAM_SEGS, false, false);
     } else {
     // BBi
 
-	::glColor3f( 1, 0, 0 );
+	glColor3f( 1, 0, 0 );
 
-	::glBegin( GL_TRIANGLE_STRIP );
+	glBegin( GL_TRIANGLE_STRIP );
 	for ( i = 0; i <= NUM_BEAM_SEGS; i++ ) {
-		::glVertex3fv( start_points[ i % NUM_BEAM_SEGS] );
-		::glVertex3fv( end_points[ i % NUM_BEAM_SEGS] );
+		glVertex3fv( start_points[ i % NUM_BEAM_SEGS] );
+		glVertex3fv( end_points[ i % NUM_BEAM_SEGS] );
 	}
-	::glEnd();
+	glEnd();
 
     // BBi
     }
@@ -931,7 +931,7 @@ void RB_SurfaceLightningBolt( void ) {
 //#else
 //	VectorSubtract( start, backEnd.viewParms.orientation.origin, v1 );
 //#endif // RTCW_XX
-    VectorSubtract (start, ::backEnd.viewParms.orientation.origin, v1);
+    VectorSubtract (start, backEnd.viewParms.orientation.origin, v1);
 // BBi
 
 	VectorNormalize( v1 );
@@ -942,7 +942,7 @@ void RB_SurfaceLightningBolt( void ) {
 //#else
 //	VectorSubtract( end, backEnd.viewParms.orientation.origin, v2 );
 //#endif // RTCW_XX
-    VectorSubtract (end, ::backEnd.viewParms.orientation.origin, v2);
+    VectorSubtract (end, backEnd.viewParms.orientation.origin, v2);
 // BBi
 
 	VectorNormalize( v2 );
@@ -1829,23 +1829,23 @@ void RB_SurfaceAxis( void ) {
         ogl_tess2.color[5][3] = 255;
         ogl_tess2.position[5] = glm::vec4 (0.0F, 0.0F, 16.0F, 1.0F);
 
-        ::ogl_tess2_draw (GL_LINES, 6, false, true);
+        ogl_tess2_draw (GL_LINES, 6, false, true);
     } else {
     // BBi
 
-	::glLineWidth( 3 );
-	::glBegin( GL_LINES );
-	::glColor3f( 1,0,0 );
-	::glVertex3f( 0,0,0 );
-	::glVertex3f( 16,0,0 );
-	::glColor3f( 0,1,0 );
-	::glVertex3f( 0,0,0 );
-	::glVertex3f( 0,16,0 );
-	::glColor3f( 0,0,1 );
-	::glVertex3f( 0,0,0 );
-	::glVertex3f( 0,0,16 );
-	::glEnd();
-	::glLineWidth( 1 );
+	glLineWidth( 3 );
+	glBegin( GL_LINES );
+	glColor3f( 1,0,0 );
+	glVertex3f( 0,0,0 );
+	glVertex3f( 16,0,0 );
+	glColor3f( 0,1,0 );
+	glVertex3f( 0,0,0 );
+	glVertex3f( 0,16,0 );
+	glColor3f( 0,0,1 );
+	glVertex3f( 0,0,0 );
+	glVertex3f( 0,0,16 );
+	glEnd();
+	glLineWidth( 1 );
 
     // BBi
     }
@@ -1973,7 +1973,7 @@ void RB_SurfaceFlare( srfFlare_t *surf ) {
 void RB_SurfaceDisplayList( srfDisplayList_t *surf ) {
 	// all apropriate state must be set in RB_BeginSurface
 	// this isn't implemented yet...
-	::glCallList( surf->listNum );
+	glCallList( surf->listNum );
 }
 
 #if defined RTCW_ET

@@ -67,15 +67,15 @@ bool Keyboard::initialize()
     uninitialize(true);
 
 
-    ::Com_Printf("Initializing keyboard input...\n");
+    Com_Printf("Initializing keyboard input...\n");
 
     int sdl_result = 0;
 
-    if (::SDL_WasInit(SDL_INIT_VIDEO) == 0) {
-        sdl_result = ::SDL_InitSubSystem(SDL_INIT_VIDEO);
+    if (SDL_WasInit(SDL_INIT_VIDEO) == 0) {
+        sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
 
         if (sdl_result != 0) {
-            ::Com_Printf(S_COLOR_RED "  %s\n", ::SDL_GetError());
+            Com_Printf(S_COLOR_RED "  %s\n", SDL_GetError());
             return false;
         }
     }
@@ -87,7 +87,7 @@ bool Keyboard::initialize()
 void Keyboard::uninitialize(bool quiet)
 {
     if (!quiet)
-        ::Com_Printf("Uninitializing keyboard input...\n");
+        Com_Printf("Uninitializing keyboard input...\n");
 
     is_initialized_ = false;
 }
@@ -115,7 +115,7 @@ void Keyboard::handle_event(const SDL_Event& e)
 
 void Keyboard::handle_key_event(const SDL_KeyboardEvent& e)
 {
-	if (e.windowID != ::sys_main_window_id)
+	if (e.windowID != sys_main_window_id)
 	{
 		return;
 	}
@@ -136,19 +136,19 @@ void Keyboard::handle_key_event(const SDL_KeyboardEvent& e)
 
     if (is_alt_pressed && is_enter_pressed) {
         if (r_fullscreen != NULL) {
-            ::Cvar_SetValue("r_fullscreen", !r_fullscreen->integer);
+            Cvar_SetValue("r_fullscreen", !r_fullscreen->integer);
             bool is_fullscreen = (r_fullscreen->integer != 0);
 
-            if (::GLimp_SetFullscreen(is_fullscreen))
+            if (GLimp_SetFullscreen(is_fullscreen))
                 glConfig.isFullscreen = is_fullscreen;
             else
-                ::Cbuf_AddText("vid_restart\n");
+                Cbuf_AddText("vid_restart\n");
 
             return;
         }
     }
 
-    ::Sys_QueEvent(
+    Sys_QueEvent(
         e.timestamp,
         SE_KEY,
         key,
@@ -162,7 +162,7 @@ void Keyboard::handle_key_event(const SDL_KeyboardEvent& e)
     char key_char = map_to_char(e);
 
     if (key_char != 0) {
-        ::Sys_QueEvent(
+        Sys_QueEvent(
             e.timestamp,
             SE_CHAR,
             key_char,
@@ -175,7 +175,7 @@ void Keyboard::handle_key_event(const SDL_KeyboardEvent& e)
 // (static)
 void Keyboard::register_cvars()
 {
-    k_language = ::Cvar_Get(
+    k_language = Cvar_Get(
         "k_language",
         "american",
         CVAR_ARCHIVE | CVAR_NORESTART);

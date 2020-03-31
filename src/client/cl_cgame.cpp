@@ -1636,7 +1636,7 @@ void CL_InitCGame( void ) {
 //	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, VMI_NATIVE );
 //#endif // RTCW_XX
 
-    cgvm = ::VM_Create ("cgame", CL_CgameSystemCalls);
+    cgvm = VM_Create ("cgame", CL_CgameSystemCalls);
 //BBi
 
 	if ( !cgvm ) {

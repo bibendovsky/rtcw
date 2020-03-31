@@ -266,28 +266,28 @@ void GL_TextureMode( const char *string ) {
 //BBi
 //#if !defined RTCW_ET
 //			GL_Bind( glt );
-//			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
-//			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+//			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
+//			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
 //#else
-//			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
-//			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+//			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
+//			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
 //		} else
 //		{
-//			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-//			::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+//			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+//			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
 //#endif // RTCW_XX
 
 #if !defined RTCW_ET
-            ::GL_Bind (glt);
-            ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
-            ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+            GL_Bind (glt);
+            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 #else
-            ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
-            ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
         } else
         {
-            ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 #endif // RTCW_XX
 //BBi
 
@@ -325,7 +325,7 @@ void GL_TextureAnisotropy( float anisotropy ) {
 	for ( i = 0 ; i < tr.numImages ; i++ ) {
 		glt = tr.images[ i ];
 		GL_Bind( glt );
-		::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, gl_anisotropy );
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, gl_anisotropy );
 	}
 }
 
@@ -1138,7 +1138,7 @@ static void Upload32(   unsigned *data,
 	if ( ( scaled_width == width ) &&
 		 ( scaled_height == height ) ) {
 		if ( !mipmap ) {
-			::glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+			glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
 			*pUploadWidth = scaled_width;
 			*pUploadHeight = scaled_height;
 			*format = internalFormat;
@@ -1169,7 +1169,7 @@ static void Upload32(   unsigned *data,
 	*pUploadHeight = scaled_height;
 	*format = internalFormat;
 
-	::glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
+	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
 
     //BBi
 	//if ( mipmap ) {
@@ -1195,7 +1195,7 @@ static void Upload32(   unsigned *data,
 				R_BlendOverTexture( (byte *)scaledBuffer, scaled_width * scaled_height, mipBlendColors[miplevel] );
 			}
 
-			::glTexImage2D( GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
+			glTexImage2D( GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
 		}
 	}
 done:
@@ -1203,14 +1203,14 @@ done:
 	if ( mipmap ) {
         //BBi
         if (glConfigEx.use_arb_framebuffer_object_)
-            ::glGenerateMipmap (GL_TEXTURE_2D);
+            glGenerateMipmap (GL_TEXTURE_2D);
         //BBi
 
         //BBi
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
         //BBi
 	} else
 	{
@@ -1220,20 +1220,20 @@ done:
 #endif // RTCW_XX
 
 //BBi
-//		::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+//		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 //
 //#if !defined RTCW_ET
-//		::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+//		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 //#else
-//		::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+//		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
 //#endif // RTCW_XX
 
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 #if !defined RTCW_ET
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 #else
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 #endif // RTCW_XX
 //BBi
 
@@ -1244,7 +1244,7 @@ done:
 //BBi
 
 	if ( glConfig.anisotropicAvailable ) {
-		::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, gl_anisotropy );
+		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, gl_anisotropy );
 	}
 
 //BBi
@@ -1353,7 +1353,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 // BBi
 
 	// ydnar: ok, let's try the recommended way
-	::glGenTextures( 1, &image->texnum );
+	glGenTextures( 1, &image->texnum );
 
 // BBi
 //#endif // RTCW_XX
@@ -1414,11 +1414,11 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
     //BBi
 	//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode );
 	//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode );
-	::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode);
-	::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode);
     //BBi
 
-	::glBindTexture( GL_TEXTURE_2D, 0 );
+	glBindTexture( GL_TEXTURE_2D, 0 );
 
 	if ( image->TMU == 1 ) {
 		GL_SelectTexture( 0 );
@@ -2275,22 +2275,22 @@ static void LoadJPG(
 
     bool jpeg_result;
 
-    jpeg_result = ::g_jpeg_reader.open(src_data, src_size, *width, *height);
+    jpeg_result = g_jpeg_reader.open(src_data, src_size, *width, *height);
 
     if (!jpeg_result) {
         ri.Error(ERR_FATAL, "JPEG: %s\n",
-            ::g_jpeg_reader.get_error_message().c_str());
+            g_jpeg_reader.get_error_message().c_str());
     }
 
     void* dst_data = R_GetImageBuffer(4 * (*width) * (*height), BUFFER_IMAGE);
 
-    jpeg_result = ::g_jpeg_reader.decode(dst_data);
+    jpeg_result = g_jpeg_reader.decode(dst_data);
 
     ri.FS_FreeFile(src_data);
 
     if (!jpeg_result) {
         ri.Error(ERR_FATAL, "JPEG: %s\n",
-            ::g_jpeg_reader.get_error_message().c_str());
+            g_jpeg_reader.get_error_message().c_str());
     }
 
     *pic = static_cast<byte*>(dst_data);
@@ -2584,7 +2584,7 @@ static void R_CreateDlightImage( void ) {
 
     //BBi
 	//tr.dlightImage = R_CreateImage( "*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, GL_CLAMP );
-    tr.dlightImage = ::R_CreateImage ("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, false, false, ::r_get_best_wrap_clamp ());
+    tr.dlightImage = R_CreateImage ("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, false, false, r_get_best_wrap_clamp ());
     //BBi
 }
 
@@ -2766,7 +2766,7 @@ R_CreateFogImage
 //	borderColor[2] = 1.0;
 //	borderColor[3] = 1;
 //
-//	::glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
+//	glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
 //}
 
 static void R_CreateFogImage ()
@@ -2782,14 +2782,14 @@ static void R_CreateFogImage ()
     byte* data = 0;
 
 #if !defined RTCW_ET
-    data = static_cast<byte*> (::ri.Hunk_AllocateTempMemory (FOG_S * FOG_T * 4));
+    data = static_cast<byte*> (ri.Hunk_AllocateTempMemory (FOG_S * FOG_T * 4));
 
     const float g = 2.0F;
 
     // S is distance, T is depth
     for (int x = 0; x < FOG_S; ++x) {
         for (int y = 0; y < FOG_T; ++y) {
-            float d = ::R_FogFactor ((x + 0.5F) / FOG_S, (y + 0.5F) / FOG_T);
+            float d = R_FogFactor ((x + 0.5F) / FOG_S, (y + 0.5F) / FOG_T);
 
             data[(((y * FOG_S) + x) * 4) + 0] = 255;
             data[(((y * FOG_S) + x) * 4) + 1] = 255;
@@ -2799,7 +2799,7 @@ static void R_CreateFogImage ()
     }
 #else
     // allocate table for image
-    data = static_cast<byte*> (::ri.Hunk_AllocateTempMemory (FOG_S * FOG_T * 4));
+    data = static_cast<byte*> (ri.Hunk_AllocateTempMemory (FOG_S * FOG_T * 4));
 
     // ydnar: new, linear fog texture generating algo for GL_CLAMP_TO_EDGE (OpenGL 1.2+)
 
@@ -2825,14 +2825,14 @@ static void R_CreateFogImage ()
     }
 #endif // RTCW_XX
 
-    tr.fogImage = ::R_CreateImage ("*fog", data, FOG_S, FOG_T, false, false, ::r_get_best_wrap_clamp ());
-    ::ri.Hunk_FreeTempMemory (data);
+    tr.fogImage = R_CreateImage ("*fog", data, FOG_S, FOG_T, false, false, r_get_best_wrap_clamp ());
+    ri.Hunk_FreeTempMemory (data);
 
 #if !defined RTCW_ET
     if (!glConfigEx.use_arb_framebuffer_object_) {
         float borderColor[4] = { 1.0F, 1.0F, 1.0F, 1.0F, };
 
-        ::glTexParameterfv (GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+        glTexParameterfv (GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
     }
 #endif // RTCW_XX
 }
@@ -2940,7 +2940,7 @@ void R_CreateBuiltinImages( void ) {
 
         //BBi
 		//tr.scratchImage[x] = R_CreateImage( "*scratch", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, GL_CLAMP );
-        tr.scratchImage[x] = ::R_CreateImage ("*scratch", (byte*) data, DEFAULT_SIZE, DEFAULT_SIZE, false, true, ::r_get_best_wrap_clamp ());
+        tr.scratchImage[x] = R_CreateImage ("*scratch", (byte*) data, DEFAULT_SIZE, DEFAULT_SIZE, false, true, r_get_best_wrap_clamp ());
         //BBi
 	}
 
@@ -3086,7 +3086,7 @@ void R_DeleteTextures( void ) {
 	int i;
 
 	for ( i = 0; i < tr.numImages ; i++ ) {
-		::glDeleteTextures( 1, &tr.images[i]->texnum );
+		glDeleteTextures( 1, &tr.images[i]->texnum );
 	}
 	memset( tr.images, 0, sizeof( tr.images ) );
 	// Ridah
@@ -3105,11 +3105,11 @@ void R_DeleteTextures( void ) {
 
 	if ( glConfigEx.use_arb_multitexture_ ) {
 		GL_SelectTexture( 1 );
-		::glBindTexture( GL_TEXTURE_2D, 0 );
+		glBindTexture( GL_TEXTURE_2D, 0 );
 		GL_SelectTexture( 0 );
-		::glBindTexture( GL_TEXTURE_2D, 0 );
+		glBindTexture( GL_TEXTURE_2D, 0 );
 	} else {
-		::glBindTexture( GL_TEXTURE_2D, 0 );
+		glBindTexture( GL_TEXTURE_2D, 0 );
 	}
 }
 
@@ -4335,7 +4335,7 @@ void R_PurgeImage( image_t *image ) {
 	//%	texnumImages[image->texnum - 1024] = NULL;
 #endif // RTCW_XX
 
-	::glDeleteTextures( 1, &image->texnum );
+	glDeleteTextures( 1, &image->texnum );
 
 	R_CacheImageFree( image );
 
@@ -4343,11 +4343,11 @@ void R_PurgeImage( image_t *image ) {
 
 	if ( glConfigEx.use_arb_multitexture_ ) {
 		GL_SelectTexture( 1 );
-		::glBindTexture( GL_TEXTURE_2D, 0 );
+		glBindTexture( GL_TEXTURE_2D, 0 );
 		GL_SelectTexture( 0 );
-		::glBindTexture( GL_TEXTURE_2D, 0 );
+		glBindTexture( GL_TEXTURE_2D, 0 );
 	} else {
-		::glBindTexture( GL_TEXTURE_2D, 0 );
+		glBindTexture( GL_TEXTURE_2D, 0 );
 	}
 }
 
@@ -4420,11 +4420,11 @@ void R_BackupImages( void ) {
 
 	if ( glConfigEx.use_arb_multitexture_ ) {
 		GL_SelectTexture( 1 );
-		::glBindTexture( GL_TEXTURE_2D, 0 );
+		glBindTexture( GL_TEXTURE_2D, 0 );
 		GL_SelectTexture( 0 );
-		::glBindTexture( GL_TEXTURE_2D, 0 );
+		glBindTexture( GL_TEXTURE_2D, 0 );
 	} else {
-		::glBindTexture( GL_TEXTURE_2D, 0 );
+		glBindTexture( GL_TEXTURE_2D, 0 );
 	}
 }
 

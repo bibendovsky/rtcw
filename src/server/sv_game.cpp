@@ -1251,7 +1251,7 @@ void SV_InitGameProgs( void ) {
 //	gvm = VM_Create( "qagame", SV_GameSystemCalls, VMI_NATIVE );
 //#endif // RTCW_XX
 
-    gvm = ::VM_Create ("qagame", SV_GameSystemCalls);
+    gvm = VM_Create ("qagame", SV_GameSystemCalls);
 //BBi
 
 	if ( !gvm ) {

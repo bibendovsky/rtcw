@@ -449,11 +449,11 @@ static void AutospriteDeform( void ) {
 //		VectorCopy( backEnd.viewParms.orientation.axis[1], leftDir );
 //		VectorCopy( backEnd.viewParms.orientation.axis[2], upDir );
 //#endif // RTCW_XX
-        ::GlobalVectorToLocal (::backEnd.viewParms.orientation.axis[1], leftDir);
-        ::GlobalVectorToLocal (::backEnd.viewParms.orientation.axis[2], upDir);
+        GlobalVectorToLocal (backEnd.viewParms.orientation.axis[1], leftDir);
+        GlobalVectorToLocal (backEnd.viewParms.orientation.axis[2], upDir);
     } else {
-        VectorCopy (::backEnd.viewParms.orientation.axis[1], leftDir);
-        VectorCopy (::backEnd.viewParms.orientation.axis[2], upDir);
+        VectorCopy (backEnd.viewParms.orientation.axis[1], leftDir);
+        VectorCopy (backEnd.viewParms.orientation.axis[2], upDir);
 // BBi
 	}
 
@@ -533,9 +533,9 @@ static void Autosprite2Deform( void ) {
 //	} else {
 //		VectorCopy( backEnd.viewParms.orientation.axis[0], forward );
 //#endif // RTCW_XX
-        ::GlobalVectorToLocal (::backEnd.viewParms.orientation.axis[0], forward);
+        GlobalVectorToLocal (backEnd.viewParms.orientation.axis[0], forward);
     } else {
-        VectorCopy (::backEnd.viewParms.orientation.axis[0], forward);
+        VectorCopy (backEnd.viewParms.orientation.axis[0], forward);
 // BBi
 	}
 
@@ -1035,15 +1035,15 @@ void RB_CalcFogTexCoords( float *st ) {
 	//fogDistanceVector[1] = -backEnd.or.modelMatrix[6];
 	//fogDistanceVector[2] = -backEnd.or.modelMatrix[10];
 	//fogDistanceVector[3] = DotProduct( local, backEnd.viewParms.or.axis[0] );
-    VectorSubtract (::backEnd.orientation.origin,
-        ::backEnd.viewParms.orientation.origin, local);
+    VectorSubtract (backEnd.orientation.origin,
+        backEnd.viewParms.orientation.origin, local);
 
     fogDistanceVector[0] = -::backEnd.orientation.modelMatrix[2];
     fogDistanceVector[1] = -::backEnd.orientation.modelMatrix[6];
     fogDistanceVector[2] = -::backEnd.orientation.modelMatrix[10];
 
     fogDistanceVector[3] = DotProduct (
-        local, ::backEnd.viewParms.orientation.axis[0]);
+        local, backEnd.viewParms.orientation.axis[0]);
     // BBi
 
 	// scale the fog vectors based on the fog's thickness
@@ -1065,24 +1065,24 @@ void RB_CalcFogTexCoords( float *st ) {
 
 		//eyeT = DotProduct( backEnd.or.viewOrigin, fogDepthVector ) + fogDepthVector[3];
         fogDepthVector[0] =
-            (fog->surface[0] * ::backEnd.orientation.axis[0][0]) +
-            (fog->surface[1] * ::backEnd.orientation.axis[0][1]) +
-            (fog->surface[2] * ::backEnd.orientation.axis[0][2]);
+            (fog->surface[0] * backEnd.orientation.axis[0][0]) +
+            (fog->surface[1] * backEnd.orientation.axis[0][1]) +
+            (fog->surface[2] * backEnd.orientation.axis[0][2]);
 
         fogDepthVector[1] =
-            (fog->surface[0] * ::backEnd.orientation.axis[1][0]) +
-            (fog->surface[1] * ::backEnd.orientation.axis[1][1]) +
-            (fog->surface[2] * ::backEnd.orientation.axis[1][2]);
+            (fog->surface[0] * backEnd.orientation.axis[1][0]) +
+            (fog->surface[1] * backEnd.orientation.axis[1][1]) +
+            (fog->surface[2] * backEnd.orientation.axis[1][2]);
 
         fogDepthVector[2] =
-            (fog->surface[0] * ::backEnd.orientation.axis[2][0]) +
-            (fog->surface[1] * ::backEnd.orientation.axis[2][1]) +
-            (fog->surface[2] * ::backEnd.orientation.axis[2][2]);
+            (fog->surface[0] * backEnd.orientation.axis[2][0]) +
+            (fog->surface[1] * backEnd.orientation.axis[2][1]) +
+            (fog->surface[2] * backEnd.orientation.axis[2][2]);
 
         fogDepthVector[3] = -fog->surface[3] + DotProduct (
-            ::backEnd.orientation.origin, fog->surface);
+            backEnd.orientation.origin, fog->surface);
 
-        eyeT = DotProduct (::backEnd.orientation.viewOrigin, fogDepthVector) +
+        eyeT = DotProduct (backEnd.orientation.viewOrigin, fogDepthVector) +
             fogDepthVector[3];
         // BBi
 	} else {
@@ -1305,7 +1305,7 @@ void RB_CalcEnvironmentTexCoords( float *st ) {
 	{
         // BBi
 		//VectorSubtract( backEnd.or.viewOrigin, v, viewer );
-        VectorSubtract (::backEnd.orientation.viewOrigin, v, viewer);
+        VectorSubtract (backEnd.orientation.viewOrigin, v, viewer);
         // BBi
 
 		VectorNormalizeFast( viewer );
@@ -1526,7 +1526,7 @@ void RB_CalcSpecularAlpha( unsigned char *alphas ) {
 //#else
 //		VectorSubtract( backEnd.orientation.viewOrigin, v, viewer );
 //#endif // RTCW_XX
-        VectorSubtract (::backEnd.orientation.viewOrigin, v, viewer);
+        VectorSubtract (backEnd.orientation.viewOrigin, v, viewer);
 // BBi
 
 		ilength = Q_rsqrt( DotProduct( viewer, viewer ) );

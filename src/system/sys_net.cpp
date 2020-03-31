@@ -103,7 +103,7 @@ bool Sys_StringToSockaddr(
     const char *s,
     IPaddress& sadr)
 {
-    auto sdl_result = ::SDLNet_ResolveHost(
+    auto sdl_result = SDLNet_ResolveHost(
         &sadr,
         s,
         0);
@@ -123,11 +123,11 @@ UDPsocket NET_IPSocket(
     int port)
 {
     if (net_interface) {
-        ::Com_Printf(
+        Com_Printf(
             "Opening IP socket: %s:%i\n",
             net_interface, port);
     } else {
-        ::Com_Printf(
+        Com_Printf(
             "Opening IP socket: localhost:%i\n",
             port);
     }
@@ -136,15 +136,15 @@ UDPsocket NET_IPSocket(
     UDPsocket udp_socket = nullptr;
 
     if (is_succeed) {
-        udp_socket = ::SDLNet_UDP_Open(
+        udp_socket = SDLNet_UDP_Open(
             static_cast<Uint16>(port));
 
         if (!udp_socket) {
             is_succeed = false;
 
-            ::Com_Printf(
+            Com_Printf(
                 "WARNING: UDP_OpenSocket: socket: %s\n",
-                ::SDLNet_GetError());
+                SDLNet_GetError());
         }
     }
 
@@ -157,7 +157,7 @@ UDPsocket NET_IPSocket(
         {
             ip_address.host = INADDR_ANY;
         } else {
-            ::Sys_StringToSockaddr(
+            Sys_StringToSockaddr(
                 net_interface,
                 ip_address);
         }
@@ -174,7 +174,7 @@ UDPsocket NET_IPSocket(
     if (is_succeed) {
     } else {
         if (udp_socket) {
-            ::SDLNet_UDP_Close(
+            SDLNet_UDP_Close(
                 udp_socket);
 
             udp_socket = nullptr;
@@ -189,29 +189,29 @@ void NET_GetLocalAddress()
     int sdl_result = 0;
     IPaddress current_address;
 
-    sdl_result = ::SDLNet_ResolveHost(
+    sdl_result = SDLNet_ResolveHost(
         &current_address,
         nullptr,
         0);
 
-    auto host_name = ::SDLNet_ResolveIP(
+    auto host_name = SDLNet_ResolveIP(
         &current_address);
 
     if (!host_name) {
         host_name = "localhost";
     }
 
-    ::Com_Printf(
+    Com_Printf(
         "Hostname: %s\n",
         host_name);
 
     IPaddress addresses[MAX_IPS];
 
-    ::numIP = ::SDLNet_GetLocalAddresses(
+    numIP = SDLNet_GetLocalAddresses(
         addresses,
         MAX_IPS);
 
-    for (int i = 0; i < ::numIP; ++i) {
+    for (int i = 0; i < numIP; ++i) {
         const auto& address = addresses[i];
 
         localIP[i][0] = static_cast<byte>((address.host >>  0) & 0xFF);
@@ -219,7 +219,7 @@ void NET_GetLocalAddress()
         localIP[i][2] = static_cast<byte>((address.host >> 16) & 0xFF);
         localIP[i][3] = static_cast<byte>((address.host >> 24) & 0xFF);
 
-        ::Com_Printf(
+        Com_Printf(
             "IP: %i.%i.%i.%i\n",
             localIP[i][0],
             localIP[i][1],
@@ -230,47 +230,47 @@ void NET_GetLocalAddress()
 
 void NET_OpenIP()
 {
-    auto ip = ::Cvar_Get(
+    auto ip = Cvar_Get(
         "net_ip",
         "localhost",
         CVAR_LATCH);
 
-    auto port = ::Cvar_Get(
+    auto port = Cvar_Get(
         "net_port",
-        ::va("%i", PORT_SERVER),
+        va("%i", PORT_SERVER),
         CVAR_LATCH)->integer;
 
     // automatically scan for a valid port, so multiple
     // dedicated servers can be started without requiring
     // a different net_port for each one
     for (int i = 0; i < 10; ++i) {
-        ::ip_socket = ::NET_IPSocket(
+        ip_socket = NET_IPSocket(
             ip->string,
             port + i);
 
-        if (::ip_socket) {
-            ::Cvar_SetValue(
+        if (ip_socket) {
+            Cvar_SetValue(
                 "net_port",
                 static_cast<float>(port + i));
 
-            ::NET_GetLocalAddress();
+            NET_GetLocalAddress();
 
             return;
         }
     }
 
-    ::Com_Printf("WARNING: Couldn't allocate IP port\n");
+    Com_Printf("WARNING: Couldn't allocate IP port\n");
 }
 
 bool NET_GetCvars()
 {
     auto modified = false;
 
-    if (::net_noudp && ::net_noudp->modified) {
+    if (net_noudp && net_noudp->modified) {
         modified = true;
     }
 
-    ::net_noudp = ::Cvar_Get(
+    net_noudp = Cvar_Get(
         "net_noudp",
         "0",
         CVAR_LATCH | CVAR_ARCHIVE);
@@ -285,18 +285,18 @@ void NET_Config(
     bool start = false;
 
     // get any latched changes to cvars
-    auto modified = ::NET_GetCvars();
+    auto modified = NET_GetCvars();
 
-    if (::net_noudp->integer != 0) {
+    if (net_noudp->integer != 0) {
         enableNetworking = false;
     }
 
     // if enable state is the same and no cvars were modified, we have nothing to do
-    if (enableNetworking == ::networkingEnabled && !modified) {
+    if (enableNetworking == networkingEnabled && !modified) {
         return;
     }
 
-    if (enableNetworking == ::networkingEnabled) {
+    if (enableNetworking == networkingEnabled) {
         if (enableNetworking) {
             stop = true;
             start = true;
@@ -313,21 +313,21 @@ void NET_Config(
             start = false;
         }
 
-        ::networkingEnabled = enableNetworking;
+        networkingEnabled = enableNetworking;
     }
 
     if (stop) {
         if (ip_socket) {
-            ::SDLNet_UDP_Close(
-                ::ip_socket);
+            SDLNet_UDP_Close(
+                ip_socket);
 
             ip_socket = nullptr;
         }
     }
 
     if (start) {
-        if (::net_noudp->integer == 0) {
-            ::NET_OpenIP();
+        if (net_noudp->integer == 0) {
+            NET_OpenIP();
         }
     }
 }
@@ -339,29 +339,29 @@ void NET_Config(
 void NET_Init()
 {
 #ifndef RTCW_SP
-    auto init_result = ::SDLNet_Init();
+    auto init_result = SDLNet_Init();
 
     if (init_result != 0) {
-        ::Com_Printf(
+        Com_Printf(
             "WARNING: Failed to initialize SDL_net: %s\n",
-            ::SDLNet_GetError());
+            SDLNet_GetError());
 
         return;
     }
 
-    ::udp_packet.len = 0;
-    ::udp_packet.status = 0;
-    ::udp_packet.maxlen = MAX_MSGLEN;
+    udp_packet.len = 0;
+    udp_packet.status = 0;
+    udp_packet.maxlen = MAX_MSGLEN;
 
-    ::sockInitialized = true;
+    sockInitialized = true;
 
-    ::Com_Printf("SDL_net initialized.\n");
+    Com_Printf("SDL_net initialized.\n");
 
     // this is really just to get the cvars registered
-    ::NET_GetCvars();
+    NET_GetCvars();
 
     //FIXME testing!
-    ::NET_Config(
+    NET_Config(
         true);
 #endif // RTCW_XX
 }
@@ -372,12 +372,12 @@ void NET_Shutdown()
         return;
     }
 
-    ::NET_Config(
+    NET_Config(
         false);
 
-    ::SDLNet_Quit();
+    SDLNet_Quit();
 
-    ::sockInitialized = false;
+    sockInitialized = false;
 }
 
 // sleeps msec or until net socket is ready
@@ -389,8 +389,8 @@ void NET_Sleep(
 
 void NET_Restart()
 {
-    ::NET_Config(
-        ::networkingEnabled);
+    NET_Config(
+        networkingEnabled);
 }
 
 // idnewt
@@ -405,7 +405,7 @@ bool Sys_StringToAdr(
         return false;
     }
 
-    ::SockadrToNetadr(sadr, *a);
+    SockadrToNetadr(sadr, *a);
 
     return true;
 }
@@ -419,34 +419,34 @@ bool Sys_GetPacket(
         return false;
     }
 
-    ::udp_packet.data = net_message->data;
+    udp_packet.data = net_message->data;
 
-    auto sdl_result = ::SDLNet_UDP_Recv(
+    auto sdl_result = SDLNet_UDP_Recv(
         ip_socket,
         &::udp_packet);
 
     if (sdl_result == 1) {
-        ::SockadrToNetadr(
-            ::udp_packet.address,
+        SockadrToNetadr(
+            udp_packet.address,
             *net_from);
 
         net_message->readcount = 0;
 
-        if (::udp_packet.len > net_message->maxsize) {
-            ::Com_Printf(
+        if (udp_packet.len > net_message->maxsize) {
+            Com_Printf(
                 "Oversize packet from %s\n",
-                ::NET_AdrToString(*net_from));
+                NET_AdrToString(*net_from));
 
             return false;
         }
 
-        net_message->cursize = ::udp_packet.len;
+        net_message->cursize = udp_packet.len;
 
         return true;
     } else if (sdl_result == -1) {
-        ::Com_Printf(
+        Com_Printf(
             "NET_GetPacket: %s\n",
-            ::SDLNet_GetError());
+            SDLNet_GetError());
 
         return false;
     } else {
@@ -462,7 +462,7 @@ void Sys_SendPacket(
     if (to.type != NA_BROADCAST &&
         to.type != NA_IP)
     {
-        ::Com_Error(
+        Com_Error(
             ERR_FATAL,
             "Sys_SendPacket: bad address type");
 
@@ -475,23 +475,23 @@ void Sys_SendPacket(
 
     IPaddress addr;
 
-    ::NetadrToSockadr(
+    NetadrToSockadr(
         to,
         addr);
 
-    ::udp_packet.address = addr;
-    ::udp_packet.len = length;
-    ::udp_packet.data = static_cast<Uint8*>(const_cast<void*>(data));
+    udp_packet.address = addr;
+    udp_packet.len = length;
+    udp_packet.data = static_cast<Uint8*>(const_cast<void*>(data));
 
-    auto sdl_result = ::SDLNet_UDP_Send(
+    auto sdl_result = SDLNet_UDP_Send(
         ip_socket,
         -1,
         &::udp_packet);
 
     if (sdl_result != 1) {
-        ::Com_Printf(
+        Com_Printf(
             "NET_SendPacket: %s\n",
-            ::SDLNet_GetError());
+            SDLNet_GetError());
     }
 }
 
@@ -522,8 +522,8 @@ bool Sys_IsLANAddress(
 
     // Class A
     if ((adr.ip[0] & 0x80) == 0x00) {
-        for (int i = 0; i < ::numIP; ++i) {
-            if (adr.ip[0] == ::localIP[i][0]) {
+        for (int i = 0; i < numIP; ++i) {
+            if (adr.ip[0] == localIP[i][0]) {
                 return true;
             }
         }
@@ -533,18 +533,18 @@ bool Sys_IsLANAddress(
 
     // Class B
     if ((adr.ip[0] & 0xc0) == 0x80) {
-        for (int i = 0; i < ::numIP; ++i) {
-            if (adr.ip[0] == ::localIP[i][0] &&
-                adr.ip[1] == ::localIP[i][1])
+        for (int i = 0; i < numIP; ++i) {
+            if (adr.ip[0] == localIP[i][0] &&
+                adr.ip[1] == localIP[i][1])
             {
                 return true;
             }
 
             // also check against the RFC1918 class b blocks
             if (adr.ip[0] == 172 &&
-                ::localIP[i][0] == 172 &&
+                localIP[i][0] == 172 &&
                 (adr.ip[1] & 0xF0) == 16 &&
-                (::localIP[i][1] & 0xF0) == 16)
+                (localIP[i][1] & 0xF0) == 16)
             {
                 return true;
             }
@@ -554,19 +554,19 @@ bool Sys_IsLANAddress(
     }
 
     // Class C
-    for (int i = 0; i < ::numIP; ++i) {
-        if (adr.ip[0] == ::localIP[i][0] &&
-            adr.ip[1] == ::localIP[i][1] &&
-            adr.ip[2] == ::localIP[i][2])
+    for (int i = 0; i < numIP; ++i) {
+        if (adr.ip[0] == localIP[i][0] &&
+            adr.ip[1] == localIP[i][1] &&
+            adr.ip[2] == localIP[i][2])
         {
             return true;
         }
 
         // also check against the RFC1918 class c blocks
         if (adr.ip[0] == 192 && 
-            ::localIP[i][0] == 192 &&
+            localIP[i][0] == 192 &&
             adr.ip[1] == 168 &&
-            ::localIP[i][1] == 168)
+            localIP[i][1] == 168)
         {
             return true;
         }
@@ -578,11 +578,11 @@ bool Sys_IsLANAddress(
 void Sys_ShowIP()
 {
     for (int i = 0; i < ++numIP; ++i) {
-        ::Com_Printf(
+        Com_Printf(
             "IP: %i.%i.%i.%i\n",
-            ::localIP[i][0],
-            ::localIP[i][1],
-            ::localIP[i][2],
-            ::localIP[i][3]);
+            localIP[i][0],
+            localIP[i][1],
+            localIP[i][2],
+            localIP[i][3]);
     }
 }

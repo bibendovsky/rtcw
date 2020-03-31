@@ -75,12 +75,12 @@ void ogl_tess2_draw (GLenum mode, int vertex_count,
         ogl_tess2_base_vertex = 0;
     }
 
-    ::glUseProgram (ogl_tess_program->program_);
+    glUseProgram (ogl_tess_program->program_);
 
-    ::glBindBuffer (GL_ARRAY_BUFFER, ogl_tess2_vbo);
+    glBindBuffer (GL_ARRAY_BUFFER, ogl_tess2_vbo);
 
     if (use_pos_array) {
-        ::glBufferSubData (GL_ARRAY_BUFFER,
+        glBufferSubData (GL_ARRAY_BUFFER,
             OglTessLayout::POS_OFS +
                 (ogl_tess2_base_vertex * OglTessLayout::POS_SIZE),
             vertex_count * OglTessLayout::POS_SIZE,
@@ -88,7 +88,7 @@ void ogl_tess2_draw (GLenum mode, int vertex_count,
     }
 
     if (use_tc0_array) {
-        ::glBufferSubData (GL_ARRAY_BUFFER,
+        glBufferSubData (GL_ARRAY_BUFFER,
             OglTessLayout::TC0_OFS +
                 (ogl_tess2_base_vertex * OglTessLayout::TC0_SIZE),
             vertex_count * OglTessLayout::TC0_SIZE,
@@ -96,7 +96,7 @@ void ogl_tess2_draw (GLenum mode, int vertex_count,
     }
 
     if (use_col_array) {
-        ::glBufferSubData (GL_ARRAY_BUFFER,
+        glBufferSubData (GL_ARRAY_BUFFER,
             OglTessLayout::COL_OFS +
                 (ogl_tess2_base_vertex * OglTessLayout::COL_SIZE),
             vertex_count * OglTessLayout::COL_SIZE,
@@ -105,44 +105,44 @@ void ogl_tess2_draw (GLenum mode, int vertex_count,
 
     // position
     if (use_pos_array) {
-        ::glVertexAttribPointer (ogl_tess_program->a_pos_vec4, 3, GL_FLOAT,
+        glVertexAttribPointer (ogl_tess_program->a_pos_vec4, 3, GL_FLOAT,
             GL_FALSE, OglTessLayout::POS_SIZE,
             OglTessLayout::POS_PTR);
 
-        ::glEnableVertexAttribArray (ogl_tess_program->a_pos_vec4);
+        glEnableVertexAttribArray (ogl_tess_program->a_pos_vec4);
     }
 
     // texture coordinates (0)
     if (use_tc0_array) {
-        ::glVertexAttribPointer (ogl_tess_program->a_tc0_vec2, 2, GL_FLOAT,
+        glVertexAttribPointer (ogl_tess_program->a_tc0_vec2, 2, GL_FLOAT,
             GL_FALSE, 0, OglTessLayout::TC0_PTR);
 
-        ::glEnableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
+        glEnableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
     }
 
     // color
     if (use_col_array) {
-        ::glVertexAttribPointer (ogl_tess_program->a_col_vec4, 4,
+        glVertexAttribPointer (ogl_tess_program->a_col_vec4, 4,
             GL_UNSIGNED_BYTE, GL_TRUE, 0,
             OglTessLayout::COL_PTR);
 
-        ::glEnableVertexAttribArray (ogl_tess_program->a_col_vec4);
+        glEnableVertexAttribArray (ogl_tess_program->a_col_vec4);
     }
 
-    ::glDrawArrays (mode, ogl_tess2_base_vertex, vertex_count);
+    glDrawArrays (mode, ogl_tess2_base_vertex, vertex_count);
 
-    ::glUseProgram (0);
+    glUseProgram (0);
 
     if (use_pos_array)
-        ::glDisableVertexAttribArray (ogl_tess_program->a_pos_vec4);
+        glDisableVertexAttribArray (ogl_tess_program->a_pos_vec4);
 
     if (use_tc0_array)
-        ::glDisableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
+        glDisableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
 
     if (use_col_array)
-        ::glDisableVertexAttribArray (ogl_tess_program->a_col_vec4);
+        glDisableVertexAttribArray (ogl_tess_program->a_col_vec4);
 
-    ::glBindBuffer (GL_ARRAY_BUFFER, 0);
+    glBindBuffer (GL_ARRAY_BUFFER, 0);
 
     ogl_tess2_base_vertex += vertex_count;
 }
@@ -169,7 +169,7 @@ void GL_Bind( image_t *image ) {
 	if ( glState.currenttextures[glState.currenttmu] != texnum ) {
 		image->frameUsed = tr.frameCount;
 		glState.currenttextures[glState.currenttmu] = texnum;
-		::glBindTexture( GL_TEXTURE_2D, texnum );
+		glBindTexture( GL_TEXTURE_2D, texnum );
 	}
 }
 
@@ -236,13 +236,13 @@ void GL_BindMultitexture( image_t *image0, GLuint env0, image_t *image1, GLuint 
 		GL_SelectTexture( 1 );
 		image1->frameUsed = tr.frameCount;
 		glState.currenttextures[1] = texnum1;
-		::glBindTexture( GL_TEXTURE_2D, texnum1 );
+		glBindTexture( GL_TEXTURE_2D, texnum1 );
 	}
 	if ( glState.currenttextures[0] != texnum0 ) {
 		GL_SelectTexture( 0 );
 		image0->frameUsed = tr.frameCount;
 		glState.currenttextures[0] = texnum0;
-		::glBindTexture( GL_TEXTURE_2D, texnum0 );
+		glBindTexture( GL_TEXTURE_2D, texnum0 );
 	}
 }
 
@@ -258,25 +258,25 @@ void GL_Cull( int cullType ) {
 	glState.faceCulling = cullType;
 
 	if ( cullType == CT_TWO_SIDED ) {
-		::glDisable( GL_CULL_FACE );
+		glDisable( GL_CULL_FACE );
 	} else
 	{
-		::glEnable( GL_CULL_FACE );
+		glEnable( GL_CULL_FACE );
 
 		if ( cullType == CT_BACK_SIDED ) {
 			if ( backEnd.viewParms.isMirror ) {
-				::glCullFace( GL_FRONT );
+				glCullFace( GL_FRONT );
 			} else
 			{
-				::glCullFace( GL_BACK );
+				glCullFace( GL_BACK );
 			}
 		} else
 		{
 			if ( backEnd.viewParms.isMirror ) {
-				::glCullFace( GL_BACK );
+				glCullFace( GL_BACK );
 			} else
 			{
-				::glCullFace( GL_FRONT );
+				glCullFace( GL_FRONT );
 			}
 		}
 	}
@@ -307,7 +307,7 @@ void GL_TexEnv( int env ) {
         } else {
         // BBi
 
-		::glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+		glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 
         // BBi
         }
@@ -321,7 +321,7 @@ void GL_TexEnv( int env ) {
         } else {
         // BBi
 
-		::glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE );
+		glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE );
 
         // BBi
         }
@@ -335,7 +335,7 @@ void GL_TexEnv( int env ) {
         } else {
         // BBi
 
-		::glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL );
+		glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL );
 
         // BBi
         }
@@ -349,7 +349,7 @@ void GL_TexEnv( int env ) {
         } else {
         // BBi
 
-		::glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD );
+		glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD );
 
         // BBi
         }
@@ -385,10 +385,10 @@ void GL_State( unsigned long stateBits ) {
 	//
 	if ( diff & GLS_DEPTHFUNC_EQUAL ) {
 		if ( stateBits & GLS_DEPTHFUNC_EQUAL ) {
-			::glDepthFunc( GL_EQUAL );
+			glDepthFunc( GL_EQUAL );
 		} else
 		{
-			::glDepthFunc( GL_LEQUAL );
+			glDepthFunc( GL_LEQUAL );
 		}
 	}
 
@@ -466,11 +466,11 @@ void GL_State( unsigned long stateBits ) {
 				break;
 			}
 
-			::glEnable( GL_BLEND );
-			::glBlendFunc( srcFactor, dstFactor );
+			glEnable( GL_BLEND );
+			glBlendFunc( srcFactor, dstFactor );
 		} else
 		{
-			::glDisable( GL_BLEND );
+			glDisable( GL_BLEND );
 		}
 	}
 
@@ -479,10 +479,10 @@ void GL_State( unsigned long stateBits ) {
 	//
 	if ( diff & GLS_DEPTHMASK_TRUE ) {
 		if ( stateBits & GLS_DEPTHMASK_TRUE ) {
-			::glDepthMask( GL_TRUE );
+			glDepthMask( GL_TRUE );
 		} else
 		{
-			::glDepthMask( GL_FALSE );
+			glDepthMask( GL_FALSE );
 		}
 	}
 
@@ -491,10 +491,10 @@ void GL_State( unsigned long stateBits ) {
 	//
 	if ( diff & GLS_POLYMODE_LINE ) {
 		if ( stateBits & GLS_POLYMODE_LINE ) {
-			::glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+			glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 		} else
 		{
-			::glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 		}
 	}
 
@@ -503,10 +503,10 @@ void GL_State( unsigned long stateBits ) {
 	//
 	if ( diff & GLS_DEPTHTEST_DISABLE ) {
 		if ( stateBits & GLS_DEPTHTEST_DISABLE ) {
-			::glDisable( GL_DEPTH_TEST );
+			glDisable( GL_DEPTH_TEST );
 		} else
 		{
-			::glEnable( GL_DEPTH_TEST );
+			glEnable( GL_DEPTH_TEST );
 		}
 	}
 
@@ -523,7 +523,7 @@ void GL_State( unsigned long stateBits ) {
             } else {
             // BBi
 
-			::glDisable( GL_ALPHA_TEST );
+			glDisable( GL_ALPHA_TEST );
 
             // BBi
             }
@@ -539,8 +539,8 @@ void GL_State( unsigned long stateBits ) {
             } else {
             // BBi
 
-			::glEnable( GL_ALPHA_TEST );
-			::glAlphaFunc( GL_GREATER, 0.0f );
+			glEnable( GL_ALPHA_TEST );
+			glAlphaFunc( GL_GREATER, 0.0f );
 
             // BBi
             }
@@ -556,8 +556,8 @@ void GL_State( unsigned long stateBits ) {
             } else {
             // BBi
 
-			::glEnable( GL_ALPHA_TEST );
-			::glAlphaFunc( GL_LESS, 0.5f );
+			glEnable( GL_ALPHA_TEST );
+			glAlphaFunc( GL_LESS, 0.5f );
 
             // BBi
             }
@@ -573,8 +573,8 @@ void GL_State( unsigned long stateBits ) {
             } else {
             // BBi
 
-			::glEnable( GL_ALPHA_TEST );
-			::glAlphaFunc( GL_GEQUAL, 0.5f );
+			glEnable( GL_ALPHA_TEST );
+			glAlphaFunc( GL_GEQUAL, 0.5f );
 
             // BBi
             }
@@ -612,8 +612,8 @@ static void RB_Hyperspace( void ) {
 	}
 
 	c = ( backEnd.refdef.time & 255 ) / 255.0f;
-	::glClearColor( c, c, c, 1 );
-	::glClear( GL_COLOR_BUFFER_BIT );
+	glClearColor( c, c, c, 1 );
+	glClear( GL_COLOR_BUFFER_BIT );
 
 	backEnd.isHyperspace = qtrue;
 }
@@ -629,9 +629,9 @@ static void SetViewportAndScissor( void ) {
     } else {
     // BBi
 
-	::glMatrixMode( GL_PROJECTION );
-	::glLoadMatrixf( backEnd.viewParms.projectionMatrix );
-	::glMatrixMode( GL_MODELVIEW );
+	glMatrixMode( GL_PROJECTION );
+	glLoadMatrixf( backEnd.viewParms.projectionMatrix );
+	glMatrixMode( GL_MODELVIEW );
 
     // BBi
     }
@@ -640,20 +640,20 @@ static void SetViewportAndScissor( void ) {
 	// set the window clipping
 
 #if defined RTCW_SP
-	::glViewport(    backEnd.viewParms.viewportX,
+	glViewport(    backEnd.viewParms.viewportX,
 					backEnd.viewParms.viewportY,
 					backEnd.viewParms.viewportWidth,
 					backEnd.viewParms.viewportHeight );
 
 // TODO: insert handling for widescreen?  (when looking through camera)
-	::glScissor(     backEnd.viewParms.viewportX,
+	glScissor(     backEnd.viewParms.viewportX,
 					backEnd.viewParms.viewportY,
 					backEnd.viewParms.viewportWidth,
 					backEnd.viewParms.viewportHeight );
 #else
-	::glViewport( backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+	glViewport( backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 				 backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
-	::glScissor( backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+	glScissor( backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 				backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
 #endif // RTCW_XX
 
@@ -672,7 +672,7 @@ void RB_BeginDrawingView( void ) {
 
 	// sync with gl if needed
 	if ( r_finish->integer == 1 && !glState.finishCalled ) {
-		::glFinish();
+		glFinish();
 		glState.finishCalled = qtrue;
 	}
 	if ( r_finish->integer == 0 ) {
@@ -716,7 +716,7 @@ void RB_BeginDrawingView( void ) {
 		clearBits |= GL_DEPTH_BUFFER_BIT;
 		clearBits |= GL_COLOR_BUFFER_BIT;
 		//
-		::glClearColor( tr.world->fogs[tr.world->globalFog].shader->fogParms.color[ 0 ] * tr.identityLight,
+		glClearColor( tr.world->fogs[tr.world->globalFog].shader->fogParms.color[ 0 ] * tr.identityLight,
 					   tr.world->fogs[tr.world->globalFog].shader->fogParms.color[ 1 ] * tr.identityLight,
 					   tr.world->fogs[tr.world->globalFog].shader->fogParms.color[ 2 ] * tr.identityLight, 1.0 );
 	} else if ( skyboxportal )      {
@@ -730,16 +730,16 @@ void RB_BeginDrawingView( void ) {
 				// try clearing first with the portal sky fog color, then the world fog color, then finally a default
 				clearBits |= GL_COLOR_BUFFER_BIT;
 				if ( glfogsettings[FOG_PORTALVIEW].registered ) {
-					::glClearColor( glfogsettings[FOG_PORTALVIEW].color[0], glfogsettings[FOG_PORTALVIEW].color[1], glfogsettings[FOG_PORTALVIEW].color[2], glfogsettings[FOG_PORTALVIEW].color[3] );
+					glClearColor( glfogsettings[FOG_PORTALVIEW].color[0], glfogsettings[FOG_PORTALVIEW].color[1], glfogsettings[FOG_PORTALVIEW].color[2], glfogsettings[FOG_PORTALVIEW].color[3] );
 				} else if ( glfogNum > FOG_NONE && glfogsettings[FOG_CURRENT].registered )      {
-					::glClearColor( glfogsettings[FOG_CURRENT].color[0], glfogsettings[FOG_CURRENT].color[1], glfogsettings[FOG_CURRENT].color[2], glfogsettings[FOG_CURRENT].color[3] );
+					glClearColor( glfogsettings[FOG_CURRENT].color[0], glfogsettings[FOG_CURRENT].color[1], glfogsettings[FOG_CURRENT].color[2], glfogsettings[FOG_CURRENT].color[3] );
 				} else {
-//					::glClearColor ( 1.0, 0.0, 0.0, 1.0 );	// red clear for testing portal sky clear
-					::glClearColor( 0.5, 0.5, 0.5, 1.0 );
+//					glClearColor ( 1.0, 0.0, 0.0, 1.0 );	// red clear for testing portal sky clear
+					glClearColor( 0.5, 0.5, 0.5, 1.0 );
 				}
 			} else {                                                    // rendered sky (either clear color or draw quake sky)
 				if ( glfogsettings[FOG_PORTALVIEW].registered ) {
-					::glClearColor( glfogsettings[FOG_PORTALVIEW].color[0], glfogsettings[FOG_PORTALVIEW].color[1], glfogsettings[FOG_PORTALVIEW].color[2], glfogsettings[FOG_PORTALVIEW].color[3] );
+					glClearColor( glfogsettings[FOG_PORTALVIEW].color[0], glfogsettings[FOG_PORTALVIEW].color[1], glfogsettings[FOG_PORTALVIEW].color[2], glfogsettings[FOG_PORTALVIEW].color[3] );
 
 					if ( glfogsettings[FOG_PORTALVIEW].clearscreen ) {    // portal fog requests a screen clear (distance fog rather than quake sky)
 						clearBits |= GL_COLOR_BUFFER_BIT;
@@ -761,12 +761,12 @@ void RB_BeginDrawingView( void ) {
 					clearBits |= GL_COLOR_BUFFER_BIT;
 				}
 
-				::glClearColor( glfogsettings[FOG_CURRENT].color[0], glfogsettings[FOG_CURRENT].color[1], glfogsettings[FOG_CURRENT].color[2], glfogsettings[FOG_CURRENT].color[3] );
+				glClearColor( glfogsettings[FOG_CURRENT].color[0], glfogsettings[FOG_CURRENT].color[1], glfogsettings[FOG_CURRENT].color[2], glfogsettings[FOG_CURRENT].color[3] );
 
 #if defined RTCW_ET
 			} else if ( !( r_portalsky->integer ) ) {      // ydnar: portal skies have been manually turned off, clear bg color
 				clearBits |= GL_COLOR_BUFFER_BIT;
-				::glClearColor( 0.5, 0.5, 0.5, 1.0 );
+				glClearColor( 0.5, 0.5, 0.5, 1.0 );
 #endif // RTCW_XX
 
 			}
@@ -790,18 +790,18 @@ void RB_BeginDrawingView( void ) {
 			clearBits |= GL_COLOR_BUFFER_BIT;
 
 			if ( glfogsettings[FOG_CURRENT].registered ) { // try to clear fastsky with current fog color
-				::glClearColor( glfogsettings[FOG_CURRENT].color[0], glfogsettings[FOG_CURRENT].color[1], glfogsettings[FOG_CURRENT].color[2], glfogsettings[FOG_CURRENT].color[3] );
+				glClearColor( glfogsettings[FOG_CURRENT].color[0], glfogsettings[FOG_CURRENT].color[1], glfogsettings[FOG_CURRENT].color[2], glfogsettings[FOG_CURRENT].color[3] );
 			} else {
-//				::glClearColor ( 0.0, 0.0, 1.0, 1.0 );	// blue clear for testing world sky clear
+//				glClearColor ( 0.0, 0.0, 1.0, 1.0 );	// blue clear for testing world sky clear
 #if defined RTCW_SP
-				::glClearColor( 0.5, 0.5, 0.5, 1.0 );
+				glClearColor( 0.5, 0.5, 0.5, 1.0 );
 #else
-				::glClearColor( 0.05, 0.05, 0.05, 1.0 );  // JPW NERVE changed per id req was 0.5s
+				glClearColor( 0.05, 0.05, 0.05, 1.0 );  // JPW NERVE changed per id req was 0.5s
 #endif
 			}
 		} else {        // world scene, no portal sky, not fastsky, clear color if fog says to, otherwise, just set the clearcolor
 			if ( glfogsettings[FOG_CURRENT].registered ) { // try to clear fastsky with current fog color
-				::glClearColor( glfogsettings[FOG_CURRENT].color[0], glfogsettings[FOG_CURRENT].color[1], glfogsettings[FOG_CURRENT].color[2], glfogsettings[FOG_CURRENT].color[3] );
+				glClearColor( glfogsettings[FOG_CURRENT].color[0], glfogsettings[FOG_CURRENT].color[1], glfogsettings[FOG_CURRENT].color[2], glfogsettings[FOG_CURRENT].color[3] );
 
 				if ( glfogsettings[FOG_CURRENT].clearscreen ) {   // world fog requests a screen clear (distance fog rather than quake sky)
 					clearBits |= GL_COLOR_BUFFER_BIT;
@@ -819,7 +819,7 @@ void RB_BeginDrawingView( void ) {
 #endif // RTCW_XX
 
 	if ( clearBits ) {
-		::glClear( clearBits );
+		glClear( clearBits );
 	}
 
 //----(SA)	done
@@ -860,13 +860,13 @@ void RB_BeginDrawingView( void ) {
 //		plane2[3] = DotProduct( plane, backEnd.viewParms.orientation.origin ) - plane[3];
 //#endif // RTCW_XX
         plane2[0] = DotProduct (
-            ::backEnd.viewParms.orientation.axis[0], plane);
+            backEnd.viewParms.orientation.axis[0], plane);
         plane2[1] = DotProduct (
-            ::backEnd.viewParms.orientation.axis[1], plane);
+            backEnd.viewParms.orientation.axis[1], plane);
         plane2[2] = DotProduct (
-            ::backEnd.viewParms.orientation.axis[2], plane);
+            backEnd.viewParms.orientation.axis[2], plane);
         plane2[3] = DotProduct (
-            plane, ::backEnd.viewParms.orientation.origin) - plane[3];
+            plane, backEnd.viewParms.orientation.origin) - plane[3];
 // BBi
 
         // BBi
@@ -877,16 +877,16 @@ void RB_BeginDrawingView( void ) {
         } else {
         // BBi
 
-		::glLoadMatrixf( s_flipMatrix );
+		glLoadMatrixf( s_flipMatrix );
 
         // BBi
         }
         // BBi
 
-		::glClipPlane( GL_CLIP_PLANE0, plane2 );
-		::glEnable( GL_CLIP_PLANE0 );
+		glClipPlane( GL_CLIP_PLANE0, plane2 );
+		glEnable( GL_CLIP_PLANE0 );
 	} else {
-		::glDisable( GL_CLIP_PLANE0 );
+		glDisable( GL_CLIP_PLANE0 );
 	}
 }
 
@@ -1372,8 +1372,8 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 //#else
 //				R_RotateForEntity( backEnd.currentEntity, &backEnd.viewParms, &backEnd.orientation );
 //#endif // RTCW_XX
-                ::R_RotateForEntity (
-                    ::backEnd.currentEntity,
+                R_RotateForEntity (
+                    backEnd.currentEntity,
                     &::backEnd.viewParms,
                     &::backEnd.orientation);
 // BBi
@@ -1387,9 +1387,9 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 //#else
 //					R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.orientation );
 //#endif // RTCW_XX
-                    ::R_TransformDlights (
-                        ::backEnd.refdef.num_dlights,
-                        ::backEnd.refdef.dlights,
+                    R_TransformDlights (
+                        backEnd.refdef.num_dlights,
+                        backEnd.refdef.dlights,
                         &::backEnd.orientation);
 // BBi
 				}
@@ -1408,7 +1408,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 //#else
 //				backEnd.orientation = backEnd.viewParms.world;
 //#endif // RTCW_XX
-                ::backEnd.orientation = ::backEnd.viewParms.world;
+                backEnd.orientation = backEnd.viewParms.world;
 // BBi
 
 				// we have to reset the shaderTime as well otherwise image animations on
@@ -1421,22 +1421,22 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 //#else
 //				R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.orientation );
 //#endif // RTCW_XX
-                ::R_TransformDlights (
-                    ::backEnd.refdef.num_dlights,
-                    ::backEnd.refdef.dlights,
+                R_TransformDlights (
+                    backEnd.refdef.num_dlights,
+                    backEnd.refdef.dlights,
                     &::backEnd.orientation);
 // BBi
 			}
 
 // BBi
-            const float* matrix = ::backEnd.orientation.modelMatrix;
+            const float* matrix = backEnd.orientation.modelMatrix;
 // BBi
 
 // BBi
 //#if !defined RTCW_ET
-//			::glLoadMatrixf( backEnd.or.modelMatrix );
+//			glLoadMatrixf( backEnd.or.modelMatrix );
 //#else
-//			::glLoadMatrixf( backEnd.orientation.modelMatrix );
+//			glLoadMatrixf( backEnd.orientation.modelMatrix );
 //#endif // RTCW_XX
             if (!glConfigEx.is_path_ogl_1_x ()) {
                 ogl_model_view_stack.set_current (matrix);
@@ -1444,7 +1444,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
                 ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
                 ogl_tess_state.commit_changes ();
             } else
-                ::glLoadMatrixf (matrix);
+                glLoadMatrixf (matrix);
 // BBi
 
 			//
@@ -1452,9 +1452,9 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			//
 			if ( oldDepthRange != depthRange ) {
 				if ( depthRange ) {
-					::glDepthRange( 0, 0.3 );
+					glDepthRange( 0, 0.3 );
 				} else {
-					::glDepthRange( 0, 1 );
+					glDepthRange( 0, 1 );
 				}
 				oldDepthRange = depthRange;
 			}
@@ -1507,11 +1507,11 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 //	backEnd.orientation = backEnd.viewParms.world;
 //	R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.orientation );
 //#endif // RTCW_XX
-    ::backEnd.orientation = ::backEnd.viewParms.world;
+    backEnd.orientation = backEnd.viewParms.world;
 
-    ::R_TransformDlights (
-        ::backEnd.refdef.num_dlights,
-        ::backEnd.refdef.dlights,
+    R_TransformDlights (
+        backEnd.refdef.num_dlights,
+        backEnd.refdef.dlights,
         &::backEnd.orientation);
 // BBi
 
@@ -1523,14 +1523,14 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
     } else {
     // BBi
 
-	::glLoadMatrixf( backEnd.viewParms.world.modelMatrix );
+	glLoadMatrixf( backEnd.viewParms.world.modelMatrix );
 
     // BBi
     }
     // BBi
 
 	if ( depthRange ) {
-		::glDepthRange( 0, 1 );
+		glDepthRange( 0, 1 );
 	}
 
 	// (SA) draw sun
@@ -1567,8 +1567,8 @@ void    RB_SetGL2D( void ) {
 	backEnd.projection2D = qtrue;
 
 	// set 2D virtual screen size
-	::glViewport( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
-	::glScissor( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
+	glViewport( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
+	glScissor( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
 
     // BBi
     if (!glConfigEx.is_path_ogl_1_x ()) {
@@ -1583,11 +1583,11 @@ void    RB_SetGL2D( void ) {
     } else {
     // BBi
 
-	::glMatrixMode( GL_PROJECTION );
-	::glLoadIdentity();
-	::glOrtho( 0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1 );
-	::glMatrixMode( GL_MODELVIEW );
-	::glLoadIdentity();
+	glMatrixMode( GL_PROJECTION );
+	glLoadIdentity();
+	glOrtho( 0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1 );
+	glMatrixMode( GL_MODELVIEW );
+	glLoadIdentity();
 
     // BBi
     }
@@ -1605,15 +1605,15 @@ void    RB_SetGL2D( void ) {
     } else {
     // BBi
 
-	::glDisable( GL_FOG ); //----(SA)	added
+	glDisable( GL_FOG ); //----(SA)	added
 
     // BBi
     }
     // BBi
 #endif // RTCW_XX
 
-	::glDisable( GL_CULL_FACE );
-	::glDisable( GL_CLIP_PLANE0 );
+	glDisable( GL_CULL_FACE );
+	glDisable( GL_CLIP_PLANE0 );
 
 	// set time for 2D shaders
 	backEnd.refdef.time = ri.Milliseconds();
@@ -1640,7 +1640,7 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 	R_SyncRenderThread();
 
 	// we definately want to sync every frame for the cinematics
-	::glFinish();
+	glFinish();
 
 	start = end = 0;
 	if ( r_speeds->integer ) {
@@ -1662,7 +1662,7 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 	if ( cols != tr.scratchImage[client]->width || rows != tr.scratchImage[client]->height ) {
 		tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth = cols;
 		tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight = rows;
-		::glTexImage2D( GL_TEXTURE_2D, 0, 3, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+		glTexImage2D( GL_TEXTURE_2D, 0, 3, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
 
         //BBi
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
@@ -1670,18 +1670,18 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 
-        GLenum clamp_mode = ::r_get_best_wrap_clamp ();
+        GLenum clamp_mode = r_get_best_wrap_clamp ();
 
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
         //BBi
 	} else {
 		if ( dirty ) {
 			// otherwise, just subimage upload it so that drivers can tell we are going to be changing
 			// it and don't try and do a texture compression
-			::glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, cols, rows, GL_RGBA, GL_UNSIGNED_BYTE, data );
+			glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, cols, rows, GL_RGBA, GL_UNSIGNED_BYTE, data );
 		}
 	}
 
@@ -1700,7 +1700,7 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
     } else {
     // BBi
 
-	::glColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
+	glColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
 
     // BBi
     }
@@ -1732,20 +1732,20 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
             static_cast<float> (x + w), static_cast<float> (y + h),
             0.0F, 1.0F);
 
-        ::ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, true, false);
+        ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, true, false);
     } else {
     // BBi
 
-	::glBegin( GL_QUADS );
-	::glTexCoord2f( 0.5f / cols,  0.5f / rows );
-	::glVertex2f( x, y );
-	::glTexCoord2f( ( cols - 0.5f ) / cols,  0.5f / rows );
-	::glVertex2f( x + w, y );
-	::glTexCoord2f( ( cols - 0.5f ) / cols, ( rows - 0.5f ) / rows );
-	::glVertex2f( x + w, y + h );
-	::glTexCoord2f( 0.5f / cols, ( rows - 0.5f ) / rows );
-	::glVertex2f( x, y + h );
-	::glEnd();
+	glBegin( GL_QUADS );
+	glTexCoord2f( 0.5f / cols,  0.5f / rows );
+	glVertex2f( x, y );
+	glTexCoord2f( ( cols - 0.5f ) / cols,  0.5f / rows );
+	glVertex2f( x + w, y );
+	glTexCoord2f( ( cols - 0.5f ) / cols, ( rows - 0.5f ) / rows );
+	glVertex2f( x + w, y + h );
+	glTexCoord2f( 0.5f / cols, ( rows - 0.5f ) / rows );
+	glVertex2f( x, y + h );
+	glEnd();
 
     // BBi
     }
@@ -1760,7 +1760,7 @@ void RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int
 	if ( cols != tr.scratchImage[client]->width || rows != tr.scratchImage[client]->height ) {
 		tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth = cols;
 		tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight = rows;
-		::glTexImage2D( GL_TEXTURE_2D, 0, 3, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+		glTexImage2D( GL_TEXTURE_2D, 0, 3, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
 
         //BBi
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
@@ -1768,18 +1768,18 @@ void RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 
-        GLenum clamp_mode = ::r_get_best_wrap_clamp ();
+        GLenum clamp_mode = r_get_best_wrap_clamp ();
 
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
-        ::glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
         //BBi
 	} else {
 		if ( dirty ) {
 			// otherwise, just subimage upload it so that drivers can tell we are going to be changing
 			// it and don't try and do a texture compression
-			::glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, cols, rows, GL_RGBA, GL_UNSIGNED_BYTE, data );
+			glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, cols, rows, GL_RGBA, GL_UNSIGNED_BYTE, data );
 		}
 	}
 }
@@ -2131,12 +2131,12 @@ const void  *RB_DrawBuffer( const void *data ) {
 
 	cmd = (const drawBufferCommand_t *)data;
 
-	::glDrawBuffer( cmd->buffer );
+	glDrawBuffer( cmd->buffer );
 
 	// clear screen for debugging
 	if ( r_clear->integer ) {
-		::glClearColor( 1, 0, 0.5, 1 );
-		::glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+		glClearColor( 1, 0, 0.5, 1 );
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	}
 
 	return (const void *)( cmd + 1 );
@@ -2162,9 +2162,9 @@ void RB_ShowImages( void ) {
 		RB_SetGL2D();
 	}
 
-	::glClear( GL_COLOR_BUFFER_BIT );
+	glClear( GL_COLOR_BUFFER_BIT );
 
-	::glFinish();
+	glFinish();
 
 
 	start = ri.Milliseconds();
@@ -2212,27 +2212,27 @@ void RB_ShowImages( void ) {
                 static_cast<float> (x + w), static_cast<float> (y + h),
                 0.0F, 1.0F);
 
-            ::ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, true, false);
+            ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, true, false);
         } else {
         // BBi
 
-		::glBegin( GL_QUADS );
-		::glTexCoord2f( 0, 0 );
-		::glVertex2f( x, y );
-		::glTexCoord2f( 1, 0 );
-		::glVertex2f( x + w, y );
-		::glTexCoord2f( 1, 1 );
-		::glVertex2f( x + w, y + h );
-		::glTexCoord2f( 0, 1 );
-		::glVertex2f( x, y + h );
-		::glEnd();
+		glBegin( GL_QUADS );
+		glTexCoord2f( 0, 0 );
+		glVertex2f( x, y );
+		glTexCoord2f( 1, 0 );
+		glVertex2f( x + w, y );
+		glTexCoord2f( 1, 1 );
+		glVertex2f( x + w, y + h );
+		glTexCoord2f( 0, 1 );
+		glVertex2f( x, y + h );
+		glEnd();
 
         // BBi
         }
         // BBi
 	}
 
-	::glFinish();
+	glFinish();
 
 	end = ri.Milliseconds();
 	ri.Printf( PRINT_ALL, "%i msec to draw all images\n", end - start );
@@ -2369,27 +2369,27 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 
         ogl_tess2.position[11] = glm::vec4 (maxs[0], maxs[1], mins[2], 1.0F);
 
-        ::ogl_tess2_draw (GL_LINES, 12, false, true);
+        ogl_tess2_draw (GL_LINES, 12, false, true);
     } else {
     // BBi
 
-	::glBegin( GL_LINES );
-	::glColor3f( 1, 1, 1 );
+	glBegin( GL_LINES );
+	glColor3f( 1, 1, 1 );
 
-	::glVertex3f( mins[ 0 ], mins[ 1 ], mins[ 2 ] );
-	::glVertex3f( maxs[ 0 ], mins[ 1 ], mins[ 2 ] );
-	::glVertex3f( mins[ 0 ], mins[ 1 ], mins[ 2 ] );
-	::glVertex3f( mins[ 0 ], maxs[ 1 ], mins[ 2 ] );
-	::glVertex3f( mins[ 0 ], mins[ 1 ], mins[ 2 ] );
-	::glVertex3f( mins[ 0 ], mins[ 1 ], maxs[ 2 ] );
+	glVertex3f( mins[ 0 ], mins[ 1 ], mins[ 2 ] );
+	glVertex3f( maxs[ 0 ], mins[ 1 ], mins[ 2 ] );
+	glVertex3f( mins[ 0 ], mins[ 1 ], mins[ 2 ] );
+	glVertex3f( mins[ 0 ], maxs[ 1 ], mins[ 2 ] );
+	glVertex3f( mins[ 0 ], mins[ 1 ], mins[ 2 ] );
+	glVertex3f( mins[ 0 ], mins[ 1 ], maxs[ 2 ] );
 
-	::glVertex3f( maxs[ 0 ], maxs[ 1 ], maxs[ 2 ] );
-	::glVertex3f( mins[ 0 ], maxs[ 1 ], maxs[ 2 ] );
-	::glVertex3f( maxs[ 0 ], maxs[ 1 ], maxs[ 2 ] );
-	::glVertex3f( maxs[ 0 ], mins[ 1 ], maxs[ 2 ] );
-	::glVertex3f( maxs[ 0 ], maxs[ 1 ], maxs[ 2 ] );
-	::glVertex3f( maxs[ 0 ], maxs[ 1 ], mins[ 2 ] );
-	::glEnd();
+	glVertex3f( maxs[ 0 ], maxs[ 1 ], maxs[ 2 ] );
+	glVertex3f( mins[ 0 ], maxs[ 1 ], maxs[ 2 ] );
+	glVertex3f( maxs[ 0 ], maxs[ 1 ], maxs[ 2 ] );
+	glVertex3f( maxs[ 0 ], mins[ 1 ], maxs[ 2 ] );
+	glVertex3f( maxs[ 0 ], maxs[ 1 ], maxs[ 2 ] );
+	glVertex3f( maxs[ 0 ], maxs[ 1 ], mins[ 2 ] );
+	glEnd();
 
     // BBi
     }
@@ -2465,20 +2465,20 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
         ogl_tess2.position[5] = glm::vec4 (
             center[0], center[1], maxs[2], 1.0F);
 
-        ::ogl_tess2_draw (GL_LINES, 6, false, true);
+        ogl_tess2_draw (GL_LINES, 6, false, true);
     } else {
     // BBi
 
-	::glBegin( GL_LINES );
-	::glColor3f( 1, 0.85, 0 );
+	glBegin( GL_LINES );
+	glColor3f( 1, 0.85, 0 );
 
-	::glVertex3f( mins[ 0 ], center[ 1 ], center[ 2 ] );
-	::glVertex3f( maxs[ 0 ], center[ 1 ], center[ 2 ] );
-	::glVertex3f( center[ 0 ], mins[ 1 ], center[ 2 ] );
-	::glVertex3f( center[ 0 ], maxs[ 1 ], center[ 2 ] );
-	::glVertex3f( center[ 0 ], center[ 1 ], mins[ 2 ] );
-	::glVertex3f( center[ 0 ], center[ 1 ], maxs[ 2 ] );
-	::glEnd();
+	glVertex3f( mins[ 0 ], center[ 1 ], center[ 2 ] );
+	glVertex3f( maxs[ 0 ], center[ 1 ], center[ 2 ] );
+	glVertex3f( center[ 0 ], mins[ 1 ], center[ 2 ] );
+	glVertex3f( center[ 0 ], maxs[ 1 ], center[ 2 ] );
+	glVertex3f( center[ 0 ], center[ 1 ], mins[ 2 ] );
+	glVertex3f( center[ 0 ], center[ 1 ], maxs[ 2 ] );
+	glEnd();
 
     // BBi
     }
@@ -2516,7 +2516,7 @@ const void  *RB_SwapBuffers( const void *data ) {
 		unsigned char *stencilReadback;
 
 		stencilReadback = static_cast<byte*> (ri.Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight ));
-		::glReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
+		glReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 
 		for ( i = 0; i < glConfig.vidWidth * glConfig.vidHeight; i++ ) {
 			sum += stencilReadback[i];
@@ -2528,7 +2528,7 @@ const void  *RB_SwapBuffers( const void *data ) {
 
 
 	if ( !glState.finishCalled ) {
-		::glFinish();
+		glFinish();
 	}
 
 	//GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
@@ -2556,11 +2556,11 @@ const void  *RB_RenderToTexture( const void *data ) {
 	cmd = (const renderToTextureCommand_t *)data;
 
 	GL_Bind( cmd->image );
-	::glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_LINEAR );
-	::glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_LINEAR );
-	::glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
-	::glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, cmd->x, cmd->y, cmd->w, cmd->h, 0 );
-//	::glCopyTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, cmd->x, cmd->y, cmd->w, cmd->h );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_LINEAR );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_LINEAR );
+	glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
+	glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, cmd->x, cmd->y, cmd->w, cmd->h, 0 );
+//	glCopyTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, cmd->x, cmd->y, cmd->w, cmd->h );
 
 	return (const void *)( cmd + 1 );
 }
@@ -2579,7 +2579,7 @@ const void  *RB_Finish( const void *data ) {
 
 	cmd = (const renderFinishCommand_t *)data;
 
-	::glFinish();
+	glFinish();
 
 	return (const void *)( cmd + 1 );
 }

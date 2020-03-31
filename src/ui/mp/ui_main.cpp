@@ -2563,24 +2563,24 @@ static void UI_DrawGLInfo (
     vec4_t color,
     int textStyle)
 {
-    ::Text_Paint (
+    Text_Paint (
         rect->x + 2,
         rect->y,
         scale,
         color,
-        ::va (
+        va (
             "VENDOR: %s",
             uiInfo.uiDC.glconfig.vendor_string),
         0,
         60,
         textStyle);
 
-    ::Text_Paint (
+    Text_Paint (
         rect->x + 2,
         rect->y + 15,
         scale,
         color,
-        ::va (
+        va (
             "VERSION: %s: %s",
             uiInfo.uiDC.glconfig.version_string,
             uiInfo.uiDC.glconfig.renderer_string),
@@ -2588,12 +2588,12 @@ static void UI_DrawGLInfo (
         60,
         textStyle);
 
-    ::Text_Paint (
+    Text_Paint (
         rect->x + 2,
         rect->y + 30,
         scale,
         color,
-        ::va (
+        va (
             "FORMAT: color - %d bits, depth - %d bits, stencil - %d bits",
             uiInfo.uiDC.glconfig.colorBits,
             uiInfo.uiDC.glconfig.depthBits,
@@ -2602,7 +2602,7 @@ static void UI_DrawGLInfo (
         60,
         textStyle);
 
-    ::Text_Paint (
+    Text_Paint (
         rect->x + 2,
         rect->y + 55,
         scale,
@@ -5352,7 +5352,7 @@ static void UI_BuildServerDisplayList( qboolean force ) {
 	if ( len == 0 ) {
         //BBi
 		//strcpy( uiInfo.serverStatus.motd, va( "Wolf Multiplayer - Version: %s", Q3_VERSION ) );
-        ::strcpy (uiInfo.serverStatus.motd, ::va ("RTCW Multiplayer - Version: %s", RTCW_VERSION));
+        strcpy (uiInfo.serverStatus.motd, va ("RTCW Multiplayer - Version: %s", RTCW_VERSION));
         //BBi
 
 		len = strlen( uiInfo.serverStatus.motd );
@@ -7361,7 +7361,7 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 	if ( !Q_stricmp( cstate.servername,"localhost" ) ) {
         //BBi
 		//Text_PaintCenter( centerPoint, yStart + 48, scale, colorWhite,va( "Wolf Multiplayer - Version: %s", Q3_VERSION ), ITEM_TEXTSTYLE_SHADOWEDMORE );
-        ::Text_PaintCenter (centerPoint, yStart + 48, scale, colorWhite, ::va ("RTCW Multiplayer - Version: %s", RTCW_VERSION), ITEM_TEXTSTYLE_SHADOWEDMORE);
+        Text_PaintCenter (centerPoint, yStart + 48, scale, colorWhite, va ("RTCW Multiplayer - Version: %s", RTCW_VERSION), ITEM_TEXTSTYLE_SHADOWEDMORE);
         //BBi
 	} else {
 		strcpy( text, va( trap_TranslateString( "Connecting to %s" ), cstate.servername ) );

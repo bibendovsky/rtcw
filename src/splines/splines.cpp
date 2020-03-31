@@ -112,17 +112,17 @@ idCameraDef *g_splineList = &splineList;
 idVec3 idSplineList::zero( 0,0,0 );
 
 void glLabeledPoint( idVec3 &color, idVec3 &point, float size, const char *label ) {
-	::glColor3fv( color );
-	::glPointSize( size );
-	::glBegin( GL_POINTS );
-	::glVertex3fv( point );
-	::glEnd();
+	glColor3fv( color );
+	glPointSize( size );
+	glBegin( GL_POINTS );
+	glVertex3fv( point );
+	glEnd();
 	idVec3 v = point;
 	v.x += 1;
 	v.y += 1;
 	v.z += 1;
-	::glRasterPos3fv( v );
-	::glCallLists( strlen( label ), GL_UNSIGNED_BYTE, label );
+	glRasterPos3fv( v );
+	glCallLists( strlen( label ), GL_UNSIGNED_BYTE, label );
 }
 
 
@@ -135,30 +135,30 @@ void glBox( idVec3 &color, idVec3 &point, float size ) {
 	maxs[0] += size;
 	maxs[1] -= size;
 	maxs[2] += size;
-	::glColor3fv( color );
-	::glBegin( GL_LINE_LOOP );
-	::glVertex3f( mins[0],mins[1],mins[2] );
-	::glVertex3f( maxs[0],mins[1],mins[2] );
-	::glVertex3f( maxs[0],maxs[1],mins[2] );
-	::glVertex3f( mins[0],maxs[1],mins[2] );
-	::glEnd();
-	::glBegin( GL_LINE_LOOP );
-	::glVertex3f( mins[0],mins[1],maxs[2] );
-	::glVertex3f( maxs[0],mins[1],maxs[2] );
-	::glVertex3f( maxs[0],maxs[1],maxs[2] );
-	::glVertex3f( mins[0],maxs[1],maxs[2] );
-	::glEnd();
+	glColor3fv( color );
+	glBegin( GL_LINE_LOOP );
+	glVertex3f( mins[0],mins[1],mins[2] );
+	glVertex3f( maxs[0],mins[1],mins[2] );
+	glVertex3f( maxs[0],maxs[1],mins[2] );
+	glVertex3f( mins[0],maxs[1],mins[2] );
+	glEnd();
+	glBegin( GL_LINE_LOOP );
+	glVertex3f( mins[0],mins[1],maxs[2] );
+	glVertex3f( maxs[0],mins[1],maxs[2] );
+	glVertex3f( maxs[0],maxs[1],maxs[2] );
+	glVertex3f( mins[0],maxs[1],maxs[2] );
+	glEnd();
 
-	::glBegin( GL_LINES );
-	::glVertex3f( mins[0],mins[1],mins[2] );
-	::glVertex3f( mins[0],mins[1],maxs[2] );
-	::glVertex3f( mins[0],maxs[1],maxs[2] );
-	::glVertex3f( mins[0],maxs[1],mins[2] );
-	::glVertex3f( maxs[0],mins[1],mins[2] );
-	::glVertex3f( maxs[0],mins[1],maxs[2] );
-	::glVertex3f( maxs[0],maxs[1],maxs[2] );
-	::glVertex3f( maxs[0],maxs[1],mins[2] );
-	::glEnd();
+	glBegin( GL_LINES );
+	glVertex3f( mins[0],mins[1],mins[2] );
+	glVertex3f( mins[0],mins[1],maxs[2] );
+	glVertex3f( mins[0],maxs[1],maxs[2] );
+	glVertex3f( mins[0],maxs[1],mins[2] );
+	glVertex3f( maxs[0],mins[1],mins[2] );
+	glVertex3f( maxs[0],mins[1],maxs[2] );
+	glVertex3f( maxs[0],maxs[1],maxs[2] );
+	glVertex3f( maxs[0],maxs[1],mins[2] );
+	glEnd();
 
 }
 
@@ -271,14 +271,14 @@ void idSplineList::draw( bool editMode ) {
 	}
 
 
-	::glColor3fv( controlColor );
-	::glPointSize( 5 );
+	glColor3fv( controlColor );
+	glPointSize( 5 );
 
-	::glBegin( GL_POINTS );
+	glBegin( GL_POINTS );
 	for ( i = 0; i < controlPoints.Num(); i++ ) {
-		::glVertex3fv( *controlPoints[i] );
+		glVertex3fv( *controlPoints[i] );
 	}
-	::glEnd();
+	glEnd();
 
 	if ( editMode ) {
 		for ( i = 0; i < controlPoints.Num(); i++ ) {
@@ -287,22 +287,22 @@ void idSplineList::draw( bool editMode ) {
 	}
 
 	//Draw the curve
-	::glColor3fv( pathColor );
-	::glBegin( GL_LINE_STRIP );
+	glColor3fv( pathColor );
+	glBegin( GL_LINE_STRIP );
 	int count = splinePoints.Num();
 	for ( i = 0; i < count; i++ ) {
-		::glVertex3fv( *splinePoints[i] );
+		glVertex3fv( *splinePoints[i] );
 	}
-	::glEnd();
+	glEnd();
 
 	if ( editMode ) {
-		::glColor3fv( segmentColor );
-		::glPointSize( 3 );
-		::glBegin( GL_POINTS );
+		glColor3fv( segmentColor );
+		glPointSize( 3 );
+		glBegin( GL_POINTS );
 		for ( i = 0; i < count; i++ ) {
-			::glVertex3fv( *splinePoints[i] );
+			glVertex3fv( *splinePoints[i] );
 		}
-		::glEnd();
+		glEnd();
 	}
 	if ( count > 0 ) {
 		//assert(activeSegment >=0 && activeSegment < count);

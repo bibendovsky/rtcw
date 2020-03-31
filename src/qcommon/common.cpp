@@ -240,9 +240,9 @@ int QDECL Com_VPrintf( const char *fmt, va_list argptr ) {
     msg[MAXPRINTMSG - 1] = '\0';
 
 #if defined RTCW_SP
-    ::vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
+    vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #else
-	::Q_vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
+	Q_vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #endif // RTCW_XX
 //BBi
 
@@ -379,9 +379,9 @@ void QDECL Com_DPrintf( const char *fmt, ... ) {
     msg[MAXPRINTMSG - 1] = '\0';
 
 #if defined RTCW_SP
-    ::vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
+    vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #else
-    ::Q_vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
+    Q_vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #endif // RTCW_XX
 //BBi
 
@@ -2621,7 +2621,7 @@ extern qboolean consoleButtonWasPressed;
 
 int Com_EventLoop( void ) {
     // BBi
-    ::SDL_PumpEvents();
+    SDL_PumpEvents();
     // BBi
 
 	sysEvent_t ev;
@@ -2955,25 +2955,25 @@ void Com_SetRecommended(bool restart_video)
 {
     cvar_t* r_highQualityVideo = NULL;
 
-    r_highQualityVideo = ::Cvar_Get("r_highQualityVideo", "1", CVAR_ARCHIVE);
+    r_highQualityVideo = Cvar_Get("r_highQualityVideo", "1", CVAR_ARCHIVE);
 
 #if !defined RTCW_ET
-    ::Cbuf_AddText("exec highVidhighCPU.cfg\n");
+    Cbuf_AddText("exec highVidhighCPU.cfg\n");
 
     // (SA) set the cvar so the menu will reflect this on first run
-    ::Cvar_Set("ui_glCustom", "999"); // 'recommended'
+    Cvar_Set("ui_glCustom", "999"); // 'recommended'
 
 #if defined RTCW_SP
     if (restart_video)
-        ::Cbuf_AddText("vid_restart\n");
+        Cbuf_AddText("vid_restart\n");
 #endif // RTCW_XX
 #else
     cvar_t* com_recommended = NULL;
 
-    com_recommended = ::Cvar_Get("com_recommended", "-1", CVAR_ARCHIVE);
+    com_recommended = Cvar_Get("com_recommended", "-1", CVAR_ARCHIVE);
 
-    ::Cbuf_AddText("exec preset_high.cfg\n");
-    ::Cvar_Set("com_recommended", "0");
+    Cbuf_AddText("exec preset_high.cfg\n");
+    Cvar_Set("com_recommended", "0");
 #endif // RTCW_XX
 }
 
@@ -3161,7 +3161,7 @@ void Com_Init( char *commandLine ) {
 
     //BBi
 	//Com_Printf( "%s %s %s\n", Q3_VERSION, CPUSTRING, __DATE__ );
-    ::Com_Printf("%s %s %s\n", RTCW_VERSION, ::SDL_GetPlatform(), __DATE__);
+    Com_Printf("%s %s %s\n", RTCW_VERSION, SDL_GetPlatform(), __DATE__);
     //BBi
 
 	if ( setjmp( abortframe ) ) {
@@ -3444,7 +3444,7 @@ void Com_Init( char *commandLine ) {
 
     //BBi
 	//s = va( "%s %s %s", Q3_VERSION, CPUSTRING, __DATE__ );
-    s = ::va("%s %s %s", RTCW_VERSION, ::SDL_GetPlatform(), __DATE__);
+    s = va("%s %s %s", RTCW_VERSION, SDL_GetPlatform(), __DATE__);
     //BBi
 
 	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
@@ -3748,7 +3748,7 @@ void Com_Frame( void ) {
 	// if "viewlog" has been modified, show or hide the log console
 	if ( com_viewlog->modified ) {
 #ifdef DEDICATED
-		::Sys_ShowConsole(com_viewlog->integer, qfalse);
+		Sys_ShowConsole(com_viewlog->integer, qfalse);
 #else
 		if ( !com_dedicated->value ) {
 			Sys_ShowConsole( com_viewlog->integer, qfalse );

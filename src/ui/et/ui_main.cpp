@@ -5687,7 +5687,7 @@ static void UI_BuildServerDisplayList( qboolean force ) {
 	if ( len == 0 ) {
         //BBi
 		//strcpy( uiInfo.serverStatus.motd, va( "Enemy Territory - Version: %s", Q3_VERSION ) );
-        ::strcpy (uiInfo.serverStatus.motd, ::va ("RTCW Enemy Territory - Version: %s", RTCW_VERSION));
+        strcpy (uiInfo.serverStatus.motd, va ("RTCW Enemy Territory - Version: %s", RTCW_VERSION));
         //BBi
 
 		len = strlen( uiInfo.serverStatus.motd );

@@ -2307,7 +2307,7 @@ void G_AddAirstrikeToCounters( gentity_t* ent ) {
     //BBi
 	//int max = min( 6, 2 * ( c::ceil( g_heavyWeaponRestriction.integer * G_TeamCount( ent, weapon_t (-1) ) * 0.1f * 10 * 0.01f ) ) );
     int max = static_cast<int> (std::min (6.0, 2 * (c::ceil (
-        g_heavyWeaponRestriction.integer * ::G_TeamCount (ent, weapon_t (-1)) * 0.1F * 10.0F * 0.01F))));
+        g_heavyWeaponRestriction.integer * G_TeamCount (ent, weapon_t (-1)) * 0.1F * 10.0F * 0.01F))));
     //BBi
 
 

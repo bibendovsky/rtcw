@@ -1540,8 +1540,8 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                     } else {
                     // BBi
 
-					::glLineWidth( 1 );
-					::glBegin( GL_LINES );
+					glLineWidth( 1 );
+					glBegin( GL_LINES );
 
                     // BBi
                     }
@@ -1572,8 +1572,8 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                         } else {
                         // BBi
 
-						::glColor3fv( vec );
-						::glVertex3fv( bonePtr->translation );
+						glColor3fv( vec );
+						glVertex3fv( bonePtr->translation );
 
                         // BBi
                         }
@@ -1596,7 +1596,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                         } else {
                         // BBi
 
-						::glVertex3fv( vec );
+						glVertex3fv( vec );
 
                         // BBi
                         }
@@ -1607,7 +1607,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                     if (glConfigEx.is_path_ogl_1_x ()) {
                     // BBi
 
-					::glEnd();
+					glEnd();
 
                     // BBi
                     }
@@ -1645,12 +1645,12 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                     } else {
                     // BBi
 
-					::glLineWidth( r_bonesDebug->integer == 8 ? 4 : 2 );
-					::glBegin( GL_LINES );
-					::glColor3f( .6,.6,.6 );
-					::glVertex3fv( bonePtr->translation );
-					::glVertex3fv( bones[boneInfo[*boneRefs].parent].translation );
-					::glEnd();
+					glLineWidth( r_bonesDebug->integer == 8 ? 4 : 2 );
+					glBegin( GL_LINES );
+					glColor3f( .6,.6,.6 );
+					glVertex3fv( bonePtr->translation );
+					glVertex3fv( bones[boneInfo[*boneRefs].parent].translation );
+					glEnd();
 
                     // BBi
                     }
@@ -1661,7 +1661,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                 if (glConfigEx.is_path_ogl_1_x ()) {
                 // BBi
 
-				::glLineWidth( 1 );
+				glLineWidth( 1 );
 
                 // BBi
                 }
@@ -1679,8 +1679,8 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 				mdxHeader_t *mdxHeader = R_GetModelByHandle( refent->frameModel )->model.mdx;
 				boneRefs = ( int * )( (byte *)surface + surface->ofsBoneReferences );
 
-				::glDepthRange( 0, 0 );      // never occluded
-				::glBlendFunc( GL_SRC_ALPHA, GL_ONE );
+				glDepthRange( 0, 0 );      // never occluded
+				glBlendFunc( GL_SRC_ALPHA, GL_ONE );
 
 				for ( i = 0; i < surface->numBoneReferences; i++, boneRefs++ ) {
 					vec3_t diff;
@@ -1693,7 +1693,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 					vec[1] = vec[1] + diff[1] * 6;
 					vec[2] = vec[2] + diff[2] * 3;
 
-					::glEnable( GL_BLEND );
+					glEnable( GL_BLEND );
 
                     // BBi
                     if (!glConfigEx.is_path_ogl_1_x ()) {
@@ -1721,29 +1721,29 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                     } else {
                     // BBi
 
-					::glBegin( GL_LINES );
-					::glColor4f( 1.f, .4f, .05f, .35f );
-					::glVertex3fv( bonePtr->translation );
-					::glVertex3fv( vec );
-					::glEnd();
+					glBegin( GL_LINES );
+					glColor4f( 1.f, .4f, .05f, .35f );
+					glVertex3fv( bonePtr->translation );
+					glVertex3fv( vec );
+					glEnd();
 
                     // BBi
                     }
                     // BBi
 
-					::glDisable( GL_BLEND );
+					glDisable( GL_BLEND );
 
 					R_DebugText( vec, 1.f, 1.f, 1.f, mdxBoneInfo->name, qfalse );       // qfalse, as there is no reason to set depthrange again
 				}
 
-				::glDepthRange( 0, 1 );
+				glDepthRange( 0, 1 );
 				//}
 			} else if ( r_bonesDebug->integer == 9 ) {
 				if ( surface == ( mdmSurface_t * )( (byte *)header + header->ofsSurfaces ) ) {
 					mdmTag_t *pTag = ( mdmTag_t * )( (byte *)header + header->ofsTags );
 
-					::glDepthRange( 0, 0 );  // never occluded
-					::glBlendFunc( GL_SRC_ALPHA, GL_ONE );
+					glDepthRange( 0, 0 );  // never occluded
+					glBlendFunc( GL_SRC_ALPHA, GL_ONE );
 
 					for ( i = 0; i < header->numTags; i++ ) {
 						mdxBoneFrame_t  *tagBone;
@@ -1766,8 +1766,8 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                         } else {
                         // BBi
 
-						::glLineWidth( 2 );
-						::glBegin( GL_LINES );
+						glLineWidth( 2 );
+						glBegin( GL_LINES );
 
                         // BBi
                         }
@@ -1798,8 +1798,8 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                             } else {
                             // BBi
 
-							::glColor3fv( vec );
-							::glVertex3fv( outTag.origin );
+							glColor3fv( vec );
+							glVertex3fv( outTag.origin );
 
                             // BBi
                             }
@@ -1822,7 +1822,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                             } else {
                             // BBi
 
-							::glVertex3fv( vec );
+							glVertex3fv( vec );
 
                             // BBi
                             }
@@ -1831,11 +1831,11 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 
                         // BBi
                         if (!glConfigEx.is_path_ogl_1_x ()) {
-                            ::ogl_tess2_draw (GL_LINES, vertex_index, false, true);
+                            ogl_tess2_draw (GL_LINES, vertex_index, false, true);
                         } else {
                         // BBi
 
-						::glEnd();
+						glEnd();
 
                         // BBi
                         }
@@ -1851,13 +1851,13 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                         if (glConfigEx.is_path_ogl_1_x ()) {
                         // BBi
 
-						::glLineWidth( 1 );
+						glLineWidth( 1 );
 
                         // BBi
                         }
                         // BBi
 
-						::glEnable( GL_BLEND );
+						glEnable( GL_BLEND );
 
                         // BBi
                         if (!glConfigEx.is_path_ogl_1_x ()) {
@@ -1883,12 +1883,12 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                         } else {
                         // BBi
 
-						::glBegin( GL_LINES );
-						::glColor4f( 1.f, .4f, .05f, .35f );
-						::glVertex3fv( outTag.origin );
-						::glVertex3fv( vec );
-						::glEnd();
-						::glDisable( GL_BLEND );
+						glBegin( GL_LINES );
+						glColor4f( 1.f, .4f, .05f, .35f );
+						glVertex3fv( outTag.origin );
+						glVertex3fv( vec );
+						glEnd();
+						glDisable( GL_BLEND );
 
                         // BBi
                         }
@@ -1898,7 +1898,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 
 						pTag = ( mdmTag_t * )( (byte *)pTag + pTag->ofsEnd );
 					}
-					::glDepthRange( 0, 1 );
+					glDepthRange( 0, 1 );
 				}
 			}
 		}
@@ -1923,9 +1923,9 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
             } else {
             // BBi
 
-			::glLineWidth( 1 );
-			::glBegin( GL_LINES );
-			::glColor3f( .0,.0,.8 );
+			glLineWidth( 1 );
+			glBegin( GL_LINES );
+			glColor3f( .0,.0,.8 );
 
             // BBi
             }
@@ -2014,14 +2014,14 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                 } else {
                 // BBi
 
-				::glVertex3fv( tempVert + 4 * pIndexes[0] );
-				::glVertex3fv( tempVert + 4 * pIndexes[1] );
+				glVertex3fv( tempVert + 4 * pIndexes[0] );
+				glVertex3fv( tempVert + 4 * pIndexes[1] );
 
-				::glVertex3fv( tempVert + 4 * pIndexes[1] );
-				::glVertex3fv( tempVert + 4 * pIndexes[2] );
+				glVertex3fv( tempVert + 4 * pIndexes[1] );
+				glVertex3fv( tempVert + 4 * pIndexes[2] );
 
-				::glVertex3fv( tempVert + 4 * pIndexes[2] );
-				::glVertex3fv( tempVert + 4 * pIndexes[0] );
+				glVertex3fv( tempVert + 4 * pIndexes[2] );
+				glVertex3fv( tempVert + 4 * pIndexes[0] );
 
                 // BBi
                 }
@@ -2030,11 +2030,11 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 
             // BBi
             if (!glConfigEx.is_path_ogl_1_x ()) {
-                ::ogl_tess2_draw (GL_LINES, vertex_index, false, true);
+                ogl_tess2_draw (GL_LINES, vertex_index, false, true);
             } else {
             // BBi
 
-			::glEnd();
+			glEnd();
 
             // BBi
             }
@@ -2059,7 +2059,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 			v = ( mdmVertex_t * )( (byte *)surface + surface->ofsVerts );
 			tempVert = ( float * )( tess.xyz + baseVertex );
 			GL_Bind( tr.whiteImage );
-			::glPointSize( 5 );
+			glPointSize( 5 );
 
             // BBi
             if (!glConfigEx.is_path_ogl_1_x ()) {
@@ -2068,7 +2068,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
             } else {
             // BBi
 
-			::glBegin( GL_POINTS );
+			glBegin( GL_POINTS );
 
             // BBi
             }
@@ -2085,7 +2085,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                         } else {
                         // BBi
 
-						::glColor3f( .4f, .4f, 0.f );
+						glColor3f( .4f, .4f, 0.f );
 
                         // BBi
                         }
@@ -2099,7 +2099,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                         } else {
                         // BBi
 
-						::glColor3f( .8f, .4f, 0.f );
+						glColor3f( .8f, .4f, 0.f );
 
                         // BBi
                         }
@@ -2113,7 +2113,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                         } else {
                         // BBi
 
-						::glColor3f( 1.f, .4f, 0.f );
+						glColor3f( 1.f, .4f, 0.f );
 
                         // BBi
                         }
@@ -2135,7 +2135,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
                     } else {
                     // BBi
 
-					::glVertex3fv( tempVert );
+					glVertex3fv( tempVert );
 
                     // BBi
                     }
@@ -2146,11 +2146,11 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 
             // BBi
             if (!glConfigEx.is_path_ogl_1_x ()) {
-                ::ogl_tess2_draw (GL_POINTS, vertex_index, false, true);
+                ogl_tess2_draw (GL_POINTS, vertex_index, false, true);
             } else {
             // BBi
 
-			::glEnd();
+			glEnd();
 
             // BBi
             }
@@ -2168,9 +2168,9 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 		// show model bounds
 		GL_Bind( tr.whiteImage );
 		GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
-		::glLineWidth( 1 );
-		::glColor3f( .0,.8,.0 );
-		::glBegin( GL_LINES );
+		glLineWidth( 1 );
+		glColor3f( .0,.8,.0 );
+		glBegin( GL_LINES );
 
 		VectorSubtract( mdxFrame->bounds[0], mdxFrame->bounds[1], diff);
 
@@ -2180,12 +2180,12 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 		v1[0] -= diff[0];
 		v2[1] -= diff[1];
 		v3[2] -= diff[2];
-		::glVertex3fv( mdxFrame->bounds[0] );
-		::glVertex3fv( v1 );
-		::glVertex3fv( mdxFrame->bounds[0] );
-		::glVertex3fv( v2 );
-		::glVertex3fv( mdxFrame->bounds[0] );
-		::glVertex3fv( v3 );
+		glVertex3fv( mdxFrame->bounds[0] );
+		glVertex3fv( v1 );
+		glVertex3fv( mdxFrame->bounds[0] );
+		glVertex3fv( v2 );
+		glVertex3fv( mdxFrame->bounds[0] );
+		glVertex3fv( v3 );
 
 		VectorCopy( mdxFrame->bounds[1], v4 );
 		VectorCopy( mdxFrame->bounds[1], v5 );
@@ -2193,28 +2193,28 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 		v4[0] += diff[0];
 		v5[1] += diff[1];
 		v6[2] += diff[2];
-		::glVertex3fv( mdxFrame->bounds[1] );
-		::glVertex3fv( v4 );
-		::glVertex3fv( mdxFrame->bounds[1] );
-		::glVertex3fv( v5 );
-		::glVertex3fv( mdxFrame->bounds[1] );
-		::glVertex3fv( v6 );
+		glVertex3fv( mdxFrame->bounds[1] );
+		glVertex3fv( v4 );
+		glVertex3fv( mdxFrame->bounds[1] );
+		glVertex3fv( v5 );
+		glVertex3fv( mdxFrame->bounds[1] );
+		glVertex3fv( v6 );
 
-		::glVertex3fv( v2 );
-		::glVertex3fv( v6 );
-		::glVertex3fv( v6 );
-		::glVertex3fv( v1 );
-		::glVertex3fv( v1 );
-		::glVertex3fv( v5 );
+		glVertex3fv( v2 );
+		glVertex3fv( v6 );
+		glVertex3fv( v6 );
+		glVertex3fv( v1 );
+		glVertex3fv( v1 );
+		glVertex3fv( v5 );
 
-		::glVertex3fv( v2 );
-		::glVertex3fv( v4 );
-		::glVertex3fv( v4 );
-		::glVertex3fv( v3 );
-		::glVertex3fv( v3 );
-		::glVertex3fv( v5 );
+		glVertex3fv( v2 );
+		glVertex3fv( v4 );
+		glVertex3fv( v4 );
+		glVertex3fv( v3 );
+		glVertex3fv( v3 );
+		glVertex3fv( v5 );
 
-		::glEnd();
+		glEnd();
 	}*/
 
 	if ( r_bonesDebug->integer > 1 ) {

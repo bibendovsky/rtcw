@@ -309,8 +309,8 @@ void QDECL Sys_Error( const char *error, ... ) {
 		DispatchMessage( &msg );
 	}
 #else
-	::sys_run_console();
-	::Com_Quit_f();
+	sys_run_console();
+	Com_Quit_f();
 #endif
 
 	Sys_DestroyConsole();
@@ -647,8 +647,8 @@ qboolean    Sys_CheckCD( void ) {
 
 char* Sys_GetClipboardData()
 {
-    if (::SDL_HasClipboardText())
-        return ::SDL_GetClipboardText();
+    if (SDL_HasClipboardText())
+        return SDL_GetClipboardText();
 
     return NULL;
 }
@@ -672,7 +672,7 @@ Sys_UnloadDll
 
 void Sys_UnloadDll(void* dllHandle)
 {
-    ::SDL_UnloadObject(dllHandle);
+    SDL_UnloadObject(dllHandle);
 }
 
 
@@ -770,14 +770,14 @@ void* QDECL Sys_LoadDll(
 
     *fqpath = '\0'; // added 2/15/02 by T.Ray
 
-    const char* basepath = ::Cvar_VariableString("fs_basepath");
-    const char* cdpath = ::Cvar_VariableString("fs_cdpath");
-    const char* gamedir = ::Cvar_VariableString("fs_game");
+    const char* basepath = Cvar_VariableString("fs_basepath");
+    const char* cdpath = Cvar_VariableString("fs_cdpath");
+    const char* gamedir = Cvar_VariableString("fs_game");
 
-    std::string filename = ::Sys_GetDLLName(name);
+    std::string filename = Sys_GetDLLName(name);
 
     // try gamepath first
-    char* fn = ::FS_BuildOSPath(basepath, gamedir, filename.c_str());
+    char* fn = FS_BuildOSPath(basepath, gamedir, filename.c_str());
 
 #if !defined RTCW_SP
     // TTimo - this is only relevant for full client
@@ -789,7 +789,7 @@ void* QDECL Sys_LoadDll(
     //   (compatibility with other OSes loading procedure)
     if (cl_connectedToPureServer && Q_strncmp(name, "qagame", 6) != 0) {
         if (!::FS_CL_ExtractFromPakFile(fn, gamedir, filename.c_str(), NULL)) {
-            ::Com_Error(
+            Com_Error(
                 ERR_DROP,
                 "Game code(%s) failed Pure Server check",
                 filename.c_str());
@@ -798,23 +798,23 @@ void* QDECL Sys_LoadDll(
 #endif
 #endif // RTCW_XX
 
-    void* libHandle = ::SDL_LoadObject(fn);
+    void* libHandle = SDL_LoadObject(fn);
 
     if (libHandle == NULL) {
         if (cdpath[0] != '\0') {
-            fn = ::FS_BuildOSPath(cdpath, gamedir, filename.c_str());
-            libHandle = ::SDL_LoadObject(fn);
+            fn = FS_BuildOSPath(cdpath, gamedir, filename.c_str());
+            libHandle = SDL_LoadObject(fn);
         }
     }
 
     if (libHandle == NULL) {
-        fn = ::FS_BuildOSPath(basepath, BASEGAME, filename.c_str());
-        libHandle = ::SDL_LoadObject(fn);
+        fn = FS_BuildOSPath(basepath, BASEGAME, filename.c_str());
+        libHandle = SDL_LoadObject(fn);
     }
 
     if (libHandle == NULL) {
-        ::strcpy(fn, filename.c_str());
-        libHandle = ::SDL_LoadObject(fn);
+        strcpy(fn, filename.c_str());
+        libHandle = SDL_LoadObject(fn);
     }
 
     if (libHandle == NULL)
@@ -824,13 +824,13 @@ void* QDECL Sys_LoadDll(
     Q_strncpyz(fqpath, fn, MAX_QPATH); // added 2/15/02 by T.Ray
 
     DllEntry dllEntry = reinterpret_cast<DllEntry>(
-        ::SDL_LoadFunction(libHandle, "dllEntry"));
+        SDL_LoadFunction(libHandle, "dllEntry"));
 
     *entryPoint = reinterpret_cast<DllEntryPoint>(
-        ::SDL_LoadFunction(libHandle, "vmMain"));
+        SDL_LoadFunction(libHandle, "vmMain"));
 
     if (*entryPoint == NULL || dllEntry == NULL) {
-        ::SDL_UnloadObject(libHandle);
+        SDL_UnloadObject(libHandle);
         return NULL;
     }
 
@@ -924,7 +924,7 @@ sysEvent_t Sys_GetEvent( void ) {
 	//	TranslateMessage( &msg );
 	//	DispatchMessage( &msg );
 	//}
-    ::sys_poll_events();
+    sys_poll_events();
 // BBi
 
 	// check for console commands
@@ -963,7 +963,7 @@ sysEvent_t Sys_GetEvent( void ) {
 	// create an empty event to return
 
 	memset( &ev, 0, sizeof( ev ) );
-	ev.evTime = ::SDL_GetTicks();
+	ev.evTime = SDL_GetTicks();
 
 	return ev;
 }
@@ -1011,21 +1011,21 @@ void Sys_Init( void ) {
 	Cmd_AddCommand( "clearviewlog", Sys_ClearViewlog_f );
 
     // FIXME
-    ::Cvar_Set("arch", ::SDL_GetPlatform());
+    Cvar_Set("arch", SDL_GetPlatform());
 
     int cpuid = CPUID_GENERIC;
-    ::Cvar_Get("sys_cpustring", "detect", 0);
+    Cvar_Get("sys_cpustring", "detect", 0);
 
-    const char* cpu_string = ::Cvar_VariableString("sys_cpustring");
+    const char* cpu_string = Cvar_VariableString("sys_cpustring");
 
-    if (::Q_stricmp(cpu_string, "detect") == 0)
-        ::Cvar_Set("sys_cpustring", "generic");
+    if (Q_stricmp(cpu_string, "detect") == 0)
+        Cvar_Set("sys_cpustring", "generic");
 
-    ::Cvar_SetValue("sys_cpuid", cpuid);
+    Cvar_SetValue("sys_cpuid", cpuid);
 
-    cpu_string = ::Cvar_VariableString("sys_cpustring");
+    cpu_string = Cvar_VariableString("sys_cpustring");
 
-    ::Cvar_Set("username", Sys_GetCurrentUser());
+    Cvar_Set("username", Sys_GetCurrentUser());
 
 #if !defined RTCW_ET
     IN_Init(); // FIXME: not in dedicated?
@@ -1050,7 +1050,7 @@ extern "C" int main(int argc, char* argv[])
 {
 // BBi
 
-    if (::SDL_Init(0) != 0) {
+    if (SDL_Init(0) != 0) {
         // TODO Print out some message.
         return 1;
     }
@@ -1157,7 +1157,7 @@ extern "C" int main(int argc, char* argv[])
 #if defined RTCW_ET
 bool Sys_IsNumLockDown()
 {
-    SDL_Keymod state = ::SDL_GetModState();
+    SDL_Keymod state = SDL_GetModState();
     return (state & KMOD_NUM) != 0;
 }
 #endif // RTCW_XX

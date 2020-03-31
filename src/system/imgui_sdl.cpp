@@ -220,7 +220,7 @@ public:
 			return false;
 		}
 
-		sdl_renderer_ = ::SDL_GetRenderer(sdl_window_);
+		sdl_renderer_ = SDL_GetRenderer(sdl_window_);
 
 		if (!sdl_renderer_)
 		{
@@ -228,7 +228,7 @@ public:
 			return false;
 		}
 
-		sdl_result = ::SDL_GetRendererOutputSize(sdl_renderer_, &screen_width_, &screen_height_);
+		sdl_result = SDL_GetRendererOutputSize(sdl_renderer_, &screen_width_, &screen_height_);
 
 		if (sdl_result != 0)
 		{
@@ -236,7 +236,7 @@ public:
 			return false;
 		}
 
-		sdl_framebuffer_texture_ = ::SDL_CreateTexture(
+		sdl_framebuffer_texture_ = SDL_CreateTexture(
 			sdl_renderer_,
 			SDL_PIXELFORMAT_ARGB8888,
 			SDL_TEXTUREACCESS_STREAMING,
@@ -254,9 +254,9 @@ public:
 
 		initialize_imgui_io();
 
-		sdl_window_id_ = ::SDL_GetWindowID(sdl_window_);
+		sdl_window_id_ = SDL_GetWindowID(sdl_window_);
 
-		const auto window_flags = ::SDL_GetWindowFlags(sdl_window_);
+		const auto window_flags = SDL_GetWindowFlags(sdl_window_);
 
 		if ((window_flags & (SDL_WINDOW_SHOWN | SDL_WINDOW_MAXIMIZED)) != 0)
 		{
@@ -286,7 +286,7 @@ public:
 
 		if (sdl_framebuffer_texture_)
 		{
-			::SDL_DestroyTexture(sdl_framebuffer_texture_);
+			SDL_DestroyTexture(sdl_framebuffer_texture_);
 			sdl_framebuffer_texture_ = {};
 		}
 
@@ -305,7 +305,7 @@ public:
 		auto mouse_x = 0;
 		auto mouse_y = 0;
 
-		const auto sdl_mouse_buttons = ::SDL_GetMouseState(&mouse_x, &mouse_y);
+		const auto sdl_mouse_buttons = SDL_GetMouseState(&mouse_x, &mouse_y);
 
 		imgui_io.MouseDown[0] = mouse_buttons_state_.test(0) || (sdl_mouse_buttons & SDL_BUTTON_LMASK) != 0;
 		imgui_io.MouseDown[1] = mouse_buttons_state_.test(1) || (sdl_mouse_buttons & SDL_BUTTON_RMASK) != 0;
@@ -383,7 +383,7 @@ public:
 
 		auto sdl_result = 0;
 
-		sdl_result = ::SDL_LockTexture(sdl_framebuffer_texture_, nullptr, &pixels, &pitch);
+		sdl_result = SDL_LockTexture(sdl_framebuffer_texture_, nullptr, &pixels, &pitch);
 
 		if (sdl_result == 0)
 		{
@@ -391,12 +391,12 @@ public:
 
 			std::uninitialized_copy_n(frame_buffer_.data(), frame_buffer_.size(), dst_pixels);
 
-			::SDL_UnlockTexture(sdl_framebuffer_texture_);
+			SDL_UnlockTexture(sdl_framebuffer_texture_);
 		}
 
-		sdl_result = ::SDL_RenderCopy(sdl_renderer_, sdl_framebuffer_texture_, nullptr, nullptr);
+		sdl_result = SDL_RenderCopy(sdl_renderer_, sdl_framebuffer_texture_, nullptr, nullptr);
 
-		::SDL_RenderPresent(sdl_renderer_);
+		SDL_RenderPresent(sdl_renderer_);
 	}
 
 	static SDL_Surface* api_create_sdl_rgba_surface(
@@ -430,7 +430,7 @@ public:
 			}
 		}
 
-		auto sdl_surface = ::SDL_CreateRGBSurfaceFrom(
+		auto sdl_surface = SDL_CreateRGBSurfaceFrom(
 			const_cast<void*>(raw_pixels),
 			width,
 			height,
@@ -1402,12 +1402,12 @@ private:
 
 	const char* get_clipboard_text_fn()
 	{
-		const auto clipboard_text = ::SDL_GetClipboardText();
+		const auto clipboard_text = SDL_GetClipboardText();
 
 		if (clipboard_text)
 		{
 			clipboard_buffer_ = clipboard_text;
-			::SDL_free(clipboard_text);
+			SDL_free(clipboard_text);
 		}
 		else
 		{
@@ -1420,7 +1420,7 @@ private:
 	void set_clipboard_text_fn(
 		const char* text)
 	{
-		static_cast<void>(::SDL_SetClipboardText(text));
+		static_cast<void>(SDL_SetClipboardText(text));
 	}
 
 	static const char* get_clipboard_text_fn_proxy(

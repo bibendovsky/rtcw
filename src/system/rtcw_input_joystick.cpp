@@ -88,12 +88,12 @@ bool Joystick::initialize()
 {
     uninitialize();
 
-    ::Com_Printf("Initializing joystick input...\n");
+    Com_Printf("Initializing joystick input...\n");
 
     in_joystick->modified = false;
 
     if (in_joystick->integer == 0) {
-        ::Com_Printf(S_COLOR_YELLOW "  Ignored.\n");
+        Com_Printf(S_COLOR_YELLOW "  Ignored.\n");
         return false;
     }
 
@@ -101,62 +101,62 @@ bool Joystick::initialize()
     bool is_succeed = true;
 
     if (is_succeed) {
-        if (::SDL_WasInit(SDL_INIT_JOYSTICK) == 0) {
-            sdl_result = ::SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+        if (SDL_WasInit(SDL_INIT_JOYSTICK) == 0) {
+            sdl_result = SDL_InitSubSystem(SDL_INIT_JOYSTICK);
 
             if (sdl_result != 0) {
                 is_succeed = false;
-                ::Com_Printf(S_COLOR_RED "  %s\n", ::SDL_GetError());
+                Com_Printf(S_COLOR_RED "  %s\n", SDL_GetError());
             }
         }
     }
 
     if (is_succeed) {
-        int joystick_count = ::SDL_NumJoysticks();
+        int joystick_count = SDL_NumJoysticks();
 
         if (joystick_count > 0) {
-            ::Com_Printf("  Found %d joysticks.\n", joystick_count);
-            ::Com_Printf("  Using first joystick.\n");
+            Com_Printf("  Found %d joysticks.\n", joystick_count);
+            Com_Printf("  Using first joystick.\n");
         } else {
             is_succeed = false;
-            ::Com_Printf(S_COLOR_YELLOW "  Not found.\n");
+            Com_Printf(S_COLOR_YELLOW "  Not found.\n");
         }
     }
 
     if (is_succeed) {
-        instance_ = ::SDL_JoystickOpen(0);
+        instance_ = SDL_JoystickOpen(0);
 
         if (instance_ == NULL) {
             is_succeed = false;
-            ::Com_Printf(S_COLOR_RED "  %s\n", ::SDL_GetError());
+            Com_Printf(S_COLOR_RED "  %s\n", SDL_GetError());
         }
     }
 
     if (is_succeed) {
-        const char* name = ::SDL_JoystickName(instance_);
+        const char* name = SDL_JoystickName(instance_);
 
         if (name == NULL)
             name = "";
 
-        SDL_JoystickGUID guid = ::SDL_JoystickGetGUID(instance_);
+        SDL_JoystickGUID guid = SDL_JoystickGetGUID(instance_);
 
         char guid_string[33];
         guid_string[0] = '\0';
-        ::SDL_JoystickGetGUIDString(guid, guid_string, 33);
+        SDL_JoystickGetGUIDString(guid, guid_string, 33);
 
-        int axes_count = ::SDL_JoystickNumAxes(instance_);
-        int trackballs_count = ::SDL_JoystickNumBalls(instance_);
-        int buttons_count = ::SDL_JoystickNumButtons(instance_);
-        int pov_hats_count = ::SDL_JoystickNumHats(instance_);
+        int axes_count = SDL_JoystickNumAxes(instance_);
+        int trackballs_count = SDL_JoystickNumBalls(instance_);
+        int buttons_count = SDL_JoystickNumButtons(instance_);
+        int pov_hats_count = SDL_JoystickNumHats(instance_);
 
-        ::Com_Printf("  Name: %s\n", name);
-        ::Com_Printf("  GUID: %s\n", guid_string);
-        ::Com_Printf("  Number of axes: %d\n", axes_count);
-        ::Com_Printf("  Number of trackballs: %d\n", trackballs_count);
-        ::Com_Printf("  Number of buttons: %d\n", buttons_count);
-        ::Com_Printf("  Number of POV hats: %d\n", pov_hats_count);
+        Com_Printf("  Name: %s\n", name);
+        Com_Printf("  GUID: %s\n", guid_string);
+        Com_Printf("  Number of axes: %d\n", axes_count);
+        Com_Printf("  Number of trackballs: %d\n", trackballs_count);
+        Com_Printf("  Number of buttons: %d\n", buttons_count);
+        Com_Printf("  Number of POV hats: %d\n", pov_hats_count);
 
-        id_ = ::SDL_JoystickInstanceID(instance_);
+        id_ = SDL_JoystickInstanceID(instance_);
 
         is_initialized_ = true;
     } else
@@ -168,13 +168,13 @@ bool Joystick::initialize()
 void Joystick::uninitialize(bool quiet)
 {
     if (!quiet)
-        ::Com_Printf("Uninitializing joystick input...\n");
+        Com_Printf("Uninitializing joystick input...\n");
 
     is_initialized_ = false;
     id_ = -1;
 
     if (instance_ != NULL) {
-        ::SDL_JoystickClose(instance_);
+        SDL_JoystickClose(instance_);
         instance_ = NULL;
     }
 
@@ -219,7 +219,7 @@ void Joystick::reset_state()
     if (!buttons_states_.any())
         return;
 
-    Uint32 timestamp = ::SDL_GetTicks();
+    Uint32 timestamp = SDL_GetTicks();
 
     for (int i = 0; i < MAX_BUTTONS_STATES; ++i) {
         bool state = buttons_states_.test(i);
@@ -227,7 +227,7 @@ void Joystick::reset_state()
         if (!state)
             continue;
 
-        ::Sys_QueEvent(
+        Sys_QueEvent(
             timestamp,
             SE_KEY,
             direction_keys[i],
@@ -242,10 +242,10 @@ void Joystick::reset_state()
 // (static)
 void Joystick::register_cvars()
 {
-    in_joystick = ::Cvar_Get("in_joystick", "0", CVAR_ARCHIVE | CVAR_LATCH);
-    in_joyBallScale = ::Cvar_Get("in_joyBallScale", "0.02", CVAR_ARCHIVE);
-    in_debugJoystick = ::Cvar_Get("in_debugjoystick", "0", CVAR_TEMP);
-    joy_threshold = ::Cvar_Get("joy_threshold", "0.15", CVAR_ARCHIVE);
+    in_joystick = Cvar_Get("in_joystick", "0", CVAR_ARCHIVE | CVAR_LATCH);
+    in_joyBallScale = Cvar_Get("in_joyBallScale", "0.02", CVAR_ARCHIVE);
+    in_debugJoystick = Cvar_Get("in_debugjoystick", "0", CVAR_TEMP);
+    joy_threshold = Cvar_Get("joy_threshold", "0.15", CVAR_ARCHIVE);
 }
 
 void Joystick::handle_axis_event(const SDL_JoyAxisEvent& e)
@@ -263,7 +263,7 @@ void Joystick::handle_axis_event(const SDL_JoyAxisEvent& e)
     if (joy_threshold != NULL)
         threshold = joy_threshold->value;
     else
-        ::Com_DPrintf(S_COLOR_YELLOW "Null cvar: %s\n", "joy_threshold");
+        Com_DPrintf(S_COLOR_YELLOW "Null cvar: %s\n", "joy_threshold");
 
     float value = e.value / 32768.0F;
 
@@ -272,7 +272,7 @@ void Joystick::handle_axis_event(const SDL_JoyAxisEvent& e)
 
     buttons_states_.flip(key_index);
 
-    ::Sys_QueEvent(
+    Sys_QueEvent(
         e.timestamp,
         SE_KEY,
         direction_keys[key_index],
@@ -281,7 +281,7 @@ void Joystick::handle_axis_event(const SDL_JoyAxisEvent& e)
         NULL);
 
     if (can_debug()) {
-        ::Com_Printf(
+        Com_Printf(
             "axis: %d; value: %d\n",
             e.axis,
             e.value);
@@ -300,7 +300,7 @@ void Joystick::handle_ball_event(const SDL_JoyBallEvent& e)
     if (x == 0 && y == 0)
         return;
 
-    ::Sys_QueEvent(
+    Sys_QueEvent(
         e.timestamp,
         SE_MOUSE,
         x,
@@ -309,7 +309,7 @@ void Joystick::handle_ball_event(const SDL_JoyBallEvent& e)
         NULL);
 
     if (can_debug()) {
-        ::Com_Printf(
+        Com_Printf(
             "ball: %d; dx: %d; dy: %d\n",
             e.ball,
             e.xrel,
@@ -369,7 +369,7 @@ void Joystick::handle_hat_event(const SDL_JoyHatEvent& e)
 
         buttons_states_.flip(index);
 
-        ::Sys_QueEvent(
+        Sys_QueEvent(
             e.timestamp,
             SE_KEY,
             direction_keys[index],
@@ -379,7 +379,7 @@ void Joystick::handle_hat_event(const SDL_JoyHatEvent& e)
     }
 
     if (can_debug()) {
-        ::Com_Printf(
+        Com_Printf(
             "hat: %d; dir: %s\n",
             e.hat,
             pov_hat_value_to_string(e.value));
@@ -393,7 +393,7 @@ void Joystick::handle_button_event(const SDL_JoyButtonEvent& e)
     if (e.which != id_)
         return;
 
-    ::Sys_QueEvent(
+    Sys_QueEvent(
         e.timestamp,
         SE_KEY,
         K_JOY1 + e.button,
@@ -402,7 +402,7 @@ void Joystick::handle_button_event(const SDL_JoyButtonEvent& e)
         NULL);
 
     if (can_debug()) {
-        ::Com_Printf(
+        Com_Printf(
             "button: %d; action: %s\n",
             e.button,
             button_state_to_string(e.state));
@@ -420,14 +420,14 @@ void Joystick::handle_device_event(const SDL_JoyDeviceEvent& e)
         return;
 
     if (can_debug()) {
-        ::Com_DPrintf(
+        Com_DPrintf(
             "id: %d; state: %s\n",
             e.which,
             device_state_to_string(e.type));
     }
 
-    ::Com_Printf(S_COLOR_YELLOW "Joystick device removed.\n");
-    ::Com_Printf(S_COLOR_YELLOW "Uninitializing joystick input.\n");
+    Com_Printf(S_COLOR_YELLOW "Joystick device removed.\n");
+    Com_Printf(S_COLOR_YELLOW "Uninitializing joystick input.\n");
 
     uninitialize(true);
 }
@@ -438,7 +438,7 @@ bool Joystick::can_debug()
     if (in_debugJoystick != NULL)
         return in_debugJoystick->integer != 0;
 
-    ::Com_DPrintf(S_COLOR_YELLOW "Null cvar: %s\n", "in_debugJoystick");
+    Com_DPrintf(S_COLOR_YELLOW "Null cvar: %s\n", "in_debugJoystick");
     return false;
 }
 
