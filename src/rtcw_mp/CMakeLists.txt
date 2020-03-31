@@ -7,7 +7,6 @@ message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 option (RTCW_MULTI_PROCESS_COMPILATION "Enable multi-process compilation if available." ON)
 message (STATUS "[${PROJECT_NAME}] Multi-process compilation: ${RTCW_MULTI_PROCESS_COMPILATION}")
 
-find_package (OpenGL REQUIRED)
 find_package (SDL2W 2.0.4 REQUIRED)
 find_package (SDL_net 2.0.1 REQUIRED)
 
