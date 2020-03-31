@@ -920,7 +920,7 @@ int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, struct cplane_s *p ) {
 #if !defined RTCW_ET
 __declspec( naked ) int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, struct cplane_s *p ) {
 #else
-__inline __declspec( naked ) int BoxOnPlaneSide_fast( vec3_t emins, vec3_t emaxs, struct cplane_s *p ) {
+__declspec( naked ) int BoxOnPlaneSide_fast( vec3_t emins, vec3_t emaxs, struct cplane_s *p ) {
 #endif // RTCW_XX
 
 	static int bops_initialized;
