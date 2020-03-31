@@ -317,7 +317,7 @@ target_sources (
 		../qcommon/msg.cpp
 		../qcommon/net_chan.cpp
 		../qcommon/vm.cpp
-		../renderer/glad.c
+		../renderer/glad.cpp
 		../renderer/jpgd.cpp
 		../renderer/jpge.cpp
 		../renderer/rtcw_jpeg_reader.cpp
