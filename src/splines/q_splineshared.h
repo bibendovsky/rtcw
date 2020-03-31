@@ -72,10 +72,8 @@ If you have questions concerning this license or the applicable additional terms
 // use MSVC inline asm version of C functions
 #endif // RTCW_XX
 
-#if (!defined RTCW_ET && ((defined _M_IX86 || defined __i386__) && !defined __sun__  && !defined __LCC__)) || (defined RTCW_ET && defined _M_IX86)
-#define id386   1
-#else
-#define id386   0
+#ifndef id386
+#define id386 (0)
 #endif
 
 // for windows fastcall option

@@ -190,7 +190,9 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // this is the define for determining if we have an asm version of a C function
-#define id386   0
+#ifndef id386
+#define id386 (0)
+#endif
 
 // for windows fastcall option
 
@@ -605,21 +607,12 @@ float Q_rsqrt( float f );       // reciprocal square root
 
 #define SQRTFAST( x ) ( 1.0f / Q_rsqrt( x ) )
 
-//BBi
-//#if defined RTCW_ET
-//// fast float to int conversion
-//#if id386 && !( ( defined __linux__ || defined __FreeBSD__ || defined __GNUC__ ) && ( defined __i386__ ) ) // rb010123
-//long myftol( float f );
-//#elif defined( __MACOS__ )
-//#define myftol( x ) (long)( x )
-//#else
-//extern long int lrintf( float x );
-//#define myftol( x ) lrintf( x )
-//#endif
-//#endif // RTCW_XX
-
-#define myftol(x) (static_cast<int> (x))
-//BBi
+template<typename T>
+int myftol(
+	const T x)
+{
+	return static_cast<int>(x);
+}
 
 signed char ClampChar( int i );
 signed short ClampShort( int i );
