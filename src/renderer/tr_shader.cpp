@@ -674,11 +674,11 @@ static qboolean ParseStage( shaderStage_t *stage, const char **text ) {
 //#endif // RTCW_XX
 
 #if defined RTCW_SP
-			stage->bundle[0].image[0] = ::R_FindImageFileExt (token, !shader.noMipMaps, !shader.noPicMip, shader.characterMip, ::r_get_best_wrap_clamp ());
+			stage->bundle[0].image[0] = R_FindImageFileExt (token, !shader.noMipMaps, !shader.noPicMip, shader.characterMip, r_get_best_wrap_clamp ());
 #elif defined RTCW_MP
-			stage->bundle[0].image[0] = ::R_FindImageFile (token, !shader.noMipMaps, !shader.noPicMip, ::r_get_best_wrap_clamp ());
+			stage->bundle[0].image[0] = R_FindImageFile (token, !shader.noMipMaps, !shader.noPicMip, r_get_best_wrap_clamp ());
 #else
-			stage->bundle[0].image[0] = ::R_FindImageFile (token, !shader.noMipMaps, !shader.noPicMip, ::r_get_best_wrap_clamp (), false);
+			stage->bundle[0].image[0] = R_FindImageFile (token, !shader.noMipMaps, !shader.noPicMip, r_get_best_wrap_clamp (), false);
 #endif // RTCW_XX
 //BBi
 
@@ -722,7 +722,7 @@ static qboolean ParseStage( shaderStage_t *stage, const char **text ) {
 			} else {
                 //BBi
 				//stage->bundle[0].image[0] = R_FindImageFile( token, qfalse, qfalse, GL_CLAMP, qtrue );
-                stage->bundle[0].image[0] = ::R_FindImageFile (token, false, false, ::r_get_best_wrap_clamp (), true);
+                stage->bundle[0].image[0] = R_FindImageFile (token, false, false, r_get_best_wrap_clamp (), true);
                 //BBi
 
 				if ( !stage->bundle[0].image[0] ) {
@@ -1277,8 +1277,8 @@ static void ParseSkyParms( const char **text ) {
 //			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP, qfalse );
 //#endif // RTCW_XX
 
-            shader.sky.outerbox[i] = ::R_FindImageFile (
-                pathname, true, true, ::r_get_best_wrap_clamp ()
+            shader.sky.outerbox[i] = R_FindImageFile (
+                pathname, true, true, r_get_best_wrap_clamp ()
 #if defined RTCW_ET
             , false
 #endif // RTCW_XX
@@ -1318,7 +1318,7 @@ static void ParseSkyParms( const char **text ) {
 #if !defined RTCW_ET
             //BBi
 			//shader.sky.innerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP );
-            shader.sky.innerbox[i] = ::R_FindImageFile (pathname, true, true, GL_REPEAT);
+            shader.sky.innerbox[i] = R_FindImageFile (pathname, true, true, GL_REPEAT);
             //BBi
 #else
 			shader.sky.innerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_REPEAT, qfalse );
@@ -3262,7 +3262,7 @@ void R_FindLightmap( int *lightmapIndex ) {
 
     //BBi
 	//image = R_FindImageFile( fileName, qfalse, qfalse, GL_CLAMP, qtrue );
-    image = ::R_FindImageFile (fileName, false, false, ::r_get_best_wrap_clamp (), true);
+    image = R_FindImageFile (fileName, false, false, r_get_best_wrap_clamp (), true);
     //BBi
 
 	if ( image == NULL ) {
@@ -3503,8 +3503,8 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 
     //BBi
 	//image = R_FindImageFile( fileName, mipRawImage, mipRawImage, mipRawImage ? GL_REPEAT : GL_CLAMP );
-    image = ::R_FindImageFile (fileName, mipRawImage, mipRawImage,
-        mipRawImage ? GL_REPEAT : ::r_get_best_wrap_clamp ());
+    image = R_FindImageFile (fileName, mipRawImage, mipRawImage,
+        mipRawImage ? GL_REPEAT : r_get_best_wrap_clamp ());
     //BBi
 
 	if ( !image ) {
@@ -3583,8 +3583,8 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 
     //BBi
 	//image = R_FindImageFile( fileName, !shader.noMipMaps, !shader.noPicMip, mipRawImage ? GL_REPEAT : GL_CLAMP, qfalse );
-    image = ::R_FindImageFile (fileName, !shader.noMipMaps, !shader.noPicMip,
-        mipRawImage ? GL_REPEAT : ::r_get_best_wrap_clamp (), false);
+    image = R_FindImageFile (fileName, !shader.noMipMaps, !shader.noPicMip,
+        mipRawImage ? GL_REPEAT : r_get_best_wrap_clamp (), false);
     //BBi
 
 	if ( !image ) {
@@ -4011,7 +4011,7 @@ static void BuildShaderChecksumLookup ()
     const char* p = s_shaderText;
 
     // initialize the checksums
-    ::memset (shaderChecksumLookup, 0, sizeof (shaderChecksumLookup));
+    memset (shaderChecksumLookup, 0, sizeof (shaderChecksumLookup));
 
     if (p == NULL)
         return;
@@ -4023,18 +4023,18 @@ static void BuildShaderChecksumLookup ()
     // loop for all labels
     while (true) {
         pOld = p;
-        token = ::COM_ParseExt (&p, true);
+        token = COM_ParseExt (&p, true);
 
         if (token[0] == 0)
             break;
 
         // Hack for ui_wolf.shader in SP.
         // There are two closed braces at the end.
-        if (::Q_stricmp (token, "}") == 0)
+        if (Q_stricmp (token, "}") == 0)
             continue;
 
-        if (::Q_stricmp (token, "{") == 0) {
-            ::SkipBracedSection (&p);
+        if (Q_stricmp (token, "{") == 0) {
+            SkipBracedSection (&p);
             continue;
         }
 
@@ -4059,7 +4059,7 @@ static void BuildShaderChecksumLookup ()
         }
 
         // BBi Fix for missing light coronas in MP.
-        ::SkipRestOfLine (&p);
+        SkipRestOfLine (&p);
     }
 }
 #endif

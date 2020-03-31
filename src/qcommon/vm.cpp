@@ -475,11 +475,11 @@ vm_t* VM_Restart (
     intptr_t (*systemCall) (intptr_t* parms);
 
     systemCall = vm->systemCall;
-    ::Q_strncpyz (name, vm->name, sizeof (name));
+    Q_strncpyz (name, vm->name, sizeof (name));
 
-    ::VM_Free (vm);
+    VM_Free (vm);
 
-    vm = ::VM_Create (name, systemCall);
+    vm = VM_Create (name, systemCall);
 
     return vm;
 }
@@ -654,16 +654,16 @@ vm_t* VM_Create (
     intptr_t (*systemCalls) (intptr_t*))
 {
     if ((module == 0) || (module[0] == '\0') || (systemCalls == 0))
-        ::Com_Error (ERR_FATAL, "VM_Create: bad parms");
+        Com_Error (ERR_FATAL, "VM_Create: bad parms");
 
-    int remaining = ::Hunk_MemoryRemaining ();
+    int remaining = Hunk_MemoryRemaining ();
 
     int i;
     vm_t* vm = 0;
 
     // see if we already have the VM
     for (i = 0; i < MAX_VM; ++i) {
-        if (::Q_stricmp (vmTable[i].name, module) == 0) {
+        if (Q_stricmp (vmTable[i].name, module) == 0) {
             vm = &vmTable[i];
             return vm;
         }
@@ -676,15 +676,15 @@ vm_t* VM_Create (
     }
 
     if (i == MAX_VM) {
-        ::Com_Error (ERR_FATAL, "VM_Create: no free vm_t");
+        Com_Error (ERR_FATAL, "VM_Create: no free vm_t");
     }
 
     vm = &vmTable[i];
 
-    ::Q_strncpyz (vm->name, module, sizeof (vm->name));
+    Q_strncpyz (vm->name, module, sizeof (vm->name));
     vm->systemCall = systemCalls;
 
-    vm->dllHandle = ::Sys_LoadDll(module, vm->fqpath, &vm->entryPoint, VM_DllSyscall);
+    vm->dllHandle = Sys_LoadDll(module, vm->fqpath, &vm->entryPoint, VM_DllSyscall);
 
     if (vm->dllHandle != 0)
         return vm;
@@ -727,9 +727,9 @@ void VM_Free (
     vm_t* vm)
 {
     if (vm->dllHandle != 0)
-        ::Sys_UnloadDll (vm->dllHandle);
+        Sys_UnloadDll (vm->dllHandle);
 
-    ::Com_Memset (vm, 0, sizeof (*vm));
+    Com_Memset (vm, 0, sizeof (*vm));
 
     currentVM = 0;
     lastVM = 0;
@@ -753,9 +753,9 @@ void VM_Clear ()
 {
     for (int i = 0; i < MAX_VM; ++i) {
         if (vmTable[i].dllHandle != 0)
-            ::Sys_UnloadDll (vmTable[i].dllHandle);
+            Sys_UnloadDll (vmTable[i].dllHandle);
 
-        ::Com_Memset (&vmTable[i], 0, sizeof (vm_t));
+        Com_Memset (&vmTable[i], 0, sizeof (vm_t));
     }
 
     currentVM = 0;
@@ -936,14 +936,14 @@ intptr_t QDECL VM_Call (
 #endif // RTCW_XX
 
     if (vm == 0)
-        ::Com_Error (ERR_FATAL, "VM_Call with NULL vm");
+        Com_Error (ERR_FATAL, "VM_Call with NULL vm");
 
     vm_t* oldVM = currentVM;
     currentVM = vm;
     lastVM = vm;
 
     if (vm_debugLevel != 0)
-        ::Com_Printf ("VM_Call( %i )\n", callnum);
+        Com_Printf ("VM_Call( %i )\n", callnum);
 
     // if we have a dll loaded, call it directly
     if ( vm->entryPoint != 0) {
@@ -1085,7 +1085,7 @@ VM_VmInfo_f
 
 void VM_VmInfo_f ()
 {
-    ::Com_Printf ("Registered virtual machines:\n");
+    Com_Printf ("Registered virtual machines:\n");
 
     for (int i = 0; i < MAX_VM; ++i) {
         vm_t* vm = &vmTable[i];
@@ -1093,10 +1093,10 @@ void VM_VmInfo_f ()
         if (vm->name[0] == '\0')
             break;
 
-        ::Com_Printf ("%s : ", vm->name);
+        Com_Printf ("%s : ", vm->name);
 
         if (vm->dllHandle != 0) {
-            ::Com_Printf ("native\n");
+            Com_Printf ("native\n");
             continue;
         }
     }
@@ -1131,11 +1131,11 @@ void VM_LogSyscalls (
     static FILE* f;
 
     if (f == 0)
-        f = ::fopen ("syscalls.log", "w");
+        f = fopen ("syscalls.log", "w");
 
     ++callnum;
 
-    ::fprintf (f, "%i: (%i) = %i %i %i %i\n",
+    fprintf (f, "%i: (%i) = %i %i %i %i\n",
         callnum, args[0], args[1], args[2], args[3], args[4]);
 }
 //BBi

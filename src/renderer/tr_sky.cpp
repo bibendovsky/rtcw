@@ -413,7 +413,7 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
         if (glConfigEx.is_path_ogl_1_x ()) {
         // BBi
 
-		::glBegin( GL_TRIANGLE_STRIP );
+		glBegin( GL_TRIANGLE_STRIP );
 
         // BBi
         }
@@ -451,11 +451,11 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
             } else {
             // BBi
 
-			::glTexCoord2fv( s_skyTexCoords[t][s] );
-			::glVertex3fv( s_skyPoints[t][s] );
+			glTexCoord2fv( s_skyTexCoords[t][s] );
+			glVertex3fv( s_skyPoints[t][s] );
 
-			::glTexCoord2fv( s_skyTexCoords[t + 1][s] );
-			::glVertex3fv( s_skyPoints[t + 1][s] );
+			glTexCoord2fv( s_skyTexCoords[t + 1][s] );
+			glVertex3fv( s_skyPoints[t + 1][s] );
 
             // BBi
             }
@@ -466,7 +466,7 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
         if (glConfigEx.is_path_ogl_1_x ()) {
         // BBi
 
-		::glEnd();
+		glEnd();
 
         // BBi
         }
@@ -475,7 +475,7 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
 
     // BBi
     if (!glConfigEx.is_path_ogl_1_x ())
-        ::ogl_tess2_draw (GL_TRIANGLE_STRIP, vertex_index, true, false);
+        ogl_tess2_draw (GL_TRIANGLE_STRIP, vertex_index, true, false);
     // BBi
 }
 
@@ -489,8 +489,8 @@ static void DrawSkySideInner( struct image_s *image, const int mins[2], const in
 	GL_Bind( image );
 
 	//::glDisable (GL_BLEND);
-	::glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-	::glEnable( GL_BLEND );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	glEnable( GL_BLEND );
 	GL_TexEnv( GL_MODULATE );
 
 	for ( t = mins[1] + HALF_SKY_SUBDIVISIONS; t < maxs[1] + HALF_SKY_SUBDIVISIONS; t++ )
@@ -499,7 +499,7 @@ static void DrawSkySideInner( struct image_s *image, const int mins[2], const in
         if (glConfigEx.is_path_ogl_1_x ()) {
         // BBi
 
-		::glBegin( GL_TRIANGLE_STRIP );
+		glBegin( GL_TRIANGLE_STRIP );
 
         // BBi
         }
@@ -537,11 +537,11 @@ static void DrawSkySideInner( struct image_s *image, const int mins[2], const in
             } else {
             // BBi
 
-			::glTexCoord2fv( s_skyTexCoords[t][s] );
-			::glVertex3fv( s_skyPoints[t][s] );
+			glTexCoord2fv( s_skyTexCoords[t][s] );
+			glVertex3fv( s_skyPoints[t][s] );
 
-			::glTexCoord2fv( s_skyTexCoords[t + 1][s] );
-			::glVertex3fv( s_skyPoints[t + 1][s] );
+			glTexCoord2fv( s_skyTexCoords[t + 1][s] );
+			glVertex3fv( s_skyPoints[t + 1][s] );
 
             // BBi
             }
@@ -552,7 +552,7 @@ static void DrawSkySideInner( struct image_s *image, const int mins[2], const in
         if (glConfigEx.is_path_ogl_1_x ()) {
         // BBi
 
-		::glEnd();
+		glEnd();
 
         // BBi
         }
@@ -561,10 +561,10 @@ static void DrawSkySideInner( struct image_s *image, const int mins[2], const in
 
     // BBi
     if (!glConfigEx.is_path_ogl_1_x ())
-        ::ogl_tess2_draw (GL_TRIANGLE_STRIP, vertex_index, true, false);
+        ogl_tess2_draw (GL_TRIANGLE_STRIP, vertex_index, true, false);
     // BBi
 
-	::glDisable( GL_BLEND );
+	glDisable( GL_BLEND );
 }
 
 static void DrawSkyBox( shader_t *shader ) {
@@ -1013,7 +1013,7 @@ void RB_DrawSun( void ) {
     if (glConfigEx.is_path_ogl_1_x ()) {
     // BBi
 
-	::glPushMatrix();
+	glPushMatrix();
 
     // BBi
     }
@@ -1036,17 +1036,17 @@ void RB_DrawSun( void ) {
     } else {
 // BBi
 
-	::glLoadMatrixf( backEnd.viewParms.world.modelMatrix );
+	glLoadMatrixf( backEnd.viewParms.world.modelMatrix );
 
 // BBi
 //#if !defined RTCW_ET
-//	::glTranslatef( backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2] );
+//	glTranslatef( backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2] );
 //#else
-//	::glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
+//	glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
 //#endif // RTCW_XX
-    ::glTranslatef (::backEnd.viewParms.orientation.origin[0],
-        ::backEnd.viewParms.orientation.origin[1],
-        ::backEnd.viewParms.orientation.origin[2]);
+    glTranslatef (backEnd.viewParms.orientation.origin[0],
+        backEnd.viewParms.orientation.origin[1],
+        backEnd.viewParms.orientation.origin[2]);
 // BBi
     // BBi
     }
@@ -1065,7 +1065,7 @@ void RB_DrawSun( void ) {
 	VectorScale( vec2, size, vec2 );
 
 	// farthest depth range
-	::glDepthRange( 1.0, 1.0 );
+	glDepthRange( 1.0, 1.0 );
 
 	color[0] = color[1] = color[2] = color[3] = 255;
 
@@ -1204,7 +1204,7 @@ void RB_DrawSun( void ) {
 //#else
 //		VectorAdd( tr.sunDirection, backEnd.viewParms.orientation.axis[0], temp );
 //#endif // RTCW_XX
-        VectorAdd (::tr.sunDirection, ::backEnd.viewParms.orientation.axis[0],
+        VectorAdd (tr.sunDirection, backEnd.viewParms.orientation.axis[0],
             temp);
 // BBi
 
@@ -1224,7 +1224,7 @@ void RB_DrawSun( void ) {
 	}
 
 	// back to normal depth range
-	::glDepthRange( 0.0, 1.0 );
+	glDepthRange( 0.0, 1.0 );
 
 //#if defined RTCW_ET
     // BBi
@@ -1235,7 +1235,7 @@ void RB_DrawSun( void ) {
     } else {
     // BBi
 
-	::glPopMatrix();
+	glPopMatrix();
 
     // BBi
     }
@@ -1291,9 +1291,9 @@ void RB_StageIteratorSky( void ) {
 	// front of everything to allow developers to see how
 	// much sky is getting sucked in
 	if ( r_showsky->integer ) {
-		::glDepthRange( 0.0, 0.0 );
+		glDepthRange( 0.0, 0.0 );
 	} else {
-		::glDepthRange( 1.0, 1.0 );
+		glDepthRange( 1.0, 1.0 );
 	}
 
     // BBi
@@ -1305,9 +1305,9 @@ void RB_StageIteratorSky( void ) {
         // BBi
         if (!glConfigEx.is_path_ogl_1_x ()) {
             matrix = glm::translate (ogl_model_view_stack.push_and_get (),
-                glm::vec3 (::backEnd.viewParms.orientation.origin[0],
-                    ::backEnd.viewParms.orientation.origin[1],
-                    ::backEnd.viewParms.orientation.origin[2]));
+                glm::vec3 (backEnd.viewParms.orientation.origin[0],
+                    backEnd.viewParms.orientation.origin[1],
+                    backEnd.viewParms.orientation.origin[2]));
 
             ogl_tess_state.model_view.set (matrix);
 
@@ -1318,9 +1318,9 @@ void RB_StageIteratorSky( void ) {
         } else {
         // BBi
 
-		::glColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
+		glColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
 
-		::glPushMatrix();
+		glPushMatrix();
 
         // BBi
         }
@@ -1334,13 +1334,13 @@ void RB_StageIteratorSky( void ) {
 
 // BBi
 //#if !defined RTCW_ET
-//		::glTranslatef( backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2] );
+//		glTranslatef( backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2] );
 //#else
-//		::glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
+//		glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
 //#endif // RTCW_XX
-        ::glTranslatef (::backEnd.viewParms.orientation.origin[0],
-            ::backEnd.viewParms.orientation.origin[1],
-            ::backEnd.viewParms.orientation.origin[2]);
+        glTranslatef (backEnd.viewParms.orientation.origin[0],
+            backEnd.viewParms.orientation.origin[1],
+            backEnd.viewParms.orientation.origin[2]);
 // BBi
         // BBi
         }
@@ -1356,7 +1356,7 @@ void RB_StageIteratorSky( void ) {
         } else {
         // BBi
 
-		::glPopMatrix();
+		glPopMatrix();
 
         // BBi
         }
@@ -1375,9 +1375,9 @@ void RB_StageIteratorSky( void ) {
         // BBi
         if (!glConfigEx.is_path_ogl_1_x ()) {
             matrix = glm::translate (ogl_model_view_stack.push_and_get (),
-                glm::vec3 (::backEnd.viewParms.orientation.origin[0],
-                    ::backEnd.viewParms.orientation.origin[1],
-                    ::backEnd.viewParms.orientation.origin[2]));
+                glm::vec3 (backEnd.viewParms.orientation.origin[0],
+                    backEnd.viewParms.orientation.origin[1],
+                    backEnd.viewParms.orientation.origin[2]));
 
             ogl_tess_state.model_view.set (matrix);
 
@@ -1388,9 +1388,9 @@ void RB_StageIteratorSky( void ) {
         } else {
         // BBi
 
-		::glColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
+		glColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
 
-		::glPushMatrix();
+		glPushMatrix();
 
         // BBi
         }
@@ -1404,13 +1404,13 @@ void RB_StageIteratorSky( void ) {
 
 // BBi
 //#if !defined RTCW_ET
-//		::glTranslatef( backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2] );
+//		glTranslatef( backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2] );
 //#else
-//		::glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
+//		glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
 //#endif // RTCW_XX
-        ::glTranslatef (::backEnd.viewParms.orientation.origin[0],
-            ::backEnd.viewParms.orientation.origin[1],
-            ::backEnd.viewParms.orientation.origin[2]);
+        glTranslatef (backEnd.viewParms.orientation.origin[0],
+            backEnd.viewParms.orientation.origin[1],
+            backEnd.viewParms.orientation.origin[2]);
 // BBi
         // BBi
         }
@@ -1426,7 +1426,7 @@ void RB_StageIteratorSky( void ) {
         } else {
         // BBi
 
-		::glPopMatrix();
+		glPopMatrix();
 
         // BBi
         }
@@ -1435,7 +1435,7 @@ void RB_StageIteratorSky( void ) {
 	// Rafael - end
 
 	// back to normal depth range
-	::glDepthRange( 0.0, 1.0 );
+	glDepthRange( 0.0, 1.0 );
 
 	backEnd.refdef.rdflags &= ~RDF_DRAWINGSKY;
 

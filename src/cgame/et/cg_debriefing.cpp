@@ -2425,7 +2425,7 @@ void CG_Debreifing2_MissionTitle_Draw( panel_button_t* button ) {
 
     //BBi
 	//s = va( "%i SECS TO NEXT MAP", max( 60 - ( cg.time - cgs.intermissionStartTime ) / 1000, 0 ) );
-    s = ::va ("%i SECS TO NEXT MAP", std::max (60 - (cg.time - cgs.intermissionStartTime) / 1000, 0));
+    s = va ("%i SECS TO NEXT MAP", std::max (60 - (cg.time - cgs.intermissionStartTime) / 1000, 0));
     //BBi
 
 	w = CG_Text_Width_Ext( s, 0.25f, 0, &cgs.media.limboFont1 );

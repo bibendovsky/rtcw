@@ -1336,7 +1336,7 @@ static void RoQReset() {
 
 	FS_FOpenFileRead( cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, qtrue );
 
-    ::FS_Read(cin.file, 16, cinTable[currentHandle].iFile);
+    FS_Read(cin.file, 16, cinTable[currentHandle].iFile);
 
 	RoQ_init();
 	cinTable[currentHandle].status = FMV_LOOPED;
@@ -1363,7 +1363,7 @@ static void RoQInterrupt( void ) {
 //resound:
 #endif // RTCW_XX
 
-    ::FS_Read(
+    FS_Read(
         cin.file,
         cinTable[currentHandle].RoQFrameSize + 8,
         cinTable[currentHandle].iFile);

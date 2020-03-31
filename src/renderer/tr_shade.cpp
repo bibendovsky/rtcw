@@ -72,7 +72,7 @@ This is just for OpenGL conformance testing, it should never be the fastest
 ================
 */
 static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
-	::glColor4ubv( tess.svars.colors[ index ] );
+	glColor4ubv( tess.svars.colors[ index ] );
 	if ( glState.currenttmu ) {
 		glMultiTexCoord2f(0, tess.svars.texcoords[ 0 ][ index ][0], tess.svars.texcoords[ 0 ][ index ][1]);
 		glMultiTexCoord2f(1, tess.svars.texcoords[ 1 ][ index ][0], tess.svars.texcoords[ 1 ][ index ][1]);
@@ -102,7 +102,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 		return;
 	}
 
-	::glBegin( GL_TRIANGLE_STRIP );
+	glBegin( GL_TRIANGLE_STRIP );
 
 	// prime the strip
 	element( indexes[0] );
@@ -131,9 +131,9 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 			// a new one
 			else
 			{
-				::glEnd();
+				glEnd();
 
-				::glBegin( GL_TRIANGLE_STRIP );
+				glBegin( GL_TRIANGLE_STRIP );
 				c_begins++;
 
 				element( indexes[i + 0] );
@@ -157,9 +157,9 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 			// a new one
 			else
 			{
-				::glEnd();
+				glEnd();
 
-				::glBegin( GL_TRIANGLE_STRIP );
+				glBegin( GL_TRIANGLE_STRIP );
 				c_begins++;
 
 				element( indexes[i + 0] );
@@ -177,7 +177,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 		last[2] = indexes[i + 2];
 	}
 
-	::glEnd();
+	glEnd();
 }
 
 
@@ -258,12 +258,12 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
                     ogl_index_buffer[i] = indexes[i] + ogl_tess_base_vertex;
             }
 
-            ::glUseProgram (ogl_tess_program->program_);
+            glUseProgram (ogl_tess_program->program_);
 
-            ::glBindBuffer (GL_ARRAY_BUFFER, ogl_tess_vbo);
+            glBindBuffer (GL_ARRAY_BUFFER, ogl_tess_vbo);
 
             if (use_pos_array) {
-                ::glBufferSubData (GL_ARRAY_BUFFER,
+                glBufferSubData (GL_ARRAY_BUFFER,
                     OglTessLayout::POS_OFS +
                         (ogl_tess_base_vertex * OglTessLayout::POS_SIZE),
                     vertex_count * OglTessLayout::POS_SIZE,
@@ -271,7 +271,7 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
             }
 
             if (use_tc0_array) {
-                ::glBufferSubData (GL_ARRAY_BUFFER,
+                glBufferSubData (GL_ARRAY_BUFFER,
                     OglTessLayout::TC0_OFS +
                         (ogl_tess_base_vertex * OglTessLayout::TC0_SIZE),
                     vertex_count * OglTessLayout::TC0_SIZE,
@@ -279,7 +279,7 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
             }
 
             if (use_tc1_array) {
-                ::glBufferSubData (GL_ARRAY_BUFFER,
+                glBufferSubData (GL_ARRAY_BUFFER,
                     OglTessLayout::TC1_OFS +
                         (ogl_tess_base_vertex * OglTessLayout::TC1_SIZE),
                     vertex_count * OglTessLayout::TC1_SIZE,
@@ -287,7 +287,7 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
             }
 
             if (use_col_array) {
-                ::glBufferSubData (GL_ARRAY_BUFFER,
+                glBufferSubData (GL_ARRAY_BUFFER,
                     OglTessLayout::COL_OFS +
                         (ogl_tess_base_vertex * OglTessLayout::COL_SIZE),
                     vertex_count * OglTessLayout::COL_SIZE,
@@ -296,36 +296,36 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 
             // position
             if (use_pos_array) {
-                ::glVertexAttribPointer (ogl_tess_program->a_pos_vec4, 3, GL_FLOAT,
+                glVertexAttribPointer (ogl_tess_program->a_pos_vec4, 3, GL_FLOAT,
                     GL_FALSE, OglTessLayout::POS_SIZE,
                     OglTessLayout::POS_PTR);
 
-                ::glEnableVertexAttribArray (ogl_tess_program->a_pos_vec4);
+                glEnableVertexAttribArray (ogl_tess_program->a_pos_vec4);
             }
 
             // texture coordinates (0)
             if (use_tc0_array) {
-                ::glVertexAttribPointer (ogl_tess_program->a_tc0_vec2, 2, GL_FLOAT,
+                glVertexAttribPointer (ogl_tess_program->a_tc0_vec2, 2, GL_FLOAT,
                     GL_FALSE, 0, OglTessLayout::TC0_PTR);
 
-                ::glEnableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
+                glEnableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
             }
 
             // texture coordinates (1)
             if (use_tc1_array) {
-                ::glVertexAttribPointer (ogl_tess_program->a_tc1_vec2, 2, GL_FLOAT,
+                glVertexAttribPointer (ogl_tess_program->a_tc1_vec2, 2, GL_FLOAT,
                     GL_FALSE, 0, OglTessLayout::TC1_PTR);
 
-                ::glEnableVertexAttribArray (ogl_tess_program->a_tc1_vec2);
+                glEnableVertexAttribArray (ogl_tess_program->a_tc1_vec2);
             }
 
             // color
             if (use_col_array) {
-                ::glVertexAttribPointer (ogl_tess_program->a_col_vec4, 4,
+                glVertexAttribPointer (ogl_tess_program->a_col_vec4, 4,
                     GL_UNSIGNED_BYTE, GL_TRUE, 0,
                     OglTessLayout::COL_PTR);
 
-                ::glEnableVertexAttribArray (ogl_tess_program->a_col_vec4);
+                glEnableVertexAttribArray (ogl_tess_program->a_col_vec4);
             }
         }
         // BBi
@@ -333,16 +333,16 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
         // BBi
         if (!glConfigEx.is_path_ogl_1_x ()) {
             if (glConfigEx.use_arb_draw_elements_base_vertex) {
-                ::glDrawElementsBaseVertex(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE,
+                glDrawElementsBaseVertex(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE,
                     indexes, ogl_tess_base_vertex);
             } else {
-                ::glDrawElements (GL_TRIANGLES, numIndexes, GL_INDEX_TYPE,
+                glDrawElements (GL_TRIANGLES, numIndexes, GL_INDEX_TYPE,
                     &ogl_index_buffer[0]);
             }
         } else {
         // BBi
 
-		::glDrawElements( GL_TRIANGLES,
+		glDrawElements( GL_TRIANGLES,
 						 numIndexes,
 						 GL_INDEX_TYPE,
 						 indexes );
@@ -353,21 +353,21 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 
         // BBi
         if (!glConfigEx.is_path_ogl_1_x ()) {
-            ::glUseProgram (0);
+            glUseProgram (0);
 
             if (use_pos_array)
-                ::glDisableVertexAttribArray (ogl_tess_program->a_pos_vec4);
+                glDisableVertexAttribArray (ogl_tess_program->a_pos_vec4);
 
             if (use_tc0_array)
-                ::glDisableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
+                glDisableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
 
             if (use_tc1_array)
-                ::glDisableVertexAttribArray (ogl_tess_program->a_tc1_vec2);
+                glDisableVertexAttribArray (ogl_tess_program->a_tc1_vec2);
 
             if (use_col_array)
-                ::glDisableVertexAttribArray (ogl_tess_program->a_col_vec4);
+                glDisableVertexAttribArray (ogl_tess_program->a_col_vec4);
 
-            ::glBindBuffer (GL_ARRAY_BUFFER, 0);
+            glBindBuffer (GL_ARRAY_BUFFER, 0);
 
             ogl_tess_base_vertex += ogl_tess_vertex_count;
         }
@@ -377,7 +377,7 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 	}
 
 	if ( primitives == 1 ) {
-		R_DrawStripElements( numIndexes,  indexes, ::glArrayElement );
+		R_DrawStripElements( numIndexes,  indexes, glArrayElement );
 		return;
 	}
 
@@ -461,7 +461,7 @@ static void DrawTris( shaderCommands_t *input ) {
     } else {
     // BBi
 
-	::glColor3f( 1,1,1 );
+	glColor3f( 1,1,1 );
 
     // BBi
     }
@@ -471,10 +471,10 @@ static void DrawTris( shaderCommands_t *input ) {
 
 #if !defined RTCW_MP
 	if ( r_showtris->integer == 1 ) {
-		::glDepthRange( 0, 0 );
+		glDepthRange( 0, 0 );
 	}
 #else
-	::glDepthRange( 0, 0 );
+	glDepthRange( 0, 0 );
 #endif // RTCW_XX
 #else
 	const char            *s = r_trisColor->string;
@@ -516,29 +516,29 @@ static void DrawTris( shaderCommands_t *input ) {
 		stateBits |= ( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 	}
 
-	::glColor4fv( trisColor );
+	glColor4fv( trisColor );
 
 	// ydnar r_showtris 2
 	if ( r_showtris->integer == 2 ) {
 		stateBits |= ( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
 		GL_State( stateBits );
-		::glDepthRange( 0, 0 );
+		glDepthRange( 0, 0 );
 	}
 	#ifdef CELSHADING_HACK
 	else if ( r_showtris->integer == 3 ) {
 		stateBits |= ( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
 		GL_State( stateBits );
-		::glEnable( GL_POLYGON_OFFSET_LINE );
-		::glPolygonOffset( 4.0, 0.5 );
-		::glLineWidth( 5.0 );
+		glEnable( GL_POLYGON_OFFSET_LINE );
+		glPolygonOffset( 4.0, 0.5 );
+		glLineWidth( 5.0 );
 	}
 	#endif
 	else
 	{
 		stateBits |= ( GLS_POLYMODE_LINE );
 		GL_State( stateBits );
-		::glEnable( GL_POLYGON_OFFSET_LINE );
-		::glPolygonOffset( r_offsetFactor->value, r_offsetUnits->value );
+		glEnable( GL_POLYGON_OFFSET_LINE );
+		glPolygonOffset( r_offsetFactor->value, r_offsetUnits->value );
 	}
 #endif // RTCW_XX
 
@@ -554,13 +554,13 @@ static void DrawTris( shaderCommands_t *input ) {
     } else {
     // BBi
 
-	::glDisableClientState( GL_COLOR_ARRAY );
-	::glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableClientState( GL_COLOR_ARRAY );
+	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 
-	::glVertexPointer( 3, GL_FLOAT, 16, input->xyz ); // padded for SIMD
+	glVertexPointer( 3, GL_FLOAT, 16, input->xyz ); // padded for SIMD
 
 	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
-		::glLockArraysEXT( 0, input->numVertexes );
+		glLockArraysEXT( 0, input->numVertexes );
 		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
 
@@ -578,7 +578,7 @@ static void DrawTris( shaderCommands_t *input ) {
     // BBi
 
 	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
-		::glUnlockArraysEXT();
+		glUnlockArraysEXT();
 		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 
@@ -586,10 +586,10 @@ static void DrawTris( shaderCommands_t *input ) {
     }
     // BBi
 
-	::glDepthRange( 0, 1 );
+	glDepthRange( 0, 1 );
 
 #if defined RTCW_ET
-	::glDisable( GL_POLYGON_OFFSET_LINE );
+	glDisable( GL_POLYGON_OFFSET_LINE );
 #endif // RTCW_XX
 
 }
@@ -615,7 +615,7 @@ static void DrawNormals( shaderCommands_t *input ) {
     } else {
     // BBi
 
-	::glColor3f( 1,1,1 );
+	glColor3f( 1,1,1 );
 
     // BBi
     }
@@ -623,10 +623,10 @@ static void DrawNormals( shaderCommands_t *input ) {
 
 #if defined RTCW_SP
 	if ( r_shownormals->integer == 1 ) {
-		::glDepthRange( 0, 0 );  // never occluded
+		glDepthRange( 0, 0 );  // never occluded
 	}
 #else
-	::glDepthRange( 0, 0 );  // never occluded
+	glDepthRange( 0, 0 );  // never occluded
 #endif // RTCW_XX
 
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
@@ -657,32 +657,32 @@ static void DrawNormals( shaderCommands_t *input ) {
         } else {
         // BBi
 
-		::glColor3f( ent->ambientLight[ 0 ] / 255, ent->ambientLight[ 1 ] / 255, ent->ambientLight[ 2 ] / 255 );
+		glColor3f( ent->ambientLight[ 0 ] / 255, ent->ambientLight[ 1 ] / 255, ent->ambientLight[ 2 ] / 255 );
 
         // BBi
         }
         // BBi
 
-		::glPointSize( 5 );
+		glPointSize( 5 );
 
         // BBi
         if (!glConfigEx.is_path_ogl_1_x ()) {
             ogl_tess2.position[0] = glm::vec4 (
                 temp[0], temp[1], temp[2], 1.0F);
 
-            ::ogl_tess2_draw (GL_POINTS, 1, false, false);
+            ogl_tess2_draw (GL_POINTS, 1, false, false);
         } else {
         // BBi
 
-		::glBegin( GL_POINTS );
-		::glVertex3fv( temp );
-		::glEnd();
+		glBegin( GL_POINTS );
+		glVertex3fv( temp );
+		glEnd();
 
         // BBi
         }
         // BBi
 
-		::glPointSize( 1 );
+		glPointSize( 1 );
 
 		if ( c::fabs( VectorLengthSquared( ent->lightDir ) - 1.0f ) > 0.2f ) {
             // BBi
@@ -692,7 +692,7 @@ static void DrawNormals( shaderCommands_t *input ) {
             } else {
             // BBi
 
-			::glColor3f( 1, 0, 0 );
+			glColor3f( 1, 0, 0 );
 
             // BBi
             }
@@ -708,7 +708,7 @@ static void DrawNormals( shaderCommands_t *input ) {
             } else {
             // BBi
 
-			::glColor3f( ent->directedLight[ 0 ] / 255, ent->directedLight[ 1 ] / 255, ent->directedLight[ 2 ] / 255 );
+			glColor3f( ent->directedLight[ 0 ] / 255, ent->directedLight[ 1 ] / 255, ent->directedLight[ 2 ] / 255 );
 
             // BBi
             }
@@ -724,9 +724,9 @@ static void DrawNormals( shaderCommands_t *input ) {
         } else {
         // BBi
 
-		::glLineWidth( 3 );
-		::glBegin( GL_LINES );
-		::glVertex3fv( temp );
+		glLineWidth( 3 );
+		glBegin( GL_LINES );
+		glVertex3fv( temp );
 
         // BBi
         }
@@ -739,13 +739,13 @@ static void DrawNormals( shaderCommands_t *input ) {
             ogl_tess2.position[1] = glm::vec4 (
                 temp[0], temp[1], temp[2], 1.0F);
 
-            ::ogl_tess2_draw (GL_LINES, 2, false, false);
+            ogl_tess2_draw (GL_LINES, 2, false, false);
         } else {
         // BBi
 
-		::glVertex3fv( temp );
-		::glEnd();
-		::glLineWidth( 1 );
+		glVertex3fv( temp );
+		glEnd();
+		glLineWidth( 1 );
 
         // BBi
         }
@@ -778,11 +778,11 @@ static void DrawNormals( shaderCommands_t *input ) {
             index += 2;
         }
 
-        ::ogl_tess2_draw (GL_LINES, 2 * input->numVertexes, false, false);
+        ogl_tess2_draw (GL_LINES, 2 * input->numVertexes, false, false);
     } else {
     // BBi
 
-	::glBegin( GL_LINES );
+	glBegin( GL_LINES );
 
 	for ( i = 0 ; i < input->numVertexes ; i++ ) {
 // FIXME Create cvar r_normallength for all projects
@@ -793,9 +793,9 @@ static void DrawNormals( shaderCommands_t *input ) {
         VectorMA(input->xyz[i].v, r_normallength->value, input->normal[i].v, temp);
 #endif // RTCW_X
 
-		::glVertex3fv( temp );
+		glVertex3fv( temp );
 	}
-	::glEnd();
+	glEnd();
 
     // BBi
     }
@@ -805,7 +805,7 @@ static void DrawNormals( shaderCommands_t *input ) {
 	}
 #endif // RTCW_XX
 
-	::glDepthRange( 0, 1 );
+	glDepthRange( 0, 1 );
 }
 
 /*
@@ -871,7 +871,7 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	// this is an ugly hack to work around a GeForce driver
 	// bug with multitexture and clip planes
 	if ( backEnd.viewParms.isPortal ) {
-		::glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 	}
 
 	//
@@ -885,7 +885,7 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
     } else {
     // BBi
 
-	::glTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
+	glTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
 
     // BBi
     }
@@ -905,7 +905,7 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
     } else {
     // BBi
 
-	::glEnable( GL_TEXTURE_2D );
+	glEnable( GL_TEXTURE_2D );
 
     // BBi
     }
@@ -917,7 +917,7 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
     } else {
     // BBi
 
-	::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
     // BBi
     }
@@ -935,7 +935,7 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
     } else {
     // BBi
 
-	::glTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[1] );
+	glTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[1] );
 
     // BBi
     }
@@ -957,7 +957,7 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
     } else {
     // BBi
 
-	::glDisable( GL_TEXTURE_2D );
+	glDisable( GL_TEXTURE_2D );
 
     // BBi
     }
@@ -1124,11 +1124,11 @@ static void ProjectDlightTexture( void ) {
         } else {
         // BBi
 
-		::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		::glTexCoordPointer( 2, GL_FLOAT, 0, texCoordsArray[0] );
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		glTexCoordPointer( 2, GL_FLOAT, 0, texCoordsArray[0] );
 
-		::glEnableClientState( GL_COLOR_ARRAY );
-		::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, colorArray );
+		glEnableClientState( GL_COLOR_ARRAY );
+		glColorPointer( 4, GL_UNSIGNED_BYTE, 0, colorArray );
 
         // BBi
         }
@@ -1163,7 +1163,7 @@ static void ProjectDlightTexture( void ) {
 							GL_SelectTexture( tmu );
 
 							if (tmu) {
-								::glEnable( GL_TEXTURE_2D );
+								glEnable( GL_TEXTURE_2D );
 							}
 
 							R_BindAnimatedImage( &dls->stages[i]->bundle[0] );
@@ -1179,7 +1179,7 @@ static void ProjectDlightTexture( void ) {
 					for (tmu=1; tmu<glConfig.maxActiveTextures; tmu++) {
 						// set back to default state
 						GL_SelectTexture( tmu );
-						::glDisable( GL_TEXTURE_2D );
+						glDisable( GL_TEXTURE_2D );
 					}
 
 					// return to TEXTURE0
@@ -1215,13 +1215,13 @@ static void ProjectDlightTexture( void ) {
 					for (tmu=0; tmu<glConfig.maxActiveTextures && tmu<(dl->overdraw+1); tmu++) {
 						GL_SelectTexture( tmu );
 						if (tmu) {
-							::glEnable( GL_TEXTURE_2D );
+							glEnable( GL_TEXTURE_2D );
 							GL_TexEnv( GL_ADD );
 							GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
-							::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-							::glTexCoordPointer( 2, GL_FLOAT, 0, texCoordsArray[0] );
-							::glEnableClientState( GL_COLOR_ARRAY );
-							::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, colorArray );
+							glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+							glTexCoordPointer( 2, GL_FLOAT, 0, texCoordsArray[0] );
+							glEnableClientState( GL_COLOR_ARRAY );
+							glColorPointer( 4, GL_UNSIGNED_BYTE, 0, colorArray );
 						}
 						GL_Bind( tr.dlightImage );
 					}
@@ -1234,7 +1234,7 @@ static void ProjectDlightTexture( void ) {
 							for (tmu=0; tmu<glConfig.maxActiveTextures; tmu++) {
 								if (tmu+i>=(dl->overdraw+1)) {
 									GL_SelectTexture( tmu );
-									::glDisable( GL_TEXTURE_2D );
+									glDisable( GL_TEXTURE_2D );
 								}
 							}
 						}
@@ -1248,7 +1248,7 @@ static void ProjectDlightTexture( void ) {
 					for (tmu=1; tmu<glConfig.maxActiveTextures; tmu++) {
 						// set back to default state
 						GL_SelectTexture( tmu );
-						::glDisable( GL_TEXTURE_2D );
+						glDisable( GL_TEXTURE_2D );
 					}
 
 					// return to TEXTURE0
@@ -1395,8 +1395,8 @@ static void DynamicLightSinglePass( void ) {
     } else {
     // BBi
 
-	::glEnableClientState( GL_COLOR_ARRAY );
-	::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
+	glEnableClientState( GL_COLOR_ARRAY );
+	glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
 
     // BBi
     }
@@ -1545,8 +1545,8 @@ static void DynamicLightPass( void ) {
         } else {
         // BBi
 
-		::glEnableClientState( GL_COLOR_ARRAY );
-		::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
+		glEnableClientState( GL_COLOR_ARRAY );
+		glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
 
         // BBi
         }
@@ -1600,11 +1600,11 @@ static void RB_FogPass( void ) {
     } else {
     // BBi
 
-	::glEnableClientState( GL_COLOR_ARRAY );
-	::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
+	glEnableClientState( GL_COLOR_ARRAY );
+	glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
 
-	::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	::glTexCoordPointer( 2, GL_FLOAT, 0, tess.svars.texcoords[0] );
+	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glTexCoordPointer( 2, GL_FLOAT, 0, tess.svars.texcoords[0] );
 
     // BBi
     }
@@ -2083,8 +2083,8 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input ) {
             } else {
             // BBi
 
-			::glEnableClientState( GL_COLOR_ARRAY );
-			::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, input->svars.colors );
+			glEnableClientState( GL_COLOR_ARRAY );
+			glColorPointer( 4, GL_UNSIGNED_BYTE, 0, input->svars.colors );
 
             // BBi
             }
@@ -2107,7 +2107,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input ) {
                 } else {
                 // BBi
 
-				::glTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
+				glTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
 
                 // BBi
                 }
@@ -2250,13 +2250,13 @@ void RB_StageIteratorGeneric( void ) {
 
 //BBi
 //#if defined RTCW_SP
-//	if ( ::glPNTrianglesiATI && tess.ATI_tess ) {
+//	if ( glPNTrianglesiATI && tess.ATI_tess ) {
 //		// RF< so we can send the normals as an array
-//		::glEnableClientState( GL_NORMAL_ARRAY );
+//		glEnableClientState( GL_NORMAL_ARRAY );
 //#ifdef __MACOS__    //DAJ ATI
-//		::glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 1 );
+//		glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 1 );
 //#else
-//		::glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
+//		glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
 //#endif
 //	}
 //#endif // RTCW_XX
@@ -2269,8 +2269,8 @@ void RB_StageIteratorGeneric( void ) {
 
 	// set polygon offset if necessary
 	if ( input->shader->polygonOffset ) {
-		::glEnable( GL_POLYGON_OFFSET_FILL );
-		::glPolygonOffset( r_offsetFactor->value, r_offsetUnits->value );
+		glEnable( GL_POLYGON_OFFSET_FILL );
+		glPolygonOffset( r_offsetFactor->value, r_offsetUnits->value );
 	}
 
 	//
@@ -2288,8 +2288,8 @@ void RB_StageIteratorGeneric( void ) {
         } else {
         // BBi
 
-		::glDisableClientState( GL_COLOR_ARRAY );
-		::glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		glDisableClientState( GL_COLOR_ARRAY );
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 
         // BBi
         }
@@ -2307,11 +2307,11 @@ void RB_StageIteratorGeneric( void ) {
         } else {
         // BBi
 
-		::glEnableClientState( GL_COLOR_ARRAY );
-		::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
+		glEnableClientState( GL_COLOR_ARRAY );
+		glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
 
-		::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		::glTexCoordPointer( 2, GL_FLOAT, 0, tess.svars.texcoords[0] );
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		glTexCoordPointer( 2, GL_FLOAT, 0, tess.svars.texcoords[0] );
 
         // BBi
         }
@@ -2323,8 +2323,8 @@ void RB_StageIteratorGeneric( void ) {
 //	// RF, send normals only if required
 //	// This must be done first, since we can't change the arrays once they have been
 //	// locked
-//	if ( ::glPNTrianglesiATI && tess.ATI_tess ) {
-//		::glNormalPointer( GL_FLOAT, 16, input->normal );
+//	if ( glPNTrianglesiATI && tess.ATI_tess ) {
+//		glNormalPointer( GL_FLOAT, 16, input->normal );
 //	}
 //#endif // RTCW_XX
 //BBi
@@ -2339,9 +2339,9 @@ void RB_StageIteratorGeneric( void ) {
 	//
 	// lock XYZ
 	//
-	::glVertexPointer( 3, GL_FLOAT, 16, input->xyz ); // padded for SIMD
+	glVertexPointer( 3, GL_FLOAT, 16, input->xyz ); // padded for SIMD
 	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
-		::glLockArraysEXT( 0, input->numVertexes );
+		glLockArraysEXT( 0, input->numVertexes );
 		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
 
@@ -2359,8 +2359,8 @@ void RB_StageIteratorGeneric( void ) {
         } else {
         // BBi
 
-		::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		::glEnableClientState( GL_COLOR_ARRAY );
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		glEnableClientState( GL_COLOR_ARRAY );
 
         // BBi
         }
@@ -2409,7 +2409,7 @@ void RB_StageIteratorGeneric( void ) {
 	// unlock arrays
 	//
 	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
-		::glUnlockArraysEXT();
+		glUnlockArraysEXT();
 		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 
@@ -2421,19 +2421,19 @@ void RB_StageIteratorGeneric( void ) {
 	// reset polygon offset
 	//
 	if ( input->shader->polygonOffset ) {
-		::glDisable( GL_POLYGON_OFFSET_FILL );
+		glDisable( GL_POLYGON_OFFSET_FILL );
 	}
 
 //BBi
 //#if defined RTCW_SP
 //	// turn truform back off
-//	if ( ::glPNTrianglesiATI && tess.ATI_tess ) {
+//	if ( glPNTrianglesiATI && tess.ATI_tess ) {
 //#ifdef __MACOS__    //DAJ ATI
-//		::glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 0 );
+//		glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 0 );
 //#else
-//		::glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
+//		glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
 //#endif
-//		::glDisableClientState( GL_NORMAL_ARRAY );
+//		glDisableClientState( GL_NORMAL_ARRAY );
 //	}
 //#endif // RTCW_XX
 //BBi
@@ -2486,8 +2486,8 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	//
 	// set arrays and lock
 	//
-	::glEnableClientState( GL_COLOR_ARRAY );
-	::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glEnableClientState( GL_COLOR_ARRAY );
+	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
     // BBi
     }
@@ -2495,14 +2495,14 @@ void RB_StageIteratorVertexLitTexture( void ) {
 
 //BBi
 //#if defined RTCW_SP
-//	if ( ::glPNTrianglesiATI && tess.ATI_tess ) {
+//	if ( glPNTrianglesiATI && tess.ATI_tess ) {
 //#ifdef __MACOS__    //DAJ ATI
-//		::glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 1 );
+//		glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 1 );
 //#else
-//		::glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
+//		glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
 //#endif
-//		::glEnableClientState( GL_NORMAL_ARRAY );         // RF< so we can send the normals as an array
-//		::glNormalPointer( GL_FLOAT, 16, input->normal );
+//		glEnableClientState( GL_NORMAL_ARRAY );         // RF< so we can send the normals as an array
+//		glNormalPointer( GL_FLOAT, 16, input->normal );
 //	}
 //#endif // RTCW_XX
 //BBi
@@ -2516,12 +2516,12 @@ void RB_StageIteratorVertexLitTexture( void ) {
     } else {
     // BBi
 
-	::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
-	::glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords0 );
-	::glVertexPointer( 3, GL_FLOAT, 16, input->xyz );
+	glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
+	glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords0 );
+	glVertexPointer( 3, GL_FLOAT, 16, input->xyz );
 
 	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
-		::glLockArraysEXT( 0, input->numVertexes );
+		glLockArraysEXT( 0, input->numVertexes );
 		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
 
@@ -2571,7 +2571,7 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	// unlock arrays
 	//
 	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
-		::glUnlockArraysEXT();
+		glUnlockArraysEXT();
 		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 
@@ -2581,12 +2581,12 @@ void RB_StageIteratorVertexLitTexture( void ) {
 
 //BBi
 //#if defined RTCW_SP
-//	if ( ::glPNTrianglesiATI && tess.ATI_tess )
+//	if ( glPNTrianglesiATI && tess.ATI_tess )
 //#ifdef __MACOS__ //DAJ ATI{
-//		::glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 0 );
+//		glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 0 );
 //	}
 //#else
-//	{ ::glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
+//	{ glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
 //	}
 //#endif
 //#endif // RTCW_XX
@@ -2634,28 +2634,28 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
     } else {
     // BBi
 
-	::glVertexPointer( 3, GL_FLOAT, 16, input->xyz );
+	glVertexPointer( 3, GL_FLOAT, 16, input->xyz );
 
 //BBi
 //#if defined RTCW_SP
-//	if ( ::glPNTrianglesiATI && tess.ATI_tess ) {
+//	if ( glPNTrianglesiATI && tess.ATI_tess ) {
 //#ifdef __MACOS__    //DAJ ATI
-//		::glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 1 );
+//		glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 1 );
 //#else
-//		::glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
+//		glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
 //#endif
-//		::glNormalPointer( GL_FLOAT, 16, input->normal );
+//		glNormalPointer( GL_FLOAT, 16, input->normal );
 //	}
 //#endif // RTCW_XX
 //BBi
 
 #ifdef REPLACE_MODE
-	::glDisableClientState( GL_COLOR_ARRAY );
-	::glColor3f( 1, 1, 1 );
-	::glShadeModel( GL_FLAT );
+	glDisableClientState( GL_COLOR_ARRAY );
+	glColor3f( 1, 1, 1 );
+	glShadeModel( GL_FLAT );
 #else
-	::glEnableClientState( GL_COLOR_ARRAY );
-	::glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.constantColor255 );
+	glEnableClientState( GL_COLOR_ARRAY );
+	glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.constantColor255 );
 #endif
 
     // BBi
@@ -2671,7 +2671,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
     if (glConfigEx.is_path_ogl_1_x ()) {
     // BBi
 
-	::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
     // BBi
     }
@@ -2685,7 +2685,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
     } else {
     // BBi
 
-	::glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords0 );
+	glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords0 );
 
     // BBi
     }
@@ -2703,7 +2703,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
     } else {
     // BBi
 
-	::glEnable( GL_TEXTURE_2D );
+	glEnable( GL_TEXTURE_2D );
 
     // BBi
     }
@@ -2730,14 +2730,14 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
     } else {
     // BBi
 
-	::glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	::glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords1 );
+	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords1 );
 
 	//
 	// lock arrays
 	//
 	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
-		::glLockArraysEXT( 0, input->numVertexes );
+		glLockArraysEXT( 0, input->numVertexes );
 		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
 
@@ -2758,7 +2758,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
     } else {
     // BBi
 
-	::glDisable( GL_TEXTURE_2D );
+	glDisable( GL_TEXTURE_2D );
 
     // BBi
     }
@@ -2770,7 +2770,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
     } else {
     // BBi
 
-	::glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 
     // BBi
     }
@@ -2779,10 +2779,10 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	GL_SelectTexture( 0 );
 
 #ifdef REPLACE_MODE
-    ::GL_TexEnv( GL_MODULATE );
+    GL_TexEnv( GL_MODULATE );
 
     if (glConfigEx.is_path_ogl_1_x ())
-        ::glShadeModel(GL_SMOOTH);
+        glShadeModel(GL_SMOOTH);
 #endif
 
 	//
@@ -2820,7 +2820,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	// unlock arrays
 	//
 	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
-		::glUnlockArraysEXT();
+		glUnlockArraysEXT();
 		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 
@@ -2830,12 +2830,12 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 
 //BBi
 //#if defined RTCW_SP
-//	if ( ::glPNTrianglesiATI && tess.ATI_tess )
+//	if ( glPNTrianglesiATI && tess.ATI_tess )
 //#ifdef __MACOS__ //DAJ ATI{
-//		::glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 0 );
+//		glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 0 );
 //	}
 //#else
-//	{ ::glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
+//	{ glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
 //	}
 //#endif
 //#endif // RTCW_XX

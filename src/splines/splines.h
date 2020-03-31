@@ -628,10 +628,10 @@ virtual void addPoint( const idVec3 &v ) {
 virtual void draw( bool editMode ) {
 	glLabeledPoint( blue, startPos, ( editMode ) ? 5 : 3, "Start interpolated" );
 	glLabeledPoint( blue, endPos, ( editMode ) ? 5 : 3, "End interpolated" );
-	::glBegin( GL_LINES );
-	::glVertex3fv( startPos );
-	::glVertex3fv( endPos );
-	::glEnd();
+	glBegin( GL_LINES );
+	glVertex3fv( startPos );
+	glVertex3fv( endPos );
+	glEnd();
 }
 
 virtual void start( long t ) {

@@ -254,7 +254,7 @@ static qboolean R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 
     // BBi
 	//d = DotProduct( tr.or.viewOrigin, sface->plane.normal );
-    d = DotProduct (::tr.orientation.viewOrigin, sface->plane.normal);
+    d = DotProduct (tr.orientation.viewOrigin, sface->plane.normal);
     // BBi
 
 	// don't cull exactly on the plane, because there are levels of rounding

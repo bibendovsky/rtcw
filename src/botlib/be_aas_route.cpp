@@ -104,7 +104,7 @@ aas_routingcache_t::Struct* aas_routingcache_t::convertFrom32 (
 {
     int newSize = struct32->size + (AAS_RCS_DIFF - AAS_RCS_TT_DIFF);
 
-    Struct* result = static_cast<Struct*> (::GetClearedMemory (newSize));
+    Struct* result = static_cast<Struct*> (GetClearedMemory (newSize));
 
     const Struct32& src = *struct32;
     Struct& dst = *result;
@@ -1847,12 +1847,12 @@ void AAS_WriteRouteCache( void ) {
     }
 
     // open the file for writing
-    ::Com_sprintf (filename, MAX_QPATH, "maps/%s.rcd", aasworld->mapname);
+    Com_sprintf (filename, MAX_QPATH, "maps/%s.rcd", aasworld->mapname);
 
     botimport.FS_FOpenFile (filename, &fp, FS_WRITE);
 
     if (fp == 0) {
-        ::AAS_Error ("Unable to open file: %s\n", filename);
+        AAS_Error ("Unable to open file: %s\n", filename);
         return;
     }
 
@@ -1861,11 +1861,11 @@ void AAS_WriteRouteCache( void ) {
     routecacheheader.version = rtcw::Endian::le(static_cast<uint32_t> (RCVERSION));
     routecacheheader.numareas = rtcw::Endian::le( aasworld->numareas);
     routecacheheader.numclusters = rtcw::Endian::le(aasworld->numclusters);
-    routecacheheader.areacrc = rtcw::Endian::le(::CRC_ProcessString (
+    routecacheheader.areacrc = rtcw::Endian::le(CRC_ProcessString (
         reinterpret_cast<unsigned char*>(aasworld->areas), sizeof (aas_area_t) * aasworld->numareas));
-    routecacheheader.clustercrc = rtcw::Endian::le(::CRC_ProcessString (
+    routecacheheader.clustercrc = rtcw::Endian::le(CRC_ProcessString (
         reinterpret_cast<unsigned char*>(aasworld->clusters), sizeof (aas_cluster_t) * aasworld->numclusters));
-    routecacheheader.reachcrc = rtcw::Endian::le(::CRC_ProcessString (
+    routecacheheader.reachcrc = rtcw::Endian::le(CRC_ProcessString (
         reinterpret_cast<unsigned char*>(aasworld->reachability), sizeof (aas_reachability_t) * aasworld->reachabilitysize));
     routecacheheader.numportalcache = rtcw::Endian::le(numportalcache);
     routecacheheader.numareacache = rtcw::Endian::le(numareacache);
@@ -1876,7 +1876,7 @@ void AAS_WriteRouteCache( void ) {
     //write all the cache
     for (i = 0; i < aasworld->numareas; ++i) {
         for (cache = aasworld->portalcache[i]; cache; cache = cache->next)
-            ::aasWriteRcStruct (cache, fp);
+            aasWriteRcStruct (cache, fp);
     }
 
     for (i = 0; i < aasworld->numclusters; ++i) {
@@ -1884,7 +1884,7 @@ void AAS_WriteRouteCache( void ) {
 
         for (j = 0; j < cluster->numareas; ++j) {
             for (cache = aasworld->clusterareacache[i][j]; cache; cache = cache->next)
-                ::aasWriteRcStruct (cache, fp);
+                aasWriteRcStruct (cache, fp);
         }
     }
 
@@ -1896,8 +1896,8 @@ void AAS_WriteRouteCache( void ) {
             continue;
         }
 
-        ::AAS_DecompressVis (aasworld->areavisibility[i], aasworld->numareas, aasworld->decompressedvis);
-        size = ::AAS_CompressVis (aasworld->decompressedvis, aasworld->numareas, buf);
+        AAS_DecompressVis (aasworld->areavisibility[i], aasworld->numareas, aasworld->decompressedvis);
+        size = AAS_CompressVis (aasworld->decompressedvis, aasworld->numareas, buf);
         rtcw::Endian::lei(size);
         botimport.FS_Write (&size, sizeof (int), fp);
         botimport.FS_Write (buf, size, fp);

@@ -1349,8 +1349,8 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
                 if (glConfigEx.is_path_ogl_1_x ()) {
                 // BBi
 
-				::glLineWidth( 1 );
-				::glBegin( GL_LINES );
+				glLineWidth( 1 );
+				glBegin( GL_LINES );
 
                 // BBi
                 }
@@ -1381,8 +1381,8 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
                     } else {
                     // BBi
 
-					::glColor3fv( vec );
-					::glVertex3fv( bonePtr->translation );
+					glColor3fv( vec );
+					glVertex3fv( bonePtr->translation );
 
                     // BBi
                     }
@@ -1405,13 +1405,13 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
                     } else {
                     // BBi
 
-					::glVertex3fv( vec );
+					glVertex3fv( vec );
 
                     // BBi
                     }
                     // BBi
 				}
-				::glEnd();
+				glEnd();
 
 				// connect to our parent if it's valid
 				if ( validBones[boneInfo[*boneRefs].parent] ) {
@@ -1450,23 +1450,23 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
                     } else {
                     // BBi
 
-					::glLineWidth( 2 );
-					::glBegin( GL_LINES );
-					::glColor3f( .6,.6,.6 );
-					::glVertex3fv( bonePtr->translation );
-					::glVertex3fv( bones[boneInfo[*boneRefs].parent].translation );
-					::glEnd();
+					glLineWidth( 2 );
+					glBegin( GL_LINES );
+					glColor3f( .6,.6,.6 );
+					glVertex3fv( bonePtr->translation );
+					glVertex3fv( bones[boneInfo[*boneRefs].parent].translation );
+					glEnd();
 
                     // BBi
                     }
                     // BBi
 				}
 
-				::glLineWidth( 1 );
+				glLineWidth( 1 );
 			}
 
             if (!glConfigEx.is_path_ogl_1_x ())
-                ::ogl_tess2_draw (GL_LINES, vertex_index, false, true);
+                ogl_tess2_draw (GL_LINES, vertex_index, false, true);
 		}
 
 		if ( r_bonesDebug->integer == 3 || r_bonesDebug->integer == 4 ) {
@@ -1489,9 +1489,9 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
             } else {
             // BBi
 
-			::glLineWidth( 1 );
-			::glBegin( GL_LINES );
-			::glColor3f( .0,.0,.8 );
+			glLineWidth( 1 );
+			glBegin( GL_LINES );
+			glColor3f( .0,.0,.8 );
 
             // BBi
             }
@@ -1581,14 +1581,14 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
                 } else {
                 // BBi
 
-				::glVertex3fv( tempVert + 4 * pIndexes[0] );
-				::glVertex3fv( tempVert + 4 * pIndexes[1] );
+				glVertex3fv( tempVert + 4 * pIndexes[0] );
+				glVertex3fv( tempVert + 4 * pIndexes[1] );
 
-				::glVertex3fv( tempVert + 4 * pIndexes[1] );
-				::glVertex3fv( tempVert + 4 * pIndexes[2] );
+				glVertex3fv( tempVert + 4 * pIndexes[1] );
+				glVertex3fv( tempVert + 4 * pIndexes[2] );
 
-				::glVertex3fv( tempVert + 4 * pIndexes[2] );
-				::glVertex3fv( tempVert + 4 * pIndexes[0] );
+				glVertex3fv( tempVert + 4 * pIndexes[2] );
+				glVertex3fv( tempVert + 4 * pIndexes[0] );
 
                 // BBi
                 }
@@ -1597,11 +1597,11 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 
             // BBi
             if (!glConfigEx.is_path_ogl_1_x ()) {
-                ::ogl_tess2_draw (GL_LINES, vertex_index, false, true);
+                ogl_tess2_draw (GL_LINES, vertex_index, false, true);
             } else {
             // BBi
 
-			::glEnd();
+			glEnd();
 
             // BBi
             }
@@ -1709,19 +1709,19 @@ int R_GetBoneTag( orientation_t *outTag, mdsHeader_t *mds, int startTagIndex, co
 		int j;
 		// DEBUG: show the tag position/axis
 		GL_Bind( tr.whiteImage );
-		::glLineWidth( 2 );
-		::glBegin( GL_LINES );
+		glLineWidth( 2 );
+		glBegin( GL_LINES );
 		for (j=0; j<3; j++) {
 			VectorClear(vec);
 			vec[j] = 1;
-			::glColor3fv( vec );
-			::glVertex3fv( outTag->origin );
+			glColor3fv( vec );
+			glVertex3fv( outTag->origin );
 			VectorMA( outTag->origin, 8, outTag->axis[j], vec );
-			::glVertex3fv( vec );
+			glVertex3fv( vec );
 		}
-		::glEnd();
+		glEnd();
 
-		::glLineWidth( 1 );
+		glLineWidth( 1 );
 	}
 */
 

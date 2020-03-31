@@ -420,11 +420,11 @@ static int R_GetMaxTextureSize ()
 {
     int result = 0;
 
-    ::glGetIntegerv (GL_MAX_TEXTURE_SIZE, &result);
+    glGetIntegerv (GL_MAX_TEXTURE_SIZE, &result);
 
     if (result > 0) {
         while (true) {
-            ::glTexImage2D (
+            glTexImage2D (
                 GL_PROXY_TEXTURE_2D,
                 0,
                 GL_RGBA,
@@ -438,7 +438,7 @@ static int R_GetMaxTextureSize ()
 
             int width = 0;
 
-            ::glGetTexLevelParameteriv (GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+            glGetTexLevelParameteriv (GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
 
             if (width > 0)
                 break;
@@ -452,7 +452,7 @@ static int R_GetMaxTextureSize ()
 
 std::string r_dbg_get_glsl_path()
 {
-	if (::glConfigEx.is_path_ogl_2_x())
+	if (glConfigEx.is_path_ogl_2_x())
 	{
 		return "glsl/110/";
 	}
@@ -466,74 +466,74 @@ bool r_dbg_probe_programs()
 {
 	auto is_try_successfull = true;
 
-	const auto glsl_dir = ::r_dbg_get_glsl_path();
+	const auto glsl_dir = r_dbg_get_glsl_path();
 
 	if (glsl_dir.empty())
 	{
-		::ri.Printf(PRINT_WARNING, "Invalid OpenGL path value.\n");
+		ri.Printf(PRINT_WARNING, "Invalid OpenGL path value.\n");
 		return false;
 	}
 
 	rtcw::OglTessProgram tess_program(glsl_dir, "tess");
 
-	::ri.Printf(PRINT_ALL, "\n======== GLSL probe (debug) ========\n");
-	::ri.Printf(PRINT_ALL, "%s...\n", "Trying to reload programs");
+	ri.Printf(PRINT_ALL, "\n======== GLSL probe (debug) ========\n");
+	ri.Printf(PRINT_ALL, "%s...\n", "Trying to reload programs");
 
 	is_try_successfull &= tess_program.try_reload();
 
-	::ri.Printf(PRINT_ALL, "======== GLSL probe (debug) ========\n");
+	ri.Printf(PRINT_ALL, "======== GLSL probe (debug) ========\n");
 
 	return is_try_successfull;
 }
 
 void r_dbg_reload_programs_f()
 {
-	if (::glConfigEx.is_path_ogl_1_x())
+	if (glConfigEx.is_path_ogl_1_x())
 	{
-		::ri.Printf(PRINT_WARNING, "%s.\n", "Not supported for OpenGL 1.X");
+		ri.Printf(PRINT_WARNING, "%s.\n", "Not supported for OpenGL 1.X");
 		return;
 	}
 
-	::ri.Printf(PRINT_ALL, "\n======== GLSL (debug) ========\n");
-	::ri.Printf(PRINT_ALL, "%s...\n", "Trying to reload programs");
+	ri.Printf(PRINT_ALL, "\n======== GLSL (debug) ========\n");
+	ri.Printf(PRINT_ALL, "%s...\n", "Trying to reload programs");
 
-	const auto glsl_dir = ::r_dbg_get_glsl_path();
+	const auto glsl_dir = r_dbg_get_glsl_path();
 
 	if (glsl_dir.empty())
 	{
-		::ri.Printf(PRINT_WARNING, "Invalid OpenGL path value.\n");
+		ri.Printf(PRINT_WARNING, "Invalid OpenGL path value.\n");
 		return;
 	}
 
 	auto is_try_successfull = true;
 
-	::ogl_tess_state.set_program(nullptr);
+	ogl_tess_state.set_program(nullptr);
 
 	if (!::ogl_tess_program)
 	{
-		::ogl_tess_program = new rtcw::OglTessProgram(glsl_dir, "tess");
+		ogl_tess_program = new rtcw::OglTessProgram(glsl_dir, "tess");
 	}
 
 	if (!ogl_tess_program)
 	{
-		is_try_successfull &= ::ogl_tess_program->try_reload();
+		is_try_successfull &= ogl_tess_program->try_reload();
 	}
 	else
 	{
 		is_try_successfull = false;
-		::ri.Printf(PRINT_ALL, "%s.\n", "Out of memory");
+		ri.Printf(PRINT_ALL, "%s.\n", "Out of memory");
 	}
 
 	if (is_try_successfull)
 	{
-		::ri.Printf(PRINT_ALL, "\n%s...\n", "Reloading programs");
-		::ogl_tess_program->reload();
+		ri.Printf(PRINT_ALL, "\n%s...\n", "Reloading programs");
+		ogl_tess_program->reload();
 	}
 
-	::ogl_tess_state.set_program(::ogl_tess_program);
-	::ogl_tess_state.commit_changes();
+	ogl_tess_state.set_program(ogl_tess_program);
+	ogl_tess_state.commit_changes();
 
-	::ri.Printf(PRINT_ALL, "======== GLSL (debug) ========\n");
+	ri.Printf(PRINT_ALL, "======== GLSL (debug) ========\n");
 }
 
 
@@ -832,9 +832,9 @@ void main()
 bool r_probe_programs()
 {
 #ifdef _DEBUG
-	if (::r_dbg_use_glsl_shader_files->integer != 0)
+	if (r_dbg_use_glsl_shader_files->integer != 0)
 	{
-		return ::r_dbg_probe_programs();
+		return r_dbg_probe_programs();
 	}
 #endif // _DEBUG
 
@@ -861,16 +861,16 @@ bool r_probe_programs()
 void r_reload_programs_f()
 {
 #ifdef _DEBUG
-	if (::r_dbg_use_glsl_shader_files->integer != 0)
+	if (r_dbg_use_glsl_shader_files->integer != 0)
 	{
-		::r_dbg_reload_programs_f();
+		r_dbg_reload_programs_f();
 		return;
 	}
 #endif // _DEBUG
 
 	if (!glConfigEx.is_path_ogl_2_x())
 	{
-		::ri.Printf(PRINT_WARNING, "%s.\n", "No OpenGL 2.1+.\n");
+		ri.Printf(PRINT_WARNING, "%s.\n", "No OpenGL 2.1+.\n");
 		return;
 	}
 
@@ -883,44 +883,44 @@ void r_reload_programs_f()
 
 	if (!::ogl_tess_program)
 	{
-		::ogl_tess_program = new rtcw::OglTessProgram{r_get_embeded_vertex_shader(), r_get_embeded_fragment_shader()};
+		ogl_tess_program = new rtcw::OglTessProgram{r_get_embeded_vertex_shader(), r_get_embeded_fragment_shader()};
 	}
 
-	if (::ogl_tess_program)
+	if (ogl_tess_program)
 	{
-		is_try_successfull &= ::ogl_tess_program->try_reload();
+		is_try_successfull &= ogl_tess_program->try_reload();
 	}
 	else
 	{
 		is_try_successfull = false;
-		::ri.Printf(PRINT_ALL, "%s.\n", "Out of memory");
+		ri.Printf(PRINT_ALL, "%s.\n", "Out of memory");
 	}
 
 	if (is_try_successfull)
 	{
-		::ri.Printf(PRINT_ALL, "\n%s...\n", "Reloading programs");
-		::ogl_tess_program->reload();
+		ri.Printf(PRINT_ALL, "\n%s...\n", "Reloading programs");
+		ogl_tess_program->reload();
 	}
 
-	::ogl_tess_state.set_program(::ogl_tess_program);
-	::ogl_tess_state.commit_changes();
+	ogl_tess_state.set_program(ogl_tess_program);
+	ogl_tess_state.commit_changes();
 
-	::ri.Printf(PRINT_ALL, "======== GLSL ========\n");
+	ri.Printf(PRINT_ALL, "======== GLSL ========\n");
 }
 
 static void r_tess_initialize ()
 {
     GLsizeiptr vbo_size = sizeof (OglTessLayout);
 
-    ::glGenBuffers (1, &ogl_tess_vbo);
-    ::glBindBuffer (GL_ARRAY_BUFFER, ogl_tess_vbo);
-    ::glBufferData (GL_ARRAY_BUFFER, vbo_size, NULL, GL_DYNAMIC_DRAW);
-    ::glBindBuffer (GL_ARRAY_BUFFER, 0);
+    glGenBuffers (1, &ogl_tess_vbo);
+    glBindBuffer (GL_ARRAY_BUFFER, ogl_tess_vbo);
+    glBufferData (GL_ARRAY_BUFFER, vbo_size, NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer (GL_ARRAY_BUFFER, 0);
 
-    ::glGenBuffers (1, &ogl_tess2_vbo);
-    ::glBindBuffer (GL_ARRAY_BUFFER, ogl_tess2_vbo);
-    ::glBufferData (GL_ARRAY_BUFFER, vbo_size, NULL, GL_DYNAMIC_DRAW);
-    ::glBindBuffer (GL_ARRAY_BUFFER, 0);
+    glGenBuffers (1, &ogl_tess2_vbo);
+    glBindBuffer (GL_ARRAY_BUFFER, ogl_tess2_vbo);
+    glBufferData (GL_ARRAY_BUFFER, vbo_size, NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer (GL_ARRAY_BUFFER, 0);
 
     ogl_tess_base_vertex = 0;
     ogl_tess2_base_vertex = 0;
@@ -928,10 +928,10 @@ static void r_tess_initialize ()
 
 static void r_tess_uninitialize ()
 {
-    ::glDeleteBuffers (1, &ogl_tess_vbo);
+    glDeleteBuffers (1, &ogl_tess_vbo);
     ogl_tess_vbo = 0;
 
-    ::glDeleteBuffers (1, &ogl_tess2_vbo);
+    glDeleteBuffers (1, &ogl_tess2_vbo);
     ogl_tess2_vbo = 0;
 }
 //BBi
@@ -974,7 +974,7 @@ static void InitOpenGL( void ) {
 		//::glGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );
 		//glConfig.maxTextureSize = temp;
 
-        glConfig.maxTextureSize = ::R_GetMaxTextureSize ();
+        glConfig.maxTextureSize = R_GetMaxTextureSize ();
         //BBi
 
 		// stubbed or broken drivers may have reported 0...
@@ -1025,7 +1025,7 @@ void GL_CheckErrors( void ) {
 	int err;
 	char s[64];
 
-	err = ::glGetError();
+	err = glGetError();
 	if ( err == GL_NO_ERROR ) {
 		return;
 	}
@@ -1167,7 +1167,7 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 	buffer[15] = height >> 8;
 	buffer[16] = 24;    // pixel size
 
-	::glReadPixels( x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer + 18 );
+	glReadPixels( x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer + 18 );
 
 	// swap rgb to bgr
 	c = 18 + width * height * 3;
@@ -1197,7 +1197,7 @@ void R_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName )
 
 	buffer = static_cast<byte*> (ri.Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 4 ));
 
-	::glReadPixels( x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer );
+	glReadPixels( x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer );
 
 	// gamma correct
 	if ( ( tr.overbrightBits > 0 ) && glConfig.deviceSupportsGamma ) {
@@ -1305,7 +1305,7 @@ void R_LevelShot( void ) {
 	buffer[14] = 128;
 	buffer[16] = 24;    // pixel size
 
-	::glReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGB, GL_UNSIGNED_BYTE, source );
+	glReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGB, GL_UNSIGNED_BYTE, source );
 
 	// resample from source
 	xScale = glConfig.vidWidth / 512.0f;
@@ -1473,9 +1473,9 @@ void GL_SetDefaultState( void ) {
     ogl_tess_state.set_default_values ();
     // BBi
 
-	::glClearDepth( 1.0f );
+	glClearDepth( 1.0f );
 
-	::glCullFace( GL_FRONT );
+	glCullFace( GL_FRONT );
 
     // BBi
     if (!glConfigEx.is_path_ogl_1_x ()) {
@@ -1483,7 +1483,7 @@ void GL_SetDefaultState( void ) {
     } else {
     // BBi
 
-	::glColor4f( 1,1,1,1 );
+	glColor4f( 1,1,1,1 );
 
     // BBi
     }
@@ -1511,7 +1511,7 @@ void GL_SetDefaultState( void ) {
         if (glConfigEx.is_path_ogl_1_x ()) {
         // BBi
 
-		::glDisable( GL_TEXTURE_2D );
+		glDisable( GL_TEXTURE_2D );
 
         // BBi
         }
@@ -1524,7 +1524,7 @@ void GL_SetDefaultState( void ) {
     if (glConfigEx.is_path_ogl_1_x ()) {
     // BBi
 
-	::glEnable( GL_TEXTURE_2D );
+	glEnable( GL_TEXTURE_2D );
 
     // BBi
     }
@@ -1553,9 +1553,9 @@ void GL_SetDefaultState( void ) {
 	GL_TexEnv( GL_MODULATE );
 
     if (glConfigEx.is_path_ogl_1_x ())
-        ::glShadeModel( GL_SMOOTH );
+        glShadeModel( GL_SMOOTH );
 
-	::glDepthFunc( GL_LEQUAL );
+	glDepthFunc( GL_LEQUAL );
 
     // BBi
     if (glConfigEx.is_path_ogl_1_x ()) {
@@ -1563,7 +1563,7 @@ void GL_SetDefaultState( void ) {
 
 	// the vertex array is always enabled, but the color and texture
 	// arrays are enabled and disabled around the compiled vertex array call
-	::glEnableClientState( GL_VERTEX_ARRAY );
+	glEnableClientState( GL_VERTEX_ARRAY );
 
     // BBi
     }
@@ -1574,12 +1574,12 @@ void GL_SetDefaultState( void ) {
 	//
 	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;
 
-	::glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-	::glDepthMask( GL_TRUE );
-	::glDisable( GL_DEPTH_TEST );
-	::glEnable( GL_SCISSOR_TEST );
-	::glDisable( GL_CULL_FACE );
-	::glDisable( GL_BLEND );
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+	glDepthMask( GL_TRUE );
+	glDisable( GL_DEPTH_TEST );
+	glEnable( GL_SCISSOR_TEST );
+	glDisable( GL_CULL_FACE );
+	glDisable( GL_BLEND );
 
 //----(SA)	added.
 
@@ -1607,7 +1607,7 @@ void GL_SetDefaultState( void ) {
 	if ( glConfig.anisotropicAvailable ) {
 		float maxAnisotropy;
 
-		::glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy );
+		glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy );
 		glConfig.maxAnisotropy = maxAnisotropy;
 
 		// set when rendering
@@ -1630,7 +1630,7 @@ extern const char *glx_extensions_string;
 //BBi
 static void gfxPrintExtensions ()
 {
-    const GLubyte* extString = ::glGetString (GL_EXTENSIONS);
+    const GLubyte* extString = glGetString (GL_EXTENSIONS);
 
     if (extString != 0) {
         GLubyte extBuffer[128];
@@ -1645,10 +1645,10 @@ static void gfxPrintExtensions ()
 
             size_t extLen = endExt - beginExt;
 
-            ::memcpy (extBuffer, beginExt, extLen);
+            memcpy (extBuffer, beginExt, extLen);
             extBuffer[extLen] = '\0';
 
-            ::ri.Printf (PRINT_ALL, "  %s\n", extBuffer);
+            ri.Printf (PRINT_ALL, "  %s\n", extBuffer);
 
             if (*endExt == '\0')
                 break;
@@ -1658,7 +1658,7 @@ static void gfxPrintExtensions ()
             beginExt = endExt;
         }
     } else
-        ::ri.Printf (PRINT_ALL, "  none\n");
+        ri.Printf (PRINT_ALL, "  none\n");
 }
 //BBi
 
@@ -1686,8 +1686,8 @@ void GfxInfo_f( void ) {
 
     //BBi See #LBUG0001
 	//ri.Printf( PRINT_ALL, "GL_EXTENSIONS: %s\n", glConfig.extensions_string );
-    ::ri.Printf (PRINT_ALL, "GL_EXTENSIONS:\n");
-    ::gfxPrintExtensions ();
+    ri.Printf (PRINT_ALL, "GL_EXTENSIONS:\n");
+    gfxPrintExtensions ();
     //BBi
 
 #if defined RTCW_ET
@@ -1868,16 +1868,16 @@ void R_Register( void ) {
 #if !defined RTCW_ET
     //BBi
 	//r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE );       //DAJ valids are 1, 2, 4
-    r_ati_fsaa_samples = ::ri.Cvar_Get ("r_ati_fsaa_samples", "0", CVAR_ARCHIVE);
+    r_ati_fsaa_samples = ri.Cvar_Get ("r_ati_fsaa_samples", "0", CVAR_ARCHIVE);
 	//r_ext_texture_filter_anisotropic    = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE );
-    r_ext_texture_filter_anisotropic = ::ri.Cvar_Get ("r_ext_texture_filter_anisotropic", "1", CVAR_ARCHIVE);
+    r_ext_texture_filter_anisotropic = ri.Cvar_Get ("r_ext_texture_filter_anisotropic", "1", CVAR_ARCHIVE);
     //BBi
 #else
     //BBi
 	//r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE | CVAR_UNSAFE );        //DAJ valids are 1, 2, 4
-    r_ati_fsaa_samples = ::ri.Cvar_Get ("r_ati_fsaa_samples", "0", CVAR_ARCHIVE | CVAR_UNSAFE);
+    r_ati_fsaa_samples = ri.Cvar_Get ("r_ati_fsaa_samples", "0", CVAR_ARCHIVE | CVAR_UNSAFE);
 	//r_ext_texture_filter_anisotropic    = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
-    r_ext_texture_filter_anisotropic = ::ri.Cvar_Get ("r_ext_texture_filter_anisotropic", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
+    r_ext_texture_filter_anisotropic = ri.Cvar_Get ("r_ext_texture_filter_anisotropic", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
     //BBi
 #endif // RTCW_XX
 
@@ -2289,7 +2289,7 @@ void R_Register( void ) {
 
 	r_highQualityVideo = ri.Cvar_Get( "r_highQualityVideo", "1", CVAR_ARCHIVE);
 
-	::r_dbg_use_glsl_shader_files = ::ri.Cvar_Get("r_dbg_use_glsl_shader_files", "0", CVAR_ARCHIVE | CVAR_CHEAT);
+	r_dbg_use_glsl_shader_files = ri.Cvar_Get("r_dbg_use_glsl_shader_files", "0", CVAR_ARCHIVE | CVAR_CHEAT);
 
 	// make sure all the commands added here are also
 	// removed in R_Shutdown
@@ -2443,7 +2443,7 @@ void R_Init( void ) {
 	RB_ZombieFXInit();
 #endif // RTCW_XX
 
-	err = ::glGetError();
+	err = glGetError();
 	if ( err != GL_NO_ERROR ) {
 		ri.Printf( PRINT_ALL, "glGetError() = 0x%x\n", err );
 	}
@@ -2533,8 +2533,8 @@ void RE_Shutdown( qboolean destroyWindow ) {
 
     // BBi
     if (!glConfigEx.is_path_ogl_1_x ()) {
-        ::r_shutdown_programs ();
-        ::r_tess_uninitialize ();
+        r_shutdown_programs ();
+        r_tess_uninitialize ();
     }
     // BBi
 

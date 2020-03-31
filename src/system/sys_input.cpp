@@ -88,13 +88,13 @@ void IN_Startup()
 
 void IN_Shutdown()
 {
-    ::Com_Printf("%s input subsystems...\n", "Uninitializing");
+    Com_Printf("%s input subsystems...\n", "Uninitializing");
 
     joystick.uninitialize();
     keyboard.uninitialize();
     mouse.uninitialize();
 
-    ::Cmd_RemoveCommand("midiinfo");
+    Cmd_RemoveCommand("midiinfo");
 }
 
 static void cmd_midi_info()
@@ -104,21 +104,21 @@ static void cmd_midi_info()
 
 void IN_Init()
 {
-    ::Com_Printf("%s input subsystems...\n", "Initializing");
+    Com_Printf("%s input subsystems...\n", "Initializing");
 
     // MIDI input controler variables
-    in_midi = ::Cvar_Get("in_midi", "0", CVAR_ARCHIVE);
-    in_midiport = ::Cvar_Get("in_midiport", "1", CVAR_ARCHIVE );
-    in_midichannel = ::Cvar_Get("in_midichannel", "1", CVAR_ARCHIVE );
-    in_mididevice = ::Cvar_Get("in_mididevice", "0", CVAR_ARCHIVE );
+    in_midi = Cvar_Get("in_midi", "0", CVAR_ARCHIVE);
+    in_midiport = Cvar_Get("in_midiport", "1", CVAR_ARCHIVE );
+    in_midichannel = Cvar_Get("in_midichannel", "1", CVAR_ARCHIVE );
+    in_mididevice = Cvar_Get("in_mididevice", "0", CVAR_ARCHIVE );
 
-    ::Cmd_AddCommand("midiinfo", cmd_midi_info);
+    Cmd_AddCommand("midiinfo", cmd_midi_info);
 
     rtcw::input::Joystick::register_cvars();
     rtcw::input::Keyboard::register_cvars();
     rtcw::input::Mouse::register_cvars();
 
-    ::IN_Startup();
+    IN_Startup();
 }
 
 // Called every frame, even if not generating commands

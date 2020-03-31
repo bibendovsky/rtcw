@@ -268,7 +268,7 @@ void S_Init( void ) {
 //	s_khz = Cvar_Get( "s_khz", "22", CVAR_ARCHIVE | CVAR_LATCH );
 //#endif // RTCW_XX
 
-    s_khz = ::Cvar_Get ("s_khz", "22", CVAR_ARCHIVE | CVAR_LATCH);
+    s_khz = Cvar_Get ("s_khz", "22", CVAR_ARCHIVE | CVAR_LATCH);
 //BBi
 
 //BBi
@@ -3819,7 +3819,7 @@ void S_UpdateStreamingSounds( void ) {
 				fileSamples = fileBytes / ( ss->info.width * ss->info.channels );
 			}
 
-            r = ::FS_Read(raw, fileBytes, ss->file);
+            r = FS_Read(raw, fileBytes, ss->file);
 
 			if ( r != fileBytes ) {
 				Com_DPrintf( "StreamedRead failure on stream sound\n" );
@@ -3929,7 +3929,7 @@ void S_UpdateStreamingSounds( void ) {
 					if ( ss->loop && ss->loop[0] ) {
 						if ( ss->looped ) {
 							char dump[16];
-                            ::FS_Seek(ss->file, 0, FS_SEEK_SET);
+                            FS_Seek(ss->file, 0, FS_SEEK_SET);
 							FS_Read( dump, 12, ss->file );
 
 							if ( !S_FindWavChunk( ss->file, "fmt " ) ) {
@@ -3982,7 +3982,7 @@ void S_UpdateStreamingSounds( void ) {
 						break;
 					} else {
 						char dump[16];
-                        ::FS_Seek(ss->file, 0, FS_SEEK_SET);
+                        FS_Seek(ss->file, 0, FS_SEEK_SET);
 						FS_Read( dump, 12, ss->file );
 
 						if ( !S_FindWavChunk( ss->file, "fmt " ) ) {

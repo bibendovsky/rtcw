@@ -842,7 +842,7 @@ static void CG_LoadTranslationStrings( void ) {
 
         //BBi
 		//translateStrings[i].localname = static_cast<char*> (malloc( strlen( token ) + 1 ));
-        translateStrings[i].localname = new char[::strlen (token) + 1];
+        translateStrings[i].localname = new char[strlen (token) + 1];
         //BBi
 
 		strcpy( translateStrings[i].localname, token );

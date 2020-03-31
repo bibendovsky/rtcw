@@ -378,7 +378,7 @@ public:
 				return 0;
 			}
 
-			const auto read_result = static_cast<int>(::mz_zip_reader_extract_iter_read(miniz_file_state_, buffer_ptr, count));
+			const auto read_result = static_cast<int>(mz_zip_reader_extract_iter_read(miniz_file_state_, buffer_ptr, count));
 
 			position_ += read_result;
 
@@ -411,7 +411,7 @@ public:
 		{
 			if (miniz_file_state_)
 			{
-				static_cast<void>(::mz_zip_reader_extract_iter_free(miniz_file_state_));
+				static_cast<void>(mz_zip_reader_extract_iter_free(miniz_file_state_));
 				miniz_file_state_ = nullptr;
 			}
 		}
@@ -458,7 +458,7 @@ public:
 			return false;
 		}
 
-		const auto miniz_file_count = ::mz_zip_reader_get_num_files(&miniz_zip_);
+		const auto miniz_file_count = mz_zip_reader_get_num_files(&miniz_zip_);
 
 		if (miniz_file_count > static_cast<mz_uint>(std::numeric_limits<int>::max()))
 		{
@@ -475,7 +475,7 @@ public:
 	void close()
 	{
 		is_open_ = {};
-		::mz_zip_reader_end(&miniz_zip_);
+		mz_zip_reader_end(&miniz_zip_);
 		io_.close();
 		file_count_ = {};
 
@@ -495,7 +495,7 @@ public:
 			return {};
 		}
 
-		auto miniz_file_state  = ::mz_zip_reader_extract_iter_new(&miniz_zip_, static_cast<mz_uint>(file_index), 0);
+		auto miniz_file_state  = mz_zip_reader_extract_iter_new(&miniz_zip_, static_cast<mz_uint>(file_index), 0);
 
 		if (!miniz_file_state)
 		{
@@ -522,7 +522,7 @@ public:
 		for (auto i = 0; i < file_count_; ++i)
 		{
 			const auto file_name_size = static_cast<int>(
-				::mz_zip_reader_get_filename(&miniz_zip_, static_cast<mz_uint>(i), nullptr, 0));
+				mz_zip_reader_get_filename(&miniz_zip_, static_cast<mz_uint>(i), nullptr, 0));
 
 			if (file_name_size == 0)
 			{
@@ -579,7 +579,7 @@ private:
 			return {};
 		}
 
-		return ::mz_zip_reader_extract_iter_new(&miniz_zip_, static_cast<mz_uint>(file_index), 0);
+		return mz_zip_reader_extract_iter_new(&miniz_zip_, static_cast<mz_uint>(file_index), 0);
 	}
 
 	static size_t miniz_file_read_func(
@@ -1949,7 +1949,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 
 						if (!miniz_zip_uptr->open(pak->pakFilename))
 						{
-							::Com_Error(ERR_FATAL, "Couldn't reopen %s", pak->pakFilename);
+							Com_Error(ERR_FATAL, "Couldn't reopen %s", pak->pakFilename);
 						}
 
 						fsh[*file].handleFiles.file.miniz_zip_ptr_ = miniz_zip_uptr.release();
@@ -2421,7 +2421,7 @@ int FS_Read2( void *buffer, int len, fileHandle_t f ) {
 		int r;
 		fsh[f].streamed = qfalse;
 
-        r = ::FS_Read(buffer, len, f);
+        r = FS_Read(buffer, len, f);
 
 		fsh[f].streamed = qtrue;
 		return r;
@@ -2592,7 +2592,7 @@ int FS_Seek( fileHandle_t f, long offset, int origin ) {
 	if ( fsh[f].streamed ) {
 		fsh[f].streamed = qfalse;
 
-        ::FS_Seek(f, offset, origin);
+        FS_Seek(f, offset, origin);
 
 		fsh[f].streamed = qtrue;
 	}
@@ -2600,7 +2600,7 @@ int FS_Seek( fileHandle_t f, long offset, int origin ) {
 	if ( fsh[f].zipFile == qtrue ) {
 		if (offset > 65536 || origin != FS_SEEK_SET)
 		{
-			::Com_Error(ERR_FATAL, "Full Zip file seeking not supported.\n" );
+			Com_Error(ERR_FATAL, "Full Zip file seeking not supported.\n" );
 			return -1;
 		}
 
@@ -2624,7 +2624,7 @@ int FS_Seek( fileHandle_t f, long offset, int origin ) {
 
 			if (skip_result != skip_count)
 			{
-				::Com_Error(ERR_FATAL, "Zip file seek error.\n" );
+				Com_Error(ERR_FATAL, "Zip file seek error.\n" );
 				return -1;
 			}
 
@@ -2638,7 +2638,7 @@ int FS_Seek( fileHandle_t f, long offset, int origin ) {
 
 		if (!file.miniz_file_ptr_)
 		{
-			::Com_Error(ERR_FATAL, "Failed to reopen Zip file stream.\n" );
+			Com_Error(ERR_FATAL, "Failed to reopen Zip file stream.\n" );
 			return -1;
 		}
 
@@ -2651,7 +2651,7 @@ int FS_Seek( fileHandle_t f, long offset, int origin ) {
 
 		if (skip_result != offset)
 		{
-			::Com_Error(ERR_FATAL, "Zip file seek error.\n" );
+			Com_Error(ERR_FATAL, "Zip file seek error.\n" );
 			return -1;
 		}
 
@@ -4289,7 +4289,7 @@ static void FS_Startup( const char *gameName ) {
 	fs_restrict = Cvar_Get( "fs_restrict", "", CVAR_INIT );
 
     // BBi
-    ::FS_AddGameDirectory (fs_basepath->string, "rtcw");
+    FS_AddGameDirectory (fs_basepath->string, "rtcw");
     // BBi
 
 	// add search path elements in reverse priority order

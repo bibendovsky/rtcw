@@ -61,19 +61,19 @@ void OglProgram::unload_internal()
 {
 	if (ogl_vertex_shader_ != GL_NONE)
 	{
-		::glDeleteShader(ogl_vertex_shader_);
+		glDeleteShader(ogl_vertex_shader_);
 		ogl_vertex_shader_ = GL_NONE;
 	}
 
 	if (ogl_fragment_shader_ != GL_NONE)
 	{
-		::glDeleteShader(ogl_fragment_shader_);
+		glDeleteShader(ogl_fragment_shader_);
 		ogl_fragment_shader_ = GL_NONE;
 	}
 
 	if (program_ != GL_NONE)
 	{
-		::glDeleteProgram(program_);
+		glDeleteProgram(program_);
 		program_ = GL_NONE;
 	}
 }
@@ -90,7 +90,7 @@ bool OglProgram::reload_internal()
 	{
 		const auto p_name = glsl_dir_ + base_name_;
 
-		::ri.Printf(PRINT_ALL, "\"%s\"\n", p_name.c_str());
+		ri.Printf(PRINT_ALL, "\"%s\"\n", p_name.c_str());
 
 		auto v_name = p_name + "_vs.txt";
 		auto f_name = p_name + "_fs.txt";
@@ -122,15 +122,15 @@ bool OglProgram::reload_internal()
 
 	if (is_compile_program)
 	{
-		program_ = ::glCreateProgram();
+		program_ = glCreateProgram();
 
-		::glAttachShader(program_, ogl_vertex_shader_);
-		::glAttachShader(program_, ogl_fragment_shader_);
+		glAttachShader(program_, ogl_vertex_shader_);
+		glAttachShader(program_, ogl_fragment_shader_);
 
 		auto link_status = GLint{GL_FALSE};
 
-		::glLinkProgram(program_);
-		::glGetProgramiv(program_, GL_LINK_STATUS, &link_status);
+		glLinkProgram(program_);
+		glGetProgramiv(program_, GL_LINK_STATUS, &link_status);
 
 		auto link_log = get_link_log();
 
@@ -138,14 +138,14 @@ bool OglProgram::reload_internal()
 		{
 			if (!link_log.empty())
 			{
-				::ri.Printf(PRINT_ALL, "Linkage log:\n%s\n", link_log.c_str());
+				ri.Printf(PRINT_ALL, "Linkage log:\n%s\n", link_log.c_str());
 			}
 
 			result = true;
 		}
 		else
 		{
-			::ri.Printf(PRINT_ALL, "Failed to link:\n%s\n", link_log.c_str());
+			ri.Printf(PRINT_ALL, "Failed to link:\n%s\n", link_log.c_str());
 		}
 	}
 
@@ -205,13 +205,13 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 		const GLchar* lines[1] = {shader_c_string};
 		GLint lengths[1] = {source_length};
 
-		shader_object = ::glCreateShader(shader_type);
-		::glShaderSource(shader_object, 1, lines, lengths);
-		::glCompileShader(shader_object);
+		shader_object = glCreateShader(shader_type);
+		glShaderSource(shader_object, 1, lines, lengths);
+		glCompileShader(shader_object);
 
 		auto compile_status = GLint{GL_FALSE};
 
-		::glGetShaderiv(shader_object, GL_COMPILE_STATUS, &compile_status);
+		glGetShaderiv(shader_object, GL_COMPILE_STATUS, &compile_status);
 
 		auto compile_log = get_compile_log(shader_object);
 
@@ -219,7 +219,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 		{
 			if (!compile_log.empty())
 			{
-				::ri.Printf(PRINT_ALL, "Compilation log of \"%s\" shader:\n%s\n",
+				ri.Printf(PRINT_ALL, "Compilation log of \"%s\" shader:\n%s\n",
 					get_shader_type_string(shader_type), compile_log.c_str());
 			}
 
@@ -227,7 +227,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 		}
 		else
 		{
-			::ri.Printf(PRINT_ALL, "Failed to compile a \"%s\" shader:\n%s\n",
+			ri.Printf(PRINT_ALL, "Failed to compile a \"%s\" shader:\n%s\n",
 				get_shader_type_string(shader_type), compile_log.c_str());
 
 			result = ReloadShaderResult::not_compiled;
@@ -236,7 +236,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 
 	if (result != ReloadShaderResult::compiled)
 	{
-		::glDeleteShader(shader_object);
+		glDeleteShader(shader_object);
 		shader_object = GL_NONE;
 	}
 
@@ -252,7 +252,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 
 	void* source_buffer = nullptr;
 
-	const auto source_length = ::ri.FS_ReadFile(file_name.c_str(), &source_buffer);
+	const auto source_length = ri.FS_ReadFile(file_name.c_str(), &source_buffer);
 
 	shader_object = GL_NONE;
 
@@ -263,13 +263,13 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 		const GLchar* lines[1] = {static_cast<const GLchar*>(source_buffer)};
 		GLint lengths[1] = {source_length};
 
-		shader_object = ::glCreateShader(shader_type);
-		::glShaderSource(shader_object, 1, lines, lengths);
-		::glCompileShader(shader_object);
+		shader_object = glCreateShader(shader_type);
+		glShaderSource(shader_object, 1, lines, lengths);
+		glCompileShader(shader_object);
 
 		auto compile_status = GLint{GL_FALSE};
 
-		::glGetShaderiv(shader_object, GL_COMPILE_STATUS, &compile_status);
+		glGetShaderiv(shader_object, GL_COMPILE_STATUS, &compile_status);
 
 		auto compile_log = get_compile_log(shader_object);
 
@@ -277,7 +277,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 		{
 			if (!compile_log.empty())
 			{
-				::ri.Printf(PRINT_ALL, "Compilation log of \"%s\":\n%s\n",
+				ri.Printf(PRINT_ALL, "Compilation log of \"%s\":\n%s\n",
 					file_name.c_str(), compile_log.c_str());
 			}
 
@@ -285,7 +285,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 		}
 		else
 		{
-			::ri.Printf(PRINT_ALL, "Failed to compile a shader \"%s\":\n%s\n",
+			ri.Printf(PRINT_ALL, "Failed to compile a shader \"%s\":\n%s\n",
 				file_name.c_str(), compile_log.c_str());
 
 			result = ReloadShaderResult::not_compiled;
@@ -294,12 +294,12 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 
 	if (source_buffer)
 	{
-		::ri.FS_FreeFile(source_buffer);
+		ri.FS_FreeFile(source_buffer);
 	}
 
 	if (result != ReloadShaderResult::compiled)
 	{
-		::glDeleteShader(shader_object);
+		glDeleteShader(shader_object);
 		shader_object = GL_NONE;
 	}
 
@@ -311,7 +311,7 @@ std::string OglProgram::get_compile_log(
 {
 	auto info_log_size = GLint{}; // with a null terminator
 
-	::glGetShaderiv(shader_object, GL_INFO_LOG_LENGTH, &info_log_size);
+	glGetShaderiv(shader_object, GL_INFO_LOG_LENGTH, &info_log_size);
 
 	if (info_log_size <= 0)
 	{
@@ -323,7 +323,7 @@ std::string OglProgram::get_compile_log(
 	auto info_log = std::string{};
 	info_log.resize(info_log_size);
 
-	::glGetShaderInfoLog(shader_object, info_log_size, &info_log_length, &info_log[0]);
+	glGetShaderInfoLog(shader_object, info_log_size, &info_log_length, &info_log[0]);
 
 	if (info_log_length == 0)
 	{
@@ -339,7 +339,7 @@ std::string OglProgram::get_link_log()
 {
 	auto info_log_size = GLint{}; // with a null terminator
 
-	::glGetProgramiv(program_, GL_INFO_LOG_LENGTH, &info_log_size);
+	glGetProgramiv(program_, GL_INFO_LOG_LENGTH, &info_log_size);
 
 	if (info_log_size == 0)
 	{
@@ -352,7 +352,7 @@ std::string OglProgram::get_link_log()
 	auto info_log = std::string{};
 	info_log.resize(info_log_size);
 
-	::glGetProgramInfoLog(program_, info_log_size, &info_log_length, &info_log[0]);
+	glGetProgramInfoLog(program_, info_log_size, &info_log_length, &info_log[0]);
 
 	if (info_log_length == 0)
 	{

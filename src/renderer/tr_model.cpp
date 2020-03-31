@@ -2439,9 +2439,9 @@ void* R_Hunk_Begin ()
         membase = new byte[R_HUNK_SIZE];
 
         if (membase == 0)
-            ::ri.Error (ERR_DROP, "R_Hunk_Begin: reserve failed");
+            ri.Error (ERR_DROP, "R_Hunk_Begin: reserve failed");
 
-        ::memset (membase, 0, R_HUNK_SIZE);
+        memset (membase, 0, R_HUNK_SIZE);
     }
 
     return membase;
@@ -2519,7 +2519,7 @@ void* R_Hunk_Alloc (
     hunkcursize += size;
 
     if (hunkcursize > hunkmaxsize)
-        ::ri.Error (ERR_DROP, "R_Hunk_Alloc overflow");
+        ri.Error (ERR_DROP, "R_Hunk_Alloc overflow");
 
     return membase + hunkcursize - size;
 }
@@ -2620,7 +2620,7 @@ void R_Hunk_Reset ()
 #endif // RTCW_XX
 
     if (membase == 0)
-        ::ri.Error (ERR_DROP, "R_Hunk_Reset called without a membase!");
+        ri.Error (ERR_DROP, "R_Hunk_Reset called without a membase!");
 
     hunkcursize = 0;
 }
@@ -2655,7 +2655,7 @@ void *R_CacheModelAlloc( int size ) {
 //#endif // RTCW_XX
 //BBi
 
-        return ::R_Hunk_Alloc (size);
+        return R_Hunk_Alloc (size);
 	} else {
 
 #if defined RTCW_SP

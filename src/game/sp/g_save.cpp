@@ -882,7 +882,7 @@ static void g_read_struct_ver_10 (T& dst_struct, int size,
     const bool is_struct_32 = (sizeof (T) == sizeof (typename T::Struct32));
     void* out = is_struct_32 ? static_cast<void*> (&dst_struct) : static_cast<void*> (&tmp_struct);
 
-    ::trap_FS_Read (out, size, file_handle);
+    trap_FS_Read (out, size, file_handle);
 
     if (!is_struct_32)
         dst_struct.convert_from_32 (tmp_struct);
@@ -892,20 +892,20 @@ template<class T>
 static void g_read_struct (T& dst_struct, int size, fileHandle_t file_handle)
 {
     if (ver == 10)
-        ::g_read_struct_ver_10 (dst_struct, size, file_handle);
+        g_read_struct_ver_10 (dst_struct, size, file_handle);
     else {
         int decodedSize;
 
         if (g_encoder_buffer.empty ())
             g_encoder_buffer.resize (MAX_ENCODER_BUFFER_SIZE);
 
-        ::trap_FS_Read (&decodedSize, sizeof (int), file_handle);
+        trap_FS_Read (&decodedSize, sizeof (int), file_handle);
 
         if (decodedSize > MAX_ENCODER_BUFFER_SIZE)
-            ::G_Error ("G_LoadGame: encoded chunk is greater than buffer");
+            G_Error ("G_LoadGame: encoded chunk is greater than buffer");
 
-        ::trap_FS_Read (&g_encoder_buffer[0], decodedSize, file_handle);
-        ::G_Save_Decode (&g_encoder_buffer[0], decodedSize, dst_struct);
+        trap_FS_Read (&g_encoder_buffer[0], decodedSize, file_handle);
+        G_Save_Decode (&g_encoder_buffer[0], decodedSize, dst_struct);
     }
 }
 
@@ -1526,7 +1526,7 @@ int s_save_encode (const T& dst_struct)
         }
 
         // write the count, followed by data if required
-        ::memcpy (out_bytes + out_count, &count, SAVE_ENCODE_COUNT_BYTES);
+        memcpy (out_bytes + out_count, &count, SAVE_ENCODE_COUNT_BYTES);
 
         // switch the sign bit if zeros
         if (mode == 0) {
@@ -1536,7 +1536,7 @@ int s_save_encode (const T& dst_struct)
             out_count += SAVE_ENCODE_COUNT_BYTES;
 
             // write the data
-            ::memcpy (out_bytes + out_count, in_bytes + old_raw_count, count);
+            memcpy (out_bytes + out_count, in_bytes + old_raw_count, count);
             out_count += count;
         }
     }
@@ -1593,17 +1593,17 @@ void G_Save_Decode (const byte* src_bytes, int src_size, T& dst_struct)
     while (src_count < src_size) {
         // read the count
         count = 0;
-        ::memcpy (&count, src_bytes + src_count, SAVE_ENCODE_COUNT_BYTES);
+        memcpy (&count, src_bytes + src_count, SAVE_ENCODE_COUNT_BYTES);
         src_count += SAVE_ENCODE_COUNT_BYTES;
 
         // if it's negative, zero it out
         if ((count & SAVE_ENCODE_COUNT_MASK) != 0) {
             count &= ~SAVE_ENCODE_COUNT_MASK;
-            ::memset (dst_bytes + dst_count, 0, count);
+            memset (dst_bytes + dst_count, 0, count);
             dst_count += count;
         } else {
             // copy the data from "in"
-            ::memcpy (dst_bytes + dst_count, src_bytes + src_count, count);
+            memcpy (dst_bytes + dst_count, src_bytes + src_count, count);
             dst_count += count;
             src_count += count;
         }
@@ -1661,7 +1661,7 @@ void WriteClient( fileHandle_t f, gclient_t *cl ) {
 	//	G_SaveWriteError();
 	//}
 
-    ::g_write_struct (temp, f);
+    g_write_struct (temp, f);
     //BBi
 
 	// now write any allocated data following the edict
@@ -1701,7 +1701,7 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size ) {
 	//	G_Save_Decode( clientBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
 	//}
 
-    ::g_read_struct (temp, size, f);
+    g_read_struct (temp, size, f);
     //BBi
 
 	// convert any feilds back to the correct data
@@ -1837,7 +1837,7 @@ void WriteEntity( fileHandle_t f, gentity_t *ent ) {
 	//	G_SaveWriteError();
 	//}
 
-    ::g_write_struct (temp, f);
+    g_write_struct (temp, f);
     //BBi
 
 	// now write any allocated data following the edict
@@ -1882,7 +1882,7 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size ) {
 	//	G_Save_Decode( entityBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
 	//}
 
-    ::g_read_struct (temp, size, f);
+    g_read_struct (temp, size, f);
     //BBi
 
 	// convert any fields back to the correct data
@@ -2026,7 +2026,7 @@ void WriteCastState( fileHandle_t f, cast_state_t *cs ) {
 	//	G_SaveWriteError();
 	//}
 
-    ::g_write_struct (temp, f);
+    g_write_struct (temp, f);
     //BBi
 
 	// now write any allocated data following the edict
@@ -2066,7 +2066,7 @@ void ReadCastState( fileHandle_t f, cast_state_t *cs, int size ) {
 	//	G_Save_Decode( castStateBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
 	//}
 
-    ::g_read_struct (temp, size, f);
+    g_read_struct (temp, size, f);
     //BBi
 
 	// convert any feilds back to the correct data

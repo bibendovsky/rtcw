@@ -3745,10 +3745,10 @@ void CL_MapRestart_f( void ) {
 
 void CL_SetRecommended_f()
 {
-    if (::Cmd_Argc() > 1)
-        ::Com_SetRecommended(true);
+    if (Cmd_Argc() > 1)
+        Com_SetRecommended(true);
     else
-        ::Com_SetRecommended(false);
+        Com_SetRecommended(false);
 }
 
 
@@ -3781,9 +3781,9 @@ void QDECL CL_RefPrintf( int print_level, const char *fmt, ... ) {
     msg[MAXPRINTMSG - 1] = '\0';
 
 #if defined RTCW_SP
-    ::vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
+    vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #else
-    ::Q_vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
+    Q_vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #endif // RTCW_XX
 //BBi
 
@@ -3942,12 +3942,12 @@ void CL_CheckAutoUpdate( void ) {
 
     //BBi
 	//NET_OutOfBandPrint( NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", Q3_VERSION, CPUSTRING );
-    ::NET_OutOfBandPrint(
+    NET_OutOfBandPrint(
         NS_CLIENT,
         cls.autoupdateServer,
         "getUpdateInfo \"%s\" \"%s\"\n",
         RTCW_VERSION,
-        ::SDL_GetPlatform());
+        SDL_GetPlatform());
     //BBi
 
 	CL_RequestMotd();
@@ -3990,12 +3990,12 @@ void CL_CheckAutoUpdate( void ) {
 
     //BBi
 	//NET_OutOfBandPrint( NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", Q3_VERSION, CPUSTRING );
-    ::NET_OutOfBandPrint(
+    NET_OutOfBandPrint(
         NS_CLIENT,
         cls.autoupdateServer,
         "getUpdateInfo \"%s\" \"%s\"\n",
         RTCW_VERSION,
-        ::SDL_GetPlatform());
+        SDL_GetPlatform());
     //BBi
 
 #endif // !PRE_RELEASE_DEMO
@@ -4319,7 +4319,7 @@ void CL_ShellExecute_URL_f( void ) {
 
 void CL_startSingleplayer_f ()
 {
-    ::Sys_StartProcess ("rtcw_sp_x86", qtrue);
+    Sys_StartProcess ("rtcw_sp_x86", qtrue);
 }
 //BBi
 

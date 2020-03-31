@@ -44,11 +44,11 @@ int Sys_Milliseconds()
     static bool is_initialized = false;
 
     if (!is_initialized) {
-        time_base = static_cast<int>(::SDL_GetTicks());
+        time_base = static_cast<int>(SDL_GetTicks());
         is_initialized = true;
     }
 
-    int sys_curtime = static_cast<int>(::SDL_GetTicks()) - time_base;
+    int sys_curtime = static_cast<int>(SDL_GetTicks()) - time_base;
     return sys_curtime;
 }
 

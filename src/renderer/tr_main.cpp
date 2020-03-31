@@ -132,31 +132,31 @@ void R_Fog( glfog_t *curfog ) {
     // BBi
 
 //	if(curfog->mode != setfog.mode || !setfog.registered) {
-	::glFogi( GL_FOG_MODE, curfog->mode );
+	glFogi( GL_FOG_MODE, curfog->mode );
 //		setfog.mode = curfog->mode;
 //	}
 //	if(curfog->color[0] != setfog.color[0] || curfog->color[1] != setfog.color[1] || curfog->color[2] != setfog.color[2] || !setfog.registered) {
-	::glFogfv( GL_FOG_COLOR, curfog->color );
+	glFogfv( GL_FOG_COLOR, curfog->color );
 //		VectorCopy(setfog.color, curfog->color);
 //	}
 //	if(curfog->density != setfog.density || !setfog.registered) {
-	::glFogf( GL_FOG_DENSITY, curfog->density );
+	glFogf( GL_FOG_DENSITY, curfog->density );
 //		setfog.density = curfog->density;
 //	}
 //	if(curfog->hint != setfog.hint || !setfog.registered) {
-	::glHint( GL_FOG_HINT, curfog->hint );
+	glHint( GL_FOG_HINT, curfog->hint );
 //		setfog.hint = curfog->hint;
 //	}
 //	if(curfog->start != setfog.start || !setfog.registered) {
 
 #if defined RTCW_SP
 	if ( backEnd.refdef.rdflags & RDF_SNOOPERVIEW ) {
-		::glFogf( GL_FOG_START, curfog->end );       // snooper starts GL fog out further
+		glFogf( GL_FOG_START, curfog->end );       // snooper starts GL fog out further
 	} else {
-		::glFogf( GL_FOG_START, curfog->start );
+		glFogf( GL_FOG_START, curfog->start );
 	}
 #else
-	::glFogf( GL_FOG_START, curfog->start );
+	glFogf( GL_FOG_START, curfog->start );
 #endif // RTCW_XX
 
 //		setfog.start = curfog->start;
@@ -164,7 +164,7 @@ void R_Fog( glfog_t *curfog ) {
 
 	if ( r_zfar->value ) {             // (SA) allow override for helping level designers test fog distances
 //		if(setfog.end != r_zfar->value || !setfog.registered) {
-		::glFogf( GL_FOG_END, r_zfar->value );
+		glFogf( GL_FOG_END, r_zfar->value );
 //			setfog.end = r_zfar->value;
 //		}
 	} else {
@@ -172,14 +172,14 @@ void R_Fog( glfog_t *curfog ) {
 
 #if defined RTCW_SP
 		if ( backEnd.refdef.rdflags & RDF_SNOOPERVIEW ) {
-			::glFogf( GL_FOG_END, curfog->end + 1000 );      // snooper ends GL fog out further.  this works fine with our maps, but could be 'funky' with later maps
+			glFogf( GL_FOG_END, curfog->end + 1000 );      // snooper ends GL fog out further.  this works fine with our maps, but could be 'funky' with later maps
 		}
-//				::glFogf (GL_FOG_END, curfog->end);
+//				glFogf (GL_FOG_END, curfog->end);
 		else {
-			::glFogf( GL_FOG_END, curfog->end );
+			glFogf( GL_FOG_END, curfog->end );
 		}
 #else
-		::glFogf( GL_FOG_END, curfog->end );
+		glFogf( GL_FOG_END, curfog->end );
 #endif // RTCW_XX
 
 //			setfog.end = curfog->end;
@@ -194,7 +194,7 @@ void R_Fog( glfog_t *curfog ) {
 
 	// NV fog mode
 	if ( glConfig.NVFogAvailable ) {
-		::glFogi( GL_FOG_DISTANCE_MODE_NV, glConfig.NVFogMode );
+		glFogi( GL_FOG_DISTANCE_MODE_NV, glConfig.NVFogMode );
 	}
 
 #if defined RTCW_SP
@@ -209,7 +209,7 @@ void R_Fog( glfog_t *curfog ) {
 
 	setfog.registered = qtrue;
 
-	::glClearColor( curfog->color[0], curfog->color[1], curfog->color[2], curfog->color[3] );
+	glClearColor( curfog->color[0], curfog->color[1], curfog->color[2], curfog->color[3] );
 }
 
 // Ridah, allow disabling fog temporarily
@@ -225,7 +225,7 @@ void R_FogOff( void ) {
     } else {
     // BBi
 
-	::glDisable( GL_FOG );
+	glDisable( GL_FOG );
 
     // BBi
     }
@@ -283,7 +283,7 @@ void R_FogOn( void ) {
     } else {
     // BBi
 
-	::glEnable( GL_FOG );
+	glEnable( GL_FOG );
 
     // BBi
     }
@@ -467,10 +467,10 @@ int R_CullLocalBox( vec3_t bounds[2] ) {
 //		VectorMA( transformed[i], v[1], tr.orientation.axis[1], transformed[i] );
 //		VectorMA( transformed[i], v[2], tr.orientation.axis[2], transformed[i] );
 //#endif // RTCW_XX
-        VectorCopy (::tr.orientation.origin, transformed[i]);
-        VectorMA (transformed[i], v[0], ::tr.orientation.axis[0], transformed[i]);
-        VectorMA (transformed[i], v[1], ::tr.orientation.axis[1], transformed[i]);
-        VectorMA (transformed[i], v[2], ::tr.orientation.axis[2], transformed[i]);
+        VectorCopy (tr.orientation.origin, transformed[i]);
+        VectorMA (transformed[i], v[0], tr.orientation.axis[0], transformed[i]);
+        VectorMA (transformed[i], v[1], tr.orientation.axis[1], transformed[i]);
+        VectorMA (transformed[i], v[2], tr.orientation.axis[2], transformed[i]);
 // BBi
 	}
 
@@ -579,17 +579,17 @@ void R_LocalNormalToWorld( vec3_t local, vec3_t world ) {
 //	world[1] = local[0] * tr.orientation.axis[0][1] + local[1] * tr.orientation.axis[1][1] + local[2] * tr.orientation.axis[2][1];
 //	world[2] = local[0] * tr.orientation.axis[0][2] + local[1] * tr.orientation.axis[1][2] + local[2] * tr.orientation.axis[2][2];
 //#endif // RTCW_XX
-    world[0] = (local[0] * ::tr.orientation.axis[0][0]) +
-        (local[1] * ::tr.orientation.axis[1][0]) +
-        (local[2] * ::tr.orientation.axis[2][0]);
+    world[0] = (local[0] * tr.orientation.axis[0][0]) +
+        (local[1] * tr.orientation.axis[1][0]) +
+        (local[2] * tr.orientation.axis[2][0]);
 
-    world[1] = (local[0] * ::tr.orientation.axis[0][1]) +
-        (local[1] * ::tr.orientation.axis[1][1]) +
-        (local[2] * ::tr.orientation.axis[2][1]);
+    world[1] = (local[0] * tr.orientation.axis[0][1]) +
+        (local[1] * tr.orientation.axis[1][1]) +
+        (local[2] * tr.orientation.axis[2][1]);
 
-    world[2] = (local[0] * ::tr.orientation.axis[0][2]) +
-        (local[1] * ::tr.orientation.axis[1][2]) +
-        (local[2] * ::tr.orientation.axis[2][2]);
+    world[2] = (local[0] * tr.orientation.axis[0][2]) +
+        (local[1] * tr.orientation.axis[1][2]) +
+        (local[2] * tr.orientation.axis[2][2]);
 // BBi
 }
 
@@ -610,20 +610,20 @@ void R_LocalPointToWorld( vec3_t local, vec3_t world ) {
 //	world[1] = local[0] * tr.orientation.axis[0][1] + local[1] * tr.orientation.axis[1][1] + local[2] * tr.orientation.axis[2][1] + tr.orientation.origin[1];
 //	world[2] = local[0] * tr.orientation.axis[0][2] + local[1] * tr.orientation.axis[1][2] + local[2] * tr.orientation.axis[2][2] + tr.orientation.origin[2];
 //#endif // RTCW_XX
-    world[0] = (local[0] * ::tr.orientation.axis[0][0]) +
-        (local[1] * ::tr.orientation.axis[1][0]) +
-        (local[2] * ::tr.orientation.axis[2][0]) +
-        ::tr.orientation.origin[0];
+    world[0] = (local[0] * tr.orientation.axis[0][0]) +
+        (local[1] * tr.orientation.axis[1][0]) +
+        (local[2] * tr.orientation.axis[2][0]) +
+        tr.orientation.origin[0];
 
-    world[1] = (local[0] * ::tr.orientation.axis[0][1]) +
-        (local[1] * ::tr.orientation.axis[1][1]) +
-        (local[2] * ::tr.orientation.axis[2][1]) +
-        ::tr.orientation.origin[1];
+    world[1] = (local[0] * tr.orientation.axis[0][1]) +
+        (local[1] * tr.orientation.axis[1][1]) +
+        (local[2] * tr.orientation.axis[2][1]) +
+        tr.orientation.origin[1];
 
-    world[2] = (local[0] * ::tr.orientation.axis[0][2]) +
-        (local[1] * ::tr.orientation.axis[1][2]) +
-        (local[2] * ::tr.orientation.axis[2][2]) +
-        ::tr.orientation.origin[2];
+    world[2] = (local[0] * tr.orientation.axis[0][2]) +
+        (local[1] * tr.orientation.axis[1][2]) +
+        (local[2] * tr.orientation.axis[2][2]) +
+        tr.orientation.origin[2];
 // BBi
 }
 
@@ -644,9 +644,9 @@ void R_WorldToLocal( vec3_t world, vec3_t local ) {
 //	local[1] = DotProduct( world, tr.orientation.axis[1] );
 //	local[2] = DotProduct( world, tr.orientation.axis[2] );
 //#endif // RTCW_XX
-    local[0] = DotProduct (world, ::tr.orientation.axis[0]);
-    local[1] = DotProduct (world, ::tr.orientation.axis[1]);
-    local[2] = DotProduct (world, ::tr.orientation.axis[2]);
+    local[0] = DotProduct (world, tr.orientation.axis[0]);
+    local[1] = DotProduct (world, tr.orientation.axis[1]);
+    local[2] = DotProduct (world, tr.orientation.axis[2]);
 // BBi
 }
 
@@ -853,31 +853,31 @@ void R_RotateForViewer( void ) {
 //	viewerMatrix[6] = tr.viewParms.orientation.axis[2][1];
 //	viewerMatrix[10] = tr.viewParms.orientation.axis[2][2];
 //#endif // RTCW_XX
-    ::memset (&::tr.orientation, 0, sizeof (tr.orientation));
-    ::tr.orientation.axis[0][0] = 1;
-    ::tr.orientation.axis[1][1] = 1;
-    ::tr.orientation.axis[2][2] = 1;
-    VectorCopy (::tr.viewParms.orientation.origin,
-        ::tr.orientation.viewOrigin);
+    memset (&::tr.orientation, 0, sizeof (tr.orientation));
+    tr.orientation.axis[0][0] = 1;
+    tr.orientation.axis[1][1] = 1;
+    tr.orientation.axis[2][2] = 1;
+    VectorCopy (tr.viewParms.orientation.origin,
+        tr.orientation.viewOrigin);
 
     // transform by the camera placement
-    VectorCopy (::tr.viewParms.orientation.origin, origin);
+    VectorCopy (tr.viewParms.orientation.origin, origin);
 
-    viewerMatrix[0] = ::tr.viewParms.orientation.axis[0][0];
-    viewerMatrix[4] = ::tr.viewParms.orientation.axis[0][1];
-    viewerMatrix[8] = ::tr.viewParms.orientation.axis[0][2];
+    viewerMatrix[0] = tr.viewParms.orientation.axis[0][0];
+    viewerMatrix[4] = tr.viewParms.orientation.axis[0][1];
+    viewerMatrix[8] = tr.viewParms.orientation.axis[0][2];
     viewerMatrix[12] = (-origin[0] * viewerMatrix[0]) +
         (-origin[1] * viewerMatrix[4]) + (-origin[2] * viewerMatrix[8]);
 
-    viewerMatrix[1] = ::tr.viewParms.orientation.axis[1][0];
-    viewerMatrix[5] = ::tr.viewParms.orientation.axis[1][1];
-    viewerMatrix[9] = ::tr.viewParms.orientation.axis[1][2];
+    viewerMatrix[1] = tr.viewParms.orientation.axis[1][0];
+    viewerMatrix[5] = tr.viewParms.orientation.axis[1][1];
+    viewerMatrix[9] = tr.viewParms.orientation.axis[1][2];
     viewerMatrix[13] = (-origin[0] * viewerMatrix[1]) +
         (-origin[1] * viewerMatrix[5]) + (-origin[2] * viewerMatrix[9]);
 
-    viewerMatrix[2] = ::tr.viewParms.orientation.axis[2][0];
-    viewerMatrix[6] = ::tr.viewParms.orientation.axis[2][1];
-    viewerMatrix[10] = ::tr.viewParms.orientation.axis[2][2];
+    viewerMatrix[2] = tr.viewParms.orientation.axis[2][0];
+    viewerMatrix[6] = tr.viewParms.orientation.axis[2][1];
+    viewerMatrix[10] = tr.viewParms.orientation.axis[2][2];
 // BBi
 
 	viewerMatrix[14] = -origin[0] * viewerMatrix[2] + - origin[1] * viewerMatrix[6] + - origin[2] * viewerMatrix[10];
@@ -900,8 +900,8 @@ void R_RotateForViewer( void ) {
 //
 //	tr.viewParms.world = tr.orientation;
 //#endif // RTCW_XX
-    ::myGlMultMatrix (viewerMatrix, s_flipMatrix, ::tr.orientation.modelMatrix);
-    ::tr.viewParms.world = ::tr.orientation;
+    myGlMultMatrix (viewerMatrix, s_flipMatrix, tr.orientation.modelMatrix);
+    tr.viewParms.world = tr.orientation;
 // BBi
 }
 
@@ -1140,7 +1140,7 @@ static void SetFarClip( void ) {
 //#else
 //		VectorSubtract( v, tr.viewParms.orientation.origin, vecTo );
 //#endif // RTCW_XX
-        VectorSubtract (v, ::tr.viewParms.orientation.origin, vecTo);
+        VectorSubtract (v, tr.viewParms.orientation.origin, vecTo);
 // BBi
 
 		distance = vecTo[0] * vecTo[0] + vecTo[1] * vecTo[1] + vecTo[2] * vecTo[2];
@@ -1306,17 +1306,17 @@ void R_SetupFrustum( void ) {
 
 	//VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[1].normal );
 	//VectorMA( tr.viewParms.frustum[1].normal, -xc, tr.viewParms.or.axis[1], tr.viewParms.frustum[1].normal );
-    VectorScale (::tr.viewParms.orientation.axis[0], xs,
-        ::tr.viewParms.frustum[0].normal);
+    VectorScale (tr.viewParms.orientation.axis[0], xs,
+        tr.viewParms.frustum[0].normal);
 
-    VectorMA (::tr.viewParms.frustum[0].normal, xc,
-        ::tr.viewParms.orientation.axis[1], ::tr.viewParms.frustum[0].normal);
+    VectorMA (tr.viewParms.frustum[0].normal, xc,
+        tr.viewParms.orientation.axis[1], tr.viewParms.frustum[0].normal);
 
-    VectorScale (::tr.viewParms.orientation.axis[0], xs,
-        ::tr.viewParms.frustum[1].normal);
+    VectorScale (tr.viewParms.orientation.axis[0], xs,
+        tr.viewParms.frustum[1].normal);
 
-    VectorMA (::tr.viewParms.frustum[1].normal, -xc,
-        ::tr.viewParms.orientation.axis[1], ::tr.viewParms.frustum[1].normal);
+    VectorMA (tr.viewParms.frustum[1].normal, -xc,
+        tr.viewParms.orientation.axis[1], tr.viewParms.frustum[1].normal);
     // BBi
 
 	ang = tr.viewParms.fovY / 180 * M_PI * 0.5f;
@@ -1329,17 +1329,17 @@ void R_SetupFrustum( void ) {
 
 	//VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[3].normal );
 	//VectorMA( tr.viewParms.frustum[3].normal, -xc, tr.viewParms.or.axis[2], tr.viewParms.frustum[3].normal );
-    VectorScale (::tr.viewParms.orientation.axis[0], xs,
-        ::tr.viewParms.frustum[2].normal);
+    VectorScale (tr.viewParms.orientation.axis[0], xs,
+        tr.viewParms.frustum[2].normal);
 
-    VectorMA (::tr.viewParms.frustum[2].normal, xc,
-        ::tr.viewParms.orientation.axis[2], ::tr.viewParms.frustum[2].normal);
+    VectorMA (tr.viewParms.frustum[2].normal, xc,
+        tr.viewParms.orientation.axis[2], tr.viewParms.frustum[2].normal);
 
-    VectorScale (::tr.viewParms.orientation.axis[0], xs,
-        ::tr.viewParms.frustum[3].normal);
+    VectorScale (tr.viewParms.orientation.axis[0], xs,
+        tr.viewParms.frustum[3].normal);
 
-    VectorMA (::tr.viewParms.frustum[3].normal, -xc,
-        ::tr.viewParms.orientation.axis[2], ::tr.viewParms.frustum[3].normal);
+    VectorMA (tr.viewParms.frustum[3].normal, -xc,
+        tr.viewParms.orientation.axis[2], tr.viewParms.frustum[3].normal);
     // BBi
 
 	for ( i = 0 ; i < 4 ; i++ ) {
@@ -1347,8 +1347,8 @@ void R_SetupFrustum( void ) {
 
         // BBi
 		//tr.viewParms.frustum[i].dist = DotProduct( tr.viewParms.or.origin, tr.viewParms.frustum[i].normal );
-        ::tr.viewParms.frustum[i].dist = DotProduct (
-            ::tr.viewParms.orientation.origin, ::tr.viewParms.frustum[i].normal);
+        tr.viewParms.frustum[i].dist = DotProduct (
+            tr.viewParms.orientation.origin, tr.viewParms.frustum[i].normal);
         // BBi
 
 		SetPlaneSignbits( &tr.viewParms.frustum[i] );
@@ -1466,7 +1466,7 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 //#else
 //		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.orientation );
 //#endif // RTCW_XX
-        ::R_RotateForEntity (::tr.currentEntity, &::tr.viewParms,
+        R_RotateForEntity (tr.currentEntity, &::tr.viewParms,
             &::tr.orientation);
 // BBi
 
@@ -1481,7 +1481,7 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 //		plane.dist = originalPlane.dist + DotProduct( plane.normal, tr.orientation.origin );
 //#endif // RTCW_XX
         plane.dist = originalPlane.dist +
-            DotProduct (plane.normal, ::tr.orientation.origin);
+            DotProduct (plane.normal, tr.orientation.origin);
 // BBi
 
 		// translate the original plane
@@ -1606,7 +1606,7 @@ static qboolean IsMirror( const drawSurf_t *drawSurf, int entityNum ) {
 //#else
 //		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.orientation );
 //#endif // RTCW_XX
-        ::R_RotateForEntity (::tr.currentEntity, &::tr.viewParms,
+        R_RotateForEntity (tr.currentEntity, &::tr.viewParms,
             &::tr.orientation);
 // BBi
 
@@ -1826,7 +1826,7 @@ qboolean R_MirrorViewBySurface( drawSurf_t *drawSurf, int entityNum ) {
 //#else
 //	R_MirrorPoint( oldParms.orientation.origin, &surface, &camera, newParms.orientation.origin );
 //#endif // RTCW_XX
-    ::R_MirrorPoint (oldParms.orientation.origin, &surface, &camera,
+    R_MirrorPoint (oldParms.orientation.origin, &surface, &camera,
         newParms.orientation.origin);
 // BBi
 
@@ -2352,7 +2352,7 @@ void R_AddEntitySurfaces( void ) {
 //#else
 //			R_RotateForEntity( ent, &tr.viewParms, &tr.orientation );
 //#endif // RTCW_XX
-            ::R_RotateForEntity (ent, &::tr.viewParms, &::tr.orientation);
+            R_RotateForEntity (ent, &::tr.viewParms, &::tr.orientation);
 // BBi
 
 			tr.currentModel = R_GetModelByHandle( ent->e.hModel );
@@ -2496,16 +2496,16 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
             ogl_tess2.position[i] = glm::vec4 (v[0], v[1], v[2], 1.0F);
         }
 
-        ::ogl_tess2_draw (GL_TRIANGLE_FAN, numPoints, false, false);
+        ogl_tess2_draw (GL_TRIANGLE_FAN, numPoints, false, false);
     } else {
     // BBi
 
-	::glColor3f( color & 1, ( color >> 1 ) & 1, ( color >> 2 ) & 1 );
-	::glBegin( GL_POLYGON );
+	glColor3f( color & 1, ( color >> 1 ) & 1, ( color >> 2 ) & 1 );
+	glBegin( GL_POLYGON );
 	for ( i = 0 ; i < numPoints ; i++ ) {
-		::glVertex3fv( points + i * 3 );
+		glVertex3fv( points + i * 3 );
 	}
-	::glEnd();
+	glEnd();
 
     // BBi
     }
@@ -2513,7 +2513,7 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 
 	// draw wireframe outline
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
-	::glDepthRange( 0, 0 );
+	glDepthRange( 0, 0 );
 
     // BBi
     if (!glConfigEx.is_path_ogl_1_x ()) {
@@ -2525,22 +2525,22 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
             ogl_tess2.position[i] = glm::vec4 (v[0], v[1], v[2], 1.0F);
         }
 
-        ::ogl_tess2_draw (GL_TRIANGLE_FAN, numPoints, false, false);
+        ogl_tess2_draw (GL_TRIANGLE_FAN, numPoints, false, false);
     } else {
     // BBi
 
-	::glColor3f( 1, 1, 1 );
-	::glBegin( GL_POLYGON );
+	glColor3f( 1, 1, 1 );
+	glBegin( GL_POLYGON );
 	for ( i = 0 ; i < numPoints ; i++ ) {
-		::glVertex3fv( points + i * 3 );
+		glVertex3fv( points + i * 3 );
 	}
-	::glEnd();
+	glEnd();
 
     // BBi
     }
     // BBi
 
-	::glDepthRange( 0, 1 );
+	glDepthRange( 0, 1 );
 }
 
 #if defined RTCW_ET
@@ -2552,7 +2552,7 @@ R_DebugText
 void R_DebugText( const vec3_t org, float r, float g, float b, const char *text, qboolean neverOcclude ) {
 
 	if ( neverOcclude ) {
-		::glDepthRange( 0, 0 );  // never occluded
+		glDepthRange( 0, 0 );  // never occluded
 
 	}
 
@@ -2560,20 +2560,20 @@ void R_DebugText( const vec3_t org, float r, float g, float b, const char *text,
     if (glConfigEx.is_path_ogl_1_x ()) {
     // BBi
 
-	::glColor3f( r, g, b );
-	::glRasterPos3fv( org );
-	::glPushAttrib( GL_LIST_BIT );
-	::glListBase( gl_NormalFontBase );
-	::glCallLists( strlen( text ), GL_UNSIGNED_BYTE, text );
-	::glListBase( 0 );
-	::glPopAttrib();
+	glColor3f( r, g, b );
+	glRasterPos3fv( org );
+	glPushAttrib( GL_LIST_BIT );
+	glListBase( gl_NormalFontBase );
+	glCallLists( strlen( text ), GL_UNSIGNED_BYTE, text );
+	glListBase( 0 );
+	glPopAttrib();
 
     // BBi
     }
     // BBi
 
 	if ( neverOcclude ) {
-		::glDepthRange( 0, 1 );
+		glDepthRange( 0, 1 );
 	}
 }
 #endif // RTCW_XX

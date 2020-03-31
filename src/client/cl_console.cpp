@@ -977,7 +977,7 @@ void Con_DrawSolidConsole( float frac ) {
 
     //BBi
 	//i = strlen( Q3_VERSION );
-    i = ::strlen (RTCW_VERSION);
+    i = strlen (RTCW_VERSION);
     //BBi
 
 	for ( x = 0 ; x < i ; x++ ) {
@@ -985,7 +985,7 @@ void Con_DrawSolidConsole( float frac ) {
         //BBi
 		//SCR_DrawSmallChar( cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH,
 		//				   ( lines - ( SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2 ) ), Q3_VERSION[x] );
-        ::SCR_DrawSmallChar (cls.glconfig.vidWidth - (i - x) * SMALLCHAR_WIDTH,
+        SCR_DrawSmallChar (cls.glconfig.vidWidth - (i - x) * SMALLCHAR_WIDTH,
             (lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2)), RTCW_VERSION[x]);
         //BBi
 

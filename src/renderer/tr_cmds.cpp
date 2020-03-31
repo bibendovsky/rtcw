@@ -223,7 +223,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 //			GLimp_WakeRenderer( cmdList );
 //		}
 
-        ::RB_ExecuteRenderCommands (cmdList->cmds);
+        RB_ExecuteRenderCommands (cmdList->cmds);
 // BBi
 	}
 }
@@ -577,11 +577,11 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		} else
 		{
 			R_SyncRenderThread();
-			::glEnable( GL_STENCIL_TEST );
-			::glStencilMask( ~0U );
-			::glClearStencil( 0U );
-			::glStencilFunc( GL_ALWAYS, 0U, ~0U );
-			::glStencilOp( GL_KEEP, GL_INCR, GL_INCR );
+			glEnable( GL_STENCIL_TEST );
+			glStencilMask( ~0U );
+			glClearStencil( 0U );
+			glStencilFunc( GL_ALWAYS, 0U, ~0U );
+			glStencilOp( GL_KEEP, GL_INCR, GL_INCR );
 		}
 		r_measureOverdraw->modified = qfalse;
 	} else
@@ -589,7 +589,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		// this is only reached if it was on and is now off
 		if ( r_measureOverdraw->modified ) {
 			R_SyncRenderThread();
-			::glDisable( GL_STENCIL_TEST );
+			glDisable( GL_STENCIL_TEST );
 		}
 		r_measureOverdraw->modified = qfalse;
 	}
@@ -712,7 +712,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		int err;
 
 		R_SyncRenderThread();
-		if ( ( err = ::glGetError() ) != GL_NO_ERROR ) {
+		if ( ( err = glGetError() ) != GL_NO_ERROR ) {
 			ri.Error( ERR_FATAL, "RE_BeginFrame() - glGetError() failed (0x%x)!\n", err );
 		}
 	}

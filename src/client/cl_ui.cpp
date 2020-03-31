@@ -898,7 +898,7 @@ static void GetClipboardData( char *buf, int buflen ) {
 
 	Q_strncpyz( buf, cbd, buflen );
 
-    ::SDL_free(cbd);
+    SDL_free(cbd);
 }
 
 /*
@@ -1640,7 +1640,7 @@ void CL_InitUI( void ) {
 //	uivm = VM_Create( "ui", CL_UISystemCalls, VMI_NATIVE );
 //#endif // RTCW_XX
 
-    uivm = ::VM_Create ("ui", CL_UISystemCalls);
+    uivm = VM_Create ("ui", CL_UISystemCalls);
 //BBi
 
 	if ( !uivm ) {

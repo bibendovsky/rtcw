@@ -263,19 +263,19 @@ void uninitialize()
 
 	if (sdl_font_surface_)
 	{
-		::SDL_FreeSurface(sdl_font_surface_);
+		SDL_FreeSurface(sdl_font_surface_);
 		sdl_font_surface_ = {};
 	}
 
 	if (sdl_renderer_)
 	{
-		::SDL_DestroyRenderer(sdl_renderer_);
+		SDL_DestroyRenderer(sdl_renderer_);
 		sdl_renderer_ = {};
 	}
 
 	if (sdl_window_)
 	{
-		::SDL_DestroyWindow(sdl_window_);
+		SDL_DestroyWindow(sdl_window_);
 		sdl_window_ = {};
 	}
 
@@ -354,9 +354,9 @@ bool initialize_internal()
 
 	auto sdl_result = 0;
 
-	if (::SDL_WasInit(SDL_INIT_VIDEO) == 0)
+	if (SDL_WasInit(SDL_INIT_VIDEO) == 0)
 	{
-		sdl_result = ::SDL_InitSubSystem(SDL_INIT_VIDEO);
+		sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
 
 		if (sdl_result != 0)
 		{
@@ -365,7 +365,7 @@ bool initialize_internal()
 		}
 	}
 
-	sdl_result = ::SDL_CreateWindowAndRenderer(
+	sdl_result = SDL_CreateWindowAndRenderer(
 		screen_width,
 		screen_height,
 		SDL_WINDOW_HIDDEN,
@@ -378,7 +378,7 @@ bool initialize_internal()
 		return false;
 	}
 
-	::SDL_SetWindowTitle(sdl_window_, window_title);
+	SDL_SetWindowTitle(sdl_window_, window_title);
 
 	imgui_context_ = ImGui::CreateContext();
 
@@ -418,7 +418,7 @@ void initialize()
 	{
 		uninitialize();
 
-		static_cast<void>(::SDL_ShowSimpleMessageBox(
+		static_cast<void>(SDL_ShowSimpleMessageBox(
 			SDL_MESSAGEBOX_ERROR,
 			"RTCW",
 			error_message_.c_str(),
@@ -465,15 +465,15 @@ void show(
 	{
 	case ImGuiSdl::WindowStatus::hidden:
 	case ImGuiSdl::WindowStatus::none:
-		::SDL_HideWindow(sdl_window_);
+		SDL_HideWindow(sdl_window_);
 		break;
 
 	case ImGuiSdl::WindowStatus::shown:
-		::SDL_ShowWindow(sdl_window_);
+		SDL_ShowWindow(sdl_window_);
 		break;
 
 	case ImGuiSdl::WindowStatus::minimized:
-		::SDL_MinimizeWindow(sdl_window_);
+		SDL_MinimizeWindow(sdl_window_);
 		break;
 
 	default:
@@ -719,7 +719,7 @@ void imgui_draw()
 			clipboard_buffer += line;
 		}
 
-		static_cast<void>(::SDL_SetClipboardText(clipboard_buffer.c_str()));
+		static_cast<void>(SDL_SetClipboardText(clipboard_buffer.c_str()));
 	}
 
 	if (is_clear_clicked)
@@ -747,7 +747,7 @@ void update(
 	if (imgui_sdl_.is_close_requested())
 	{
 		window_status_ = ImGuiSdl::WindowStatus::hidden;
-		::SDL_HideWindow(sdl_window_);
+		SDL_HideWindow(sdl_window_);
 		imgui_sdl_.reset_is_close_requested();
 
 		is_close_requested = true;
@@ -757,7 +757,7 @@ void update(
 	{
 		if (!quit_on_close_)
 		{
-			::Com_Quit_f();
+			Com_Quit_f();
 		}
 
 		is_close_requested = true;
@@ -772,7 +772,7 @@ void update(
 		entered_commands_ += edit_buffer_.data();
 		entered_commands_ += '\n';
 
-		::Sys_Print(::va("]%s\n", edit_buffer_.data()));
+		Sys_Print(va("]%s\n", edit_buffer_.data()));
 		edit_buffer_[0] = '\0';
 	}
 }
@@ -790,16 +790,16 @@ void update_window_status(
 	switch (window_status_)
 	{
 	case ImGuiSdl::WindowStatus::hidden:
-		::SDL_HideWindow(sdl_window_);
+		SDL_HideWindow(sdl_window_);
 		break;
 
 	case ImGuiSdl::WindowStatus::minimized:
-		::SDL_MinimizeWindow(sdl_window_);
+		SDL_MinimizeWindow(sdl_window_);
 		break;
 
 	case ImGuiSdl::WindowStatus::shown:
 		is_log_scrolled_ = false;
-		::SDL_ShowWindow(sdl_window_);
+		SDL_ShowWindow(sdl_window_);
 		break;
 
 	default:
@@ -858,7 +858,7 @@ void sys_run_console()
 
 	while (!is_quit)
 	{
-		while (::SDL_PollEvent(&e))
+		while (SDL_PollEvent(&e))
 		{
 			imgui_sdl_.handle_event(e);
 		}
@@ -879,7 +879,7 @@ void sys_run_console()
 			}
 		}
 
-		::SDL_Delay(10);
+		SDL_Delay(10);
 	}
 }
 

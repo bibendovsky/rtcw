@@ -85,29 +85,29 @@ void R_RenderShadowEdges( void ) {
 		i2 = tess.indexes[ i * 3 + 1 ];
 		i3 = tess.indexes[ i * 3 + 2 ];
 
-		::glBegin( GL_TRIANGLE_STRIP );
+		glBegin( GL_TRIANGLE_STRIP );
 
 #if !defined RTCW_ET
-		::glVertex3fv( tess.xyz[ i1 ] );
-		::glVertex3fv( tess.xyz[ i1 + tess.numVertexes ] );
-		::glVertex3fv( tess.xyz[ i2 ] );
-		::glVertex3fv( tess.xyz[ i2 + tess.numVertexes ] );
-		::glVertex3fv( tess.xyz[ i3 ] );
-		::glVertex3fv( tess.xyz[ i3 + tess.numVertexes ] );
-		::glVertex3fv( tess.xyz[ i1 ] );
-		::glVertex3fv( tess.xyz[ i1 + tess.numVertexes ] );
+		glVertex3fv( tess.xyz[ i1 ] );
+		glVertex3fv( tess.xyz[ i1 + tess.numVertexes ] );
+		glVertex3fv( tess.xyz[ i2 ] );
+		glVertex3fv( tess.xyz[ i2 + tess.numVertexes ] );
+		glVertex3fv( tess.xyz[ i3 ] );
+		glVertex3fv( tess.xyz[ i3 + tess.numVertexes ] );
+		glVertex3fv( tess.xyz[ i1 ] );
+		glVertex3fv( tess.xyz[ i1 + tess.numVertexes ] );
 #else
-		::glVertex3fv( tess.xyz[ i1 ].v );
-		::glVertex3fv( tess.xyz[ i1 + tess.numVertexes ].v );
-		::glVertex3fv( tess.xyz[ i2 ].v );
-		::glVertex3fv( tess.xyz[ i2 + tess.numVertexes ].v );
-		::glVertex3fv( tess.xyz[ i3 ].v );
-		::glVertex3fv( tess.xyz[ i3 + tess.numVertexes ].v );
-		::glVertex3fv( tess.xyz[ i1 ].v );
-		::glVertex3fv( tess.xyz[ i1 + tess.numVertexes ].v );
+		glVertex3fv( tess.xyz[ i1 ].v );
+		glVertex3fv( tess.xyz[ i1 + tess.numVertexes ].v );
+		glVertex3fv( tess.xyz[ i2 ].v );
+		glVertex3fv( tess.xyz[ i2 + tess.numVertexes ].v );
+		glVertex3fv( tess.xyz[ i3 ].v );
+		glVertex3fv( tess.xyz[ i3 + tess.numVertexes ].v );
+		glVertex3fv( tess.xyz[ i1 ].v );
+		glVertex3fv( tess.xyz[ i1 + tess.numVertexes ].v );
 #endif // RTCW_XX
 
-		::glEnd();
+		glEnd();
 	}
 #else
 	int c, c2;
@@ -160,18 +160,18 @@ void R_RenderShadowEdges( void ) {
                         *reinterpret_cast<const glm::vec4*> (
                         tess.xyz[i2 + tess.numVertexes].v);
 
-                    ::ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, false, false);
+                    ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, false, false);
                 } else {
                 // BBi
 
-				::glBegin( GL_TRIANGLE_STRIP );
+				glBegin( GL_TRIANGLE_STRIP );
 
-				::glVertex3fv( tess.xyz[ i ].v );
-				::glVertex3fv( tess.xyz[ i + tess.numVertexes ].v );
-				::glVertex3fv( tess.xyz[ i2 ].v );
-				::glVertex3fv( tess.xyz[ i2 + tess.numVertexes ].v );
+				glVertex3fv( tess.xyz[ i ].v );
+				glVertex3fv( tess.xyz[ i + tess.numVertexes ].v );
+				glVertex3fv( tess.xyz[ i2 ].v );
+				glVertex3fv( tess.xyz[ i2 + tess.numVertexes ].v );
 
-				::glEnd();
+				glEnd();
 
                 // BBi
                 }
@@ -263,42 +263,42 @@ void RB_ShadowTessEnd( void ) {
 	// draw the silhouette edges
 
 	GL_Bind( tr.whiteImage );
-	::glEnable( GL_CULL_FACE );
+	glEnable( GL_CULL_FACE );
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
-	::glColor3f( 0.2f, 0.2f, 0.2f );
+	glColor3f( 0.2f, 0.2f, 0.2f );
 
 	// don't write to the color buffer
-	::glColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE );
+	glColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE );
 
-	::glEnable( GL_STENCIL_TEST );
-	::glStencilFunc( GL_ALWAYS, 1, 255 );
+	glEnable( GL_STENCIL_TEST );
+	glStencilFunc( GL_ALWAYS, 1, 255 );
 
 	// mirrors have the culling order reversed
 	if ( backEnd.viewParms.isMirror ) {
-		::glCullFace( GL_FRONT );
-		::glStencilOp( GL_KEEP, GL_KEEP, GL_INCR );
+		glCullFace( GL_FRONT );
+		glStencilOp( GL_KEEP, GL_KEEP, GL_INCR );
 
 		R_RenderShadowEdges();
 
-		::glCullFace( GL_BACK );
-		::glStencilOp( GL_KEEP, GL_KEEP, GL_DECR );
+		glCullFace( GL_BACK );
+		glStencilOp( GL_KEEP, GL_KEEP, GL_DECR );
 
 		R_RenderShadowEdges();
 	} else {
-		::glCullFace( GL_BACK );
-		::glStencilOp( GL_KEEP, GL_KEEP, GL_INCR );
+		glCullFace( GL_BACK );
+		glStencilOp( GL_KEEP, GL_KEEP, GL_INCR );
 
 		R_RenderShadowEdges();
 
-		::glCullFace( GL_FRONT );
-		::glStencilOp( GL_KEEP, GL_KEEP, GL_DECR );
+		glCullFace( GL_FRONT );
+		glStencilOp( GL_KEEP, GL_KEEP, GL_DECR );
 
 		R_RenderShadowEdges();
 	}
 
 
 	// reenable writing to the color buffer
-	::glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
+	glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
 }
 
 
@@ -319,11 +319,11 @@ void RB_ShadowFinish( void ) {
 	if ( glConfig.stencilBits < 4 ) {
 		return;
 	}
-	::glEnable( GL_STENCIL_TEST );
-	::glStencilFunc( GL_NOTEQUAL, 0, 255 );
+	glEnable( GL_STENCIL_TEST );
+	glStencilFunc( GL_NOTEQUAL, 0, 255 );
 
-	::glDisable( GL_CLIP_PLANE0 );
-	::glDisable( GL_CULL_FACE );
+	glDisable( GL_CLIP_PLANE0 );
+	glDisable( GL_CULL_FACE );
 
 	GL_Bind( tr.whiteImage );
 
@@ -336,9 +336,9 @@ void RB_ShadowFinish( void ) {
     } else {
     // BBi
 
-	::glLoadIdentity();
+	glLoadIdentity();
 
-	::glColor3f( 0.6f, 0.6f, 0.6f );
+	glColor3f( 0.6f, 0.6f, 0.6f );
 
     // BBi
     }
@@ -346,7 +346,7 @@ void RB_ShadowFinish( void ) {
 
 	GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO );
 
-//	::glColor3f( 1, 0, 0 );
+//	glColor3f( 1, 0, 0 );
 //	GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
 
     // BBi
@@ -356,27 +356,27 @@ void RB_ShadowFinish( void ) {
         ogl_tess2.position[2] = glm::vec4 (-100.0F, -100.0F, -10.0F, 1.0F);
         ogl_tess2.position[3] = glm::vec4 (100.0F, -100.0F, -10.0F, 1.0F);
 
-        ::ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, false, false);
+        ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, false, false);
 
         ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
         ogl_tess_state.commit_changes ();
     } else {
     // BBi
 
-	::glBegin( GL_QUADS );
-	::glVertex3f( -100, 100, -10 );
-	::glVertex3f( 100, 100, -10 );
-	::glVertex3f( 100, -100, -10 );
-	::glVertex3f( -100, -100, -10 );
-	::glEnd();
+	glBegin( GL_QUADS );
+	glVertex3f( -100, 100, -10 );
+	glVertex3f( 100, 100, -10 );
+	glVertex3f( 100, -100, -10 );
+	glVertex3f( -100, -100, -10 );
+	glEnd();
 
-	::glColor4f( 1,1,1,1 );
+	glColor4f( 1,1,1,1 );
 
     // BBi
     }
     // BBi
 
-	::glDisable( GL_STENCIL_TEST );
+	glDisable( GL_STENCIL_TEST );
 }
 
 
@@ -412,12 +412,12 @@ void RB_ProjectionShadowDeform( void ) {
 //
 //	groundDist = backEnd.orientation.origin[2] - backEnd.currentEntity->e.shadowPlane;
 //#endif // RTCW_XX
-    ground[0] = ::backEnd.orientation.axis[0][2];
-    ground[1] = ::backEnd.orientation.axis[1][2];
-    ground[2] = ::backEnd.orientation.axis[2][2];
+    ground[0] = backEnd.orientation.axis[0][2];
+    ground[1] = backEnd.orientation.axis[1][2];
+    ground[2] = backEnd.orientation.axis[2][2];
 
-    groundDist = ::backEnd.orientation.origin[2] -
-        ::backEnd.currentEntity->e.shadowPlane;
+    groundDist = backEnd.orientation.origin[2] -
+        backEnd.currentEntity->e.shadowPlane;
 // BBi
 
 	VectorCopy( backEnd.currentEntity->lightDir, lightDir );
