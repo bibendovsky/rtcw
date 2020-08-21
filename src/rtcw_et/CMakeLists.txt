@@ -14,7 +14,7 @@ option (RTCW_CURL_STATIC "Link cURL statically." ON)
 message (STATUS "[${PROJECT_NAME}] Link cURL statically: ${RTCW_CURL_STATIC}")
 
 find_package (SDL2W 2.0.4 REQUIRED)
-find_package (SDL_net 2.0.1 REQUIRED)
+find_package (SDL2W_net 2.0.1 REQUIRED)
 
 if (RTCW_CURL)
 	find_package (CURL 7.0.0 REQUIRED)
@@ -55,7 +55,6 @@ endif ()
 target_include_directories (
 	${PROJECT_NAME}
 	PRIVATE
-		${SDL_NET_INCLUDE_DIR}
 		.
 		../botai
 		../botai/et
@@ -117,7 +116,7 @@ target_link_libraries (
 	PRIVATE
 		SDL2W::SDL2Wmain
 		SDL2W::SDL2W
-		${SDL_NET_LIBRARY}
+		SDL2W_net::SDL2W_net
 )
 
 if (RTCW_CURL)
