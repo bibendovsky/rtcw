@@ -49,15 +49,22 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
 
+#ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 #define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+#endif // !IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 
 
 #include "imgui_sdl.h"
+
+#include <cmath>
+
+#include <algorithm>
 #include <array>
 #include <bitset>
 #include <limits>
 #include <utility>
 #include <vector>
+
 #include "imgui.h"
 #include "SDL_clipboard.h"
 #include "SDL_render.h"
