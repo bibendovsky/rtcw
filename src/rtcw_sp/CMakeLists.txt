@@ -8,7 +8,7 @@ option (RTCW_MULTI_PROCESS_COMPILATION "Enable multi-process compilation if avai
 message (STATUS "[${PROJECT_NAME}] Multi-process compilation: ${RTCW_MULTI_PROCESS_COMPILATION}")
 
 find_package (SDL2W 2.0.4 REQUIRED)
-find_package (SDL_net 2.0.1 REQUIRED)
+find_package (SDL2W_net 2.0.1 REQUIRED)
 
 add_executable (${PROJECT_NAME} "")
 
@@ -45,7 +45,6 @@ endif ()
 target_include_directories (
 	${PROJECT_NAME}
 	PRIVATE
-		${SDL_NET_INCLUDE_DIR}
 		.
 		../botai
 		../cgame
@@ -98,7 +97,7 @@ target_link_libraries (
 	PRIVATE
 		SDL2W::SDL2Wmain
 		SDL2W::SDL2W
-		${SDL_NET_LIBRARY}
+		SDL2W_net::SDL2W_net
 )
 
 if (MINGW)
