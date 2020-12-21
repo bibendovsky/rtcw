@@ -118,18 +118,18 @@ void SND_setup() {
 
 	scs = cv->integer * 512;
 
-    //BBi
+	// BBi
 	//buffer = static_cast<sndBuffer*> (malloc( scs * sizeof( sndBuffer ) ));
-    buffer = new sndBuffer[scs];
-    //BBi
+	buffer = new sndBuffer[scs];
+	// BBi
 
 	// allocate the stack based hunk allocator
 
 #if !defined RTCW_MP
-    //BBi
+	// BBi
 	//sfxScratchBuffer = static_cast<short*> (malloc( SND_CHUNK_SIZE * sizeof( short ) * 4 ));  //Hunk_Alloc(SND_CHUNK_SIZE * sizeof(short) * 4);
-    sfxScratchBuffer = new short[SND_CHUNK_SIZE * 4];
-    //BBi
+	sfxScratchBuffer = new short[SND_CHUNK_SIZE * 4];
+	// BBi
 #else
 //DAJ HOG	sfxScratchBuffer = malloc(SND_CHUNK_SIZE * sizeof(short) * 4);
 	sfxScratchBuffer = static_cast<short*> (Hunk_Alloc( SND_CHUNK_SIZE * sizeof( short ) * 4, h_high ));  //DAJ HOG was CO

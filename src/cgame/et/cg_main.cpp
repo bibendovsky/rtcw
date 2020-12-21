@@ -56,24 +56,24 @@ This must be the very first function compiled into the .q3vm file
 #pragma GCC visibility push(default)
 #endif
 
-//BBi
+// BBi
 //int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
 extern "C" intptr_t vmMain (
-    intptr_t command,
-    intptr_t arg0,
-    intptr_t arg1,
-    intptr_t arg2,
-    intptr_t arg3,
-    intptr_t arg4,
-    intptr_t arg5,
-    intptr_t arg6,
-    intptr_t arg7,
-    intptr_t arg8,
-    intptr_t arg9,
-    intptr_t arg10,
-    intptr_t arg11)
+	intptr_t command,
+	intptr_t arg0,
+	intptr_t arg1,
+	intptr_t arg2,
+	intptr_t arg3,
+	intptr_t arg4,
+	intptr_t arg5,
+	intptr_t arg6,
+	intptr_t arg7,
+	intptr_t arg8,
+	intptr_t arg9,
+	intptr_t arg10,
+	intptr_t arg11)
 {
-//BBi
+// BBi
 
 #if __GNUC__ >= 4
 #pragma GCC visibility pop
@@ -1023,8 +1023,8 @@ The server says this item is used on this level
 static void CG_RegisterItemSounds( int itemNum ) {
 	gitem_t         *item;
 	char data[MAX_QPATH];
-    const char* s;
-    const char* start;
+	const char* s;
+	const char* start;
 	int len;
 
 	item = &bg_itemlist[ itemNum ];

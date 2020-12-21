@@ -306,9 +306,9 @@ void G_players_cmd( gentity_t *ent, unsigned int dwCommand, qboolean fValue ) {
 	gentity_t *cl_ent;
 	char n2[MAX_NETNAME], ready[16], ref[16], rate[256];
 	const char *s;
-    const char* tc;
-    const char* coach;
-    char userinfo[MAX_INFO_STRING];
+	const char* tc;
+	const char* coach;
+	char userinfo[MAX_INFO_STRING];
 
 
 	if ( g_gamestate.integer == GS_PLAYING ) {

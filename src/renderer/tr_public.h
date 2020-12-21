@@ -101,8 +101,8 @@ typedef struct {
 //#else
 //	void ( *AddCoronaToScene )( const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible );
 //#endif // RTCW_XX
-    void (*AddCoronaToScene) (const vec3_t org, float r, float g, float b,
-        float scale, int id, int flags);
+	void (*AddCoronaToScene) (const vec3_t org, float r, float g, float b,
+		float scale, int id, int flags);
 // BBi
 
 	void ( *SetFog )( int fogvar, int var1, int var2, float r, float g, float b, float density );

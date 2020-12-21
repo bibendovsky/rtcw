@@ -940,10 +940,10 @@ void CL_WriteWaveClose() {
 extern int s_soundtime;
 
 #if !defined RTCW_ET
-//BBi
+// BBi
 //extern portable_samplepair_t *paintbuffer;
 extern portable_samplepair_t paintbuffer[];
-//BBi
+// BBi
 #else
 extern int s_paintedtime;
 extern portable_samplepair_t paintbuffer[PAINTBUFFER_SIZE];
@@ -3745,10 +3745,10 @@ void CL_MapRestart_f( void ) {
 
 void CL_SetRecommended_f()
 {
-    if (Cmd_Argc() > 1)
-        Com_SetRecommended(true);
-    else
-        Com_SetRecommended(false);
+	if (Cmd_Argc() > 1)
+		Com_SetRecommended(true);
+	else
+		Com_SetRecommended(false);
 }
 
 
@@ -3771,21 +3771,21 @@ void QDECL CL_RefPrintf( int print_level, const char *fmt, ... ) {
 
 	va_start( argptr,fmt );
 
-//BBi See #LBUG0001
+// BBi See #LBUG0001
 //#if defined RTCW_SP
 //	vsprintf( msg,fmt,argptr );
 //#else
 //	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
 //#endif // RTCW_XX
 
-    msg[MAXPRINTMSG - 1] = '\0';
+	msg[MAXPRINTMSG - 1] = '\0';
 
 #if defined RTCW_SP
-    vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
+	vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #else
-    Q_vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
+	Q_vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #endif // RTCW_XX
-//BBi
+// BBi
 
 	va_end( argptr );
 
@@ -3940,15 +3940,15 @@ void CL_CheckAutoUpdate( void ) {
 				 cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
 				 rtcw::Endian::be( cls.autoupdateServer.port ) );
 
-    //BBi
+	// BBi
 	//NET_OutOfBandPrint( NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", Q3_VERSION, CPUSTRING );
-    NET_OutOfBandPrint(
-        NS_CLIENT,
-        cls.autoupdateServer,
-        "getUpdateInfo \"%s\" \"%s\"\n",
-        RTCW_VERSION,
-        SDL_GetPlatform());
-    //BBi
+	NET_OutOfBandPrint(
+		NS_CLIENT,
+		cls.autoupdateServer,
+		"getUpdateInfo \"%s\" \"%s\"\n",
+		RTCW_VERSION,
+		SDL_GetPlatform());
+	// BBi
 
 	CL_RequestMotd();
 
@@ -3988,15 +3988,15 @@ void CL_CheckAutoUpdate( void ) {
 				 cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
 				 rtcw::Endian::be ( cls.autoupdateServer.port ) );
 
-    //BBi
+	// BBi
 	//NET_OutOfBandPrint( NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", Q3_VERSION, CPUSTRING );
-    NET_OutOfBandPrint(
-        NS_CLIENT,
-        cls.autoupdateServer,
-        "getUpdateInfo \"%s\" \"%s\"\n",
-        RTCW_VERSION,
-        SDL_GetPlatform());
-    //BBi
+	NET_OutOfBandPrint(
+		NS_CLIENT,
+		cls.autoupdateServer,
+		"getUpdateInfo \"%s\" \"%s\"\n",
+		RTCW_VERSION,
+		SDL_GetPlatform());
+	// BBi
 
 #endif // !PRE_RELEASE_DEMO
 
@@ -4247,7 +4247,7 @@ void CL_ClientDamageCommand( void ) {
 #if defined RTCW_SP
 void CL_startMultiplayer_f( void ) {
 
-//BBi
+// BBi
 //#ifdef __MACOS__    //DAJ
 //	Sys_StartProcess( "Wolfenstein MP", qtrue );
 //#elif defined( __linux__ )
@@ -4256,8 +4256,8 @@ void CL_startMultiplayer_f( void ) {
 //	Sys_StartProcess( "WolfMP.exe", qtrue );
 //#endif
 
-    Sys_StartProcess ("rtcw_mp_x86", qtrue);
-//BBi
+	Sys_StartProcess ("rtcw_mp_x86", qtrue);
+// BBi
 
 }
 // -NERVE - SMF
@@ -4298,7 +4298,7 @@ void CL_ShellExecute_URL_f( void ) {
 //----(SA) end
 #else
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //void CL_startSingleplayer_f( void ) {
 //#if defined( __linux__ )
@@ -4319,9 +4319,9 @@ void CL_ShellExecute_URL_f( void ) {
 
 void CL_startSingleplayer_f ()
 {
-    Sys_StartProcess ("rtcw_sp_x86", qtrue);
+	Sys_StartProcess ("rtcw_sp_x86", qtrue);
 }
-//BBi
+// BBi
 
 // NERVE - SMF
 #if !defined RTCW_ET
@@ -5971,10 +5971,10 @@ static trans_t* AllocTrans( char *original, char *translated[MAX_LANGUAGES] ) {
 	trans_t *t;
 	int i;
 
-    //BBi
+	// BBi
 	//t = static_cast<trans_t*> (malloc( sizeof( trans_t ) ));
-    t = new trans_t;
-    //BBi
+	t = new trans_t;
+	// BBi
 
 	memset( t, 0, sizeof( trans_t ) );
 
@@ -6046,9 +6046,9 @@ static trans_t* LookupTrans( char *original, char *translated[MAX_LANGUAGES], qb
 	// see if we want to save out the translation table everytime a string is added
 	if ( cl_debugTranslation->integer == 2 && !isLoading ) {
 
-        //FIXME
+		//FIXME
 		//CL_SaveTransTable();
-        CL_SaveTransTable ("scripts/translation.cfg", qtrue);
+		CL_SaveTransTable ("scripts/translation.cfg", qtrue);
 	}
 
 	return newt;
@@ -6249,10 +6249,10 @@ void CL_LoadTransTable( const char *fileName ) {
 	// Gordon: shouldn't this be a z_malloc or something?
 #endif // RTCW_XX
 
-    //BBi
+	// BBi
 	//text = static_cast<char*> (malloc( len + 1 ));
-    text = new char[len + 1];
-    //BBi
+	text = new char[len + 1];
+	// BBi
 
 	if ( !text ) {
 		return;
@@ -6400,10 +6400,10 @@ void CL_LoadTransTable( const char *fileName ) {
 
 	// cleanup
 
-    //BBi
+	// BBi
 	//free( text );
-    delete [] text;
-    //BBi
+	delete [] text;
+	// BBi
 }
 
 /*
@@ -6418,10 +6418,10 @@ void CL_ReloadTranslation() {
 	for ( i = 0; i < FILE_HASH_SIZE; i++ ) {
 		if ( transTable[i] ) {
 
-            //BBi
+			// BBi
 			//free( transTable[i] );
-            delete transTable[i];
-            //BBi
+			delete transTable[i];
+			// BBi
 
 		}
 	}

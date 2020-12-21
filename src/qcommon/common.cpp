@@ -230,21 +230,21 @@ int QDECL Com_VPrintf( const char *fmt, va_list argptr ) {
 	//
 #endif // RTCW_XX
 
-//BBi See #LBUG0001
+// BBi See #LBUG0001
 //#if defined RTCW_SP
 //	vsprintf( msg,fmt,argptr );
 //#else
 //	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
 //#endif // RTCW_XX
 
-    msg[MAXPRINTMSG - 1] = '\0';
+	msg[MAXPRINTMSG - 1] = '\0';
 
 #if defined RTCW_SP
-    vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
+	vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #else
 	Q_vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #endif // RTCW_XX
-//BBi
+// BBi
 
 #if !defined RTCW_ET
 	va_end( argptr );
@@ -329,9 +329,9 @@ int QDECL Com_VPrintf( const char *fmt, va_list argptr ) {
 }
 
 #if defined RTCW_ET
-//BBi
+// BBi
 //int QDECL Com_VPrintf( const char *fmt, va_list argptr ) _attribute( ( format( printf,1,0 ) ) );
-//BBi
+// BBi
 
 void QDECL Com_Printf( const char *fmt, ... ) {
 	va_list argptr;
@@ -341,9 +341,9 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 	va_end( argptr );
 }
 
-//BBi
+// BBi
 //void QDECL Com_Printf( const char *fmt, ... ) _attribute( ( format( printf,1,2 ) ) );
-//BBi
+// BBi
 #endif // RTCW_XX
 
 
@@ -369,21 +369,21 @@ void QDECL Com_DPrintf( const char *fmt, ... ) {
 
 	va_start( argptr,fmt );
 
-//BBi See #LBUG0001
+// BBi See #LBUG0001
 //#if defined RTCW_SP
 //	vsprintf( msg,fmt,argptr );
 //#else
 //	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
 //#endif // RTCW_XX
 
-    msg[MAXPRINTMSG - 1] = '\0';
+	msg[MAXPRINTMSG - 1] = '\0';
 
 #if defined RTCW_SP
-    vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
+	vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #else
-    Q_vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
+	Q_vsnprintf (msg, MAXPRINTMSG - 1, fmt, argptr);
 #endif // RTCW_XX
-//BBi
+// BBi
 
 	va_end( argptr );
 
@@ -1074,10 +1074,10 @@ void Z_Free( void *ptr ) {
 
 #if defined RTCW_SP
 
-    //BBi
+	// BBi
 	//free( ptr );
-    delete [] static_cast<byte*> (ptr);
-    //BBi
+	delete [] static_cast<byte*> (ptr);
+	// BBi
 
 #else
 	memblock_t  *block, *other;
@@ -1154,10 +1154,10 @@ Z_Malloc
 */
 void *Z_Malloc( int size ) {
 
-    //BBi
+	// BBi
 	//void *buf = malloc( size );
-    byte* buf = new byte[size];
-    //BBi
+	byte* buf = new byte[size];
+	// BBi
 
 	Com_Memset( buf, 0, size );
 	return buf;
@@ -1964,19 +1964,19 @@ void Com_InitHunkMemory( void ) {
 		s_hunkTotal = cv->integer * 1024 * 1024;
 	}
 
-    //BBi
+	// BBi
 	//s_hunkData = static_cast<byte*> (malloc( s_hunkTotal + 31 ));
-    s_hunkData = new byte[s_hunkTotal];
-    //BBi
+	s_hunkData = new byte[s_hunkTotal];
+	// BBi
 
 	if ( !s_hunkData ) {
 		Com_Error( ERR_FATAL, "Hunk data failed to allocate %i megs", s_hunkTotal / ( 1024 * 1024 ) );
 	}
 
-    //BBi
+	// BBi
 	//// cacheline align
 	//s_hunkData = ( byte * )( ( (int)s_hunkData + 31 ) & ~31 );
-    //BBi
+	// BBi
 
 	Hunk_Clear();
 
@@ -2610,9 +2610,9 @@ extern qboolean consoleButtonWasPressed;
 #endif // RTCW_XX
 
 int Com_EventLoop( void ) {
-    // BBi
-    SDL_PumpEvents();
-    // BBi
+	// BBi
+	SDL_PumpEvents();
+	// BBi
 
 	sysEvent_t ev;
 	netadr_t evFrom;
@@ -2804,7 +2804,7 @@ static void Com_Crash_f( void ) {
 #if defined RTCW_ET
 void Com_CPUSpeed_f()
 {
-    Com_Printf(S_COLOR_YELLOW "Command %s deprecated.\n", "cpuspeed");
+	Com_Printf(S_COLOR_YELLOW "Command %s deprecated.\n", "cpuspeed");
 }
 #endif // RTCW_XX
 
@@ -2943,27 +2943,27 @@ static void Com_WriteCDKey( const char *filename, const char *ikey ) {
 
 void Com_SetRecommended(bool restart_video)
 {
-    cvar_t* r_highQualityVideo = NULL;
+	cvar_t* r_highQualityVideo = NULL;
 
-    r_highQualityVideo = Cvar_Get("r_highQualityVideo", "1", CVAR_ARCHIVE);
+	r_highQualityVideo = Cvar_Get("r_highQualityVideo", "1", CVAR_ARCHIVE);
 
 #if !defined RTCW_ET
-    Cbuf_AddText("exec highVidhighCPU.cfg\n");
+	Cbuf_AddText("exec highVidhighCPU.cfg\n");
 
-    // (SA) set the cvar so the menu will reflect this on first run
-    Cvar_Set("ui_glCustom", "999"); // 'recommended'
+	// (SA) set the cvar so the menu will reflect this on first run
+	Cvar_Set("ui_glCustom", "999"); // 'recommended'
 
 #if defined RTCW_SP
-    if (restart_video)
-        Cbuf_AddText("vid_restart\n");
+	if (restart_video)
+		Cbuf_AddText("vid_restart\n");
 #endif // RTCW_XX
 #else
-    cvar_t* com_recommended = NULL;
+	cvar_t* com_recommended = NULL;
 
-    com_recommended = Cvar_Get("com_recommended", "-1", CVAR_ARCHIVE);
+	com_recommended = Cvar_Get("com_recommended", "-1", CVAR_ARCHIVE);
 
-    Cbuf_AddText("exec preset_high.cfg\n");
-    Cvar_Set("com_recommended", "0");
+	Cbuf_AddText("exec preset_high.cfg\n");
+	Cvar_Set("com_recommended", "0");
 #endif // RTCW_XX
 }
 
@@ -2976,7 +2976,7 @@ gameInfo_t com_gameInfo;
 
 void Com_GetGameInfo() {
 	char    *f;
-    const char* buf;
+	const char* buf;
 	char    *token;
 
 	memset( &com_gameInfo, 0, sizeof( com_gameInfo ) );
@@ -3149,10 +3149,10 @@ void Com_Init( char *commandLine ) {
 	volatile qboolean safeMode = qtrue;
 #endif // RTCW_XX
 
-    //BBi
+	// BBi
 	//Com_Printf( "%s %s %s\n", Q3_VERSION, CPUSTRING, __DATE__ );
-    Com_Printf("%s %s %s\n", RTCW_VERSION, SDL_GetPlatform(), __DATE__);
-    //BBi
+	Com_Printf("%s %s %s\n", RTCW_VERSION, SDL_GetPlatform(), __DATE__);
+	// BBi
 
 	if ( setjmp( abortframe ) ) {
 		Sys_Error( "Error during initialization" );
@@ -3171,9 +3171,9 @@ void Com_Init( char *commandLine ) {
 	// cvar and command buffer management
 	Com_ParseCommandLine( commandLine );
 
-    //BBi
+	// BBi
 	//Swap_Init();
-    //BBi
+	// BBi
 
 	Cbuf_Init();
 
@@ -3432,10 +3432,10 @@ void Com_Init( char *commandLine ) {
 	Cmd_AddCommand( "changeVectors", MSG_ReportChangeVectors_f );
 	Cmd_AddCommand( "writeconfig", Com_WriteConfig_f );
 
-    //BBi
+	// BBi
 	//s = va( "%s %s %s", Q3_VERSION, CPUSTRING, __DATE__ );
-    s = va("%s %s %s", RTCW_VERSION, SDL_GetPlatform(), __DATE__);
-    //BBi
+	s = va("%s %s %s", RTCW_VERSION, SDL_GetPlatform(), __DATE__);
+	// BBi
 
 	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
 
@@ -3491,7 +3491,7 @@ void Com_Init( char *commandLine ) {
 #else
 	// NERVE - SMF - force recommendedSet and don't do vid_restart if in safe mode
 	if ( !com_recommendedSet->integer && !safeMode ) {
-        Com_SetRecommended(false);
+		Com_SetRecommended(false);
 		Cbuf_ExecuteText( EXEC_APPEND, "vid_restart\n" );
 	}
 	Cvar_Set( "com_recommendedSet", "1" );

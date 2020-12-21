@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #if defined RTCW_MP
-    #define IDI_ICON1 (1)
+	#define IDI_ICON1 (1)
 #endif
 
 

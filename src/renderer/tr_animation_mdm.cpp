@@ -1514,19 +1514,19 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 	DBG_SHOWTIME
 
 	if ( r_bonesDebug->integer ) {
-        // BBi
-        int vertex_index = 0;
-        color4ub_t col_buf;
-        uint8_t* col;
-        const float* pos;
-        // BBi
+		// BBi
+		int vertex_index = 0;
+		color4ub_t col_buf;
+		uint8_t* col;
+		const float* pos;
+		// BBi
 
 		GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
 		if ( r_bonesDebug->integer < 3 || r_bonesDebug->integer == 5 || r_bonesDebug->integer == 8 || r_bonesDebug->integer == 9 ) {
-            // BBi
-            if (!glConfigEx.is_path_ogl_1_x ())
-                vertex_index = 0;
-            // BBi
+			// BBi
+			if (!glConfigEx.is_path_ogl_1_x ())
+				vertex_index = 0;
+			// BBi
 
 			// DEBUG: show the bones as a stick figure with axis at each bone
 			boneRefs = ( int * )( (byte *)surface + surface->ofsBoneReferences );
@@ -1535,115 +1535,115 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 
 				GL_Bind( tr.whiteImage );
 				if ( r_bonesDebug->integer != 9 ) {
-                    // BBi
-                    if (!glConfigEx.is_path_ogl_1_x ()) {
-                    } else {
-                    // BBi
+					// BBi
+					if (!glConfigEx.is_path_ogl_1_x ()) {
+					} else {
+					// BBi
 
 					glLineWidth( 1 );
 					glBegin( GL_LINES );
 
-                    // BBi
-                    }
-                    // BBi
+					// BBi
+					}
+					// BBi
 
 					for ( j = 0; j < 3; j++ ) {
 						VectorClear( vec );
 						vec[j] = 1;
 
-                        // BBi
-                        if (!glConfigEx.is_path_ogl_1_x ()) {
-                            col_buf[0] = static_cast<uint8_t> (255.0F * vec[0]);
-                            col_buf[1] = static_cast<uint8_t> (255.0F * vec[1]);
-                            col_buf[2] = static_cast<uint8_t> (255.0F * vec[2]);
-                            col_buf[3] = 255;
+						// BBi
+						if (!glConfigEx.is_path_ogl_1_x ()) {
+							col_buf[0] = static_cast<uint8_t> (255.0F * vec[0]);
+							col_buf[1] = static_cast<uint8_t> (255.0F * vec[1]);
+							col_buf[2] = static_cast<uint8_t> (255.0F * vec[2]);
+							col_buf[3] = 255;
 
-                            col = ogl_tess2.color[vertex_index];
-                            col[0] = col_buf[0];
-                            col[1] = col_buf[1];
-                            col[2] = col_buf[2];
-                            col[3] = col_buf[3];
+							col = ogl_tess2.color[vertex_index];
+							col[0] = col_buf[0];
+							col[1] = col_buf[1];
+							col[2] = col_buf[2];
+							col[3] = col_buf[3];
 
-                            pos = bonePtr->translation;
-                            ogl_tess2.position[vertex_index] = glm::vec4 (
-                                pos[0], pos[1], pos[2], 1.0F);
+							pos = bonePtr->translation;
+							ogl_tess2.position[vertex_index] = glm::vec4 (
+								pos[0], pos[1], pos[2], 1.0F);
 
-                            ++vertex_index;
-                        } else {
-                        // BBi
+							++vertex_index;
+						} else {
+						// BBi
 
 						glColor3fv( vec );
 						glVertex3fv( bonePtr->translation );
 
-                        // BBi
-                        }
-                        // BBi
+						// BBi
+						}
+						// BBi
 
 						VectorMA( bonePtr->translation, ( r_bonesDebug->integer == 8 ? 1.5 : 5 ), bonePtr->matrix[j], vec );
 
-                        // BBi
-                        if (!glConfigEx.is_path_ogl_1_x ()) {
-                            col = ogl_tess2.color[vertex_index];
-                            col[0] = col_buf[0];
-                            col[1] = col_buf[1];
-                            col[2] = col_buf[2];
-                            col[3] = col_buf[3];
+						// BBi
+						if (!glConfigEx.is_path_ogl_1_x ()) {
+							col = ogl_tess2.color[vertex_index];
+							col[0] = col_buf[0];
+							col[1] = col_buf[1];
+							col[2] = col_buf[2];
+							col[3] = col_buf[3];
 
-                            ogl_tess2.position[vertex_index] = glm::vec4 (
-                                vec[0], vec[1], vec[2], 1.0F);
+							ogl_tess2.position[vertex_index] = glm::vec4 (
+								vec[0], vec[1], vec[2], 1.0F);
 
-                            ++vertex_index;
-                        } else {
-                        // BBi
+							++vertex_index;
+						} else {
+						// BBi
 
 						glVertex3fv( vec );
 
-                        // BBi
-                        }
-                        // BBi
+						// BBi
+						}
+						// BBi
 					}
 
-                    // BBi
-                    if (glConfigEx.is_path_ogl_1_x ()) {
-                    // BBi
+					// BBi
+					if (glConfigEx.is_path_ogl_1_x ()) {
+					// BBi
 
 					glEnd();
 
-                    // BBi
-                    }
-                    // BBi
+					// BBi
+					}
+					// BBi
 				}
 
 				// connect to our parent if it's valid
 				if ( validBones[boneInfo[*boneRefs].parent] ) {
-                    // BBi
-                    if (!glConfigEx.is_path_ogl_1_x ()) {
-                        col = ogl_tess2.color[vertex_index];
-                        col[0] = 153;
-                        col[1] = 153;
-                        col[2] = 153;
-                        col[3] = 255;
+					// BBi
+					if (!glConfigEx.is_path_ogl_1_x ()) {
+						col = ogl_tess2.color[vertex_index];
+						col[0] = 153;
+						col[1] = 153;
+						col[2] = 153;
+						col[3] = 255;
 
-                        pos = bonePtr->translation;
-                        ogl_tess2.position[vertex_index] = glm::vec4 (
-                            pos[0], pos[1], pos[2], 1.0F);
+						pos = bonePtr->translation;
+						ogl_tess2.position[vertex_index] = glm::vec4 (
+							pos[0], pos[1], pos[2], 1.0F);
 
-                        ++vertex_index;
+						++vertex_index;
 
-                        //
-                        col = ogl_tess2.color[vertex_index];
-                        col[0] = 153;
-                        col[1] = 153;
-                        col[2] = 153;
-                        col[3] = 255;
+						//
+						col = ogl_tess2.color[vertex_index];
+						col[0] = 153;
+						col[1] = 153;
+						col[2] = 153;
+						col[3] = 255;
 
-                        pos = bones[boneInfo[*boneRefs].parent].translation;
-                        ogl_tess2.position[vertex_index] = glm::vec4 (
-                            pos[0], pos[1], pos[2], 1.0F);
+						pos = bones[boneInfo[*boneRefs].parent].translation;
+						ogl_tess2.position[vertex_index] = glm::vec4 (
+							pos[0], pos[1], pos[2], 1.0F);
 
-                        ++vertex_index;
-                    } else {
-                    // BBi
+						++vertex_index;
+					} else {
+					// BBi
 
 					glLineWidth( r_bonesDebug->integer == 8 ? 4 : 2 );
 					glBegin( GL_LINES );
@@ -1652,26 +1652,26 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 					glVertex3fv( bones[boneInfo[*boneRefs].parent].translation );
 					glEnd();
 
-                    // BBi
-                    }
-                    // BBi
+					// BBi
+					}
+					// BBi
 				}
 
-                // BBi
-                if (glConfigEx.is_path_ogl_1_x ()) {
-                // BBi
+				// BBi
+				if (glConfigEx.is_path_ogl_1_x ()) {
+				// BBi
 
 				glLineWidth( 1 );
 
-                // BBi
-                }
-                // BBi
+				// BBi
+				}
+				// BBi
 			}
 
-            // BBi
-            if (!glConfigEx.is_path_ogl_1_x ())
-                ogl_tess2_draw (GL_LINES, vertex_index, false, true);
-            // BBi
+			// BBi
+			if (!glConfigEx.is_path_ogl_1_x ())
+				ogl_tess2_draw (GL_LINES, vertex_index, false, true);
+			// BBi
 
 			if ( r_bonesDebug->integer == 8 ) {
 				// FIXME: Actually draw the whole skeleton
@@ -1695,31 +1695,31 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 
 					glEnable( GL_BLEND );
 
-                    // BBi
-                    if (!glConfigEx.is_path_ogl_1_x ()) {
-                        col = ogl_tess2.color[0];
-                        col[0] = 255;
-                        col[1] = 102;
-                        col[2] = 12;
-                        col[3] = 89;
+					// BBi
+					if (!glConfigEx.is_path_ogl_1_x ()) {
+						col = ogl_tess2.color[0];
+						col[0] = 255;
+						col[1] = 102;
+						col[2] = 12;
+						col[3] = 89;
 
-                        pos = bonePtr->translation;
-                        ogl_tess2.position[0] = glm::vec4 (
-                            pos[0], pos[1], pos[2], 1.0F);
+						pos = bonePtr->translation;
+						ogl_tess2.position[0] = glm::vec4 (
+							pos[0], pos[1], pos[2], 1.0F);
 
-                        //
-                        col = ogl_tess2.color[1];
-                        col[0] = 255;
-                        col[1] = 102;
-                        col[2] = 12;
-                        col[3] = 89;
+						//
+						col = ogl_tess2.color[1];
+						col[0] = 255;
+						col[1] = 102;
+						col[2] = 12;
+						col[3] = 89;
 
-                        ogl_tess2.position[1] = glm::vec4 (
-                            vec[0], vec[1], vec[2], 1.0F);
+						ogl_tess2.position[1] = glm::vec4 (
+							vec[0], vec[1], vec[2], 1.0F);
 
-                        ogl_tess2_draw (GL_LINES, 2, false, true);
-                    } else {
-                    // BBi
+						ogl_tess2_draw (GL_LINES, 2, false, true);
+					} else {
+					// BBi
 
 					glBegin( GL_LINES );
 					glColor4f( 1.f, .4f, .05f, .35f );
@@ -1727,9 +1727,9 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 					glVertex3fv( vec );
 					glEnd();
 
-                    // BBi
-                    }
-                    // BBi
+					// BBi
+					}
+					// BBi
 
 					glDisable( GL_BLEND );
 
@@ -1760,86 +1760,86 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 
 						GL_Bind( tr.whiteImage );
 
-                        // BBi
-                        if (!glConfigEx.is_path_ogl_1_x ()) {
-                            vertex_index = 0;
-                        } else {
-                        // BBi
+						// BBi
+						if (!glConfigEx.is_path_ogl_1_x ()) {
+							vertex_index = 0;
+						} else {
+						// BBi
 
 						glLineWidth( 2 );
 						glBegin( GL_LINES );
 
-                        // BBi
-                        }
-                        // BBi
+						// BBi
+						}
+						// BBi
 
 						for ( j = 0; j < 3; j++ ) {
 							VectorClear( vec );
 							vec[j] = 1;
 
-                            // BBi
-                            if (!glConfigEx.is_path_ogl_1_x ()) {
-                                col_buf[0] = static_cast<uint8_t> (255.0F * vec[0]);
-                                col_buf[1] = static_cast<uint8_t> (255.0F * vec[1]);
-                                col_buf[2] = static_cast<uint8_t> (255.0F * vec[2]);
-                                col_buf[0] = 255;
+							// BBi
+							if (!glConfigEx.is_path_ogl_1_x ()) {
+								col_buf[0] = static_cast<uint8_t> (255.0F * vec[0]);
+								col_buf[1] = static_cast<uint8_t> (255.0F * vec[1]);
+								col_buf[2] = static_cast<uint8_t> (255.0F * vec[2]);
+								col_buf[0] = 255;
 
-                                col = ogl_tess2.color[vertex_index];
-                                col[0] = col_buf[0];
-                                col[1] = col_buf[1];
-                                col[2] = col_buf[2];
-                                col[0] = col_buf[3];
+								col = ogl_tess2.color[vertex_index];
+								col[0] = col_buf[0];
+								col[1] = col_buf[1];
+								col[2] = col_buf[2];
+								col[0] = col_buf[3];
 
-                                pos = outTag.origin;
-                                ogl_tess2.position[vertex_index] = glm::vec4 (
-                                    pos[0], pos[1], pos[2], 1.0F);
+								pos = outTag.origin;
+								ogl_tess2.position[vertex_index] = glm::vec4 (
+									pos[0], pos[1], pos[2], 1.0F);
 
-                                ++vertex_index;
-                            } else {
-                            // BBi
+								++vertex_index;
+							} else {
+							// BBi
 
 							glColor3fv( vec );
 							glVertex3fv( outTag.origin );
 
-                            // BBi
-                            }
-                            // BBi
+							// BBi
+							}
+							// BBi
 
 							VectorMA( outTag.origin, 5, outTag.axis[j], vec );
 
-                            // BBi
-                            if (!glConfigEx.is_path_ogl_1_x ()) {
-                                col = ogl_tess2.color[vertex_index];
-                                col[0] = col_buf[0];
-                                col[1] = col_buf[1];
-                                col[2] = col_buf[2];
-                                col[0] = col_buf[3];
+							// BBi
+							if (!glConfigEx.is_path_ogl_1_x ()) {
+								col = ogl_tess2.color[vertex_index];
+								col[0] = col_buf[0];
+								col[1] = col_buf[1];
+								col[2] = col_buf[2];
+								col[0] = col_buf[3];
 
-                                ogl_tess2.position[vertex_index] = glm::vec4 (
-                                    vec[0], vec[1], vec[2], 1.0F);
+								ogl_tess2.position[vertex_index] = glm::vec4 (
+									vec[0], vec[1], vec[2], 1.0F);
 
-                                ++vertex_index;
-                            } else {
-                            // BBi
+								++vertex_index;
+							} else {
+							// BBi
 
 							glVertex3fv( vec );
 
-                            // BBi
-                            }
-                            // BBi
+							// BBi
+							}
+							// BBi
 						}
 
-                        // BBi
-                        if (!glConfigEx.is_path_ogl_1_x ()) {
-                            ogl_tess2_draw (GL_LINES, vertex_index, false, true);
-                        } else {
-                        // BBi
+						// BBi
+						if (!glConfigEx.is_path_ogl_1_x ()) {
+							ogl_tess2_draw (GL_LINES, vertex_index, false, true);
+						} else {
+						// BBi
 
 						glEnd();
 
-                        // BBi
-                        }
-                        // BBi
+						// BBi
+						}
+						// BBi
 
 						VectorSet( vec, 0.f, 0.f, 32.f );
 						VectorSubtract( outTag.origin, vec, diff );
@@ -1847,41 +1847,41 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 						vec[1] = vec[1] + diff[1] * 2;
 						vec[2] = vec[2] + diff[2] * 1.5;
 
-                        // BBi
-                        if (glConfigEx.is_path_ogl_1_x ()) {
-                        // BBi
+						// BBi
+						if (glConfigEx.is_path_ogl_1_x ()) {
+						// BBi
 
 						glLineWidth( 1 );
 
-                        // BBi
-                        }
-                        // BBi
+						// BBi
+						}
+						// BBi
 
 						glEnable( GL_BLEND );
 
-                        // BBi
-                        if (!glConfigEx.is_path_ogl_1_x ()) {
-                            col = ogl_tess2.color[0];
-                            col[0] = 255;
-                            col[1] = 102;
-                            col[2] = 12;
-                            col[3] = 89;
+						// BBi
+						if (!glConfigEx.is_path_ogl_1_x ()) {
+							col = ogl_tess2.color[0];
+							col[0] = 255;
+							col[1] = 102;
+							col[2] = 12;
+							col[3] = 89;
 
-                            pos = outTag.origin;
-                            ogl_tess2.position[0] = glm::vec4 (
-                                pos[0], pos[1], pos[2], 1.0F);
+							pos = outTag.origin;
+							ogl_tess2.position[0] = glm::vec4 (
+								pos[0], pos[1], pos[2], 1.0F);
 
-                            //
-                            col = ogl_tess2.color[1];
-                            col[0] = 255;
-                            col[1] = 102;
-                            col[2] = 12;
-                            col[3] = 89;
+							//
+							col = ogl_tess2.color[1];
+							col[0] = 255;
+							col[1] = 102;
+							col[2] = 12;
+							col[3] = 89;
 
-                            ogl_tess2.position[1] = glm::vec4 (
-                                vec[0], vec[1], vec[2], 1.0F);
-                        } else {
-                        // BBi
+							ogl_tess2.position[1] = glm::vec4 (
+								vec[0], vec[1], vec[2], 1.0F);
+						} else {
+						// BBi
 
 						glBegin( GL_LINES );
 						glColor4f( 1.f, .4f, .05f, .35f );
@@ -1890,9 +1890,9 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 						glEnd();
 						glDisable( GL_BLEND );
 
-                        // BBi
-                        }
-                        // BBi
+						// BBi
+						}
+						// BBi
 
 						R_DebugText( vec, 1.f, 1.f, 1.f, pTag->name, qfalse );  // qfalse, as there is no reason to set depthrange again
 
@@ -1912,107 +1912,107 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 
 			GL_Bind( tr.whiteImage );
 
-            // BBi
-            if (!glConfigEx.is_path_ogl_1_x ()) {
-                vertex_index = 0;
+			// BBi
+			if (!glConfigEx.is_path_ogl_1_x ()) {
+				vertex_index = 0;
 
-                col_buf[0] = 0;
-                col_buf[1] = 0;
-                col_buf[2] = 204;
-                col_buf[3] = 255;
-            } else {
-            // BBi
+				col_buf[0] = 0;
+				col_buf[1] = 0;
+				col_buf[2] = 204;
+				col_buf[3] = 255;
+			} else {
+			// BBi
 
 			glLineWidth( 1 );
 			glBegin( GL_LINES );
 			glColor3f( .0,.0,.8 );
 
-            // BBi
-            }
-            // BBi
+			// BBi
+			}
+			// BBi
 
 			pIndexes = reinterpret_cast<int*> (&tess.indexes[oldIndexes]);
 			for ( j = 0; j < render_indexes / 3; j++, pIndexes += 3 ) {
-                // BBi
-                if (!glConfigEx.is_path_ogl_1_x ()) {
-                    col = ogl_tess2.color[vertex_index];
-                    col[0] = col_buf[0];
-                    col[1] = col_buf[1];
-                    col[2] = col_buf[2];
-                    col[3] = col_buf[3];
+				// BBi
+				if (!glConfigEx.is_path_ogl_1_x ()) {
+					col = ogl_tess2.color[vertex_index];
+					col[0] = col_buf[0];
+					col[1] = col_buf[1];
+					col[2] = col_buf[2];
+					col[3] = col_buf[3];
 
-                    pos = tempVert + 4 * pIndexes[0];
-                    ogl_tess2.position[vertex_index] = glm::vec4 (
-                        pos[0], pos[1], pos[2], 1.0F);
+					pos = tempVert + 4 * pIndexes[0];
+					ogl_tess2.position[vertex_index] = glm::vec4 (
+						pos[0], pos[1], pos[2], 1.0F);
 
-                    ++vertex_index;
+					++vertex_index;
 
-                    //
-                    col = ogl_tess2.color[vertex_index];
-                    col[0] = col_buf[0];
-                    col[1] = col_buf[1];
-                    col[2] = col_buf[2];
-                    col[3] = col_buf[3];
+					//
+					col = ogl_tess2.color[vertex_index];
+					col[0] = col_buf[0];
+					col[1] = col_buf[1];
+					col[2] = col_buf[2];
+					col[3] = col_buf[3];
 
-                    pos = tempVert + 4 * pIndexes[1];
-                    ogl_tess2.position[vertex_index] = glm::vec4 (
-                        pos[0], pos[1], pos[2], 1.0F);
+					pos = tempVert + 4 * pIndexes[1];
+					ogl_tess2.position[vertex_index] = glm::vec4 (
+						pos[0], pos[1], pos[2], 1.0F);
 
-                    ++vertex_index;
+					++vertex_index;
 
-                    //
-                    col = ogl_tess2.color[vertex_index];
-                    col[0] = col_buf[0];
-                    col[1] = col_buf[1];
-                    col[2] = col_buf[2];
-                    col[3] = col_buf[3];
+					//
+					col = ogl_tess2.color[vertex_index];
+					col[0] = col_buf[0];
+					col[1] = col_buf[1];
+					col[2] = col_buf[2];
+					col[3] = col_buf[3];
 
-                    pos = tempVert + 4 * pIndexes[1];
-                    ogl_tess2.position[vertex_index] = glm::vec4 (
-                        pos[0], pos[1], pos[2], 1.0F);
+					pos = tempVert + 4 * pIndexes[1];
+					ogl_tess2.position[vertex_index] = glm::vec4 (
+						pos[0], pos[1], pos[2], 1.0F);
 
-                    ++vertex_index;
+					++vertex_index;
 
-                    //
-                    col = ogl_tess2.color[vertex_index];
-                    col[0] = col_buf[0];
-                    col[1] = col_buf[1];
-                    col[2] = col_buf[2];
-                    col[3] = col_buf[3];
+					//
+					col = ogl_tess2.color[vertex_index];
+					col[0] = col_buf[0];
+					col[1] = col_buf[1];
+					col[2] = col_buf[2];
+					col[3] = col_buf[3];
 
-                    pos = tempVert + 4 * pIndexes[2];
-                    ogl_tess2.position[vertex_index] = glm::vec4 (
-                        pos[0], pos[1], pos[2], 1.0F);
+					pos = tempVert + 4 * pIndexes[2];
+					ogl_tess2.position[vertex_index] = glm::vec4 (
+						pos[0], pos[1], pos[2], 1.0F);
 
-                    ++vertex_index;
+					++vertex_index;
 
-                    //
-                    col = ogl_tess2.color[vertex_index];
-                    col[0] = col_buf[0];
-                    col[1] = col_buf[1];
-                    col[2] = col_buf[2];
-                    col[3] = col_buf[3];
+					//
+					col = ogl_tess2.color[vertex_index];
+					col[0] = col_buf[0];
+					col[1] = col_buf[1];
+					col[2] = col_buf[2];
+					col[3] = col_buf[3];
 
-                    pos = tempVert + 4 * pIndexes[2];
-                    ogl_tess2.position[vertex_index] = glm::vec4 (
-                        pos[0], pos[1], pos[2], 1.0F);
+					pos = tempVert + 4 * pIndexes[2];
+					ogl_tess2.position[vertex_index] = glm::vec4 (
+						pos[0], pos[1], pos[2], 1.0F);
 
-                    ++vertex_index;
+					++vertex_index;
 
-                    //
-                    col = ogl_tess2.color[vertex_index];
-                    col[0] = col_buf[0];
-                    col[1] = col_buf[1];
-                    col[2] = col_buf[2];
-                    col[3] = col_buf[3];
+					//
+					col = ogl_tess2.color[vertex_index];
+					col[0] = col_buf[0];
+					col[1] = col_buf[1];
+					col[2] = col_buf[2];
+					col[3] = col_buf[3];
 
-                    pos = tempVert + 4 * pIndexes[0];
-                    ogl_tess2.position[vertex_index] = glm::vec4 (
-                        pos[0], pos[1], pos[2], 1.0F);
+					pos = tempVert + 4 * pIndexes[0];
+					ogl_tess2.position[vertex_index] = glm::vec4 (
+						pos[0], pos[1], pos[2], 1.0F);
 
-                    ++vertex_index;
-                } else {
-                // BBi
+					++vertex_index;
+				} else {
+				// BBi
 
 				glVertex3fv( tempVert + 4 * pIndexes[0] );
 				glVertex3fv( tempVert + 4 * pIndexes[1] );
@@ -2023,22 +2023,22 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 				glVertex3fv( tempVert + 4 * pIndexes[2] );
 				glVertex3fv( tempVert + 4 * pIndexes[0] );
 
-                // BBi
-                }
-                // BBi
+				// BBi
+				}
+				// BBi
 			}
 
-            // BBi
-            if (!glConfigEx.is_path_ogl_1_x ()) {
-                ogl_tess2_draw (GL_LINES, vertex_index, false, true);
-            } else {
-            // BBi
+			// BBi
+			if (!glConfigEx.is_path_ogl_1_x ()) {
+				ogl_tess2_draw (GL_LINES, vertex_index, false, true);
+			} else {
+			// BBi
 
 			glEnd();
 
-            // BBi
-            }
-            // BBi
+			// BBi
+			}
+			// BBi
 
 //----(SA)	track debug stats
 			if ( r_bonesDebug->integer == 4 ) {
@@ -2061,100 +2061,100 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 			GL_Bind( tr.whiteImage );
 			glPointSize( 5 );
 
-            // BBi
-            if (!glConfigEx.is_path_ogl_1_x ()) {
-                vertex_index = 0;
-                col_buf[3] = 255;
-            } else {
-            // BBi
+			// BBi
+			if (!glConfigEx.is_path_ogl_1_x ()) {
+				vertex_index = 0;
+				col_buf[3] = 255;
+			} else {
+			// BBi
 
 			glBegin( GL_POINTS );
 
-            // BBi
-            }
-            // BBi
+			// BBi
+			}
+			// BBi
 
 			for ( j = 0; j < render_count; j++, tempVert += 4 ) {
 				if ( v->numWeights > 1 ) {
 					if ( v->numWeights == 2 ) {
-                        // BBi
-                        if (!glConfigEx.is_path_ogl_1_x ()) {
-                            col_buf[0] = 102;
-                            col_buf[1] = 102;
-                            col_buf[2] = 0;
-                        } else {
-                        // BBi
+						// BBi
+						if (!glConfigEx.is_path_ogl_1_x ()) {
+							col_buf[0] = 102;
+							col_buf[1] = 102;
+							col_buf[2] = 0;
+						} else {
+						// BBi
 
 						glColor3f( .4f, .4f, 0.f );
 
-                        // BBi
-                        }
-                        // BBi
+						// BBi
+						}
+						// BBi
 					} else if ( v->numWeights == 3 ) {
-                        // BBi
-                        if (!glConfigEx.is_path_ogl_1_x ()) {
-                            col_buf[0] = 204;
-                            col_buf[1] = 102;
-                            col_buf[2] = 0;
-                        } else {
-                        // BBi
+						// BBi
+						if (!glConfigEx.is_path_ogl_1_x ()) {
+							col_buf[0] = 204;
+							col_buf[1] = 102;
+							col_buf[2] = 0;
+						} else {
+						// BBi
 
 						glColor3f( .8f, .4f, 0.f );
 
-                        // BBi
-                        }
-                        // BBi
+						// BBi
+						}
+						// BBi
 					} else {
-                        // BBi
-                        if (!glConfigEx.is_path_ogl_1_x ()) {
-                            col_buf[0] = 255;
-                            col_buf[1] = 102;
-                            col_buf[2] = 0;
-                        } else {
-                        // BBi
+						// BBi
+						if (!glConfigEx.is_path_ogl_1_x ()) {
+							col_buf[0] = 255;
+							col_buf[1] = 102;
+							col_buf[2] = 0;
+						} else {
+						// BBi
 
 						glColor3f( 1.f, .4f, 0.f );
 
-                        // BBi
-                        }
-                        // BBi
+						// BBi
+						}
+						// BBi
 					}
 
-                    // BBi
-                    if (!glConfigEx.is_path_ogl_1_x ()) {
-                        col = ogl_tess2.color[vertex_index];
-                        col[0] = col_buf[0];
-                        col[1] = col_buf[1];
-                        col[2] = col_buf[2];
-                        col[3] = col_buf[3];
+					// BBi
+					if (!glConfigEx.is_path_ogl_1_x ()) {
+						col = ogl_tess2.color[vertex_index];
+						col[0] = col_buf[0];
+						col[1] = col_buf[1];
+						col[2] = col_buf[2];
+						col[3] = col_buf[3];
 
-                        ogl_tess2.position[vertex_index] = glm::vec4 (
-                            tempVert[0], tempVert[1], tempVert[2], 1.0F);
+						ogl_tess2.position[vertex_index] = glm::vec4 (
+							tempVert[0], tempVert[1], tempVert[2], 1.0F);
 
-                        ++vertex_index;
-                    } else {
-                    // BBi
+						++vertex_index;
+					} else {
+					// BBi
 
 					glVertex3fv( tempVert );
 
-                    // BBi
-                    }
-                    // BBi
+					// BBi
+					}
+					// BBi
 				}
 				v = (mdmVertex_t *)&v->weights[v->numWeights];
 			}
 
-            // BBi
-            if (!glConfigEx.is_path_ogl_1_x ()) {
-                ogl_tess2_draw (GL_POINTS, vertex_index, false, true);
-            } else {
-            // BBi
+			// BBi
+			if (!glConfigEx.is_path_ogl_1_x ()) {
+				ogl_tess2_draw (GL_POINTS, vertex_index, false, true);
+			} else {
+			// BBi
 
 			glEnd();
 
-            // BBi
-            }
-            // BBi
+			// BBi
+			}
+			// BBi
 		}
 	}
 

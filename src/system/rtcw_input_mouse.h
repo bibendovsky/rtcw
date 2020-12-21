@@ -2,9 +2,9 @@
 ===========================================================================
 
 Return to Castle Wolfenstein single player GPL Source Code
-Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Return to Castle Wolfenstein single player GPL Source Code (?RTCW SP Source Code?).  
+This file is part of the Return to Castle Wolfenstein single player GPL Source Code (?RTCW SP Source Code?).
 
 RTCW SP Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-#ifndef RTCW_INPUT_MOUSE_H
-#define RTCW_INPUT_MOUSE_H
+#ifndef RTCW_INPUT_MOUSE_INCLUDED
+#define RTCW_INPUT_MOUSE_INCLUDED
 
 
 #include <bitset>
@@ -41,51 +41,72 @@ If you have questions concerning this license or the applicable additional terms
 extern cvar_t* in_mouse;
 
 
-namespace rtcw {
-namespace input {
+namespace rtcw
+{
+namespace input
+{
 
 
-class Mouse {
+class Mouse
+{
 public:
-    Mouse();
-    ~Mouse();
+	Mouse();
+
+	~Mouse();
 
 
-    bool initialize();
-    void uninitialize(bool quiet = false);
+	bool initialize();
 
-    void handle_event(const SDL_Event& e);
+	void uninitialize(
+		bool quiet = false);
 
-    void activate(bool value);
-    void update();
-    void reset_state();
+	void handle_event(
+		const SDL_Event& e);
 
-    static void register_cvars();
+	void activate(
+		bool value);
+
+	void update();
+
+	void reset_state();
+
+	static void register_cvars();
 
 
 private:
-    static const int MAX_BUTTONS_COUNT = 5;
+	static constexpr auto MAX_BUTTONS_COUNT = 5;
 
 
-    bool is_initialized_;
-    bool is_activated_;
-    std::bitset<MAX_BUTTONS_COUNT> buttons_states_;
-
-    void handle_button_event(const SDL_MouseButtonEvent& e);
-    void handle_motion_event(const SDL_MouseMotionEvent& e);
-    void handle_wheel_event(const SDL_MouseWheelEvent& e);
-
-    static int get_game_button_by_sys_button(int sys_button);
-    static int get_state_index_by_sys_button(int sys_button);
-    static int get_game_button_by_state_index(int state_index);
-
-    Mouse(const Mouse& that);
-    Mouse& operator=(const Mouse& that);
-}; // class Mouse
+	using ButtonsStates = std::bitset<MAX_BUTTONS_COUNT>;
 
 
-} // namespace input
-} // namespace rtcw
+	bool is_initialized_{};
+	bool is_activated_{};
+	ButtonsStates buttons_states_{};
 
 
-#endif // RTCW_INPUT_MOUSE_H
+	void handle_button_event(
+		const SDL_MouseButtonEvent& e);
+
+	void handle_motion_event(
+		const SDL_MouseMotionEvent& e);
+
+	void handle_wheel_event(
+		const SDL_MouseWheelEvent& e);
+
+	static int get_game_button_by_sys_button(
+		int sys_button);
+
+	static int get_state_index_by_sys_button(
+		int sys_button);
+
+	static int get_game_button_by_state_index(
+		int state_index);
+}; // Mouse
+
+
+} // input
+} // rtcw
+
+
+#endif // !RTCW_INPUT_MOUSE_INCLUDED

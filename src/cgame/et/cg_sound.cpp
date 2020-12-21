@@ -264,7 +264,7 @@ CG_SoundParseSounds
 */
 static void CG_SoundParseSounds( char *filename, const char *buffer ) {
 	char *token;
-    const char** text;
+	const char** text;
 	int s;
 	long hash;
 	soundScript_t sound;                // the current sound being read

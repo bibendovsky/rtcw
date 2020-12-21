@@ -148,14 +148,14 @@ void MSG_ReportChangeVectors_f( void );
 
 //============================================================================
 
-//BBi
+// BBi
 //extern short   BigShort( short l );
 //extern short   LittleShort( short l );
 //extern int     BigLong( int l );
 //extern int     LittleLong( int l );
 //extern float   BigFloat( float l );
 //extern float   LittleFloat( float l );
-//BBi
+// BBi
 
 
 /*
@@ -463,13 +463,13 @@ typedef enum {
 
 void    VM_Init( void );
 
-//BBi
+// BBi
 //vm_t    *VM_Create( const char *module, int ( *systemCalls )( int * ),
 //					vmInterpret_t interpret );
 vm_t* VM_Create (
-    const char* module,
-    intptr_t (*systemCalls) (intptr_t*));
-//BBi
+	const char* module,
+	intptr_t (*systemCalls) (intptr_t*));
+// BBi
 
 // module should be bare: "cgame", not "cgame.dll" or "vm/cgame.qvm"
 
@@ -477,26 +477,26 @@ void    VM_Free( vm_t *vm );
 void    VM_Clear( void );
 vm_t    *VM_Restart( vm_t *vm );
 
-//BBi
+// BBi
 //int QDECL VM_Call( vm_t *vm, int callNum, ... );
 intptr_t QDECL VM_Call (
-    vm_t* vm,
-    intptr_t callNum,
-    ...);
-//BBi
+	vm_t* vm,
+	intptr_t callNum,
+	...);
+// BBi
 
 void    VM_Debug( int level );
 
-//BBi
+// BBi
 //void    *VM_ArgPtr( int intValue );
 void* VM_ArgPtr (
-    intptr_t intValue);
+	intptr_t intValue);
 
 //void    *VM_ExplicitArgPtr( vm_t *vm, int intValue );
 void* VM_ExplicitArgPtr (
-    vm_t* vm,
-    intptr_t intValue);
-//BBi
+	vm_t* vm,
+	intptr_t intValue);
+// BBi
 
 /*
 ==============================================================
@@ -1306,17 +1306,17 @@ bool Sys_IsNumLockDown();
 #endif // RTCW_XX
 
 const char* Sys_GetDLLName(
-    const char* name);
+	const char* name);
 
 
 typedef intptr_t (QDECL* DllEntryPoint)(intptr_t, ...);
 
 // fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
 void* QDECL Sys_LoadDll(
-    const char* name,
-    char* fqpath,
-    DllEntryPoint* entryPoint,
-    DllEntryPoint systemcalls);
+	const char* name,
+	char* fqpath,
+	DllEntryPoint* entryPoint,
+	DllEntryPoint systemcalls);
 
 
 void    Sys_UnloadDll( void *dllHandle );

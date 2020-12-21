@@ -938,8 +938,8 @@ CG_ParseWeaponConfig
 ======================
 */
 static qboolean CG_ParseWeaponConfig( const char *filename, weaponInfo_t *wi ) {
-    const char* text_p;
-    const char* prev;
+	const char* text_p;
+	const char* prev;
 	int len;
 	int i;
 	float fps;
@@ -5805,10 +5805,10 @@ void CG_VenomFire( entityState_t *es, qboolean fullmode ) {
 	VectorScale( v, 32, v );
 	VectorAdd( es->pos.trBase, v, v );
 
-    //BBi
+	// BBi
 	//if ( cgs.glconfig.hardwareType != GLHW_RAGEPRO ) {
 	//	// ragepro can't alpha fade, so don't even bother with smoke
-    //BBi
+	// BBi
 		vec3_t up;
 
 		contents = trap_CM_PointContents( es->pos.trBase, 0 );
@@ -5822,9 +5822,9 @@ void CG_VenomFire( entityState_t *es, qboolean fullmode ) {
 //				CG_SmokePuff( v, up, 4, 1, 1, 1, 0.33, 700, cg.time, 0, cgs.media.shotgunSmokePuffShader );
 		}
 
-    //BBi
+	// BBi
 	//}
-    //BBi
+	// BBi
 
 	if ( fullmode ) {
 		CG_VenomPattern( es->pos.trBase, es->origin2, es->otherEntityNum );

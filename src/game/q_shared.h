@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-//BBi
+// BBi
 #include <cstddef>
 #include <stdint.h>
 
@@ -42,14 +42,14 @@ If you have questions concerning this license or the applicable additional terms
 #include "rtcw_endian.h"
 
 #include "rtcw_c.h"
-//BBi
+// BBi
 
-//BBi
+// BBi
 //#if defined RTCW_SP
-////BBi
+//// BBi
 ////#define Q3_VERSION      "Wolf 1.41"
 //#define Q3_VERSION "RTCW-SP 0.99b (1.41)"
-////BBi
+//// BBi
 //
 //// ver 1.0.0	- release
 //// ver 1.0.1	- post-release work
@@ -58,10 +58,10 @@ If you have questions concerning this license or the applicable additional terms
 //// ver 1.2.b5	- Mac code merge in
 //// ver 1.3		- patch 2 (02/13/02)
 //#elif defined RTCW_MP
-////BBi
+//// BBi
 ////#define Q3_VERSION      "Wolf 1.41b-MP"
 //#define Q3_VERSION "RTCW-MP 0.99b (1.41b)"
-////BBi
+//// BBi
 //
 //// 1.41b-MP: fix autodl sploit
 //// 1.4-MP : (== 1.34)
@@ -72,15 +72,15 @@ If you have questions concerning this license or the applicable additional terms
 ////#define PRE_RELEASE_DEMO
 //
 //#ifndef PRE_RELEASE_DEMO
-////BBi
+//// BBi
 ////#define Q3_VERSION      "ET 2.60d"
 //#define Q3_VERSION "RTCW-ET 0.99b (2.60d)"
-////BBi
+//// BBi
 //#else
-////BBi
+//// BBi
 ////#define Q3_VERSION      "ET 2.32"
 //#define Q3_VERSION "RTCW-ET 0.99b (2.32)"
-////BBi
+//// BBi
 //#endif // PRE_RELEASE_DEMO
 //// 2.60d: Mac OSX universal binaries
 //// 2.60c: Mac OSX universal binaries
@@ -116,7 +116,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #define CONFIG_NAME "etconfig.cfg"
 #endif // RTCW_XX
-//BBi
+// BBi
 
 #define NEW_ANIMS
 #define MAX_TEAMNAME    32
@@ -126,13 +126,13 @@ If you have questions concerning this license or the applicable additional terms
 //#define PRE_RELEASE_DEMO
 #endif // RTCW_XX
 
-//BBi
+// BBi
 //#if defined( ppc ) || defined( __ppc ) || defined( __ppc__ ) || defined( __POWERPC__ )
 //#define idppc 1
 //#endif
-//BBi
+// BBi
 
-//BBi
+// BBi
 ///**********************************************************************
 //  VM Considerations
 //
@@ -186,7 +186,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <sys/stat.h> // rain
 #include <float.h>
 #endif // RTCW_XX
-//BBi
+// BBi
 
 
 // this is the define for determining if we have an asm version of a C function
@@ -210,7 +210,7 @@ If you have questions concerning this license or the applicable additional terms
 #define PATH_SEP '\\'
 
 #else
-    #error Unknown platform
+	#error Unknown platform
 #endif
 
 typedef uint8_t byte;
@@ -583,7 +583,7 @@ struct cplane_s;
 extern vec3_t vec3_origin;
 extern vec3_t axisDefault[3];
 
-//BBi
+// BBi
 //#define nanmask ( 255 << 23 )
 //
 //#define IS_NAN( x ) ( ( ( *(int *)&x ) & nanmask ) == nanmask )
@@ -600,7 +600,7 @@ extern vec3_t axisDefault[3];
 //#define CHECK_NAN_VEC
 //#endif
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 float Q_fabs( float f );
 float Q_rsqrt( float f );       // reciprocal square root
@@ -646,7 +646,7 @@ void ByteToDir( int b, vec3_t dir );
 
 #endif
 
-//BBi
+// BBi
 //#ifdef __LCC__
 //#ifdef VectorCopy
 //#undef VectorCopy
@@ -657,7 +657,7 @@ void ByteToDir( int b, vec3_t dir );
 //#define VectorCopy( a,b ) * (vec3struct_t *)b = *(vec3struct_t *)a;
 //#endif
 //#endif
-//BBi
+// BBi
 
 #define VectorClear( a )              ( ( a )[0] = ( a )[1] = ( a )[2] = 0 )
 #define VectorNegate( a,b )           ( ( b )[0] = -( a )[0],( b )[1] = -( a )[1],( b )[2] = -( a )[2] )
@@ -813,7 +813,7 @@ char    *COM_Parse( const char **data_p );
 char    *COM_ParseExt( const char **data_p, qboolean allowLineBreak );
 int     COM_Compress( char *data_p );
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //void    COM_ParseError( char *format, ... );
 //void    COM_ParseWarning( char *format, ... );
@@ -824,19 +824,19 @@ int     COM_Compress( char *data_p );
 
 void COM_ParseError (const char* format, ...);
 void COM_ParseWarning (const char* format, ...);
-//BBi
+// BBi
 
 #if defined RTCW_ET
 int Com_ParseInfos( const char *buf, int max, char infos[][MAX_INFO_STRING] );
 #endif // RTCW_XX
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //// TTimo
 //#elif defined RTCW_MP
 ////int		COM_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] );
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 qboolean COM_BitCheck( const int array[], int bitNum );
 void COM_BitSet( int array[], int bitNum );
@@ -884,7 +884,7 @@ void Parse1DMatrix( const char **buf_p, int x, float *m );
 void Parse2DMatrix( const char **buf_p, int y, int x, float *m );
 void Parse3DMatrix( const char **buf_p, int z, int y, int x, float *m );
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... );
 //#else
@@ -892,7 +892,7 @@ void Parse3DMatrix( const char **buf_p, int z, int y, int x, float *m );
 //#endif // RTCW_XX
 
 void QDECL Com_sprintf (char* dest, int size, const char* fmt, ...);
-//BBi
+// BBi
 
 // mode parm for FS_FOpenFile
 typedef enum {
@@ -972,9 +972,9 @@ char *Q_CleanDirName( char *dirname );
 int Q_vsnprintf( char *dest, int size, const char *fmt, va_list argptr );
 #endif // RTCW_XX
 
-//BBi
+// BBi
 #if 0
-//BBi
+// BBi
 ////=============================================
 //
 //// 64-bit integers for global rankings interface
@@ -992,7 +992,7 @@ int Q_vsnprintf( char *dest, int size, const char *fmt, va_list argptr );
 //} qint64;
 //
 ////=============================================
-//BBi
+// BBi
 
 #if !defined RTCW_ET
 short   BigShort( short l );
@@ -1006,13 +1006,13 @@ int     BigLong( int l );
 
 int     LittleLong( int l );
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //qint64  BigLong64( qint64 l );
 //#endif // RTCW_XX
 //
 //qint64  LittleLong64( qint64 l );
-//BBi
+// BBi
 
 #if !defined RTCW_ET
 float   BigFloat( float l );
@@ -1024,18 +1024,18 @@ float   LittleFloat( float l );
 short   BigShort( short l );
 int BigLong( int l );
 
-//BBi
+// BBi
 //qint64  BigLong64( qint64 l );
-//BBi
+// BBi
 
 float   BigFloat( float l );
 #endif // RTCW_XX
 
 void    Swap_Init( void );
 #endif // 0
-//BBi
+// BBi
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //char    * QDECL va( char *format, ... );
 //#else
@@ -1043,7 +1043,7 @@ void    Swap_Init( void );
 //#endif // RTCW_XX
 
 char* QDECL va (const char* format, ...);
-//BBi
+// BBi
 
 float   *tv( float x, float y, float z );
 
@@ -1062,7 +1062,7 @@ void Info_NextPair( const char **s, char *key, char *value );
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //void QDECL Com_Error( int level, const char *error, ... );
 //void QDECL Com_Printf( const char *msg, ... );
@@ -1073,7 +1073,7 @@ void Info_NextPair( const char **s, char *key, char *value );
 
 void QDECL Com_Error (int level, const char* error, ...);
 void QDECL Com_Printf (const char* msg, ...);
-//BBi
+// BBi
 
 #if !defined RTCW_MP
 

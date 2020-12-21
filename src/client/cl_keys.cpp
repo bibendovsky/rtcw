@@ -831,7 +831,7 @@ void Field_Paste( field_t *edit ) {
 		Field_CharEvent( edit, cbd[i] );
 	}
 
-    SDL_free(cbd);
+	SDL_free(cbd);
 }
 
 /*
@@ -1579,8 +1579,8 @@ int Key_StringToKeynum( const char *str ) {
 		return -1;
 	}
 	if ( !str[1] ) {
-        // BBi
-        char result[2] = { str[0], '\0' };
+		// BBi
+		char result[2] = { str[0], '\0' };
 
 #if defined RTCW_ET
 		// Always lowercase
@@ -1588,7 +1588,7 @@ int Key_StringToKeynum( const char *str ) {
 #if 0
 		Q_strlwr( str );
 #else
-        Q_strlwr(result);
+		Q_strlwr(result);
 #endif // 0
 #endif // RTCW_XX
 
@@ -1596,7 +1596,7 @@ int Key_StringToKeynum( const char *str ) {
 #if 0
 		return str[0];
 #else
-        return result[0];
+		return result[0];
 #endif // 0
 	}
 

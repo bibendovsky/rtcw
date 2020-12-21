@@ -546,16 +546,16 @@ void heal_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	}
 
 	for ( i = 0; i < clientcount; i++ ) {
-        //BBi
+		// BBi
 		//healvalue = min( touchClients[i]->client->ps.stats[STAT_MAX_HEALTH] - touchClients[i]->health, self->damage );
-        healvalue = std::min (touchClients[i]->client->ps.stats[STAT_MAX_HEALTH] - touchClients[i]->health, self->damage);
-        //BBi
+		healvalue = std::min (touchClients[i]->client->ps.stats[STAT_MAX_HEALTH] - touchClients[i]->health, self->damage);
+		// BBi
 
 		if ( self->health != -9999 ) {
-            //BBi
+			// BBi
 			//healvalue = min( healvalue, self->health );
-            healvalue = std::min (healvalue, self->health);
-            //BBi
+			healvalue = std::min (healvalue, self->health);
+			// BBi
 		}
 		if ( healvalue <= 0 ) {
 			continue;
@@ -741,11 +741,11 @@ void ammo_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	if ( self->health == -9999 ) {
 		count = clientcount;
 	} else {
-        //BBi
+		// BBi
 		//count = min( clientcount, self->health / (float)self->damage );
-        count = static_cast<int> (std::min (static_cast<float> (clientcount),
-            self->health / static_cast<float> (self->damage)));
-        //BBi
+		count = static_cast<int> (std::min (static_cast<float> (clientcount),
+			self->health / static_cast<float> (self->damage)));
+		// BBi
 	}
 
 	for ( i = 0; i < count; i++ ) {

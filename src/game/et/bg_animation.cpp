@@ -886,8 +886,8 @@ void BG_AnimParseAnimScript( animModelInfo_t *animModelInfo, animScriptData_t *s
 
 	// FIXME: change this to use the botlib parser
 
-    const char* text_p;
-    char* token;
+	const char* text_p;
+	char* token;
 	animScriptParseMode_t parseMode;
 	animScript_t            *currentScript;
 	animScriptItem_t tempScriptItem;

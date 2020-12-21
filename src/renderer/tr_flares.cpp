@@ -82,7 +82,7 @@ typedef struct flare_s {
 //#else
 //	qboolean cgvisible;             // for coronas, the client determines current visibility, but it's still inserted so it will fade out properly
 //#endif // RTCW_XX
-    int flags;
+	int flags;
 // BBi
 
 #if defined RTCW_SP
@@ -140,7 +140,7 @@ This is called at surface tesselation time
 //void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float scale, vec3_t normal, int id, qboolean cgvisible ) { //----(SA)	added scale. added id.  added visible
 //#endif // RTCW_XX
 void RB_AddFlare (void* surface, int fogNum, vec3_t point, vec3_t color,
-    float scale, vec3_t normal, int id, int flags)
+	float scale, vec3_t normal, int id, int flags)
 {
 // BBi
 	int i;
@@ -162,8 +162,8 @@ void RB_AddFlare (void* surface, int fogNum, vec3_t point, vec3_t color,
 //	R_TransformModelToClip( point, backEnd.orientation.modelMatrix,
 //							backEnd.viewParms.projectionMatrix, eye, clip );
 //#endif // RTCW_XX
-    R_TransformModelToClip (point, backEnd.orientation.modelMatrix,
-        backEnd.viewParms.projectionMatrix, eye, clip);
+	R_TransformModelToClip (point, backEnd.orientation.modelMatrix,
+		backEnd.viewParms.projectionMatrix, eye, clip);
 // BBi
 
 	//ri.Printf(PRINT_ALL, "src:  %f  %f  %f  \n", point[0], point[1], point[2]);
@@ -220,7 +220,7 @@ void RB_AddFlare (void* surface, int fogNum, vec3_t point, vec3_t color,
 //#else
 //	f->cgvisible = cgvisible;
 //#endif // RTCW_XX
-    f->flags = flags;
+	f->flags = flags;
 // BBi
 
 	if ( f->addedFrame != backEnd.viewParms.frameCount - 1 ) {
@@ -245,7 +245,7 @@ void RB_AddFlare (void* surface, int fogNum, vec3_t point, vec3_t color,
 //#else
 //		VectorSubtract( backEnd.viewParms.orientation.origin, point, local );
 //#endif // RTCW_XX
-        VectorSubtract (backEnd.viewParms.orientation.origin, point, local);
+		VectorSubtract (backEnd.viewParms.orientation.origin, point, local);
 // BBi
 
 		VectorNormalizeFast( local );
@@ -344,8 +344,8 @@ void RB_AddCoronaFlares( void ) {
 //#else
 //		RB_AddFlare( (void *)cor, j, cor->origin, cor->color, cor->scale, NULL, cor->id, cor->visible );
 //#endif // RTCW_XX
-        RB_AddFlare (cor, j, cor->origin, cor->color, cor->scale, NULL,
-            cor->id, cor->flags);
+		RB_AddFlare (cor, j, cor->origin, cor->color, cor->scale, NULL,
+			cor->id, cor->flags);
 // BBi
 	}
 }
@@ -396,7 +396,7 @@ void RB_TestFlare( flare_t *f ) {
 //#else
 //	visible = f->cgvisible;
 //#endif // RTCW_XX
-    visible = f->flags & 1;
+	visible = f->flags & 1;
 // BBi
 
 	if ( visible ) {
@@ -586,24 +586,24 @@ void RB_RenderFlares( void ) {
 		glDisable( GL_CLIP_PLANE0 );
 	}
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_model_view_stack.push_and_set_identity ();
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_model_view_stack.push_and_set_identity ();
 
-        ogl_projection_stack.push_and_set (glm::ortho (
-            static_cast<float> (backEnd.viewParms.viewportX),
-            static_cast<float> (backEnd.viewParms.viewportX +
-                backEnd.viewParms.viewportWidth),
-            static_cast<float> (backEnd.viewParms.viewportY),
-            static_cast<float> (backEnd.viewParms.viewportY +
-                backEnd.viewParms.viewportHeight),
-            -99999.0F, 99999.0F));
+		ogl_projection_stack.push_and_set (glm::ortho (
+			static_cast<float> (backEnd.viewParms.viewportX),
+			static_cast<float> (backEnd.viewParms.viewportX +
+				backEnd.viewParms.viewportWidth),
+			static_cast<float> (backEnd.viewParms.viewportY),
+			static_cast<float> (backEnd.viewParms.viewportY +
+				backEnd.viewParms.viewportHeight),
+			-99999.0F, 99999.0F));
 
-        ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
-        ogl_tess_state.projection.set (ogl_projection_stack.get_current ());
-        ogl_tess_state.commit_changes ();
-    } else {
-    // BBi
+		ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
+		ogl_tess_state.projection.set (ogl_projection_stack.get_current ());
+		ogl_tess_state.commit_changes ();
+	} else {
+	// BBi
 
 	glPushMatrix();
 	glLoadIdentity();
@@ -614,9 +614,9 @@ void RB_RenderFlares( void ) {
 			  backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
 			  -99999, 99999 );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	for ( f = r_activeFlares ; f ; f = f->next ) {
 		if ( f->frameSceneNum == backEnd.viewParms.frameSceneNum
@@ -626,19 +626,19 @@ void RB_RenderFlares( void ) {
 		}
 	}
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_state.model_view.set (ogl_model_view_stack.pop_and_get ());
-        ogl_tess_state.projection.set (ogl_projection_stack.pop_and_get ());
-        ogl_tess_state.commit_changes ();
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_state.model_view.set (ogl_model_view_stack.pop_and_get ());
+		ogl_tess_state.projection.set (ogl_projection_stack.pop_and_get ());
+		ogl_tess_state.commit_changes ();
+	} else {
+	// BBi
 
 	glPopMatrix();
 	glMatrixMode( GL_MODELVIEW );
 	glPopMatrix();
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 }

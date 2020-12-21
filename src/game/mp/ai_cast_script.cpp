@@ -239,7 +239,7 @@ AICast_EventMatch_IntInRange
 */
 qboolean AICast_EventMatch_IntInRange( cast_script_event_t *event, const char *eventParm ) {
 	const char *pString;
-    char* token;
+	char* token;
 	int int1, int2, eInt;
 
 	// get the cast name

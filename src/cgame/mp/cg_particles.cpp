@@ -445,11 +445,11 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 			invratio = 1 * p->alpha;
 		}
 
-        //BBi
+		// BBi
 		//if ( cgs.glconfig.hardwareType == GLHW_RAGEPRO ) {
 		//	invratio = 1;
 		//}
-        //BBi
+		// BBi
 
 		if ( invratio > 1 ) {
 			invratio = 1;
@@ -588,11 +588,11 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 
 		alpha = p->alpha;
 
-        //BBi
+		// BBi
 		//if ( cgs.glconfig.hardwareType == GLHW_RAGEPRO ) {
 		//	alpha = 1;
 		//}
-        //BBi
+		// BBi
 
 		if ( p->roll ) {
 			vectoangles( cg.refdef.viewaxis[0], rotate_ang );
@@ -1527,7 +1527,7 @@ void CG_AddParticleShrapnel( localEntity_t *le ) {
 
 int CG_NewParticleArea( int num ) {
 	// const char *str;
-    const char* str;
+	const char* str;
 	char *token;
 	int type;
 	vec3_t origin, origin2;

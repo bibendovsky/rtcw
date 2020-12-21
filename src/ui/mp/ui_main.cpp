@@ -236,9 +236,9 @@ static weaponType_t weaponTypes[] = {
 };
 
 typedef struct {
-    const char* name;
+	const char* name;
 	int flags;
-    const char* shader;
+	const char* shader;
 } uiitemType_t;
 
 #define UI_KNIFE_PIC    "window_knife_pic"
@@ -287,24 +287,24 @@ qboolean _UI_IsFullscreen( void );
 #pragma export on
 #endif
 
-//BBi
+// BBi
 //int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
 extern "C" intptr_t vmMain (
-    intptr_t command,
-    intptr_t arg0,
-    intptr_t arg1,
-    intptr_t arg2,
-    intptr_t arg3,
-    intptr_t arg4,
-    intptr_t arg5,
-    intptr_t arg6,
-    intptr_t arg7,
-    intptr_t arg8,
-    intptr_t arg9,
-    intptr_t arg10,
-    intptr_t arg11)
+	intptr_t command,
+	intptr_t arg0,
+	intptr_t arg1,
+	intptr_t arg2,
+	intptr_t arg3,
+	intptr_t arg4,
+	intptr_t arg5,
+	intptr_t arg6,
+	intptr_t arg7,
+	intptr_t arg8,
+	intptr_t arg9,
+	intptr_t arg10,
+	intptr_t arg11)
 {
-//BBi
+// BBi
 
 #if defined( __MACOS__ )
 #pragma export off
@@ -2511,7 +2511,7 @@ static void UI_DrawKeyBindStatus( rectDef_t *rect, float scale, vec4_t color, in
 	}
 }
 
-//BBi
+// BBi
 //static void UI_DrawGLInfo( rectDef_t *rect, float scale, vec4_t color, int textStyle ) {
 //	char * eptr;
 //	char buff[4096];
@@ -2558,61 +2558,61 @@ static void UI_DrawKeyBindStatus( rectDef_t *rect, float scale, vec4_t color, in
 //}
 
 static void UI_DrawGLInfo (
-    rectDef_t* rect,
-    float scale,
-    vec4_t color,
-    int textStyle)
+	rectDef_t* rect,
+	float scale,
+	vec4_t color,
+	int textStyle)
 {
-    Text_Paint (
-        rect->x + 2,
-        rect->y,
-        scale,
-        color,
-        va (
-            "VENDOR: %s",
-            uiInfo.uiDC.glconfig.vendor_string),
-        0,
-        60,
-        textStyle);
+	Text_Paint (
+		rect->x + 2,
+		rect->y,
+		scale,
+		color,
+		va (
+			"VENDOR: %s",
+			uiInfo.uiDC.glconfig.vendor_string),
+		0,
+		60,
+		textStyle);
 
-    Text_Paint (
-        rect->x + 2,
-        rect->y + 15,
-        scale,
-        color,
-        va (
-            "VERSION: %s: %s",
-            uiInfo.uiDC.glconfig.version_string,
-            uiInfo.uiDC.glconfig.renderer_string),
-        0,
-        60,
-        textStyle);
+	Text_Paint (
+		rect->x + 2,
+		rect->y + 15,
+		scale,
+		color,
+		va (
+			"VERSION: %s: %s",
+			uiInfo.uiDC.glconfig.version_string,
+			uiInfo.uiDC.glconfig.renderer_string),
+		0,
+		60,
+		textStyle);
 
-    Text_Paint (
-        rect->x + 2,
-        rect->y + 30,
-        scale,
-        color,
-        va (
-            "FORMAT: color - %d bits, depth - %d bits, stencil - %d bits",
-            uiInfo.uiDC.glconfig.colorBits,
-            uiInfo.uiDC.glconfig.depthBits,
-            uiInfo.uiDC.glconfig.stencilBits),
-        0,
-        60,
-        textStyle);
+	Text_Paint (
+		rect->x + 2,
+		rect->y + 30,
+		scale,
+		color,
+		va (
+			"FORMAT: color - %d bits, depth - %d bits, stencil - %d bits",
+			uiInfo.uiDC.glconfig.colorBits,
+			uiInfo.uiDC.glconfig.depthBits,
+			uiInfo.uiDC.glconfig.stencilBits),
+		0,
+		60,
+		textStyle);
 
-    Text_Paint (
-        rect->x + 2,
-        rect->y + 55,
-        scale,
-        color,
-        "(Use \"gfxinfo\" console command for more information)",
-        0,
-        60,
-        textStyle);
+	Text_Paint (
+		rect->x + 2,
+		rect->y + 55,
+		scale,
+		color,
+		"(Use \"gfxinfo\" console command for more information)",
+		0,
+		60,
+		textStyle);
 }
-//BBi
+// BBi
 
 // NERVE - SMF
 // TTimo - make the messages wrap and print in the right order (IRC-style)
@@ -5350,10 +5350,10 @@ static void UI_BuildServerDisplayList( qboolean force ) {
 	trap_Cvar_VariableStringBuffer( "cl_motdString", uiInfo.serverStatus.motd, sizeof( uiInfo.serverStatus.motd ) );
 	len = strlen( uiInfo.serverStatus.motd );
 	if ( len == 0 ) {
-        //BBi
+		// BBi
 		//strcpy( uiInfo.serverStatus.motd, va( "Wolf Multiplayer - Version: %s", Q3_VERSION ) );
-        strcpy (uiInfo.serverStatus.motd, va ("RTCW Multiplayer - Version: %s", RTCW_VERSION));
-        //BBi
+		strcpy (uiInfo.serverStatus.motd, va ("RTCW Multiplayer - Version: %s", RTCW_VERSION));
+		// BBi
 
 		len = strlen( uiInfo.serverStatus.motd );
 	}
@@ -5510,7 +5510,7 @@ static void UI_BuildServerDisplayList( qboolean force ) {
 typedef struct
 {
 	const char* name;
-    const char* altName;
+	const char* altName;
 } serverStatusCvar_t;
 
 serverStatusCvar_t serverStatusCvars[] = {
@@ -7359,10 +7359,10 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 	info[0] = '\0';
 
 	if ( !Q_stricmp( cstate.servername,"localhost" ) ) {
-        //BBi
+		// BBi
 		//Text_PaintCenter( centerPoint, yStart + 48, scale, colorWhite,va( "Wolf Multiplayer - Version: %s", Q3_VERSION ), ITEM_TEXTSTYLE_SHADOWEDMORE );
-        Text_PaintCenter (centerPoint, yStart + 48, scale, colorWhite, va ("RTCW Multiplayer - Version: %s", RTCW_VERSION), ITEM_TEXTSTYLE_SHADOWEDMORE);
-        //BBi
+		Text_PaintCenter (centerPoint, yStart + 48, scale, colorWhite, va ("RTCW Multiplayer - Version: %s", RTCW_VERSION), ITEM_TEXTSTYLE_SHADOWEDMORE);
+		// BBi
 	} else {
 		strcpy( text, va( trap_TranslateString( "Connecting to %s" ), cstate.servername ) );
 		Text_PaintCenter( centerPoint, yStart + 48, scale, colorWhite,text, ITEM_TEXTSTYLE_SHADOWEDMORE );
@@ -7455,8 +7455,8 @@ cvars
 
 typedef struct {
 	vmCvar_t    *vmCvar;
-    const char* cvarName;
-    const char* defaultString;
+	const char* cvarName;
+	const char* defaultString;
 	int cvarFlags;
 } cvarTable_t;
 

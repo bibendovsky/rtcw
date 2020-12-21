@@ -247,7 +247,7 @@ static void R_LoadLightmaps( lump_t *l ) {
 		tr.numLightmaps++;
 	}
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //	// if we are in r_vertexLight mode, we don't need the lightmaps at all
 //	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
@@ -257,11 +257,11 @@ static void R_LoadLightmaps( lump_t *l ) {
 //#endif // RTCW_XX
 
 #if !defined RTCW_ET
-    if (r_vertexLight->integer != 0) {
+	if (r_vertexLight->integer != 0) {
 #else
-    if (false) {
+	if (false) {
 #endif // RTCW_XX
-//BBi
+// BBi
 
 		return;
 	}
@@ -316,12 +316,12 @@ static void R_LoadLightmaps( lump_t *l ) {
 		}
 #endif // RTCW_XX
 
-        //BBi
+		// BBi
 		//tr.lightmaps[i] = R_CreateImage( va( "*lightmap%d",i ), image,
 		//								 LIGHTMAP_SIZE, LIGHTMAP_SIZE, qfalse, qfalse, GL_CLAMP );
-        tr.lightmaps[i] = R_CreateImage (va ("*lightmap%d", i), image,
-            LIGHTMAP_SIZE, LIGHTMAP_SIZE, false, false, r_get_best_wrap_clamp ());
-        //BBi
+		tr.lightmaps[i] = R_CreateImage (va ("*lightmap%d", i), image,
+			LIGHTMAP_SIZE, LIGHTMAP_SIZE, false, false, r_get_best_wrap_clamp ());
+		// BBi
 	}
 
 #if !defined RTCW_ET
@@ -401,7 +401,7 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
 	}
 	dsh = &s_worldData.shaders[ shaderNum ];
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
 //#else
@@ -409,11 +409,11 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
 //#endif // RTCW_XX
 
 #if !defined RTCW_ET
-    if (r_vertexLight->integer != 0) {
+	if (r_vertexLight->integer != 0) {
 #else
-    if (false) {
+	if (false) {
 #endif // RTCW_XX
-//BBi
+// BBi
 
 		lightmapNum = LIGHTMAP_BY_VERTEX;
 	}
@@ -3075,9 +3075,9 @@ R_LoadEntities
 ================
 */
 void R_LoadEntities( lump_t *l ) {
-    const char* p;
-    char* token;
-    char* s;
+	const char* p;
+	char* token;
+	char* s;
 	char keyname[MAX_TOKEN_CHARS];
 	char value[MAX_TOKEN_CHARS];
 	world_t *w;

@@ -479,10 +479,10 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	// unless they are displaying game renderings
 
 #if !defined RTCW_ET
-    // BBi Cinematic fix.
+	// BBi Cinematic fix.
 	//if ( cls.state != CA_ACTIVE ) {
-    if (cls.state != CA_ACTIVE && cls.state != CA_CINEMATIC) {
-    // BBi
+	if (cls.state != CA_ACTIVE && cls.state != CA_CINEMATIC) {
+	// BBi
 		if ( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 ) {
 			re.SetColor( g_color_table[0] );
 			re.DrawStretchPic( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );

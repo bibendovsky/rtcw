@@ -33,11 +33,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "win_local.h"
 
 #if defined RTCW_SP
-    #include "rtcw_sp_resource.h"
+	#include "rtcw_sp_resource.h"
 #elif defined RTCW_MP
-    #include "rtcw_mp_resource.h"
+	#include "rtcw_mp_resource.h"
 #elif defined RTCW_ET
-    #include "rtcw_et_resource.h"
+	#include "rtcw_et_resource.h"
 #endif // RTCW_XX
 
 #include <direct.h>
@@ -293,9 +293,9 @@ void QDECL Sys_Error( const char *error, ... ) {
 	Sys_SetErrorText( text );
 	Sys_ShowConsole( 1, qtrue );
 
-    // BBi
+	// BBi
 	//timeEndPeriod( 1 );
-    // BBi
+	// BBi
 
 	IN_Shutdown();
 
@@ -324,9 +324,9 @@ Sys_Quit
 ==============
 */
 void Sys_Quit( void ) {
-    // BBi
+	// BBi
 	//timeEndPeriod( 1 );
-    // BBi
+	// BBi
 
 	IN_Shutdown();
 	Sys_DestroyConsole();
@@ -647,10 +647,10 @@ qboolean    Sys_CheckCD( void ) {
 
 char* Sys_GetClipboardData()
 {
-    if (SDL_HasClipboardText())
-        return SDL_GetClipboardText();
+	if (SDL_HasClipboardText())
+		return SDL_GetClipboardText();
 
-    return NULL;
+	return NULL;
 }
 
 
@@ -672,7 +672,7 @@ Sys_UnloadDll
 
 void Sys_UnloadDll(void* dllHandle)
 {
-    SDL_UnloadObject(dllHandle);
+	SDL_UnloadObject(dllHandle);
 }
 
 
@@ -685,9 +685,9 @@ Used to load a development dll instead of a virtual machine
 */
 
 extern char* FS_BuildOSPath(
-    const char* base,
-    const char* game,
-    const char* qpath);
+	const char* base,
+	const char* game,
+	const char* qpath);
 
 #if defined RTCW_MP
 #ifdef UPDATE_SERVER
@@ -702,141 +702,141 @@ extern int cl_connectedToPureServer;
 #if 0
 #if !defined RTCW_SP
 char* Sys_GetDLLName( const char *name ) {
-//BBi FIXME
+// BBi FIXME
 	//return va( "%s_mp_x86.dll", name );
 #ifdef _WIN64
-    return va ("%s_mp_x64.dll", name);
+	return va ("%s_mp_x64.dll", name);
 #else
-    return va ("%s_mp_x86.dll", name);
+	return va ("%s_mp_x86.dll", name);
 #endif
-//BBi
+// BBi
 }
 #endif // RTCW_XX
 #endif // 0
 
 const char* Sys_GetDLLName(const char* name)
 {
-    const std::string bits =
+	const std::string bits =
 #if defined RTCW_32
-        "x86"
+		"x86"
 #elif defined RTCW_64
-        "x64"
+		"x64"
 #else
-    #error Unknown CPU architecture
+	#error Unknown CPU architecture
 #endif
-        ;
+		;
 
-    const std::string game =
+	const std::string game =
 #ifdef RTCW_SP
-        ""
+		""
 #else
-        "_mp_"
+		"_mp_"
 #endif
-        ;
+		;
 
-    const std::string is_demo =
+	const std::string is_demo =
 #ifndef WOLF_SP_DEMO
-        ""
+		""
 #else
-        "_d"
+		"_d"
 #endif
-        ;
+		;
 
-    const std::string ext =
+	const std::string ext =
 #ifdef __WIN32__
-        ".dll"
+		".dll"
 #else
-        ".so"
+		".so"
 #endif
-        ;
+		;
 
-    static std::string buffer;
+	static std::string buffer;
 
-    buffer = name + game + bits + is_demo + ext;
+	buffer = name + game + bits + is_demo + ext;
 
-    return buffer.c_str();
+	return buffer.c_str();
 }
 
 // fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
 // fqpath will be empty if dll not loaded, otherwise will hold fully qualified path of dll module loaded
 // fqpath buffersize must be at least MAX_QPATH+1 bytes long
 void* QDECL Sys_LoadDll(
-    const char* name,
-    char* fqpath,
-    DllEntryPoint* entryPoint,
-    DllEntryPoint systemcalls)
+	const char* name,
+	char* fqpath,
+	DllEntryPoint* entryPoint,
+	DllEntryPoint systemcalls)
 {
-    typedef void (QDECL* DllEntry)(DllEntryPoint);
+	typedef void (QDECL* DllEntry)(DllEntryPoint);
 
-    *fqpath = '\0'; // added 2/15/02 by T.Ray
+	*fqpath = '\0'; // added 2/15/02 by T.Ray
 
-    const char* basepath = Cvar_VariableString("fs_basepath");
-    const char* cdpath = Cvar_VariableString("fs_cdpath");
-    const char* gamedir = Cvar_VariableString("fs_game");
+	const char* basepath = Cvar_VariableString("fs_basepath");
+	const char* cdpath = Cvar_VariableString("fs_cdpath");
+	const char* gamedir = Cvar_VariableString("fs_game");
 
-    std::string filename = Sys_GetDLLName(name);
+	std::string filename = Sys_GetDLLName(name);
 
-    // try gamepath first
-    char* fn = FS_BuildOSPath(basepath, gamedir, filename.c_str());
+	// try gamepath first
+	char* fn = FS_BuildOSPath(basepath, gamedir, filename.c_str());
 
 #if !defined RTCW_SP
-    // TTimo - this is only relevant for full client
-    // if a full client runs a dedicated server, it's not affected by this
+	// TTimo - this is only relevant for full client
+	// if a full client runs a dedicated server, it's not affected by this
 #if !defined DEDICATED
-    // NERVE - SMF - extract dlls from pak file for security
-    // we have to handle the game dll a little differently
-    // TTimo - passing the exact path to check against
-    //   (compatibility with other OSes loading procedure)
-    if (cl_connectedToPureServer && Q_strncmp(name, "qagame", 6) != 0) {
-        if (!::FS_CL_ExtractFromPakFile(fn, gamedir, filename.c_str(), NULL)) {
-            Com_Error(
-                ERR_DROP,
-                "Game code(%s) failed Pure Server check",
-                filename.c_str());
-        }
-    }
+	// NERVE - SMF - extract dlls from pak file for security
+	// we have to handle the game dll a little differently
+	// TTimo - passing the exact path to check against
+	//   (compatibility with other OSes loading procedure)
+	if (cl_connectedToPureServer && Q_strncmp(name, "qagame", 6) != 0) {
+		if (!::FS_CL_ExtractFromPakFile(fn, gamedir, filename.c_str(), NULL)) {
+			Com_Error(
+				ERR_DROP,
+				"Game code(%s) failed Pure Server check",
+				filename.c_str());
+		}
+	}
 #endif
 #endif // RTCW_XX
 
-    void* libHandle = SDL_LoadObject(fn);
+	void* libHandle = SDL_LoadObject(fn);
 
-    if (libHandle == NULL) {
-        if (cdpath[0] != '\0') {
-            fn = FS_BuildOSPath(cdpath, gamedir, filename.c_str());
-            libHandle = SDL_LoadObject(fn);
-        }
-    }
+	if (libHandle == NULL) {
+		if (cdpath[0] != '\0') {
+			fn = FS_BuildOSPath(cdpath, gamedir, filename.c_str());
+			libHandle = SDL_LoadObject(fn);
+		}
+	}
 
-    if (libHandle == NULL) {
-        fn = FS_BuildOSPath(basepath, BASEGAME, filename.c_str());
-        libHandle = SDL_LoadObject(fn);
-    }
+	if (libHandle == NULL) {
+		fn = FS_BuildOSPath(basepath, BASEGAME, filename.c_str());
+		libHandle = SDL_LoadObject(fn);
+	}
 
-    if (libHandle == NULL) {
-        strcpy(fn, filename.c_str());
-        libHandle = SDL_LoadObject(fn);
-    }
+	if (libHandle == NULL) {
+		strcpy(fn, filename.c_str());
+		libHandle = SDL_LoadObject(fn);
+	}
 
-    if (libHandle == NULL)
-        return NULL;
+	if (libHandle == NULL)
+		return NULL;
 
 
-    Q_strncpyz(fqpath, fn, MAX_QPATH); // added 2/15/02 by T.Ray
+	Q_strncpyz(fqpath, fn, MAX_QPATH); // added 2/15/02 by T.Ray
 
-    DllEntry dllEntry = reinterpret_cast<DllEntry>(
-        SDL_LoadFunction(libHandle, "dllEntry"));
+	DllEntry dllEntry = reinterpret_cast<DllEntry>(
+		SDL_LoadFunction(libHandle, "dllEntry"));
 
-    *entryPoint = reinterpret_cast<DllEntryPoint>(
-        SDL_LoadFunction(libHandle, "vmMain"));
+	*entryPoint = reinterpret_cast<DllEntryPoint>(
+		SDL_LoadFunction(libHandle, "vmMain"));
 
-    if (*entryPoint == NULL || dllEntry == NULL) {
-        SDL_UnloadObject(libHandle);
-        return NULL;
-    }
+	if (*entryPoint == NULL || dllEntry == NULL) {
+		SDL_UnloadObject(libHandle);
+		return NULL;
+	}
 
-    dllEntry(systemcalls);
+	dllEntry(systemcalls);
 
-    return libHandle;
+	return libHandle;
 }
 
 
@@ -924,7 +924,7 @@ sysEvent_t Sys_GetEvent( void ) {
 	//	TranslateMessage( &msg );
 	//	DispatchMessage( &msg );
 	//}
-    sys_poll_events();
+	sys_poll_events();
 // BBi
 
 	// check for console commands
@@ -1010,25 +1010,25 @@ void Sys_Init( void ) {
 	Cmd_AddCommand( "net_restart", Sys_Net_Restart_f );
 	Cmd_AddCommand( "clearviewlog", Sys_ClearViewlog_f );
 
-    // FIXME
-    Cvar_Set("arch", SDL_GetPlatform());
+	// FIXME
+	Cvar_Set("arch", SDL_GetPlatform());
 
-    int cpuid = CPUID_GENERIC;
-    Cvar_Get("sys_cpustring", "detect", 0);
+	int cpuid = CPUID_GENERIC;
+	Cvar_Get("sys_cpustring", "detect", 0);
 
-    const char* cpu_string = Cvar_VariableString("sys_cpustring");
+	const char* cpu_string = Cvar_VariableString("sys_cpustring");
 
-    if (Q_stricmp(cpu_string, "detect") == 0)
-        Cvar_Set("sys_cpustring", "generic");
+	if (Q_stricmp(cpu_string, "detect") == 0)
+		Cvar_Set("sys_cpustring", "generic");
 
-    Cvar_SetValue("sys_cpuid", cpuid);
+	Cvar_SetValue("sys_cpuid", cpuid);
 
-    cpu_string = Cvar_VariableString("sys_cpustring");
+	cpu_string = Cvar_VariableString("sys_cpustring");
 
-    Cvar_Set("username", Sys_GetCurrentUser());
+	Cvar_Set("username", Sys_GetCurrentUser());
 
 #if !defined RTCW_ET
-    IN_Init(); // FIXME: not in dedicated?
+	IN_Init(); // FIXME: not in dedicated?
 #endif // RTCW_XX
 }
 
@@ -1050,10 +1050,10 @@ extern "C" int main(int argc, char* argv[])
 {
 // BBi
 
-    if (SDL_Init(0) != 0) {
-        // TODO Print out some message.
-        return 1;
-    }
+	if (SDL_Init(0) != 0) {
+		// TODO Print out some message.
+		return 1;
+	}
 
 	char cwd[MAX_OSPATH];
 	int startTime, endTime;
@@ -1061,22 +1061,22 @@ extern "C" int main(int argc, char* argv[])
 // BBi
 	//Q_strncpyz( sys_cmdline, lpCmdLine, sizeof( sys_cmdline ) );
 
-    const size_t MAX_CMD_LINE_LENGTH = sizeof(sys_cmdline) - 1;
-    std::string cmd_line;
-    cmd_line.reserve(MAX_CMD_LINE_LENGTH);
+	const size_t MAX_CMD_LINE_LENGTH = sizeof(sys_cmdline) - 1;
+	std::string cmd_line;
+	cmd_line.reserve(MAX_CMD_LINE_LENGTH);
 
-    for (int i = 1; i < argc; ++i) {
-        cmd_line += ' ';
-        cmd_line += argv[i];
-    }
+	for (int i = 1; i < argc; ++i) {
+		cmd_line += ' ';
+		cmd_line += argv[i];
+	}
 
-    if (cmd_line.size() > MAX_CMD_LINE_LENGTH)
-        cmd_line.resize(MAX_CMD_LINE_LENGTH);
+	if (cmd_line.size() > MAX_CMD_LINE_LENGTH)
+		cmd_line.resize(MAX_CMD_LINE_LENGTH);
 
-    std::string::traits_type::copy(
-        sys_cmdline,
-        cmd_line.c_str(),
-        cmd_line.size());
+	std::string::traits_type::copy(
+		sys_cmdline,
+		cmd_line.c_str(),
+		cmd_line.size());
 // BBi
 
 	// done before Com/Sys_Init since we need this for error output
@@ -1151,14 +1151,14 @@ extern "C" int main(int argc, char* argv[])
 	}
 
 	// never gets here
-    return 0;
+	return 0;
 }
 
 #if defined RTCW_ET
 bool Sys_IsNumLockDown()
 {
-    SDL_Keymod state = SDL_GetModState();
-    return (state & KMOD_NUM) != 0;
+	SDL_Keymod state = SDL_GetModState();
+	return (state & KMOD_NUM) != 0;
 }
 #endif // RTCW_XX
 

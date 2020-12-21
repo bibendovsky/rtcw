@@ -485,9 +485,9 @@ typedef struct corona_s {
 //#else
 //	qboolean visible;           // still send the corona request, even if not visible, for proper fading
 //#endif // RTCW_XX
-    int flags; // '1' is 'visible'
-               // still send the corona request, even if not visible,
-               // for proper fading
+	int flags; // '1' is 'visible'
+			   // still send the corona request, even if not visible,
+			   // for proper fading
 // BBi
 } corona_t;
 
@@ -672,7 +672,7 @@ typedef struct {
 //#else
 //	orientationr_t orientation;
 //#endif // RTCW_XX
-    orientationr_t orientation;
+	orientationr_t orientation;
 // BBi
 
 	orientationr_t world;
@@ -840,7 +840,7 @@ typedef struct srfGeneric_s
 
 // BBi
 	//int dlightBits[ SMP_FRAMES ];
-    int dlightBits;
+	int dlightBits;
 // BBi
 }
 srfGeneric_t;
@@ -861,7 +861,7 @@ typedef struct srfGridMesh_s {
 
 // BBi
 	//int dlightBits[SMP_FRAMES];
-    int dlightBits;
+	int dlightBits;
 // BBi
 
 #if !defined RTCW_ET
@@ -912,7 +912,7 @@ typedef struct srfSurfaceFace_s
 
 // BBi
 //	int dlightBits[SMP_FRAMES];
-    int dlightBits;
+	int dlightBits;
 // BBi
 
 	// triangle definitions (no normals at points)
@@ -940,7 +940,7 @@ typedef struct srfTriangles_s
 
 // BBi
 //	int dlightBits[SMP_FRAMES];
-    int dlightBits;
+	int dlightBits;
 // BBi
 #endif // RTCW_XX
 
@@ -964,7 +964,7 @@ typedef struct srfTriangles_s
 
 // BBi
 //	int dlightBits[ SMP_FRAMES ];
-    int dlightBits;
+	int dlightBits;
 // BBi
 #endif // RTCW_XX
 
@@ -992,7 +992,7 @@ typedef struct srfTriangles2_s
 
 // BBi
 //	int dlightBits[ SMP_FRAMES ];
-    int dlightBits;
+	int dlightBits;
 // BBi
 
 	// triangle definitions
@@ -1034,7 +1034,7 @@ typedef struct
 
 // BBi
 //	int dlightBits[ SMP_FRAMES ];
-    int dlightBits;
+	int dlightBits;
 // BBi
 
 	// triangle definitions
@@ -1153,9 +1153,9 @@ typedef struct bmodel_s {
 	int entityNum[ SMP_FRAMES ];
 #endif // 0
 
-    orientation_t orientation;
-    qboolean visible;
-    int entityNum;
+	orientation_t orientation;
+	qboolean visible;
+	int entityNum;
 // BBi
 #endif // RTCW_XX
 
@@ -1486,7 +1486,7 @@ typedef struct {
 //#else
 //	orientationr_t orientation;
 //#endif // RTCW_XX
-    orientationr_t orientation;
+	orientationr_t orientation;
 // BBi
 
 	backEndCounters_t pc;
@@ -1584,7 +1584,7 @@ typedef struct {
 //#else
 //	orientationr_t orientation;                 // for current entity
 //#endif // RTCW_XX
-    orientationr_t orientation; // for current entity
+	orientationr_t orientation; // for current entity
 // BBi
 
 	trRefdef_t refdef;
@@ -1642,9 +1642,9 @@ extern backEndState_t backEnd;
 extern trGlobals_t tr;
 extern glconfig_t glConfig;         // outside of TR since it shouldn't be cleared during ref re-init
 
-//BBi
+// BBi
 extern GlConfigEx glConfigEx;
-//BBi
+// BBi
 
 extern glstate_t glState;           // outside of TR since it shouldn't be cleared during ref re-init
 
@@ -1735,15 +1735,15 @@ extern cvar_t   *r_ext_multitexture;
 extern cvar_t   *r_ext_compiled_vertex_array;
 extern cvar_t   *r_ext_texture_env_add;
 
-//BBi
+// BBi
 //#if !defined RTCW_SP
-//BBi
+// BBi
 
 extern cvar_t   *r_ext_texture_filter_anisotropic;  //DAJ from EF
 
-//BBi
+// BBi
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 //----(SA)	added
 
@@ -1754,9 +1754,9 @@ extern cvar_t   *r_ati_truform_pointmode;   //----(SA)
 extern cvar_t   *r_ati_truform_normalmode;  //----(SA)
 extern cvar_t   *r_ati_fsaa_samples;        //DAJ
 
-//BBi
+// BBi
 //extern cvar_t   *r_ext_texture_filter_anisotropic;
-//BBi
+// BBi
 #endif // RTCW_XX
 
 #if defined RTCW_ET
@@ -1812,15 +1812,15 @@ extern cvar_t  *r_glIgnoreWicked3D;
 extern cvar_t  *r_swapInterval;
 extern cvar_t  *r_textureMode;
 
-//BBi
+// BBi
 //#if defined RTCW_ET
-//BBi
+// BBi
 
 extern cvar_t  *r_textureAnisotropy;
 
-//BBi
+// BBi
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 extern cvar_t  *r_offsetFactor;
 extern cvar_t  *r_offsetUnits;
@@ -1969,15 +1969,15 @@ void    GL_SetDefaultState( void );
 void    GL_SelectTexture( int unit );
 void    GL_TextureMode( const char *string );
 
-//BBi
+// BBi
 //#if defined RTCW_ET
-//BBi
+// BBi
 
 void    GL_TextureAnisotropy( float anisotropy );
 
-//BBi
+// BBi
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 void    GL_CheckErrors( void );
 void    GL_State( unsigned long stateVector );
@@ -2179,15 +2179,15 @@ extern int vertexDlightBits[SHADER_MAX_VERTEXES];
 
 typedef struct shaderCommands_s
 {
-    glIndex_t* indexes;
-    vec4hack_t* normal;
-    color4ubhack_t* vertexColors;
-    vec4hack_t* xyz;
-    vec2hack_t* texCoords0;
-    vec2hack_t* texCoords1;
+	glIndex_t* indexes;
+	vec4hack_t* normal;
+	color4ubhack_t* vertexColors;
+	vec4hack_t* xyz;
+	vec2hack_t* texCoords0;
+	vec2hack_t* texCoords1;
 
 #if !defined RTCW_ET
-    int* vertexDlightBits;
+	int* vertexDlightBits;
 #endif // RTCW_X
 
 	stageVars_t svars;
@@ -2273,7 +2273,7 @@ void R_ClearFlares( void );
 //void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, float scale, vec3_t normal, int id, qboolean visible );    //----(SA)	added scale.  added id.  added visible
 //#endif // RTCW_XX
 void RB_AddFlare (void* surface, int fogNum, vec3_t point, vec3_t color,
-    float scale, vec3_t normal, int id, int flags);
+	float scale, vec3_t normal, int id, int flags);
 // BBi
 
 void RB_AddDlightFlares( void );
@@ -2419,7 +2419,7 @@ void RE_AddLightToScene( const vec3_t org, float radius, float intensity, float 
 //void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible );
 //#endif // RTCW_XX
 void RE_AddCoronaToScene (const vec3_t org, float r, float g, float b,
-    float scale, int id, int flags);
+	float scale, int id, int flags);
 // BBi
 //----(SA)
 void RE_RenderScene( const refdef_t *fd );
@@ -2834,29 +2834,29 @@ void R_FreeImageBuffer( void );
 qboolean R_inPVS( const vec3_t p1, const vec3_t p2 );
 #endif // RTCW_XX
 
-//BBi
+// BBi
 class OglTessLayout {
 public:
-    static const int MAX_VERTEX_COUNT = 2 * 4000;
+	static const int MAX_VERTEX_COUNT = 2 * 4000;
 
-    static const GLintptr POS_OFS;
-    static const GLintptr TC0_OFS;
-    static const GLintptr TC1_OFS;
-    static const GLintptr COL_OFS;
+	static const GLintptr POS_OFS;
+	static const GLintptr TC0_OFS;
+	static const GLintptr TC1_OFS;
+	static const GLintptr COL_OFS;
 
-    static const GLvoid* POS_PTR;
-    static const GLvoid* TC0_PTR;
-    static const GLvoid* TC1_PTR;
-    static const GLvoid* COL_PTR;
+	static const GLvoid* POS_PTR;
+	static const GLvoid* TC0_PTR;
+	static const GLvoid* TC1_PTR;
+	static const GLvoid* COL_PTR;
 
-    static const std::size_t POS_SIZE;
-    static const std::size_t TC0_SIZE;
-    static const std::size_t TC1_SIZE;
-    static const std::size_t COL_SIZE;
+	static const std::size_t POS_SIZE;
+	static const std::size_t TC0_SIZE;
+	static const std::size_t TC1_SIZE;
+	static const std::size_t COL_SIZE;
 
-    glm::vec4 position[MAX_VERTEX_COUNT];
-    glm::vec2 texture_coords[2][MAX_VERTEX_COUNT];
-    color4ub_t color[MAX_VERTEX_COUNT];
+	glm::vec4 position[MAX_VERTEX_COUNT];
+	glm::vec2 texture_coords[2][MAX_VERTEX_COUNT];
+	color4ub_t color[MAX_VERTEX_COUNT];
 }; // class OglTessLayout
 
 extern rtcw::OglTessState ogl_tess_state;
@@ -2870,7 +2870,7 @@ extern int ogl_tess2_base_vertex;
 extern OglTessLayout ogl_tess2;
 
 void ogl_tess2_draw (GLenum mode, int vertex_count,
-    bool use_texture_coords, bool use_color);
+	bool use_texture_coords, bool use_color);
 
 
 GLenum r_get_best_wrap_clamp ();
@@ -2880,6 +2880,6 @@ extern rtcw::OglMatrixStack ogl_model_view_stack;
 extern rtcw::OglMatrixStack ogl_projection_stack;
 
 bool r_probe_programs ();
-//BBi
+// BBi
 
 #endif //TR_LOCAL_H (THIS MUST BE LAST!!)

@@ -113,10 +113,10 @@ typedef struct {
 	byte file[65536];
 	short sqrTable[256];
 
-    //BBi
+	// BBi
 	//unsigned int mcomp[256];
-    int mcomp[256];
-    //BBi
+	int mcomp[256];
+	// BBi
 
 	byte                *qStatus[2][32768];
 
@@ -1212,21 +1212,21 @@ static void readQuadInfo( byte *qData ) {
 	cinTable[currentHandle].VQ0 = cinTable[currentHandle].VQNormal;
 	cinTable[currentHandle].VQ1 = cinTable[currentHandle].VQBuffer;
 
-    //BBi
+	// BBi
 	//cinTable[currentHandle].t[0] = ( 0 - (unsigned int)cin.linbuf ) + (unsigned int)cin.linbuf + cinTable[currentHandle].screenDelta;
-    cinTable[currentHandle].t[0] = ( 0 - reinterpret_cast<uintptr_t> (cin.linbuf) ) + reinterpret_cast<uintptr_t> (cin.linbuf) + cinTable[currentHandle].screenDelta;
+	cinTable[currentHandle].t[0] = ( 0 - reinterpret_cast<uintptr_t> (cin.linbuf) ) + reinterpret_cast<uintptr_t> (cin.linbuf) + cinTable[currentHandle].screenDelta;
 	//cinTable[currentHandle].t[1] = ( 0 - ( (unsigned int)cin.linbuf + cinTable[currentHandle].screenDelta ) ) + (unsigned int)cin.linbuf;
-    cinTable[currentHandle].t[1] = ( 0 - ( reinterpret_cast<uintptr_t> (cin.linbuf) + cinTable[currentHandle].screenDelta ) ) + reinterpret_cast<uintptr_t> (cin.linbuf);
-    //BBi
+	cinTable[currentHandle].t[1] = ( 0 - ( reinterpret_cast<uintptr_t> (cin.linbuf) + cinTable[currentHandle].screenDelta ) ) + reinterpret_cast<uintptr_t> (cin.linbuf);
+	// BBi
 
 	cinTable[currentHandle].drawX = cinTable[currentHandle].CIN_WIDTH;
 	cinTable[currentHandle].drawY = cinTable[currentHandle].CIN_HEIGHT;
 
-    //BBi
+	// BBi
 	//// rage pro is very slow at 512 wide textures, voodoo can't do it at all
 	//if ( glConfig.hardwareType == GLHW_RAGEPRO || glConfig.maxTextureSize <= 256 ) {
-    if (glConfig.maxTextureSize <= 256) {
-    //BBi
+	if (glConfig.maxTextureSize <= 256) {
+	// BBi
 		if ( cinTable[currentHandle].drawX > 256 ) {
 			cinTable[currentHandle].drawX = 256;
 		}
@@ -1234,11 +1234,11 @@ static void readQuadInfo( byte *qData ) {
 			cinTable[currentHandle].drawY = 256;
 		}
 
-        //BBi
+		// BBi
 		//if ( cinTable[currentHandle].CIN_WIDTH != 256 || cinTable[currentHandle].CIN_HEIGHT != 256 ) {
 		//	Com_Printf( "HACK: approxmimating cinematic for Rage Pro or Voodoo\n" );
 		//}
-        //BBi
+		// BBi
 	}
 
 #if defined RTCW_SP
@@ -1336,7 +1336,7 @@ static void RoQReset() {
 
 	FS_FOpenFileRead( cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, qtrue );
 
-    FS_Read(cin.file, 16, cinTable[currentHandle].iFile);
+	FS_Read(cin.file, 16, cinTable[currentHandle].iFile);
 
 	RoQ_init();
 	cinTable[currentHandle].status = FMV_LOOPED;
@@ -1363,10 +1363,10 @@ static void RoQInterrupt( void ) {
 //resound:
 #endif // RTCW_XX
 
-    FS_Read(
-        cin.file,
-        cinTable[currentHandle].RoQFrameSize + 8,
-        cinTable[currentHandle].iFile);
+	FS_Read(
+		cin.file,
+		cinTable[currentHandle].RoQFrameSize + 8,
+		cinTable[currentHandle].iFile);
 
 	if ( cinTable[currentHandle].RoQPlayed >= cinTable[currentHandle].ROQSize ) {
 		if ( cinTable[currentHandle].holdAtEnd == qfalse ) {

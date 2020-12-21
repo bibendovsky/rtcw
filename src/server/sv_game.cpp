@@ -367,7 +367,7 @@ void SV_GameBinaryMessageReceived( int cno, const char *buf, int buflen, int com
 
 //==============================================
 
-//BBi
+// BBi
 //static int  FloatAsInt( float f ) {
 //	int temp;
 //
@@ -377,15 +377,15 @@ void SV_GameBinaryMessageReceived( int cno, const char *buf, int buflen, int com
 //}
 
 static intptr_t FloatAsInt (
-    float x)
+	float x)
 {
-    intptr_t result;
+	intptr_t result;
 
-    *reinterpret_cast<float*> (&result) = x;
+	*reinterpret_cast<float*> (&result) = x;
 
-    return result;
+	return result;
 }
-//BBi
+// BBi
 
 /*
 ====================
@@ -401,10 +401,10 @@ The module is making a system call
 #define VMA( x ) VM_ArgPtr( args[x] )
 #endif
 
-//BBi
+// BBi
 //#define VMF( x )  ( (float *)args )[x]
 #define VMF(x) (*reinterpret_cast<const float*> (args + x))
-//BBi
+// BBi
 
 #if defined RTCW_ET
 // show_bug.cgi?id=574
@@ -412,12 +412,12 @@ extern int S_RegisterSound( const char *name, qboolean compressed );
 extern int S_GetSoundLength( sfxHandle_t sfxHandle );
 #endif // RTCW_XX
 
-//BBi
+// BBi
 //int SV_GameSystemCalls( int *args ) {
 intptr_t SV_GameSystemCalls (
-    intptr_t* args)
+	intptr_t* args)
 {
-//BBi
+// BBi
 
 	switch ( args[0] ) {
 	case G_PRINT:
@@ -1242,7 +1242,7 @@ void SV_InitGameProgs( void ) {
 	}
 #endif // RTCW_XX
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	// load the dll or bytecode
 //	gvm = VM_Create( "qagame", SV_GameSystemCalls, vmInterpret_t (int (Cvar_VariableValue( "vm_game" ))) );
@@ -1251,8 +1251,8 @@ void SV_InitGameProgs( void ) {
 //	gvm = VM_Create( "qagame", SV_GameSystemCalls, VMI_NATIVE );
 //#endif // RTCW_XX
 
-    gvm = VM_Create ("qagame", SV_GameSystemCalls);
-//BBi
+	gvm = VM_Create ("qagame", SV_GameSystemCalls);
+// BBi
 
 	if ( !gvm ) {
 		Com_Error( ERR_FATAL, "VM_Create on game failed" );

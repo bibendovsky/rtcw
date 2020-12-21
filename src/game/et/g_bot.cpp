@@ -722,10 +722,10 @@ static void G_AddBot( const char *name, int skill, const char *team, const char 
 		int len, i, j, k;
 		qboolean setname = qfalse;
 		char botnames[8192];
-        const char* pbotnames;
-        char* listbotnames[MAX_BOTNAMES];
-        char* token;
-        const char* oldpbotnames;
+		const char* pbotnames;
+		char* listbotnames[MAX_BOTNAMES];
+		char* token;
+		const char* oldpbotnames;
 		int lengthbotnames[MAX_BOTNAMES];
 
 		len = trap_FS_FOpenFile( "botfiles/botnames.txt", &f, FS_READ );
@@ -955,7 +955,7 @@ void G_SpawnBot( const char *text ) {
 
 	// parsing vars
 	char            *token;
-    const char* pStr, *old_pStr;
+	const char* pStr, *old_pStr;
 	char cmd[MAX_TOKEN_CHARS], last_cmd[MAX_TOKEN_CHARS];
 	char cmd_var[MAX_TOKEN_CHARS];
 	char string[MAX_TOKEN_CHARS];
@@ -1143,8 +1143,8 @@ void G_SpawnBot( const char *text ) {
 	if ( botSkills[0] ) {
 		// parse the skills out
 		int i;
-        const char* pString;
-        char* token;
+		const char* pString;
+		char* token;
 
 		pString = botSkills;
 		for ( i = 0; i < SK_NUM_SKILLS; i++ )

@@ -162,7 +162,7 @@ CG_DrawStats
 */
 
 typedef struct {
-    const char* label;
+	const char* label;
 	int YOfs;
 	int labelX;
 	int labelFlags;
@@ -198,8 +198,8 @@ void CG_DrawStats( char *stats ) {
 	int i, y, v, j;
 	#define MAX_STATS_VARS  64
 	int vars[MAX_STATS_VARS];
-    char* str;
-    char* token;
+	char* str;
+	char* token;
 	char *formatStr = NULL; // TTimo: init
 	int varIndex;
 	char string[MAX_QPATH];

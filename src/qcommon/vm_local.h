@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "q_shared.h"
 #include "qcommon.h"
 
-//BBi
+// BBi
 //typedef enum {
 //	OP_UNDEF,
 //
@@ -129,20 +129,20 @@ If you have questions concerning this license or the applicable additional terms
 //
 //#define VM_OFFSET_PROGRAM_STACK     0
 //#define VM_OFFSET_SYSTEM_CALL       4
-//BBi
+// BBi
 
 struct vm_s {
 	// DO NOT MOVE OR CHANGE THESE WITHOUT CHANGING THE VM_OFFSET_* DEFINES
 	// USED BY THE ASM CODE
 
-    //BBi
+	// BBi
 	//int programStack;               // the vm may be recursively entered
-    //BBi
+	// BBi
 
-    //BBi
+	// BBi
 	//int (*systemCall) (int* parms);
-    intptr_t (*systemCall)(intptr_t* parms);
-    //BBi
+	intptr_t (*systemCall)(intptr_t* parms);
+	// BBi
 
 	//------------------------------------
 
@@ -154,12 +154,12 @@ struct vm_s {
 	// for dynamic linked modules
 	void        *dllHandle;
 
-    //BBi
+	// BBi
 	//int (QDECL* entryPoint) (int callNum, ...);
-    intptr_t (QDECL* entryPoint) (intptr_t callNum, ...);
-    //BBi
+	intptr_t (QDECL* entryPoint) (intptr_t callNum, ...);
+	// BBi
 
-    //BBi
+	// BBi
 	//// for interpreted modules
 	//qboolean currentlyInterpreting;
 
@@ -181,14 +181,14 @@ struct vm_s {
 	//int callLevel;                  // for debug indenting
 	//int breakFunction;              // increment breakCount on function entry to this
 	//int breakCount;
-    //BBi
+	// BBi
 };
 
 
 extern vm_t    *currentVM;
 extern int vm_debugLevel;
 
-//BBi
+// BBi
 //void VM_Compile( vm_t *vm, vmHeader_t *header );
 //int VM_CallCompiled( vm_t *vm, int *args );
 //
@@ -198,6 +198,6 @@ extern int vm_debugLevel;
 //vmSymbol_t *VM_ValueToFunctionSymbol( vm_t *vm, int value );
 //int VM_SymbolToValue( vm_t *vm, const char *symbol );
 //const char *VM_ValueToSymbol( vm_t *vm, int value );
-//BBi
+// BBi
 
 void VM_LogSyscalls( int *args );

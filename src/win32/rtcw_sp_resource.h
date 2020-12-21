@@ -27,13 +27,13 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-#ifndef RTCW_SP_RESOURCE_H
-#define RTCW_SP_RESOURCE_H
+#ifndef RTCW_SP_RESOURCE_INCLUDED
+#define RTCW_SP_RESOURCE_INCLUDED
 
 
-#if defined RTCW_SP
-    #define IDI_ICON1 (1)
-#endif
+#ifdef RTCW_SP
+#define IDI_ICON1 (1)
+#endif // RTCW_SP
 
 
-#endif // RTCW_SP_RESOURCE_H
+#endif // !RTCW_SP_RESOURCE_INCLUDED

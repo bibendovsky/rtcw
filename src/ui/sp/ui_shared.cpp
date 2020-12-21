@@ -81,7 +81,7 @@ itemDef_t *Menu_SetPrevCursorItem( menuDef_t *menu );
 itemDef_t *Menu_SetNextCursorItem( menuDef_t *menu );
 static qboolean Menu_OverActiveItem( menuDef_t *menu, float x, float y );
 
-//BBi
+// BBi
 //#ifdef CGAME
 //#define MEM_POOL_SIZE  128 * 1024
 //#else
@@ -93,7 +93,7 @@ static qboolean Menu_OverActiveItem( menuDef_t *menu, float x, float y );
 #else
 #define MEM_POOL_SIZE ((sizeof (size_t) / 4) * 1024 * 1024)
 #endif
-//BBi
+// BBi
 
 static char memoryPool[MEM_POOL_SIZE];
 static int allocPoint, outOfMemory;
@@ -1537,7 +1537,7 @@ int scriptCommandCount = sizeof( commandList ) / sizeof( commandDef_t );
 
 void Item_RunScript( itemDef_t *item, const char *s ) {
 	char script[1024];
-    const char* p;
+	const char* p;
 	int i;
 	qboolean bRan;
 	memset( script, 0, sizeof( script ) );
@@ -1573,8 +1573,8 @@ void Item_RunScript( itemDef_t *item, const char *s ) {
 
 
 qboolean Item_EnableShowViaCvar( itemDef_t *item, int flag ) {
-    char script[1024];
-    const char* p;
+	char script[1024];
+	const char* p;
 	memset( script, 0, sizeof( script ) );
 	if ( item && item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest ) {
 		char buff[1024];
@@ -3431,12 +3431,12 @@ void Item_Multi_Paint( itemDef_t *item ) {
 
 
 typedef struct {
-    const char* command;
-    int id;
-    int defaultbind1;
-    int defaultbind2;
-    int bind1;
-    int bind2;
+	const char* command;
+	int id;
+	int defaultbind1;
+	int defaultbind2;
+	int bind1;
+	int bind2;
 } bind_t;
 
 typedef struct
@@ -4704,9 +4704,9 @@ Keyword Hash
 
 typedef struct keywordHash_s
 {
-    const char* keyword;
-    qboolean (*func)(itemDef_t* item, int handle);
-    struct keywordHash_s* next;
+	const char* keyword;
+	qboolean (*func)(itemDef_t* item, int handle);
+	struct keywordHash_s* next;
 } keywordHash_t;
 
 int KeywordHash_Key( const char *keyword ) {

@@ -9,56 +9,57 @@
 
 #include <string>
 #include <vector>
+
 #include "jpge.h"
 
 
-namespace rtcw {
+namespace rtcw
+{
 
 
-class JpegWriter {
+class JpegWriter
+{
 public:
-    JpegWriter();
+	JpegWriter();
 
-    ~JpegWriter();
+	JpegWriter(
+		const JpegWriter& that) = delete;
 
-    JpegWriter(
-        const JpegWriter& that) = delete;
-
-    JpegWriter& operator=(
-        const JpegWriter& that) = delete;
+	JpegWriter& operator=(
+		const JpegWriter& that) = delete;
 
 
-    bool encode(
-        int quality,
-        const void* src_data,
-        int width,
-        int height,
-        void* dst_data,
-        int& dst_size);
+	bool encode(
+		int quality,
+		const void* src_data,
+		int width,
+		int height,
+		void* dst_data,
+		int& dst_size);
 
-    const std::string& get_error_message() const;
+	const std::string& get_error_message() const noexcept;
 
-    static int estimate_dst_size(
-        int width,
-        int height);
+	static int estimate_dst_size(
+		int width,
+		int height) noexcept;
 
 private:
-    class Exception;
+	class Exception;
 
-    typedef std::vector<unsigned char> Buffer;
+	using Buffer = std::vector<unsigned char>;
 
-    std::string error_message_;
+	std::string error_message_{};
 
-    Buffer line_buffer_;
+	Buffer line_buffer_{};
 
-    static void rgba_to_rgb(
-        const unsigned char* src_row,
-        int src_width,
-        unsigned char* dst_row);
+	static void rgba_to_rgb(
+		const unsigned char* src_row,
+		int src_width,
+		unsigned char* dst_row);
 }; // JpegWriter
 
 
 } // rtcw
 
 
-#endif // RTCW_JPEG_WRITER_INCLUDE
+#endif // !RTCW_JPEG_WRITER_INCLUDE

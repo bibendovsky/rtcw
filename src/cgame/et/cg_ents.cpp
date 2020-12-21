@@ -199,12 +199,12 @@ void CG_AddLightstyle( centity_t *cent ) {
 	#else
 	lightval *= 0.071429;
 
-    //BBi
+	// BBi
 	//lightval = max( 0.0f,   lightval );
-    lightval = std::max (0.0F, lightval);
+	lightval = std::max (0.0F, lightval);
 	//lightval = min( 20.0f,  lightval );
-    lightval = std::min (20.0F, lightval);
-    //BBi
+	lightval = std::min (20.0F, lightval);
+	// BBi
 	#endif
 
 	cl = cent->currentState.constantLight;

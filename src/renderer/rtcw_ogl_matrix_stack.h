@@ -1,85 +1,90 @@
-#ifndef RTCW_OGL_MATRIX_STACK_H
-#define RTCW_OGL_MATRIX_STACK_H
+#ifndef RTCW_OGL_MATRIX_STACK_INCLUDED
+#define RTCW_OGL_MATRIX_STACK_INCLUDED
 
 
 #include <stack>
+
 #include "glm/glm.hpp"
 
 
-namespace rtcw {
+namespace rtcw
+{
 
 
-class OglMatrixStack {
+class OglMatrixStack
+{
 public:
-    typedef glm::mat4 Matrix;
+	using Matrix = glm::mat4;
 
 
-    OglMatrixStack ();
-    OglMatrixStack (const OglMatrixStack& that);
-    ~OglMatrixStack ();
-    OglMatrixStack& operator = (const OglMatrixStack& that);
+	OglMatrixStack();
 
-    // Pops a top matrix from the stack and replaces by it a current one.
-    void pop ();
 
-    // Pops a top matrix from the stack, replaces by it a current one and
-    // returns it.
-    Matrix& pop_and_get ();
+	// Pops a top matrix from the stack and replaces by it a current one.
+	void pop();
 
-    // Pops a top matrix from the stack, replaces by it a current one and
-    // returns it's elements.
-    float* pop_and_get_items ();
+	// Pops a top matrix from the stack, replaces by it a current one and
+	// returns it.
+	Matrix& pop_and_get();
 
-    // Pushes a current matrix into the stack.
-    void push ();
+	// Pops a top matrix from the stack, replaces by it a current one and
+	// returns it's elements.
+	float* pop_and_get_items();
 
-    // Pushes a current matrix into the stack and returns it.
-    Matrix& push_and_get ();
+	// Pushes a current matrix into the stack.
+	void push();
 
-    // Pushes a current matrix into the stack and replaces the current matrix
-    // by a specified one.
-    void push_and_set (const Matrix& value);
+	// Pushes a current matrix into the stack and returns it.
+	Matrix& push_and_get();
 
-    // Pushes a current matrix into the stack and replaces the current matrix
-    // by a specified one.
-    // Note: Items must be specified int column-major order.
-    void push_and_set (const float items[16]);
+	// Pushes a current matrix into the stack and replaces the current matrix
+	// by a specified one.
+	void push_and_set(
+		const Matrix& value);
 
-    // Pushes a current matrix into the stack and replaces the current matrix
-    // with the identity one.
-    void push_and_set_identity ();
+	// Pushes a current matrix into the stack and replaces the current matrix
+	// by a specified one.
+	// Note: Items must be specified int column-major order.
+	void push_and_set(
+		const float items[16]);
 
-    // Returns a current matrix.
-    Matrix& get_current ();
+	// Pushes a current matrix into the stack and replaces the current matrix
+	// with the identity one.
+	void push_and_set_identity();
 
-    // Returns a current matrix as array.
-    float* get_current_items ();
+	// Returns a current matrix.
+	Matrix& get_current() noexcept;
 
-    // Returns elements of the current matrix.
-    const float* get_current_items () const;
+	// Returns a current matrix as array.
+	float* get_current_items() noexcept;
 
-    // Returns elements of the current matrix.
-    const Matrix& get_current () const;
+	// Returns elements of the current matrix.
+	const float* get_current_items() const noexcept;
 
-    // Sets a current matrix.
-    void set_current (const Matrix& value);
+	// Returns elements of the current matrix.
+	const Matrix& get_current() const noexcept;
 
-    // Sets a current matrix.
-    // Note: Items must be specified int column-major order.
-    void set_current (const float items[16]);
+	// Sets a current matrix.
+	void set_current(
+		const Matrix& value);
 
-    static int get_max_depth ();
+	// Sets a current matrix.
+	// Note: Items must be specified int column-major order.
+	void set_current(
+		const float items[16]);
+
+	static int get_max_depth() noexcept;
 
 
 private:
-    typedef std::stack<Matrix> Stack;
+	using Stack = std::stack<Matrix>;
 
-    Stack stack_;
-    Matrix current_;
-}; // class OglMatrixStack
-
-
-} // namespace rtcw
+	Stack stack_{};
+	Matrix current_{};
+}; // OglMatrixStack
 
 
-#endif // RTCW_OGL_MATRIX_STACK_H
+} // rtcw
+
+
+#endif // !RTCW_OGL_MATRIX_STACK_INCLUDED

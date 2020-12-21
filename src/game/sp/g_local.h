@@ -118,7 +118,7 @@ typedef struct gclient_s gclient_t;
 // Scripting, these structure are not saved into savegames (parsed each start)
 typedef struct
 {
-    const char* actionString;
+	const char* actionString;
 	qboolean ( *actionFunc )( gentity_t *ent, const char *params );
 } g_script_stack_action_t;
 //
@@ -156,16 +156,16 @@ typedef struct
 #define SCFL_ANIMATING          0x2
 #define SCFL_WAITING_RESTORE    0x4
 
-//BBi Reference structure for x64 code.
-//BBi All pointers replaced with 4-byte integers.
-//BBi Of course this structure must be identical to original one (g_script_status_t).
+// BBi Reference structure for x64 code.
+// BBi All pointers replaced with 4-byte integers.
+// BBi Of course this structure must be identical to original one (g_script_status_t).
 struct GScriptStatus32 {
-    int32_t scriptStackHead;
-    int32_t scriptStackChangeTime;
-    int32_t scriptEventIndex;
-    int32_t scriptId;
-    int32_t scriptFlags;
-    int32_t animatingParams; // pointer
+	int32_t scriptStackHead;
+	int32_t scriptStackChangeTime;
+	int32_t scriptEventIndex;
+	int32_t scriptId;
+	int32_t scriptFlags;
+	int32_t animatingParams; // pointer
 }; // struct GScriptStatus32
 
 //
@@ -180,16 +180,16 @@ struct g_script_status_t
 	const char    *animatingParams;
 
 
-    //BBi
-    typedef g_script_status_t Struct;
-    typedef GScriptStatus32 Struct32;
+	// BBi
+	typedef g_script_status_t Struct;
+	typedef GScriptStatus32 Struct32;
 
-    void convert_from_32 (
-        const Struct32& struct32);
+	void convert_from_32 (
+		const Struct32& struct32);
 
-    void convert_to_32 (
-        Struct32& struct32) const;
-    //BBi
+	void convert_to_32 (
+		Struct32& struct32) const;
+	// BBi
 };
 //
 #define G_MAX_SCRIPT_ACCUM_BUFFERS  8
@@ -198,163 +198,163 @@ void G_Script_ScriptEvent( gentity_t *ent, const char *eventStr, const char *par
 //====================================================================
 
 
-//BBi
+// BBi
 //#define CFOFS( x ) ( (int)&( ( (gclient_t *)0 )->x ) )
 #define CFOFS(x) (offsetof (gclient_t, x))
-//BBi
+// BBi
 
-//BBi Reference structure for x64 code.
-//BBi All pointers replaced with 4-byte integers.
-//BBi Of course this structure must be identical to original one (gentity_s).
+// BBi Reference structure for x64 code.
+// BBi All pointers replaced with 4-byte integers.
+// BBi Of course this structure must be identical to original one (gentity_s).
 struct GEntity32 {
-    entityState_t s;
-    entityShared_t r;
-    int32_t client; // pointer
-    qboolean inuse;
-    int32_t classname; // pointer
-    int32_t spawnflags;
-    qboolean neverFree;
-    int32_t flags;
-    int32_t model; // pointer
-    int32_t model2; // pointer
-    int32_t freetime;
-    int32_t eventTime;
-    qboolean freeAfterEvent;
-    qboolean unlinkAfterEvent;
-    qboolean physicsObject;
-    float physicsBounce;
-    int32_t clipmask;
-    moverState_t moverState;
-    int32_t soundPos1;
-    int32_t sound1to2;
-    int32_t sound2to1;
-    int32_t soundPos2;
-    int32_t soundLoop;
-    int32_t sound2to3;
-    int32_t sound3to2;
-    int32_t soundPos3;
-    int32_t soundKicked;
-    int32_t soundKickedEnd;
-    int32_t soundSoftopen;
-    int32_t soundSoftendo;
-    int32_t soundSoftclose;
-    int32_t soundSoftendc;
-    int32_t parent; // pointer
-    int32_t nextTrain; // pointer
-    int32_t prevTrain; // pointer
-    vec3_t pos1;
-    vec3_t pos2;
-    vec3_t pos3;
-    int32_t message; // pointer
-    int32_t timestamp;
-    float angle;
-    int32_t target; // pointer
-    int32_t targetdeath; // pointer
-    int32_t targetname; // pointer
-    int32_t team; // pointer
-    int32_t targetShaderName; // pointer
-    int32_t targetShaderNewName; // pointer
-    int32_t target_ent; // pointer
-    float speed;
-    float closespeed;
-    vec3_t movedir;
-    int32_t gDuration;
-    int32_t gDurationBack;
-    vec3_t gDelta;
-    vec3_t gDeltaBack;
-    int32_t nextthink;
-    int32_t think; // pointer
-    int32_t reached; // pointer
-    int32_t blocked; // pointer
-    int32_t touch; // pointer
-    int32_t use; // pointer
-    int32_t pain; // pointer
-    int32_t die; // pointer
-    int32_t pain_debounce_time;
-    int32_t fly_sound_debounce_time;
-    int32_t last_move_time;
-    int32_t health;
-    qboolean takedamage;
-    int32_t damage;
-    int32_t splashDamage;
-    int32_t splashRadius;
-    int32_t methodOfDeath;
-    int32_t splashMethodOfDeath;
-    int32_t count;
-    int32_t chain; // pointer
-    int32_t enemy; // pointer
-    int32_t activator; // pointer
-    int32_t teamchain; // pointer
-    int32_t teammaster; // pointer
-    int32_t watertype;
-    int32_t waterlevel;
-    int32_t noise_index;
-    float wait;
-    float random;
-    int32_t radius;
-    float delay;
-    int32_t TargetFlag;
-    float duration;
-    vec3_t rotate;
-    vec3_t TargetAngles;
-    int32_t item; // pointer
-    int32_t aiAttributes; // pointer
-    int32_t aiName; // pointer
-    int32_t aiTeam;
-    int32_t AIScript_AlertEntity; // pointer
-    qboolean aiInactive;
-    int32_t aiCharacter;
-    int32_t aiSkin; // pointer
-    int32_t aihSkin; // pointer
-    vec3_t dl_color;
-    int32_t dl_stylestring; // pointer
-    int32_t dl_shader; // pointer
-    int32_t dl_atten;
-    int32_t key;
-    qboolean active;
-    qboolean botDelayBegin;
-    float harc;
-    float varc;
-    float activateArc;
-    int32_t props_frame_state;
-    int32_t missionLevel;
-    int32_t missionObjectives;
-    int32_t numSecretsFound;
-    int32_t numTreasureFound;
-    qboolean is_dead;
-    int32_t start_size;
-    int32_t end_size;
-    qboolean isProp;
-    int32_t mg42BaseEnt;
-    int32_t melee; // pointer
-    int32_t spawnitem; // pointer
-    qboolean nopickup;
-    int32_t flameQuota;
-    int32_t flameQuotaTime;
-    int32_t flameBurnEnt;
-    int32_t count2;
-    int32_t grenadeExplodeTime;
-    int32_t grenadeFired;
-    int32_t mg42ClampTime;
-    int32_t track; // pointer
-    int32_t scriptName; // pointer
-    int32_t numScriptEvents;
-    int32_t scriptEvents; // pointer
-    GScriptStatus32 scriptStatus; // struct
-    GScriptStatus32 scriptStatusBackup; // struct
-    int32_t scriptAccumBuffer[G_MAX_SCRIPT_ACCUM_BUFFERS];
-    qboolean AASblocking;
-    float accuracy;
-    int32_t tagName; // pointer
-    int32_t tagParent; // pointer
-    float headshotDamageScale;
-    GScriptStatus32 scriptStatusCurrent; // struct
-    int32_t emitID;
-    int32_t emitNum;
-    int32_t emitPressure;
-    int32_t emitTime;
+	entityState_t s;
+	entityShared_t r;
+	int32_t client; // pointer
+	qboolean inuse;
+	int32_t classname; // pointer
+	int32_t spawnflags;
+	qboolean neverFree;
+	int32_t flags;
+	int32_t model; // pointer
+	int32_t model2; // pointer
+	int32_t freetime;
+	int32_t eventTime;
+	qboolean freeAfterEvent;
+	qboolean unlinkAfterEvent;
+	qboolean physicsObject;
+	float physicsBounce;
+	int32_t clipmask;
+	moverState_t moverState;
+	int32_t soundPos1;
+	int32_t sound1to2;
+	int32_t sound2to1;
+	int32_t soundPos2;
+	int32_t soundLoop;
+	int32_t sound2to3;
+	int32_t sound3to2;
+	int32_t soundPos3;
+	int32_t soundKicked;
+	int32_t soundKickedEnd;
+	int32_t soundSoftopen;
+	int32_t soundSoftendo;
+	int32_t soundSoftclose;
+	int32_t soundSoftendc;
+	int32_t parent; // pointer
+	int32_t nextTrain; // pointer
+	int32_t prevTrain; // pointer
+	vec3_t pos1;
+	vec3_t pos2;
+	vec3_t pos3;
+	int32_t message; // pointer
+	int32_t timestamp;
+	float angle;
+	int32_t target; // pointer
+	int32_t targetdeath; // pointer
+	int32_t targetname; // pointer
+	int32_t team; // pointer
+	int32_t targetShaderName; // pointer
+	int32_t targetShaderNewName; // pointer
+	int32_t target_ent; // pointer
+	float speed;
+	float closespeed;
+	vec3_t movedir;
+	int32_t gDuration;
+	int32_t gDurationBack;
+	vec3_t gDelta;
+	vec3_t gDeltaBack;
+	int32_t nextthink;
+	int32_t think; // pointer
+	int32_t reached; // pointer
+	int32_t blocked; // pointer
+	int32_t touch; // pointer
+	int32_t use; // pointer
+	int32_t pain; // pointer
+	int32_t die; // pointer
+	int32_t pain_debounce_time;
+	int32_t fly_sound_debounce_time;
+	int32_t last_move_time;
+	int32_t health;
+	qboolean takedamage;
+	int32_t damage;
+	int32_t splashDamage;
+	int32_t splashRadius;
+	int32_t methodOfDeath;
+	int32_t splashMethodOfDeath;
+	int32_t count;
+	int32_t chain; // pointer
+	int32_t enemy; // pointer
+	int32_t activator; // pointer
+	int32_t teamchain; // pointer
+	int32_t teammaster; // pointer
+	int32_t watertype;
+	int32_t waterlevel;
+	int32_t noise_index;
+	float wait;
+	float random;
+	int32_t radius;
+	float delay;
+	int32_t TargetFlag;
+	float duration;
+	vec3_t rotate;
+	vec3_t TargetAngles;
+	int32_t item; // pointer
+	int32_t aiAttributes; // pointer
+	int32_t aiName; // pointer
+	int32_t aiTeam;
+	int32_t AIScript_AlertEntity; // pointer
+	qboolean aiInactive;
+	int32_t aiCharacter;
+	int32_t aiSkin; // pointer
+	int32_t aihSkin; // pointer
+	vec3_t dl_color;
+	int32_t dl_stylestring; // pointer
+	int32_t dl_shader; // pointer
+	int32_t dl_atten;
+	int32_t key;
+	qboolean active;
+	qboolean botDelayBegin;
+	float harc;
+	float varc;
+	float activateArc;
+	int32_t props_frame_state;
+	int32_t missionLevel;
+	int32_t missionObjectives;
+	int32_t numSecretsFound;
+	int32_t numTreasureFound;
+	qboolean is_dead;
+	int32_t start_size;
+	int32_t end_size;
+	qboolean isProp;
+	int32_t mg42BaseEnt;
+	int32_t melee; // pointer
+	int32_t spawnitem; // pointer
+	qboolean nopickup;
+	int32_t flameQuota;
+	int32_t flameQuotaTime;
+	int32_t flameBurnEnt;
+	int32_t count2;
+	int32_t grenadeExplodeTime;
+	int32_t grenadeFired;
+	int32_t mg42ClampTime;
+	int32_t track; // pointer
+	int32_t scriptName; // pointer
+	int32_t numScriptEvents;
+	int32_t scriptEvents; // pointer
+	GScriptStatus32 scriptStatus; // struct
+	GScriptStatus32 scriptStatusBackup; // struct
+	int32_t scriptAccumBuffer[G_MAX_SCRIPT_ACCUM_BUFFERS];
+	qboolean AASblocking;
+	float accuracy;
+	int32_t tagName; // pointer
+	int32_t tagParent; // pointer
+	float headshotDamageScale;
+	GScriptStatus32 scriptStatusCurrent; // struct
+	int32_t emitID;
+	int32_t emitNum;
+	int32_t emitPressure;
+	int32_t emitTime;
 }; // struct GEntity32
-//BBi
+// BBi
 
 struct gentity_s {
 	entityState_t s;                // communicated by server to clients
@@ -496,7 +496,7 @@ struct gentity_s {
 	gitem_t     *item;          // for bonus items
 
 	// Ridah, AI fields
-    const char* aiAttributes;
+	const char* aiAttributes;
 	char        *aiName;
 	int aiTeam;
 	void ( *AIScript_AlertEntity )( gentity_t *ent );
@@ -508,8 +508,8 @@ struct gentity_s {
 	char* aihSkin;
 
 	vec3_t dl_color;
-    const char* dl_stylestring;
-    const char* dl_shader;
+	const char* dl_stylestring;
+	const char* dl_shader;
 	int dl_atten;
 
 
@@ -596,16 +596,16 @@ struct gentity_s {
 	// if working on a post release patch, new variables should ONLY be inserted after this point
 
 
-    //BBi
-    typedef gentity_s Struct;
-    typedef GEntity32 Struct32;
+	// BBi
+	typedef gentity_s Struct;
+	typedef GEntity32 Struct32;
 
-    void convert_from_32 (
-        const Struct32& struct32);
+	void convert_from_32 (
+		const Struct32& struct32);
 
-    void convert_to_32 (
-        Struct32& struct32) const;
-    //BBi
+	void convert_to_32 (
+		Struct32& struct32) const;
+	// BBi
 };
 
 // Ridah
@@ -705,61 +705,61 @@ typedef struct {
 // this structure is cleared on each ClientSpawn(),
 // except for 'client->pers' and 'client->sess'
 
-//BBi Reference structure for x64 code.
-//BBi All pointers replaced with 4-byte integers.
-//BBi Of course this structure must be identical to original one (gclient_s).
+// BBi Reference structure for x64 code.
+// BBi All pointers replaced with 4-byte integers.
+// BBi Of course this structure must be identical to original one (gclient_s).
 struct GClient32 {
-    playerState_t ps;
-    clientPersistant_t pers;
-    clientSession_t sess;
-    qboolean readyToExit;
-    qboolean noclip;
-    int32_t lastCmdTime;
-    int32_t buttons;
-    int32_t oldbuttons;
-    int32_t latched_buttons;
-    int32_t wbuttons;
-    int32_t oldwbuttons;
-    int32_t latched_wbuttons;
-    vec3_t oldOrigin;
-    int32_t damage_armor;
-    int32_t damage_blood;
-    int32_t damage_knockback;
-    vec3_t damage_from;
-    qboolean damage_fromWorld;
-    int32_t accurateCount;
-    int32_t accuracy_shots;
-    int32_t accuracy_hits;
-    int32_t lastkilled_client;
-    int32_t lasthurt_client;
-    int32_t lasthurt_mod;
-    int32_t respawnTime;
-    int32_t inactivityTime;
-    qboolean inactivityWarning;
-    int32_t rewardTime;
-    int32_t airOutTime;
-    int32_t lastKillTime;
-    qboolean fireHeld;
-    int32_t hook; // pointer
-    int32_t switchTeamTime;
-    int32_t timeResidual;
-    float currentAimSpreadScale;
-    int32_t medicHealAmt;
-    int32_t modelInfo; // pointer
-    int32_t persistantPowerup; // pointer
-    int32_t portalID;
-    int32_t ammoTimes[WP_NUM_WEAPONS];
-    int32_t invulnerabilityTime;
-    int32_t cameraPortal; // pointer
-    vec3_t cameraOrigin;
-    int32_t limboDropWeapon;
-    int32_t deployQueueNumber;
-    int32_t sniperRifleFiredTime;
-    float sniperRifleMuzzleYaw;
-    float sniperRifleMuzzlePitch;
-    int32_t saved_persistant[MAX_PERSISTANT];
+	playerState_t ps;
+	clientPersistant_t pers;
+	clientSession_t sess;
+	qboolean readyToExit;
+	qboolean noclip;
+	int32_t lastCmdTime;
+	int32_t buttons;
+	int32_t oldbuttons;
+	int32_t latched_buttons;
+	int32_t wbuttons;
+	int32_t oldwbuttons;
+	int32_t latched_wbuttons;
+	vec3_t oldOrigin;
+	int32_t damage_armor;
+	int32_t damage_blood;
+	int32_t damage_knockback;
+	vec3_t damage_from;
+	qboolean damage_fromWorld;
+	int32_t accurateCount;
+	int32_t accuracy_shots;
+	int32_t accuracy_hits;
+	int32_t lastkilled_client;
+	int32_t lasthurt_client;
+	int32_t lasthurt_mod;
+	int32_t respawnTime;
+	int32_t inactivityTime;
+	qboolean inactivityWarning;
+	int32_t rewardTime;
+	int32_t airOutTime;
+	int32_t lastKillTime;
+	qboolean fireHeld;
+	int32_t hook; // pointer
+	int32_t switchTeamTime;
+	int32_t timeResidual;
+	float currentAimSpreadScale;
+	int32_t medicHealAmt;
+	int32_t modelInfo; // pointer
+	int32_t persistantPowerup; // pointer
+	int32_t portalID;
+	int32_t ammoTimes[WP_NUM_WEAPONS];
+	int32_t invulnerabilityTime;
+	int32_t cameraPortal; // pointer
+	vec3_t cameraOrigin;
+	int32_t limboDropWeapon;
+	int32_t deployQueueNumber;
+	int32_t sniperRifleFiredTime;
+	float sniperRifleMuzzleYaw;
+	float sniperRifleMuzzlePitch;
+	int32_t saved_persistant[MAX_PERSISTANT];
 }; // struct GClient32
-//BBi
+// BBi
 
 struct gclient_s {
 	// ps MUST be the first element, because the server expects it
@@ -848,16 +848,16 @@ struct gclient_s {
 
 	int saved_persistant[MAX_PERSISTANT];           // DHM - Nerve :: Save ps->persistant here during Limbo
 
-    //BBi
-    typedef gclient_s Struct;
-    typedef GClient32 Struct32;
+	// BBi
+	typedef gclient_s Struct;
+	typedef GClient32 Struct32;
 
-    void convert_from_32 (
-        const Struct32& struct32);
+	void convert_from_32 (
+		const Struct32& struct32);
 
-    void convert_to_32 (
-        Struct32& struct32) const;
-    //BBi
+	void convert_to_32 (
+		Struct32& struct32) const;
+	// BBi
 };
 
 
@@ -1340,10 +1340,10 @@ extern level_locals_t level;
 extern gentity_t g_entities[MAX_GENTITIES];
 extern gentity_t       *g_camEnt;
 
-//BBi
+// BBi
 //#define FOFS( x ) ( (int)&( ( (gentity_t *)0 )->x ) )
 #define FOFS(x) (offsetof (gentity_t, x))
-//BBi
+// BBi
 
 extern vmCvar_t g_gametype;
 

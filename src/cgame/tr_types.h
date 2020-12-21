@@ -307,9 +307,9 @@ typedef enum {
 	TC_S3TC,
 	TC_EXT_COMP_S3TC,
 
-//BBi
-    TC_ARB
-//BBi
+// BBi
+	TC_ARB
+// BBi
 } textureCompression_t;
 
 typedef enum {
@@ -319,30 +319,30 @@ typedef enum {
 								// should always be the lowest value in this
 								// enum set
 
-    //BBi
+	// BBi
 	//GLDRV_STANDALONE,           // driver is a non-3Dfx standalone driver
 	//GLDRV_VOODOO                // driver is a 3Dfx standalone driver
-    //BBi
+	// BBi
 } glDriverType_t;
 
 typedef enum {
 	GLHW_GENERIC           // where everthing works the way it should
 
-    //BBi
+	// BBi
 	//GLHW_3DFX_2D3D,         // Voodoo Banshee or Voodoo3, relevant since if this is
 	//						// the hardware type then there can NOT exist a secondary
 	//						// display adapter
 	//GLHW_RIVA128,           // where you can't interpolate alpha
 	//GLHW_RAGEPRO,           // where you can't modulate alpha on alpha textures
 	//GLHW_PERMEDIA2          // where you don't have src*dst
-    //BBi
+	// BBi
 
 } glHardwareType_t;
 
 
-//BBi
+// BBi
 // For your mental safety do not touch this cursed structure.
-//BBi
+// BBi
 typedef struct {
 	char renderer_string[MAX_STRING_CHARS];
 	char vendor_string[MAX_STRING_CHARS];
@@ -400,13 +400,13 @@ typedef struct {
 
 } glconfig_t;
 
-//BBi
+// BBi
 enum RendererPath {
-    RENDERER_PATH_NONE,
-    // Fixed OpenGL.
-    RENDERER_PATH_OGL_1_X,
-    // Programmable OpenGL (2.x desktop).
-    RENDERER_PATH_OGL_2_X
+	RENDERER_PATH_NONE,
+	// Fixed OpenGL.
+	RENDERER_PATH_OGL_1_X,
+	// Programmable OpenGL (2.x desktop).
+	RENDERER_PATH_OGL_2_X
 }; // enum RendererPath
 
 // Extends glconfig_t structure.
@@ -450,7 +450,7 @@ public:
 		return renderer_path_ == RENDERER_PATH_OGL_2_X;
 	}
 }; // GlConfigEx
-//BBi
+// BBi
 
 #if !defined _WIN32
 

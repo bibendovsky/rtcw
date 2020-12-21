@@ -33,9 +33,9 @@ If you have questions concerning this license or the applicable additional terms
  *
 */
 
-//BBi
+// BBi
 #include <algorithm>
-//BBi
+// BBi
 
 #include "tr_local.h"
 
@@ -98,38 +98,38 @@ void R_Fog( glfog_t *curfog ) {
 
 	// only send changes if necessary
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        float fog_start = curfog->start;
-        float fog_end = curfog->end;
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		float fog_start = curfog->start;
+		float fog_end = curfog->end;
 
 #if defined RTCW_SP
-        if ((backEnd.refdef.rdflags & RDF_SNOOPERVIEW) != 0)
-            fog_start = curfog->end;
+		if ((backEnd.refdef.rdflags & RDF_SNOOPERVIEW) != 0)
+			fog_start = curfog->end;
 #endif // RTCW_XX
 
-        if (r_zfar->value)
-            fog_end = r_zfar->value;
-        else {
+		if (r_zfar->value)
+			fog_end = r_zfar->value;
+		else {
 #if defined RTCW_SP
-            if ((backEnd.refdef.rdflags & RDF_SNOOPERVIEW) != 0)
-                fog_end = curfog->end + 1000.0F;
+			if ((backEnd.refdef.rdflags & RDF_SNOOPERVIEW) != 0)
+				fog_end = curfog->end + 1000.0F;
 #endif // RTCW_XX
-        }
+		}
 
-        ogl_tess_state.fog_mode.set (curfog->mode);
-        ogl_tess_state.fog_dist_mode.set (glConfig.NVFogMode);
-        ogl_tess_state.fog_hint.set (curfog->hint);
-        ogl_tess_state.fog_density.set (curfog->density);
-        ogl_tess_state.fog_start.set (fog_start);
-        ogl_tess_state.fog_end.set (fog_end);
+		ogl_tess_state.fog_mode.set (curfog->mode);
+		ogl_tess_state.fog_dist_mode.set (glConfig.NVFogMode);
+		ogl_tess_state.fog_hint.set (curfog->hint);
+		ogl_tess_state.fog_density.set (curfog->density);
+		ogl_tess_state.fog_start.set (fog_start);
+		ogl_tess_state.fog_end.set (fog_end);
 
-        ogl_tess_state.fog_color.set (glm::vec4 (curfog->color[0],
-            curfog->color[1], curfog->color[2], curfog->color[3]));
+		ogl_tess_state.fog_color.set (glm::vec4 (curfog->color[0],
+			curfog->color[1], curfog->color[2], curfog->color[3]));
 
-        ogl_tess_state.commit_changes ();
-    } else {
-    // BBi
+		ogl_tess_state.commit_changes ();
+	} else {
+	// BBi
 
 //	if(curfog->mode != setfog.mode || !setfog.registered) {
 	glFogi( GL_FOG_MODE, curfog->mode );
@@ -203,9 +203,9 @@ void R_Fog( glfog_t *curfog ) {
 // end
 #endif // RTCW_XX
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	setfog.registered = qtrue;
 
@@ -218,18 +218,18 @@ void R_FogOff( void ) {
 		return;
 	}
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_state.use_fog.set (false);
-        ogl_tess_state.commit_changes ();
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_state.use_fog.set (false);
+		ogl_tess_state.commit_changes ();
+	} else {
+	// BBi
 
 	glDisable( GL_FOG );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	fogIsOn = qfalse;
 }
@@ -276,18 +276,18 @@ void R_FogOn( void ) {
 		return;
 	}
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_state.use_fog.set (true);
-        ogl_tess_state.commit_changes ();
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_state.use_fog.set (true);
+		ogl_tess_state.commit_changes ();
+	} else {
+	// BBi
 
 	glEnable( GL_FOG );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	fogIsOn = qtrue;
 }
@@ -467,10 +467,10 @@ int R_CullLocalBox( vec3_t bounds[2] ) {
 //		VectorMA( transformed[i], v[1], tr.orientation.axis[1], transformed[i] );
 //		VectorMA( transformed[i], v[2], tr.orientation.axis[2], transformed[i] );
 //#endif // RTCW_XX
-        VectorCopy (tr.orientation.origin, transformed[i]);
-        VectorMA (transformed[i], v[0], tr.orientation.axis[0], transformed[i]);
-        VectorMA (transformed[i], v[1], tr.orientation.axis[1], transformed[i]);
-        VectorMA (transformed[i], v[2], tr.orientation.axis[2], transformed[i]);
+		VectorCopy (tr.orientation.origin, transformed[i]);
+		VectorMA (transformed[i], v[0], tr.orientation.axis[0], transformed[i]);
+		VectorMA (transformed[i], v[1], tr.orientation.axis[1], transformed[i]);
+		VectorMA (transformed[i], v[2], tr.orientation.axis[2], transformed[i]);
 // BBi
 	}
 
@@ -579,17 +579,17 @@ void R_LocalNormalToWorld( vec3_t local, vec3_t world ) {
 //	world[1] = local[0] * tr.orientation.axis[0][1] + local[1] * tr.orientation.axis[1][1] + local[2] * tr.orientation.axis[2][1];
 //	world[2] = local[0] * tr.orientation.axis[0][2] + local[1] * tr.orientation.axis[1][2] + local[2] * tr.orientation.axis[2][2];
 //#endif // RTCW_XX
-    world[0] = (local[0] * tr.orientation.axis[0][0]) +
-        (local[1] * tr.orientation.axis[1][0]) +
-        (local[2] * tr.orientation.axis[2][0]);
+	world[0] = (local[0] * tr.orientation.axis[0][0]) +
+		(local[1] * tr.orientation.axis[1][0]) +
+		(local[2] * tr.orientation.axis[2][0]);
 
-    world[1] = (local[0] * tr.orientation.axis[0][1]) +
-        (local[1] * tr.orientation.axis[1][1]) +
-        (local[2] * tr.orientation.axis[2][1]);
+	world[1] = (local[0] * tr.orientation.axis[0][1]) +
+		(local[1] * tr.orientation.axis[1][1]) +
+		(local[2] * tr.orientation.axis[2][1]);
 
-    world[2] = (local[0] * tr.orientation.axis[0][2]) +
-        (local[1] * tr.orientation.axis[1][2]) +
-        (local[2] * tr.orientation.axis[2][2]);
+	world[2] = (local[0] * tr.orientation.axis[0][2]) +
+		(local[1] * tr.orientation.axis[1][2]) +
+		(local[2] * tr.orientation.axis[2][2]);
 // BBi
 }
 
@@ -610,20 +610,20 @@ void R_LocalPointToWorld( vec3_t local, vec3_t world ) {
 //	world[1] = local[0] * tr.orientation.axis[0][1] + local[1] * tr.orientation.axis[1][1] + local[2] * tr.orientation.axis[2][1] + tr.orientation.origin[1];
 //	world[2] = local[0] * tr.orientation.axis[0][2] + local[1] * tr.orientation.axis[1][2] + local[2] * tr.orientation.axis[2][2] + tr.orientation.origin[2];
 //#endif // RTCW_XX
-    world[0] = (local[0] * tr.orientation.axis[0][0]) +
-        (local[1] * tr.orientation.axis[1][0]) +
-        (local[2] * tr.orientation.axis[2][0]) +
-        tr.orientation.origin[0];
+	world[0] = (local[0] * tr.orientation.axis[0][0]) +
+		(local[1] * tr.orientation.axis[1][0]) +
+		(local[2] * tr.orientation.axis[2][0]) +
+		tr.orientation.origin[0];
 
-    world[1] = (local[0] * tr.orientation.axis[0][1]) +
-        (local[1] * tr.orientation.axis[1][1]) +
-        (local[2] * tr.orientation.axis[2][1]) +
-        tr.orientation.origin[1];
+	world[1] = (local[0] * tr.orientation.axis[0][1]) +
+		(local[1] * tr.orientation.axis[1][1]) +
+		(local[2] * tr.orientation.axis[2][1]) +
+		tr.orientation.origin[1];
 
-    world[2] = (local[0] * tr.orientation.axis[0][2]) +
-        (local[1] * tr.orientation.axis[1][2]) +
-        (local[2] * tr.orientation.axis[2][2]) +
-        tr.orientation.origin[2];
+	world[2] = (local[0] * tr.orientation.axis[0][2]) +
+		(local[1] * tr.orientation.axis[1][2]) +
+		(local[2] * tr.orientation.axis[2][2]) +
+		tr.orientation.origin[2];
 // BBi
 }
 
@@ -644,9 +644,9 @@ void R_WorldToLocal( vec3_t world, vec3_t local ) {
 //	local[1] = DotProduct( world, tr.orientation.axis[1] );
 //	local[2] = DotProduct( world, tr.orientation.axis[2] );
 //#endif // RTCW_XX
-    local[0] = DotProduct (world, tr.orientation.axis[0]);
-    local[1] = DotProduct (world, tr.orientation.axis[1]);
-    local[2] = DotProduct (world, tr.orientation.axis[2]);
+	local[0] = DotProduct (world, tr.orientation.axis[0]);
+	local[1] = DotProduct (world, tr.orientation.axis[1]);
+	local[2] = DotProduct (world, tr.orientation.axis[2]);
 // BBi
 }
 
@@ -774,7 +774,7 @@ void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms,
 //#else
 //	VectorSubtract( viewParms->orientation.origin, or->origin, delta );
 //#endif // RTCW_XX
-    VectorSubtract (viewParms->orientation.origin, orient->origin, delta);
+	VectorSubtract (viewParms->orientation.origin, orient->origin, delta);
 // BBi
 
 	// compensate for scale in the axes if necessary
@@ -853,31 +853,31 @@ void R_RotateForViewer( void ) {
 //	viewerMatrix[6] = tr.viewParms.orientation.axis[2][1];
 //	viewerMatrix[10] = tr.viewParms.orientation.axis[2][2];
 //#endif // RTCW_XX
-    memset (&::tr.orientation, 0, sizeof (tr.orientation));
-    tr.orientation.axis[0][0] = 1;
-    tr.orientation.axis[1][1] = 1;
-    tr.orientation.axis[2][2] = 1;
-    VectorCopy (tr.viewParms.orientation.origin,
-        tr.orientation.viewOrigin);
+	memset (&::tr.orientation, 0, sizeof (tr.orientation));
+	tr.orientation.axis[0][0] = 1;
+	tr.orientation.axis[1][1] = 1;
+	tr.orientation.axis[2][2] = 1;
+	VectorCopy (tr.viewParms.orientation.origin,
+		tr.orientation.viewOrigin);
 
-    // transform by the camera placement
-    VectorCopy (tr.viewParms.orientation.origin, origin);
+	// transform by the camera placement
+	VectorCopy (tr.viewParms.orientation.origin, origin);
 
-    viewerMatrix[0] = tr.viewParms.orientation.axis[0][0];
-    viewerMatrix[4] = tr.viewParms.orientation.axis[0][1];
-    viewerMatrix[8] = tr.viewParms.orientation.axis[0][2];
-    viewerMatrix[12] = (-origin[0] * viewerMatrix[0]) +
-        (-origin[1] * viewerMatrix[4]) + (-origin[2] * viewerMatrix[8]);
+	viewerMatrix[0] = tr.viewParms.orientation.axis[0][0];
+	viewerMatrix[4] = tr.viewParms.orientation.axis[0][1];
+	viewerMatrix[8] = tr.viewParms.orientation.axis[0][2];
+	viewerMatrix[12] = (-origin[0] * viewerMatrix[0]) +
+		(-origin[1] * viewerMatrix[4]) + (-origin[2] * viewerMatrix[8]);
 
-    viewerMatrix[1] = tr.viewParms.orientation.axis[1][0];
-    viewerMatrix[5] = tr.viewParms.orientation.axis[1][1];
-    viewerMatrix[9] = tr.viewParms.orientation.axis[1][2];
-    viewerMatrix[13] = (-origin[0] * viewerMatrix[1]) +
-        (-origin[1] * viewerMatrix[5]) + (-origin[2] * viewerMatrix[9]);
+	viewerMatrix[1] = tr.viewParms.orientation.axis[1][0];
+	viewerMatrix[5] = tr.viewParms.orientation.axis[1][1];
+	viewerMatrix[9] = tr.viewParms.orientation.axis[1][2];
+	viewerMatrix[13] = (-origin[0] * viewerMatrix[1]) +
+		(-origin[1] * viewerMatrix[5]) + (-origin[2] * viewerMatrix[9]);
 
-    viewerMatrix[2] = tr.viewParms.orientation.axis[2][0];
-    viewerMatrix[6] = tr.viewParms.orientation.axis[2][1];
-    viewerMatrix[10] = tr.viewParms.orientation.axis[2][2];
+	viewerMatrix[2] = tr.viewParms.orientation.axis[2][0];
+	viewerMatrix[6] = tr.viewParms.orientation.axis[2][1];
+	viewerMatrix[10] = tr.viewParms.orientation.axis[2][2];
 // BBi
 
 	viewerMatrix[14] = -origin[0] * viewerMatrix[2] + - origin[1] * viewerMatrix[6] + - origin[2] * viewerMatrix[10];
@@ -900,8 +900,8 @@ void R_RotateForViewer( void ) {
 //
 //	tr.viewParms.world = tr.orientation;
 //#endif // RTCW_XX
-    myGlMultMatrix (viewerMatrix, s_flipMatrix, tr.orientation.modelMatrix);
-    tr.viewParms.world = tr.orientation;
+	myGlMultMatrix (viewerMatrix, s_flipMatrix, tr.orientation.modelMatrix);
+	tr.viewParms.world = tr.orientation;
 // BBi
 }
 
@@ -1140,7 +1140,7 @@ static void SetFarClip( void ) {
 //#else
 //		VectorSubtract( v, tr.viewParms.orientation.origin, vecTo );
 //#endif // RTCW_XX
-        VectorSubtract (v, tr.viewParms.orientation.origin, vecTo);
+		VectorSubtract (v, tr.viewParms.orientation.origin, vecTo);
 // BBi
 
 		distance = vecTo[0] * vecTo[0] + vecTo[1] * vecTo[1] + vecTo[2] * vecTo[2];
@@ -1300,56 +1300,56 @@ void R_SetupFrustum( void ) {
 	xs = c::sin( ang );
 	xc = c::cos( ang );
 
-    // BBi
+	// BBi
 	//VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[0].normal );
 	//VectorMA( tr.viewParms.frustum[0].normal, xc, tr.viewParms.or.axis[1], tr.viewParms.frustum[0].normal );
 
 	//VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[1].normal );
 	//VectorMA( tr.viewParms.frustum[1].normal, -xc, tr.viewParms.or.axis[1], tr.viewParms.frustum[1].normal );
-    VectorScale (tr.viewParms.orientation.axis[0], xs,
-        tr.viewParms.frustum[0].normal);
+	VectorScale (tr.viewParms.orientation.axis[0], xs,
+		tr.viewParms.frustum[0].normal);
 
-    VectorMA (tr.viewParms.frustum[0].normal, xc,
-        tr.viewParms.orientation.axis[1], tr.viewParms.frustum[0].normal);
+	VectorMA (tr.viewParms.frustum[0].normal, xc,
+		tr.viewParms.orientation.axis[1], tr.viewParms.frustum[0].normal);
 
-    VectorScale (tr.viewParms.orientation.axis[0], xs,
-        tr.viewParms.frustum[1].normal);
+	VectorScale (tr.viewParms.orientation.axis[0], xs,
+		tr.viewParms.frustum[1].normal);
 
-    VectorMA (tr.viewParms.frustum[1].normal, -xc,
-        tr.viewParms.orientation.axis[1], tr.viewParms.frustum[1].normal);
-    // BBi
+	VectorMA (tr.viewParms.frustum[1].normal, -xc,
+		tr.viewParms.orientation.axis[1], tr.viewParms.frustum[1].normal);
+	// BBi
 
 	ang = tr.viewParms.fovY / 180 * M_PI * 0.5f;
 	xs = c::sin( ang );
 	xc = c::cos( ang );
 
-    // BBi
+	// BBi
 	//VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[2].normal );
 	//VectorMA( tr.viewParms.frustum[2].normal, xc, tr.viewParms.or.axis[2], tr.viewParms.frustum[2].normal );
 
 	//VectorScale( tr.viewParms.or.axis[0], xs, tr.viewParms.frustum[3].normal );
 	//VectorMA( tr.viewParms.frustum[3].normal, -xc, tr.viewParms.or.axis[2], tr.viewParms.frustum[3].normal );
-    VectorScale (tr.viewParms.orientation.axis[0], xs,
-        tr.viewParms.frustum[2].normal);
+	VectorScale (tr.viewParms.orientation.axis[0], xs,
+		tr.viewParms.frustum[2].normal);
 
-    VectorMA (tr.viewParms.frustum[2].normal, xc,
-        tr.viewParms.orientation.axis[2], tr.viewParms.frustum[2].normal);
+	VectorMA (tr.viewParms.frustum[2].normal, xc,
+		tr.viewParms.orientation.axis[2], tr.viewParms.frustum[2].normal);
 
-    VectorScale (tr.viewParms.orientation.axis[0], xs,
-        tr.viewParms.frustum[3].normal);
+	VectorScale (tr.viewParms.orientation.axis[0], xs,
+		tr.viewParms.frustum[3].normal);
 
-    VectorMA (tr.viewParms.frustum[3].normal, -xc,
-        tr.viewParms.orientation.axis[2], tr.viewParms.frustum[3].normal);
-    // BBi
+	VectorMA (tr.viewParms.frustum[3].normal, -xc,
+		tr.viewParms.orientation.axis[2], tr.viewParms.frustum[3].normal);
+	// BBi
 
 	for ( i = 0 ; i < 4 ; i++ ) {
 		tr.viewParms.frustum[i].type = PLANE_NON_AXIAL;
 
-        // BBi
+		// BBi
 		//tr.viewParms.frustum[i].dist = DotProduct( tr.viewParms.or.origin, tr.viewParms.frustum[i].normal );
-        tr.viewParms.frustum[i].dist = DotProduct (
-            tr.viewParms.orientation.origin, tr.viewParms.frustum[i].normal);
-        // BBi
+		tr.viewParms.frustum[i].dist = DotProduct (
+			tr.viewParms.orientation.origin, tr.viewParms.frustum[i].normal);
+		// BBi
 
 		SetPlaneSignbits( &tr.viewParms.frustum[i] );
 	}
@@ -1466,8 +1466,8 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 //#else
 //		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.orientation );
 //#endif // RTCW_XX
-        R_RotateForEntity (tr.currentEntity, &::tr.viewParms,
-            &::tr.orientation);
+		R_RotateForEntity (tr.currentEntity, &::tr.viewParms,
+			&::tr.orientation);
 // BBi
 
 		// rotate the plane, but keep the non-rotated version for matching
@@ -1480,8 +1480,8 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 //#else
 //		plane.dist = originalPlane.dist + DotProduct( plane.normal, tr.orientation.origin );
 //#endif // RTCW_XX
-        plane.dist = originalPlane.dist +
-            DotProduct (plane.normal, tr.orientation.origin);
+		plane.dist = originalPlane.dist +
+			DotProduct (plane.normal, tr.orientation.origin);
 // BBi
 
 		// translate the original plane
@@ -1491,8 +1491,8 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 //#else
 //		originalPlane.dist = originalPlane.dist + DotProduct( originalPlane.normal, tr.orientation.origin );
 //#endif // RTCW_XX
-        originalPlane.dist = originalPlane.dist + DotProduct (
-            originalPlane.normal, tr.orientation.origin);
+		originalPlane.dist = originalPlane.dist + DotProduct (
+			originalPlane.normal, tr.orientation.origin);
 // BBi
 	} else {
 		plane = originalPlane;
@@ -1606,8 +1606,8 @@ static qboolean IsMirror( const drawSurf_t *drawSurf, int entityNum ) {
 //#else
 //		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.orientation );
 //#endif // RTCW_XX
-        R_RotateForEntity (tr.currentEntity, &::tr.viewParms,
-            &::tr.orientation);
+		R_RotateForEntity (tr.currentEntity, &::tr.viewParms,
+			&::tr.orientation);
 // BBi
 
 		// rotate the plane, but keep the non-rotated version for matching
@@ -1620,8 +1620,8 @@ static qboolean IsMirror( const drawSurf_t *drawSurf, int entityNum ) {
 //#else
 //		plane.dist = originalPlane.dist + DotProduct( plane.normal, tr.orientation.origin );
 //#endif // RTCW_XX
-        plane.dist = originalPlane.dist + DotProduct (
-            plane.normal, tr.orientation.origin);
+		plane.dist = originalPlane.dist + DotProduct (
+			plane.normal, tr.orientation.origin);
 // BBi
 
 		// translate the original plane
@@ -1631,8 +1631,8 @@ static qboolean IsMirror( const drawSurf_t *drawSurf, int entityNum ) {
 //#else
 //		originalPlane.dist = originalPlane.dist + DotProduct( originalPlane.normal, tr.orientation.origin );
 //#endif // RTCW_XX
-        originalPlane.dist = originalPlane.dist + DotProduct (
-            originalPlane.normal, tr.orientation.origin);
+		originalPlane.dist = originalPlane.dist + DotProduct (
+			originalPlane.normal, tr.orientation.origin);
 // BBi
 	} else
 	{
@@ -1826,8 +1826,8 @@ qboolean R_MirrorViewBySurface( drawSurf_t *drawSurf, int entityNum ) {
 //#else
 //	R_MirrorPoint( oldParms.orientation.origin, &surface, &camera, newParms.orientation.origin );
 //#endif // RTCW_XX
-    R_MirrorPoint (oldParms.orientation.origin, &surface, &camera,
-        newParms.orientation.origin);
+	R_MirrorPoint (oldParms.orientation.origin, &surface, &camera,
+		newParms.orientation.origin);
 // BBi
 
 	VectorSubtract( vec3_origin, camera.axis[0], newParms.portalPlane.normal );
@@ -1843,14 +1843,14 @@ qboolean R_MirrorViewBySurface( drawSurf_t *drawSurf, int entityNum ) {
 //	R_MirrorVector( oldParms.orientation.axis[1], &surface, &camera, newParms.orientation.axis[1] );
 //	R_MirrorVector( oldParms.orientation.axis[2], &surface, &camera, newParms.orientation.axis[2] );
 //#endif // RTCW_XX
-    R_MirrorVector (oldParms.orientation.axis[0], &surface, &camera,
-        newParms.orientation.axis[0]);
+	R_MirrorVector (oldParms.orientation.axis[0], &surface, &camera,
+		newParms.orientation.axis[0]);
 
-    R_MirrorVector (oldParms.orientation.axis[1], &surface, &camera,
-        newParms.orientation.axis[1]);
+	R_MirrorVector (oldParms.orientation.axis[1], &surface, &camera,
+		newParms.orientation.axis[1]);
 
-    R_MirrorVector (oldParms.orientation.axis[2], &surface, &camera,
-        newParms.orientation.axis[2]);
+	R_MirrorVector (oldParms.orientation.axis[2], &surface, &camera,
+		newParms.orientation.axis[2]);
 // BBi
 
 	// OPTIMIZE: restrict the viewport on the mirrored view
@@ -1911,18 +1911,18 @@ qsort replacement
 =================
 */
 
-//BBi
+// BBi
 //#define SWAP_DRAW_SURF( a,b ) temp = ( (int *)a )[0]; ( (int *)a )[0] = ( (int *)b )[0]; ( (int *)b )[0] = temp; temp = ( (int *)a )[1]; ( (int *)a )[1] = ( (int *)b )[1]; ( (int *)b )[1] = temp;
 static inline void SWAP_DRAW_SURF (drawSurf_t* a, drawSurf_t* b)
 {
-    std::swap (*a, *b);
+	std::swap (*a, *b);
 }
 
 static inline void SWAP_DRAW_SURF (char* a, char* b)
 {
-    std::swap_ranges (a, a + sizeof (drawSurf_t), b);
+	std::swap_ranges (a, a + sizeof (drawSurf_t), b);
 }
-//BBi
+// BBi
 
 /* this parameter defines the cutoff between using quick sort and
    insertion sort for arrays; arrays with lengths shorter or equal to the
@@ -1964,11 +1964,11 @@ void qsortFast(
 	int stkptr;                 /* stack for saving sub-array to be processed */
 	int temp;
 
-    //BBi
+	// BBi
 	//if ( sizeof( drawSurf_t ) != 8 ) {
 	//	ri.Error( ERR_DROP, "change SWAP_DRAW_SURF macro" );
 	//}
-    //BBi
+	// BBi
 
 	/* Note: the number of stack entries required is no more than
 	   1 + log2(size), so 30 is sufficient for any array */
@@ -2352,7 +2352,7 @@ void R_AddEntitySurfaces( void ) {
 //#else
 //			R_RotateForEntity( ent, &tr.viewParms, &tr.orientation );
 //#endif // RTCW_XX
-            R_RotateForEntity (ent, &::tr.viewParms, &::tr.orientation);
+			R_RotateForEntity (ent, &::tr.viewParms, &::tr.orientation);
 // BBi
 
 			tr.currentModel = R_GetModelByHandle( ent->e.hModel );
@@ -2482,23 +2482,23 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 
 	// draw solid shade
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_state.primary_color.set (glm::vec4 (
-            static_cast<float> (color % 2),
-            static_cast<float> ((color / 2) % 2),
-            static_cast<float> ((color / 4) % 2),
-            1.0F));
-        ogl_tess_state.commit_changes ();
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_state.primary_color.set (glm::vec4 (
+			static_cast<float> (color % 2),
+			static_cast<float> ((color / 2) % 2),
+			static_cast<float> ((color / 4) % 2),
+			1.0F));
+		ogl_tess_state.commit_changes ();
 
-        for (i = 0; i < numPoints; ++i) {
-            const float* v = points + (3 * i);
-            ogl_tess2.position[i] = glm::vec4 (v[0], v[1], v[2], 1.0F);
-        }
+		for (i = 0; i < numPoints; ++i) {
+			const float* v = points + (3 * i);
+			ogl_tess2.position[i] = glm::vec4 (v[0], v[1], v[2], 1.0F);
+		}
 
-        ogl_tess2_draw (GL_TRIANGLE_FAN, numPoints, false, false);
-    } else {
-    // BBi
+		ogl_tess2_draw (GL_TRIANGLE_FAN, numPoints, false, false);
+	} else {
+	// BBi
 
 	glColor3f( color & 1, ( color >> 1 ) & 1, ( color >> 2 ) & 1 );
 	glBegin( GL_POLYGON );
@@ -2507,27 +2507,27 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 	}
 	glEnd();
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	// draw wireframe outline
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
 	glDepthRange( 0, 0 );
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
-        ogl_tess_state.commit_changes ();
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
+		ogl_tess_state.commit_changes ();
 
-        for (i = 0; i < numPoints; ++i) {
-            const float* v = points + (3 * i);
-            ogl_tess2.position[i] = glm::vec4 (v[0], v[1], v[2], 1.0F);
-        }
+		for (i = 0; i < numPoints; ++i) {
+			const float* v = points + (3 * i);
+			ogl_tess2.position[i] = glm::vec4 (v[0], v[1], v[2], 1.0F);
+		}
 
-        ogl_tess2_draw (GL_TRIANGLE_FAN, numPoints, false, false);
-    } else {
-    // BBi
+		ogl_tess2_draw (GL_TRIANGLE_FAN, numPoints, false, false);
+	} else {
+	// BBi
 
 	glColor3f( 1, 1, 1 );
 	glBegin( GL_POLYGON );
@@ -2536,9 +2536,9 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 	}
 	glEnd();
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	glDepthRange( 0, 1 );
 }
@@ -2556,9 +2556,9 @@ void R_DebugText( const vec3_t org, float r, float g, float b, const char *text,
 
 	}
 
-    // BBi FIXME 2.1+ path
-    if (glConfigEx.is_path_ogl_1_x ()) {
-    // BBi
+	// BBi FIXME 2.1+ path
+	if (glConfigEx.is_path_ogl_1_x ()) {
+	// BBi
 
 	glColor3f( r, g, b );
 	glRasterPos3fv( org );
@@ -2568,9 +2568,9 @@ void R_DebugText( const vec3_t org, float r, float g, float b, const char *text,
 	glListBase( 0 );
 	glPopAttrib();
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	if ( neverOcclude ) {
 		glDepthRange( 0, 1 );
@@ -2666,9 +2666,9 @@ void R_RenderView( viewParms_t *parms ) {
 // BBi
 GLenum r_get_best_wrap_clamp ()
 {
-    if (glConfigEx.use_arb_framebuffer_object_)
-        return GL_CLAMP_TO_EDGE;
-    else
-        return GL_CLAMP;
+	if (glConfigEx.use_arb_framebuffer_object_)
+		return GL_CLAMP_TO_EDGE;
+	else
+		return GL_CLAMP;
 }
 // BBi

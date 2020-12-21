@@ -1,5 +1,5 @@
-#ifndef RTCW_C_H
-#define RTCW_C_H
+#ifndef RTCW_C_INCLUDED
+#define RTCW_C_INCLUDED
 
 
 // BBi
@@ -13,116 +13,145 @@
 #include <cstdlib>
 
 
-namespace c {
-
-
-inline int abs (int j)
+namespace c
 {
-    return std::abs (j);
+
+
+inline int abs(
+	int x)
+{
+	return std::abs(x);
 }
 
-inline div_t div (int numer, int denom)
+inline div_t div(
+	int numerator,
+	int denominator)
 {
-    return std::div (numer, denom);
+	return std::div(numerator, denominator);
 }
 
-inline double acos (double x)
+inline double acos(
+	double x)
 {
-    return std::acos (x);
+	return std::acos(x);
 }
 
-inline double asin (double x)
+inline double asin(
+	double x)
 {
-    return std::asin (x);
+	return std::asin(x);
 }
 
-inline double atan (double x)
+inline double atan(
+	double x)
 {
-    return std::atan (x);
+	return std::atan(x);
 }
 
-inline double atan2 (double x, double y)
+inline double atan2(
+	double x,
+	double y)
 {
-    return std::atan2 (x, y);
+	return std::atan2(x, y);
 }
 
-inline double cos (double x)
+inline double cos(
+	double x)
 {
-    return std::cos (x);
+	return std::cos(x);
 }
 
-inline double sin (double x)
+inline double sin(
+	double x)
 {
-    return std::sin (x);
+	return std::sin(x);
 }
 
-inline double tan (double x)
+inline double tan(
+	double x)
 {
-    return std::tan (x);
+	return std::tan(x);
 }
 
-inline double exp (double x)
+inline double exp(
+	double x)
 {
-    return std::exp (x);
+	return std::exp(x);
 }
 
-inline double frexp (double value, int* exp)
+inline double frexp(
+	double value,
+	int* exp)
 {
-    return std::frexp (value, exp);
+	return std::frexp(value, exp);
 }
 
-inline double ldexp (double x, int exp)
+inline double ldexp(
+	double x,
+	int exp)
 {
-    return std::ldexp (x, exp);
+	return std::ldexp(x, exp);
 }
 
-inline double log (double x)
+inline double log(
+	double x)
 {
-    return std::log (x);
+	return std::log(x);
 }
 
-inline double log10 (double x)
+inline double log10(
+	double x)
 {
-    return std::log10 (x);
+	return std::log10(x);
 }
 
-inline double modf (double value, double* iptr)
+inline double modf(
+	double value,
+	double* iptr)
 {
-    return std::modf (value, iptr);
+	return std::modf(value, iptr);
 }
 
-inline double fabs (double x)
+inline double fabs(
+	double x)
 {
-    return std::fabs (x);
+	return std::fabs(x);
 }
 
-inline double pow (double x, double y)
+inline double pow(
+	double x,
+	double y)
 {
-    return std::pow (x, y);
+	return std::pow(x, y);
 }
 
-inline double sqrt (double x)
+inline double sqrt(
+	double x)
 {
-    return std::sqrt (x);
+	return std::sqrt(x);
 }
 
-inline double ceil (double x)
+inline double ceil(
+	double x)
 {
-    return std::ceil (x);
+	return std::ceil(x);
 }
 
-inline double floor (double x)
+inline double floor(
+	double x)
 {
-    return std::floor (x);
+	return std::floor(x);
 }
 
-inline double fmod (double x, double y)
+inline double fmod(
+	double x,
+	double y)
 {
-    return std::fmod (x, y);
+	return std::fmod(x, y);
 }
 
 
-} // namespace c
+} // c
 
 
-#endif // RTCW_C_H
+#endif // !RTCW_C_INCLUDED

@@ -219,13 +219,13 @@ void S_SoundInfo_f( void ) {
 		Com_Printf( "%5d submission_chunk\n", dma.submission_chunk );
 		Com_Printf( "%5d speed\n", dma.speed );
 
-//BBi Useless
+// BBi Useless
 //#if !defined RTCW_ET
 //		Com_Printf( "0x%x dma buffer\n", dma.buffer );
 //#else
 //		Com_Printf( "0x%p dma buffer\n", dma.buffer );
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 		if ( streamingSounds[0].file ) {
 			Com_Printf( "Background file: %s\n", streamingSounds[0].loop );
@@ -261,17 +261,17 @@ void S_Init( void ) {
 	s_separation = Cvar_Get( "s_separation", "0.5", CVAR_ARCHIVE );
 	s_doppler = Cvar_Get( "s_doppler", "1", CVAR_ARCHIVE );
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //	s_khz = Cvar_Get( "s_khz", "22", CVAR_ARCHIVE );
 //#else
 //	s_khz = Cvar_Get( "s_khz", "22", CVAR_ARCHIVE | CVAR_LATCH );
 //#endif // RTCW_XX
 
-    s_khz = Cvar_Get ("s_khz", "22", CVAR_ARCHIVE | CVAR_LATCH);
-//BBi
+	s_khz = Cvar_Get ("s_khz", "22", CVAR_ARCHIVE | CVAR_LATCH);
+// BBi
 
-//BBi
+// BBi
 //#if defined RTCW_ET
 //	s_mixahead = Cvar_Get( "s_mixahead", "0.2", CVAR_ARCHIVE );
 //#endif // RTCW_XX
@@ -285,20 +285,20 @@ void S_Init( void ) {
 //	s_debugMusic = Cvar_Get( "s_debugMusic", "0", CVAR_TEMP );
 //#endif // RTCW_XX
 
-    static const char* const DEFAULT_MIX_AHEAD_STRING =
+	static const char* const DEFAULT_MIX_AHEAD_STRING =
 #if defined RTCW_SP
-        "0.5"
+		"0.5"
 #else
-        "0.2"
+		"0.2"
 #endif //RTCW_XX
-        ;
+		;
 
-    s_mixahead = Cvar_Get ("s_mixahead", DEFAULT_MIX_AHEAD_STRING, CVAR_ARCHIVE);
+	s_mixahead = Cvar_Get ("s_mixahead", DEFAULT_MIX_AHEAD_STRING, CVAR_ARCHIVE);
 
 #if !defined RTCW_MP
-    s_debugMusic = Cvar_Get ("s_debugMusic", "0", CVAR_TEMP);
+	s_debugMusic = Cvar_Get ("s_debugMusic", "0", CVAR_TEMP);
 #endif // RTCW_XX
-//BBi
+// BBi
 
 	s_mixPreStep = Cvar_Get( "s_mixPreStep", "0.05", CVAR_ARCHIVE );
 	s_show = Cvar_Get( "s_show", "0", CVAR_CHEAT );
@@ -311,7 +311,7 @@ void S_Init( void ) {
 	// Rafael
 	s_nocompressed = Cvar_Get( "s_nocompressed", "0", CVAR_INIT );
 
-//BBi Useless but keep for compatibility
+// BBi Useless but keep for compatibility
 //#if defined RTCW_ET
 //	// fretn
 //	s_bits = Cvar_Get( "s_bits", "16", CVAR_LATCH | CVAR_ARCHIVE );
@@ -319,11 +319,11 @@ void S_Init( void ) {
 //#endif // RTCW_XX
 
 #if defined RTCW_ET
-    // fretn
-    s_bits = Cvar_Get ("s_bits", "16", CVAR_ROM);
-    s_numchannels = Cvar_Get ("s_channels", "2", CVAR_ROM);
+	// fretn
+	s_bits = Cvar_Get ("s_bits", "16", CVAR_ROM);
+	s_numchannels = Cvar_Get ("s_channels", "2", CVAR_ROM);
 #endif // RTCW_XX
-//BBi
+// BBi
 
 	cv = Cvar_Get( "s_initsound", "1", 0 );
 	if ( !cv->integer ) {
@@ -3015,8 +3015,8 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime
 //	snd.nextMusicTrack[0] = 0;
 //----(SA)	end
 
-    if (!snd.s_soundStarted)
-        return;
+	if (!snd.s_soundStarted)
+		return;
 
 	if ( !intro ) {
 		intro = "";
@@ -3382,9 +3382,9 @@ float S_StartStreamingSound( const char *intro, const char *loop, int entnum, in
 	fileHandle_t fh;
 
 #if !defined RTCW_MP
-    if (!snd.s_soundStarted || snd.s_soundMute || cls.state != CA_ACTIVE) {
+	if (!snd.s_soundStarted || snd.s_soundMute || cls.state != CA_ACTIVE) {
 #else
-    if (!s_soundStarted || s_soundMuted || cls.state != CA_ACTIVE ) {
+	if (!s_soundStarted || s_soundMuted || cls.state != CA_ACTIVE ) {
 #endif // RTCW_XX
 
 #if !defined RTCW_ET
@@ -3694,8 +3694,8 @@ void S_UpdateStreamingSounds( void ) {
 #if !defined RTCW_MP
 	float streamingVol = 1.0f;
 
-    if (!snd.s_soundStarted)
-        return;
+	if (!snd.s_soundStarted)
+		return;
 
 	// seems like the mute would be better down lower so no timing gets messed up
 //	if ( s_mute->value ) {	//----(SA)	sound is muted, skip everything
@@ -3819,7 +3819,7 @@ void S_UpdateStreamingSounds( void ) {
 				fileSamples = fileBytes / ( ss->info.width * ss->info.channels );
 			}
 
-            r = FS_Read(raw, fileBytes, ss->file);
+			r = FS_Read(raw, fileBytes, ss->file);
 
 			if ( r != fileBytes ) {
 				Com_DPrintf( "StreamedRead failure on stream sound\n" );
@@ -3929,7 +3929,7 @@ void S_UpdateStreamingSounds( void ) {
 					if ( ss->loop && ss->loop[0] ) {
 						if ( ss->looped ) {
 							char dump[16];
-                            FS_Seek(ss->file, 0, FS_SEEK_SET);
+							FS_Seek(ss->file, 0, FS_SEEK_SET);
 							FS_Read( dump, 12, ss->file );
 
 							if ( !S_FindWavChunk( ss->file, "fmt " ) ) {
@@ -3982,7 +3982,7 @@ void S_UpdateStreamingSounds( void ) {
 						break;
 					} else {
 						char dump[16];
-                        FS_Seek(ss->file, 0, FS_SEEK_SET);
+						FS_Seek(ss->file, 0, FS_SEEK_SET);
 						FS_Read( dump, 12, ss->file );
 
 						if ( !S_FindWavChunk( ss->file, "fmt " ) ) {

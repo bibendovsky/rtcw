@@ -1532,7 +1532,7 @@ int scriptCommandCount = sizeof( commandList ) / sizeof( commandDef_t );
 
 void Item_RunScript( itemDef_t *item, const char *s ) {
 	char script[1024];
-    const char* p;
+	const char* p;
 	int i;
 	qboolean bRan;
 	memset( script, 0, sizeof( script ) );
@@ -1569,7 +1569,7 @@ void Item_RunScript( itemDef_t *item, const char *s ) {
 
 qboolean Item_EnableShowViaCvar( itemDef_t *item, int flag ) {
 	char script[1024];
-    const char* p;
+	const char* p;
 	memset( script, 0, sizeof( script ) );
 	if ( item && item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest ) {
 		char buff[1024];
@@ -3439,7 +3439,7 @@ void Item_Multi_Paint( itemDef_t *item ) {
 
 
 typedef struct {
-    const char* command;
+	const char* command;
 	int id;
 	int defaultbind1;
 	int defaultbind2;
@@ -4759,7 +4759,7 @@ Keyword Hash
 
 typedef struct keywordHash_s
 {
-    const char* keyword;
+	const char* keyword;
 	qboolean ( *func )( itemDef_t *item, int handle );
 	struct keywordHash_s *next;
 } keywordHash_t;

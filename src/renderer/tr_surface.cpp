@@ -285,8 +285,8 @@ static void RB_SurfaceSprite( void ) {
 //		VectorScale( backEnd.viewParms.orientation.axis[1], radius, left );
 //		VectorScale( backEnd.viewParms.orientation.axis[2], radius, up );
 //#endif // RTCW_XX
-        VectorScale (backEnd.viewParms.orientation.axis[1], radius, left);
-        VectorScale (backEnd.viewParms.orientation.axis[2], radius, up);
+		VectorScale (backEnd.viewParms.orientation.axis[1], radius, left);
+		VectorScale (backEnd.viewParms.orientation.axis[2], radius, up);
 // BBi
 	} else {
 		float s, c;
@@ -310,11 +310,11 @@ static void RB_SurfaceSprite( void ) {
 //		VectorScale( backEnd.viewParms.orientation.axis[2], c * radius, up );
 //		VectorMA( up, s * radius, backEnd.viewParms.orientation.axis[1], up );
 //#endif // RTCW_XX
-        VectorScale (backEnd.viewParms.orientation.axis[1], c * radius, left);
-        VectorMA (left, -s * radius, backEnd.viewParms.orientation.axis[2], left);
+		VectorScale (backEnd.viewParms.orientation.axis[1], c * radius, left);
+		VectorMA (left, -s * radius, backEnd.viewParms.orientation.axis[2], left);
 
-        VectorScale (backEnd.viewParms.orientation.axis[2], c * radius, up);
-        VectorMA (up, s * radius, backEnd.viewParms.orientation.axis[1], up);
+		VectorScale (backEnd.viewParms.orientation.axis[2], c * radius, up);
+		VectorMA (up, s * radius, backEnd.viewParms.orientation.axis[1], up);
 // BBi
 	}
 	if ( backEnd.viewParms.isMirror ) {
@@ -378,7 +378,7 @@ void RB_SurfaceTriangles( srfTriangles_t *srf ) {
 #if 0
 	dlightBits = srf->dlightBits[backEnd.smpFrame];
 #endif // 0
-    dlightBits = srf->dlightBits;
+	dlightBits = srf->dlightBits;
 
 	tess.dlightBits |= dlightBits;
 
@@ -407,13 +407,13 @@ void RB_SurfaceTriangles( srfTriangles_t *srf ) {
 			xyz[2] = dv->xyz[2];
 
 #ifndef RTCW_ET
-            if (needsNormal) {
+			if (needsNormal) {
 #endif // RTCW_XX
 			normal[0] = dv->normal[0];
 			normal[1] = dv->normal[1];
 			normal[2] = dv->normal[2];
 #ifndef RTCW_ET
-            }
+			}
 #endif // RTCW_XX
 
 			texCoords0[0] = dv->st[0];
@@ -501,7 +501,7 @@ void RB_SurfaceFoliage( srfFoliage_t *srf ) {
 #if 0
 	dlightBits = srf->dlightBits[ backEnd.smpFrame ];
 #endif // 0
-    dlightBits = srf->dlightBits;
+	dlightBits = srf->dlightBits;
 
 	tess.dlightBits |= dlightBits;
 
@@ -644,27 +644,27 @@ void RB_SurfaceBeam( void ) {
 
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_state.primary_color.set (glm::vec4 (1.0F, 0.0F, 0.0F, 1.0F));
-        ogl_tess_state.commit_changes ();
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_state.primary_color.set (glm::vec4 (1.0F, 0.0F, 0.0F, 1.0F));
+		ogl_tess_state.commit_changes ();
 
-        int vertex_index = 0;
-        const float* v;
+		int vertex_index = 0;
+		const float* v;
 
-        for (i = 0; i <= NUM_BEAM_SEGS; ++i) {
-            v = start_points[i % NUM_BEAM_SEGS];
-            ogl_tess2.position[vertex_index++] = glm::vec4 (
-                v[0], v[1], v[2], 1.0F);
+		for (i = 0; i <= NUM_BEAM_SEGS; ++i) {
+			v = start_points[i % NUM_BEAM_SEGS];
+			ogl_tess2.position[vertex_index++] = glm::vec4 (
+				v[0], v[1], v[2], 1.0F);
 
-            v = end_points[i % NUM_BEAM_SEGS];
-            ogl_tess2.position[vertex_index++] = glm::vec4 (
-                v[0], v[1], v[2], 1.0F);
-        }
+			v = end_points[i % NUM_BEAM_SEGS];
+			ogl_tess2.position[vertex_index++] = glm::vec4 (
+				v[0], v[1], v[2], 1.0F);
+		}
 
-        ogl_tess2_draw (GL_TRIANGLE_STRIP, 2 * NUM_BEAM_SEGS, false, false);
-    } else {
-    // BBi
+		ogl_tess2_draw (GL_TRIANGLE_STRIP, 2 * NUM_BEAM_SEGS, false, false);
+	} else {
+	// BBi
 
 	glColor3f( 1, 0, 0 );
 
@@ -675,9 +675,9 @@ void RB_SurfaceBeam( void ) {
 	}
 	glEnd();
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 }
 
 //================================================================================
@@ -685,12 +685,12 @@ void RB_SurfaceBeam( void ) {
 static void DoRailCore( const vec3_t start, const vec3_t end, const vec3_t up, float len, float spanWidth ) {
 	float spanWidth2;
 	int vbase;
-    	float t;       // = len / 256.0f;
+		float t;       // = len / 256.0f;
 
 	vbase = tess.numVertexes;
 
 #ifndef RTCW_ET
-    t = len / 256.0F;
+	t = len / 256.0F;
 #else
 	// Gordon: configurable tile
 	if ( backEnd.currentEntity->e.radius > 0 ) {
@@ -877,7 +877,7 @@ void RB_SurfaceRailCore( void ) {
 //#else
 //	VectorSubtract( start, backEnd.viewParms.orientation.origin, v1 );
 //#endif // RTCW_XX
-    VectorSubtract (start, backEnd.viewParms.orientation.origin, v1);
+	VectorSubtract (start, backEnd.viewParms.orientation.origin, v1);
 // BBi
 
 	VectorNormalize( v1 );
@@ -888,7 +888,7 @@ void RB_SurfaceRailCore( void ) {
 //#else
 //	VectorSubtract( end, backEnd.viewParms.orientation.origin, v2 );
 //#endif // RTCW_XX
-    VectorSubtract (end, backEnd.viewParms.orientation.origin, v2);
+	VectorSubtract (end, backEnd.viewParms.orientation.origin, v2);
 // BBi
 
 	VectorNormalize( v2 );
@@ -931,7 +931,7 @@ void RB_SurfaceLightningBolt( void ) {
 //#else
 //	VectorSubtract( start, backEnd.viewParms.orientation.origin, v1 );
 //#endif // RTCW_XX
-    VectorSubtract (start, backEnd.viewParms.orientation.origin, v1);
+	VectorSubtract (start, backEnd.viewParms.orientation.origin, v1);
 // BBi
 
 	VectorNormalize( v1 );
@@ -942,7 +942,7 @@ void RB_SurfaceLightningBolt( void ) {
 //#else
 //	VectorSubtract( end, backEnd.viewParms.orientation.origin, v2 );
 //#endif // RTCW_XX
-    VectorSubtract (end, backEnd.viewParms.orientation.origin, v2);
+	VectorSubtract (end, backEnd.viewParms.orientation.origin, v2);
 // BBi
 
 	VectorNormalize( v2 );
@@ -1465,7 +1465,7 @@ void RB_SurfaceFace( srfSurfaceFace_t *surf ) {
 #if 0
 	dlightBits = surf->dlightBits[backEnd.smpFrame];
 #endif // 0
-    dlightBits = surf->dlightBits;
+	dlightBits = surf->dlightBits;
 
 	tess.dlightBits |= dlightBits;
 
@@ -1547,32 +1547,32 @@ static float    LodErrorForVolume( vec3_t local, float radius ) {
 //	d = DotProduct( world, backEnd.viewParms.orientation.axis[0] );
 //#endif // RTCW_XX
 #if !defined RTCW_ET
-    // never let it go negative
-    if (r_lodCurveError->value < 0)
-        return 0;
+	// never let it go negative
+	if (r_lodCurveError->value < 0)
+		return 0;
 #else
-    // never let it go lower than 1
-    if (r_lodCurveError->value < 1)
-        return 1;
+	// never let it go lower than 1
+	if (r_lodCurveError->value < 1)
+		return 1;
 #endif // RTCW_XX
 
-    world[0] = (local[0] * backEnd.orientation.axis[0][0]) +
-        (local[1] * backEnd.orientation.axis[1][0]) +
-        (local[2] * backEnd.orientation.axis[2][0]) +
-        backEnd.orientation.origin[0];
+	world[0] = (local[0] * backEnd.orientation.axis[0][0]) +
+		(local[1] * backEnd.orientation.axis[1][0]) +
+		(local[2] * backEnd.orientation.axis[2][0]) +
+		backEnd.orientation.origin[0];
 
-    world[1] = (local[0] * backEnd.orientation.axis[0][1]) +
-        (local[1] * backEnd.orientation.axis[1][1]) +
-        (local[2] * backEnd.orientation.axis[2][1]) +
-        backEnd.orientation.origin[1];
+	world[1] = (local[0] * backEnd.orientation.axis[0][1]) +
+		(local[1] * backEnd.orientation.axis[1][1]) +
+		(local[2] * backEnd.orientation.axis[2][1]) +
+		backEnd.orientation.origin[1];
 
-    world[2] = (local[0] * backEnd.orientation.axis[0][2]) +
-        (local[1] * backEnd.orientation.axis[1][2]) +
-        (local[2] * backEnd.orientation.axis[2][2]) +
-        backEnd.orientation.origin[2];
+	world[2] = (local[0] * backEnd.orientation.axis[0][2]) +
+		(local[1] * backEnd.orientation.axis[1][2]) +
+		(local[2] * backEnd.orientation.axis[2][2]) +
+		backEnd.orientation.origin[2];
 
-    VectorSubtract (world, backEnd.viewParms.orientation.origin, world);
-    d = DotProduct (world, backEnd.viewParms.orientation.axis[0]);
+	VectorSubtract (world, backEnd.viewParms.orientation.origin, world);
+	d = DotProduct (world, backEnd.viewParms.orientation.axis[0]);
 // BBi
 
 	if ( d < 0 ) {
@@ -1618,7 +1618,7 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 #if 0
 	dlightBits = cv->dlightBits[backEnd.smpFrame];
 #endif // 0
-    dlightBits = cv->dlightBits;
+	dlightBits = cv->dlightBits;
 
 	tess.dlightBits |= dlightBits;
 
@@ -1692,7 +1692,7 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 		color = ( unsigned char * ) &tess.vertexColors[numVertexes].v;
 
 #if !defined RTCW_ET
-        vDlightBits = &tess.vertexDlightBits[numVertexes];
+		vDlightBits = &tess.vertexDlightBits[numVertexes];
 #endif // RTCW_X
 
 		needsNormal = tess.shader->needsNormal;
@@ -1788,50 +1788,50 @@ Draws x/y/z lines from the origin for orientation debugging
 void RB_SurfaceAxis( void ) {
 	GL_Bind( tr.whiteImage );
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        //
-        ogl_tess2.color[0][0] = 255;
-        ogl_tess2.color[0][1] = 0;
-        ogl_tess2.color[0][2] = 0;
-        ogl_tess2.color[0][3] = 255;
-        ogl_tess2.position[0] = glm::vec4 (0.0F);
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		//
+		ogl_tess2.color[0][0] = 255;
+		ogl_tess2.color[0][1] = 0;
+		ogl_tess2.color[0][2] = 0;
+		ogl_tess2.color[0][3] = 255;
+		ogl_tess2.position[0] = glm::vec4 (0.0F);
 
-        ogl_tess2.color[1][0] = 255;
-        ogl_tess2.color[1][1] = 0;
-        ogl_tess2.color[1][2] = 0;
-        ogl_tess2.color[1][3] = 255;
-        ogl_tess2.position[1] = glm::vec4 (16.0F, 0.0F, 0.0F, 1.0F);
+		ogl_tess2.color[1][0] = 255;
+		ogl_tess2.color[1][1] = 0;
+		ogl_tess2.color[1][2] = 0;
+		ogl_tess2.color[1][3] = 255;
+		ogl_tess2.position[1] = glm::vec4 (16.0F, 0.0F, 0.0F, 1.0F);
 
-        //
-        ogl_tess2.color[2][0] = 0;
-        ogl_tess2.color[2][1] = 255;
-        ogl_tess2.color[2][2] = 0;
-        ogl_tess2.color[2][3] = 255;
-        ogl_tess2.position[2] = glm::vec4 (0.0F);
+		//
+		ogl_tess2.color[2][0] = 0;
+		ogl_tess2.color[2][1] = 255;
+		ogl_tess2.color[2][2] = 0;
+		ogl_tess2.color[2][3] = 255;
+		ogl_tess2.position[2] = glm::vec4 (0.0F);
 
-        ogl_tess2.color[3][0] = 0;
-        ogl_tess2.color[3][1] = 255;
-        ogl_tess2.color[3][2] = 0;
-        ogl_tess2.color[3][3] = 255;
-        ogl_tess2.position[3] = glm::vec4 (0.0F, 16.0F, 0.0F, 1.0F);
+		ogl_tess2.color[3][0] = 0;
+		ogl_tess2.color[3][1] = 255;
+		ogl_tess2.color[3][2] = 0;
+		ogl_tess2.color[3][3] = 255;
+		ogl_tess2.position[3] = glm::vec4 (0.0F, 16.0F, 0.0F, 1.0F);
 
-        //
-        ogl_tess2.color[4][0] = 0;
-        ogl_tess2.color[4][1] = 0;
-        ogl_tess2.color[4][2] = 255;
-        ogl_tess2.color[4][3] = 255;
-        ogl_tess2.position[4] = glm::vec4 (0.0F);
+		//
+		ogl_tess2.color[4][0] = 0;
+		ogl_tess2.color[4][1] = 0;
+		ogl_tess2.color[4][2] = 255;
+		ogl_tess2.color[4][3] = 255;
+		ogl_tess2.position[4] = glm::vec4 (0.0F);
 
-        ogl_tess2.color[5][0] = 0;
-        ogl_tess2.color[5][1] = 0;
-        ogl_tess2.color[5][2] = 255;
-        ogl_tess2.color[5][3] = 255;
-        ogl_tess2.position[5] = glm::vec4 (0.0F, 0.0F, 16.0F, 1.0F);
+		ogl_tess2.color[5][0] = 0;
+		ogl_tess2.color[5][1] = 0;
+		ogl_tess2.color[5][2] = 255;
+		ogl_tess2.color[5][3] = 255;
+		ogl_tess2.position[5] = glm::vec4 (0.0F, 0.0F, 16.0F, 1.0F);
 
-        ogl_tess2_draw (GL_LINES, 6, false, true);
-    } else {
-    // BBi
+		ogl_tess2_draw (GL_LINES, 6, false, true);
+	} else {
+	// BBi
 
 	glLineWidth( 3 );
 	glBegin( GL_LINES );
@@ -1847,9 +1847,9 @@ void RB_SurfaceAxis( void ) {
 	glEnd();
 	glLineWidth( 1 );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 }
 
 //===========================================================================

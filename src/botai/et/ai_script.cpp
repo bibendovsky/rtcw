@@ -289,7 +289,7 @@ Bot_EventMatch_IntInRange
 */
 qboolean Bot_EventMatch_IntInRange( bot_script_event_t *event, const char *eventParm ) {
 	const char *pString;
-    char* token;
+	char* token;
 	int int1, int2, eInt;
 
 	// get the cast name
@@ -656,8 +656,8 @@ qboolean Bot_ScriptInitBot( int entnum ) {
 	char userinfo[MAX_INFO_STRING];
 	bot_script_global_data_t *bsgd;
 	char    *token;
-    const char* p;
-    const char* pBackup;
+	const char* p;
+	const char* pBackup;
 	int i, val = 0;
 	int weapons[2];
 	gitem_t *item = NULL;
@@ -1095,8 +1095,8 @@ Bot_ScriptLog_Entry
 void Bot_ScriptLog_Entry( bot_state_t *bs, qboolean showDetails, const char *preText, const char *fmt, ... ) {
 	va_list ap;
 	char text[1024];
-    const char* pStr;
-    char* token;
+	const char* pStr;
+	char* token;
 	fileHandle_t f;
 	int i;
 	//

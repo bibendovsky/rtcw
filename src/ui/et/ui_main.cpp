@@ -270,24 +270,24 @@ qboolean _UI_IsFullscreen( void );
 #pragma GCC visibility push(default)
 #endif
 
-//BBi
+// BBi
 //int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
 extern "C" intptr_t vmMain (
-    intptr_t command,
-    intptr_t arg0,
-    intptr_t arg1,
-    intptr_t arg2,
-    intptr_t arg3,
-    intptr_t arg4,
-    intptr_t arg5,
-    intptr_t arg6,
-    intptr_t arg7,
-    intptr_t arg8,
-    intptr_t arg9,
-    intptr_t arg10,
-    intptr_t arg11)
+	intptr_t command,
+	intptr_t arg0,
+	intptr_t arg1,
+	intptr_t arg2,
+	intptr_t arg3,
+	intptr_t arg4,
+	intptr_t arg5,
+	intptr_t arg6,
+	intptr_t arg7,
+	intptr_t arg8,
+	intptr_t arg9,
+	intptr_t arg10,
+	intptr_t arg11)
 {
-//BBi
+// BBi
 
 #if __GNUC__ >= 4
 #pragma GCC visibility pop
@@ -4391,7 +4391,7 @@ void UI_RunMenuScript( const char **args ) {
 
 #ifdef _MSC_VER
 #define RTCW_VS_LIMITED_NESTING
-        int unknownCount = 0;
+		int unknownCount = 0;
 #endif // _MSC_VER
 
 		if ( Q_stricmp( name, "StartServer" ) == 0 ) {
@@ -5365,10 +5365,10 @@ void UI_RunMenuScript( const char **args ) {
 		} else
 
 #ifdef RTCW_VS_LIMITED_NESTING
-            ++unknownCount;
+			++unknownCount;
 #endif // RTCW_VS_LIMITED_NESTING
 
-        if ( Q_stricmp( name, "systemCvarsApply" ) == 0 ) {
+		if ( Q_stricmp( name, "systemCvarsApply" ) == 0 ) {
 			int ui_r_mode = trap_Cvar_VariableValue( "ui_r_mode" );
 			float ui_r_gamma = trap_Cvar_VariableValue( "ui_r_gamma" );
 			int ui_rate = trap_Cvar_VariableValue( "ui_rate" );
@@ -5487,15 +5487,15 @@ void UI_RunMenuScript( const char **args ) {
 			}
 		} else {
 #ifdef RTCW_VS_LIMITED_NESTING
-            ++unknownCount;
+			++unknownCount;
 #else
 			Com_Printf( "^3WARNING: unknown UI script %s\n", name );
 #endif // RTCW_VS_LIMITED_NESTING
 		}
 
 #ifdef RTCW_VS_LIMITED_NESTING
-        if (unknownCount == 2)
-            Com_Printf ("^3WARNING: unknown UI script %s\n", name);
+		if (unknownCount == 2)
+			Com_Printf ("^3WARNING: unknown UI script %s\n", name);
 #endif // RTCW_VS_LIMITED_NESTING
 	}
 }
@@ -5685,10 +5685,10 @@ static void UI_BuildServerDisplayList( qboolean force ) {
 	trap_Cvar_VariableStringBuffer( "cl_motdString", uiInfo.serverStatus.motd, sizeof( uiInfo.serverStatus.motd ) );
 	len = strlen( uiInfo.serverStatus.motd );
 	if ( len == 0 ) {
-        //BBi
+		// BBi
 		//strcpy( uiInfo.serverStatus.motd, va( "Enemy Territory - Version: %s", Q3_VERSION ) );
-        strcpy (uiInfo.serverStatus.motd, va ("RTCW Enemy Territory - Version: %s", RTCW_VERSION));
-        //BBi
+		strcpy (uiInfo.serverStatus.motd, va ("RTCW Enemy Territory - Version: %s", RTCW_VERSION));
+		// BBi
 
 		len = strlen( uiInfo.serverStatus.motd );
 	}
@@ -5885,8 +5885,8 @@ static void UI_BuildServerDisplayList( qboolean force ) {
 
 typedef struct
 {
-    const char* name;
-    const char* altName;
+	const char* name;
+	const char* altName;
 } serverStatusCvar_t;
 
 serverStatusCvar_t serverStatusCvars[] = {
@@ -5909,8 +5909,8 @@ UI_SortServerStatusInfo
 */
 static void UI_SortServerStatusInfo( serverStatusInfo_t *info ) {
 	int i, j, index;
-    const char* tmp1;
-    const char* tmp2;
+	const char* tmp1;
+	const char* tmp2;
 
 	// FIXME: if "gamename" == "baseq3" or "missionpack" then
 	// replace the gametype number by FFA, CTF etc.

@@ -1670,8 +1670,8 @@ int SV_LoadTag( const char *mod_name ) {
 		for ( j = 0 ; j < 3 ; j++ ) {
 			rtcw::Endian::lei(readTag->origin);
 			rtcw::Endian::lei(readTag->axis[0]);
-            rtcw::Endian::lei(readTag->axis[1]);
-            rtcw::Endian::lei(readTag->axis[2]);
+			rtcw::Endian::lei(readTag->axis[1]);
+			rtcw::Endian::lei(readTag->axis[2]);
 		}
 		Q_strncpyz( tag->name, readTag->name, 64 );
 	}

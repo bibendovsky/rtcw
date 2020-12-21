@@ -187,24 +187,24 @@ qboolean _UI_IsFullscreen( void );
 #pragma export on
 #endif
 
-//BBi
+// BBi
 //int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
 extern "C" intptr_t vmMain (
-    intptr_t command,
-    intptr_t arg0,
-    intptr_t arg1,
-    intptr_t arg2,
-    intptr_t arg3,
-    intptr_t arg4,
-    intptr_t arg5,
-    intptr_t arg6,
-    intptr_t arg7,
-    intptr_t arg8,
-    intptr_t arg9,
-    intptr_t arg10,
-    intptr_t arg11)
+	intptr_t command,
+	intptr_t arg0,
+	intptr_t arg1,
+	intptr_t arg2,
+	intptr_t arg3,
+	intptr_t arg4,
+	intptr_t arg5,
+	intptr_t arg6,
+	intptr_t arg7,
+	intptr_t arg8,
+	intptr_t arg9,
+	intptr_t arg10,
+	intptr_t arg11)
 {
-//BBi
+// BBi
 
 #if defined( __MACOS__ )
 #pragma export off
@@ -1151,10 +1151,10 @@ static void UI_LoadTranslationStrings( void ) {
 			break;
 		}
 
-        //BBi
+		// BBi
 		//translateStrings[i].localname = static_cast<char*> (malloc( strlen( token ) + 1 ));
-        translateStrings[i].localname = new char [strlen (token) + 1];
-        //BBi
+		translateStrings[i].localname = new char [strlen (token) + 1];
+		// BBi
 
 		strcpy( translateStrings[i].localname, token );
 	}
@@ -2473,7 +2473,7 @@ static void UI_DrawKeyBindStatus( rectDef_t *rect, int font, float scale, vec4_t
 	}
 }
 
-//BBi
+// BBi
 //static void UI_DrawGLInfo( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle ) {
 //	char * eptr;
 //	char buff[4096];
@@ -2534,66 +2534,66 @@ static void UI_DrawKeyBindStatus( rectDef_t *rect, int font, float scale, vec4_t
 //}
 
 static void UI_DrawGLInfo (
-    rectDef_t* rect,
-    int font,
-    float scale,
-    vec4_t color,
-    int textStyle)
+	rectDef_t* rect,
+	int font,
+	float scale,
+	vec4_t color,
+	int textStyle)
 {
-    Text_Paint (
-        rect->x + 2,
-        rect->y,
-        font,
-        scale,
-        color,
-        va (
-            "VENDOR: %s",
-            uiInfo.uiDC.glconfig.vendor_string),
-        0,
-        60,
-        textStyle);
+	Text_Paint (
+		rect->x + 2,
+		rect->y,
+		font,
+		scale,
+		color,
+		va (
+			"VENDOR: %s",
+			uiInfo.uiDC.glconfig.vendor_string),
+		0,
+		60,
+		textStyle);
 
-    Text_Paint (
-        rect->x + 2,
-        rect->y + 15,
-        font,
-        scale,
-        color,
-        va (
-            "VERSION: %s: %s",
-            uiInfo.uiDC.glconfig.version_string,
-            uiInfo.uiDC.glconfig.renderer_string),
-        0,
-        60,
-        textStyle);
+	Text_Paint (
+		rect->x + 2,
+		rect->y + 15,
+		font,
+		scale,
+		color,
+		va (
+			"VERSION: %s: %s",
+			uiInfo.uiDC.glconfig.version_string,
+			uiInfo.uiDC.glconfig.renderer_string),
+		0,
+		60,
+		textStyle);
 
-    Text_Paint (
-        rect->x + 2,
-        rect->y + 30,
-        font,
-        scale,
-        color,
-        va (
-            "FORMAT: color - %d bits, depth - %d bits, stencil - %d bits",
-            uiInfo.uiDC.glconfig.colorBits,
-            uiInfo.uiDC.glconfig.depthBits,
-            uiInfo.uiDC.glconfig.stencilBits),
-        0,
-        60,
-        textStyle);
+	Text_Paint (
+		rect->x + 2,
+		rect->y + 30,
+		font,
+		scale,
+		color,
+		va (
+			"FORMAT: color - %d bits, depth - %d bits, stencil - %d bits",
+			uiInfo.uiDC.glconfig.colorBits,
+			uiInfo.uiDC.glconfig.depthBits,
+			uiInfo.uiDC.glconfig.stencilBits),
+		0,
+		60,
+		textStyle);
 
-    Text_Paint (
-        rect->x + 2,
-        rect->y + 55,
-        font,
-        scale,
-        color,
-        "(Use \"gfxinfo\" console command for more information)",
-        0,
-        60,
-        textStyle);
+	Text_Paint (
+		rect->x + 2,
+		rect->y + 55,
+		font,
+		scale,
+		color,
+		"(Use \"gfxinfo\" console command for more information)",
+		0,
+		60,
+		textStyle);
 }
-//BBi
+// BBi
 
 // NERVE - SMF
 static void UI_DrawLimboChat( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle ) {
@@ -4129,9 +4129,9 @@ static weaponType_t weaponTypes[] = {
 };
 
 typedef struct {
-    const char* name;
-    int flags;
-    const char* shader;
+	const char* name;
+	int flags;
+	const char* shader;
 } uiitemType_t;
 
 #define UI_KNIFE_PIC    "window_knife_pic"
@@ -5336,8 +5336,8 @@ static void UI_BuildServerDisplayList( qboolean force ) {
 
 typedef struct
 {
-    const char *name;
-    const char* altName;
+	const char *name;
+	const char* altName;
 } serverStatusCvar_t;
 
 serverStatusCvar_t serverStatusCvars[] = {
@@ -7256,10 +7256,10 @@ cvars
 */
 
 typedef struct {
-    vmCvar_t* vmCvar;
-    const char* cvarName;
-    const char* defaultString;
-    int cvarFlags;
+	vmCvar_t* vmCvar;
+	const char* cvarName;
+	const char* defaultString;
+	int cvarFlags;
 } cvarTable_t;
 
 vmCvar_t ui_ffa_fraglimit;

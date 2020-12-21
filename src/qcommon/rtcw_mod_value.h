@@ -1,54 +1,54 @@
-#ifndef RTCW_MOD_VALUE_H
-#define RTCW_MOD_VALUE_H
+#ifndef RTCW_MOD_VALUE_INCLUDED
+#define RTCW_MOD_VALUE_INCLUDED
 
 
-namespace rtcw {
+namespace rtcw
+{
 
 
-template<class T>
-class ModValue {
+template<
+	typename T
+>
+class ModValue
+{
 public:
-    ModValue () :
-        value_ (),
-        is_modified_ (false)
-    {
-    }
+	ModValue() = default;
 
-    ~ModValue ()
-    {
-    }
+	bool is_modified() const noexcept
+	{
+		return is_modified_;
+	}
 
-    bool is_modified () const
-    {
-        return is_modified_;
-    }
+	const T& get() const noexcept
+	{
+		return value_;
+	}
 
-    const T& get () const
-    {
-        return value_;
-    }
+	void set(
+		const T& value)
+	{
+		is_modified_ |= (value != value_);
+		value_ = value;
+	}
 
-    void set (const T& value)
-    {
-        is_modified_ |= (value != value_);
-        value_ = value;
-    }
-
-    void set_modified (bool value)
-    {
-        is_modified_ = value;
-    }
+	void set_modified(
+		bool value)
+	{
+		is_modified_ = value;
+	}
 
 
 private:
-    T value_;
-    bool is_modified_;
-
-    ModValue (const ModValue& that);
-}; // class ModValue
+	T value_{};
+	bool is_modified_{};
 
 
-} // namespace rtcw
+	ModValue(
+		const ModValue& that);
+}; // ModValue
 
 
-#endif // RTCW_MOD_VALUE_H
+} // rtcw
+
+
+#endif // !RTCW_MOD_VALUE_INCLUDED

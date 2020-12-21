@@ -1045,7 +1045,7 @@ int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, in
 	fileHandle_t f;
 	char buf[MAX_VOICEFILESIZE];
 	const char **p;
-    const char* ptr;
+	const char* ptr;
 	char *token;
 	voiceChat_t *voiceChats;
 	qboolean compress;
@@ -1184,8 +1184,8 @@ int CG_HeadModelVoiceChats( char *filename ) {
 	int len, i;
 	fileHandle_t f;
 	char buf[MAX_VOICEFILESIZE];
-    const char** p;
-    const char* ptr;
+	const char** p;
+	const char* ptr;
 	char *token;
 
 	len = trap_FS_FOpenFile( filename, &f, FS_READ );

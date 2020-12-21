@@ -157,9 +157,9 @@ G_AddRandomBot
 */
 void G_AddRandomBot( int team ) {
 	int i, n, num, skill;
-    const char* value;
-    char netname[36];
-    const char* teamstr;
+	const char* value;
+	char netname[36];
+	const char* teamstr;
 	gclient_t   *cl;
 
 	num = 0;
@@ -490,7 +490,7 @@ static void G_AddBot( const char *name, int skill, const char *team, int delay )
 	const char            *key;
 	const char* s;
 	const char* botname;
-    const char* model;
+	const char* model;
 	char userinfo[MAX_INFO_STRING];
 
 	// get the botinfo from bots.txt

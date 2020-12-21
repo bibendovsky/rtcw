@@ -35,17 +35,17 @@ If you have questions concerning this license or the applicable additional terms
  *
  *****************************************************************************/
 
-//BBi
-//BBi FIXME Take in account endianess
-//BBi
+// BBi
+// BBi FIXME Take in account endianess
+// BBi
 
-//BBi
+// BBi
 #include <algorithm>
 #include <memory>
 #include <vector>
 
 #include "rtcw_endian.h"
-//BBi
+// BBi
 
 #include "q_shared.h"
 #include "l_utils.h"
@@ -63,114 +63,114 @@ If you have questions concerning this license or the applicable additional terms
 #include "be_interface.h"
 #include "be_aas_def.h"
 
-//BBi
+// BBi
 namespace {
 
 
-    const bool aasIs32 = (sizeof (size_t) == 4);
-    const size_t AAS_RCS_SIZE = sizeof (aas_routingcache_t);
-    const size_t AAS_RCS32_SIZE = sizeof (aas_routingcache_t::Struct32);
-    const size_t AAS_RCS_DIFF = AAS_RCS_SIZE - AAS_RCS32_SIZE;
-    const size_t AAS_RCS_TT_SIZE = AAS_RCS_SIZE - reinterpret_cast<size_t> (
-        &static_cast<const aas_routingcache_t*> (0)->traveltimes);
-    const size_t AAS_RCS_TT32_SIZE = AAS_RCS32_SIZE - reinterpret_cast<size_t> (
-        &static_cast<const aas_routingcache_t::Struct32*> (0)->traveltimes);
-    const size_t AAS_RCS_TT_DIFF = AAS_RCS_TT_SIZE - AAS_RCS_TT32_SIZE;
+	const bool aasIs32 = (sizeof (size_t) == 4);
+	const size_t AAS_RCS_SIZE = sizeof (aas_routingcache_t);
+	const size_t AAS_RCS32_SIZE = sizeof (aas_routingcache_t::Struct32);
+	const size_t AAS_RCS_DIFF = AAS_RCS_SIZE - AAS_RCS32_SIZE;
+	const size_t AAS_RCS_TT_SIZE = AAS_RCS_SIZE - reinterpret_cast<size_t> (
+		&static_cast<const aas_routingcache_t*> (0)->traveltimes);
+	const size_t AAS_RCS_TT32_SIZE = AAS_RCS32_SIZE - reinterpret_cast<size_t> (
+		&static_cast<const aas_routingcache_t::Struct32*> (0)->traveltimes);
+	const size_t AAS_RCS_TT_DIFF = AAS_RCS_TT_SIZE - AAS_RCS_TT32_SIZE;
 
-    std::vector<byte> aas_rcs_buffer;
+	std::vector<byte> aas_rcs_buffer;
 
-    void aasWriteRcStruct (
-        aas_routingcache_t* rcStruct,
-        fileHandle_t fileHandle)
-    {
-        if (aasIs32)
-            botimport.FS_Write (rcStruct, rcStruct->size, fileHandle);
-        else {
-            aas_rcs_buffer.resize (rcStruct->size);
-            aas_routingcache_t::Struct32* struct32 =
-                reinterpret_cast<aas_routingcache_t::Struct32*> (&aas_rcs_buffer[0]);
-            rcStruct->convertTo32 (struct32);
+	void aasWriteRcStruct (
+		aas_routingcache_t* rcStruct,
+		fileHandle_t fileHandle)
+	{
+		if (aasIs32)
+			botimport.FS_Write (rcStruct, rcStruct->size, fileHandle);
+		else {
+			aas_rcs_buffer.resize (rcStruct->size);
+			aas_routingcache_t::Struct32* struct32 =
+				reinterpret_cast<aas_routingcache_t::Struct32*> (&aas_rcs_buffer[0]);
+			rcStruct->convertTo32 (struct32);
 
-            botimport.FS_Write (struct32, struct32->size, fileHandle);
-        }
-    }
+			botimport.FS_Write (struct32, struct32->size, fileHandle);
+		}
+	}
 
 } // namespace
 
 
 // (static)
 aas_routingcache_t::Struct* aas_routingcache_t::convertFrom32 (
-    const Struct32* struct32)
+	const Struct32* struct32)
 {
-    int newSize = struct32->size + (AAS_RCS_DIFF - AAS_RCS_TT_DIFF);
+	int newSize = struct32->size + (AAS_RCS_DIFF - AAS_RCS_TT_DIFF);
 
-    Struct* result = static_cast<Struct*> (GetClearedMemory (newSize));
+	Struct* result = static_cast<Struct*> (GetClearedMemory (newSize));
 
-    const Struct32& src = *struct32;
-    Struct& dst = *result;
+	const Struct32& src = *struct32;
+	Struct& dst = *result;
 
-    dst.size = newSize;
-    dst.time = rtcw::Endian::le(src.time);
-    dst.cluster = rtcw::Endian::le(src.cluster);
-    dst.areanum = rtcw::Endian::le(src.areanum);
-    rtcw::Endian::le(src.origin, dst.origin);
-    dst.starttraveltime = rtcw::Endian::le(src.starttraveltime);
-    dst.travelflags = rtcw::Endian::le(src.travelflags);
-    dst.prev = 0;
-    dst.next = 0;
+	dst.size = newSize;
+	dst.time = rtcw::Endian::le(src.time);
+	dst.cluster = rtcw::Endian::le(src.cluster);
+	dst.areanum = rtcw::Endian::le(src.areanum);
+	rtcw::Endian::le(src.origin, dst.origin);
+	dst.starttraveltime = rtcw::Endian::le(src.starttraveltime);
+	dst.travelflags = rtcw::Endian::le(src.travelflags);
+	dst.prev = 0;
+	dst.next = 0;
 
-    dst.reachabilities = reinterpret_cast<byte*> (result) +
-        AAS_RCS_SIZE - AAS_RCS_TT_DIFF + (((src.size - AAS_RCS32_SIZE) / 3) * 2);
+	dst.reachabilities = reinterpret_cast<byte*> (result) +
+		AAS_RCS_SIZE - AAS_RCS_TT_DIFF + (((src.size - AAS_RCS32_SIZE) / 3) * 2);
 
-    int extraSize = src.size - AAS_RCS32_SIZE + AAS_RCS_TT32_SIZE;
+	int extraSize = src.size - AAS_RCS32_SIZE + AAS_RCS_TT32_SIZE;
 
-    std::uninitialized_copy(
-        reinterpret_cast<const byte*> (&src.traveltimes),
-        reinterpret_cast<const byte*> (&src.traveltimes) + extraSize,
-        reinterpret_cast<byte*> (&dst.traveltimes));
+	std::uninitialized_copy(
+		reinterpret_cast<const byte*> (&src.traveltimes),
+		reinterpret_cast<const byte*> (&src.traveltimes) + extraSize,
+		reinterpret_cast<byte*> (&dst.traveltimes));
 
-    if (!rtcw::Endian::is_little()) {
-        int tt_count = (dst.reachabilities - reinterpret_cast<const unsigned char*>(&dst.traveltimes)) / 2;
+	if (!rtcw::Endian::is_little()) {
+		int tt_count = (dst.reachabilities - reinterpret_cast<const unsigned char*>(&dst.traveltimes)) / 2;
 
-        rtcw::Endian::le(src.traveltimes, tt_count, dst.traveltimes);
-    }
+		rtcw::Endian::le(src.traveltimes, tt_count, dst.traveltimes);
+	}
 
-    return result;
+	return result;
 }
 
 void aas_routingcache_t::convertTo32 (
-    aas_routingcache_t::Struct32* struct32) const
+	aas_routingcache_t::Struct32* struct32) const
 {
-    int oldSize = size - AAS_RCS_DIFF;
+	int oldSize = size - AAS_RCS_DIFF;
 
-    const Struct& src = *this;
-    Struct32& dst = *struct32;
+	const Struct& src = *this;
+	Struct32& dst = *struct32;
 
-    dst.size = rtcw::Endian::le(oldSize);
-    dst.time = rtcw::Endian::le(src.time);
-    dst.cluster = rtcw::Endian::le(src.cluster);
-    dst.areanum = rtcw::Endian::le(src.areanum);
-    rtcw::Endian::le(src.origin, dst.origin);
-    dst.starttraveltime = rtcw::Endian::le(src.starttraveltime);
-    dst.travelflags = rtcw::Endian::le(src.travelflags);
-    dst.prev = 0;
-    dst.next = 0;
-    dst.reachabilities = 0;
+	dst.size = rtcw::Endian::le(oldSize);
+	dst.time = rtcw::Endian::le(src.time);
+	dst.cluster = rtcw::Endian::le(src.cluster);
+	dst.areanum = rtcw::Endian::le(src.areanum);
+	rtcw::Endian::le(src.origin, dst.origin);
+	dst.starttraveltime = rtcw::Endian::le(src.starttraveltime);
+	dst.travelflags = rtcw::Endian::le(src.travelflags);
+	dst.prev = 0;
+	dst.next = 0;
+	dst.reachabilities = 0;
 
-    int extraSize = oldSize - AAS_RCS32_SIZE + AAS_RCS_TT32_SIZE;
+	int extraSize = oldSize - AAS_RCS32_SIZE + AAS_RCS_TT32_SIZE;
 
-    std::uninitialized_copy(
-        reinterpret_cast<const byte*> (&src.traveltimes),
-        reinterpret_cast<const byte*> (&src.traveltimes) + extraSize,
-        reinterpret_cast<byte*> (&dst.traveltimes));
+	std::uninitialized_copy(
+		reinterpret_cast<const byte*> (&src.traveltimes),
+		reinterpret_cast<const byte*> (&src.traveltimes) + extraSize,
+		reinterpret_cast<byte*> (&dst.traveltimes));
 
-    if (!rtcw::Endian::is_little()) {
-        int tt_count = (src.reachabilities - reinterpret_cast<const unsigned char*>(&src.traveltimes)) / 2;
+	if (!rtcw::Endian::is_little()) {
+		int tt_count = (src.reachabilities - reinterpret_cast<const unsigned char*>(&src.traveltimes)) / 2;
 
-        rtcw::Endian::le(src.traveltimes, tt_count, dst.traveltimes);
-    }
+		rtcw::Endian::le(src.traveltimes, tt_count, dst.traveltimes);
+	}
 }
-//BBi
+// BBi
 
 #define ROUTING_DEBUG
 
@@ -1235,13 +1235,13 @@ aas_routingcache_t *AAS_AllocRoutingCache( int numtraveltimes ) {
 	//
 	cache = (aas_routingcache_t *) AAS_RoutingGetMemory( size );
 
-    //BBi
+	// BBi
 	//cache->reachabilities = (unsigned char *) cache + sizeof( aas_routingcache_t )
 	//						+ numtraveltimes * sizeof( unsigned short int );
-    cache->reachabilities = reinterpret_cast<byte*> (cache) + sizeof (aas_routingcache_t) +
-        (numtraveltimes * sizeof (unsigned short)) - AAS_RCS_TT_DIFF;
+	cache->reachabilities = reinterpret_cast<byte*> (cache) + sizeof (aas_routingcache_t) +
+		(numtraveltimes * sizeof (unsigned short)) - AAS_RCS_TT_DIFF;
 
-    //BBi
+	// BBi
 #else
 	size = sizeof( aas_routingcache_t ) + numtraveltimes * sizeof( unsigned short int ) + numtraveltimes * sizeof( unsigned char );
 
@@ -1671,7 +1671,7 @@ void AAS_WriteRouteCache( void ) {
 	routecacheheader_t routecacheheader;
 	byte *buf;
 
-//BBi Merged
+// BBi Merged
 //#if !defined RTCW_ET
 //	buf = (byte *) GetClearedMemory( ( *aasworld ).numareas * 2 * sizeof( byte ) );   // in case it ends up bigger than the decompressedvis, which is rare but possible
 //
@@ -1826,94 +1826,94 @@ void AAS_WriteRouteCache( void ) {
 //	botimport.FS_Write( aasworld->areawaypoints, sizeof( vec3_t ) * aasworld->numareas, fp );
 //#endif // RTCW_XX
 
-    buf = static_cast<byte*> (GetClearedMemory (aasworld->numareas * 2 * sizeof (byte))); // in case it ends up bigger than the decompressedvis, which is rare but possible
+	buf = static_cast<byte*> (GetClearedMemory (aasworld->numareas * 2 * sizeof (byte))); // in case it ends up bigger than the decompressedvis, which is rare but possible
 
-    numportalcache = 0;
+	numportalcache = 0;
 
-    for (i = 0; i < aasworld->numareas; ++i) {
-        for (cache = aasworld->portalcache[i]; cache; cache = cache->next)
-            ++numportalcache;
-    }
+	for (i = 0; i < aasworld->numareas; ++i) {
+		for (cache = aasworld->portalcache[i]; cache; cache = cache->next)
+			++numportalcache;
+	}
 
-    numareacache = 0;
+	numareacache = 0;
 
-    for (i = 0; i < aasworld->numclusters; ++i) {
-        cluster = &aasworld->clusters[i];
+	for (i = 0; i < aasworld->numclusters; ++i) {
+		cluster = &aasworld->clusters[i];
 
-        for ( j = 0; j < cluster->numareas; j++ ) {
-            for (cache = aasworld->clusterareacache[i][j]; cache; cache = cache->next)
-                ++numareacache;
-        }
-    }
+		for ( j = 0; j < cluster->numareas; j++ ) {
+			for (cache = aasworld->clusterareacache[i][j]; cache; cache = cache->next)
+				++numareacache;
+		}
+	}
 
-    // open the file for writing
-    Com_sprintf (filename, MAX_QPATH, "maps/%s.rcd", aasworld->mapname);
+	// open the file for writing
+	Com_sprintf (filename, MAX_QPATH, "maps/%s.rcd", aasworld->mapname);
 
-    botimport.FS_FOpenFile (filename, &fp, FS_WRITE);
+	botimport.FS_FOpenFile (filename, &fp, FS_WRITE);
 
-    if (fp == 0) {
-        AAS_Error ("Unable to open file: %s\n", filename);
-        return;
-    }
+	if (fp == 0) {
+		AAS_Error ("Unable to open file: %s\n", filename);
+		return;
+	}
 
-    //create the header
-    routecacheheader.ident = rtcw::Endian::le(static_cast<uint32_t> (RCID));
-    routecacheheader.version = rtcw::Endian::le(static_cast<uint32_t> (RCVERSION));
-    routecacheheader.numareas = rtcw::Endian::le( aasworld->numareas);
-    routecacheheader.numclusters = rtcw::Endian::le(aasworld->numclusters);
-    routecacheheader.areacrc = rtcw::Endian::le(CRC_ProcessString (
-        reinterpret_cast<unsigned char*>(aasworld->areas), sizeof (aas_area_t) * aasworld->numareas));
-    routecacheheader.clustercrc = rtcw::Endian::le(CRC_ProcessString (
-        reinterpret_cast<unsigned char*>(aasworld->clusters), sizeof (aas_cluster_t) * aasworld->numclusters));
-    routecacheheader.reachcrc = rtcw::Endian::le(CRC_ProcessString (
-        reinterpret_cast<unsigned char*>(aasworld->reachability), sizeof (aas_reachability_t) * aasworld->reachabilitysize));
-    routecacheheader.numportalcache = rtcw::Endian::le(numportalcache);
-    routecacheheader.numareacache = rtcw::Endian::le(numareacache);
+	//create the header
+	routecacheheader.ident = rtcw::Endian::le(static_cast<uint32_t> (RCID));
+	routecacheheader.version = rtcw::Endian::le(static_cast<uint32_t> (RCVERSION));
+	routecacheheader.numareas = rtcw::Endian::le( aasworld->numareas);
+	routecacheheader.numclusters = rtcw::Endian::le(aasworld->numclusters);
+	routecacheheader.areacrc = rtcw::Endian::le(CRC_ProcessString (
+		reinterpret_cast<unsigned char*>(aasworld->areas), sizeof (aas_area_t) * aasworld->numareas));
+	routecacheheader.clustercrc = rtcw::Endian::le(CRC_ProcessString (
+		reinterpret_cast<unsigned char*>(aasworld->clusters), sizeof (aas_cluster_t) * aasworld->numclusters));
+	routecacheheader.reachcrc = rtcw::Endian::le(CRC_ProcessString (
+		reinterpret_cast<unsigned char*>(aasworld->reachability), sizeof (aas_reachability_t) * aasworld->reachabilitysize));
+	routecacheheader.numportalcache = rtcw::Endian::le(numportalcache);
+	routecacheheader.numareacache = rtcw::Endian::le(numareacache);
 
-    //write the header
-    botimport.FS_Write (&routecacheheader, sizeof (routecacheheader_t), fp);
+	//write the header
+	botimport.FS_Write (&routecacheheader, sizeof (routecacheheader_t), fp);
 
-    //write all the cache
-    for (i = 0; i < aasworld->numareas; ++i) {
-        for (cache = aasworld->portalcache[i]; cache; cache = cache->next)
-            aasWriteRcStruct (cache, fp);
-    }
+	//write all the cache
+	for (i = 0; i < aasworld->numareas; ++i) {
+		for (cache = aasworld->portalcache[i]; cache; cache = cache->next)
+			aasWriteRcStruct (cache, fp);
+	}
 
-    for (i = 0; i < aasworld->numclusters; ++i) {
-        cluster = &aasworld->clusters[i];
+	for (i = 0; i < aasworld->numclusters; ++i) {
+		cluster = &aasworld->clusters[i];
 
-        for (j = 0; j < cluster->numareas; ++j) {
-            for (cache = aasworld->clusterareacache[i][j]; cache; cache = cache->next)
-                aasWriteRcStruct (cache, fp);
-        }
-    }
+		for (j = 0; j < cluster->numareas; ++j) {
+			for (cache = aasworld->clusterareacache[i][j]; cache; cache = cache->next)
+				aasWriteRcStruct (cache, fp);
+		}
+	}
 
-    // write the visareas
-    for (i = 0; i < aasworld->numareas; ++i) {
-        if (!aasworld->areavisibility[i]) {
-            size = 0;
-            botimport.FS_Write (&size, sizeof (int), fp);
-            continue;
-        }
+	// write the visareas
+	for (i = 0; i < aasworld->numareas; ++i) {
+		if (!aasworld->areavisibility[i]) {
+			size = 0;
+			botimport.FS_Write (&size, sizeof (int), fp);
+			continue;
+		}
 
-        AAS_DecompressVis (aasworld->areavisibility[i], aasworld->numareas, aasworld->decompressedvis);
-        size = AAS_CompressVis (aasworld->decompressedvis, aasworld->numareas, buf);
-        rtcw::Endian::lei(size);
-        botimport.FS_Write (&size, sizeof (int), fp);
-        botimport.FS_Write (buf, size, fp);
-    }
+		AAS_DecompressVis (aasworld->areavisibility[i], aasworld->numareas, aasworld->decompressedvis);
+		size = AAS_CompressVis (aasworld->decompressedvis, aasworld->numareas, buf);
+		rtcw::Endian::lei(size);
+		botimport.FS_Write (&size, sizeof (int), fp);
+		botimport.FS_Write (buf, size, fp);
+	}
 
-    // write the waypoints
-    botimport.FS_Write (aasworld->areawaypoints, sizeof (vec3_t) * aasworld->numareas, fp);
+	// write the waypoints
+	botimport.FS_Write (aasworld->areawaypoints, sizeof (vec3_t) * aasworld->numareas, fp);
 
-    vec3_t vecBuffer;
+	vec3_t vecBuffer;
 
-    for (i = 0; i < aasworld->numareas; ++i) {
-        rtcw::Endian::le(aasworld->areawaypoints[i], vecBuffer);
+	for (i = 0; i < aasworld->numareas; ++i) {
+		rtcw::Endian::le(aasworld->areawaypoints[i], vecBuffer);
 
-        botimport.FS_Write (vecBuffer, sizeof (vec3_t), fp);
-    }
-//BBi
+		botimport.FS_Write (vecBuffer, sizeof (vec3_t), fp);
+	}
+// BBi
 
 	//
 	botimport.FS_FCloseFile( fp );
@@ -1926,7 +1926,7 @@ void AAS_WriteRouteCache( void ) {
 // Changes Globals:		-
 //===========================================================================
 
-//BBi
+// BBi
 //aas_routingcache_t *AAS_ReadCache( fileHandle_t fp ) {
 //
 //#if defined RTCW_SP
@@ -1974,52 +1974,52 @@ void AAS_WriteRouteCache( void ) {
 //} //end of the function AAS_ReadCache
 
 aas_routingcache_t* AAS_ReadCache (
-    fileHandle_t fp)
+	fileHandle_t fp)
 {
-    if (aasIs32) {
-        aas_routingcache_t* cache;
+	if (aasIs32) {
+		aas_routingcache_t* cache;
 
-        int size;
-        botimport.FS_Read (&size, sizeof (size), fp);
-        rtcw::Endian::lei(size);
+		int size;
+		botimport.FS_Read (&size, sizeof (size), fp);
+		rtcw::Endian::lei(size);
 
-        cache = static_cast<aas_routingcache_t*> (AAS_RoutingGetMemory (size));
-        cache->size = size;
-        botimport.FS_Read (reinterpret_cast<byte*> (cache) + sizeof (size), size - sizeof (size), fp);
+		cache = static_cast<aas_routingcache_t*> (AAS_RoutingGetMemory (size));
+		cache->size = size;
+		botimport.FS_Read (reinterpret_cast<byte*> (cache) + sizeof (size), size - sizeof (size), fp);
 
-        cache->reachabilities = reinterpret_cast<byte*> (cache) + sizeof (aas_routingcache_t) +
-            ((size - sizeof (aas_routingcache_t)) / 3) * 2;
+		cache->reachabilities = reinterpret_cast<byte*> (cache) + sizeof (aas_routingcache_t) +
+			((size - sizeof (aas_routingcache_t)) / 3) * 2;
 
-        if (!rtcw::Endian::is_little()) {
-            rtcw::Endian::lei(cache->time);
-            rtcw::Endian::lei(cache->cluster);
-            rtcw::Endian::lei(cache->areanum);
-            rtcw::Endian::lei(cache->origin);
-            rtcw::Endian::lei(cache->starttraveltime);
-            rtcw::Endian::lei(cache->travelflags);
-        }
+		if (!rtcw::Endian::is_little()) {
+			rtcw::Endian::lei(cache->time);
+			rtcw::Endian::lei(cache->cluster);
+			rtcw::Endian::lei(cache->areanum);
+			rtcw::Endian::lei(cache->origin);
+			rtcw::Endian::lei(cache->starttraveltime);
+			rtcw::Endian::lei(cache->travelflags);
+		}
 
-        size = ((size - sizeof (aas_routingcache_t)) / 3) + 1;
+		size = ((size - sizeof (aas_routingcache_t)) / 3) + 1;
 
-        rtcw::Endian::lei(cache->traveltimes, size);
+		rtcw::Endian::lei(cache->traveltimes, size);
 
-        return cache;
-    } else {
-        int size;
-        botimport.FS_Read (&size, sizeof (size), fp);
-        rtcw::Endian::lei(size);
+		return cache;
+	} else {
+		int size;
+		botimport.FS_Read (&size, sizeof (size), fp);
+		rtcw::Endian::lei(size);
 
-        aas_rcs_buffer.resize (size);
+		aas_rcs_buffer.resize (size);
 
-        aas_routingcache_t::Struct32* cache = reinterpret_cast<aas_routingcache_t::Struct32*> (&aas_rcs_buffer[0]);
+		aas_routingcache_t::Struct32* cache = reinterpret_cast<aas_routingcache_t::Struct32*> (&aas_rcs_buffer[0]);
 
-        cache->size = size;
-        botimport.FS_Read (&aas_rcs_buffer[0] + sizeof (size), size - sizeof (size), fp);
+		cache->size = size;
+		botimport.FS_Read (&aas_rcs_buffer[0] + sizeof (size), size - sizeof (size), fp);
 
-        return aas_routingcache_t::convertFrom32 (cache);
-    }
+		return aas_routingcache_t::convertFrom32 (cache);
+	}
 }
-//BBi
+// BBi
 
 //===========================================================================
 //
@@ -2052,7 +2052,7 @@ int AAS_ReadRouteCache( void ) {
 	} //end if
 	botimport.FS_Read( &routecacheheader, sizeof( routecacheheader_t ), fp );
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	// GJD: route cache data MUST be written on a PC because I've not altered the writing code.
 //
@@ -2067,16 +2067,16 @@ int AAS_ReadRouteCache( void ) {
 //	routecacheheader.version = LittleLong( routecacheheader.version );
 //#endif // RTCW_XX
 
-    rtcw::Endian::lei(routecacheheader.areacrc);
-    rtcw::Endian::lei(routecacheheader.clustercrc);
-    rtcw::Endian::lei(routecacheheader.ident);
-    rtcw::Endian::lei(routecacheheader.numareacache);
-    rtcw::Endian::lei(routecacheheader.numareas);
-    rtcw::Endian::lei(routecacheheader.numclusters);
-    rtcw::Endian::lei(routecacheheader.numportalcache);
-    rtcw::Endian::lei(routecacheheader.reachcrc);
-    rtcw::Endian::lei(routecacheheader.version);
-//BBi
+	rtcw::Endian::lei(routecacheheader.areacrc);
+	rtcw::Endian::lei(routecacheheader.clustercrc);
+	rtcw::Endian::lei(routecacheheader.ident);
+	rtcw::Endian::lei(routecacheheader.numareacache);
+	rtcw::Endian::lei(routecacheheader.numareas);
+	rtcw::Endian::lei(routecacheheader.numclusters);
+	rtcw::Endian::lei(routecacheheader.numportalcache);
+	rtcw::Endian::lei(routecacheheader.reachcrc);
+	rtcw::Endian::lei(routecacheheader.version);
+// BBi
 
 	if ( routecacheheader.ident != RCID ) {
 		botimport.FS_FCloseFile( fp );
@@ -3613,10 +3613,10 @@ void AAS_DecompressVis( byte *in, int numareas, byte *decompressed ) {
 	//row = (numareas+7)>>3;
 	out = decompressed;
 
-    //BBi
+	// BBi
 	//end = ( byte * )( (int)decompressed + numareas );
-    end = decompressed + numareas;
-    //BBi
+	end = decompressed + numareas;
+	// BBi
 
 	do
 	{

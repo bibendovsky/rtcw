@@ -238,7 +238,7 @@ void COM_BitClear( int array[], int bitNum ) {
 }
 //============================================================================
 
-//BBi
+// BBi
 #if 0
 /*
 ============================================================================
@@ -257,10 +257,10 @@ static short ( *_LittleShort )( short l );
 static int ( *_BigLong )( int l );
 static int ( *_LittleLong )( int l );
 
-//BBi
+// BBi
 //static qint64 ( *_BigLong64 )( qint64 l );
 //static qint64 ( *_LittleLong64 )( qint64 l );
-//BBi
+// BBi
 
 static float ( *_BigFloat )( float l );
 static float ( *_LittleFloat )( float l );
@@ -270,10 +270,10 @@ static short ( *_LittleShort )( short l ) = NULL;
 static int ( *_BigLong )( int l ) = NULL;
 static int ( *_LittleLong )( int l ) = NULL;
 
-//BBi
+// BBi
 //static qint64 ( *_BigLong64 )( qint64 l ) = NULL;
 //static qint64 ( *_LittleLong64 )( qint64 l ) = NULL;
-//BBi
+// BBi
 
 static float ( *_BigFloat )( float l ) = NULL;
 static float ( *_LittleFloat )( float l ) = NULL;
@@ -285,10 +285,10 @@ short   LittleShort( short l ) {return _LittleShort( l );}
 int     BigLong( int l ) {return _BigLong( l );}
 int     LittleLong( int l ) {return _LittleLong( l );}
 
-//BBi
+// BBi
 //qint64  BigLong64( qint64 l ) {return _BigLong64( l );}
 //qint64  LittleLong64( qint64 l ) {return _LittleLong64( l );}
-//BBi
+// BBi
 
 float   BigFloat( float l ) {return _BigFloat( l );}
 float   LittleFloat( float l ) {return _LittleFloat( l );}
@@ -299,10 +299,10 @@ short   LittleShort( short l ) {return __lhbrx( &l, 0 );}
 int     BigLong( int l ) {return l;}
 int     LittleLong( int l ) {return __lwbrx( &l, 0 );}
 
-//BBi
+// BBi
 //qint64  BigLong64( qint64 l ) {return _BigLong64( l );}
 //qint64  LittleLong64( qint64 l ) {return _LittleLong64( l );}
-//BBi
+// BBi
 
 float   BigFloat( float l ) {return l;}
 float   LittleFloat( float l ) {return _LittleFloat( l );}
@@ -312,10 +312,10 @@ short   LittleShort( short l ) {return _LittleShort( l );}
 int     BigLong( int l ) {return _BigLong( l );}
 int     LittleLong( int l ) {return _LittleLong( l );}
 
-//BBi
+// BBi
 //qint64  BigLong64( qint64 l ) {return _BigLong64( l );}
 //qint64  LittleLong64( qint64 l ) {return _LittleLong64( l );}
-//BBi
+// BBi
 
 float   BigFloat( float l ) {return _BigFloat( l );}
 float   LittleFloat( float l ) {return _LittleFloat( l );}
@@ -324,18 +324,18 @@ float   LittleFloat( float l ) {return _LittleFloat( l );}
 short   LittleShort( short l ) {return _LittleShort( l );}
 int     LittleLong( int l ) {return _LittleLong( l );}
 
-//BBi
+// BBi
 //qint64  LittleLong64( qint64 l ) {return _LittleLong64( l );}
-//BBi
+// BBi
 
 float   LittleFloat( float l ) {return _LittleFloat( l );}
 
 short   BigShort( short l ) {return _BigShort( l );}
 int     BigLong( int l ) {return _BigLong( l );}
 
-//BBi
+// BBi
 //qint64  BigLong64( qint64 l ) {return _BigLong64( l );}
-//BBi
+// BBi
 
 float   BigFloat( float l ) {return _BigFloat( l );}
 #endif // RTCW_XX
@@ -368,7 +368,7 @@ int LongNoSwap( int l ) {
 	return l;
 }
 
-//BBi
+// BBi
 //qint64 Long64Swap( qint64 ll ) {
 //	qint64 result;
 //
@@ -387,7 +387,7 @@ int LongNoSwap( int l ) {
 //qint64 Long64NoSwap( qint64 ll ) {
 //	return ll;
 //}
-//BBi
+// BBi
 
 float FloatSwap( float f ) {
 	union
@@ -424,10 +424,10 @@ void Swap_Init( void ) {
 		_BigLong = LongSwap;
 		_LittleLong = LongNoSwap;
 
-        //BBi
+		// BBi
 		//_BigLong64 = Long64Swap;
 		//_LittleLong64 = Long64NoSwap;
-        //BBi
+		// BBi
 
 		_BigFloat = FloatSwap;
 		_LittleFloat = FloatNoSwap;
@@ -438,10 +438,10 @@ void Swap_Init( void ) {
 		_BigLong = LongNoSwap;
 		_LittleLong = LongSwap;
 
-        //BBi
+		// BBi
 		//_BigLong64 = Long64NoSwap;
 		//_LittleLong64 = Long64Swap;
-        //BBi
+		// BBi
 
 		_BigFloat = FloatNoSwap;
 		_LittleFloat = FloatSwap;
@@ -449,7 +449,7 @@ void Swap_Init( void ) {
 
 }
 #endif // 0
-//BBi
+// BBi
 
 
 /*

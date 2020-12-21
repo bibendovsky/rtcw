@@ -165,13 +165,13 @@ CG_DrawStats
 */
 
 typedef struct {
-    const char* label;
+	const char* label;
 	int YOfs;
 	int labelX;
 	int labelFlags;
 	vec4_t labelColor;
 
-    const char* format;
+	const char* format;
 	int formatX;
 	int formatFlags;
 	vec4_t formatColor;
@@ -208,8 +208,8 @@ void CG_DrawStats( char *stats ) {
 	int i, y, v, j;
 	#define MAX_STATS_VARS  64
 	int vars[MAX_STATS_VARS];
-    char* str;
-    char* token;
+	char* str;
+	char* token;
 	char *formatStr;
 	int varIndex;
 	char string[MAX_QPATH];
@@ -280,8 +280,8 @@ void CG_DrawExitStats( void ) {
 	float *color;   // faded color based on cursor hint drawing
 	float color2[4] = {0, 0, 0, 1};
 	const char *str;
-    char* mstats;
-    char* token;
+	char* mstats;
+	char* token;
 
 	#define MAX_STATS_VARS  64
 	int vars[MAX_STATS_VARS];

@@ -3,6 +3,7 @@
 
 
 #include <string>
+
 #include "glad.h"
 
 
@@ -25,8 +26,8 @@ public:
 		const std::string& base_name);
 
 	OglProgram(
-		const char* const v_shader_buffer,
-		const char* const f_shader_buffer);
+		const char* v_shader_buffer,
+		const char* f_shader_buffer);
 
 	OglProgram(
 		const OglProgram& that) = delete;
@@ -36,8 +37,11 @@ public:
 
 	virtual ~OglProgram();
 
+
 	bool reload();
+
 	bool try_reload();
+
 	void unload();
 
 
@@ -59,24 +63,26 @@ protected:
 	}; // SourceType
 
 
-	SourceType source_type_;
-	std::string glsl_dir_;
-	std::string base_name_;
-	const char* v_shader_c_string_;
-	const char* f_shader_c_string_;
+	SourceType source_type_{};
+	std::string glsl_dir_{};
+	std::string base_name_{};
+	const char* v_shader_c_string_{};
+	const char* f_shader_c_string_{};
 
-	GLuint ogl_vertex_shader_;
-	GLuint ogl_fragment_shader_;
+	GLuint ogl_vertex_shader_{};
+	GLuint ogl_fragment_shader_{};
+
 
 	virtual OglProgram* create_new(
 		const std::string& glsl_dir,
 		const std::string& base_name) = 0;
 
 	virtual OglProgram* create_new(
-		const char* const v_shader_buffer,
-		const char* const f_shader_buffer) = 0;
+		const char* v_shader_buffer,
+		const char* f_shader_buffer) = 0;
 
 	bool reload_internal();
+
 	void unload_internal();
 
 	static const char* get_shader_type_string(
@@ -85,13 +91,15 @@ protected:
 
 private:
 	virtual bool do_reload();
+
 	virtual bool do_try_reload();
+
 	virtual void do_unload();
 
 
 	ReloadShaderResult reload_shader(
 		const GLenum shader_type,
-		const char* const shader_c_string,
+		const char* shader_c_string,
 		GLuint& shaderObject);
 
 	ReloadShaderResult reload_shader(
@@ -109,4 +117,4 @@ private:
 } // rtcw
 
 
-#endif // RTCW_OGL_PROGRAM_INCLUDED
+#endif // !RTCW_OGL_PROGRAM_INCLUDED

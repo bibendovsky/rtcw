@@ -252,10 +252,10 @@ static qboolean R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 
 	sface = ( srfSurfaceFace_t * ) surface;
 
-    // BBi
+	// BBi
 	//d = DotProduct( tr.or.viewOrigin, sface->plane.normal );
-    d = DotProduct (tr.orientation.viewOrigin, sface->plane.normal);
-    // BBi
+	d = DotProduct (tr.orientation.viewOrigin, sface->plane.normal);
+	// BBi
 
 	// don't cull exactly on the plane, because there are levels of rounding
 	// through the BSP, ICD, and hardware that may cause pixel gaps if an
@@ -381,7 +381,7 @@ static int R_DlightFace( srfSurfaceFace_t *face, int dlightBits ) {
 #if 0
 	face->dlightBits[ tr.smpFrame ] = dlightBits;
 #endif // 0
-    face->dlightBits = dlightBits;
+	face->dlightBits = dlightBits;
 
 	return dlightBits;
 }
@@ -413,7 +413,7 @@ static int R_DlightGrid( srfGridMesh_t *grid, int dlightBits ) {
 #if 0
 	grid->dlightBits[ tr.smpFrame ] = dlightBits;
 #endif // 0
-    grid->dlightBits = dlightBits;
+	grid->dlightBits = dlightBits;
 
 	return dlightBits;
 }
@@ -424,7 +424,7 @@ static int R_DlightTrisurf( srfTriangles_t *surf, int dlightBits ) {
 #if 0
 	surf->dlightBits[ tr.smpFrame ] = dlightBits;
 #endif // 0
-    surf->dlightBits = dlightBits;
+	surf->dlightBits = dlightBits;
 
 	return dlightBits;
 
@@ -512,7 +512,7 @@ static int R_DlightSurface( msurface_t *surface, int dlightBits ) {
 #if 0
 		gen->dlightBits[ tr.smpFrame ] = 0;
 #endif // 0
-        gen->dlightBits = 0;
+		gen->dlightBits = 0;
 		return 0;
 	}
 
@@ -566,7 +566,7 @@ static int R_DlightSurface( msurface_t *surface, int dlightBits ) {
 	gen->dlightBits[ tr.smpFrame ] = dlightBits;
 #endif // 0
 
-    gen->dlightBits = dlightBits;
+	gen->dlightBits = dlightBits;
 	return dlightBits;
 }
 #endif // RTCW_XX
@@ -801,12 +801,12 @@ void R_AddBrushModelSurfaces( trRefEntity_t *ent ) {
 	bmodel->entityNum[ tr.smpFrame ] = tr.currentEntityNum;
 #endif // 0
 
-    VectorCopy(ent->e.origin, bmodel->orientation.origin );
-    VectorCopy(ent->e.axis[0], bmodel->orientation.axis[0] );
-    VectorCopy(ent->e.axis[1], bmodel->orientation.axis[1] );
-    VectorCopy(ent->e.axis[2], bmodel->orientation.axis[2] );
-    bmodel->visible = qtrue;
-    bmodel->entityNum = tr.currentEntityNum;
+	VectorCopy(ent->e.origin, bmodel->orientation.origin );
+	VectorCopy(ent->e.axis[0], bmodel->orientation.axis[0] );
+	VectorCopy(ent->e.axis[1], bmodel->orientation.axis[1] );
+	VectorCopy(ent->e.axis[2], bmodel->orientation.axis[2] );
+	bmodel->visible = qtrue;
+	bmodel->entityNum = tr.currentEntityNum;
 
 	R_DlightBmodel( bmodel );
 

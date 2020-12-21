@@ -2,9 +2,9 @@
 ===========================================================================
 
 Return to Castle Wolfenstein single player GPL Source Code
-Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Return to Castle Wolfenstein single player GPL Source Code (?RTCW SP Source Code?).  
+This file is part of the Return to Castle Wolfenstein single player GPL Source Code (?RTCW SP Source Code?).
 
 RTCW SP Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-#ifndef RTCW_INPUT_KEYBOARD_H
-#define RTCW_INPUT_KEYBOARD_H
+#ifndef RTCW_INPUT_KEYBOARD_INCLUDED
+#define RTCW_INPUT_KEYBOARD_INCLUDED
 
 
 #include "SDL_events.h"
@@ -40,38 +40,47 @@ If you have questions concerning this license or the applicable additional terms
 extern cvar_t* k_language;
 
 
-namespace rtcw {
-namespace input {
+namespace rtcw
+{
+namespace input
+{
 
 
-class Keyboard {
+class Keyboard
+{
 public:
-    Keyboard();
-    ~Keyboard();
+	Keyboard();
 
-    bool initialize();
-    void uninitialize(bool quiet = false);
+	~Keyboard();
 
-    void handle_event(const SDL_Event& e);
+	bool initialize();
 
-    static void register_cvars();
+	void uninitialize(
+		bool quiet = false);
+
+	void handle_event(
+		const SDL_Event& e);
+
+	static void register_cvars();
 
 
 private:
-    bool is_initialized_;
-
-    void handle_key_event(const SDL_KeyboardEvent& e);
-
-    static char map_to_char(const SDL_KeyboardEvent& e);
-    static int map_to_rtcw(SDL_Keycode key_code);
-
-    Keyboard(const Keyboard& that);
-    Keyboard& operator=(const Keyboard& that);
-}; // class Keyboard
+	bool is_initialized_{};
 
 
-} // namespace input
-} // namespace rtcw
+	void handle_key_event(
+		const SDL_KeyboardEvent& e);
+
+	static char map_to_char(
+		const SDL_KeyboardEvent& e);
+
+	static int map_to_rtcw(
+		SDL_Keycode key_code);
+}; // Keyboard
 
 
-#endif // RTCW_INPUT_KEYBOARD_H
+} // input
+} // rtcw
+
+
+#endif // !RTCW_INPUT_KEYBOARD_INCLUDED

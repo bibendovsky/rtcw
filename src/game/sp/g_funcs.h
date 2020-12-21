@@ -360,16 +360,16 @@ If you have questions concerning this license or the applicable additional terms
 {"COM_RestoreParseSession", reinterpret_cast<Function>(COM_RestoreParseSession)},
 {"COM_BeginParseSession", reinterpret_cast<Function>(COM_BeginParseSession)},
 
-//BBi
+// BBi
 #if 0
 {"Swap_Init", reinterpret_cast<Function>(Swap_Init)},
 {"FloatNoSwap", reinterpret_cast<Function>(FloatNoSwap)},
 {"FloatSwap", reinterpret_cast<Function>(FloatSwap)},
 
-//BBi
+// BBi
 //{"Long64NoSwap", reinterpret_cast<Function>(Long64NoSwap)},
 //{"Long64Swap", reinterpret_cast<Function>(Long64Swap)},
-//BBi
+// BBi
 
 {"LongNoSwap", reinterpret_cast<Function>(LongNoSwap)},
 {"LongSwap", reinterpret_cast<Function>(LongSwap)},
@@ -378,10 +378,10 @@ If you have questions concerning this license or the applicable additional terms
 {"LittleFloat", reinterpret_cast<Function>(LittleFloat)},
 {"BigFloat", reinterpret_cast<Function>(BigFloat)},
 
-//BBi
+// BBi
 //{"LittleLong64", reinterpret_cast<Function>(LittleLong64)},
 //{"BigLong64", reinterpret_cast<Function>(BigLong64)},
-//BBi
+// BBi
 
 {"LittleLong", reinterpret_cast<Function>(LittleLong)},
 {"BigLong", reinterpret_cast<Function>(BigLong)},
@@ -1457,10 +1457,10 @@ If you have questions concerning this license or the applicable additional terms
 {"ReadClient", reinterpret_cast<Function>(ReadClient)},
 {"WriteClient", reinterpret_cast<Function>(WriteClient)},
 
-//BBi
+// BBi
 //{"G_Save_Decode", reinterpret_cast<Function>(G_Save_Decode)},
 //{"G_Save_Encode", reinterpret_cast<Function>(G_Save_Encode)},
-//BBi
+// BBi
 
 {"ReadField", reinterpret_cast<Function>(ReadField)},
 {"WriteField2", reinterpret_cast<Function>(WriteField2)},

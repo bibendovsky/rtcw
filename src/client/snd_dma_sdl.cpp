@@ -71,75 +71,75 @@ volatile bool sdl_mute_mixer;
 
 
 int sdl_calculate_sample_size(
-    int channel_count,
-    int bits_per_channel)
+	int channel_count,
+	int bits_per_channel)
 {
-    return channel_count * (bits_per_channel / 8);
+	return channel_count * (bits_per_channel / 8);
 }
 
 int sdl_calculate_mix_size(
-    int channel_count,
-    int bits_per_channel,
-    int sample_rate)
+	int channel_count,
+	int bits_per_channel,
+	int sample_rate)
 {
-    int sample_size = sdl_calculate_sample_size(
-        channel_count, bits_per_channel);
-    int bytes_per_sec = sample_size * sample_rate;
-    int exact_mix_size = (k_mix_time_ms * bytes_per_sec) / 1000;
-    int mix_size = 1;
+	int sample_size = sdl_calculate_sample_size(
+		channel_count, bits_per_channel);
+	int bytes_per_sec = sample_size * sample_rate;
+	int exact_mix_size = (k_mix_time_ms * bytes_per_sec) / 1000;
+	int mix_size = 1;
 
-    while (mix_size < exact_mix_size)
-        mix_size *= 2;
+	while (mix_size < exact_mix_size)
+		mix_size *= 2;
 
-    return mix_size;
+	return mix_size;
 }
 
 int sdl_calculate_buffer_size(
-    int mix_size)
+	int mix_size)
 {
-    int buffer_size = k_mix_count * mix_size;
+	int buffer_size = k_mix_count * mix_size;
 
-    if (buffer_size < k_min_buffer_size)
-        buffer_size = k_min_buffer_size;
+	if (buffer_size < k_min_buffer_size)
+		buffer_size = k_min_buffer_size;
 
-    return buffer_size;
+	return buffer_size;
 }
 
 void sdl_callback(
-    void* user_data,
-    uint8_t* stream,
-    int length)
+	void* user_data,
+	uint8_t* stream,
+	int length)
 {
-    int new_position = sdl_buffer_offset;
+	int new_position = sdl_buffer_offset;
 
-    if (sdl_mute_mixer) {
-        std::uninitialized_fill_n(stream, length, 0);
+	if (sdl_mute_mixer) {
+		std::uninitialized_fill_n(stream, length, 0);
 
-        new_position += length;
-        new_position %= sdl_buffer_size;
-    } else {
-        int length1 = std::min(length, sdl_buffer_size - new_position);
-        int length2 = length - length1;
+		new_position += length;
+		new_position %= sdl_buffer_size;
+	} else {
+		int length1 = std::min(length, sdl_buffer_size - new_position);
+		int length2 = length - length1;
 
-        std::uninitialized_copy(
-            &sdl_buffer[new_position],
-            &sdl_buffer[new_position] + length1,
-            stream);
+		std::uninitialized_copy(
+			&sdl_buffer[new_position],
+			&sdl_buffer[new_position] + length1,
+			stream);
 
-        new_position += length1;
+		new_position += length1;
 
-        if (length2 > 0) {
-            std::uninitialized_copy(
-                &sdl_buffer[0],
-                &sdl_buffer[0] + length2,
-                stream);
+		if (length2 > 0) {
+			std::uninitialized_copy(
+				&sdl_buffer[0],
+				&sdl_buffer[0] + length2,
+				stream);
 
-            new_position = length2;
-        } else
-            new_position %= sdl_buffer_size;
-    }
+			new_position = length2;
+		} else
+			new_position %= sdl_buffer_size;
+	}
 
-    sdl_buffer_offset = new_position;
+	sdl_buffer_offset = new_position;
 }
 
 
@@ -148,166 +148,166 @@ void sdl_callback(
 
 void SNDDMA_Shutdown()
 {
-    if (!sdl_is_initialized)
-        return;
+	if (!sdl_is_initialized)
+		return;
 
-    Com_DPrintf("Shutting down SDL audio system\n");
+	Com_DPrintf("Shutting down SDL audio system\n");
 
-    sdl_is_initialized = false;
+	sdl_is_initialized = false;
 
-    SDL_PauseAudioDevice(sdl_device_id, true);
-    SDL_CloseAudioDevice(sdl_device_id);
-    SDL_QuitSubSystem(SDL_INIT_AUDIO);
+	SDL_PauseAudioDevice(sdl_device_id, true);
+	SDL_CloseAudioDevice(sdl_device_id);
+	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 
-    Buffer().swap(sdl_buffer);
+	Buffer().swap(sdl_buffer);
 
-    dma.buffer = NULL;
+	dma.buffer = NULL;
 }
 
 qboolean SNDDMA_Init()
 {
-    SNDDMA_Shutdown();
+	SNDDMA_Shutdown();
 
-    Com_Printf("Initialize audio\n");
+	Com_Printf("Initialize audio\n");
 
-    bool is_succeed = true;
-    int sdl_result = 0;
+	bool is_succeed = true;
+	int sdl_result = 0;
 
-    sdl_buffer_offset = 0;
+	sdl_buffer_offset = 0;
 
-    if (is_succeed) {
-        Com_Printf("...initialize SDL audio subsystem\n");
+	if (is_succeed) {
+		Com_Printf("...initialize SDL audio subsystem\n");
 
-        sdl_result = SDL_InitSubSystem(SDL_INIT_AUDIO);
+		sdl_result = SDL_InitSubSystem(SDL_INIT_AUDIO);
 
-        if (sdl_result != 0) {
-            is_succeed = false;
-            Com_Printf(S_COLOR_RED "...failed\n");
-        }
-    }
-
-
-    int channel_count = 2;
-    int bits_per_channel = 16;
-    int sample_rate = 0;
-    int mix_size = 0;
-    int buffer_size = 0;
-
-    if (is_succeed) {
-        switch (s_khz->integer) {
-        case 11:
-            sample_rate = 11025;
-            break;
-
-        case 22:
-            sample_rate = 22050;
-            break;
-
-        case 44:
-            sample_rate = 44100;
-            break;
-
-        case 48:
-            sample_rate = 48000;
-            break;
-
-        default:
-            sample_rate = 22050;
-
-            Com_Printf(S_COLOR_YELLOW "...unsupported value of sampling rate: s_khz = %d\n",
-                s_khz->integer);
-
-            Com_Printf(S_COLOR_YELLOW "...set default sampling rate to %d Hz\n",
-                sample_rate);
-            break;
-        }
-
-        mix_size = sdl_calculate_mix_size(
-            channel_count, bits_per_channel, sample_rate);
-
-        buffer_size = sdl_calculate_buffer_size(mix_size);
-    }
+		if (sdl_result != 0) {
+			is_succeed = false;
+			Com_Printf(S_COLOR_RED "...failed\n");
+		}
+	}
 
 
-    SDL_AudioSpec desired;
-    SDL_AudioSpec obtained;
-    SDL_AudioDeviceID device_id = 0;
+	int channel_count = 2;
+	int bits_per_channel = 16;
+	int sample_rate = 0;
+	int mix_size = 0;
+	int buffer_size = 0;
 
-    if (is_succeed) {
-        desired.freq = sample_rate;
-        desired.format = AUDIO_S16LSB;
-        desired.channels = channel_count;
-        desired.samples = mix_size /
-            sdl_calculate_sample_size(channel_count, bits_per_channel);
-        desired.callback = sdl_callback;
+	if (is_succeed) {
+		switch (s_khz->integer) {
+		case 11:
+			sample_rate = 11025;
+			break;
 
-        Com_Printf("...open audio device\n");
+		case 22:
+			sample_rate = 22050;
+			break;
 
-        device_id = SDL_OpenAudioDevice(
-            NULL, false, &desired, &obtained, 0);
+		case 44:
+			sample_rate = 44100;
+			break;
 
-        if (device_id == 0) {
-            is_succeed = false;
-            Com_Printf(S_COLOR_RED "...failed\n");
-        }
-    }
+		case 48:
+			sample_rate = 48000;
+			break;
 
-    if (is_succeed) {
-        if (obtained.freq != desired.freq ||
-            obtained.format != desired.format ||
-            obtained.channels != desired.channels ||
-            obtained.samples != desired.samples)
-        {
-            is_succeed = false;
+		default:
+			sample_rate = 22050;
 
-            if (obtained.freq != desired.freq) {
-                Com_Printf(S_COLOR_RED "...sampling rate mismatch: %d\n",
-                    obtained.freq);
-            }
+			Com_Printf(S_COLOR_YELLOW "...unsupported value of sampling rate: s_khz = %d\n",
+				s_khz->integer);
 
-            if (obtained.format != desired.format) {
-                Com_Printf(S_COLOR_RED "...format mismatch: %d\n",
-                    obtained.format);
-            }
+			Com_Printf(S_COLOR_YELLOW "...set default sampling rate to %d Hz\n",
+				sample_rate);
+			break;
+		}
 
-            if (obtained.channels != desired.channels) {
-                Com_Printf(S_COLOR_RED "...channel count mismatch: %d\n",
-                    obtained.channels);
-            }
+		mix_size = sdl_calculate_mix_size(
+			channel_count, bits_per_channel, sample_rate);
 
-            if (obtained.samples != desired.samples) {
-                Com_Printf(S_COLOR_RED "...sample count mismatch: %d\n",
-                    obtained.samples);
-            }
-        }
-    }
+		buffer_size = sdl_calculate_buffer_size(mix_size);
+	}
 
-    if (is_succeed) {
-        sdl_is_initialized = true;
 
-        dma.channels = channel_count;
-        dma.samples = buffer_size / channel_count;
-        dma.samplebits = bits_per_channel;
-        dma.speed = sample_rate;
-        dma.submission_chunk = 1;
-        dma.buffer = NULL;
+	SDL_AudioSpec desired;
+	SDL_AudioSpec obtained;
+	SDL_AudioDeviceID device_id = 0;
 
-        sdl_device_id = device_id;
-        sdl_buffer.resize(buffer_size);
-        sdl_buffer_size = buffer_size;
-        sdl_mute_mixer = false;
+	if (is_succeed) {
+		desired.freq = sample_rate;
+		desired.format = AUDIO_S16LSB;
+		desired.channels = channel_count;
+		desired.samples = mix_size /
+			sdl_calculate_sample_size(channel_count, bits_per_channel);
+		desired.callback = sdl_callback;
 
-        SDL_PauseAudioDevice(sdl_device_id, false);
+		Com_Printf("...open audio device\n");
 
-        return true;
-    }
+		device_id = SDL_OpenAudioDevice(
+			NULL, false, &desired, &obtained, 0);
 
-    if (device_id != 0)
-        SDL_CloseAudioDevice(device_id);
+		if (device_id == 0) {
+			is_succeed = false;
+			Com_Printf(S_COLOR_RED "...failed\n");
+		}
+	}
 
-    SDL_QuitSubSystem(SDL_INIT_AUDIO);
+	if (is_succeed) {
+		if (obtained.freq != desired.freq ||
+			obtained.format != desired.format ||
+			obtained.channels != desired.channels ||
+			obtained.samples != desired.samples)
+		{
+			is_succeed = false;
 
-    return false;
+			if (obtained.freq != desired.freq) {
+				Com_Printf(S_COLOR_RED "...sampling rate mismatch: %d\n",
+					obtained.freq);
+			}
+
+			if (obtained.format != desired.format) {
+				Com_Printf(S_COLOR_RED "...format mismatch: %d\n",
+					obtained.format);
+			}
+
+			if (obtained.channels != desired.channels) {
+				Com_Printf(S_COLOR_RED "...channel count mismatch: %d\n",
+					obtained.channels);
+			}
+
+			if (obtained.samples != desired.samples) {
+				Com_Printf(S_COLOR_RED "...sample count mismatch: %d\n",
+					obtained.samples);
+			}
+		}
+	}
+
+	if (is_succeed) {
+		sdl_is_initialized = true;
+
+		dma.channels = channel_count;
+		dma.samples = buffer_size / channel_count;
+		dma.samplebits = bits_per_channel;
+		dma.speed = sample_rate;
+		dma.submission_chunk = 1;
+		dma.buffer = NULL;
+
+		sdl_device_id = device_id;
+		sdl_buffer.resize(buffer_size);
+		sdl_buffer_size = buffer_size;
+		sdl_mute_mixer = false;
+
+		SDL_PauseAudioDevice(sdl_device_id, false);
+
+		return true;
+	}
+
+	if (device_id != 0)
+		SDL_CloseAudioDevice(device_id);
+
+	SDL_QuitSubSystem(SDL_INIT_AUDIO);
+
+	return false;
 }
 
 // Return the current sample position (in mono samples read)
@@ -315,26 +315,26 @@ qboolean SNDDMA_Init()
 // how many sample are required to fill it up.
 int SNDDMA_GetDMAPos()
 {
-    if (!sdl_is_initialized)
-        return 0;
+	if (!sdl_is_initialized)
+		return 0;
 
-    return sdl_buffer_offset / dma.channels;
+	return sdl_buffer_offset / dma.channels;
 }
 
 void SNDDMA_BeginPainting()
 {
-    if (!sdl_is_initialized)
-        return;
+	if (!sdl_is_initialized)
+		return;
 
-    dma.buffer = &sdl_buffer[0];
+	dma.buffer = &sdl_buffer[0];
 }
 
 void SNDDMA_Submit()
 {
-    dma.buffer = NULL;
+	dma.buffer = NULL;
 }
 
 void SNDDMA_Activate(bool value)
 {
-    sdl_mute_mixer = !value;
+	sdl_mute_mixer = !value;
 }

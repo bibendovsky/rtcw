@@ -1868,7 +1868,7 @@ int scriptCommandCount = sizeof( commandList ) / sizeof( commandDef_t );
 
 void Item_RunScript( itemDef_t *item, qboolean *bAbort, const char *s ) {
 	char script[4096];
-    const char* p;
+	const char* p;
 	int i;
 	qboolean bRan;
 	qboolean b_localAbort = qfalse;
@@ -1913,7 +1913,7 @@ void Item_RunScript( itemDef_t *item, qboolean *bAbort, const char *s ) {
 
 qboolean Item_EnableShowViaCvar( itemDef_t *item, int flag ) {
 	char script[1024];
-    const char* p;
+	const char* p;
 	memset( script, 0, sizeof( script ) );
 	if ( item && item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest ) {
 		char buff[1024];

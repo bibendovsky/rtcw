@@ -898,7 +898,7 @@ static void GetClipboardData( char *buf, int buflen ) {
 
 	Q_strncpyz( buf, cbd, buflen );
 
-    SDL_free(cbd);
+	SDL_free(cbd);
 }
 
 /*
@@ -1038,7 +1038,7 @@ FloatAsInt
 ====================
 */
 
-//BBi
+// BBi
 //static int FloatAsInt( float f ) {
 //	int temp;
 //
@@ -1047,23 +1047,23 @@ FloatAsInt
 //	return temp;
 //}
 static intptr_t FloatAsInt (
-    float x)
+	float x)
 {
-    intptr_t result;
+	intptr_t result;
 
-    *reinterpret_cast<float*> (&result) = x;
+	*reinterpret_cast<float*> (&result) = x;
 
-    return result;
+	return result;
 }
-//BBi
+// BBi
 
 void *VM_ArgPtr( int intValue );
 #define VMA( x ) VM_ArgPtr( args[x] )
 
-//BBi
+// BBi
 //#define VMF( x )  ( (float *)args )[x]
 #define VMF(x) (*reinterpret_cast<const float*> (args + x))
-//BBi
+// BBi
 
 /*
 ====================
@@ -1073,12 +1073,12 @@ The ui module is making a system call
 ====================
 */
 
-//BBi
+// BBi
 //int CL_UISystemCalls( int *args ) {
 intptr_t CL_UISystemCalls (
-    intptr_t* args)
+	intptr_t* args)
 {
-//BBi
+// BBi
 	switch ( args[0] ) {
 	case UI_ERROR:
 
@@ -1617,7 +1617,7 @@ CL_InitUI
 void CL_InitUI( void ) {
 	int v;
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	vmInterpret_t interpret;
 //
@@ -1640,8 +1640,8 @@ void CL_InitUI( void ) {
 //	uivm = VM_Create( "ui", CL_UISystemCalls, VMI_NATIVE );
 //#endif // RTCW_XX
 
-    uivm = VM_Create ("ui", CL_UISystemCalls);
-//BBi
+	uivm = VM_Create ("ui", CL_UISystemCalls);
+// BBi
 
 	if ( !uivm ) {
 		Com_Error( ERR_FATAL, "VM_Create on UI failed" );

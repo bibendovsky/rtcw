@@ -177,7 +177,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 
 // BBi
 //	cmdList = &backEndData[tr.smpFrame]->commands;
-    cmdList = &backEndData->commands;
+	cmdList = &backEndData->commands;
 // BBi
 
 	assert( cmdList ); // bk001205
@@ -223,7 +223,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 //			GLimp_WakeRenderer( cmdList );
 //		}
 
-        RB_ExecuteRenderCommands (cmdList->cmds);
+		RB_ExecuteRenderCommands (cmdList->cmds);
 // BBi
 	}
 }
@@ -266,20 +266,20 @@ render thread if needed.
 void *R_GetCommandBuffer( int bytes ) {
 	renderCommandList_t *cmdList;
 
-//BBi See #BUG0001
+// BBi See #BUG0001
 //#if defined RTCW_MP
 //	if ( !tr.registered ) {  //DAJ BUGFIX
 //		return NULL;
 //	}
 //#endif // RTCW_XX
 
-    if (!tr.registered) //DAJ BUGFIX
-        return 0;
-//BBi
+	if (!tr.registered) //DAJ BUGFIX
+		return 0;
+// BBi
 
 // BBi
 //	cmdList = &backEndData[tr.smpFrame]->commands;
-    cmdList = &backEndData->commands;
+	cmdList = &backEndData->commands;
 // BBi
 
 #if !defined RTCW_ET
@@ -405,7 +405,7 @@ void RE_2DPolyies( polyVert_t* verts, int numverts, qhandle_t hShader ) {
 #if 0
 	cmd->verts =        &backEndData[tr.smpFrame]->polyVerts[r_numpolyverts];
 #endif // 0
-    cmd->verts = &backEndData->polyVerts[r_numpolyverts];
+	cmd->verts = &backEndData->polyVerts[r_numpolyverts];
 
 	cmd->numverts =     numverts;
 	memcpy( cmd->verts, verts, sizeof( polyVert_t ) * numverts );
@@ -603,7 +603,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		r_textureMode->modified = qfalse;
 	}
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	//
 //	// ATI stuff
@@ -658,11 +658,11 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 //		}
 //	}
 //#endif // RTCW_XX
-//BBi
+// BBi
 
-//BBi
+// BBi
 //#if defined RTCW_ET
-//BBi
+// BBi
 
 	//
 	// anisotropic filtering stuff
@@ -673,9 +673,9 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		r_textureAnisotropy->modified = qfalse;
 	}
 
-//BBi
+// BBi
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 	//
 	// NVidia stuff
@@ -778,7 +778,7 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 #if 0
 	cmdList = &backEndData[tr.smpFrame]->commands;
 #endif // 0
-    cmdList = &backEndData->commands;
+	cmdList = &backEndData->commands;
 
 	assert( cmdList );
 	// add swap-buffers command

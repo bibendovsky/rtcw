@@ -36,13 +36,13 @@ If you have questions concerning this license or the applicable additional terms
 
 // A user mod should never modify this file
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //#define Q3_VERSION      "DOOM 0.01"
 //#else
 //#define Q3_VERSION      "ET"
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 // alignment macros for SIMD
 #define ALIGN_ON
@@ -426,7 +426,7 @@ extern idVec3 vec3_origin;
 extern idVec4 vec4_origin;
 extern mat3_t axisDefault;
 
-//BBi
+// BBi
 //#define nanmask ( 255 << 23 )
 //
 //#define IS_NAN( x ) ( ( ( *(int *)&x ) & nanmask ) == nanmask )
@@ -442,7 +442,7 @@ extern mat3_t axisDefault;
 //#define CHECK_NAN_VEC
 //#endif
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 float Q_fabs( float f );
 float Q_rsqrt( float f );       // reciprocal square root
@@ -591,7 +591,7 @@ const char *Com_ParseRestOfLine( const char *( *data_p ) );
 
 void Com_UngetToken( void );
 
-//BBi
+// BBi
 //#ifdef __cplusplus
 //void Com_MatchToken( const char *( *buf_p ), const char *match, qboolean warning = qfalse );
 //#else
@@ -599,7 +599,7 @@ void Com_UngetToken( void );
 //#endif
 
 void Com_MatchToken (const char* (*buf_p), const char* match, qboolean warning = false);
-//BBi
+// BBi
 
 void Com_ScriptError( const char *msg, ... );
 void Com_ScriptWarning( const char *msg, ... );
@@ -677,7 +677,7 @@ const char *Com_StringContains( const char *str1, const char *str2, int casesens
 
 //=============================================
 
-//BBi
+// BBi
 //short   BigShort( short l );
 //short   LittleShort( short l );
 //int     BigLong( int l );
@@ -686,7 +686,7 @@ const char *Com_StringContains( const char *str1, const char *str2, int casesens
 //float   LittleFloat( float l );
 //
 //void    Swap_Init( void );
-//BBi
+// BBi
 
 char    * QDECL va( const char *format, ... );
 
@@ -697,9 +697,9 @@ char    * QDECL va( const char *format, ... );
 
 //=============================================
 
-//BBi
+// BBi
 //#ifdef __cplusplus
-//BBi
+// BBi
 
 //
 // mapfile parsing
@@ -788,9 +788,9 @@ typedef struct {
 // MaxError of around 4 is reasonable
 drawVertMesh_t *SubdivideMapPatch( const mapPatch_t *patch, float maxError );
 
-//BBi
+// BBi
 //#endif          // __cplusplus
-//BBi
+// BBi
 
 //=========================================
 
@@ -831,7 +831,7 @@ void Info_SetValueForKey( char *s, const char *key, const char *value );
 qboolean Info_Validate( const char *s );
 void Info_NextPair( const char *( *s ), char key[MAX_INFO_KEY], char value[MAX_INFO_VALUE] );
 
-//BBi
+// BBi
 //// get cvar defs, collision defs, etc
 ////#include "../shared/interface.h"
 //
@@ -845,7 +845,7 @@ void Info_NextPair( const char *( *s ), char key[MAX_INFO_KEY], char value[MAX_I
 //// get the flags class
 ////#include "../shared/idflags.h"
 //#endif  // __cplusplus
-//BBi
+// BBi
 
 #endif  // __Q_SHARED_H
 

@@ -3297,10 +3297,10 @@ void CG_DrawCompassIcon( int x, int y, int w, int h, vec3_t origin, vec3_t dest,
 	x = x + ( c::cos( angle ) * w );
 	y = y + ( c::sin( angle ) * w );
 
-    //BBi
+	// BBi
 	//len = 1 - min( 1.f, len / 2000.f );
-    len = 1.0F - std::min (1.0F, len / 2000.0F);
-    //BBi
+	len = 1.0F - std::min (1.0F, len / 2000.0F);
+	// BBi
 
 	CG_DrawPic( x - ( 14 * len + 4 ) / 2, y - ( 14 * len + 4 ) / 2, 14 * len + 4, 14 * len + 4, shader );
 }
