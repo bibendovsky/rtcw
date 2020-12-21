@@ -2891,7 +2891,7 @@ Returns the Z component of the surface being shadowed
 */
 #define SHADOW_DISTANCE     64
 typedef struct {
-    const char* tagname;
+	const char* tagname;
 	float size;
 	float maxdist;
 	float maxalpha;
@@ -5000,10 +5000,10 @@ void CG_Player( centity_t *cent ) {
 
 			// blink more often when talking
 			if ( gumsflappin >= 0 ) {
-                //BBi
+				// BBi
 				//ci->blinkTime = max( cg.time, ci->blinkTime - 1000 );
-                ci->blinkTime = std::max (cg.time, ci->blinkTime - 1000);
-                //BBi
+				ci->blinkTime = std::max (cg.time, ci->blinkTime - 1000);
+				// BBi
 			}
 		}
 	}

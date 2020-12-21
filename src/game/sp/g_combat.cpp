@@ -342,7 +342,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	int killer;
 	int i;
 	const char        *killerName;
-    const char* obit;
+	const char* obit;
 	qboolean nogib = qtrue;
 	gitem_t     *item = NULL; // JPW NERVE for flag drop
 	vec3_t launchvel;      // JPW NERVE

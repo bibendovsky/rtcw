@@ -504,8 +504,8 @@ BG_AnimParseAnimConfig
 ============
 */
 qboolean BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *filename, const char *input ) {
-    const char* text_p;
-    char* token;
+	const char* text_p;
+	char* token;
 	animation_t *animations;
 	headAnimation_t *headAnims;
 	int i, fps, skip = -1;
@@ -1076,8 +1076,8 @@ static animStringItem_t animParseModesStr[] =
 void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scriptData, int client, char *filename, char *input ) {
 	#define MAX_INDENT_LEVELS   3
 
-    const char* text_p;
-    char* token;
+	const char* text_p;
+	char* token;
 	animScriptParseMode_t parseMode;
 	animScript_t        *currentScript;
 	animScriptItem_t tempScriptItem;

@@ -60,15 +60,15 @@ void sys_handle_window_events(const SDL_WindowEvent& e)
 		return;
 	}
 
-    switch (e.event) {
-    case SDL_WINDOWEVENT_FOCUS_GAINED:
-        SNDDMA_Activate(true);
-        break;
+	switch (e.event) {
+	case SDL_WINDOWEVENT_FOCUS_GAINED:
+		SNDDMA_Activate(true);
+		break;
 
-    case SDL_WINDOWEVENT_FOCUS_LOST:
-        SNDDMA_Activate(false);
-        break;
-    }
+	case SDL_WINDOWEVENT_FOCUS_LOST:
+		SNDDMA_Activate(false);
+		break;
+	}
 }
 
 
@@ -78,41 +78,41 @@ void sys_handle_window_events(const SDL_WindowEvent& e)
 
 void sys_poll_events()
 {
-    SDL_Event e;
+	SDL_Event e;
 
-    while (SDL_PollEvent(&e)) {
+	while (SDL_PollEvent(&e)) {
 		sys_handle_console_sdl_event(e);
 
 #ifndef DEDICATED
-        switch (e.type) {
-        case SDL_JOYAXISMOTION:
-        case SDL_JOYBALLMOTION:
-        case SDL_JOYHATMOTION:
-        case SDL_JOYBUTTONDOWN:
-        case SDL_JOYBUTTONUP:
-        case SDL_JOYDEVICEADDED:
-        case SDL_JOYDEVICEREMOVED:
-        case SDL_KEYDOWN:
-        case SDL_KEYUP:
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-        case SDL_MOUSEMOTION:
-        case SDL_MOUSEWHEEL:
-        case SDL_TEXTEDITING:
-        case SDL_TEXTINPUT:
-            sys_input_handle_event(e);
-            break;
+		switch (e.type) {
+		case SDL_JOYAXISMOTION:
+		case SDL_JOYBALLMOTION:
+		case SDL_JOYHATMOTION:
+		case SDL_JOYBUTTONDOWN:
+		case SDL_JOYBUTTONUP:
+		case SDL_JOYDEVICEADDED:
+		case SDL_JOYDEVICEREMOVED:
+		case SDL_KEYDOWN:
+		case SDL_KEYUP:
+		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONUP:
+		case SDL_MOUSEMOTION:
+		case SDL_MOUSEWHEEL:
+		case SDL_TEXTEDITING:
+		case SDL_TEXTINPUT:
+			sys_input_handle_event(e);
+			break;
 
-        case SDL_WINDOWEVENT:
-            sys_handle_window_events(e.window);
-            break;
+		case SDL_WINDOWEVENT:
+			sys_handle_window_events(e.window);
+			break;
 
-        case SDL_QUIT:
-            Com_Quit_f();
-            break;
-        }
+		case SDL_QUIT:
+			Com_Quit_f();
+			break;
+		}
 #endif // DEDICATED
-    }
+	}
 
 	sys_update_console();
 }

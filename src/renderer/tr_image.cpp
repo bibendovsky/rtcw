@@ -43,7 +43,7 @@ If you have questions concerning this license or the applicable additional terms
  * You may also wish to include "jerror.h".
  */
 
-//BBi
+// BBi
 //#define JPEG_INTERNALS
 //
 //#include "jpeglib.h"
@@ -60,7 +60,7 @@ rtcw::JpegWriter g_jpeg_writer;
 
 
 } // namespace
-//BBi
+// BBi
 
 
 static void LoadBMP( const char *name, byte **pic, int *width, int *height );
@@ -73,15 +73,15 @@ static unsigned char s_gammatable[256];
 int gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int gl_filter_max = GL_LINEAR;
 
-//BBi
+// BBi
 //#if defined RTCW_ET
-//BBi
+// BBi
 
 float gl_anisotropy = 1.0F;
 
-//BBi
+// BBi
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 #define FILE_HASH_SIZE      4096
 static image_t*        hashTable[FILE_HASH_SIZE];
@@ -106,10 +106,10 @@ void *R_GetImageBuffer( int size, bufferMemType_t bufferType ) {
 	if ( imageBufferSize[bufferType] < R_IMAGE_BUFFER_SIZE && size <= imageBufferSize[bufferType] ) {
 		imageBufferSize[bufferType] = R_IMAGE_BUFFER_SIZE;
 
-        //BBi
+		// BBi
 		//imageBufferPtr[bufferType] = malloc( imageBufferSize[bufferType] );
-        imageBufferPtr[bufferType] = new byte[imageBufferSize[bufferType]];
-        //BBi
+		imageBufferPtr[bufferType] = new byte[imageBufferSize[bufferType]];
+		// BBi
 
 #if !defined RTCW_SP
 //DAJ TEST		imageBufferPtr[bufferType] = Z_Malloc( imageBufferSize[bufferType] );
@@ -119,10 +119,10 @@ void *R_GetImageBuffer( int size, bufferMemType_t bufferType ) {
 	if ( size > imageBufferSize[bufferType] ) {   // it needs to grow
 		if ( imageBufferPtr[bufferType] ) {
 
-            //BBi
+			// BBi
 			//free( imageBufferPtr[bufferType] );
-            delete [] static_cast<byte*> (imageBufferPtr[bufferType]);
-            //BBi
+			delete [] static_cast<byte*> (imageBufferPtr[bufferType]);
+			// BBi
 
 		}
 
@@ -132,10 +132,10 @@ void *R_GetImageBuffer( int size, bufferMemType_t bufferType ) {
 
 		imageBufferSize[bufferType] = size;
 
-        //BBi
+		// BBi
 		//imageBufferPtr[bufferType] = malloc( imageBufferSize[bufferType] );
-        imageBufferPtr[bufferType] = new byte[imageBufferSize[bufferType]];
-        //BBi
+		imageBufferPtr[bufferType] = new byte[imageBufferSize[bufferType]];
+		// BBi
 
 #if !defined RTCW_SP
 //DAJ TEST		imageBufferPtr[bufferType] = Z_Malloc( imageBufferSize[bufferType] );
@@ -153,10 +153,10 @@ void R_FreeImageBuffer( void ) {
 			return;
 		}
 
-        //BBi
+		// BBi
 		//free( imageBufferPtr[bufferType] );
-        delete [] static_cast<byte*> (imageBufferPtr[bufferType]);
-        //BBi
+		delete [] static_cast<byte*> (imageBufferPtr[bufferType]);
+		// BBi
 
 #if !defined RTCW_SP
 //DAJ TEST		Z_Free( imageBufferPtr[bufferType] );
@@ -234,14 +234,14 @@ void GL_TextureMode( const char *string ) {
 		}
 	}
 
-    //BBi
+	// BBi
 	//// hack to prevent trilinear from being set on voodoo,
 	//// because their driver freaks...
 	//if ( i == 5 && glConfig.hardwareType == GLHW_3DFX_2D3D ) {
 	//	ri.Printf( PRINT_ALL, "Refusing to set trilinear on a voodoo.\n" );
 	//	i = 3;
 	//}
-    //BBi
+	// BBi
 
 
 	if ( i == 6 ) {
@@ -263,7 +263,7 @@ void GL_TextureMode( const char *string ) {
 
 		if ( glt->mipmap ) {
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //			GL_Bind( glt );
 //			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
@@ -278,26 +278,26 @@ void GL_TextureMode( const char *string ) {
 //#endif // RTCW_XX
 
 #if !defined RTCW_ET
-            GL_Bind (glt);
-            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
-            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+			GL_Bind (glt);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 #else
-            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
-            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
-        } else
-        {
-            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+		} else
+		{
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 #endif // RTCW_XX
-//BBi
+// BBi
 
 		}
 	}
 }
 
-//BBi
+// BBi
 //#if defined RTCW_ET
-//BBi
+// BBi
 
 /*
 ===============
@@ -329,9 +329,9 @@ void GL_TextureAnisotropy( float anisotropy ) {
 	}
 }
 
-//BBi
+// BBi
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 /*
 ===============
@@ -453,11 +453,11 @@ void R_ImageList_f( void ) {
 			ri.Printf( PRINT_ALL, "clmp " );
 			break;
 
-        //BBi
-        case GL_CLAMP_TO_EDGE:
-            ri.Printf( PRINT_ALL, "clmpe" );
-            break;
-        //BBi
+		// BBi
+		case GL_CLAMP_TO_EDGE:
+			ri.Printf( PRINT_ALL, "clmpe" );
+			break;
+		// BBi
 
 		default:
 			ri.Printf( PRINT_ALL, "%4i ", image->wrapClampMode );
@@ -855,7 +855,7 @@ static void Upload32(   unsigned *data,
 	byte        *scan;
 	GLenum internalFormat = GL_RGB;
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //	float rMax = 0, gMax = 0, bMax = 0;
 //	static int rmse_saved = 0;
@@ -912,16 +912,16 @@ static void Upload32(   unsigned *data,
 //#if !defined RTCW_ET
 //	}
 //#endif // RTCW_XX
-//BBi
+// BBi
 
-    //BBi
-    bool canUseNpotTexture = (glConfigEx.use_arb_texture_non_power_of_two_ && (!picmip));
+	// BBi
+	bool canUseNpotTexture = (glConfigEx.use_arb_texture_non_power_of_two_ && (!picmip));
 
-    if (canUseNpotTexture) {
-        scaled_width = width;
-        scaled_height = height;
-    } else {
-    //BBi
+	if (canUseNpotTexture) {
+		scaled_width = width;
+		scaled_height = height;
+	} else {
+	// BBi
 
 	//
 	// convert to exact power of 2 sizes
@@ -976,9 +976,9 @@ static void Upload32(   unsigned *data,
 
 	}
 
-//BBi
-    }
-//BBi
+// BBi
+	}
+// BBi
 
 	//
 	// clamp to the current upper OpenGL limit
@@ -991,7 +991,7 @@ static void Upload32(   unsigned *data,
 		scaled_height >>= 1;
 	}
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	rmse = R_RMSE( (byte *)data, width, height );
 //
@@ -1028,7 +1028,7 @@ static void Upload32(   unsigned *data,
 //		scaled_height = 1;
 //	}
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 	//scaledBuffer = ri.Hunk_AllocateTempMemory( sizeof( unsigned ) * scaled_width * scaled_height );
 	scaledBuffer = static_cast<unsigned*> (R_GetImageBuffer( sizeof( unsigned ) * scaled_width * scaled_height, BUFFER_SCALED ));
@@ -1044,7 +1044,7 @@ static void Upload32(   unsigned *data,
 		for ( i = 0; i < c; i++ )
 		{
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //			if ( scan[i * 4 + 0] > rMax ) {
 //				rMax = scan[i * 4 + 0];
@@ -1056,7 +1056,7 @@ static void Upload32(   unsigned *data,
 //				bMax = scan[i * 4 + 2];
 //			}
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 			if ( scan[i * 4 + 3] != 255 ) {
 				samples = 4;
@@ -1065,11 +1065,11 @@ static void Upload32(   unsigned *data,
 		}
 		// select proper internal format
 		if ( samples == 3 ) {
-//BBi
-            if ((!noCompress) && (glConfig.textureCompression == TC_ARB))
-                internalFormat = GL_COMPRESSED_RGB;
-            else
-//BBi
+// BBi
+			if ((!noCompress) && (glConfig.textureCompression == TC_ARB))
+				internalFormat = GL_COMPRESSED_RGB;
+			else
+// BBi
 			if ( !noCompress && glConfig.textureCompression == TC_EXT_COMP_S3TC ) {
 				// TODO: which format is best for which textures?
 
@@ -1079,28 +1079,28 @@ static void Upload32(   unsigned *data,
 
 				internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 			} else if ( !noCompress && glConfig.textureCompression == TC_S3TC )   {
-                //BBi
+				// BBi
 				//internalFormat = GL_RGB4_S3TC;
-                internalFormat = GL_RGB_S3TC;
-                //BBi
+				internalFormat = GL_RGB_S3TC;
+				// BBi
 			} else if ( r_texturebits->integer == 16 )   {
 				internalFormat = GL_RGB5;
 			} else if ( r_texturebits->integer == 32 )   {
 				internalFormat = GL_RGB8;
 			} else
 			{
-                //BBi Numeric value not valid anymore
+				// BBi Numeric value not valid anymore
 				//internalFormat = 3;
-                internalFormat = GL_RGB;
-                //BBi
+				internalFormat = GL_RGB;
+				// BBi
 			}
 		} else if ( samples == 4 )   {
 
-//BBi
-            if ((!noCompress) && (glConfig.textureCompression == TC_ARB))
-                internalFormat = GL_COMPRESSED_RGBA;
-            else
-//BBi
+// BBi
+			if ((!noCompress) && (glConfig.textureCompression == TC_ARB))
+				internalFormat = GL_COMPRESSED_RGBA;
+			else
+// BBi
 
 			if ( !noCompress && glConfig.textureCompression == TC_EXT_COMP_S3TC ) {
 				// TODO: which format is best for which textures?
@@ -1111,10 +1111,10 @@ static void Upload32(   unsigned *data,
 
 				internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 
-            //BBi
-            } else if ((!noCompress) && (glConfig.textureCompression == TC_S3TC)) {
-                internalFormat = GL_RGBA_DXT5_S3TC;
-            //BBi
+			// BBi
+			} else if ((!noCompress) && (glConfig.textureCompression == TC_S3TC)) {
+				internalFormat = GL_RGBA_DXT5_S3TC;
+			// BBi
 
 			} else if ( r_texturebits->integer == 16 )   {
 				internalFormat = GL_RGBA4;
@@ -1122,17 +1122,17 @@ static void Upload32(   unsigned *data,
 				internalFormat = GL_RGBA8;
 			} else
 			{
-                //BBi Numeric value not valid anymore
+				// BBi Numeric value not valid anymore
 				//internalFormat = 4;
-                internalFormat = GL_RGBA;
-                //BBi
+				internalFormat = GL_RGBA;
+				// BBi
 			}
 		}
 	} else {
-        //BBi Numeric value not valid anymore
+		// BBi Numeric value not valid anymore
 		//internalFormat = 3;
-        internalFormat = GL_RGB;
-        //BBi
+		internalFormat = GL_RGB;
+		// BBi
 	}
 	// copy or resample data as appropriate for first MIP level
 	if ( ( scaled_width == width ) &&
@@ -1171,10 +1171,10 @@ static void Upload32(   unsigned *data,
 
 	glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
 
-    //BBi
+	// BBi
 	//if ( mipmap ) {
-    if ((mipmap) && (!glConfigEx.use_arb_framebuffer_object_)) {
-    //BBi
+	if ((mipmap) && (!glConfigEx.use_arb_framebuffer_object_)) {
+	// BBi
 		int miplevel;
 
 		miplevel = 0;
@@ -1201,17 +1201,17 @@ static void Upload32(   unsigned *data,
 done:
 
 	if ( mipmap ) {
-        //BBi
-        if (glConfigEx.use_arb_framebuffer_object_)
-            glGenerateMipmap (GL_TEXTURE_2D);
-        //BBi
+		// BBi
+		if (glConfigEx.use_arb_framebuffer_object_)
+			glGenerateMipmap (GL_TEXTURE_2D);
+		// BBi
 
-        //BBi
+		// BBi
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min );
 		//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
-        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
-        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
-        //BBi
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+		// BBi
 	} else
 	{
 
@@ -1219,7 +1219,7 @@ done:
 		// ydnar: for allowing lightmap debugging
 #endif // RTCW_XX
 
-//BBi
+// BBi
 //		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 //
 //#if !defined RTCW_ET
@@ -1228,28 +1228,28 @@ done:
 //		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max );
 //#endif // RTCW_XX
 
-        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 #if !defined RTCW_ET
-        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 #else
-        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 #endif // RTCW_XX
-//BBi
+// BBi
 
 	}
 
-//BBi
+// BBi
 //#if defined RTCW_ET
-//BBi
+// BBi
 
 	if ( glConfig.anisotropicAvailable ) {
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, gl_anisotropy );
 	}
 
-//BBi
+// BBi
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 	GL_CheckErrors();
 
@@ -1400,7 +1400,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 			  &image->uploadHeight,
 			  noCompress );
 
-//BBi
+// BBi
 //#if defined RTCW_ET
 //	// ydnar: opengl 1.2 GL_CLAMP_TO_EDGE SUPPORT
 //	// only 1.1 headers, joy
@@ -1409,14 +1409,14 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 //		glWrapClampMode = GL_CLAMP_TO_EDGE;
 //	}
 //#endif // RTCW_XX
-//BBi
+// BBi
 
-    //BBi
+	// BBi
 	//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode );
 	//::glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode );
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode);
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode);
-    //BBi
+	// BBi
 
 	glBindTexture( GL_TEXTURE_2D, 0 );
 
@@ -1451,7 +1451,7 @@ BMP LOADING
 =========================================================
 */
 
-//BBi
+// BBi
 //typedef struct
 //{
 //	char id[2];
@@ -1473,24 +1473,24 @@ BMP LOADING
 //} BMPHeader_t;
 
 struct BMPHeader_t {
-    int8_t id[2];
-    uint32_t fileSize;
-    uint32_t reserved0;
-    uint32_t bitmapDataOffset;
-    uint32_t bitmapHeaderSize;
-    uint32_t width;
-    uint32_t height;
-    uint16_t planes;
-    uint16_t bitsPerPixel;
-    uint32_t compression;
-    uint32_t bitmapDataSize;
-    uint32_t hRes;
-    uint32_t vRes;
-    uint32_t colors;
-    uint32_t importantColors;
-    uint8_t palette[256][4];
+	int8_t id[2];
+	uint32_t fileSize;
+	uint32_t reserved0;
+	uint32_t bitmapDataOffset;
+	uint32_t bitmapHeaderSize;
+	uint32_t width;
+	uint32_t height;
+	uint16_t planes;
+	uint16_t bitsPerPixel;
+	uint32_t compression;
+	uint32_t bitmapDataSize;
+	uint32_t hRes;
+	uint32_t vRes;
+	uint32_t colors;
+	uint32_t importantColors;
+	uint8_t palette[256][4];
 }; // struct BMPHeader_t
-//BBi
+// BBi
 
 static void LoadBMP( const char *name, byte **pic, int *width, int *height ) {
 	int columns, rows, numPixels;
@@ -1661,7 +1661,7 @@ LoadPCX
 #define DECODEPCX( b, d, r ) d = *b++; if ( ( d & 0xC0 ) == 0xC0 ) {r = d & 0x3F; d = *b++;} else {r = 1;}
 #endif // RTCW_XX
 
-//BBi
+// BBi
 //static void LoadPCX( const char *filename, byte **pic, byte **palette, int *width, int *height ) {
 //	byte    *raw;
 //	pcx_t   *pcx;
@@ -1720,10 +1720,10 @@ LoadPCX
 //	if ( palette ) {
 //
 //#if defined RTCW_SP
-//        //BBi
+//        // BBi
 //		//*palette = static_cast<byte*> (malloc( 768 ));
 //        *palette = new byte[768];
-//        //BBi
+//        // BBi
 //#else
 //		*palette = static_cast<byte*> (ri.Z_Malloc( 768 ));
 //#endif // RTCW_XX
@@ -1808,10 +1808,10 @@ LoadPCX
 //		ri.Printf( PRINT_DEVELOPER, "PCX file %s was malformed", filename );
 //
 //#if defined RTCW_SP
-//        //BBi
+//        // BBi
 //		//free( *pic );
 //        delete [] (*pic);
-//        //BBi
+//        // BBi
 //#else
 //		ri.Free( *pic );
 //#endif // RTCW_XX
@@ -1823,171 +1823,171 @@ LoadPCX
 //}
 
 static void LoadPCX (
-    const char* filename,
-    uint8_t** pic,
-    uint8_t** palette,
-    int* width,
-    int* height)
+	const char* filename,
+	uint8_t** pic,
+	uint8_t** palette,
+	int* width,
+	int* height)
 {
-    uint8_t* raw;
-    pcx_t* pcx;
+	uint8_t* raw;
+	pcx_t* pcx;
 
 #if !defined RTCW_ET
-    int x, y;
+	int x, y;
 #else
-    int x, y, lsize;
+	int x, y, lsize;
 #endif // RTCW_XX
 
-    int len;
-    int dataByte, runLength;
-    byte    *out, *pix;
-    int xmax, ymax;
+	int len;
+	int dataByte, runLength;
+	byte    *out, *pix;
+	int xmax, ymax;
 
-    *pic = NULL;
-    *palette = NULL;
+	*pic = NULL;
+	*palette = NULL;
 
 #if defined RTCW_ET
-    runLength = 0;
+	runLength = 0;
 #endif // RTCW_XX
 
-    //
-    // load the file
-    //
-    len = ri.FS_ReadFile( ( char * ) filename, (void **)&raw );
-    if ( !raw ) {
-        return;
-    }
+	//
+	// load the file
+	//
+	len = ri.FS_ReadFile( ( char * ) filename, (void **)&raw );
+	if ( !raw ) {
+		return;
+	}
 
-    //
-    // parse the PCX file
-    //
-    pcx = (pcx_t *)raw;
-    raw = &pcx->data;
+	//
+	// parse the PCX file
+	//
+	pcx = (pcx_t *)raw;
+	raw = &pcx->data;
 
-    xmax = rtcw::Endian::le( pcx->xmax );
-    ymax = rtcw::Endian::le( pcx->ymax );
+	xmax = rtcw::Endian::le( pcx->xmax );
+	ymax = rtcw::Endian::le( pcx->ymax );
 
-    if ( pcx->manufacturer != 0x0a
-        || pcx->version != 5
-        || pcx->encoding != 1
-        || pcx->bits_per_pixel != 8
-        || xmax >= 1024
-        || ymax >= 1024 ) {
-            ri.Printf( PRINT_ALL, "Bad pcx file %s (%i x %i) (%i x %i)\n", filename, xmax + 1, ymax + 1, pcx->xmax, pcx->ymax );
-            return;
-    }
+	if ( pcx->manufacturer != 0x0a
+		|| pcx->version != 5
+		|| pcx->encoding != 1
+		|| pcx->bits_per_pixel != 8
+		|| xmax >= 1024
+		|| ymax >= 1024 ) {
+			ri.Printf( PRINT_ALL, "Bad pcx file %s (%i x %i) (%i x %i)\n", filename, xmax + 1, ymax + 1, pcx->xmax, pcx->ymax );
+			return;
+	}
 
-    out = static_cast<byte*> (R_GetImageBuffer( ( ymax + 1 ) * ( xmax + 1 ), BUFFER_IMAGE ));
+	out = static_cast<byte*> (R_GetImageBuffer( ( ymax + 1 ) * ( xmax + 1 ), BUFFER_IMAGE ));
 
-    *pic = out;
+	*pic = out;
 
-    pix = out;
+	pix = out;
 
-    if ( palette ) {
+	if ( palette ) {
 
 #if defined RTCW_SP
-        //BBi
-        //*palette = static_cast<byte*> (malloc( 768 ));
-        *palette = new byte[768];
-        //BBi
+		// BBi
+		//*palette = static_cast<byte*> (malloc( 768 ));
+		*palette = new byte[768];
+		// BBi
 #else
-        *palette = static_cast<byte*> (ri.Z_Malloc( 768 ));
+		*palette = static_cast<byte*> (ri.Z_Malloc( 768 ));
 #endif // RTCW_XX
 
-        memcpy( *palette, (byte *)pcx + len - 768, 768 );
-    }
+		memcpy( *palette, (byte *)pcx + len - 768, 768 );
+	}
 
-    if ( width ) {
-        *width = xmax + 1;
-    }
-    if ( height ) {
-        *height = ymax + 1;
-    }
-    // FIXME: use bytes_per_line here?
+	if ( width ) {
+		*width = xmax + 1;
+	}
+	if ( height ) {
+		*height = ymax + 1;
+	}
+	// FIXME: use bytes_per_line here?
 
 #if !defined RTCW_ET
-    for ( y = 0 ; y <= ymax ; y++, pix += xmax + 1 )
-    {
-        for ( x = 0 ; x <= xmax ; )
-        {
-            dataByte = *raw++;
+	for ( y = 0 ; y <= ymax ; y++, pix += xmax + 1 )
+	{
+		for ( x = 0 ; x <= xmax ; )
+		{
+			dataByte = *raw++;
 
-            if ( ( dataByte & 0xC0 ) == 0xC0 ) {
-                runLength = dataByte & 0x3F;
-                dataByte = *raw++;
-            } else {
-                runLength = 1;
-            }
+			if ( ( dataByte & 0xC0 ) == 0xC0 ) {
+				runLength = dataByte & 0x3F;
+				dataByte = *raw++;
+			} else {
+				runLength = 1;
+			}
 
-            while ( runLength-- > 0 )
-                pix[x++] = dataByte;
-        }
+			while ( runLength-- > 0 )
+				pix[x++] = dataByte;
+		}
 
-    }
+	}
 #else
-    // Arnout: this doesn't work for all pcx files
-    /*for (y=0 ; y<=ymax ; y++, pix += xmax+1)
-    {
-    for (x=0 ; x<=xmax ; )
-    {
-    dataByte = *raw++;
+	// Arnout: this doesn't work for all pcx files
+	/*for (y=0 ; y<=ymax ; y++, pix += xmax+1)
+	{
+	for (x=0 ; x<=xmax ; )
+	{
+	dataByte = *raw++;
 
-    if((dataByte & 0xC0) == 0xC0)
-    {
-    runLength = dataByte & 0x3F;
-    dataByte = *raw++;
-    }
-    else
-    runLength = 1;
+	if((dataByte & 0xC0) == 0xC0)
+	{
+	runLength = dataByte & 0x3F;
+	dataByte = *raw++;
+	}
+	else
+	runLength = 1;
 
-    while(runLength-- > 0)
-    pix[x++] = dataByte;
-    }
+	while(runLength-- > 0)
+	pix[x++] = dataByte;
+	}
 
-    }*/
+	}*/
 
-    lsize = pcx->color_planes * pcx->bytes_per_line;
+	lsize = pcx->color_planes * pcx->bytes_per_line;
 
-    // go scanline by scanline
-    for ( y = 0; y <= pcx->ymax; y++, pix += pcx->xmax + 1 )
-    {
-        // do a scanline
-        for ( x = 0; x <= pcx->xmax; )
-        {
-            DECODEPCX( raw, dataByte, runLength );
-            while ( runLength-- > 0 )
-                pix[ x++ ] = dataByte;
-        }
+	// go scanline by scanline
+	for ( y = 0; y <= pcx->ymax; y++, pix += pcx->xmax + 1 )
+	{
+		// do a scanline
+		for ( x = 0; x <= pcx->xmax; )
+		{
+			DECODEPCX( raw, dataByte, runLength );
+			while ( runLength-- > 0 )
+				pix[ x++ ] = dataByte;
+		}
 
-        // discard any other data
-        while ( x < lsize )
-        {
-            DECODEPCX( raw, dataByte, runLength );
-            x++;
-        }
-        while ( runLength-- > 0 )
-            x++;
-    }
+		// discard any other data
+		while ( x < lsize )
+		{
+			DECODEPCX( raw, dataByte, runLength );
+			x++;
+		}
+		while ( runLength-- > 0 )
+			x++;
+	}
 #endif // RTCW_XX
 
-    if ( raw - (byte *)pcx > len ) {
-        ri.Printf( PRINT_DEVELOPER, "PCX file %s was malformed", filename );
+	if ( raw - (byte *)pcx > len ) {
+		ri.Printf( PRINT_DEVELOPER, "PCX file %s was malformed", filename );
 
 #if defined RTCW_SP
-        //BBi
-        //free( *pic );
-        delete [] (*pic);
-        //BBi
+		// BBi
+		//free( *pic );
+		delete [] (*pic);
+		// BBi
 #else
-        ri.Free( *pic );
+		ri.Free( *pic );
 #endif // RTCW_XX
 
-        *pic = NULL;
-    }
+		*pic = NULL;
+	}
 
-    ri.FS_FreeFile( pcx );
+	ri.FS_FreeFile( pcx );
 }
-//BBi
+// BBi
 
 /*
 ==============
@@ -2018,13 +2018,13 @@ static void LoadPCX32( const char *filename, byte **pic, int *width, int *height
 	}
 
 #if defined RTCW_SP
-    //BBi
+	// BBi
 	//free( pic8 );
 	//free( palette );
 
-    delete [] pic8;
-    delete [] palette;
-    //BBi
+	delete [] pic8;
+	delete [] palette;
+	// BBi
 #else
 	ri.Free( pic8 );
 	ri.Free( palette );
@@ -2259,68 +2259,68 @@ breakOut:;
 }
 
 static void LoadJPG(
-    const char* filename,
-    uint8_t** pic,
-    int* width,
-    int* height)
+	const char* filename,
+	uint8_t** pic,
+	int* width,
+	int* height)
 {
-    *pic = NULL;
+	*pic = NULL;
 
-    void* src_data = NULL;
+	void* src_data = NULL;
 
-    int src_size = ri.FS_ReadFile(filename, &src_data);
+	int src_size = ri.FS_ReadFile(filename, &src_data);
 
-    if (src_data == NULL)
-        return;
+	if (src_data == NULL)
+		return;
 
-    bool jpeg_result;
+	bool jpeg_result;
 
-    jpeg_result = g_jpeg_reader.open(src_data, src_size, *width, *height);
+	jpeg_result = g_jpeg_reader.open(src_data, src_size, *width, *height);
 
-    if (!jpeg_result) {
-        ri.Error(ERR_FATAL, "JPEG: %s\n",
-            g_jpeg_reader.get_error_message().c_str());
-    }
+	if (!jpeg_result) {
+		ri.Error(ERR_FATAL, "JPEG: %s\n",
+			g_jpeg_reader.get_error_message().c_str());
+	}
 
-    void* dst_data = R_GetImageBuffer(4 * (*width) * (*height), BUFFER_IMAGE);
+	void* dst_data = R_GetImageBuffer(4 * (*width) * (*height), BUFFER_IMAGE);
 
-    jpeg_result = g_jpeg_reader.decode(dst_data);
+	jpeg_result = g_jpeg_reader.decode(dst_data);
 
-    ri.FS_FreeFile(src_data);
+	ri.FS_FreeFile(src_data);
 
-    if (!jpeg_result) {
-        ri.Error(ERR_FATAL, "JPEG: %s\n",
-            g_jpeg_reader.get_error_message().c_str());
-    }
+	if (!jpeg_result) {
+		ri.Error(ERR_FATAL, "JPEG: %s\n",
+			g_jpeg_reader.get_error_message().c_str());
+	}
 
-    *pic = static_cast<byte*>(dst_data);
+	*pic = static_cast<byte*>(dst_data);
 }
 
 void SaveJPG(
-    const char* file_name,
-    int quality,
-    int width,
-    int height,
-    uint8_t* src_data)
+	const char* file_name,
+	int quality,
+	int width,
+	int height,
+	uint8_t* src_data)
 {
-    int dst_size = 0;
-    int dst_max_size = g_jpeg_writer.estimate_dst_size(width, height);
-    void* dst_data = ri.Hunk_AllocateTempMemory(dst_max_size);
-    bool jpeg_result;
+	int dst_size = 0;
+	int dst_max_size = g_jpeg_writer.estimate_dst_size(width, height);
+	void* dst_data = ri.Hunk_AllocateTempMemory(dst_max_size);
+	bool jpeg_result;
 
-    jpeg_result = g_jpeg_writer.encode(
-        quality, src_data, width, height, dst_data, dst_size);
+	jpeg_result = g_jpeg_writer.encode(
+		quality, src_data, width, height, dst_data, dst_size);
 
-    if (jpeg_result)
-        ri.FS_WriteFile(file_name, dst_data, dst_size);
-    else {
-        ri.Printf(PRINT_ALL, S_COLOR_RED "JPEG: %s\n",
-            g_jpeg_writer.get_error_message().c_str());
-    }
+	if (jpeg_result)
+		ri.FS_WriteFile(file_name, dst_data, dst_size);
+	else {
+		ri.Printf(PRINT_ALL, S_COLOR_RED "JPEG: %s\n",
+			g_jpeg_writer.get_error_message().c_str());
+	}
 
-    ri.Hunk_FreeTempMemory(dst_data);
+	ri.Hunk_FreeTempMemory(dst_data);
 }
-//BBi
+// BBi
 
 //===================================================================
 
@@ -2582,10 +2582,10 @@ static void R_CreateDlightImage( void ) {
 		}
 	}
 
-    //BBi
+	// BBi
 	//tr.dlightImage = R_CreateImage( "*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, GL_CLAMP );
-    tr.dlightImage = R_CreateImage ("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, false, false, r_get_best_wrap_clamp ());
-    //BBi
+	tr.dlightImage = R_CreateImage ("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, false, false, r_get_best_wrap_clamp ());
+	// BBi
 }
 
 
@@ -2662,7 +2662,7 @@ R_CreateFogImage
 ================
 */
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //#define FOG_S   256
 //#define FOG_T   32
@@ -2772,71 +2772,71 @@ R_CreateFogImage
 static void R_CreateFogImage ()
 {
 #if !defined RTCW_ET
-    const int FOG_S = 256;
-    const int FOG_T = 32;
+	const int FOG_S = 256;
+	const int FOG_T = 32;
 #else
-    const int FOG_S = 16;
-    const int FOG_T = 16;
+	const int FOG_S = 16;
+	const int FOG_T = 16;
 #endif // RTCW_XX
 
-    byte* data = 0;
+	byte* data = 0;
 
 #if !defined RTCW_ET
-    data = static_cast<byte*> (ri.Hunk_AllocateTempMemory (FOG_S * FOG_T * 4));
+	data = static_cast<byte*> (ri.Hunk_AllocateTempMemory (FOG_S * FOG_T * 4));
 
-    const float g = 2.0F;
+	const float g = 2.0F;
 
-    // S is distance, T is depth
-    for (int x = 0; x < FOG_S; ++x) {
-        for (int y = 0; y < FOG_T; ++y) {
-            float d = R_FogFactor ((x + 0.5F) / FOG_S, (y + 0.5F) / FOG_T);
+	// S is distance, T is depth
+	for (int x = 0; x < FOG_S; ++x) {
+		for (int y = 0; y < FOG_T; ++y) {
+			float d = R_FogFactor ((x + 0.5F) / FOG_S, (y + 0.5F) / FOG_T);
 
-            data[(((y * FOG_S) + x) * 4) + 0] = 255;
-            data[(((y * FOG_S) + x) * 4) + 1] = 255;
-            data[(((y * FOG_S) + x) * 4) + 2] = 255;
-            data[(((y * FOG_S) + x) * 4) + 3] = 255 * d;
-        }
-    }
+			data[(((y * FOG_S) + x) * 4) + 0] = 255;
+			data[(((y * FOG_S) + x) * 4) + 1] = 255;
+			data[(((y * FOG_S) + x) * 4) + 2] = 255;
+			data[(((y * FOG_S) + x) * 4) + 3] = 255 * d;
+		}
+	}
 #else
-    // allocate table for image
-    data = static_cast<byte*> (ri.Hunk_AllocateTempMemory (FOG_S * FOG_T * 4));
+	// allocate table for image
+	data = static_cast<byte*> (ri.Hunk_AllocateTempMemory (FOG_S * FOG_T * 4));
 
-    // ydnar: new, linear fog texture generating algo for GL_CLAMP_TO_EDGE (OpenGL 1.2+)
+	// ydnar: new, linear fog texture generating algo for GL_CLAMP_TO_EDGE (OpenGL 1.2+)
 
-    // S is distance, T is depth
-    for (int x = 0; x < FOG_S; ++x) {
-        for (int y = 0; y < FOG_T; ++y) {
-            int alpha = int (270.0F * (float (x) / FOG_S) * (float (y) / FOG_T)); // need slop room for fp round to 0
+	// S is distance, T is depth
+	for (int x = 0; x < FOG_S; ++x) {
+		for (int y = 0; y < FOG_T; ++y) {
+			int alpha = int (270.0F * (float (x) / FOG_S) * (float (y) / FOG_T)); // need slop room for fp round to 0
 
-            if (alpha > 255)
-                alpha = 255;
+			if (alpha > 255)
+				alpha = 255;
 
-            // ensure edge/corner cases are fully transparent (at 0,0) or fully opaque (at 1,N where N is 0-1.0)
-            if (x == 0)
-                alpha = 0;
-            else if (x == (FOG_S - 1))
-                alpha = 255;
+			// ensure edge/corner cases are fully transparent (at 0,0) or fully opaque (at 1,N where N is 0-1.0)
+			if (x == 0)
+				alpha = 0;
+			else if (x == (FOG_S - 1))
+				alpha = 255;
 
-            data[(((y * FOG_S) + x) * 4) + 0] = 255;
-            data[(((y * FOG_S) + x) * 4) + 1] = 255;
-            data[(((y * FOG_S) + x) * 4) + 2] = 255;
-            data[(((y * FOG_S) + x) * 4) + 3] = alpha;  //% 255*d;
-        }
-    }
+			data[(((y * FOG_S) + x) * 4) + 0] = 255;
+			data[(((y * FOG_S) + x) * 4) + 1] = 255;
+			data[(((y * FOG_S) + x) * 4) + 2] = 255;
+			data[(((y * FOG_S) + x) * 4) + 3] = alpha;  //% 255*d;
+		}
+	}
 #endif // RTCW_XX
 
-    tr.fogImage = R_CreateImage ("*fog", data, FOG_S, FOG_T, false, false, r_get_best_wrap_clamp ());
-    ri.Hunk_FreeTempMemory (data);
+	tr.fogImage = R_CreateImage ("*fog", data, FOG_S, FOG_T, false, false, r_get_best_wrap_clamp ());
+	ri.Hunk_FreeTempMemory (data);
 
 #if !defined RTCW_ET
-    if (!glConfigEx.use_arb_framebuffer_object_) {
-        float borderColor[4] = { 1.0F, 1.0F, 1.0F, 1.0F, };
+	if (!glConfigEx.use_arb_framebuffer_object_) {
+		float borderColor[4] = { 1.0F, 1.0F, 1.0F, 1.0F, };
 
-        glTexParameterfv (GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-    }
+		glTexParameterfv (GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	}
 #endif // RTCW_XX
 }
-//BBi
+// BBi
 
 /*
 ==================
@@ -2938,10 +2938,10 @@ void R_CreateBuiltinImages( void ) {
 	for ( x = 0; x < 32; x++ ) {
 		// scratchimage is usually used for cinematic drawing
 
-        //BBi
+		// BBi
 		//tr.scratchImage[x] = R_CreateImage( "*scratch", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, GL_CLAMP );
-        tr.scratchImage[x] = R_CreateImage ("*scratch", (byte*) data, DEFAULT_SIZE, DEFAULT_SIZE, false, true, r_get_best_wrap_clamp ());
-        //BBi
+		tr.scratchImage[x] = R_CreateImage ("*scratch", (byte*) data, DEFAULT_SIZE, DEFAULT_SIZE, false, true, r_get_best_wrap_clamp ());
+		// BBi
 	}
 
 	R_CreateDlightImage();
@@ -3971,10 +3971,10 @@ qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *heigh
 #endif  // FUNNEL_HACK
 
 #if !defined RTCW_MP
-    //BBi
+	// BBi
 	//temppic = static_cast<byte*> (malloc( sizeof( unsigned int ) * diff[0] * diff[1] ));
-    temppic = new byte[sizeof (unsigned) * diff[0] * diff[1]];
-    //BBi
+	temppic = new byte[sizeof (unsigned) * diff[0] * diff[1]];
+	// BBi
 #else
 	temppic = static_cast<byte*> (ri.Z_Malloc( sizeof( unsigned int ) * diff[0] * diff[1] ));
 #endif // RTCW_XX
@@ -4077,10 +4077,10 @@ void    R_CropAndNumberImagesInDirectory( const char *dir, const char *ext, int 
 				newHeight = newWidth;
 
 #if defined RTCW_SP
-                //BBi
+				// BBi
 				//temppic = malloc( sizeof( unsigned int ) * newWidth * newHeight );
-                temppic = new byte[sizeof (unsigned) * newWidth * newHeight];
-                //BBi
+				temppic = new byte[sizeof (unsigned) * newWidth * newHeight];
+				// BBi
 #else
 				temppic = ri.Z_Malloc( sizeof( unsigned int ) * newWidth * newHeight );
 #endif // RTCW_XX
@@ -4098,10 +4098,10 @@ void    R_CropAndNumberImagesInDirectory( const char *dir, const char *ext, int 
 			newHeight = maxWidth;
 
 #if defined RTCW_SP
-            //BBi
+			// BBi
 			//temppic = malloc( sizeof( unsigned int ) * newWidth * newHeight );
-            temppic = new[sizeof (unsigned) * newWidth * newHeight];
-            //BBi
+			temppic = new[sizeof (unsigned) * newWidth * newHeight];
+			// BBi
 #else
 			temppic = ri.Z_Malloc( sizeof( unsigned int ) * newWidth * newHeight );
 #endif // RTCW_XX
@@ -4117,10 +4117,10 @@ void    R_CropAndNumberImagesInDirectory( const char *dir, const char *ext, int 
 		newHeight = maxHeight;
 
 #if !defined RTCW_MP
-        //BBi
+		// BBi
 		//temppic = static_cast<byte*> (malloc( sizeof( unsigned int ) * newWidth * newHeight ));
-        temppic = new byte[sizeof (unsigned) * newWidth * newHeight];
-        //BBi
+		temppic = new byte[sizeof (unsigned) * newWidth * newHeight];
+		// BBi
 #else
 		temppic = static_cast<byte*> (ri.Z_Malloc( sizeof( unsigned int ) * newWidth * newHeight ));
 #endif // RTCW_XX
@@ -4129,10 +4129,10 @@ void    R_CropAndNumberImagesInDirectory( const char *dir, const char *ext, int 
 		memcpy( pic, temppic, sizeof( unsigned int ) * newWidth * newHeight );
 
 #if !defined RTCW_MP
-        //BBi
+		// BBi
 		//free( temppic );
-        delete [] temppic;
-        //BBi
+		delete [] temppic;
+		// BBi
 #else
 		ri.Free( temppic );
 #endif // RTCW_XX
@@ -4213,10 +4213,10 @@ void *R_CacheImageAlloc( int size ) {
 	if ( r_cache->integer && r_cacheShaders->integer ) {
 
 #if !defined RTCW_ET
-        //BBi
+		// BBi
 		//return malloc( size );
-        return new byte[size];
-        //BBi
+		return new byte[size];
+		// BBi
 
 #if defined RTCW_SP
 		//return ri.Z_Malloc( size );
@@ -4226,10 +4226,10 @@ void *R_CacheImageAlloc( int size ) {
 #else
 //		return ri.Z_Malloc( size );
 
-        //BBi
+		// BBi
 		//return malloc( size );  // ri.Z_Malloc causes load times about twice as long?... Gordon
-        return new byte[size]; // ri.Z_Malloc causes load times about twice as long?... Gordon
-        //BBi
+		return new byte[size]; // ri.Z_Malloc causes load times about twice as long?... Gordon
+		// BBi
 //DAJ TEST		return ri.Z_Malloc( size );	//DAJ was CO
 #endif // RTCW_XX
 
@@ -4250,10 +4250,10 @@ void R_CacheImageFree( void *ptr ) {
 //		ri.Free( ptr );
 #endif // RTCW_XX
 
-        //BBi
+		// BBi
 		//free( ptr );
-        delete [] static_cast<byte*> (ptr);
-        //BBi
+		delete [] static_cast<byte*> (ptr);
+		// BBi
 
 #if defined RTCW_SP
 		//ri.Free( ptr );
@@ -4549,7 +4549,7 @@ void R_LoadCacheImages( void ) {
 	int len;
 	byte *buf;
 	char    *token;
-    const char* pString;
+	const char* pString;
 	char name[MAX_QPATH];
 
 #if !defined RTCW_ET

@@ -2945,7 +2945,7 @@ static void CG_DrawFlashFade( void ) {
 		if ( fBlackout ) {
 			int i, nOffset = 90;
 			char *str;
-            const char* format = "The %s team is speclocked!";
+			const char* format = "The %s team is speclocked!";
 			const char *teams[TEAM_NUM_TEAMS] = { "??", "AXIS", "ALLIES", "???" };
 			float color[4] = { 1, 1, 0, 1 };
 
@@ -3463,10 +3463,10 @@ void CG_DrawCompassIcon( float x, float y, float w, float h, vec3_t origin, vec3
 	x = x + ( c::cos( angle ) * w );
 	y = y + ( c::sin( angle ) * w );
 
-    //BBi
+	// BBi
 	//len = 1 - min( 1.f, len / 2000.f );
-    len = 1.0F - std::min (1.0F, len / 2000.0F);
-    //BBi
+	len = 1.0F - std::min (1.0F, len / 2000.0F);
+	// BBi
 
 	CG_DrawPic( x - ( 14 * len + 4 ) / 2, y - ( 14 * len + 4 ) / 2, 14 * len + 8, 14 * len + 8, shader );
 #ifdef SQUARE_COMPASS

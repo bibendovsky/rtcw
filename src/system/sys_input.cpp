@@ -81,87 +81,87 @@ IN_Startup
 */
 void IN_Startup()
 {
-    joystick.initialize();
-    keyboard.initialize();
-    mouse.initialize();
+	joystick.initialize();
+	keyboard.initialize();
+	mouse.initialize();
 }
 
 void IN_Shutdown()
 {
-    Com_Printf("%s input subsystems...\n", "Uninitializing");
+	Com_Printf("%s input subsystems...\n", "Uninitializing");
 
-    joystick.uninitialize();
-    keyboard.uninitialize();
-    mouse.uninitialize();
+	joystick.uninitialize();
+	keyboard.uninitialize();
+	mouse.uninitialize();
 
-    Cmd_RemoveCommand("midiinfo");
+	Cmd_RemoveCommand("midiinfo");
 }
 
 static void cmd_midi_info()
 {
-    Com_Printf("MIDI control not supported.\n");
+	Com_Printf("MIDI control not supported.\n");
 }
 
 void IN_Init()
 {
-    Com_Printf("%s input subsystems...\n", "Initializing");
+	Com_Printf("%s input subsystems...\n", "Initializing");
 
-    // MIDI input controler variables
-    in_midi = Cvar_Get("in_midi", "0", CVAR_ARCHIVE);
-    in_midiport = Cvar_Get("in_midiport", "1", CVAR_ARCHIVE );
-    in_midichannel = Cvar_Get("in_midichannel", "1", CVAR_ARCHIVE );
-    in_mididevice = Cvar_Get("in_mididevice", "0", CVAR_ARCHIVE );
+	// MIDI input controler variables
+	in_midi = Cvar_Get("in_midi", "0", CVAR_ARCHIVE);
+	in_midiport = Cvar_Get("in_midiport", "1", CVAR_ARCHIVE );
+	in_midichannel = Cvar_Get("in_midichannel", "1", CVAR_ARCHIVE );
+	in_mididevice = Cvar_Get("in_mididevice", "0", CVAR_ARCHIVE );
 
-    Cmd_AddCommand("midiinfo", cmd_midi_info);
+	Cmd_AddCommand("midiinfo", cmd_midi_info);
 
-    rtcw::input::Joystick::register_cvars();
-    rtcw::input::Keyboard::register_cvars();
-    rtcw::input::Mouse::register_cvars();
+	rtcw::input::Joystick::register_cvars();
+	rtcw::input::Keyboard::register_cvars();
+	rtcw::input::Mouse::register_cvars();
 
-    IN_Startup();
+	IN_Startup();
 }
 
 // Called every frame, even if not generating commands
 void IN_Frame()
 {
-    mouse.update();
+	mouse.update();
 }
 
 void IN_ClearStates()
 {
-    joystick.reset_state();
-    mouse.reset_state();
+	joystick.reset_state();
+	mouse.reset_state();
 }
 
 void sys_input_handle_event(const SDL_Event& e)
 {
-    switch (e.type) {
-    case SDL_KEYDOWN:
-    case SDL_KEYUP:
-    case SDL_TEXTEDITING:
-    case SDL_TEXTINPUT:
-        keyboard.handle_event(e);
-        break;
+	switch (e.type) {
+	case SDL_KEYDOWN:
+	case SDL_KEYUP:
+	case SDL_TEXTEDITING:
+	case SDL_TEXTINPUT:
+		keyboard.handle_event(e);
+		break;
 
-    case SDL_MOUSEBUTTONDOWN:
-    case SDL_MOUSEBUTTONUP:
-    case SDL_MOUSEMOTION:
-    case SDL_MOUSEWHEEL:
-        mouse.handle_event(e);
-        break;
+	case SDL_MOUSEBUTTONDOWN:
+	case SDL_MOUSEBUTTONUP:
+	case SDL_MOUSEMOTION:
+	case SDL_MOUSEWHEEL:
+		mouse.handle_event(e);
+		break;
 
-    case SDL_JOYAXISMOTION:
-    case SDL_JOYBALLMOTION:
-    case SDL_JOYHATMOTION:
-    case SDL_JOYBUTTONDOWN:
-    case SDL_JOYBUTTONUP:
-    case SDL_JOYDEVICEADDED:
-    case SDL_JOYDEVICEREMOVED:
-        joystick.handle_event(e);
-        break;
+	case SDL_JOYAXISMOTION:
+	case SDL_JOYBALLMOTION:
+	case SDL_JOYHATMOTION:
+	case SDL_JOYBUTTONDOWN:
+	case SDL_JOYBUTTONUP:
+	case SDL_JOYDEVICEADDED:
+	case SDL_JOYDEVICEREMOVED:
+		joystick.handle_event(e);
+		break;
 
-    default:
-        assert(!"Expected input event.");
-        break;
-    }
+	default:
+		assert(!"Expected input event.");
+		break;
+	}
 }

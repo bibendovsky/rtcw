@@ -28,9 +28,9 @@ If you have questions concerning this license or the applicable additional terms
 
 // tr_models.c -- model loading and caching
 
-//BBi
+// BBi
 #include <windows.h>
-//BBi
+// BBi
 
 #include "tr_local.h"
 
@@ -1810,10 +1810,10 @@ static qboolean R_LoadMDX( model_t *mod, void *buffer, const char *mod_name ) {
 		for ( i = 0 ; i < mdx->numFrames ; i++ ) {
 			frame = ( mdxFrame_t * )( (byte *)mdx + mdx->ofsFrames + i * frameSize + i * sizeof( mdxFrame_t ) );
 			rtcw::Endian::lei(frame->radius);
-            rtcw::Endian::lei(frame->bounds[0]);
-            rtcw::Endian::lei(frame->bounds[1]);
-            rtcw::Endian::lei(frame->localOrigin);
-            rtcw::Endian::lei(frame->parentOffset);
+			rtcw::Endian::lei(frame->bounds[0]);
+			rtcw::Endian::lei(frame->bounds[1]);
+			rtcw::Endian::lei(frame->localOrigin);
+			rtcw::Endian::lei(frame->parentOffset);
 
 			bframe = ( short * )( (byte *)mdx + mdx->ofsFrames + i * frameSize + ( ( i + 1 ) * sizeof( mdxFrame_t ) ) );
 			for ( j = 0 ; j < mdx->numBones * sizeof( mdxBoneFrameCompressed_t ) / sizeof( short ) ; j++ ) {
@@ -2306,7 +2306,7 @@ void R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs ) {
 byte    *membase = NULL;
 int hunkmaxsize;
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //int hunkcursize;        //DAJ renamed from cursize
 //#else
@@ -2319,9 +2319,9 @@ int hunkmaxsize;
 static int hunkcursize;
 static const int R_HUNK_MEGS = 24;
 static const int R_HUNK_SIZE = R_HUNK_MEGS * 1024 * 1024;
-//BBi
+// BBi
 
-//BBi
+// BBi
 //void *R_Hunk_Begin( void ) {
 //	int maxsize = R_HUNK_SIZE;
 //
@@ -2427,28 +2427,28 @@ static const int R_HUNK_SIZE = R_HUNK_MEGS * 1024 * 1024;
 void* R_Hunk_Begin ()
 {
 #if defined RTCW_SP
-    if (r_cache->integer == 0)
-        return 0;
+	if (r_cache->integer == 0)
+		return 0;
 #endif // RTCW_XX
 
-    // reserve a huge chunk of memory, but don't commit any yet
-    hunkcursize = 0;
-    hunkmaxsize = R_HUNK_SIZE;
+	// reserve a huge chunk of memory, but don't commit any yet
+	hunkcursize = 0;
+	hunkmaxsize = R_HUNK_SIZE;
 
-    if (membase == 0) {
-        membase = new byte[R_HUNK_SIZE];
+	if (membase == 0) {
+		membase = new byte[R_HUNK_SIZE];
 
-        if (membase == 0)
-            ri.Error (ERR_DROP, "R_Hunk_Begin: reserve failed");
+		if (membase == 0)
+			ri.Error (ERR_DROP, "R_Hunk_Begin: reserve failed");
 
-        memset (membase, 0, R_HUNK_SIZE);
-    }
+		memset (membase, 0, R_HUNK_SIZE);
+	}
 
-    return membase;
+	return membase;
 }
-//BBi
+// BBi
 
-//BBi
+// BBi
 //void *R_Hunk_Alloc( int size ) {
 //#ifdef _WIN32
 //	void    *buf;
@@ -2509,23 +2509,23 @@ void* R_Hunk_Begin ()
 //}
 
 void* R_Hunk_Alloc (
-    int size)
+	int size)
 {
-    static const int ROUND_MASK = (8 * sizeof (int)) - 1;
+	static const int ROUND_MASK = (8 * sizeof (int)) - 1;
 
-    // round to cacheline
-    size = (size + ROUND_MASK) & (~ROUND_MASK);
+	// round to cacheline
+	size = (size + ROUND_MASK) & (~ROUND_MASK);
 
-    hunkcursize += size;
+	hunkcursize += size;
 
-    if (hunkcursize > hunkmaxsize)
-        ri.Error (ERR_DROP, "R_Hunk_Alloc overflow");
+	if (hunkcursize > hunkmaxsize)
+		ri.Error (ERR_DROP, "R_Hunk_Alloc overflow");
 
-    return membase + hunkcursize - size;
+	return membase + hunkcursize - size;
 }
-//BBi
+// BBi
 
-//BBi
+// BBi
 //// this is only called when we shutdown GL
 //void R_Hunk_End( void ) {
 //	//Com_Printf("R_Hunk_End\n");
@@ -2563,18 +2563,18 @@ void* R_Hunk_Alloc (
 void R_Hunk_End ()
 {
 #if defined RTCW_SP
-    if (r_cache->integer == 0)
-        return;
+	if (r_cache->integer == 0)
+		return;
 #endif // RTCW_XX
 
-    if (membase != 0) {
-        delete [] membase;
-        membase = 0;
-    }
+	if (membase != 0) {
+		delete [] membase;
+		membase = 0;
+	}
 }
-//BBi
+// BBi
 
-//BBi
+// BBi
 //void R_Hunk_Reset( void ) {
 //	//Com_Printf("R_Hunk_Reset\n");
 //
@@ -2615,16 +2615,16 @@ void R_Hunk_End ()
 void R_Hunk_Reset ()
 {
 #if defined RTCW_SP
-    if (r_cache->integer == 0)
-        return;
+	if (r_cache->integer == 0)
+		return;
 #endif // RTCW_XX
 
-    if (membase == 0)
-        ri.Error (ERR_DROP, "R_Hunk_Reset called without a membase!");
+	if (membase == 0)
+		ri.Error (ERR_DROP, "R_Hunk_Reset called without a membase!");
 
-    hunkcursize = 0;
+	hunkcursize = 0;
 }
-//BBi
+// BBi
 
 //=============================================================================
 // Ridah, model caching
@@ -2643,7 +2643,7 @@ R_CacheModelAlloc
 void *R_CacheModelAlloc( int size ) {
 	if ( r_cache->integer && r_cacheModels->integer ) {
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //#if defined( __MACOS__ )
 //		return malloc( size );      //DAJ FIXME was co
@@ -2653,9 +2653,9 @@ void *R_CacheModelAlloc( int size ) {
 //#else
 //		return R_Hunk_Alloc( size );
 //#endif // RTCW_XX
-//BBi
+// BBi
 
-        return R_Hunk_Alloc (size);
+		return R_Hunk_Alloc (size);
 	} else {
 
 #if defined RTCW_SP
@@ -2676,13 +2676,13 @@ void R_CacheModelFree( void *ptr ) {
 	if ( r_cache->integer && r_cacheModels->integer ) {
 		// TTimo: it's in the hunk, leave it there, next R_Hunk_Begin will clear it all
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //#if defined( __MACOS__ )
 //		free( ptr );    //DAJ FIXME was co
 //#endif
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 	} else
 	{
@@ -3011,7 +3011,7 @@ void R_LoadCacheModels( void ) {
 	int len;
 	byte *buf;
 	char    *token;
-    const char* pString;
+	const char* pString;
 	char name[MAX_QPATH];
 
 #if defined RTCW_SP

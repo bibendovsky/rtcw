@@ -881,7 +881,7 @@ void R_AddDecalSurface( decal_t *decal ) {
 		dlightMap = ( gen->dlightBits[ tr.smpFrame ] != 0 );
 #endif // 0
 
-        dlightMap = (gen->dlightBits != 0);
+		dlightMap = (gen->dlightBits != 0);
 	} else {
 		dlightMap = 0;
 	}

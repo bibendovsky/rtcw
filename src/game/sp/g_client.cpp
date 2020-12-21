@@ -1283,7 +1283,7 @@ if desired.
 */
 void ClientUserinfoChanged( int clientNum ) {
 	gentity_t *ent;
-    const char* s;
+	const char* s;
 	char model[MAX_QPATH], modelname[MAX_QPATH];
 
 //----(SA) added this for head separation
@@ -1291,7 +1291,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	char oldname[MAX_STRING_CHARS];
 	gclient_t   *client;
-    const char* c1;
+	const char* c1;
 	char userinfo[MAX_INFO_STRING];
 
 	ent = g_entities + clientNum;
@@ -1484,7 +1484,7 @@ restarts.
 ============
 */
 const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
-    const char* value;
+	const char* value;
 	gclient_t   *client;
 	char userinfo[MAX_INFO_STRING];
 	gentity_t   *ent;
@@ -1993,8 +1993,8 @@ G_RetrieveMoveSpeedsFromClient
 ==================
 */
 void G_RetrieveMoveSpeedsFromClient( int entnum, char *text ) {
-    const char* text_p;
-    char* token;
+	const char* text_p;
+	char* token;
 	animation_t *anim;
 	animModelInfo_t *modelInfo;
 

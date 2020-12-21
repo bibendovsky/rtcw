@@ -91,8 +91,8 @@ static void CG_Obituary( entityState_t *ent ) {
 	int mod;
 	int target, attacker;
 	int killtype = 0;               // DHM - Nerve :: 0==Axis; 1==Allied; 2==your kill
-    const char* message;
-    const char* message2;
+	const char* message;
+	const char* message2;
 	const char  *targetInfo;
 	const char  *attackerInfo;
 	char targetName[32];
@@ -566,7 +566,7 @@ Also called by playerstate transition
 ================
 */
 typedef struct {
-    const char* tag;
+	const char* tag;
 	int refEntOfs;
 	int anim;
 } painAnimForTag_t;

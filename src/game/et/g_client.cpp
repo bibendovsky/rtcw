@@ -599,7 +599,7 @@ void reinforce( gentity_t *ent ) {
 	const char *classname;
 	gclient_t *rclient;
 	char userinfo[MAX_INFO_STRING];
-    const char* respawnStr;
+	const char* respawnStr;
 
 	if ( ent->r.svFlags & SVF_BOT ) {
 		trap_GetUserinfo( ent->s.number, userinfo, sizeof( userinfo ) );
@@ -1829,8 +1829,8 @@ void ClientBegin( int clientNum ) {
 }
 
 gentity_t *SelectSpawnPointFromList( char *list, vec3_t spawn_origin, vec3_t spawn_angles ) {
-    const char* pStr;
-    char* token;
+	const char* pStr;
+	char* token;
 	gentity_t   *spawnPoint = NULL, *trav;
 	#define MAX_SPAWNPOINTFROMLIST_POINTS   16
 	int valid[MAX_SPAWNPOINTFROMLIST_POINTS];

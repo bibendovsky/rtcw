@@ -28,11 +28,11 @@ If you have questions concerning this license or the applicable additional terms
 
 // tr_shade.c
 
-//BBi
+// BBi
 #include <vector>
 
 #include <windows.h>
-//BBi
+// BBi
 
 #include "tr_local.h"
 
@@ -196,10 +196,10 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 
 	primitives = r_primitives->integer;
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ())
-        primitives = 2;
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ())
+		primitives = 2;
+	// BBi
 
 	// default is to use triangles if compiled vertex arrays are present
 	if ( primitives == 0 ) {
@@ -212,166 +212,166 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 
 
 	if ( primitives == 2 ) {
-        // BBi
-        bool use_pos_array = false;
-        bool use_tc0_array = false;
-        bool use_tc1_array = false;
-        bool use_col_array = false;
+		// BBi
+		bool use_pos_array = false;
+		bool use_tc0_array = false;
+		bool use_tc1_array = false;
+		bool use_col_array = false;
 
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            int vertex_count = ogl_tess_vertex_count;
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			int vertex_count = ogl_tess_vertex_count;
 
-            if (vertex_count == 0)
-                return;
+			if (vertex_count == 0)
+				return;
 
-            if (ogl_tess_program->program_ == 0)
-                return;
+			if (ogl_tess_program->program_ == 0)
+				return;
 
-            if (ogl_tess_vbo == 0)
-                return;
+			if (ogl_tess_vbo == 0)
+				return;
 
-            use_pos_array = (ogl_tess_program->a_pos_vec4 >= 0);
-            use_tc0_array = ogl_tess_use_tc0_array &&
-                (ogl_tess_program->a_tc0_vec2 >= 0);
-            use_tc1_array = ogl_tess_use_tc1_array &&
-                (ogl_tess_program->a_tc1_vec2 >= 0);
-            use_col_array = ogl_tess_use_col_array &&
-                (ogl_tess_program->a_col_vec4 >= 0);
+			use_pos_array = (ogl_tess_program->a_pos_vec4 >= 0);
+			use_tc0_array = ogl_tess_use_tc0_array &&
+				(ogl_tess_program->a_tc0_vec2 >= 0);
+			use_tc1_array = ogl_tess_use_tc1_array &&
+				(ogl_tess_program->a_tc1_vec2 >= 0);
+			use_col_array = ogl_tess_use_col_array &&
+				(ogl_tess_program->a_col_vec4 >= 0);
 
-            if (!use_pos_array && !use_tc0_array && !use_tc1_array &&
-                !use_col_array)
-            {
-                return;
-            }
+			if (!use_pos_array && !use_tc0_array && !use_tc1_array &&
+				!use_col_array)
+			{
+				return;
+			}
 
-            if ((ogl_tess_base_vertex + ogl_tess_vertex_count) >
-                OglTessLayout::MAX_VERTEX_COUNT)
-            {
-                ogl_tess_base_vertex = 0;
-            }
+			if ((ogl_tess_base_vertex + ogl_tess_vertex_count) >
+				OglTessLayout::MAX_VERTEX_COUNT)
+			{
+				ogl_tess_base_vertex = 0;
+			}
 
-            if (!glConfigEx.use_arb_draw_elements_base_vertex) {
-                if (ogl_index_buffer.empty ())
-                    ogl_index_buffer.resize (SHADER_MAX_INDEXES);
+			if (!glConfigEx.use_arb_draw_elements_base_vertex) {
+				if (ogl_index_buffer.empty ())
+					ogl_index_buffer.resize (SHADER_MAX_INDEXES);
 
-                for (int i = 0; i < numIndexes; ++i)
-                    ogl_index_buffer[i] = indexes[i] + ogl_tess_base_vertex;
-            }
+				for (int i = 0; i < numIndexes; ++i)
+					ogl_index_buffer[i] = indexes[i] + ogl_tess_base_vertex;
+			}
 
-            glUseProgram (ogl_tess_program->program_);
+			glUseProgram (ogl_tess_program->program_);
 
-            glBindBuffer (GL_ARRAY_BUFFER, ogl_tess_vbo);
+			glBindBuffer (GL_ARRAY_BUFFER, ogl_tess_vbo);
 
-            if (use_pos_array) {
-                glBufferSubData (GL_ARRAY_BUFFER,
-                    OglTessLayout::POS_OFS +
-                        (ogl_tess_base_vertex * OglTessLayout::POS_SIZE),
-                    vertex_count * OglTessLayout::POS_SIZE,
-                    ogl_tess_pos_array);
-            }
+			if (use_pos_array) {
+				glBufferSubData (GL_ARRAY_BUFFER,
+					OglTessLayout::POS_OFS +
+						(ogl_tess_base_vertex * OglTessLayout::POS_SIZE),
+					vertex_count * OglTessLayout::POS_SIZE,
+					ogl_tess_pos_array);
+			}
 
-            if (use_tc0_array) {
-                glBufferSubData (GL_ARRAY_BUFFER,
-                    OglTessLayout::TC0_OFS +
-                        (ogl_tess_base_vertex * OglTessLayout::TC0_SIZE),
-                    vertex_count * OglTessLayout::TC0_SIZE,
-                    ogl_tess_tc0_array);
-            }
+			if (use_tc0_array) {
+				glBufferSubData (GL_ARRAY_BUFFER,
+					OglTessLayout::TC0_OFS +
+						(ogl_tess_base_vertex * OglTessLayout::TC0_SIZE),
+					vertex_count * OglTessLayout::TC0_SIZE,
+					ogl_tess_tc0_array);
+			}
 
-            if (use_tc1_array) {
-                glBufferSubData (GL_ARRAY_BUFFER,
-                    OglTessLayout::TC1_OFS +
-                        (ogl_tess_base_vertex * OglTessLayout::TC1_SIZE),
-                    vertex_count * OglTessLayout::TC1_SIZE,
-                    ogl_tess_tc1_array);
-            }
+			if (use_tc1_array) {
+				glBufferSubData (GL_ARRAY_BUFFER,
+					OglTessLayout::TC1_OFS +
+						(ogl_tess_base_vertex * OglTessLayout::TC1_SIZE),
+					vertex_count * OglTessLayout::TC1_SIZE,
+					ogl_tess_tc1_array);
+			}
 
-            if (use_col_array) {
-                glBufferSubData (GL_ARRAY_BUFFER,
-                    OglTessLayout::COL_OFS +
-                        (ogl_tess_base_vertex * OglTessLayout::COL_SIZE),
-                    vertex_count * OglTessLayout::COL_SIZE,
-                    ogl_tess_col_array);
-            }
+			if (use_col_array) {
+				glBufferSubData (GL_ARRAY_BUFFER,
+					OglTessLayout::COL_OFS +
+						(ogl_tess_base_vertex * OglTessLayout::COL_SIZE),
+					vertex_count * OglTessLayout::COL_SIZE,
+					ogl_tess_col_array);
+			}
 
-            // position
-            if (use_pos_array) {
-                glVertexAttribPointer (ogl_tess_program->a_pos_vec4, 3, GL_FLOAT,
-                    GL_FALSE, OglTessLayout::POS_SIZE,
-                    OglTessLayout::POS_PTR);
+			// position
+			if (use_pos_array) {
+				glVertexAttribPointer (ogl_tess_program->a_pos_vec4, 3, GL_FLOAT,
+					GL_FALSE, OglTessLayout::POS_SIZE,
+					OglTessLayout::POS_PTR);
 
-                glEnableVertexAttribArray (ogl_tess_program->a_pos_vec4);
-            }
+				glEnableVertexAttribArray (ogl_tess_program->a_pos_vec4);
+			}
 
-            // texture coordinates (0)
-            if (use_tc0_array) {
-                glVertexAttribPointer (ogl_tess_program->a_tc0_vec2, 2, GL_FLOAT,
-                    GL_FALSE, 0, OglTessLayout::TC0_PTR);
+			// texture coordinates (0)
+			if (use_tc0_array) {
+				glVertexAttribPointer (ogl_tess_program->a_tc0_vec2, 2, GL_FLOAT,
+					GL_FALSE, 0, OglTessLayout::TC0_PTR);
 
-                glEnableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
-            }
+				glEnableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
+			}
 
-            // texture coordinates (1)
-            if (use_tc1_array) {
-                glVertexAttribPointer (ogl_tess_program->a_tc1_vec2, 2, GL_FLOAT,
-                    GL_FALSE, 0, OglTessLayout::TC1_PTR);
+			// texture coordinates (1)
+			if (use_tc1_array) {
+				glVertexAttribPointer (ogl_tess_program->a_tc1_vec2, 2, GL_FLOAT,
+					GL_FALSE, 0, OglTessLayout::TC1_PTR);
 
-                glEnableVertexAttribArray (ogl_tess_program->a_tc1_vec2);
-            }
+				glEnableVertexAttribArray (ogl_tess_program->a_tc1_vec2);
+			}
 
-            // color
-            if (use_col_array) {
-                glVertexAttribPointer (ogl_tess_program->a_col_vec4, 4,
-                    GL_UNSIGNED_BYTE, GL_TRUE, 0,
-                    OglTessLayout::COL_PTR);
+			// color
+			if (use_col_array) {
+				glVertexAttribPointer (ogl_tess_program->a_col_vec4, 4,
+					GL_UNSIGNED_BYTE, GL_TRUE, 0,
+					OglTessLayout::COL_PTR);
 
-                glEnableVertexAttribArray (ogl_tess_program->a_col_vec4);
-            }
-        }
-        // BBi
+				glEnableVertexAttribArray (ogl_tess_program->a_col_vec4);
+			}
+		}
+		// BBi
 
-        // BBi
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            if (glConfigEx.use_arb_draw_elements_base_vertex) {
-                glDrawElementsBaseVertex(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE,
-                    indexes, ogl_tess_base_vertex);
-            } else {
-                glDrawElements (GL_TRIANGLES, numIndexes, GL_INDEX_TYPE,
-                    &ogl_index_buffer[0]);
-            }
-        } else {
-        // BBi
+		// BBi
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			if (glConfigEx.use_arb_draw_elements_base_vertex) {
+				glDrawElementsBaseVertex(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE,
+					indexes, ogl_tess_base_vertex);
+			} else {
+				glDrawElements (GL_TRIANGLES, numIndexes, GL_INDEX_TYPE,
+					&ogl_index_buffer[0]);
+			}
+		} else {
+		// BBi
 
 		glDrawElements( GL_TRIANGLES,
 						 numIndexes,
 						 GL_INDEX_TYPE,
 						 indexes );
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 
-        // BBi
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            glUseProgram (0);
+		// BBi
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			glUseProgram (0);
 
-            if (use_pos_array)
-                glDisableVertexAttribArray (ogl_tess_program->a_pos_vec4);
+			if (use_pos_array)
+				glDisableVertexAttribArray (ogl_tess_program->a_pos_vec4);
 
-            if (use_tc0_array)
-                glDisableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
+			if (use_tc0_array)
+				glDisableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
 
-            if (use_tc1_array)
-                glDisableVertexAttribArray (ogl_tess_program->a_tc1_vec2);
+			if (use_tc1_array)
+				glDisableVertexAttribArray (ogl_tess_program->a_tc1_vec2);
 
-            if (use_col_array)
-                glDisableVertexAttribArray (ogl_tess_program->a_col_vec4);
+			if (use_col_array)
+				glDisableVertexAttribArray (ogl_tess_program->a_col_vec4);
 
-            glBindBuffer (GL_ARRAY_BUFFER, 0);
+			glBindBuffer (GL_ARRAY_BUFFER, 0);
 
-            ogl_tess_base_vertex += ogl_tess_vertex_count;
-        }
-        // BBi
+			ogl_tess_base_vertex += ogl_tess_vertex_count;
+		}
+		// BBi
 
 		return;
 	}
@@ -454,18 +454,18 @@ static void DrawTris( shaderCommands_t *input ) {
 #if !defined RTCW_ET
 	GL_Bind( tr.whiteImage );
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
-        ogl_tess_state.commit_changes ();
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
+		ogl_tess_state.commit_changes ();
+	} else {
+	// BBi
 
 	glColor3f( 1,1,1 );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
 
@@ -542,17 +542,17 @@ static void DrawTris( shaderCommands_t *input ) {
 	}
 #endif // RTCW_XX
 
-    // BBi
-    bool old_use_col_array = ogl_tess_use_col_array;
-    bool old_use_tc0_array = ogl_tess_use_tc0_array;
+	// BBi
+	bool old_use_col_array = ogl_tess_use_col_array;
+	bool old_use_tc0_array = ogl_tess_use_tc0_array;
 
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_use_col_array = false;
-        ogl_tess_use_tc0_array = false;
-        ogl_tess_pos_array = input->xyz;
-        ogl_tess_vertex_count = input->numVertexes;
-    } else {
-    // BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_use_col_array = false;
+		ogl_tess_use_tc0_array = false;
+		ogl_tess_pos_array = input->xyz;
+		ogl_tess_vertex_count = input->numVertexes;
+	} else {
+	// BBi
 
 	glDisableClientState( GL_COLOR_ARRAY );
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -564,27 +564,27 @@ static void DrawTris( shaderCommands_t *input ) {
 		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	R_DrawElements( input->numIndexes, input->indexes );
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_use_col_array = old_use_col_array;
-        ogl_tess_use_tc0_array = old_use_tc0_array;
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_use_col_array = old_use_col_array;
+		ogl_tess_use_tc0_array = old_use_tc0_array;
+	} else {
+	// BBi
 
 	if ( glConfigEx.use_ext_compiled_vertex_array_ ) {
 		glUnlockArraysEXT();
 		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	glDepthRange( 0, 1 );
 
@@ -608,18 +608,18 @@ static void DrawNormals( shaderCommands_t *input ) {
 
 	GL_Bind( tr.whiteImage );
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
-        ogl_tess_state.commit_changes ();
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
+		ogl_tess_state.commit_changes ();
+	} else {
+	// BBi
 
 	glColor3f( 1,1,1 );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 #if defined RTCW_SP
 	if ( r_shownormals->integer == 1 ) {
@@ -646,160 +646,160 @@ static void DrawNormals( shaderCommands_t *input ) {
 		temp[ 1 ] = DotProduct( temp2, backEnd.orientation.axis[ 1 ] );
 		temp[ 2 ] = DotProduct( temp2, backEnd.orientation.axis[ 2 ] );
 
-        // BBi
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            ogl_tess_state.primary_color.set (glm::vec4 (
-                ent->ambientLight[0] / 255.0F,
-                ent->ambientLight[1] / 255.0F,
-                ent->ambientLight[2] / 255.0F,
-                1.0F));
-            ogl_tess_state.commit_changes ();
-        } else {
-        // BBi
+		// BBi
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			ogl_tess_state.primary_color.set (glm::vec4 (
+				ent->ambientLight[0] / 255.0F,
+				ent->ambientLight[1] / 255.0F,
+				ent->ambientLight[2] / 255.0F,
+				1.0F));
+			ogl_tess_state.commit_changes ();
+		} else {
+		// BBi
 
 		glColor3f( ent->ambientLight[ 0 ] / 255, ent->ambientLight[ 1 ] / 255, ent->ambientLight[ 2 ] / 255 );
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 
 		glPointSize( 5 );
 
-        // BBi
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            ogl_tess2.position[0] = glm::vec4 (
-                temp[0], temp[1], temp[2], 1.0F);
+		// BBi
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			ogl_tess2.position[0] = glm::vec4 (
+				temp[0], temp[1], temp[2], 1.0F);
 
-            ogl_tess2_draw (GL_POINTS, 1, false, false);
-        } else {
-        // BBi
+			ogl_tess2_draw (GL_POINTS, 1, false, false);
+		} else {
+		// BBi
 
 		glBegin( GL_POINTS );
 		glVertex3fv( temp );
 		glEnd();
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 
 		glPointSize( 1 );
 
 		if ( c::fabs( VectorLengthSquared( ent->lightDir ) - 1.0f ) > 0.2f ) {
-            // BBi
-            if (!glConfigEx.is_path_ogl_1_x ()) {
-                ogl_tess_state.primary_color.set (glm::vec4 (
-                    1.0F, 0.0F, 0.0F, 1.0F));
-            } else {
-            // BBi
+			// BBi
+			if (!glConfigEx.is_path_ogl_1_x ()) {
+				ogl_tess_state.primary_color.set (glm::vec4 (
+					1.0F, 0.0F, 0.0F, 1.0F));
+			} else {
+			// BBi
 
 			glColor3f( 1, 0, 0 );
 
-            // BBi
-            }
-            // BBi
+			// BBi
+			}
+			// BBi
 		} else {
-            // BBi
-            if (!glConfigEx.is_path_ogl_1_x ()) {
-                ogl_tess_state.primary_color.set (glm::vec4 (
-                    ent->directedLight[0] / 255.0F,
-                    ent->directedLight[1] / 255.0F,
-                    ent->directedLight[2] / 255.0F,
-                    1.0F));
-            } else {
-            // BBi
+			// BBi
+			if (!glConfigEx.is_path_ogl_1_x ()) {
+				ogl_tess_state.primary_color.set (glm::vec4 (
+					ent->directedLight[0] / 255.0F,
+					ent->directedLight[1] / 255.0F,
+					ent->directedLight[2] / 255.0F,
+					1.0F));
+			} else {
+			// BBi
 
 			glColor3f( ent->directedLight[ 0 ] / 255, ent->directedLight[ 1 ] / 255, ent->directedLight[ 2 ] / 255 );
 
-            // BBi
-            }
-            // BBi
+			// BBi
+			}
+			// BBi
 		}
 
-        // BBi
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            ogl_tess_state.commit_changes ();
+		// BBi
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			ogl_tess_state.commit_changes ();
 
-            ogl_tess2.position[0] = glm::vec4 (
-                temp[0], temp[1], temp[2], 1.0F);
-        } else {
-        // BBi
+			ogl_tess2.position[0] = glm::vec4 (
+				temp[0], temp[1], temp[2], 1.0F);
+		} else {
+		// BBi
 
 		glLineWidth( 3 );
 		glBegin( GL_LINES );
 		glVertex3fv( temp );
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 
 		VectorMA( temp, 32, ent->lightDir, temp );
 
-        // BBi
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            ogl_tess2.position[1] = glm::vec4 (
-                temp[0], temp[1], temp[2], 1.0F);
+		// BBi
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			ogl_tess2.position[1] = glm::vec4 (
+				temp[0], temp[1], temp[2], 1.0F);
 
-            ogl_tess2_draw (GL_LINES, 2, false, false);
-        } else {
-        // BBi
+			ogl_tess2_draw (GL_LINES, 2, false, false);
+		} else {
+		// BBi
 
 		glVertex3fv( temp );
 		glEnd();
 		glLineWidth( 1 );
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 	}
 	// ydnar: normals drawing
 	else
 	{
 #endif // RTCW_XX
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        int index = 0;
-        glm::vec4 n;
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		int index = 0;
+		glm::vec4 n;
 
-        for (i = 0; i < input->numVertexes; ++i) {
+		for (i = 0; i < input->numVertexes; ++i) {
 // FIXME Create cvar r_normallength for all projects
-            ogl_tess2.position[index + 0] =
-                *reinterpret_cast<const glm::vec4*> (input->xyz[i].v);
+			ogl_tess2.position[index + 0] =
+				*reinterpret_cast<const glm::vec4*> (input->xyz[i].v);
 
-            n = *reinterpret_cast<const glm::vec4*> (input->normal[i].v);
+			n = *reinterpret_cast<const glm::vec4*> (input->normal[i].v);
 
 #if !defined RTCW_ET
-            ogl_tess2.position[index + 1] =
-                ogl_tess2.position[index + 0] + (2.0F * n);
+			ogl_tess2.position[index + 1] =
+				ogl_tess2.position[index + 0] + (2.0F * n);
 #else
-            ogl_tess2.position[index + 1] =
-                ogl_tess2.position[index + 0] + (r_normallength->value * n);
+			ogl_tess2.position[index + 1] =
+				ogl_tess2.position[index + 0] + (r_normallength->value * n);
 #endif // RTCW_X
-            index += 2;
-        }
+			index += 2;
+		}
 
-        ogl_tess2_draw (GL_LINES, 2 * input->numVertexes, false, false);
-    } else {
-    // BBi
+		ogl_tess2_draw (GL_LINES, 2 * input->numVertexes, false, false);
+	} else {
+	// BBi
 
 	glBegin( GL_LINES );
 
 	for ( i = 0 ; i < input->numVertexes ; i++ ) {
 // FIXME Create cvar r_normallength for all projects
-        glVertex3fv(input->xyz[i].v);
+		glVertex3fv(input->xyz[i].v);
 #if !defined RTCW_ET
-        VectorMA(input->xyz[i].v, 2, input->normal[i].v, temp);
+		VectorMA(input->xyz[i].v, 2, input->normal[i].v, temp);
 #else
-        VectorMA(input->xyz[i].v, r_normallength->value, input->normal[i].v, temp);
+		VectorMA(input->xyz[i].v, r_normallength->value, input->normal[i].v, temp);
 #endif // RTCW_X
 
 		glVertex3fv( temp );
 	}
 	glEnd();
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 #if defined RTCW_ET
 	}
@@ -879,17 +879,17 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	//
 	GL_SelectTexture( 0 );
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_tc0_array = input->svars.texcoords[0];
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_tc0_array = input->svars.texcoords[0];
+	} else {
+	// BBi
 
 	glTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	R_BindAnimatedImage( &pStage->bundle[0] );
 
@@ -898,30 +898,30 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	//
 	GL_SelectTexture( 1 );
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_state.use_multitexturing.set (true);
-        ogl_tess_state.commit_changes ();
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_state.use_multitexturing.set (true);
+		ogl_tess_state.commit_changes ();
+	} else {
+	// BBi
 
 	glEnable( GL_TEXTURE_2D );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_use_tc1_array = true;
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_use_tc1_array = true;
+	} else {
+	// BBi
 
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	if ( r_lightmap->integer ) {
 		GL_TexEnv( GL_REPLACE );
@@ -929,17 +929,17 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 		GL_TexEnv( tess.shader->multitextureEnv );
 	}
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_tc1_array = input->svars.texcoords[1];
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_tc1_array = input->svars.texcoords[1];
+	} else {
+	// BBi
 
 	glTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[1] );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	R_BindAnimatedImage( &pStage->bundle[1] );
 
@@ -950,18 +950,18 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	//
 	//::glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_state.use_multitexturing.set (false);
-        ogl_tess_state.commit_changes ();
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_state.use_multitexturing.set (false);
+		ogl_tess_state.commit_changes ();
+	} else {
+	// BBi
 
 	glDisable( GL_TEXTURE_2D );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	GL_SelectTexture( 0 );
 }
@@ -1115,14 +1115,14 @@ static void ProjectDlightTexture( void ) {
 			continue;
 		}
 
-        // BBi
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            ogl_tess_use_col_array = true;
+		// BBi
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			ogl_tess_use_col_array = true;
 
-            ogl_tess_tc0_array = texCoordsArray[0];
-            ogl_tess_col_array = colorArray;
-        } else {
-        // BBi
+			ogl_tess_tc0_array = texCoordsArray[0];
+			ogl_tess_col_array = colorArray;
+		} else {
+		// BBi
 
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glTexCoordPointer( 2, GL_FLOAT, 0, texCoordsArray[0] );
@@ -1130,9 +1130,9 @@ static void ProjectDlightTexture( void ) {
 		glEnableClientState( GL_COLOR_ARRAY );
 		glColorPointer( 4, GL_UNSIGNED_BYTE, 0, colorArray );
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 
 		//----(SA) creating dlight shader to allow for special blends or alternate dlight texture
 		{
@@ -1388,19 +1388,19 @@ static void DynamicLightSinglePass( void ) {
 	//%	for( i = 0; i < numIndexes; i++ )
 	//%		intColors[ hitIndexes[ i ] ] = 0x000000FF;
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_use_col_array = true;
-        ogl_tess_col_array = tess.svars.colors;
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_use_col_array = true;
+		ogl_tess_col_array = tess.svars.colors;
+	} else {
+	// BBi
 
 	glEnableClientState( GL_COLOR_ARRAY );
 	glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	// render the dynamic light pass
 	R_FogOff();
@@ -1538,19 +1538,19 @@ static void DynamicLightPass( void ) {
 		//%	for( i = 0; i < numIndexes; i++ )
 		//%		intColors[ hitIndexes[ i ] ] = 0x000000FF;
 
-        // BBi
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            ogl_tess_use_col_array = true;
-            ogl_tess_col_array = tess.svars.colors;
-        } else {
-        // BBi
+		// BBi
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			ogl_tess_use_col_array = true;
+			ogl_tess_col_array = tess.svars.colors;
+		} else {
+		// BBi
 
 		glEnableClientState( GL_COLOR_ARRAY );
 		glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 
 		R_FogOff();
 		GL_Bind( tr.whiteImage );
@@ -1591,14 +1591,14 @@ static void RB_FogPass( void ) {
 	}
 #endif // RTCW_XX
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_use_col_array = true;
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_use_col_array = true;
 
-        ogl_tess_col_array = tess.svars.colors;
-        ogl_tess_tc0_array = tess.svars.texcoords[0];
-    } else {
-    // BBi
+		ogl_tess_col_array = tess.svars.colors;
+		ogl_tess_tc0_array = tess.svars.texcoords[0];
+	} else {
+	// BBi
 
 	glEnableClientState( GL_COLOR_ARRAY );
 	glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
@@ -1606,9 +1606,9 @@ static void RB_FogPass( void ) {
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	glTexCoordPointer( 2, GL_FLOAT, 0, tess.svars.texcoords[0] );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	fog = tr.world->fogs + tess.fogNum;
 
@@ -2075,20 +2075,20 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input ) {
 		ComputeTexCoords( pStage );
 
 		if ( !setArraysOnce ) {
-            // BBi
-            if (!glConfigEx.is_path_ogl_1_x ()) {
-                ogl_tess_use_col_array = true;
+			// BBi
+			if (!glConfigEx.is_path_ogl_1_x ()) {
+				ogl_tess_use_col_array = true;
 
-                ogl_tess_col_array = input->svars.colors;
-            } else {
-            // BBi
+				ogl_tess_col_array = input->svars.colors;
+			} else {
+			// BBi
 
 			glEnableClientState( GL_COLOR_ARRAY );
 			glColorPointer( 4, GL_UNSIGNED_BYTE, 0, input->svars.colors );
 
-            // BBi
-            }
-            // BBi
+			// BBi
+			}
+			// BBi
 		}
 
 		//
@@ -2101,17 +2101,17 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input ) {
 			int fadeStart, fadeEnd;
 
 			if ( !setArraysOnce ) {
-                // BBi
-                if (!glConfigEx.is_path_ogl_1_x ()) {
-                    ogl_tess_tc0_array = input->svars.texcoords[0];
-                } else {
-                // BBi
+				// BBi
+				if (!glConfigEx.is_path_ogl_1_x ()) {
+					ogl_tess_tc0_array = input->svars.texcoords[0];
+				} else {
+				// BBi
 
 				glTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
 
-                // BBi
-                }
-                // BBi
+				// BBi
+				}
+				// BBi
 			}
 
 			//
@@ -2120,14 +2120,14 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input ) {
 
 #if !defined RTCW_ET
 
-            //BBi
+			// BBi
 			//if ( pStage->bundle[0].vertexLightmap && ( ( r_vertexLight->integer && !r_uiFullScreen->integer ) || glConfig.hardwareType == GLHW_PERMEDIA2 ) && r_lightmap->integer ) {
-            if ((pStage->bundle[0].vertexLightmap) &&
-                (r_vertexLight->integer != 0) &&
-                (r_uiFullScreen->integer == 0) &&
-                (r_lightmap->integer != 0))
-            {
-            //BBi
+			if ((pStage->bundle[0].vertexLightmap) &&
+				(r_vertexLight->integer != 0) &&
+				(r_uiFullScreen->integer == 0) &&
+				(r_lightmap->integer != 0))
+			{
+			// BBi
 				GL_Bind( tr.whiteImage );
 			} else {
 #endif // RTCW_XX
@@ -2234,7 +2234,7 @@ void RB_StageIteratorGeneric( void ) {
 
 	RB_DeformTessGeometry();
 
-    //BBi
+	// BBi
 	////
 	//// log this call
 	////
@@ -2243,12 +2243,12 @@ void RB_StageIteratorGeneric( void ) {
 	//	// a call to va() every frame!
 	//	GLimp_LogComment( va( "--- RB_StageIteratorGeneric( %s ) ---\n", tess.shader->name ) );
 	//}
-    //BBi
+	// BBi
 
 	// set GL fog
 	SetIteratorFog();
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	if ( glPNTrianglesiATI && tess.ATI_tess ) {
 //		// RF< so we can send the normals as an array
@@ -2260,7 +2260,7 @@ void RB_StageIteratorGeneric( void ) {
 //#endif
 //	}
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 	//
 	// set face culling appropriately
@@ -2282,30 +2282,30 @@ void RB_StageIteratorGeneric( void ) {
 	if ( tess.numPasses > 1 || input->shader->multitextureEnv ) {
 		setArraysOnce = qfalse;
 
-        // BBi
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            ogl_tess_use_col_array = false;
-        } else {
-        // BBi
+		// BBi
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			ogl_tess_use_col_array = false;
+		} else {
+		// BBi
 
 		glDisableClientState( GL_COLOR_ARRAY );
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 	} else
 	{
 		setArraysOnce = qtrue;
 
-        // BBi
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            ogl_tess_use_col_array = true;
+		// BBi
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			ogl_tess_use_col_array = true;
 
-            ogl_tess_col_array = tess.svars.colors;
-            ogl_tess_tc0_array = tess.svars.texcoords[0];
-        } else {
-        // BBi
+			ogl_tess_col_array = tess.svars.colors;
+			ogl_tess_tc0_array = tess.svars.texcoords[0];
+		} else {
+		// BBi
 
 		glEnableClientState( GL_COLOR_ARRAY );
 		glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
@@ -2313,12 +2313,12 @@ void RB_StageIteratorGeneric( void ) {
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glTexCoordPointer( 2, GL_FLOAT, 0, tess.svars.texcoords[0] );
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 	}
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	// RF, send normals only if required
 //	// This must be done first, since we can't change the arrays once they have been
@@ -2327,14 +2327,14 @@ void RB_StageIteratorGeneric( void ) {
 //		glNormalPointer( GL_FLOAT, 16, input->normal );
 //	}
 //#endif // RTCW_XX
-//BBi
+// BBi
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_pos_array = input->xyz;
-        ogl_tess_vertex_count = input->numVertexes;
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_pos_array = input->xyz;
+		ogl_tess_vertex_count = input->numVertexes;
+	} else {
+	// BBi
 
 	//
 	// lock XYZ
@@ -2345,26 +2345,26 @@ void RB_StageIteratorGeneric( void ) {
 		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	//
 	// enable color and texcoord arrays after the lock if necessary
 	//
 	if ( !setArraysOnce ) {
-        // BBi
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            ogl_tess_use_col_array = true;
-        } else {
-        // BBi
+		// BBi
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			ogl_tess_use_col_array = true;
+		} else {
+		// BBi
 
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		glEnableClientState( GL_COLOR_ARRAY );
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 	}
 
 	//
@@ -2401,9 +2401,9 @@ void RB_StageIteratorGeneric( void ) {
 		RB_FogPass();
 	}
 
-    // BBi
-    if (glConfigEx.is_path_ogl_1_x ()) {
-    // BBi
+	// BBi
+	if (glConfigEx.is_path_ogl_1_x ()) {
+	// BBi
 
 	//
 	// unlock arrays
@@ -2413,9 +2413,9 @@ void RB_StageIteratorGeneric( void ) {
 		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	//
 	// reset polygon offset
@@ -2424,7 +2424,7 @@ void RB_StageIteratorGeneric( void ) {
 		glDisable( GL_POLYGON_OFFSET_FILL );
 	}
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	// turn truform back off
 //	if ( glPNTrianglesiATI && tess.ATI_tess ) {
@@ -2436,7 +2436,7 @@ void RB_StageIteratorGeneric( void ) {
 //		glDisableClientState( GL_NORMAL_ARRAY );
 //	}
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 }
 
@@ -2457,7 +2457,7 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	//
 	RB_CalcDiffuseColor( ( unsigned char * ) tess.svars.colors );
 
-    //BBi
+	// BBi
 	////
 	//// log this call
 	////
@@ -2466,7 +2466,7 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	//	// a call to va() every frame!
 	//	GLimp_LogComment( va( "--- RB_StageIteratorVertexLitTexturedUnfogged( %s ) ---\n", tess.shader->name ) );
 	//}
-    //BBi
+	// BBi
 
 
 	// set GL fog
@@ -2477,11 +2477,11 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	//
 	GL_Cull( input->shader->cullType );
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_use_col_array = true;
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_use_col_array = true;
+	} else {
+	// BBi
 
 	//
 	// set arrays and lock
@@ -2489,11 +2489,11 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	glEnableClientState( GL_COLOR_ARRAY );
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	if ( glPNTrianglesiATI && tess.ATI_tess ) {
 //#ifdef __MACOS__    //DAJ ATI
@@ -2505,16 +2505,16 @@ void RB_StageIteratorVertexLitTexture( void ) {
 //		glNormalPointer( GL_FLOAT, 16, input->normal );
 //	}
 //#endif // RTCW_XX
-//BBi
+// BBi
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_pos_array = input->xyz;
-        ogl_tess_col_array = tess.svars.colors;
-        ogl_tess_tc0_array = tess.texCoords0;
-        ogl_tess_vertex_count = input->numVertexes;
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_pos_array = input->xyz;
+		ogl_tess_col_array = tess.svars.colors;
+		ogl_tess_tc0_array = tess.texCoords0;
+		ogl_tess_vertex_count = input->numVertexes;
+	} else {
+	// BBi
 
 	glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
 	glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords0 );
@@ -2525,9 +2525,9 @@ void RB_StageIteratorVertexLitTexture( void ) {
 		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	//
 	// call special shade routine
@@ -2563,9 +2563,9 @@ void RB_StageIteratorVertexLitTexture( void ) {
 		RB_FogPass();
 	}
 
-    // BBi
-    if (glConfigEx.is_path_ogl_1_x ()) {
-    // BBi
+	// BBi
+	if (glConfigEx.is_path_ogl_1_x ()) {
+	// BBi
 
 	//
 	// unlock arrays
@@ -2575,11 +2575,11 @@ void RB_StageIteratorVertexLitTexture( void ) {
 		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	if ( glPNTrianglesiATI && tess.ATI_tess )
 //#ifdef __MACOS__ //DAJ ATI{
@@ -2590,7 +2590,7 @@ void RB_StageIteratorVertexLitTexture( void ) {
 //	}
 //#endif
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 }
 
@@ -2601,7 +2601,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 
 	input = &tess;
 
-    //BBi
+	// BBi
 	////
 	//// log this call
 	////
@@ -2610,7 +2610,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	//	// a call to va() every frame!
 	//	GLimp_LogComment( va( "--- RB_StageIteratorLightmappedMultitexture( %s ) ---\n", tess.shader->name ) );
 	//}
-    //BBi
+	// BBi
 
 	// set GL fog
 	SetIteratorFog();
@@ -2625,18 +2625,18 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	//
 	GL_State( GLS_DEFAULT );
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_use_col_array = true;
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_use_col_array = true;
 
-        ogl_tess_pos_array = input->xyz;
-        ogl_tess_col_array = tess.constantColor255;
-    } else {
-    // BBi
+		ogl_tess_pos_array = input->xyz;
+		ogl_tess_col_array = tess.constantColor255;
+	} else {
+	// BBi
 
 	glVertexPointer( 3, GL_FLOAT, 16, input->xyz );
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	if ( glPNTrianglesiATI && tess.ATI_tess ) {
 //#ifdef __MACOS__    //DAJ ATI
@@ -2647,7 +2647,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 //		glNormalPointer( GL_FLOAT, 16, input->normal );
 //	}
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 #ifdef REPLACE_MODE
 	glDisableClientState( GL_COLOR_ARRAY );
@@ -2658,56 +2658,56 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	glColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.constantColor255 );
 #endif
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	//
 	// select base stage
 	//
 	GL_SelectTexture( 0 );
 
-    // BBi
-    if (glConfigEx.is_path_ogl_1_x ()) {
-    // BBi
+	// BBi
+	if (glConfigEx.is_path_ogl_1_x ()) {
+	// BBi
 
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	R_BindAnimatedImage( &tess.xstages[0]->bundle[0] );
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_tc0_array = tess.texCoords0;
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_tc0_array = tess.texCoords0;
+	} else {
+	// BBi
 
 	glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords0 );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	//
 	// configure second stage
 	//
 	GL_SelectTexture( 1 );
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_state.use_multitexturing.set (true);
-        ogl_tess_state.commit_changes ();
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_state.use_multitexturing.set (true);
+		ogl_tess_state.commit_changes ();
+	} else {
+	// BBi
 
 	glEnable( GL_TEXTURE_2D );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	if ( r_lightmap->integer ) {
 		GL_TexEnv( GL_REPLACE );
@@ -2722,13 +2722,13 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 		R_BindAnimatedImage( &tess.xstages[0]->bundle[1] );
 	}
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_use_tc1_array = true;
-        ogl_tess_tc1_array = tess.texCoords1;
-        ogl_tess_vertex_count = input->numVertexes;
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_use_tc1_array = true;
+		ogl_tess_tc1_array = tess.texCoords1;
+		ogl_tess_vertex_count = input->numVertexes;
+	} else {
+	// BBi
 
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	glTexCoordPointer( 2, GL_FLOAT, 8, tess.texCoords1 );
@@ -2741,9 +2741,9 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 		//GLimp_LogComment( "glLockArraysEXT\n" );
 	}
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	R_DrawElements( input->numIndexes, input->indexes );
 
@@ -2751,38 +2751,38 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	// disable texturing on TEXTURE1, then select TEXTURE0
 	//
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_state.use_multitexturing.set (false);
-        ogl_tess_state.commit_changes ();
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_state.use_multitexturing.set (false);
+		ogl_tess_state.commit_changes ();
+	} else {
+	// BBi
 
 	glDisable( GL_TEXTURE_2D );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_use_tc1_array = false;
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_use_tc1_array = false;
+	} else {
+	// BBi
 
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	GL_SelectTexture( 0 );
 
 #ifdef REPLACE_MODE
-    GL_TexEnv( GL_MODULATE );
+	GL_TexEnv( GL_MODULATE );
 
-    if (glConfigEx.is_path_ogl_1_x ())
-        glShadeModel(GL_SMOOTH);
+	if (glConfigEx.is_path_ogl_1_x ())
+		glShadeModel(GL_SMOOTH);
 #endif
 
 	//
@@ -2812,9 +2812,9 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 		RB_FogPass();
 	}
 
-    // BBi
-    if (glConfigEx.is_path_ogl_1_x ()) {
-    // BBi
+	// BBi
+	if (glConfigEx.is_path_ogl_1_x ()) {
+	// BBi
 
 	//
 	// unlock arrays
@@ -2824,11 +2824,11 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 		//GLimp_LogComment( "glUnlockArraysEXT\n" );
 	}
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	if ( glPNTrianglesiATI && tess.ATI_tess )
 //#ifdef __MACOS__ //DAJ ATI{
@@ -2839,7 +2839,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 //	}
 //#endif
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 }
 

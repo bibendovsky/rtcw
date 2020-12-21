@@ -1330,12 +1330,12 @@ void SP_dlight( gentity_t *ent ) {
 
 	if ( ent->dl_stylestring && strlen( ent->dl_stylestring ) ) {    // if they're specified in a string, use em
 	} else if ( style )       {
-        //BBi
+		// BBi
 		//style = max( 1, style );                                  // clamp to predefined range
-        style = std::max (1, style); // clamp to predefined range
+		style = std::max (1, style); // clamp to predefined range
 		//style = min( 19, style );
-        style = std::min (19, style);
-        //BBi
+		style = std::min (19, style);
+		// BBi
 
 		ent->dl_stylestring = predef_lightstyles[style - 1];    // these are input as 1-20
 	} else {

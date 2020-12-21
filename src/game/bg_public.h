@@ -54,10 +54,10 @@ If you have questions concerning this license or the applicable additional terms
 #if defined( _DEBUG )
 	#define GAME_VERSION_DATED          GAME_VERSION
 #else
-    //BBi
+	// BBi
 	//#define GAME_VERSION_DATED          ( GAME_VERSION ", " Q3_VERSION )
-    #define GAME_VERSION_DATED (GAME_VERSION ", " RTCW_VERSION)
-    //BBi
+	#define GAME_VERSION_DATED (GAME_VERSION ", " RTCW_VERSION)
+	// BBi
 #endif
 
 //bani
@@ -2811,13 +2811,13 @@ typedef enum {
 
 // JOSEPH 4-17-00
 typedef struct gitem_s {
-    const char* classname; // spawning name
-    const char* pickup_sound;
-    const char* world_model[MAX_ITEM_MODELS];
+	const char* classname; // spawning name
+	const char* pickup_sound;
+	const char* world_model[MAX_ITEM_MODELS];
 
-    const char* icon;
-    const char* ammoicon;
-    const char* pickup_name; // for printing on pickup
+	const char* icon;
+	const char* ammoicon;
+	const char* pickup_name; // for printing on pickup
 
 	int quantity;               // for ammo how much, or duration of powerup (value not necessary for ammo/health.  that value set in gameskillnumber[] below)
 	itemType_t giType;          // IT_* flags

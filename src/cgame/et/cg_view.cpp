@@ -1078,12 +1078,12 @@ static void CG_DamageBlendBlob( void ) {
 		return;
 	}
 
-    //BBi
+	// BBi
 	//// ragePro systems can't fade blends, so don't obscure the screen
 	//if ( cgs.glconfig.hardwareType == GLHW_RAGEPRO ) {
 	//	return;
 	//}
-    //BBi
+	// BBi
 
 	redFlash = 0;
 
@@ -1379,7 +1379,7 @@ char* CG_MustParse( const char** pString, const char* pErrorMsg ) {
 void CG_ParseSkyBox( void ) {
 	int fogStart, fogEnd;
 	const char *cstr;
-    char* token;
+	char* token;
 	vec4_t fogColor;
 
 	cstr = (char*)CG_ConfigString( CS_SKYBOXORG );
@@ -1447,7 +1447,7 @@ void CG_ParseTagConnects( void ) {
 
 void CG_ParseTagConnect( int tagNum ) {
 	char *token;
-    const char* pString = CG_ConfigString( tagNum ); // Gordon: bleh, i hate that cast away of the const
+	const char* pString = CG_ConfigString( tagNum ); // Gordon: bleh, i hate that cast away of the const
 	int entNum;
 
 	if ( !*pString ) {

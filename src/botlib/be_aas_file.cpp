@@ -58,107 +58,107 @@ If you have questions concerning this license or the applicable additional terms
 // Changes Globals:		-
 //===========================================================================
 void AAS_SwapAASData( void ) {
-    // Ridah, no need to do anything if this OS doesn't need byte swapping
-    if (rtcw::Endian::is_little ())
-        return;
-    // done.
+	// Ridah, no need to do anything if this OS doesn't need byte swapping
+	if (rtcw::Endian::is_little ())
+		return;
+	// done.
 
-    //bounding boxes
-    for (int i = 0; i < aasworld->numbboxes; ++i) {
-        rtcw::Endian::lei(aasworld->bboxes[i].presencetype);
-        rtcw::Endian::lei(aasworld->bboxes[i].flags);
+	//bounding boxes
+	for (int i = 0; i < aasworld->numbboxes; ++i) {
+		rtcw::Endian::lei(aasworld->bboxes[i].presencetype);
+		rtcw::Endian::lei(aasworld->bboxes[i].flags);
 
-        rtcw::Endian::lei(aasworld->bboxes[i].mins);
-        rtcw::Endian::lei(aasworld->bboxes[i].maxs);
-    }
+		rtcw::Endian::lei(aasworld->bboxes[i].mins);
+		rtcw::Endian::lei(aasworld->bboxes[i].maxs);
+	}
 
-    //vertexes
-    rtcw::Endian::lei(aasworld->vertexes, aasworld->numvertexes);
+	//vertexes
+	rtcw::Endian::lei(aasworld->vertexes, aasworld->numvertexes);
 
-    //planes
-    for (int i = 0; i < aasworld->numplanes; ++i) {
-        rtcw::Endian::lei(aasworld->planes[i].normal);
-        rtcw::Endian::lei(aasworld->planes[i].dist);
-        rtcw::Endian::lei(aasworld->planes[i].type);
-    }
+	//planes
+	for (int i = 0; i < aasworld->numplanes; ++i) {
+		rtcw::Endian::lei(aasworld->planes[i].normal);
+		rtcw::Endian::lei(aasworld->planes[i].dist);
+		rtcw::Endian::lei(aasworld->planes[i].type);
+	}
 
-    //edges
-    for (int i = 0; i < aasworld->numedges; ++i)
-        rtcw::Endian::lei(aasworld->edges[i].v);
+	//edges
+	for (int i = 0; i < aasworld->numedges; ++i)
+		rtcw::Endian::lei(aasworld->edges[i].v);
 
-    //edgeindex
-    rtcw::Endian::lei(aasworld->edgeindex, aasworld->edgeindexsize);
+	//edgeindex
+	rtcw::Endian::lei(aasworld->edgeindex, aasworld->edgeindexsize);
 
-    //faces
-    for (int i = 0; i < aasworld->numfaces; ++i) {
-        rtcw::Endian::lei(aasworld->faces[i].planenum);
-        rtcw::Endian::lei(aasworld->faces[i].faceflags);
-        rtcw::Endian::lei(aasworld->faces[i].numedges);
-        rtcw::Endian::lei(aasworld->faces[i].firstedge);
-        rtcw::Endian::lei(aasworld->faces[i].frontarea);
-        rtcw::Endian::lei(aasworld->faces[i].backarea);
-    }
+	//faces
+	for (int i = 0; i < aasworld->numfaces; ++i) {
+		rtcw::Endian::lei(aasworld->faces[i].planenum);
+		rtcw::Endian::lei(aasworld->faces[i].faceflags);
+		rtcw::Endian::lei(aasworld->faces[i].numedges);
+		rtcw::Endian::lei(aasworld->faces[i].firstedge);
+		rtcw::Endian::lei(aasworld->faces[i].frontarea);
+		rtcw::Endian::lei(aasworld->faces[i].backarea);
+	}
 
-    //face index
-    rtcw::Endian::lei(aasworld->faceindex, aasworld->faceindexsize);
+	//face index
+	rtcw::Endian::lei(aasworld->faceindex, aasworld->faceindexsize);
 
-    //convex areas
-    for (int i = 0; i < aasworld->numareas; ++i) {
-        rtcw::Endian::lei(aasworld->areas[i].areanum);
-        rtcw::Endian::lei(aasworld->areas[i].numfaces);
-        rtcw::Endian::lei(aasworld->areas[i].firstface);
-        rtcw::Endian::lei(aasworld->areas[i].mins);
-        rtcw::Endian::lei(aasworld->areas[i].maxs);
-        rtcw::Endian::lei(aasworld->areas[i].center);
-    }
+	//convex areas
+	for (int i = 0; i < aasworld->numareas; ++i) {
+		rtcw::Endian::lei(aasworld->areas[i].areanum);
+		rtcw::Endian::lei(aasworld->areas[i].numfaces);
+		rtcw::Endian::lei(aasworld->areas[i].firstface);
+		rtcw::Endian::lei(aasworld->areas[i].mins);
+		rtcw::Endian::lei(aasworld->areas[i].maxs);
+		rtcw::Endian::lei(aasworld->areas[i].center);
+	}
 
-    //area settings
-    for (int i = 0; i < aasworld->numareasettings; ++i) {
-        rtcw::Endian::lei(aasworld->areasettings[i].contents);
-        rtcw::Endian::lei(aasworld->areasettings[i].areaflags);
-        rtcw::Endian::lei(aasworld->areasettings[i].presencetype);
-        rtcw::Endian::lei(aasworld->areasettings[i].cluster);
-        rtcw::Endian::lei(aasworld->areasettings[i].clusterareanum);
-        rtcw::Endian::lei(aasworld->areasettings[i].numreachableareas);
-        rtcw::Endian::lei(aasworld->areasettings[i].firstreachablearea);
-        rtcw::Endian::lei(aasworld->areasettings[i].groundsteepness);
-    }
+	//area settings
+	for (int i = 0; i < aasworld->numareasettings; ++i) {
+		rtcw::Endian::lei(aasworld->areasettings[i].contents);
+		rtcw::Endian::lei(aasworld->areasettings[i].areaflags);
+		rtcw::Endian::lei(aasworld->areasettings[i].presencetype);
+		rtcw::Endian::lei(aasworld->areasettings[i].cluster);
+		rtcw::Endian::lei(aasworld->areasettings[i].clusterareanum);
+		rtcw::Endian::lei(aasworld->areasettings[i].numreachableareas);
+		rtcw::Endian::lei(aasworld->areasettings[i].firstreachablearea);
+		rtcw::Endian::lei(aasworld->areasettings[i].groundsteepness);
+	}
 
-    //area reachability
-    for (int i = 0; i < aasworld->reachabilitysize; ++i) {
-        rtcw::Endian::lei(aasworld->reachability[i].areanum);
-        rtcw::Endian::lei(aasworld->reachability[i].facenum);
-        rtcw::Endian::lei(aasworld->reachability[i].edgenum);
-        rtcw::Endian::lei(aasworld->reachability[i].start);
-        rtcw::Endian::lei(aasworld->reachability[i].end);
-        rtcw::Endian::lei(aasworld->reachability[i].traveltype);
-        rtcw::Endian::lei(aasworld->reachability[i].traveltime);
-    }
+	//area reachability
+	for (int i = 0; i < aasworld->reachabilitysize; ++i) {
+		rtcw::Endian::lei(aasworld->reachability[i].areanum);
+		rtcw::Endian::lei(aasworld->reachability[i].facenum);
+		rtcw::Endian::lei(aasworld->reachability[i].edgenum);
+		rtcw::Endian::lei(aasworld->reachability[i].start);
+		rtcw::Endian::lei(aasworld->reachability[i].end);
+		rtcw::Endian::lei(aasworld->reachability[i].traveltype);
+		rtcw::Endian::lei(aasworld->reachability[i].traveltime);
+	}
 
-    //nodes
-    for (int i = 0; i < aasworld->numnodes; ++i) {
-        rtcw::Endian::lei(aasworld->nodes[i].planenum);
-        rtcw::Endian::lei(aasworld->nodes[i].children);
-    }
+	//nodes
+	for (int i = 0; i < aasworld->numnodes; ++i) {
+		rtcw::Endian::lei(aasworld->nodes[i].planenum);
+		rtcw::Endian::lei(aasworld->nodes[i].children);
+	}
 
-    //cluster portals
-    for (int i = 0; i < aasworld->numportals; ++i) {
-        rtcw::Endian::lei(aasworld->portals[i].areanum);
-        rtcw::Endian::lei(aasworld->portals[i].frontcluster);
-        rtcw::Endian::lei(aasworld->portals[i].backcluster);
-        rtcw::Endian::lei(aasworld->portals[i].clusterareanum);
-    }
+	//cluster portals
+	for (int i = 0; i < aasworld->numportals; ++i) {
+		rtcw::Endian::lei(aasworld->portals[i].areanum);
+		rtcw::Endian::lei(aasworld->portals[i].frontcluster);
+		rtcw::Endian::lei(aasworld->portals[i].backcluster);
+		rtcw::Endian::lei(aasworld->portals[i].clusterareanum);
+	}
 
-    //cluster portal index
-    rtcw::Endian::lei(aasworld->portalindex, aasworld->portalindexsize);
+	//cluster portal index
+	rtcw::Endian::lei(aasworld->portalindex, aasworld->portalindexsize);
 
-    //cluster
-    for (int i = 0; i < aasworld->numclusters; ++i) {
-        rtcw::Endian::lei(aasworld->clusters[i].numareas);
-        rtcw::Endian::lei(aasworld->clusters[i].numreachabilityareas);
-        rtcw::Endian::lei(aasworld->clusters[i].numportals);
-        rtcw::Endian::lei(aasworld->clusters[i].firstportal);
-    }
+	//cluster
+	for (int i = 0; i < aasworld->numclusters; ++i) {
+		rtcw::Endian::lei(aasworld->clusters[i].numareas);
+		rtcw::Endian::lei(aasworld->clusters[i].numreachabilityareas);
+		rtcw::Endian::lei(aasworld->clusters[i].numportals);
+		rtcw::Endian::lei(aasworld->clusters[i].firstportal);
+	}
 } //end of the function AAS_SwapAASData
 //===========================================================================
 // dump the current loaded aas file

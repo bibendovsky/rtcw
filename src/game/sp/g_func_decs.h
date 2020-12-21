@@ -363,10 +363,10 @@ extern void Swap_Init ( void ) ;
 extern float FloatNoSwap ( float f ) ;
 extern float FloatSwap ( float f ) ;
 
-//BBi
+// BBi
 //extern qint64 Long64NoSwap ( qint64 ll ) ;
 //extern qint64 Long64Swap ( qint64 ll ) ;
-//BBi
+// BBi
 
 extern int LongNoSwap ( int l ) ;
 extern int LongSwap ( int l ) ;
@@ -375,10 +375,10 @@ extern short ShortSwap ( short l ) ;
 extern float LittleFloat ( float l ) ;
 extern float BigFloat ( float l ) ;
 
-//BBi
+// BBi
 //extern qint64 LittleLong64 ( qint64 l ) ;
 //extern qint64 BigLong64 ( qint64 l ) ;
-//BBi
+// BBi
 
 extern int LittleLong ( int l ) ;
 extern int BigLong ( int l ) ;
@@ -1451,10 +1451,10 @@ extern void WriteEntity ( fileHandle_t f , gentity_t * ent ) ;
 extern void ReadClient ( fileHandle_t f , gclient_t * client , int size ) ;
 extern void WriteClient ( fileHandle_t f , gclient_t * cl ) ;
 
-//BBi
+// BBi
 //extern void G_Save_Decode ( byte * in , int insize , byte * out , int outsize ) ;
 //extern int G_Save_Encode ( byte * raw , byte * out , int rawsize , int outsize ) ;
-//BBi
+// BBi
 
 extern void ReadField ( fileHandle_t f , saveField_t * field , byte * base ) ;
 extern void WriteField2 ( fileHandle_t f , saveField_t * field , byte * base ) ;

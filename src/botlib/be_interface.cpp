@@ -104,16 +104,16 @@ int botlibsetup = qfalse;
 
 int Sys_MilliSeconds()
 {
-    static int time_base = 0;
-    static bool is_initialized = false;
+	static int time_base = 0;
+	static bool is_initialized = false;
 
-    if (!is_initialized) {
-        time_base = static_cast<int>(SDL_GetTicks());
-        is_initialized = true;
-    }
+	if (!is_initialized) {
+		time_base = static_cast<int>(SDL_GetTicks());
+		is_initialized = true;
+	}
 
-    int sys_curtime = static_cast<int>(SDL_GetTicks()) - time_base;
-    return sys_curtime;
+	int sys_curtime = static_cast<int>(SDL_GetTicks()) - time_base;
+	return sys_curtime;
 }
 
 //===========================================================================
@@ -182,10 +182,10 @@ int Export_BotLibSetup( qboolean singleplayer ) {
 
 	bot_developer = LibVarGetValue( "bot_developer" );
 
-    //BBi
+	// BBi
 	////initialize byte swapping (litte endian etc.)
 	//Swap_Init();
-    //BBi
+	// BBi
 
 	Log_Open( "botlib.log" );
 	//

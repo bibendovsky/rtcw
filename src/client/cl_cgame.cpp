@@ -628,7 +628,7 @@ void CL_ShutdownCGame( void ) {
 	cgvm = NULL;
 }
 
-//BBi
+// BBi
 //static int  FloatAsInt( float f ) {
 //	int temp;
 //
@@ -638,15 +638,15 @@ void CL_ShutdownCGame( void ) {
 //}
 
 static intptr_t FloatAsInt (
-    float x)
+	float x)
 {
-    intptr_t result;
+	intptr_t result;
 
-    *reinterpret_cast<float*> (&result) = x;
+	*reinterpret_cast<float*> (&result) = x;
 
-    return result;
+	return result;
 }
-//BBi
+// BBi
 
 #if defined RTCW_ET
 //static int numtraces = 0;
@@ -662,17 +662,17 @@ The cgame module is making a system call
 
 #define VMA( x ) VM_ArgPtr( args[x] )
 
-//BBi FIXME Use portable defines
+// BBi FIXME Use portable defines
 //#define VMF( x )  ( (float *)args )[x]
 #define VMF(x) (*reinterpret_cast<const float*> (args + x))
-//BBi
+// BBi
 
-//BBi
+// BBi
 //int CL_CgameSystemCalls( int *args ) {
 intptr_t CL_CgameSystemCalls (
-    intptr_t* args)
+	intptr_t* args)
 {
-//BBi
+// BBi
 	switch ( args[0] ) {
 	case CG_PRINT:
 
@@ -1493,7 +1493,7 @@ void CL_UpdateLevelHunkUsage( void ) {
 	const char *memlistfile = "hunkusage.dat";
 	char *buf, *outbuf;
 	const char* buftrav;
-    char* outbuftrav;
+	char* outbuftrav;
 	char *token;
 	char outstr[256];
 	int len, memusage;
@@ -1604,11 +1604,11 @@ void CL_InitCGame( void ) {
 	const char          *mapname;
 	int t1, t2;
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	vmInterpret_t interpret;
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 	t1 = Sys_Milliseconds();
 
@@ -1620,7 +1620,7 @@ void CL_InitCGame( void ) {
 	mapname = Info_ValueForKey( info, "mapname" );
 	Com_sprintf( cl.mapname, sizeof( cl.mapname ), "maps/%s.bsp", mapname );
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	// load the dll or bytecode
 //	if ( cl_connectedToPureServer != 0 ) {
@@ -1636,8 +1636,8 @@ void CL_InitCGame( void ) {
 //	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, VMI_NATIVE );
 //#endif // RTCW_XX
 
-    cgvm = VM_Create ("cgame", CL_CgameSystemCalls);
-//BBi
+	cgvm = VM_Create ("cgame", CL_CgameSystemCalls);
+// BBi
 
 	if ( !cgvm ) {
 		Com_Error( ERR_DROP, "VM_Create on cgame failed" );

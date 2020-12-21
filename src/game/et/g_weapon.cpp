@@ -2304,11 +2304,11 @@ qboolean G_AvailableAirstrikes( gentity_t* ent ) {
 }
 
 void G_AddAirstrikeToCounters( gentity_t* ent ) {
-    //BBi
+	// BBi
 	//int max = min( 6, 2 * ( c::ceil( g_heavyWeaponRestriction.integer * G_TeamCount( ent, weapon_t (-1) ) * 0.1f * 10 * 0.01f ) ) );
-    int max = static_cast<int> (std::min (6.0, 2 * (c::ceil (
-        g_heavyWeaponRestriction.integer * G_TeamCount (ent, weapon_t (-1)) * 0.1F * 10.0F * 0.01F))));
-    //BBi
+	int max = static_cast<int> (std::min (6.0, 2 * (c::ceil (
+		g_heavyWeaponRestriction.integer * G_TeamCount (ent, weapon_t (-1)) * 0.1F * 10.0F * 0.01F))));
+	// BBi
 
 
 
@@ -3531,10 +3531,10 @@ gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenType ) {
 	} else {
 		pitch = -pitch;
 
-        //BBi
+		// BBi
 		//pitch = min( pitch, 30 );
-        pitch = std::min (pitch, 30.0F);
-        //BBi
+		pitch = std::min (pitch, 30.0F);
+		// BBi
 
 		pitch /= 30.f;
 		pitch = 1 - pitch;
@@ -3549,12 +3549,12 @@ gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenType ) {
 
 	upangle = -( ent->s.apos.trBase[0] ); //	this will give between	-90 / 90
 
-    //BBi
+	// BBi
 	//upangle = min( upangle, 50 );
-    upangle = std::min (upangle, 50.0F);
+	upangle = std::min (upangle, 50.0F);
 	//upangle = max( upangle, -50 );        //	now clamped to	-50 / 50	(don't allow firing straight up/down)
-    upangle = std::max (upangle, -50.0F); // now clamped to -50 / 50 (don't allow firing straight up/down)
-    //BBi
+	upangle = std::max (upangle, -50.0F); // now clamped to -50 / 50 (don't allow firing straight up/down)
+	// BBi
 
 	upangle = upangle / 100.0f;           //				   -0.5 / 0.5
 	upangle += 0.5f;                    //				    0.0 / 1.0

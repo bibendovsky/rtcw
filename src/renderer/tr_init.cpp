@@ -40,48 +40,48 @@ If you have questions concerning this license or the applicable additional terms
 
 glconfig_t glConfig;
 
-//BBi
+// BBi
 const GLintptr OglTessLayout::POS_OFS =
-    offsetof (OglTessLayout, position);
+	offsetof (OglTessLayout, position);
 
 const GLintptr OglTessLayout::TC0_OFS =
-    offsetof (OglTessLayout, texture_coords[0]);
+	offsetof (OglTessLayout, texture_coords[0]);
 
 const GLintptr OglTessLayout::TC1_OFS =
-    offsetof (OglTessLayout, texture_coords[1]);
+	offsetof (OglTessLayout, texture_coords[1]);
 
 const GLintptr OglTessLayout::COL_OFS =
-    offsetof (OglTessLayout, color);
+	offsetof (OglTessLayout, color);
 
 
 const GLvoid* OglTessLayout::POS_PTR =
-    reinterpret_cast<const GLvoid*> (OglTessLayout::POS_OFS);
+	reinterpret_cast<const GLvoid*> (OglTessLayout::POS_OFS);
 
 const GLvoid* OglTessLayout::TC0_PTR =
-    reinterpret_cast<const GLvoid*> (OglTessLayout::TC0_OFS);
+	reinterpret_cast<const GLvoid*> (OglTessLayout::TC0_OFS);
 
 const GLvoid* OglTessLayout::TC1_PTR =
-    reinterpret_cast<const GLvoid*> (OglTessLayout::TC1_OFS);
+	reinterpret_cast<const GLvoid*> (OglTessLayout::TC1_OFS);
 
 const GLvoid* OglTessLayout::COL_PTR =
-    reinterpret_cast<const GLvoid*> (OglTessLayout::COL_OFS);
+	reinterpret_cast<const GLvoid*> (OglTessLayout::COL_OFS);
 
 
 const std::size_t OglTessLayout::POS_SIZE =
-    offsetof (OglTessLayout, position[1]) -
-    offsetof (OglTessLayout, position[0]);
+	offsetof (OglTessLayout, position[1]) -
+	offsetof (OglTessLayout, position[0]);
 
 const std::size_t OglTessLayout::TC0_SIZE =
-    offsetof (OglTessLayout, texture_coords[0][1]) -
-    offsetof (OglTessLayout, texture_coords[0][0]);
+	offsetof (OglTessLayout, texture_coords[0][1]) -
+	offsetof (OglTessLayout, texture_coords[0][0]);
 
 const std::size_t OglTessLayout::TC1_SIZE =
-    offsetof (OglTessLayout, texture_coords[1][1]) -
-    offsetof (OglTessLayout, texture_coords[1][0]);
+	offsetof (OglTessLayout, texture_coords[1][1]) -
+	offsetof (OglTessLayout, texture_coords[1][0]);
 
 const std::size_t OglTessLayout::COL_SIZE =
-    offsetof (OglTessLayout, color[1]) -
-    offsetof (OglTessLayout, color[0]);
+	offsetof (OglTessLayout, color[1]) -
+	offsetof (OglTessLayout, color[0]);
 
 
 GlConfigEx glConfigEx;
@@ -99,7 +99,7 @@ int ogl_tess2_base_vertex = 0;
 
 rtcw::OglMatrixStack ogl_model_view_stack;
 rtcw::OglMatrixStack ogl_projection_stack;
-//BBi
+// BBi
 
 glstate_t glState;
 
@@ -260,15 +260,15 @@ cvar_t  *r_clear;
 cvar_t  *r_swapInterval;
 cvar_t  *r_textureMode;
 
-//BBi
+// BBi
 //#if defined RTCW_ET
-//BBi
+// BBi
 
 cvar_t  *r_textureAnisotropy;
 
-//BBi
+// BBi
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 cvar_t  *r_offsetFactor;
 cvar_t  *r_offsetUnits;
@@ -347,7 +347,7 @@ color4ubhack_t tess_vertexColors[SHADER_MAX_VERTEXES];
 int tess_vertexDlightBits[SHADER_MAX_VERTEXES];
 #endif // RTCW_X
 
-//BBi
+// BBi
 //void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
 //void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
 //void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
@@ -358,7 +358,7 @@ int tess_vertexDlightBits[SHADER_MAX_VERTEXES];
 ////----(SA)	added
 //void ( APIENTRY * qglPNTrianglesiATI )( GLenum pname, GLint param );
 //void ( APIENTRY * qglPNTrianglesfATI )( GLenum pname, GLfloat param );
-//BBi
+// BBi
 
 /*
 The tessellation level and normal generation mode are specified with:
@@ -415,39 +415,39 @@ static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean sh
 	}
 }
 
-//BBi
+// BBi
 static int R_GetMaxTextureSize ()
 {
-    int result = 0;
+	int result = 0;
 
-    glGetIntegerv (GL_MAX_TEXTURE_SIZE, &result);
+	glGetIntegerv (GL_MAX_TEXTURE_SIZE, &result);
 
-    if (result > 0) {
-        while (true) {
-            glTexImage2D (
-                GL_PROXY_TEXTURE_2D,
-                0,
-                GL_RGBA,
-                result,
-                result,
-                0,
-                GL_RGBA,
-                GL_UNSIGNED_BYTE,
-                NULL);
+	if (result > 0) {
+		while (true) {
+			glTexImage2D (
+				GL_PROXY_TEXTURE_2D,
+				0,
+				GL_RGBA,
+				result,
+				result,
+				0,
+				GL_RGBA,
+				GL_UNSIGNED_BYTE,
+				NULL);
 
 
-            int width = 0;
+			int width = 0;
 
-            glGetTexLevelParameteriv (GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+			glGetTexLevelParameteriv (GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
 
-            if (width > 0)
-                break;
-            else
-                result /= 2;
-        }
-    }
+			if (width > 0)
+				break;
+			else
+				result /= 2;
+		}
+	}
 
-    return result;
+	return result;
 }
 
 std::string r_dbg_get_glsl_path()
@@ -910,31 +910,31 @@ void r_reload_programs_f()
 
 static void r_tess_initialize ()
 {
-    GLsizeiptr vbo_size = sizeof (OglTessLayout);
+	GLsizeiptr vbo_size = sizeof (OglTessLayout);
 
-    glGenBuffers (1, &ogl_tess_vbo);
-    glBindBuffer (GL_ARRAY_BUFFER, ogl_tess_vbo);
-    glBufferData (GL_ARRAY_BUFFER, vbo_size, NULL, GL_DYNAMIC_DRAW);
-    glBindBuffer (GL_ARRAY_BUFFER, 0);
+	glGenBuffers (1, &ogl_tess_vbo);
+	glBindBuffer (GL_ARRAY_BUFFER, ogl_tess_vbo);
+	glBufferData (GL_ARRAY_BUFFER, vbo_size, NULL, GL_DYNAMIC_DRAW);
+	glBindBuffer (GL_ARRAY_BUFFER, 0);
 
-    glGenBuffers (1, &ogl_tess2_vbo);
-    glBindBuffer (GL_ARRAY_BUFFER, ogl_tess2_vbo);
-    glBufferData (GL_ARRAY_BUFFER, vbo_size, NULL, GL_DYNAMIC_DRAW);
-    glBindBuffer (GL_ARRAY_BUFFER, 0);
+	glGenBuffers (1, &ogl_tess2_vbo);
+	glBindBuffer (GL_ARRAY_BUFFER, ogl_tess2_vbo);
+	glBufferData (GL_ARRAY_BUFFER, vbo_size, NULL, GL_DYNAMIC_DRAW);
+	glBindBuffer (GL_ARRAY_BUFFER, 0);
 
-    ogl_tess_base_vertex = 0;
-    ogl_tess2_base_vertex = 0;
+	ogl_tess_base_vertex = 0;
+	ogl_tess2_base_vertex = 0;
 }
 
 static void r_tess_uninitialize ()
 {
-    glDeleteBuffers (1, &ogl_tess_vbo);
-    ogl_tess_vbo = 0;
+	glDeleteBuffers (1, &ogl_tess_vbo);
+	ogl_tess_vbo = 0;
 
-    glDeleteBuffers (1, &ogl_tess2_vbo);
-    ogl_tess2_vbo = 0;
+	glDeleteBuffers (1, &ogl_tess2_vbo);
+	ogl_tess2_vbo = 0;
 }
-//BBi
+// BBi
 
 /*
 ** InitOpenGL
@@ -960,22 +960,22 @@ static void InitOpenGL( void ) {
 	//
 
 	if ( glConfig.vidWidth == 0 ) {
-        //BBi
+		// BBi
 		//GLint temp;
-        //BBi
+		// BBi
 
 		GLimp_Init();
 
 		strcpy( renderer_buffer, glConfig.renderer_string );
 		Q_strlwr( renderer_buffer );
 
-        //BBi
+		// BBi
 		//// OpenGL driver constants
 		//::glGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );
 		//glConfig.maxTextureSize = temp;
 
-        glConfig.maxTextureSize = R_GetMaxTextureSize ();
-        //BBi
+		glConfig.maxTextureSize = R_GetMaxTextureSize ();
+		// BBi
 
 		// stubbed or broken drivers may have reported 0...
 		if ( glConfig.maxTextureSize <= 0 ) {
@@ -983,28 +983,28 @@ static void InitOpenGL( void ) {
 		}
 	}
 
-    // BBi
-    glConfigEx.renderer_path_ = RENDERER_PATH_OGL_1_X;
+	// BBi
+	glConfigEx.renderer_path_ = RENDERER_PATH_OGL_1_X;
 
-    if (glConfigEx.is_2_x_capable_) {
-        glConfigEx.renderer_path_ = RENDERER_PATH_OGL_2_X;
+	if (glConfigEx.is_2_x_capable_) {
+		glConfigEx.renderer_path_ = RENDERER_PATH_OGL_2_X;
 
-        if (r_probe_programs()) {
-            ri.Printf(PRINT_ALL, "\nUsing OpenGL 2.0+ path...\n");
-        } else {
-            glConfigEx.renderer_path_ = RENDERER_PATH_OGL_1_X;
-            ri.Printf(PRINT_WARNING, "\nFalling back to OpenGL 1.1+ path...");
-        }
-    }
+		if (r_probe_programs()) {
+			ri.Printf(PRINT_ALL, "\nUsing OpenGL 2.0+ path...\n");
+		} else {
+			glConfigEx.renderer_path_ = RENDERER_PATH_OGL_1_X;
+			ri.Printf(PRINT_WARNING, "\nFalling back to OpenGL 1.1+ path...");
+		}
+	}
 
-    if (!glConfigEx.is_path_ogl_1_x()) {
-        r_reload_programs_f();
-        r_tess_initialize();
+	if (!glConfigEx.is_path_ogl_1_x()) {
+		r_reload_programs_f();
+		r_tess_initialize();
 
-        ri.Cvar_Set("r_ext_NV_fog_dist", "1");
-        ri.Printf(PRINT_ALL, "Emulating %s...\n", "GL_NV_fog_distance");
-    }
-    // BBi
+		ri.Cvar_Set("r_ext_NV_fog_dist", "1");
+		ri.Printf(PRINT_ALL, "Emulating %s...\n", "GL_NV_fog_distance");
+	}
+	// BBi
 
 	// init command buffers and SMP
 	R_InitCommandBuffers();
@@ -1469,25 +1469,25 @@ void R_ScreenShotJPEG_f( void ) {
 ** GL_SetDefaultState
 */
 void GL_SetDefaultState( void ) {
-    // BBi
-    ogl_tess_state.set_default_values ();
-    // BBi
+	// BBi
+	ogl_tess_state.set_default_values ();
+	// BBi
 
 	glClearDepth( 1.0f );
 
 	glCullFace( GL_FRONT );
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
+	} else {
+	// BBi
 
 	glColor4f( 1,1,1,1 );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	// initialize downstream texture unit if we're running
 	// in a multitexture environment
@@ -1495,79 +1495,79 @@ void GL_SetDefaultState( void ) {
 		GL_SelectTexture( 1 );
 		GL_TextureMode( r_textureMode->string );
 
-//BBi
+// BBi
 //#if defined RTCW_ET
-//BBi
+// BBi
 
 		GL_TextureAnisotropy( r_textureAnisotropy->value );
 
-//BBi
+// BBi
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 		GL_TexEnv( GL_MODULATE );
 
-        // BBi
-        if (glConfigEx.is_path_ogl_1_x ()) {
-        // BBi
+		// BBi
+		if (glConfigEx.is_path_ogl_1_x ()) {
+		// BBi
 
 		glDisable( GL_TEXTURE_2D );
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 
 		GL_SelectTexture( 0 );
 	}
 
-    // BBi
-    if (glConfigEx.is_path_ogl_1_x ()) {
-    // BBi
+	// BBi
+	if (glConfigEx.is_path_ogl_1_x ()) {
+	// BBi
 
 	glEnable( GL_TEXTURE_2D );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	GL_TextureMode( r_textureMode->string );
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_state.tex_2d[0].set (0);
-        ogl_tess_state.tex_2d[1].set (1);
-        ogl_tess_state.use_multitexturing.set (false);
-    }
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_state.tex_2d[0].set (0);
+		ogl_tess_state.tex_2d[1].set (1);
+		ogl_tess_state.use_multitexturing.set (false);
+	}
+	// BBi
 
-//BBi
+// BBi
 //#if defined RTCW_ET
-//BBi
+// BBi
 
 	GL_TextureAnisotropy( r_textureAnisotropy->value );
 
-//BBi
+// BBi
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 	GL_TexEnv( GL_MODULATE );
 
-    if (glConfigEx.is_path_ogl_1_x ())
-        glShadeModel( GL_SMOOTH );
+	if (glConfigEx.is_path_ogl_1_x ())
+		glShadeModel( GL_SMOOTH );
 
 	glDepthFunc( GL_LEQUAL );
 
-    // BBi
-    if (glConfigEx.is_path_ogl_1_x ()) {
-    // BBi
+	// BBi
+	if (glConfigEx.is_path_ogl_1_x ()) {
+	// BBi
 
 	// the vertex array is always enabled, but the color and texture
 	// arrays are enabled and disabled around the compiled vertex array call
 	glEnableClientState( GL_VERTEX_ARRAY );
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	//
 	// make sure our GL state vector is set correctly
@@ -1583,7 +1583,7 @@ void GL_SetDefaultState( void ) {
 
 //----(SA)	added.
 
-//BBi
+// BBi
 //	// ATI pn_triangles
 //	if ( qglPNTrianglesiATI ) {
 //		int maxtess;
@@ -1602,7 +1602,7 @@ void GL_SetDefaultState( void ) {
 //		// set Wolf defaults
 //		qglPNTrianglesiATI( GL_PN_TRIANGLES_TESSELATION_LEVEL_ATI, r_ati_truform_tess->value );
 //	}
-//BBi
+// BBi
 
 	if ( glConfig.anisotropicAvailable ) {
 		float maxAnisotropy;
@@ -1616,9 +1616,9 @@ void GL_SetDefaultState( void ) {
 
 //----(SA)	end
 
-    // BBi
-    ogl_tess_state.commit_changes ();
-    // BBi
+	// BBi
+	ogl_tess_state.commit_changes ();
+	// BBi
 }
 
 #if defined RTCW_ET
@@ -1627,40 +1627,40 @@ extern const char *glx_extensions_string;
 #endif
 #endif // RTCW_XX
 
-//BBi
+// BBi
 static void gfxPrintExtensions ()
 {
-    const GLubyte* extString = glGetString (GL_EXTENSIONS);
+	const GLubyte* extString = glGetString (GL_EXTENSIONS);
 
-    if (extString != 0) {
-        GLubyte extBuffer[128];
+	if (extString != 0) {
+		GLubyte extBuffer[128];
 
-        const GLubyte* beginExt = extString;
-        const GLubyte* endExt = extString;
+		const GLubyte* beginExt = extString;
+		const GLubyte* endExt = extString;
 
-        while (true) {
-            while ((*endExt != ' ') && (*endExt != '\0')) {
-                ++endExt;
-            }
+		while (true) {
+			while ((*endExt != ' ') && (*endExt != '\0')) {
+				++endExt;
+			}
 
-            size_t extLen = endExt - beginExt;
+			size_t extLen = endExt - beginExt;
 
-            memcpy (extBuffer, beginExt, extLen);
-            extBuffer[extLen] = '\0';
+			memcpy (extBuffer, beginExt, extLen);
+			extBuffer[extLen] = '\0';
 
-            ri.Printf (PRINT_ALL, "  %s\n", extBuffer);
+			ri.Printf (PRINT_ALL, "  %s\n", extBuffer);
 
-            if (*endExt == '\0')
-                break;
+			if (*endExt == '\0')
+				break;
 
-            ++endExt;
+			++endExt;
 
-            beginExt = endExt;
-        }
-    } else
-        ri.Printf (PRINT_ALL, "  none\n");
+			beginExt = endExt;
+		}
+	} else
+		ri.Printf (PRINT_ALL, "  none\n");
 }
-//BBi
+// BBi
 
 /*
 ================
@@ -1684,11 +1684,11 @@ void GfxInfo_f( void ) {
 	ri.Printf( PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
 	ri.Printf( PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );
 
-    //BBi See #LBUG0001
+	// BBi See #LBUG0001
 	//ri.Printf( PRINT_ALL, "GL_EXTENSIONS: %s\n", glConfig.extensions_string );
-    ri.Printf (PRINT_ALL, "GL_EXTENSIONS:\n");
-    gfxPrintExtensions ();
-    //BBi
+	ri.Printf (PRINT_ALL, "GL_EXTENSIONS:\n");
+	gfxPrintExtensions ();
+	// BBi
 
 #if defined RTCW_ET
 #ifdef __linux__
@@ -1752,7 +1752,7 @@ void GfxInfo_f( void ) {
 	ri.Printf( PRINT_ALL, "texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0] );
 	ri.Printf( PRINT_ALL, "compressed textures: %s\n", enablestrings[glConfig.textureCompression != TC_NONE] );
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	ri.Printf( PRINT_ALL, "ATI truform: %s\n", enablestrings[qglPNTrianglesiATI != 0] );
 //	if ( qglPNTrianglesiATI ) {
@@ -1762,26 +1762,26 @@ void GfxInfo_f( void ) {
 //		ri.Printf( PRINT_ALL, "Truform Normal Mode: %s\n", r_ati_truform_normalmode->string );
 //	}
 //#endif // RTCW_XX
-//BBi
+// BBi
 
-//BBi
+// BBi
 //#if defined RTCW_ET
-//BBi
+// BBi
 
 	ri.Printf( PRINT_ALL, "anisotropy: %s\n", r_textureAnisotropy->string );
 
-//BBi
+// BBi
 //#endif // RTCW_XX
-//BBi
+// BBi
 
-//BBi
+// BBi
 	//ri.Printf( PRINT_ALL, "NV distance fog: %s\n", enablestrings[glConfig.NVFogAvailable != 0] );
 	//if ( glConfig.NVFogAvailable ) {
 	//	ri.Printf( PRINT_ALL, "Fog Mode: %s\n", r_nv_fogdist_mode->string );
 	//}
-//BBi
+// BBi
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
 //#else
@@ -1796,7 +1796,7 @@ void GfxInfo_f( void ) {
 //	if ( glConfig.hardwareType == GLHW_RIVA128 ) {
 //		ri.Printf( PRINT_ALL, "HACK: riva128 approximations\n" );
 //	}
-//BBi
+// BBi
 
 // BBi
 //	if ( glConfig.smpActive ) {
@@ -1866,19 +1866,19 @@ void R_Register( void ) {
 #endif // RTCW_XX
 
 #if !defined RTCW_ET
-    //BBi
+	// BBi
 	//r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE );       //DAJ valids are 1, 2, 4
-    r_ati_fsaa_samples = ri.Cvar_Get ("r_ati_fsaa_samples", "0", CVAR_ARCHIVE);
+	r_ati_fsaa_samples = ri.Cvar_Get ("r_ati_fsaa_samples", "0", CVAR_ARCHIVE);
 	//r_ext_texture_filter_anisotropic    = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE );
-    r_ext_texture_filter_anisotropic = ri.Cvar_Get ("r_ext_texture_filter_anisotropic", "1", CVAR_ARCHIVE);
-    //BBi
+	r_ext_texture_filter_anisotropic = ri.Cvar_Get ("r_ext_texture_filter_anisotropic", "1", CVAR_ARCHIVE);
+	// BBi
 #else
-    //BBi
+	// BBi
 	//r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE | CVAR_UNSAFE );        //DAJ valids are 1, 2, 4
-    r_ati_fsaa_samples = ri.Cvar_Get ("r_ati_fsaa_samples", "0", CVAR_ARCHIVE | CVAR_UNSAFE);
+	r_ati_fsaa_samples = ri.Cvar_Get ("r_ati_fsaa_samples", "0", CVAR_ARCHIVE | CVAR_UNSAFE);
 	//r_ext_texture_filter_anisotropic    = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
-    r_ext_texture_filter_anisotropic = ri.Cvar_Get ("r_ext_texture_filter_anisotropic", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
-    //BBi
+	r_ext_texture_filter_anisotropic = ri.Cvar_Get ("r_ext_texture_filter_anisotropic", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
+	// BBi
 #endif // RTCW_XX
 
 #if defined RTCW_SP
@@ -2057,7 +2057,7 @@ void R_Register( void ) {
 	r_ignoreFastPath = ri.Cvar_Get( "r_ignoreFastPath", "0", CVAR_ARCHIVE | CVAR_LATCH ); // ydnar: use fast path by default
 #endif // RTCW_XX
 
-//BBi
+// BBi
 //#if !defined RTCW_SP
 //#if MAC_STVEF_HM || MAC_WOLF2_MP
 //
@@ -2068,7 +2068,7 @@ void R_Register( void ) {
 //	r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE );       //DAJ valids are 1, 2, 4
 //#endif
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 	//
 	// temporary latched variables that can only change over a restart
@@ -2133,15 +2133,15 @@ void R_Register( void ) {
 	r_finish = ri.Cvar_Get( "r_finish", "0", CVAR_ARCHIVE );
 	r_textureMode = ri.Cvar_Get( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE );
 
-//BBi
+// BBi
 //#if defined RTCW_ET
-//BBi
+// BBi
 
 	r_textureAnisotropy = ri.Cvar_Get( "r_textureAnisotropy", "1.0", CVAR_ARCHIVE );
 
-//BBi
+// BBi
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 	r_swapInterval = ri.Cvar_Get( "r_swapInterval", "0", CVAR_ARCHIVE );
 #ifdef __MACOS__
@@ -2314,9 +2314,9 @@ void R_Register( void ) {
 	}
 #endif // RTCW_XX
 
-    // BBi
-    ri.Cmd_AddCommand ("r_reload_programs", r_reload_programs_f);
-    // BBi
+	// BBi
+	ri.Cmd_AddCommand ("r_reload_programs", r_reload_programs_f);
+	// BBi
 
 	// done.
 }
@@ -2348,12 +2348,12 @@ void R_Init( void ) {
 	tess.maxShaderIndicies =    SHADER_MAX_INDEXES;
 
 #ifndef RTCW_ET
-    tess.vertexDlightBits = tess_vertexDlightBits;
+	tess.vertexDlightBits = tess_vertexDlightBits;
 #endif // RTCW_X
 
-    //BBi
+	// BBi
 	//Swap_Init();
-    //BBi
+	// BBi
 
 	if ( (int)tess.xyz & 15 ) {
 		Com_Printf( "WARNING: tess.xyz not 16 byte aligned\n" );
@@ -2421,9 +2421,9 @@ void R_Init( void ) {
 	}
 #endif // 0
 
-    backEndData = static_cast<backEndData_t*>(ri.Hunk_Alloc(
-        sizeof(*backEndData) + (sizeof(srfPoly_t) * max_polys) +
-        (sizeof(polyVert_t) * max_polyverts), h_low));
+	backEndData = static_cast<backEndData_t*>(ri.Hunk_Alloc(
+		sizeof(*backEndData) + (sizeof(srfPoly_t) * max_polys) +
+		(sizeof(polyVert_t) * max_polyverts), h_low));
 
 	R_ToggleSmpFrame();
 
@@ -2462,8 +2462,8 @@ void R_PurgeCache( void ) {
 // BBi
 static void r_shutdown_programs ()
 {
-    delete ogl_tess_program;
-    ogl_tess_program = NULL;
+	delete ogl_tess_program;
+	ogl_tess_program = NULL;
 }
 // BBi
 
@@ -2491,9 +2491,9 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	ri.Cmd_RemoveCommand( "cropimages" );
 	// done.
 
-    // BBi
-    ri.Cmd_RemoveCommand ("r_reload_programs");
-    // BBi
+	// BBi
+	ri.Cmd_RemoveCommand ("r_reload_programs");
+	// BBi
 
 	R_ShutdownCommandBuffers();
 
@@ -2531,12 +2531,12 @@ void RE_Shutdown( qboolean destroyWindow ) {
 
 	R_DoneFreeType();
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        r_shutdown_programs ();
-        r_tess_uninitialize ();
-    }
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		r_shutdown_programs ();
+		r_tess_uninitialize ();
+	}
+	// BBi
 
 	// shut down platform specific OpenGL stuff
 	if ( destroyWindow ) {

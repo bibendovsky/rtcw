@@ -170,7 +170,7 @@ G_Script_EventMatch_IntInRange
 */
 qboolean G_Script_EventMatch_IntInRange( g_script_event_t *event, const char *eventParm ) {
 	const char *pString;
-    char* token;
+	char* token;
 	int int1, int2, eInt;
 
 	// get the cast name

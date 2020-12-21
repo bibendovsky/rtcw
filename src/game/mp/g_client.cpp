@@ -2183,7 +2183,7 @@ G_RetrieveMoveSpeedsFromClient
 */
 void G_RetrieveMoveSpeedsFromClient( int entnum, char *text ) {
 	const char *text_p;
-    char* token;
+	char* token;
 	animation_t *anim;
 	animModelInfo_t *modelInfo;
 

@@ -664,7 +664,7 @@ static qboolean ParseStage( shaderStage_t *stage, const char **text ) {
 				return qfalse;
 			}
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //			stage->bundle[0].image[0] = R_FindImageFileExt( token, !shader.noMipMaps, !shader.noPicMip, shader.characterMip, GL_CLAMP );
 //#elif defined RTCW_MP
@@ -680,7 +680,7 @@ static qboolean ParseStage( shaderStage_t *stage, const char **text ) {
 #else
 			stage->bundle[0].image[0] = R_FindImageFile (token, !shader.noMipMaps, !shader.noPicMip, r_get_best_wrap_clamp (), false);
 #endif // RTCW_XX
-//BBi
+// BBi
 
 			if ( !stage->bundle[0].image[0] ) {
 				ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
@@ -720,10 +720,10 @@ static qboolean ParseStage( shaderStage_t *stage, const char **text ) {
 				}
 				continue;
 			} else {
-                //BBi
+				// BBi
 				//stage->bundle[0].image[0] = R_FindImageFile( token, qfalse, qfalse, GL_CLAMP, qtrue );
-                stage->bundle[0].image[0] = R_FindImageFile (token, false, false, r_get_best_wrap_clamp (), true);
-                //BBi
+				stage->bundle[0].image[0] = R_FindImageFile (token, false, false, r_get_best_wrap_clamp (), true);
+				// BBi
 
 				if ( !stage->bundle[0].image[0] ) {
 					ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
@@ -1270,20 +1270,20 @@ static void ParseSkyParms( const char **text ) {
 			Com_sprintf( pathname, sizeof( pathname ), "%s_%s.tga"
 						 , token, suf[i] );
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP );
 //#else
 //			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP, qfalse );
 //#endif // RTCW_XX
 
-            shader.sky.outerbox[i] = R_FindImageFile (
-                pathname, true, true, r_get_best_wrap_clamp ()
+			shader.sky.outerbox[i] = R_FindImageFile (
+				pathname, true, true, r_get_best_wrap_clamp ()
 #if defined RTCW_ET
-            , false
+			, false
 #endif // RTCW_XX
-                );
-//BBi
+				);
+// BBi
 
 			if ( !shader.sky.outerbox[i] ) {
 				shader.sky.outerbox[i] = tr.defaultImage;
@@ -1316,10 +1316,10 @@ static void ParseSkyParms( const char **text ) {
 						 , token, suf[i] );
 
 #if !defined RTCW_ET
-            //BBi
+			// BBi
 			//shader.sky.innerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP );
-            shader.sky.innerbox[i] = R_FindImageFile (pathname, true, true, GL_REPEAT);
-            //BBi
+			shader.sky.innerbox[i] = R_FindImageFile (pathname, true, true, GL_REPEAT);
+			// BBi
 #else
 			shader.sky.innerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_REPEAT, qfalse );
 #endif // RTCW_XX
@@ -2112,7 +2112,7 @@ static qboolean CollapseMultitexture( void ) {
 		return qfalse;
 	}
 
-    //BBi
+	// BBi
 	//// on voodoo2, don't combine different tmus
 	//if ( glConfig.driverType == GLDRV_VOODOO ) {
 	//	if ( stages[0].bundle[0].image[0]->TMU ==
@@ -2120,7 +2120,7 @@ static qboolean CollapseMultitexture( void ) {
 	//		return qfalse;
 	//	}
 	//}
-    //BBi
+	// BBi
 
 	abits = stages[0].stateBits;
 	bbits = stages[1].stateBits;
@@ -2218,7 +2218,7 @@ static void FixRenderCommandList( int newShader ) {
 #if 0
 	renderCommandList_t *cmdList = &backEndData[tr.smpFrame]->commands;
 #endif // 0
-    renderCommandList_t *cmdList = &backEndData->commands;
+	renderCommandList_t *cmdList = &backEndData->commands;
 
 	if ( cmdList ) {
 		const void *curCmd = cmdList->cmds;
@@ -2812,7 +2812,7 @@ static shader_t *FinishShader( void ) {
 	// if we are in r_vertexLight mode, never use a lightmap texture
 	//
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //	if ( stage > 1 && ( ( r_vertexLight->integer && !r_uiFullScreen->integer ) || glConfig.hardwareType == GLHW_PERMEDIA2 ) ) {
 //#elif defined RTCW_MP
@@ -2832,7 +2832,7 @@ static shader_t *FinishShader( void ) {
 	// NERVE - SMF - temp fix, terrain is having problems with lighting collapse
 	if (false) {
 #endif // RTCW_XX
-//BBi
+// BBi
 
 		VertexLightingCollapse();
 		stage = 1;
@@ -2909,7 +2909,7 @@ qboolean RE_LoadDynamicShader( const char *shadername, const char *shadertext ) 
 	const char *func_err = "WARNING: RE_LoadDynamicShader";
 	dynamicshader_t *dptr, *lastdptr;
 	const char *q;
-    char* token;
+	char* token;
 
 	if ( !shadername && shadertext ) {
 		ri.Printf( PRINT_WARNING, "%s called with NULL shadername and non-NULL shadertext:\n%s\n", func_err, shadertext );
@@ -3260,10 +3260,10 @@ void R_FindLightmap( int *lightmapIndex ) {
 	// attempt to load an external lightmap
 	sprintf( fileName, "%s/" EXTERNAL_LIGHTMAP, tr.worldDir, *lightmapIndex );
 
-    //BBi
+	// BBi
 	//image = R_FindImageFile( fileName, qfalse, qfalse, GL_CLAMP, qtrue );
-    image = R_FindImageFile (fileName, false, false, r_get_best_wrap_clamp (), true);
-    //BBi
+	image = R_FindImageFile (fileName, false, false, r_get_best_wrap_clamp (), true);
+	// BBi
 
 	if ( image == NULL ) {
 		*lightmapIndex = LIGHTMAP_BY_VERTEX;
@@ -3501,11 +3501,11 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 	Q_strncpyz( fileName, name, sizeof( fileName ) );
 	COM_DefaultExtension( fileName, sizeof( fileName ), ".tga" );
 
-    //BBi
+	// BBi
 	//image = R_FindImageFile( fileName, mipRawImage, mipRawImage, mipRawImage ? GL_REPEAT : GL_CLAMP );
-    image = R_FindImageFile (fileName, mipRawImage, mipRawImage,
-        mipRawImage ? GL_REPEAT : r_get_best_wrap_clamp ());
-    //BBi
+	image = R_FindImageFile (fileName, mipRawImage, mipRawImage,
+		mipRawImage ? GL_REPEAT : r_get_best_wrap_clamp ());
+	// BBi
 
 	if ( !image ) {
 		ri.Printf( PRINT_DEVELOPER, "Couldn't find image for shader %s\n", name );
@@ -3581,11 +3581,11 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 	// if not defined in the in-memory shader descriptions,
 	// look for a single TGA, BMP, or PCX
 
-    //BBi
+	// BBi
 	//image = R_FindImageFile( fileName, !shader.noMipMaps, !shader.noPicMip, mipRawImage ? GL_REPEAT : GL_CLAMP, qfalse );
-    image = R_FindImageFile (fileName, !shader.noMipMaps, !shader.noPicMip,
-        mipRawImage ? GL_REPEAT : r_get_best_wrap_clamp (), false);
-    //BBi
+	image = R_FindImageFile (fileName, !shader.noMipMaps, !shader.noPicMip,
+		mipRawImage ? GL_REPEAT : r_get_best_wrap_clamp (), false);
+	// BBi
 
 	if ( !image ) {
 		//ri.Printf( PRINT_DEVELOPER, "Couldn't find image for shader %s\n", name );
@@ -4008,59 +4008,59 @@ static void BuildShaderChecksumLookup( void ) {
 #if 1
 static void BuildShaderChecksumLookup ()
 {
-    const char* p = s_shaderText;
+	const char* p = s_shaderText;
 
-    // initialize the checksums
-    memset (shaderChecksumLookup, 0, sizeof (shaderChecksumLookup));
+	// initialize the checksums
+	memset (shaderChecksumLookup, 0, sizeof (shaderChecksumLookup));
 
-    if (p == NULL)
-        return;
+	if (p == NULL)
+		return;
 
-    const char* pOld;
-    char* token;
-    int numShaderStringPointers = 0;
+	const char* pOld;
+	char* token;
+	int numShaderStringPointers = 0;
 
-    // loop for all labels
-    while (true) {
-        pOld = p;
-        token = COM_ParseExt (&p, true);
+	// loop for all labels
+	while (true) {
+		pOld = p;
+		token = COM_ParseExt (&p, true);
 
-        if (token[0] == 0)
-            break;
+		if (token[0] == 0)
+			break;
 
-        // Hack for ui_wolf.shader in SP.
-        // There are two closed braces at the end.
-        if (Q_stricmp (token, "}") == 0)
-            continue;
+		// Hack for ui_wolf.shader in SP.
+		// There are two closed braces at the end.
+		if (Q_stricmp (token, "}") == 0)
+			continue;
 
-        if (Q_stricmp (token, "{") == 0) {
-            SkipBracedSection (&p);
-            continue;
-        }
+		if (Q_stricmp (token, "{") == 0) {
+			SkipBracedSection (&p);
+			continue;
+		}
 
-        // get it's checksum
-        int checksum = static_cast<int> (generateHashValue (token) & 0xFFFF);
+		// get it's checksum
+		int checksum = static_cast<int> (generateHashValue (token) & 0xFFFF);
 
-        // if it's not currently used
-        if (shaderChecksumLookup[checksum].pStr == NULL)
-            shaderChecksumLookup[checksum].pStr = pOld;
-        else {
-            // create a new list item
-            if (numShaderStringPointers >= MAX_SHADER_STRING_POINTERS) {
-                ri.Error (ERR_DROP,
-                    "MAX_SHADER_STRING_POINTERS exceeded, too many shaders");
-            }
+		// if it's not currently used
+		if (shaderChecksumLookup[checksum].pStr == NULL)
+			shaderChecksumLookup[checksum].pStr = pOld;
+		else {
+			// create a new list item
+			if (numShaderStringPointers >= MAX_SHADER_STRING_POINTERS) {
+				ri.Error (ERR_DROP,
+					"MAX_SHADER_STRING_POINTERS exceeded, too many shaders");
+			}
 
-            shaderStringPointer_t* newStrPtr;
-            newStrPtr = &shaderStringPointerList[numShaderStringPointers++];
-            newStrPtr->pStr = pOld;
-            newStrPtr->next = shaderChecksumLookup[checksum].next;
-            shaderChecksumLookup[checksum].next = newStrPtr;
-        }
+			shaderStringPointer_t* newStrPtr;
+			newStrPtr = &shaderStringPointerList[numShaderStringPointers++];
+			newStrPtr->pStr = pOld;
+			newStrPtr->next = shaderChecksumLookup[checksum].next;
+			shaderChecksumLookup[checksum].next = newStrPtr;
+		}
 
-        // BBi Fix for missing light coronas in MP.
-        SkipRestOfLine (&p);
-    }
+		// BBi Fix for missing light coronas in MP.
+		SkipRestOfLine (&p);
+	}
 }
 #endif
 // BBi
@@ -4264,10 +4264,10 @@ void *R_CacheShaderAlloc( int size ) {
 		//return malloc( size );
 
 #if !defined RTCW_MP
-        //BBi
+		// BBi
 		//return malloc( size );
-        return new byte[size];
-        //BBi
+		return new byte[size];
+		// BBi
 #else
 		return ri.Z_Malloc( size );
 #endif // RTCW_XX
@@ -4290,10 +4290,10 @@ void R_CacheShaderFree( void *ptr ) {
 		//free( ptr );
 
 #if !defined RTCW_MP
-        //BBi
+		// BBi
 		//free( ptr );
-        delete [] static_cast<byte*> (ptr);
-        //BBi
+		delete [] static_cast<byte*> (ptr);
+		// BBi
 #else
 		ri.Free( ptr );
 #endif // RTCW_XX
@@ -4660,7 +4660,7 @@ void R_LoadCacheShaders( void ) {
 	int len;
 	byte *buf;
 	char    *token;
-    const char* pString;
+	const char* pString;
 	char name[MAX_QPATH];
 
 	if ( !r_cacheShaders->integer ) {

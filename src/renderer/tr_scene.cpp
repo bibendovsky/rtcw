@@ -83,8 +83,8 @@ void R_ToggleSmpFrame( void ) {
 	backEndData[tr.smpFrame]->commands.used = 0;
 #endif // 0
 
-    tr.smpFrame = 0;
-    backEndData->commands.used = 0;
+	tr.smpFrame = 0;
+	backEndData->commands.used = 0;
 
 	r_firstSceneDrawSurf = 0;
 
@@ -134,7 +134,7 @@ void RE_ClearScene( void ) {
 #if 0
 			tr.world->bmodels[ i ].visible[ tr.smpFrame ] = qfalse;
 #endif // 0
-            tr.world->bmodels[i].visible = qfalse;
+			tr.world->bmodels[i].visible = qfalse;
 	}
 
 	// everything else
@@ -212,7 +212,7 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 
 // BBi
 //	poly = &backEndData[tr.smpFrame]->polys[r_numpolys];
-    poly = &backEndData->polys[r_numpolys];
+	poly = &backEndData->polys[r_numpolys];
 // BBi
 
 	poly->surfaceType = SF_POLY;
@@ -221,12 +221,12 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 
 // BBi
 //	poly->verts = &backEndData[tr.smpFrame]->polyVerts[r_numpolyverts];
-    poly->verts = &backEndData->polyVerts[r_numpolyverts];
+	poly->verts = &backEndData->polyVerts[r_numpolyverts];
 // BBi
 
 	memcpy( poly->verts, verts, numVerts * sizeof( *verts ) );
 
-    //BBi
+	// BBi
 	//// Ridah
 	//if ( glConfig.hardwareType == GLHW_RAGEPRO ) {
 	//	poly->verts->modulate[0] = 255;
@@ -235,7 +235,7 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 	//	poly->verts->modulate[3] = 255;
 	//}
 	//// done.
-    //BBi
+	// BBi
 
 	r_numpolys++;
 	r_numpolyverts += numVerts;
@@ -300,7 +300,7 @@ void RE_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *vert
 
 // BBi
 //		poly = &backEndData[tr.smpFrame]->polys[r_numpolys];
-        poly = &backEndData->polys[r_numpolys];
+		poly = &backEndData->polys[r_numpolys];
 // BBi
 
 		poly->surfaceType = SF_POLY;
@@ -309,12 +309,12 @@ void RE_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *vert
 
 // BBi
 //		poly->verts = &backEndData[tr.smpFrame]->polyVerts[r_numpolyverts];
-        poly->verts = &backEndData->polyVerts[r_numpolyverts];
+		poly->verts = &backEndData->polyVerts[r_numpolyverts];
 // BBi
 
 		memcpy( poly->verts, &verts[numVerts * j], numVerts * sizeof( *verts ) );
 
-        //BBi
+		// BBi
 		//// Ridah
 		//if ( glConfig.hardwareType == GLHW_RAGEPRO ) {
 		//	poly->verts->modulate[0] = 255;
@@ -323,7 +323,7 @@ void RE_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *vert
 		//	poly->verts->modulate[3] = 255;
 		//}
 		//// done.
-        //BBi
+		// BBi
 
 		r_numpolys++;
 		r_numpolyverts += numVerts;
@@ -405,7 +405,7 @@ void RE_AddPolyBufferToScene( polyBuffer_t* pPolyBuffer ) {
 #if 0
 	pPolySurf = &backEndData[tr.smpFrame]->polybuffers[r_numpolybuffers];
 #endif // 0
-    pPolySurf = &backEndData->polybuffers[r_numpolybuffers];
+	pPolySurf = &backEndData->polybuffers[r_numpolybuffers];
 
 	r_numpolybuffers++;
 
@@ -460,8 +460,8 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 // BBi
 //	backEndData[tr.smpFrame]->entities[r_numentities].e = *ent;
 //	backEndData[tr.smpFrame]->entities[r_numentities].lightingCalculated = qfalse;
-    backEndData->entities[r_numentities].e = *ent;
-    backEndData->entities[r_numentities].lightingCalculated = qfalse;
+	backEndData->entities[r_numentities].e = *ent;
+	backEndData->entities[r_numentities].lightingCalculated = qfalse;
 // BBi
 
 	r_numentities++;
@@ -513,12 +513,12 @@ void RE_AddLightToScene( const vec3_t org, float radius, float intensity, float 
 	}
 #endif // RTCW_XX
 
-    //BBi
+	// BBi
 	//// these cards don't have the correct blend mode
 	//if ( glConfig.hardwareType == GLHW_RIVA128 || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
 	//	return;
 	//}
-    //BBi
+	// BBi
 
 	// RF, allow us to force some dlights under all circumstances
 
@@ -540,11 +540,11 @@ void RE_AddLightToScene( const vec3_t org, float radius, float intensity, float 
 		}
 #endif // 0
 
-        if (r_dynamiclight->integer == 2 &&
-            !backEndData->dlights[r_numdlights].forced)
-        {
-            return;
-        }
+		if (r_dynamiclight->integer == 2 &&
+			!backEndData->dlights[r_numdlights].forced)
+		{
+			return;
+		}
 // BBi
 #endif // RTCW_XX
 
@@ -570,7 +570,7 @@ void RE_AddLightToScene( const vec3_t org, float radius, float intensity, float 
 #if 0
 	dl = &backEndData[tr.smpFrame]->dlights[r_numdlights++];
 #endif // 0
-    dl = &backEndData->dlights[r_numdlights++];
+	dl = &backEndData->dlights[r_numdlights++];
 // BBi
 
 	VectorCopy( org, dl->origin );
@@ -632,7 +632,7 @@ RE_AddCoronaToScene
 //void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible ) {
 //#endif // RTCW_XX
 void RE_AddCoronaToScene (const vec3_t org, float r, float g, float b,
-    float scale, int id, int flags)
+	float scale, int id, int flags)
 {
 // BBi
 	corona_t    *cor;
@@ -648,7 +648,7 @@ void RE_AddCoronaToScene (const vec3_t org, float r, float g, float b,
 	cor = &backEndData[tr.smpFrame]->coronas[r_numcoronas++];
 #endif // 0
 
-    cor = &backEndData->coronas[r_numcoronas++];
+	cor = &backEndData->coronas[r_numcoronas++];
 
 	VectorCopy( org, cor->origin );
 	cor->color[0] = r;
@@ -663,7 +663,7 @@ void RE_AddCoronaToScene (const vec3_t org, float r, float g, float b,
 //#else
 //	cor->visible = visible;
 //#endif // RTCW_XX
-    cor->flags = flags;
+	cor->flags = flags;
 // BBi
 }
 
@@ -783,41 +783,41 @@ void RE_RenderScene( const refdef_t *fd ) {
 #endif // RTCW_XX
 #endif // 0
 
-    tr.refdef.floatTime = tr.refdef.time * 0.001F;
+	tr.refdef.floatTime = tr.refdef.time * 0.001F;
 
-    tr.refdef.numDrawSurfs = r_firstSceneDrawSurf;
-    tr.refdef.drawSurfs = backEndData->drawSurfs;
+	tr.refdef.numDrawSurfs = r_firstSceneDrawSurf;
+	tr.refdef.drawSurfs = backEndData->drawSurfs;
 
-    tr.refdef.num_entities = r_numentities - r_firstSceneEntity;
-    tr.refdef.entities = &backEndData->entities[r_firstSceneEntity];
+	tr.refdef.num_entities = r_numentities - r_firstSceneEntity;
+	tr.refdef.entities = &backEndData->entities[r_firstSceneEntity];
 
-    tr.refdef.num_dlights = r_numdlights - r_firstSceneDlight;
-    tr.refdef.dlights = &backEndData->dlights[r_firstSceneDlight];
+	tr.refdef.num_dlights = r_numdlights - r_firstSceneDlight;
+	tr.refdef.dlights = &backEndData->dlights[r_firstSceneDlight];
 
 #if defined RTCW_ET
-    tr.refdef.dlightBits = 0;
+	tr.refdef.dlightBits = 0;
 #endif // RTCW_XX
 
-    tr.refdef.num_coronas = r_numcoronas - r_firstSceneCorona;
-    tr.refdef.coronas = &backEndData->coronas[r_firstSceneCorona];
+	tr.refdef.num_coronas = r_numcoronas - r_firstSceneCorona;
+	tr.refdef.coronas = &backEndData->coronas[r_firstSceneCorona];
 
-    tr.refdef.numPolys = r_numpolys - r_firstScenePoly;
-    tr.refdef.polys = &backEndData->polys[r_firstScenePoly];
+	tr.refdef.numPolys = r_numpolys - r_firstScenePoly;
+	tr.refdef.polys = &backEndData->polys[r_firstScenePoly];
 
 #if defined RTCW_ET
-    tr.refdef.numPolyBuffers = r_numpolybuffers - r_firstScenePolybuffer;
-    tr.refdef.polybuffers = &backEndData->polybuffers[r_firstScenePolybuffer];
+	tr.refdef.numPolyBuffers = r_numpolybuffers - r_firstScenePolybuffer;
+	tr.refdef.polybuffers = &backEndData->polybuffers[r_firstScenePolybuffer];
 
-    tr.refdef.numDecalProjectors = r_numDecalProjectors - r_firstSceneDecalProjector;
-    tr.refdef.decalProjectors = &backEndData->decalProjectors[r_firstSceneDecalProjector];
+	tr.refdef.numDecalProjectors = r_numDecalProjectors - r_firstSceneDecalProjector;
+	tr.refdef.decalProjectors = &backEndData->decalProjectors[r_firstSceneDecalProjector];
 
-    tr.refdef.numDecals = r_numDecals - r_firstSceneDecal;
-    tr.refdef.decals = &backEndData->decals[r_firstSceneDecal];
+	tr.refdef.numDecals = r_numDecals - r_firstSceneDecal;
+	tr.refdef.decals = &backEndData->decals[r_firstSceneDecal];
 #endif // RTCW_XX
 
 	// turn off dynamic lighting globally by clearing all the
 
-//BBi
+// BBi
 //#if !defined RTCW_ET
 //	// dlights if it needs to be disabled or if vertex lighting is enabled
 //
@@ -836,11 +836,11 @@ void RE_RenderScene( const refdef_t *fd ) {
 //#endif // RTCW_XX
 
 #if !defined RTCW_ET
-    if (r_vertexLight->integer != 0) {
+	if (r_vertexLight->integer != 0) {
 #else
-    if (false) {
+	if (false) {
 #endif // RTCW_XX
-//BBi
+// BBi
 
 		tr.refdef.num_dlights = 0;
 	}
@@ -881,10 +881,10 @@ void RE_RenderScene( const refdef_t *fd ) {
 //	VectorCopy( fd->viewaxis[1], parms.orientation.axis[1] );
 //	VectorCopy( fd->viewaxis[2], parms.orientation.axis[2] );
 //#endif // RTCW_XX
-    VectorCopy (fd->vieworg, parms.orientation.origin);
-    VectorCopy (fd->viewaxis[0], parms.orientation.axis[0]);
-    VectorCopy (fd->viewaxis[1], parms.orientation.axis[1]);
-    VectorCopy (fd->viewaxis[2], parms.orientation.axis[2]);
+	VectorCopy (fd->vieworg, parms.orientation.origin);
+	VectorCopy (fd->viewaxis[0], parms.orientation.axis[0]);
+	VectorCopy (fd->viewaxis[1], parms.orientation.axis[1]);
+	VectorCopy (fd->viewaxis[2], parms.orientation.axis[2]);
 // BBi
 
 	VectorCopy( fd->vieworg, parms.pvsOrigin );

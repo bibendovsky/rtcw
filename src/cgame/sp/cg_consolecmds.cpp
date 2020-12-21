@@ -414,8 +414,8 @@ static void CG_LimboMessage_f( void ) {
 // -NERVE - SMF
 
 typedef struct {
-    const char* cmd;
-    void (*function)();
+	const char* cmd;
+	void (*function)();
 } consoleCommand_t;
 
 static consoleCommand_t commands[] = {

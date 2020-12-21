@@ -39,8 +39,8 @@ OglTessProgram::OglTessProgram(
 }
 
 OglTessProgram::OglTessProgram(
-	const char* const v_shader_c_string,
-	const char* const f_shader_c_string)
+	const char* v_shader_c_string,
+	const char* f_shader_c_string)
 	:
 	OglProgram{v_shader_c_string, f_shader_c_string},
 	a_pos_vec4{-1},
@@ -82,8 +82,8 @@ OglProgram* OglTessProgram::create_new(
 }
 
 OglProgram* OglTessProgram::create_new(
-		const char* const v_shader_c_string,
-		const char* const f_shader_c_string)
+	const char* v_shader_c_string,
+	const char* f_shader_c_string)
 {
 	return new OglTessProgram{v_shader_c_string, f_shader_c_string};
 }

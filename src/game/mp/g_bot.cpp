@@ -157,8 +157,8 @@ G_AddRandomBot
 void G_AddRandomBot( int team ) {
 	int i, n, num, skill;
 	const char* value;
-    char netname[36];
-    const char* teamstr;
+	char netname[36];
+	const char* teamstr;
 	gclient_t   *cl;
 
 	num = 0;

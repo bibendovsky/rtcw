@@ -95,8 +95,8 @@ AICast_ScriptAction_GotoMarker
 */
 qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, const char* params ) {
 #define SCRIPT_REACHGOAL_DIST   8
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	gentity_t *ent;
 	vec3_t vec, org;
 	int i, diff;
@@ -289,7 +289,7 @@ AICast_ScriptAction_GotoCast
 qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, const char* params ) {
 #define SCRIPT_REACHCAST_DIST   64
 	const char    *pString;
-    char* token;
+	char* token;
 	gentity_t *ent;
 	vec3_t vec, org;
 	int i, diff;
@@ -484,9 +484,9 @@ AICast_ScriptAction_Wait
 =================
 */
 qboolean AICast_ScriptAction_Wait( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
-    char* facetarget;
+	const char* pString;
+	char* token;
+	char* facetarget;
 	int duration;
 	float moverange;
 	float dist;
@@ -614,8 +614,8 @@ AICast_ScriptAction_Trigger
 */
 qboolean AICast_ScriptAction_Trigger( cast_state_t *cs, const char* params ) {
 	gentity_t *ent;
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	int oldId;
 
 	// get the cast name
@@ -762,9 +762,9 @@ AICast_ScriptAction_PlayAnim
 =================
 */
 qboolean AICast_ScriptAction_PlayAnim( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
-    char tokens[3][MAX_QPATH];
+	const char* pString;
+	char* token;
+	char tokens[3][MAX_QPATH];
 	int i, endtime, duration, numLoops;
 	gclient_t *client;
 	gentity_t *ent;
@@ -1024,8 +1024,8 @@ AICast_ScriptAction_SetAmmo
 =================
 */
 qboolean AICast_ScriptAction_SetAmmo( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	int weapon;
 	int i;
 
@@ -1094,8 +1094,8 @@ AICast_ScriptAction_SetClip
 =================
 */
 qboolean AICast_ScriptAction_SetClip( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	int weapon;
 	int i;
 
@@ -1588,8 +1588,8 @@ AICast_ScriptAction_SaveGame
 =================
 */
 qboolean AICast_ScriptAction_SaveGame( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* saveName;
+	const char* pString;
+	char* saveName;
 	pString = params;
 
 	if ( cs->bs ) {
@@ -1618,8 +1618,8 @@ AICast_ScriptAction_FireAtTarget
 qboolean AICast_ScriptAction_FireAtTarget( cast_state_t *cs, const char* params ) {
 	gentity_t   *ent;
 	vec3_t vec, org, src;
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	float diff;
 	int i;
 
@@ -1744,8 +1744,8 @@ AICast_ScriptAction_Accum
 */
 qboolean AICast_ScriptAction_Accum( cast_state_t *cs, const char* params ) {
 	const char* pString;
-    char* token;
-    char lastToken[MAX_QPATH];
+	char* token;
+	char lastToken[MAX_QPATH];
 	int bufferIndex;
 
 	pString = params;
@@ -1918,8 +1918,8 @@ AICast_ScriptAction_MissionFailed
 =================
 */
 qboolean AICast_ScriptAction_MissionFailed( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	int time = 6, mof = 0;
 
 	pString = params;
@@ -1965,8 +1965,8 @@ AICast_ScriptAction_ObjectivesNeeded
 =================
 */
 qboolean AICast_ScriptAction_ObjectivesNeeded( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 
 	pString = params;
 
@@ -1993,8 +1993,8 @@ qboolean AICast_ScriptAction_ObjectiveMet( cast_state_t *cs, const char* params 
 	gentity_t   *player;
 	vmCvar_t cvar;
 	int lvl;
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 
 	pString = params;
 
@@ -2472,8 +2472,8 @@ AICast_ScriptAction_Attrib
 ==================
 */
 qboolean AICast_ScriptAction_Attrib( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	int i;
 
 	pString = params;
@@ -2525,15 +2525,15 @@ qboolean AICast_ScriptAction_LightningDamage( cast_state_t *cs, const char* para
 		cs->aiFlags &= ~AIFL_ROLL_ANIM;
 	}
 #else
-    const int k_max_param_size = 64;
-    char param[k_max_param_size];
-    Q_strncpyz(param, params, k_max_param_size);
+	const int k_max_param_size = 64;
+	char param[k_max_param_size];
+	Q_strncpyz(param, params, k_max_param_size);
 
-    if (Q_stricmp(param, "on") == 0) {
-        // hijacking this since the player doesn't use it
-        cs->aiFlags |= AIFL_ROLL_ANIM;
-    } else
-        cs->aiFlags &= ~AIFL_ROLL_ANIM;
+	if (Q_stricmp(param, "on") == 0) {
+		// hijacking this since the player doesn't use it
+		cs->aiFlags |= AIFL_ROLL_ANIM;
+	} else
+		cs->aiFlags &= ~AIFL_ROLL_ANIM;
 #endif // 0
 	return qtrue;
 }
@@ -2544,8 +2544,8 @@ AICast_ScriptAction_Headlook
 =================
 */
 qboolean AICast_ScriptAction_Headlook( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 
 	pString = params;
 	token = COM_ParseExt( &pString, qfalse );
@@ -2627,8 +2627,8 @@ AICast_ScriptAction_KnockBack
 ================
 */
 qboolean AICast_ScriptAction_KnockBack( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 
 	pString = params;
 	token = COM_ParseExt( &pString, qfalse );
@@ -2657,8 +2657,8 @@ AICast_ScriptAction_Zoom
 ================
 */
 qboolean AICast_ScriptAction_Zoom( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 
 	pString = params;
 	token = COM_ParseExt( &pString, qfalse );
@@ -2690,8 +2690,8 @@ AICast_ScriptAction_StartCam
 ===================
 */
 qboolean ScriptStartCam( cast_state_t *cs, const char* params, qboolean black ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 
 	gentity_t *ent;
 
@@ -2735,8 +2735,8 @@ qboolean AICast_ScriptAction_StopCam( cast_state_t *cs, const char* params ) {
 
 //----(SA)	added
 qboolean AICast_ScriptAction_Cigarette( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	gentity_t *ent;
 
 	ent = &g_entities[cs->entityNum];
@@ -2768,8 +2768,8 @@ AICast_ScriptAction_Parachute
 =================
 */
 qboolean AICast_ScriptAction_Parachute( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 
 	gentity_t *ent;
 
@@ -2861,8 +2861,8 @@ AICast_ScriptAction_Cvar
 */
 qboolean AICast_ScriptAction_Cvar( cast_state_t *cs, const char* params ) {
 	vmCvar_t cvar;
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char cvarName[MAX_QPATH];
 
 	pString = params;
@@ -2899,8 +2899,8 @@ AICast_ScriptAction_MusicStart
 ==================
 */
 qboolean AICast_ScriptAction_MusicStart( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char cvarName[MAX_QPATH];
 	int fadeupTime = 0;
 
@@ -2928,8 +2928,8 @@ AICast_ScriptAction_MusicPlay
 ==================
 */
 qboolean AICast_ScriptAction_MusicPlay( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char cvarName[MAX_QPATH];
 	int fadeupTime = 0;
 
@@ -2952,8 +2952,8 @@ AICast_ScriptAction_MusicStop
 ==================
 */
 qboolean AICast_ScriptAction_MusicStop( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	int fadeoutTime = 0;
 
 	pString = params;
@@ -2974,8 +2974,8 @@ AICast_ScriptAction_MusicFade
 ==================
 */
 qboolean AICast_ScriptAction_MusicFade( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	float targetvol;
 	int fadetime;
 
@@ -3004,8 +3004,8 @@ AICast_ScriptAction_MusicQueue
 ==================
 */
 qboolean AICast_ScriptAction_MusicQueue( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char cvarName[MAX_QPATH];
 
 	pString = params;
@@ -3080,8 +3080,8 @@ AICast_ScriptAction_AnimCondition
 ==================
 */
 qboolean AICast_ScriptAction_AnimCondition( cast_state_t *cs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char condition[MAX_QPATH];
 
 	pString = params;

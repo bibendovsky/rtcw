@@ -30,11 +30,11 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <windows.h>
 
-//BBi
+// BBi
 //#if defined RTCW_SP
 //#define DIRECTINPUT_VERSION 0x0800
 //#endif // RTCW_XX
-//BBi
+// BBi
 
 // BBi
 #if 0
@@ -96,11 +96,11 @@ LRESULT CALLBACK MainWndProc(
 
 void Conbuf_AppendText( const char * const msg );
 
-//BBi
+// BBi
 //void SNDDMA_Activate( void );
 void SNDDMA_Activate (
-    bool isActive);
-//BBi
+	bool isActive);
+// BBi
 
 #ifdef DOOMSOUND    ///// (SA) DOOMSOUND
 #ifdef __cplusplus
@@ -127,10 +127,10 @@ void WinSetExceptionVersion( const char* version );
 void Com_FrameExt( void );
 #endif // RTCW_XX
 
-//BBi
+// BBi
 #ifndef DEDICATED
 void GLimp_Activate (
-    bool isActivated,
-    bool isMinimized);
+	bool isActivated,
+	bool isMinimized);
 #endif // DEDICATED
-//BBi
+// BBi

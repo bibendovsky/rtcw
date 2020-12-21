@@ -72,14 +72,14 @@ void S_ClearSoundBuffer( qboolean killStreaming ) {
 
 // TTimo: added for win32 dedicated
 
-//BBi
+// BBi
 //void SNDDMA_Activate( void ) {
 //}
 void SNDDMA_Activate (
-    bool isActive)
+	bool isActive)
 {
 }
-//BBi
+// BBi
 
 #if defined RTCW_ET
 // show_bug.cgi?id=574

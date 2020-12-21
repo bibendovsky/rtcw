@@ -1030,10 +1030,10 @@ void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 	// probably won't work on a mac... Its only for developers anyway...
 #endif // RTCW_XX
 
-    //BBi
+	// BBi
 	//buf = static_cast<byte*> (malloc( len ));
-    buf = new byte[len];
-    //BBi
+	buf = new byte[len];
+	// BBi
 
 	if ( fread( buf, 1, len, f ) != len ) {
 		Com_Error( ERR_FATAL, "Short read in FS_Copyfiles()\n" );
@@ -1048,10 +1048,10 @@ void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 	if ( !f ) {
 
 #if !defined RTCW_SP
-        //BBi
+		// BBi
 		//free( buf );    //DAJ free as well
-        delete [] buf; //DAJ free as well
-        //BBi
+		delete [] buf; //DAJ free as well
+		// BBi
 #endif // RTCW_XX
 
 		return;
@@ -1061,10 +1061,10 @@ void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 	}
 	fclose( f );
 
-    //BBi
+	// BBi
 	//free( buf );
-    delete [] buf;
-    //BBi
+	delete [] buf;
+	// BBi
 }
 
 #if defined RTCW_SP
@@ -1095,10 +1095,10 @@ void FS_CopyFileOS( char *from, char *to ) {
 	// we are using direct malloc instead of Z_Malloc here, so it
 	// probably won't work on a mac... Its only for developers anyway...
 
-    //BBi
+	// BBi
 	//buf = static_cast<byte*> (malloc( len ));
-    buf = new byte[len];
-    //BBi
+	buf = new byte[len];
+	// BBi
 
 	if ( fread( buf, 1, len, f ) != len ) {
 		Com_Error( ERR_FATAL, "Short read in FS_Copyfiles()\n" );
@@ -1118,10 +1118,10 @@ void FS_CopyFileOS( char *from, char *to ) {
 	}
 	fclose( f );
 
-    //BBi
+	// BBi
 	//free( buf );
-    delete [] buf;
-    //BBi
+	delete [] buf;
+	// BBi
 }
 #endif // RTCW_XX
 
@@ -1619,20 +1619,20 @@ qboolean FS_FileCompare( const char *s1, const char *s2 ) {
 
 	// now do a binary compare
 
-    //BBi
+	// BBi
 	//b1 = static_cast<byte*> (malloc( len1 ));
-    b1 = new byte[len1];
-    //BBi
+	b1 = new byte[len1];
+	// BBi
 
 	if ( fread( b1, 1, len1, f1 ) != len1 ) {
 		Com_Error( ERR_FATAL, "Short read in FS_FileCompare()\n" );
 	}
 	fclose( f1 );
 
-    //BBi
+	// BBi
 	//b2 = static_cast<byte*> (malloc( len2 ));
-    b2 = new byte[len2];
-    //BBi
+	b2 = new byte[len2];
+	// BBi
 
 	if ( fread( b2, 1, len2, f2 ) != len2 ) {
 		Com_Error( ERR_FATAL, "Short read in FS_FileCompare()\n" );
@@ -1646,13 +1646,13 @@ qboolean FS_FileCompare( const char *s1, const char *s2 ) {
 	{
 		if ( *p1 != *p2 ) {
 
-            //BBi
+			// BBi
 			//free( b1 );
 			//free( b2 );
 
-            delete [] b1;
-            delete [] b2;
-            //BBi
+			delete [] b1;
+			delete [] b2;
+			// BBi
 
 			return qfalse;
 		}
@@ -1661,13 +1661,13 @@ qboolean FS_FileCompare( const char *s1, const char *s2 ) {
 
 	// they are identical
 
-    //BBi
+	// BBi
 	//free( b1 );
 	//free( b2 );
 
-    delete [] b1;
-    delete [] b2;
-    //BBi
+	delete [] b1;
+	delete [] b2;
+	// BBi
 
 	return qtrue;
 }
@@ -2421,7 +2421,7 @@ int FS_Read2( void *buffer, int len, fileHandle_t f ) {
 		int r;
 		fsh[f].streamed = qfalse;
 
-        r = FS_Read(buffer, len, f);
+		r = FS_Read(buffer, len, f);
 
 		fsh[f].streamed = qtrue;
 		return r;
@@ -2592,7 +2592,7 @@ int FS_Seek( fileHandle_t f, long offset, int origin ) {
 	if ( fsh[f].streamed ) {
 		fsh[f].streamed = qfalse;
 
-        FS_Seek(f, offset, origin);
+		FS_Seek(f, offset, origin);
 
 		fsh[f].streamed = qtrue;
 	}
@@ -3024,10 +3024,10 @@ static pack_t* FS_LoadZipFile(
 		namePtr += filename_inzip.length() + 1;
 		// store the file position in the zip
 
-		//BBi
+		// BBi
 		//unzGetCurrentFileInfoPosition( uf, &buildBuffer[i].pos );
 		buildBuffer[i].miniz_file_index_ = i;
-		//BBi
+		// BBi
 
 		//
 		buildBuffer[i].next = pack->hashTable[hash];
@@ -4288,9 +4288,9 @@ static void FS_Startup( const char *gameName ) {
 	fs_gamedirvar = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO );
 	fs_restrict = Cvar_Get( "fs_restrict", "", CVAR_INIT );
 
-    // BBi
-    FS_AddGameDirectory (fs_basepath->string, "rtcw");
-    // BBi
+	// BBi
+	FS_AddGameDirectory (fs_basepath->string, "rtcw");
+	// BBi
 
 	// add search path elements in reverse priority order
 	if ( fs_cdpath->string[0] ) {
@@ -5620,10 +5620,10 @@ unsigned int FS_ChecksumOSPath( char *OSPath ) {
 	len = ftell( f );
 	fseek( f, 0, SEEK_SET );
 
-    //BBi
+	// BBi
 	//buf = static_cast<byte*> (malloc( len ));
-    buf = new byte[len];
-    //BBi
+	buf = new byte[len];
+	// BBi
 
 	if ( fread( buf, 1, len, f ) != len ) {
 		Com_Error( ERR_FATAL, "short read in FS_ChecksumOSPath\n" );
@@ -5634,10 +5634,10 @@ unsigned int FS_ChecksumOSPath( char *OSPath ) {
 	// (better fix would have to be doing the LittleLong inside that function..)
 	checksum = rtcw::Endian::le( Com_BlockChecksum( buf, len ) );
 
-    //BBi
+	// BBi
 	//free( buf );
-    delete [] buf;
-    //BBi
+	delete [] buf;
+	// BBi
 
 	return checksum;
 }

@@ -2874,7 +2874,7 @@ void BotSpawnSpecialEntities( void ) {
 	char keyname[MAX_QPATH];
 	char        *com_token;
 	char string[8192];
-    const char* pStr;
+	const char* pStr;
 	char filename[MAX_QPATH];
 	int len;
 	fileHandle_t f;

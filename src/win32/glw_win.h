@@ -34,9 +34,9 @@ If you have questions concerning this license or the applicable additional terms
 #define __GLW_WIN_H__
 
 
-//BBi
+// BBi
 #include <windows.h>
-//BBi
+// BBi
 
 
 typedef struct

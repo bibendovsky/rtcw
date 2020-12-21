@@ -174,23 +174,23 @@ typedef enum
 } AIEventSounds_t;
 //
 typedef struct {
-    const char* name;
+	const char* name;
 	float attributes[AICAST_MAX_ATTRIBUTES];
 
-    const char* soundScripts[MAX_AI_EVENT_SOUNDS];
+	const char* soundScripts[MAX_AI_EVENT_SOUNDS];
 
 	int aiTeam;
-    const char* skin;
+	const char* skin;
 	int weapons[8];
 	int bboxType;
 	vec2_t crouchstandZ;
 	int aiFlags;
 
-    const char* (*aifuncAttack1)(struct cast_state_s* cs); //use this battle aifunc for monster_attack1
-    const char* (*aifuncAttack2)(struct cast_state_s* cs); //use this battle aifunc for monster_attack2
-    const char* (*aifuncAttack3)(struct cast_state_s* cs); //use this battle aifunc for monster_attack2
+	const char* (*aifuncAttack1)(struct cast_state_s* cs); //use this battle aifunc for monster_attack1
+	const char* (*aifuncAttack2)(struct cast_state_s* cs); //use this battle aifunc for monster_attack2
+	const char* (*aifuncAttack3)(struct cast_state_s* cs); //use this battle aifunc for monster_attack2
 
-    const char* loopingSound;     // play this sound constantly while alive
+	const char* loopingSound;     // play this sound constantly while alive
 
 	aistateEnum_t aiState;
 } AICharacterDefaults_t;
@@ -251,7 +251,7 @@ typedef struct
 // scripting
 typedef struct
 {
-    const char* actionString;
+	const char* actionString;
 	qboolean ( *actionFunc )( struct cast_state_s *cs, const char *params );
 } cast_script_stack_action_t;
 //
@@ -280,7 +280,7 @@ typedef struct
 //
 typedef struct
 {
-    const char* eventStr;
+	const char* eventStr;
 	qboolean ( *eventMatch )( cast_script_event_t *event, const char *eventParm );
 } cast_script_event_define_t;
 //
@@ -340,166 +340,166 @@ typedef struct aicast_checkattack_cache_s
 // --------------------------------------------------------------------------------
 // the main cast structure
 
-//BBi Reference structure for x64 code.
-//BBi All pointers replaced with 4-byte integers.
-//BBi Of course this structure must be identical to original one (cast_state_s).
+// BBi Reference structure for x64 code.
+// BBi All pointers replaced with 4-byte integers.
+// BBi Of course this structure must be identical to original one (cast_state_s).
 struct CastState32 {
-    int32_t bs; // pointer
-    int32_t entityNum;
-    int32_t aasWorldIndex;
-    int32_t aiCharacter;
-    int32_t aiFlags;
-    int32_t lastThink;
-    int32_t actionFlags;
-    int32_t lastPain;
-    int32_t lastPainDamage;
-    int32_t travelflags;
-    int32_t thinkFuncChangeTime;
-    aistateEnum_t aiState;
-    movestate_t movestate;
-    movestateType_t movestateType;
-    float attributes[AICAST_MAX_ATTRIBUTES];
-    int32_t numCastScriptEvents;
-    int32_t castScriptEvents; // pointer
-    cast_script_status_t castScriptStatus;
-    cast_script_status_t castScriptStatusCurrent;
-    cast_script_status_t castScriptStatusBackup;
-    int32_t scriptCallIndex;
-    int32_t scriptAnimTime;
-    int32_t scriptAnimNum;
-    int32_t scriptAccumBuffer[MAX_SCRIPT_ACCUM_BUFFERS];
-    int32_t weaponInfo; // pointer
-    cast_visibility_t vislist[MAX_CLIENTS];
-    int32_t weaponFireTimes[MAX_WEAPONS];
-    int32_t aifunc; // pointer
-    int32_t oldAifunc; // pointer
-    int32_t aifuncAttack1; // pointer
-    int32_t aifuncAttack2; // pointer
-    int32_t aifuncAttack3; // pointer
-    int32_t painfunc; // pointer
-    int32_t deathfunc; // pointer
-    int32_t sightfunc; // pointer
-    int32_t sightEnemy; // pointer
-    int32_t sightFriend; // pointer
-    int32_t activate; // pointer
-    int32_t followEntity;
-    float followDist;
-    qboolean followIsGoto;
-    int32_t followTime;
-    qboolean followSlowApproach;
-    int32_t leaderNum;
-    float speedScale;
-    float combatGoalTime;
-    vec3_t combatGoalOrigin;
-    int32_t lastGetHidePos;
-    int32_t startAttackCount;
-    int32_t combatSpotAttackCount;
-    int32_t combatSpotDelayTime;
-    int32_t startBattleChaseTime;
-    int32_t blockedTime;
-    int32_t obstructingTime;
-    vec3_t obstructingPos;
-    int32_t blockedAvoidTime;
-    float blockedAvoidYaw;
-    int32_t deathTime;
-    int32_t rebirthTime;
-    int32_t revivingTime;
-    int32_t enemyHeight;
-    int32_t enemyDist;
-    vec3_t takeCoverPos;
-    vec3_t takeCoverEnemyPos;
-    int32_t takeCoverTime;
-    int32_t attackSpotTime;
-    int32_t triggerReleaseTime;
-    int32_t lastWeaponFired;
-    vec3_t lastWeaponFiredPos;
-    int32_t lastWeaponFiredWeaponNum;
-    int32_t lastEnemy;
-    int32_t nextIdleAngleChange;
-    float idleYawChange;
-    int32_t idleYaw;
-    qboolean crouchHideFlag;
-    int32_t doorMarker;
-    int32_t doorEntNum;
-    int32_t attackSNDtime;
-    int32_t attacksnd;
-    int32_t painSoundTime;
-    int32_t firstSightTime;
-    qboolean secondDeadTime;
-    int32_t startGrenadeFlushTime;
-    int32_t lockViewAnglesTime;
-    int32_t grenadeFlushEndTime;
-    int32_t grenadeFlushFiring;
-    int32_t dangerEntity;
-    int32_t dangerEntityValidTime;
-    vec3_t dangerEntityPos;
-    int32_t dangerEntityTimestamp;
-    float dangerDist;
-    int32_t mountedEntity;
-    int32_t inspectBodyTime;
-    vec3_t startOrigin;
-    int32_t damageQuota;
-    int32_t damageQuotaTime;
-    int32_t dangerLastGetAvoid;
-    int32_t lastAvoid;
-    int32_t doorMarkerTime;
-    int32_t doorMarkerNum;
-    int32_t doorMarkerDoor;
-    int32_t pauseTime;
-    aicast_checkattack_cache_t checkAttackCache;
-    int32_t secretsFound;
-    int32_t attempts;
-    qboolean grenadeGrabFlag;
-    vec3_t lastMoveToPosGoalOrg;
-    int32_t noAttackTime;
-    int32_t lastRollMove;
-    int32_t lastFlipMove;
-    vec3_t stimFlyAttackPos;
-    int32_t lastDodgeRoll;
-    int32_t battleRollTime;
-    vec3_t viewlock_viewangles;
-    int32_t grenadeKickWeapon;
-    int32_t animHitCount;
-    int32_t totalPlayTime;
-    int32_t lastLoadTime;
-    int32_t queryStartTime;
-    int32_t queryCountValidTime;
-    int32_t queryCount;
-    int32_t queryAlertSightTime;
-    int32_t lastScriptSound;
-    int32_t inspectNum;
-    int32_t scriptPauseTime;
-    int32_t bulletImpactEntity;
-    int32_t bulletImpactTime;
-    int32_t bulletImpactIgnoreTime;
-    vec3_t bulletImpactStart;
-    vec3_t bulletImpactEnd;
-    int32_t audibleEventTime;
-    vec3_t audibleEventOrg;
-    int32_t audibleEventEnt;
-    int32_t battleChaseMarker;
-    int32_t battleChaseMarkerDir;
-    int32_t lastBattleHunted;
-    int32_t battleHuntPauseTime;
-    int32_t battleHuntViewTime;
-    int32_t lastAttackCrouch;
-    int32_t lastMoveThink;
-    int32_t numEnemies;
-    int32_t noReloadTime;
-    int32_t lastValidAreaNum[2];
-    int32_t lastValidAreaTime[2];
-    int32_t weaponNum;
-    int32_t enemyNum;
-    vec3_t ideal_viewangles;
-    vec3_t viewangles;
-    usercmd_t lastucmd;
-    int32_t attackcrouch_time;
-    int32_t bFlags;
-    int32_t deadSinkStartTime;
-    int32_t lastActivate;
-    vec3_t loperLeapVel;
+	int32_t bs; // pointer
+	int32_t entityNum;
+	int32_t aasWorldIndex;
+	int32_t aiCharacter;
+	int32_t aiFlags;
+	int32_t lastThink;
+	int32_t actionFlags;
+	int32_t lastPain;
+	int32_t lastPainDamage;
+	int32_t travelflags;
+	int32_t thinkFuncChangeTime;
+	aistateEnum_t aiState;
+	movestate_t movestate;
+	movestateType_t movestateType;
+	float attributes[AICAST_MAX_ATTRIBUTES];
+	int32_t numCastScriptEvents;
+	int32_t castScriptEvents; // pointer
+	cast_script_status_t castScriptStatus;
+	cast_script_status_t castScriptStatusCurrent;
+	cast_script_status_t castScriptStatusBackup;
+	int32_t scriptCallIndex;
+	int32_t scriptAnimTime;
+	int32_t scriptAnimNum;
+	int32_t scriptAccumBuffer[MAX_SCRIPT_ACCUM_BUFFERS];
+	int32_t weaponInfo; // pointer
+	cast_visibility_t vislist[MAX_CLIENTS];
+	int32_t weaponFireTimes[MAX_WEAPONS];
+	int32_t aifunc; // pointer
+	int32_t oldAifunc; // pointer
+	int32_t aifuncAttack1; // pointer
+	int32_t aifuncAttack2; // pointer
+	int32_t aifuncAttack3; // pointer
+	int32_t painfunc; // pointer
+	int32_t deathfunc; // pointer
+	int32_t sightfunc; // pointer
+	int32_t sightEnemy; // pointer
+	int32_t sightFriend; // pointer
+	int32_t activate; // pointer
+	int32_t followEntity;
+	float followDist;
+	qboolean followIsGoto;
+	int32_t followTime;
+	qboolean followSlowApproach;
+	int32_t leaderNum;
+	float speedScale;
+	float combatGoalTime;
+	vec3_t combatGoalOrigin;
+	int32_t lastGetHidePos;
+	int32_t startAttackCount;
+	int32_t combatSpotAttackCount;
+	int32_t combatSpotDelayTime;
+	int32_t startBattleChaseTime;
+	int32_t blockedTime;
+	int32_t obstructingTime;
+	vec3_t obstructingPos;
+	int32_t blockedAvoidTime;
+	float blockedAvoidYaw;
+	int32_t deathTime;
+	int32_t rebirthTime;
+	int32_t revivingTime;
+	int32_t enemyHeight;
+	int32_t enemyDist;
+	vec3_t takeCoverPos;
+	vec3_t takeCoverEnemyPos;
+	int32_t takeCoverTime;
+	int32_t attackSpotTime;
+	int32_t triggerReleaseTime;
+	int32_t lastWeaponFired;
+	vec3_t lastWeaponFiredPos;
+	int32_t lastWeaponFiredWeaponNum;
+	int32_t lastEnemy;
+	int32_t nextIdleAngleChange;
+	float idleYawChange;
+	int32_t idleYaw;
+	qboolean crouchHideFlag;
+	int32_t doorMarker;
+	int32_t doorEntNum;
+	int32_t attackSNDtime;
+	int32_t attacksnd;
+	int32_t painSoundTime;
+	int32_t firstSightTime;
+	qboolean secondDeadTime;
+	int32_t startGrenadeFlushTime;
+	int32_t lockViewAnglesTime;
+	int32_t grenadeFlushEndTime;
+	int32_t grenadeFlushFiring;
+	int32_t dangerEntity;
+	int32_t dangerEntityValidTime;
+	vec3_t dangerEntityPos;
+	int32_t dangerEntityTimestamp;
+	float dangerDist;
+	int32_t mountedEntity;
+	int32_t inspectBodyTime;
+	vec3_t startOrigin;
+	int32_t damageQuota;
+	int32_t damageQuotaTime;
+	int32_t dangerLastGetAvoid;
+	int32_t lastAvoid;
+	int32_t doorMarkerTime;
+	int32_t doorMarkerNum;
+	int32_t doorMarkerDoor;
+	int32_t pauseTime;
+	aicast_checkattack_cache_t checkAttackCache;
+	int32_t secretsFound;
+	int32_t attempts;
+	qboolean grenadeGrabFlag;
+	vec3_t lastMoveToPosGoalOrg;
+	int32_t noAttackTime;
+	int32_t lastRollMove;
+	int32_t lastFlipMove;
+	vec3_t stimFlyAttackPos;
+	int32_t lastDodgeRoll;
+	int32_t battleRollTime;
+	vec3_t viewlock_viewangles;
+	int32_t grenadeKickWeapon;
+	int32_t animHitCount;
+	int32_t totalPlayTime;
+	int32_t lastLoadTime;
+	int32_t queryStartTime;
+	int32_t queryCountValidTime;
+	int32_t queryCount;
+	int32_t queryAlertSightTime;
+	int32_t lastScriptSound;
+	int32_t inspectNum;
+	int32_t scriptPauseTime;
+	int32_t bulletImpactEntity;
+	int32_t bulletImpactTime;
+	int32_t bulletImpactIgnoreTime;
+	vec3_t bulletImpactStart;
+	vec3_t bulletImpactEnd;
+	int32_t audibleEventTime;
+	vec3_t audibleEventOrg;
+	int32_t audibleEventEnt;
+	int32_t battleChaseMarker;
+	int32_t battleChaseMarkerDir;
+	int32_t lastBattleHunted;
+	int32_t battleHuntPauseTime;
+	int32_t battleHuntViewTime;
+	int32_t lastAttackCrouch;
+	int32_t lastMoveThink;
+	int32_t numEnemies;
+	int32_t noReloadTime;
+	int32_t lastValidAreaNum[2];
+	int32_t lastValidAreaTime[2];
+	int32_t weaponNum;
+	int32_t enemyNum;
+	vec3_t ideal_viewangles;
+	vec3_t viewangles;
+	usercmd_t lastucmd;
+	int32_t attackcrouch_time;
+	int32_t bFlags;
+	int32_t deadSinkStartTime;
+	int32_t lastActivate;
+	vec3_t loperLeapVel;
 }; // struct CastState32
-//BBi
+// BBi
 
 typedef struct cast_state_s
 {
@@ -730,21 +730,21 @@ typedef struct cast_state_s
 	// -------------------------------------------------------------------------------------------
 
 
-    //BBi
-    typedef cast_state_s Struct;
-    typedef CastState32 Struct32;
+	// BBi
+	typedef cast_state_s Struct;
+	typedef CastState32 Struct32;
 
-    void convert_from_32 (const Struct32& struct32);
+	void convert_from_32 (const Struct32& struct32);
 
-    void convert_to_32 (Struct32& struct32) const;
-    //BBi
+	void convert_to_32 (Struct32& struct32) const;
+	// BBi
 } cast_state_t;
 //
 
-//BBi
+// BBi
 //#define CSFOFS( x ) ( (int)&( ( (cast_state_t *)0 )->x ) )
 #define CSFOFS(x) (offsetof (cast_state_t, x))
-//BBi
+// BBi
 
 //
 typedef struct aicast_predictmove_s

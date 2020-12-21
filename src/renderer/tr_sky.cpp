@@ -403,53 +403,53 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
 
 	GL_Bind( image );
 
-    // BBi
-    int vertex_index = 0;
-    // BBi
+	// BBi
+	int vertex_index = 0;
+	// BBi
 
 	for ( t = mins[1] + HALF_SKY_SUBDIVISIONS; t < maxs[1] + HALF_SKY_SUBDIVISIONS; t++ )
 	{
-        // BBi
-        if (glConfigEx.is_path_ogl_1_x ()) {
-        // BBi
+		// BBi
+		if (glConfigEx.is_path_ogl_1_x ()) {
+		// BBi
 
 		glBegin( GL_TRIANGLE_STRIP );
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 
 		for ( s = mins[0] + HALF_SKY_SUBDIVISIONS; s <= maxs[0] + HALF_SKY_SUBDIVISIONS; s++ )
 		{
-            // BBi
-            if (!glConfigEx.is_path_ogl_1_x ()) {
-                const float* tc;
-                const float* v;
+			// BBi
+			if (!glConfigEx.is_path_ogl_1_x ()) {
+				const float* tc;
+				const float* v;
 
-                tc = s_skyTexCoords[t][s];
-                v = s_skyPoints[t][s];
+				tc = s_skyTexCoords[t][s];
+				v = s_skyPoints[t][s];
 
-                ogl_tess2.texture_coords[0][vertex_index] = glm::vec2 (
-                    tc[0], tc[1]);
+				ogl_tess2.texture_coords[0][vertex_index] = glm::vec2 (
+					tc[0], tc[1]);
 
-                ogl_tess2.position[vertex_index] = glm::vec4 (
-                    v[0], v[1], v[2], 1.0F);
+				ogl_tess2.position[vertex_index] = glm::vec4 (
+					v[0], v[1], v[2], 1.0F);
 
-                ++vertex_index;
+				++vertex_index;
 
 
-                tc = s_skyTexCoords[t + 1][s];
-                v = s_skyPoints[t + 1][s];
+				tc = s_skyTexCoords[t + 1][s];
+				v = s_skyPoints[t + 1][s];
 
-                ogl_tess2.texture_coords[0][vertex_index] = glm::vec2 (
-                    tc[0], tc[1]);
+				ogl_tess2.texture_coords[0][vertex_index] = glm::vec2 (
+					tc[0], tc[1]);
 
-                ogl_tess2.position[vertex_index] = glm::vec4 (
-                    v[0], v[1], v[2], 1.0F);
+				ogl_tess2.position[vertex_index] = glm::vec4 (
+					v[0], v[1], v[2], 1.0F);
 
-                ++vertex_index;
-            } else {
-            // BBi
+				++vertex_index;
+			} else {
+			// BBi
 
 			glTexCoord2fv( s_skyTexCoords[t][s] );
 			glVertex3fv( s_skyPoints[t][s] );
@@ -457,34 +457,34 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
 			glTexCoord2fv( s_skyTexCoords[t + 1][s] );
 			glVertex3fv( s_skyPoints[t + 1][s] );
 
-            // BBi
-            }
-            // BBi
+			// BBi
+			}
+			// BBi
 		}
 
-        // BBi
-        if (glConfigEx.is_path_ogl_1_x ()) {
-        // BBi
+		// BBi
+		if (glConfigEx.is_path_ogl_1_x ()) {
+		// BBi
 
 		glEnd();
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 	}
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ())
-        ogl_tess2_draw (GL_TRIANGLE_STRIP, vertex_index, true, false);
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ())
+		ogl_tess2_draw (GL_TRIANGLE_STRIP, vertex_index, true, false);
+	// BBi
 }
 
 static void DrawSkySideInner( struct image_s *image, const int mins[2], const int maxs[2] ) {
 	int s, t;
 
-    // BBi
-    int vertex_index = 0;
-    // BBi
+	// BBi
+	int vertex_index = 0;
+	// BBi
 
 	GL_Bind( image );
 
@@ -495,47 +495,47 @@ static void DrawSkySideInner( struct image_s *image, const int mins[2], const in
 
 	for ( t = mins[1] + HALF_SKY_SUBDIVISIONS; t < maxs[1] + HALF_SKY_SUBDIVISIONS; t++ )
 	{
-        // BBi
-        if (glConfigEx.is_path_ogl_1_x ()) {
-        // BBi
+		// BBi
+		if (glConfigEx.is_path_ogl_1_x ()) {
+		// BBi
 
 		glBegin( GL_TRIANGLE_STRIP );
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 
 		for ( s = mins[0] + HALF_SKY_SUBDIVISIONS; s <= maxs[0] + HALF_SKY_SUBDIVISIONS; s++ )
 		{
-            // BBi
-            if (!glConfigEx.is_path_ogl_1_x ()) {
-                const float* tc;
-                const float* v;
+			// BBi
+			if (!glConfigEx.is_path_ogl_1_x ()) {
+				const float* tc;
+				const float* v;
 
-                tc = s_skyTexCoords[t][s];
-                v = s_skyPoints[t][s];
+				tc = s_skyTexCoords[t][s];
+				v = s_skyPoints[t][s];
 
-                ogl_tess2.texture_coords[0][vertex_index] = glm::vec2 (
-                    tc[0], tc[1]);
+				ogl_tess2.texture_coords[0][vertex_index] = glm::vec2 (
+					tc[0], tc[1]);
 
-                ogl_tess2.position[vertex_index] = glm::vec4 (
-                    v[0], v[1], v[2], 1.0F);
+				ogl_tess2.position[vertex_index] = glm::vec4 (
+					v[0], v[1], v[2], 1.0F);
 
-                ++vertex_index;
+				++vertex_index;
 
 
-                tc = s_skyTexCoords[t + 1][s];
-                v = s_skyPoints[t + 1][s];
+				tc = s_skyTexCoords[t + 1][s];
+				v = s_skyPoints[t + 1][s];
 
-                ogl_tess2.texture_coords[0][vertex_index] = glm::vec2 (
-                    tc[0], tc[1]);
+				ogl_tess2.texture_coords[0][vertex_index] = glm::vec2 (
+					tc[0], tc[1]);
 
-                ogl_tess2.position[vertex_index] = glm::vec4 (
-                    v[0], v[1], v[2], 1.0F);
+				ogl_tess2.position[vertex_index] = glm::vec4 (
+					v[0], v[1], v[2], 1.0F);
 
-                ++vertex_index;
-            } else {
-            // BBi
+				++vertex_index;
+			} else {
+			// BBi
 
 			glTexCoord2fv( s_skyTexCoords[t][s] );
 			glVertex3fv( s_skyPoints[t][s] );
@@ -543,26 +543,26 @@ static void DrawSkySideInner( struct image_s *image, const int mins[2], const in
 			glTexCoord2fv( s_skyTexCoords[t + 1][s] );
 			glVertex3fv( s_skyPoints[t + 1][s] );
 
-            // BBi
-            }
-            // BBi
+			// BBi
+			}
+			// BBi
 		}
 
-        // BBi
-        if (glConfigEx.is_path_ogl_1_x ()) {
-        // BBi
+		// BBi
+		if (glConfigEx.is_path_ogl_1_x ()) {
+		// BBi
 
 		glEnd();
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 	}
 
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ())
-        ogl_tess2_draw (GL_TRIANGLE_STRIP, vertex_index, true, false);
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ())
+		ogl_tess2_draw (GL_TRIANGLE_STRIP, vertex_index, true, false);
+	// BBi
 
 	glDisable( GL_BLEND );
 }
@@ -1009,31 +1009,31 @@ void RB_DrawSun( void ) {
 	}
 
 #if defined RTCW_ET
-    // BBi
-    if (glConfigEx.is_path_ogl_1_x ()) {
-    // BBi
+	// BBi
+	if (glConfigEx.is_path_ogl_1_x ()) {
+	// BBi
 
 	glPushMatrix();
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 #endif // RTCW_XX
 
 // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        glm::mat4& matrix = ogl_model_view_stack.push_and_get ();
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		glm::mat4& matrix = ogl_model_view_stack.push_and_get ();
 
-        ogl_model_view_stack.set_current (backEnd.viewParms.world.modelMatrix);
+		ogl_model_view_stack.set_current (backEnd.viewParms.world.modelMatrix);
 
-        glm::translate (matrix, glm::vec3 (
-            backEnd.viewParms.orientation.origin[0],
-            backEnd.viewParms.orientation.origin[1],
-            backEnd.viewParms.orientation.origin[2]));
+		glm::translate (matrix, glm::vec3 (
+			backEnd.viewParms.orientation.origin[0],
+			backEnd.viewParms.orientation.origin[1],
+			backEnd.viewParms.orientation.origin[2]));
 
-        ogl_tess_state.model_view.set (matrix);
-        ogl_tess_state.commit_changes ();
-    } else {
+		ogl_tess_state.model_view.set (matrix);
+		ogl_tess_state.commit_changes ();
+	} else {
 // BBi
 
 	glLoadMatrixf( backEnd.viewParms.world.modelMatrix );
@@ -1044,13 +1044,13 @@ void RB_DrawSun( void ) {
 //#else
 //	glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
 //#endif // RTCW_XX
-    glTranslatef (backEnd.viewParms.orientation.origin[0],
-        backEnd.viewParms.orientation.origin[1],
-        backEnd.viewParms.orientation.origin[2]);
+	glTranslatef (backEnd.viewParms.orientation.origin[0],
+		backEnd.viewParms.orientation.origin[1],
+		backEnd.viewParms.orientation.origin[2]);
 // BBi
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 
 	dist =  backEnd.viewParms.zFar / 1.75;      // div sqrt(3)
 
@@ -1204,8 +1204,8 @@ void RB_DrawSun( void ) {
 //#else
 //		VectorAdd( tr.sunDirection, backEnd.viewParms.orientation.axis[0], temp );
 //#endif // RTCW_XX
-        VectorAdd (tr.sunDirection, backEnd.viewParms.orientation.axis[0],
-            temp);
+		VectorAdd (tr.sunDirection, backEnd.viewParms.orientation.axis[0],
+			temp);
 // BBi
 
 		VectorNormalize( temp );
@@ -1227,19 +1227,19 @@ void RB_DrawSun( void ) {
 	glDepthRange( 0.0, 1.0 );
 
 //#if defined RTCW_ET
-    // BBi
-    if (!glConfigEx.is_path_ogl_1_x ()) {
-        ogl_tess_state.model_view.set (
-            ogl_model_view_stack.pop_and_get ());
-        ogl_tess_state.commit_changes ();
-    } else {
-    // BBi
+	// BBi
+	if (!glConfigEx.is_path_ogl_1_x ()) {
+		ogl_tess_state.model_view.set (
+			ogl_model_view_stack.pop_and_get ());
+		ogl_tess_state.commit_changes ();
+	} else {
+	// BBi
 
 	glPopMatrix();
 
-    // BBi
-    }
-    // BBi
+	// BBi
+	}
+	// BBi
 //#endif // RTCW_XX
 
 }
@@ -1296,41 +1296,41 @@ void RB_StageIteratorSky( void ) {
 		glDepthRange( 1.0, 1.0 );
 	}
 
-    // BBi
-    glm::mat4 matrix;
-    // BBi
+	// BBi
+	glm::mat4 matrix;
+	// BBi
 
 	// draw the outer skybox
 	if ( tess.shader->sky.outerbox[0] && tess.shader->sky.outerbox[0] != tr.defaultImage ) {
-        // BBi
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            matrix = glm::translate (ogl_model_view_stack.push_and_get (),
-                glm::vec3 (backEnd.viewParms.orientation.origin[0],
-                    backEnd.viewParms.orientation.origin[1],
-                    backEnd.viewParms.orientation.origin[2]));
+		// BBi
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			matrix = glm::translate (ogl_model_view_stack.push_and_get (),
+				glm::vec3 (backEnd.viewParms.orientation.origin[0],
+					backEnd.viewParms.orientation.origin[1],
+					backEnd.viewParms.orientation.origin[2]));
 
-            ogl_tess_state.model_view.set (matrix);
+			ogl_tess_state.model_view.set (matrix);
 
-            ogl_tess_state.primary_color.set (glm::vec4 (
-                tr.identityLight, tr.identityLight, tr.identityLight, 1.0F));
+			ogl_tess_state.primary_color.set (glm::vec4 (
+				tr.identityLight, tr.identityLight, tr.identityLight, 1.0F));
 
-            ogl_tess_state.commit_changes ();
-        } else {
-        // BBi
+			ogl_tess_state.commit_changes ();
+		} else {
+		// BBi
 
 		glColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
 
 		glPushMatrix();
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 
 		GL_State( 0 );
 
-        // BBi
-        if (glConfigEx.is_path_ogl_1_x ()) {
-        // BBi
+		// BBi
+		if (glConfigEx.is_path_ogl_1_x ()) {
+		// BBi
 
 // BBi
 //#if !defined RTCW_ET
@@ -1338,29 +1338,29 @@ void RB_StageIteratorSky( void ) {
 //#else
 //		glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
 //#endif // RTCW_XX
-        glTranslatef (backEnd.viewParms.orientation.origin[0],
-            backEnd.viewParms.orientation.origin[1],
-            backEnd.viewParms.orientation.origin[2]);
+		glTranslatef (backEnd.viewParms.orientation.origin[0],
+			backEnd.viewParms.orientation.origin[1],
+			backEnd.viewParms.orientation.origin[2]);
 // BBi
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 
 		DrawSkyBox( tess.shader );
 
-        // BBi
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            ogl_tess_state.model_view.set (
-                ogl_model_view_stack.pop_and_get ());
-            ogl_tess_state.commit_changes ();
-        } else {
-        // BBi
+		// BBi
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			ogl_tess_state.model_view.set (
+				ogl_model_view_stack.pop_and_get ());
+			ogl_tess_state.commit_changes ();
+		} else {
+		// BBi
 
 		glPopMatrix();
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 	}
 
 	// generate the vertexes for all the clouds, which will be drawn
@@ -1372,35 +1372,35 @@ void RB_StageIteratorSky( void ) {
 	// draw the inner skybox
 	// Rafael - drawing inner skybox
 	if ( tess.shader->sky.innerbox[0] && tess.shader->sky.innerbox[0] != tr.defaultImage ) {
-        // BBi
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            matrix = glm::translate (ogl_model_view_stack.push_and_get (),
-                glm::vec3 (backEnd.viewParms.orientation.origin[0],
-                    backEnd.viewParms.orientation.origin[1],
-                    backEnd.viewParms.orientation.origin[2]));
+		// BBi
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			matrix = glm::translate (ogl_model_view_stack.push_and_get (),
+				glm::vec3 (backEnd.viewParms.orientation.origin[0],
+					backEnd.viewParms.orientation.origin[1],
+					backEnd.viewParms.orientation.origin[2]));
 
-            ogl_tess_state.model_view.set (matrix);
+			ogl_tess_state.model_view.set (matrix);
 
-            ogl_tess_state.primary_color.set (glm::vec4 (
-                tr.identityLight, tr.identityLight, tr.identityLight, 1.0F));
+			ogl_tess_state.primary_color.set (glm::vec4 (
+				tr.identityLight, tr.identityLight, tr.identityLight, 1.0F));
 
-            ogl_tess_state.commit_changes ();
-        } else {
-        // BBi
+			ogl_tess_state.commit_changes ();
+		} else {
+		// BBi
 
 		glColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
 
 		glPushMatrix();
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 
 		GL_State( 0 );
 
-        // BBi
-        if (glConfigEx.is_path_ogl_1_x ()) {
-        // BBi
+		// BBi
+		if (glConfigEx.is_path_ogl_1_x ()) {
+		// BBi
 
 // BBi
 //#if !defined RTCW_ET
@@ -1408,29 +1408,29 @@ void RB_StageIteratorSky( void ) {
 //#else
 //		glTranslatef( backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2] );
 //#endif // RTCW_XX
-        glTranslatef (backEnd.viewParms.orientation.origin[0],
-            backEnd.viewParms.orientation.origin[1],
-            backEnd.viewParms.orientation.origin[2]);
+		glTranslatef (backEnd.viewParms.orientation.origin[0],
+			backEnd.viewParms.orientation.origin[1],
+			backEnd.viewParms.orientation.origin[2]);
 // BBi
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 
 		DrawSkyBoxInner( tess.shader );
 
-        // BBi
-        if (!glConfigEx.is_path_ogl_1_x ()) {
-            ogl_tess_state.model_view.set (
-                ogl_model_view_stack.pop_and_get ());
-            ogl_tess_state.commit_changes ();
-        } else {
-        // BBi
+		// BBi
+		if (!glConfigEx.is_path_ogl_1_x ()) {
+			ogl_tess_state.model_view.set (
+				ogl_model_view_stack.pop_and_get ());
+			ogl_tess_state.commit_changes ();
+		} else {
+		// BBi
 
 		glPopMatrix();
 
-        // BBi
-        }
-        // BBi
+		// BBi
+		}
+		// BBi
 	}
 	// Rafael - end
 

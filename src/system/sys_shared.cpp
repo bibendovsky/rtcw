@@ -40,41 +40,41 @@ If you have questions concerning this license or the applicable additional terms
 
 int Sys_Milliseconds()
 {
-    static int time_base = 0;
-    static bool is_initialized = false;
+	static int time_base = 0;
+	static bool is_initialized = false;
 
-    if (!is_initialized) {
-        time_base = static_cast<int>(SDL_GetTicks());
-        is_initialized = true;
-    }
+	if (!is_initialized) {
+		time_base = static_cast<int>(SDL_GetTicks());
+		is_initialized = true;
+	}
 
-    int sys_curtime = static_cast<int>(SDL_GetTicks()) - time_base;
-    return sys_curtime;
+	int sys_curtime = static_cast<int>(SDL_GetTicks()) - time_base;
+	return sys_curtime;
 }
 
 void Sys_SnapVector(float* v)
 {
-    v[0] = static_cast<float>(static_cast<int>(v[0]));
-    v[1] = static_cast<float>(static_cast<int>(v[1]));
-    v[2] = static_cast<float>(static_cast<int>(v[2]));
+	v[0] = static_cast<float>(static_cast<int>(v[0]));
+	v[1] = static_cast<float>(static_cast<int>(v[1]));
+	v[2] = static_cast<float>(static_cast<int>(v[2]));
 }
 
 int Sys_GetProcessorId()
 {
-    return CPUID_GENERIC;
+	return CPUID_GENERIC;
 }
 
 const char* Sys_GetCurrentUser()
 {
-    return "player";
+	return "player";
 }
 
 const char* Sys_DefaultHomePath()
 {
-    return NULL;
+	return NULL;
 }
 
 const char* Sys_DefaultInstallPath()
 {
-    return Sys_Cwd();
+	return Sys_Cwd();
 }

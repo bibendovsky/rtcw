@@ -175,8 +175,8 @@ G_Script_EventMatch_IntInRange
 ===============
 */
 qboolean G_Script_EventMatch_IntInRange( g_script_event_t *event, const char *eventParm ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	int int1, int2, eInt;
 
 	// get the cast name
@@ -286,8 +286,8 @@ G_Script_ScriptParse
 */
 void G_Script_ScriptParse( gentity_t *ent ) {
 	#define MAX_SCRIPT_EVENTS   64
-    const char* pScript;
-    char* token;
+	const char* pScript;
+	char* token;
 	qboolean wantName;
 	qboolean inScript;
 	int eventNum;

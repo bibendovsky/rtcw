@@ -973,12 +973,12 @@ static void CG_DamageBlendBlob( void ) {
 	viewDamage_t *vd;
 	float redFlash;
 
-    //BBi
+	// BBi
 	//// ragePro systems can't fade blends, so don't obscure the screen
 	//if ( cgs.glconfig.hardwareType == GLHW_RAGEPRO ) {
 	//	return;
 	//}
-    //BBi
+	// BBi
 
 	redFlash = 0;
 

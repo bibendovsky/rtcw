@@ -60,7 +60,7 @@ G_ScriptAction_GotoMarker
 */
 qboolean G_ScriptAction_GotoMarker( gentity_t *ent, const char* params ) {
 	const char    *pString;
-    char* token;
+	char* token;
 	gentity_t *target;
 	vec3_t vec;
 	float speed, dist;
@@ -255,7 +255,7 @@ G_ScriptAction_Wait
 */
 qboolean G_ScriptAction_Wait( gentity_t *ent, const char* params ) {
 	const char    *pString;
-    char* token;
+	char* token;
 	int duration;
 
 	// get the duration
@@ -281,9 +281,9 @@ G_ScriptAction_Trigger
 qboolean G_ScriptAction_Trigger( gentity_t *ent, const char* params ) {
 	gentity_t *trent;
 	const char *pString;
-    char name[MAX_QPATH];
-    char trigger[MAX_QPATH];
-    char* token;
+	char name[MAX_QPATH];
+	char trigger[MAX_QPATH];
+	char* token;
 	int oldId;
 
 	// get the cast name
@@ -333,7 +333,7 @@ G_ScriptAction_PlaySound
 */
 qboolean G_ScriptAction_PlaySound( gentity_t *ent, const char* params ) {
 	const char *pString;
-    char* token;
+	char* token;
 	char sound[MAX_QPATH];
 
 	if ( !params ) {
@@ -365,8 +365,8 @@ G_ScriptAction_PlayAnim
 */
 qboolean G_ScriptAction_PlayAnim( gentity_t *ent, const char* params ) {
 	const char *pString;
-    char* token;
-    char tokens[2][MAX_QPATH];
+	char* token;
+	char tokens[2][MAX_QPATH];
 	int i;
 	// TTimo might be used uninitialized
 	int endtime = 0;
@@ -524,8 +524,8 @@ G_ScriptAction_Accum
 */
 qboolean G_ScriptAction_Accum( gentity_t *ent, const char* params ) {
 	const char *pString;
-    char* token;
-    char lastToken[MAX_QPATH];
+	char* token;
+	char lastToken[MAX_QPATH];
 	int bufferIndex;
 
 	pString = params;
@@ -708,7 +708,7 @@ G_ScriptAction_FaceAngles
 */
 qboolean G_ScriptAction_FaceAngles( gentity_t *ent, const char* params ) {
 	const char* pString;
-    char* token;
+	char* token;
 	int duration, i;
 	vec3_t diff;
 	vec3_t angles;
@@ -821,7 +821,7 @@ G_ScriptAction_TagConnect
 */
 qboolean G_ScriptAction_TagConnect( gentity_t *ent, const char* params ) {
 	const char* pString;
-    char* token;
+	char* token;
 	gentity_t *parent;
 
 	pString = params;
@@ -921,8 +921,8 @@ G_ScriptAction_StartCam
 ===================
 */
 qboolean G_ScriptAction_StartCam( gentity_t *ent, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	gentity_t *player;
 
 	pString = params;
@@ -976,8 +976,8 @@ G_ScriptAction_MapDescription
 ===================
 */
 qboolean G_ScriptAction_MapDescription( gentity_t *ent, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char cs[MAX_STRING_CHARS];
 
 	pString = params;
@@ -1001,8 +1001,8 @@ G_ScriptAction_OverviewImage
 ===================
 */
 qboolean G_ScriptAction_OverviewImage( gentity_t *ent, const char* params ) {         // NERVE - SMF
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char cs[MAX_STRING_CHARS];
 
 	pString = params;
@@ -1031,8 +1031,8 @@ G_ScriptAction_AxisRespawntime
 ===================
 */
 qboolean G_ScriptAction_AxisRespawntime( gentity_t *ent, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 
 	pString = params;
 	token = COM_Parse( &pString );
@@ -1057,8 +1057,8 @@ G_ScriptAction_AlliedRespawntime
 ===================
 */
 qboolean G_ScriptAction_AlliedRespawntime( gentity_t *ent, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 
 	pString = params;
 	token = COM_Parse( &pString );
@@ -1083,8 +1083,8 @@ G_ScriptAction_NumberofObjectives
 ===================
 */
 qboolean G_ScriptAction_NumberofObjectives( gentity_t *ent, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char cs[MAX_STRING_CHARS];
 
 	int num;
@@ -1120,8 +1120,8 @@ G_ScriptAction_ObjectiveAxisDesc
 ===================
 */
 qboolean G_ScriptAction_ObjectiveAxisDesc( gentity_t *ent, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char cs[MAX_STRING_CHARS];
 
 	int num, cs_obj = CS_MULTI_OBJECTIVE1;
@@ -1167,8 +1167,8 @@ G_ScriptAction_ObjectiveShortAxisDesc
 ===================
 */
 qboolean G_ScriptAction_ObjectiveShortAxisDesc( gentity_t *ent, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char cs[MAX_STRING_CHARS];
 
 	int num, cs_obj = CS_MULTI_OBJECTIVE1;
@@ -1212,8 +1212,8 @@ G_ScriptAction_ObjectiveAlliedDesc
 ===================
 */
 qboolean G_ScriptAction_ObjectiveAlliedDesc( gentity_t *ent, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char cs[MAX_STRING_CHARS];
 
 	int num, cs_obj = CS_MULTI_OBJECTIVE1;
@@ -1259,8 +1259,8 @@ G_ScriptAction_ObjectiveShortAlliedDesc
 ===================
 */
 qboolean G_ScriptAction_ObjectiveShortAlliedDesc( gentity_t *ent, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char cs[MAX_STRING_CHARS];
 
 	int num, cs_obj = CS_MULTI_OBJECTIVE1;
@@ -1304,8 +1304,8 @@ G_ScriptAction_ObjectiveImage
 ===================
 */
 qboolean G_ScriptAction_ObjectiveImage( gentity_t *ent, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char cs[MAX_STRING_CHARS];
 
 	int num, cs_obj = CS_MULTI_OBJECTIVE1;
@@ -1351,8 +1351,8 @@ G_ScriptAction_SetWinner
 ===================
 */
 qboolean G_ScriptAction_SetWinner( gentity_t *ent, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char cs[MAX_STRING_CHARS];
 	int num;
 
@@ -1393,8 +1393,8 @@ G_ScriptAction_SetObjectiveStatus
 ===================
 */
 qboolean G_ScriptAction_SetObjectiveStatus( gentity_t *ent, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char cs[MAX_STRING_CHARS];
 
 	int num, status, cs_obj = CS_MULTI_OBJ1_STATUS;
@@ -1451,8 +1451,8 @@ G_ScriptAction_SetDefendingTeam
 ===================
 */
 qboolean G_ScriptAction_SetDefendingTeam( gentity_t *ent, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	char cs[MAX_STRING_CHARS];
 	int num;
 
@@ -1488,8 +1488,8 @@ G_ScriptAction_Announce
 ===================
 */
 qboolean G_ScriptAction_Announce( gentity_t *ent, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 
 	if ( level.intermissiontime ) {
 		return qtrue;
@@ -1534,8 +1534,8 @@ G_ScriptAction_SetRoundTimelimit
 ===================
 */
 qboolean G_ScriptAction_SetRoundTimelimit( gentity_t *ent, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	float nextTimeLimit;
 
 	pString = params;

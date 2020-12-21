@@ -3752,7 +3752,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, void( trace ) ( tra
 #if 0
 	tpm.trace = &trace;
 #else
-    tpm.trace = trace;
+	tpm.trace = trace;
 #endif
 
 //	tpm.trace (&trace, start, tmins, tmaxs, end, ps->clientNum, MASK_PLAYERSOLID);

@@ -3,185 +3,252 @@
 //
 
 
-#ifndef RTCW_ENDIAN_H
-#define RTCW_ENDIAN_H
+#ifndef RTCW_ENDIAN_INCLUDED
+#define RTCW_ENDIAN_INCLUDED
 
 
 #include "SDL_endian.h"
 
 
-namespace rtcw {
+namespace rtcw
+{
 
 
-class Endian {
+class Endian
+{
 public:
-    // Returns "true" if system's endianness is big-endian.
-    static bool is_big()
-    {
+	// Returns "true" if system's endianness is big-endian.
+	static constexpr bool is_big() noexcept
+	{
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-        return false;
+		return false;
 #elif SDL_BYTEORDER == SDL_BIG_ENDIAN
-        return true;
+		return true;
 #endif
-    }
+	}
 
-    // Returns "true" if system's endianness is little-endian.
-    static bool is_little()
-    {
+	// Returns "true" if system's endianness is little-endian.
+	static constexpr bool is_little() noexcept
+	{
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-        return true;
+		return true;
 #elif SDL_BYTEORDER == SDL_BIG_ENDIAN
-        return false;
+		return false;
 #endif
-    }
+	}
 
-    // Swaps bytes on non little-endian system.
-    template<class T>
-    static T le(const T value)
-    {
+	// Swaps bytes on non little-endian system.
+	template<
+		typename T
+	>
+	static T le(
+		T value)
+	{
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-        return value;
+		return value;
 #elif SDL_BYTEORDER == SDL_BIG_ENDIAN
-        return le_be(value);
+		return le_be(value);
 #endif
-    }
+	}
 
-    // Copies an array of elements with swapped bytes into another array
-    // on non little-endian system.
-    template<class T, size_t N>
-    static void le(const T (&src_data)[N], T (&dst_data)[N])
-    {
-        for (size_t i = 0; i < N; ++i)
-            dst_data[i] = le(src_data[i]);
-    }
+	// Copies an array of elements with swapped bytes into another array
+	// on non little-endian system.
+	template<
+		typename T,
+		std::size_t N
+	>
+	static void le(
+		const T (&src_data)[N],
+		T (&dst_data)[N])
+	{
+		for (std::size_t i = 0; i < N; ++i)
+		{
+			dst_data[i] = le(src_data[i]);
+		}
+	}
 
-    // Copies an array of elements with swapped bytes into another array
-    // on non little-endian system.
-    template<class T>
-    static void le(const T* src_data, size_t count, T* dst_data)
-    {
-        for (size_t i = 0; i < count; ++i)
-            dst_data[i] = le(src_data[i]);
-    }
+	// Copies an array of elements with swapped bytes into another array
+	// on non little-endian system.
+	template<
+		typename T
+	>
+	static void le(
+		const T* src_data,
+		std::size_t count,
+		T* dst_data)
+	{
+		for (std::size_t i = 0; i < count; ++i)
+		{
+			dst_data[i] = le(src_data[i]);
+		}
+	}
 
-    // Swaps bytes on non big-endian system.
-    template<class T>
-    static T be(const T value)
-    {
+	// Swaps bytes on non big-endian system.
+	template<
+		typename T
+	>
+	static T be(
+		T value)
+	{
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-        return value;
+		return value;
 #elif SDL_BYTEORDER == SDL_LIL_ENDIAN
-        return le_be(value);
+		return le_be(value);
 #endif
-    }
+	}
 
-    // Copies an array of elements with swapped bytes into another array
-    // on non big-endian system.
-    template<class T, size_t N>
-    static void be(const T (&src_data)[N], T (&dst_data)[N])
-    {
-        for (size_t i = 0; i < N; ++i)
-            dst_data[i] = be(src_data[i]);
-    }
+	// Copies an array of elements with swapped bytes into another array
+	// on non big-endian system.
+	template<
+		typename T,
+		std::size_t N
+	>
+	static void be(
+		const T (&src_data)[N],
+		T (&dst_data)[N])
+	{
+		for (std::size_t i = 0; i < N; ++i)
+		{
+			dst_data[i] = be(src_data[i]);
+		}
+	}
 
-    // Copies an array of elements with swapped bytes into another array
-    // on non big-endian system.
-    template<class T>
-    static void be(const T* src_data, size_t count, T* dst_data)
-    {
-        for (size_t i = 0; i < count; ++i)
-            dst_data[i] = be(src_data[i]);
-    }
+	// Copies an array of elements with swapped bytes into another array
+	// on non big-endian system.
+	template<
+		typename T
+	>
+	static void be(
+		const T* src_data,
+		std::size_t count,
+		T* dst_data)
+	{
+		for (std::size_t i = 0; i < count; ++i)
+		{
+			dst_data[i] = be(src_data[i]);
+		}
+	}
 
-    // Swaps bytes in place on non little-endian system.
-    template<class T>
-    static void lei(T& value)
-    {
+	// Swaps bytes in place on non little-endian system.
+	template<
+		typename T
+	>
+	static void lei(
+		T& value)
+	{
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-        lei_bei(value);
+		lei_bei(value);
 #endif
-    }
+	}
 
-    // Swaps bytes in place of an array of elements
-    // on non little-endian system.
-    template<class T, size_t N>
-    static void lei(T (&data)[N])
-    {
-        for (size_t i = 0; i < N; ++i)
-            lei(data[i]);
-    }
+	// Swaps bytes in place of an array of elements
+	// on non little-endian system.
+	template<
+		typename T,
+		std::size_t N
+	>
+	static void lei(
+		T (&data)[N])
+	{
+		for (std::size_t i = 0; i < N; ++i)
+		{
+			lei(data[i]);
+		}
+	}
 
-    // Swaps bytes in place of an array of elements
-    // on non little-endian system.
-    template<class T>
-    static void lei(T* data, size_t count)
-    {
-        for (size_t i = 0; i < count; ++i)
-            lei(data[i]);
-    }
+	// Swaps bytes in place of an array of elements
+	// on non little-endian system.
+	template<
+		typename T
+	>
+	static void lei(
+		T* data,
+		std::size_t count)
+	{
+		for (std::size_t i = 0; i < count; ++i)
+		{
+			lei(data[i]);
+		}
+	}
 
-    // Swaps bytes in place on non big-endian system.
-    template<class T>
-    static void bei(T& value)
-    {
+	// Swaps bytes in place on non big-endian system.
+	template<
+		typename T>
+	static void bei(
+		T& value)
+	{
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-        lei_bei(value);
+		lei_bei(value);
 #endif
-    }
+	}
 
-    // Swaps bytes in place of an array of elements
-    // on non big-endian system.
-    template<class T, size_t N>
-    static void bei(T (&data)[N])
-    {
-        for (size_t i = 0; i < N; ++i)
-            bei(data[i]);
-    }
+	// Swaps bytes in place of an array of elements
+	// on non big-endian system.
+	template<
+		typename T,
+		std::size_t N
+	>
+	static void bei(
+		T (&data)[N])
+	{
+		for (std::size_t i = 0; i < N; ++i)
+		{
+			bei(data[i]);
+		}
+	}
 
-    // Swaps bytes in place of an array of elements
-    // on non big-endian system.
-    template<class T>
-    static void bei(T* data, size_t count)
-    {
-        for (size_t i = 0; i < count; ++i)
-            bei(data[i]);
-    }
+	// Swaps bytes in place of an array of elements
+	// on non big-endian system.
+	template<
+		typename T
+	>
+	static void bei(
+		T* data,
+		std::size_t count)
+	{
+		for (std::size_t i = 0; i < count; ++i)
+		{
+			bei(data[i]);
+		}
+	}
 
 
 private:
-    Endian();
-    Endian(const Endian& that);
-    ~Endian();
-    Endian& operator=(const Endian& that);
+	// Swaps bytes.
+	template<
+		typename T>
+	static T le_be(
+		const T& value)
+	{
+		T result;
+
+		for (std::size_t i = 0, j = sizeof(T) - 1; i < sizeof(T); ++i, --j)
+		{
+			(reinterpret_cast<char*>(&result))[i] =
+				(reinterpret_cast<const char*>(&value))[j];
+		}
+
+		return result;
+	}
+
+	// Swaps bytes in place.
+	template<
+		typename T
+	>
+	static void lei_bei(
+		T& value)
+	{
+		for (std::size_t i = 0, j = sizeof(T) - 1, n = sizeof(T) / 2; i < n; ++i, --j)
+		{
+			std::swap(
+				(reinterpret_cast<char*>(&value))[i],
+				(reinterpret_cast<char*>(&value))[j]);
+		}
+	}
+}; // Endian
 
 
-    // Swaps bytes.
-    template<class T>
-    static T le_be(const T& value)
-    {
-        T result;
-
-        for (size_t i = 0, j = sizeof(T) - 1; i < sizeof(T); ++i, --j) {
-            (reinterpret_cast<char*>(&result))[i] =
-                (reinterpret_cast<const char*>(&value))[j];
-        }
-
-        return result;
-    }
-
-    // Swaps bytes in place.
-    template<class T>
-    static void lei_bei(T& value)
-    {
-        for (size_t i = 0, j = sizeof(T) - 1, n = sizeof(T) / 2; i < n; ++i, --j) {
-            std::swap((reinterpret_cast<char*>(&value))[i],
-                (reinterpret_cast<char*>(&value))[j]);
-        }
-    }
-}; // class Endian
+} // rtcw
 
 
-} // namespace rtcw
-
-
-#endif // RTCW_ENDIAN_H
+#endif // !RTCW_ENDIAN_INCLUDED

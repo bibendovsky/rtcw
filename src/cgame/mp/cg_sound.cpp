@@ -239,8 +239,8 @@ CG_SoundParseSounds
 ===============
 */
 static void CG_SoundParseSounds( char *filename, const char *buffer ) {
-    char *token;
-    const char** text;
+	char *token;
+	const char** text;
 	int s;
 	long hash;
 	soundScript_t sound;                // the current sound being read
@@ -374,7 +374,7 @@ CG_SoundLoadSoundFiles
 static void CG_SoundLoadSoundFiles( void ) {
 	char soundFiles[MAX_SOUND_FILES][MAX_QPATH];
 	char buffer[MAX_BUFFER];
-    const char* text;
+	const char* text;
 	char filename[MAX_QPATH];
 	fileHandle_t f;
 	int numSounds;

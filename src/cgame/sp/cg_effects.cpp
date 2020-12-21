@@ -153,7 +153,7 @@ localEntity_t *CG_SmokePuff( const vec3_t p, const vec3_t vel,
 	VectorCopy( p, re->origin );
 	re->customShader = hShader;
 
-    //BBi
+	// BBi
 	//// rage pro can't alpha fade, so use a different shader
 	//if ( cgs.glconfig.hardwareType == GLHW_RAGEPRO ) {
 	//	re->customShader = cgs.media.smokePuffRageProShader;
@@ -162,16 +162,16 @@ localEntity_t *CG_SmokePuff( const vec3_t p, const vec3_t vel,
 	//	re->shaderRGBA[2] = 0xff;
 	//	re->shaderRGBA[3] = 0xff;
 	//} else {
-    //BBi
+	// BBi
 
 		re->shaderRGBA[0] = le->color[0] * 0xff;
 		re->shaderRGBA[1] = le->color[1] * 0xff;
 		re->shaderRGBA[2] = le->color[2] * 0xff;
 		re->shaderRGBA[3] = 0xff;
 
-    //BBi
+	// BBi
 	//}
-    //BBi
+	// BBi
 
 	re->reType = RT_SPRITE;
 	re->radius = le->radius;

@@ -31,20 +31,20 @@ If you have questions concerning this license or the applicable additional terms
 // this file is only included when building a dll
 // syscalls.asm is included instead when building a qvm
 
-//BBi
+// BBi
 //static int ( QDECL * syscall )( int arg, ... ) = ( int ( QDECL * )( int, ... ) ) - 1;
 static intptr_t (QDECL* syscall) (intptr_t arg, ...) = (intptr_t (QDECL*) (intptr_t, ...)) - 1;
-//BBi
+// BBi
 
 #if defined( __MACOS__ )
 #pragma export on
 #endif
 
-//BBi
+// BBi
 //void dllEntry( int ( QDECL *syscallptr )( int arg,... ) ) {
 extern "C" void dllEntry (intptr_t (QDECL* syscallptr) (intptr_t arg, ...))
 {
-//BBi
+// BBi
 
 #if defined( __MACOS__ )
 #pragma export off
@@ -52,7 +52,7 @@ extern "C" void dllEntry (intptr_t (QDECL* syscallptr) (intptr_t arg, ...))
 	syscall = syscallptr;
 }
 
-//BBi
+// BBi
 //int PASSFLOAT( float x ) {
 //	float floatTemp;
 //	floatTemp = x;
@@ -60,15 +60,15 @@ extern "C" void dllEntry (intptr_t (QDECL* syscallptr) (intptr_t arg, ...))
 //}
 
 intptr_t PASSFLOAT (
-    float x)
+	float x)
 {
-    intptr_t result;
+	intptr_t result;
 
-    *reinterpret_cast<float*> (&result) = x;
+	*reinterpret_cast<float*> (&result) = x;
 
-    return result;
+	return result;
 }
-//BBi
+// BBi
 
 void trap_Print( const char *string ) {
 	syscall( UI_PRINT, string );

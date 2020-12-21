@@ -108,8 +108,8 @@ Bot_ScriptAction_Print
 */
 qboolean Bot_ScriptAction_Print( bot_state_t *bs, const char* params ) {
 	const char *pString;
-    char* token;
-    const char* printThis;
+	char* token;
+	const char* printThis;
 	int printLevel = 0;
 
 	if ( !params || !params[0] ) {
@@ -153,8 +153,8 @@ Bot_ScriptAction_SetAccumToPlayerCount
 */
 qboolean Bot_ScriptAction_SetAccumToPlayerCount( bot_state_t *bs, const char* params ) {
 	const char* pStr;
-    const char* pStrBackup;
-    char* token;
+	const char* pStrBackup;
+	char* token;
 	int count, i, val, accum, weapons[2];
 	gitem_t *item = NULL;
 	gentity_t   *ent;
@@ -361,8 +361,8 @@ qboolean Bot_ScriptAction_Trigger( bot_state_t *bs, const char* params );
 
 qboolean Bot_ScriptAction_Accum( bot_state_t *bs, const char* params ) {
 	const char *pString;
-    char *token;
-    char lastToken[MAX_QPATH];
+	char *token;
+	char lastToken[MAX_QPATH];
 	int bufferIndex;
 
 	pString = params;
@@ -496,7 +496,7 @@ Bot_ScriptAction_MoveToMarker
 */
 qboolean Bot_ScriptAction_MoveToMarker( bot_state_t *bs, const char* params ) {
 	const char *pString;
-    char* token;
+	char* token;
 	g_serverEntity_t *target;
 	vec3_t vec;
 
@@ -602,9 +602,9 @@ Bot_ScriptAction_Trigger
 qboolean Bot_ScriptAction_Trigger( bot_state_t *bs, const char* params ) {
 	gentity_t *trent, *ent;
 	const char *pString;
-    char name[MAX_QPATH];
-    char trigger[MAX_QPATH];
-    char* token;
+	char name[MAX_QPATH];
+	char trigger[MAX_QPATH];
+	char* token;
 	int oldId, i;
 	qboolean terminate, found;
 
@@ -791,7 +791,7 @@ Bot_ScriptAction_SetAttribute
 qboolean Bot_ScriptAction_SetAttribute( bot_state_t *bs, const char* params ) {
 	int i;
 	const char *pString;
-    char* token;
+	char* token;
 
 	// get the attribString
 	pString = params;
@@ -1030,8 +1030,8 @@ Bot_ScriptAction_GlobalAccum
 */
 qboolean Bot_ScriptAction_GlobalAccum( bot_state_t *bs, const char* params ) {
 	const char *pString;
-    char *token;
-    char lastToken[MAX_QPATH];
+	char *token;
+	char lastToken[MAX_QPATH];
 	int bufferIndex;
 
 	pString = params;
@@ -1141,7 +1141,7 @@ Bot_ScriptAction_FollowLeader
 */
 qboolean Bot_ScriptAction_FollowLeader( bot_state_t *bs, const char* params ) {
 	const char *pString;
-    char* token;
+	char* token;
 	gentity_t   *target;
 //	vec3_t	vec;
 	int duration;
@@ -1208,10 +1208,10 @@ Bot_ScriptAction_Cvar
 */
 qboolean Bot_ScriptAction_Cvar( bot_state_t *bs, const char* params ) {
 	const char *pString;
-    char* token;
-    char lastToken[MAX_QPATH];
-    char name[MAX_QPATH];
-    char cvarName[MAX_QPATH];
+	char* token;
+	char lastToken[MAX_QPATH];
+	char name[MAX_QPATH];
+	char cvarName[MAX_QPATH];
 	int cvarValue;
 	qboolean terminate, found;
 
@@ -1399,8 +1399,8 @@ Bot_ScriptAction_MovementAutonomy
 */
 qboolean Bot_ScriptAction_MovementAutonomy( bot_state_t *bs, const char* params ) {
 	const char *pString;
-    char* token;
-    char* operand;
+	char* token;
+	char* operand;
 	int maLevel;
 
 	if ( !params || !params[0] ) {
@@ -1575,8 +1575,8 @@ qboolean Bot_ScriptAction_SetCrouch
 	bot_state_t *bs,
 	const char *params
 ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 
 	if ( !params || !params[0] ) {
 		G_Error( "Bot_ScriptAction_SetCrouch: syntax: SetCrouch <On/Off>\n" );
@@ -1606,8 +1606,8 @@ qboolean Bot_ScriptAction_SetProne
 	bot_state_t *bs,
 	const char *params
 ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 
 	if ( !params || !params[0] ) {
 		G_Error( "Bot_ScriptAction_SetProne: syntax: SetProne <On/Off>\n" );
@@ -1642,7 +1642,7 @@ G_ScriptAction_PrintAccum
 */
 qboolean Bot_ScriptAction_PrintAccum( bot_state_t *bs, const char* params ) {
 	char *token;
-    const char* pString;
+	const char* pString;
 	gentity_t *ent;
 	int bufferIndex;
 
@@ -1683,8 +1683,8 @@ Bot_ScriptAction_PrintGlobalAccum
 */
 //qboolean Bot_ScriptAction_PrintGlobalAccum( gentity_t *ent, char *params ) {
 qboolean Bot_ScriptAction_PrintGlobalAccum( bot_state_t *bs, const char* params ) {
-    char* token;
-    const char* pString;
+	char* token;
+	const char* pString;
 	int bufferIndex;
 
 	if ( !params || !params[0] ) {
@@ -1728,8 +1728,8 @@ Bot_ScriptAction_BotDebugging
 */
 //qboolean Bot_ScriptAction_BotDebugging( gentity_t *ent, char *params ) {
 qboolean Bot_ScriptAction_BotDebugging( bot_state_t *bs, const char* params ) {
-    char* token;
-    const char* pString;
+	char* token;
+	const char* pString;
 
 	if ( !params || !params[0] ) {
 		G_Error( "Bot_ScriptAction_BotDebugging: syntax: BotDebugging <ON/OFF>\n" );
@@ -1766,8 +1766,8 @@ Bot_ScriptAction_SetFireRate
 =======================
 */
 qboolean Bot_ScriptAction_SetFireRate( bot_state_t *bs, const char* params ) {
-    char* token;
-    const char* pString;
+	char* token;
+	const char* pString;
 	float fireRate;
 
 	if ( !params || !params[0] ) {
@@ -1803,8 +1803,8 @@ Bot_ScriptAction_SetFireCycleTime
 =======================
 */
 qboolean Bot_ScriptAction_SetFireCycleTime( bot_state_t *bs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 
 	if ( !params || !params[0] ) {
 		G_Error( "Bot_ScriptAction_SetFireCycleTime: syntax: SetFireCycleTime <minimum time in msec> <maximum time in msec>\n" );
@@ -1837,8 +1837,8 @@ Set a maximum vision range for bots to see you
 =======================
 */
 qboolean Bot_ScriptAction_SetVisionRange( bot_state_t *bs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	float visionRange = 0;
 
 	if ( !params || !params[0] ) {
@@ -1870,8 +1870,8 @@ Set a maximum vision range for bots to "spot and report" not attack
 =======================
 */
 qboolean Bot_ScriptAction_SetFarSeeingRange( bot_state_t *bs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	float farSeeingRange = 0;
 
 	if ( !params || !params[0] ) {
@@ -1903,8 +1903,8 @@ When an enemy is this close, you can sense them outside FOV
 =======================
 */
 qboolean Bot_ScriptAction_SetCloseHearingRange( bot_state_t *bs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	float closeHearingRange = 0;
 
 	if ( !params || !params[0] ) {
@@ -1982,8 +1982,8 @@ Bot_ScriptAction_Announce
 ===================
 */
 qboolean Bot_ScriptAction_Announce( bot_state_t *bs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 
 	if ( level.intermissiontime ) {
 		return qtrue;
@@ -2010,8 +2010,8 @@ Bot_ScriptAction_FireAtTarget
 qboolean Bot_ScriptAction_FireAtTarget( bot_state_t *bs, const char* params ) {
 	gentity_t   *ent;
 	vec3_t vec, org, src;
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	float diff;
 	int i;
 
@@ -2162,8 +2162,8 @@ qboolean Bot_ScriptAction_SetScriptAutonomy( bot_state_t *bs, const char* params
 // TAT 12/14/2002 - Set how much ammo we have for a particular weapon
 //		Doesn't change the current weapon loadout (which weapons we carry)
 qboolean Bot_ScriptAction_SetAmmoAmount( bot_state_t *bs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 	int weapon, amount;
 	qboolean clipOnly = qfalse;
 
@@ -2225,8 +2225,8 @@ qboolean Bot_ScriptAction_SetAmmoAmount( bot_state_t *bs, const char* params ) {
 }
 
 qboolean Bot_ScriptAction_SetCivilian( bot_state_t *bs, const char* params ) {
-    const char* pString;
-    char* token;
+	const char* pString;
+	char* token;
 
 	if ( !params || !params[0] ) {
 		Bot_ScriptError( bs, "Bot_ScriptAction_SetCivilian: syntax: SetCivilian <Yes/No>" );
