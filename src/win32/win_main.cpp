@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+
+#if FIXME
 // win_main.h
 
 #include "client.h"
@@ -70,6 +72,7 @@ If you have questions concerning this license or the applicable additional terms
 #define CD_BASEDIR_LINUX    "bin\\x86\\glibc-2.1"
 #define CD_EXE_LINUX "et"
 #endif // RTCW_XX
+
 
 #define MEM_THRESHOLD 96 * 1024 * 1024
 
@@ -343,7 +346,6 @@ void Sys_Print( const char *msg ) {
 	Conbuf_AppendText( msg );
 }
 
-
 /*
 ==============
 Sys_Mkdir
@@ -574,7 +576,6 @@ void    Sys_FreeFileList( char **list ) {
 
 //========================================================
 
-
 /*
 ================
 Sys_ScanForCD
@@ -652,8 +653,6 @@ char* Sys_GetClipboardData()
 
 	return NULL;
 }
-
-
 
 /*
 ========================================================================
@@ -838,7 +837,6 @@ void* QDECL Sys_LoadDll(
 
 	return libHandle;
 }
-
 
 /*
 ========================================================================
@@ -1032,7 +1030,6 @@ void Sys_Init( void ) {
 #endif // RTCW_XX
 }
 
-
 //=======================================================================
 
 int totalMsec, countMsec;
@@ -1162,3 +1159,4 @@ bool Sys_IsNumLockDown()
 }
 #endif // RTCW_XX
 
+#endif // FIXME

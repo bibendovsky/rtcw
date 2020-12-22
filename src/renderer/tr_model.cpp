@@ -28,10 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 
 // tr_models.c -- model loading and caching
 
-// BBi
-#include <windows.h>
-// BBi
-
 #include "tr_local.h"
 
 #define LL( x ) x = rtcw::Endian::le( x )

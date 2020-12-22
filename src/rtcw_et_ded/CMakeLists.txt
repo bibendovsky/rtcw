@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.8.2 FATAL_ERROR)
 project (rtcw_et_ded VERSION 1.0.0 LANGUAGES CXX)
 
 message (STATUS "")
@@ -21,7 +21,7 @@ add_executable (${PROJECT_NAME} "")
 set_target_properties (
 	${PROJECT_NAME}
 	PROPERTIES
-		CXX_STANDARD 14
+		CXX_STANDARD 17
 		CXX_STANDARD_REQUIRED ON
 		CXX_EXTENSIONS OFF
 )
@@ -216,11 +216,10 @@ target_sources (
 		../system/rtcw_input_mouse.h
 		../system/sys_events.h
 		../system/sys_input.h
+		../system/sys_local.h
 		../ui/keycodes.h
 		../ui/ui_public.h
-		../win32/glw_win.h
 		../win32/rtcw_et_resource.h
-		../win32/win_local.h
 )
 
 if (WIN32)
@@ -293,10 +292,10 @@ target_sources (
 		../server/sv_world.cpp
 		../system/imgui_sdl.cpp
 		../system/sys_events.cpp
+		../system/sys_main.cpp
 		../system/sys_net.cpp
 		../system/sys_shared.cpp
 		../system/sys_syscon.cpp
-		../win32/win_main.cpp
 )
 
 if (WIN32)

@@ -834,7 +834,7 @@ char* Sys_ConsoleInput()
 }
 
 void Conbuf_AppendText(
-	const char* const text)
+	const char* text)
 {
 	append_text_to_log(text);
 }

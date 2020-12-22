@@ -30,8 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 
 // BBi
 #include <vector>
-
-#include <windows.h>
 // BBi
 
 #include "tr_local.h"

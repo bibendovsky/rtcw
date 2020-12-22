@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.8.2 FATAL_ERROR)
 project (rtcw_game_sp VERSION 1.0.0 LANGUAGES CXX)
 
 message (STATUS "")
@@ -20,7 +20,7 @@ add_library (${PROJECT_NAME} SHARED "")
 set_target_properties (
 	${PROJECT_NAME}
 	PROPERTIES
-		CXX_STANDARD 14
+		CXX_STANDARD 17
 		CXX_STANDARD_REQUIRED ON
 		CXX_EXTENSIONS OFF
 )
