@@ -898,7 +898,7 @@ static void GetClipboardData( char *buf, int buflen ) {
 
 	Q_strncpyz( buf, cbd, buflen );
 
-	SDL_free(cbd);
+	Sys_FreeClipboardData(cbd);
 }
 
 /*

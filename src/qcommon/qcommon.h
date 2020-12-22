@@ -1340,6 +1340,11 @@ void QDECL Sys_Error( const char *error, ... );
 void    Sys_Quit( void );
 char* Sys_GetClipboardData();  // note that this isn't journaled...
 
+// BBi
+void Sys_FreeClipboardData(
+	char* clipboard_data);
+// BBi
+
 void    Sys_Print( const char *msg );
 
 
