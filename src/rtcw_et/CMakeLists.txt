@@ -13,6 +13,12 @@ message (STATUS "[${PROJECT_NAME}] cURL (Enemy Territory): ${RTCW_CURL}")
 option (RTCW_CURL_STATIC "Link cURL statically." ON)
 message (STATUS "[${PROJECT_NAME}] Link cURL statically: ${RTCW_CURL_STATIC}")
 
+# Precompiled headers.
+#
+option (RTCW_USE_PCH "Use precompiled headers if available." ON)
+message (STATUS "[${PROJECT_NAME}] Precompiled headers: ${RTCW_USE_PCH}")
+
+
 find_package (SDL2W 2.0.4 REQUIRED)
 find_package (SDL2W_net 2.0.1 REQUIRED)
 
@@ -102,6 +108,19 @@ if (RTCW_MULTI_PROCESS_COMPILATION)
 		)
 	endif ()
 endif ()
+
+
+#
+# Precompile headers.
+#
+if (RTCW_USE_PCH AND NOT (${CMAKE_VERSION} VERSION_LESS "3.16"))
+	target_precompile_headers(
+		${PROJECT_NAME}
+		PRIVATE
+			rtcw_pch.h
+	)
+endif ()
+
 
 if (MINGW)
 	target_link_libraries (
