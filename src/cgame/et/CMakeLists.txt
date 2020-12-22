@@ -7,6 +7,12 @@ message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 option (RTCW_MULTI_PROCESS_COMPILATION "Enable multi-process compilation if available." ON)
 message (STATUS "[${PROJECT_NAME}] Multi-process compilation: ${RTCW_MULTI_PROCESS_COMPILATION}")
 
+# Precompiled headers.
+#
+option (RTCW_USE_PCH "Use precompiled headers if available." ON)
+message (STATUS "[${PROJECT_NAME}] Precompiled headers: ${RTCW_USE_PCH}")
+
+
 find_package (SDL2W 2.0.4 REQUIRED)
 
 add_library (${PROJECT_NAME} SHARED "")
@@ -63,6 +69,19 @@ if (RTCW_MULTI_PROCESS_COMPILATION)
 		)
 	endif ()
 endif ()
+
+
+#
+# Precompile headers.
+#
+if (RTCW_USE_PCH AND NOT (${CMAKE_VERSION} VERSION_LESS "3.16"))
+	target_precompile_headers(
+		${PROJECT_NAME}
+		PRIVATE
+			rtcw_pch.h
+	)
+endif ()
+
 
 target_link_libraries (
 	${PROJECT_NAME}
