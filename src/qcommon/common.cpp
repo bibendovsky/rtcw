@@ -40,6 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 #define MAXPRINTMSG 4096
 #endif // RTCW_XX
 
+#if FIXME
 #if defined RTCW_ET
 // htons
 #ifdef __linux__
@@ -53,6 +54,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <winsock.h>
 #endif
 #endif // RTCW_XX
+#endif // FIXME
 
 
 #define MAX_NUM_ARGVS   50
@@ -936,7 +938,7 @@ Com_HashKey
 ============
 */
 int Com_HashKey( const char *string, int maxlen ) {
-	int register hash, i;
+	int hash, i;
 
 	hash = 0;
 	for ( i = 0; i < maxlen && string[i] != '\0'; i++ ) {
@@ -3194,6 +3196,8 @@ void Com_Init( char *commandLine ) {
 	// ydnar: init crashed variable as early as possible
 	com_crashed = Cvar_Get( "com_crashed", "0", CVAR_TEMP );
 
+// Add appropriate system function?
+#if FIXME
 	// bani: init pid
 #ifdef _WIN32
 	pid = GetCurrentProcessId();
@@ -3202,6 +3206,9 @@ void Com_Init( char *commandLine ) {
 #elif __MACOS__
 	pid = getpid();
 #endif
+#else
+	pid = 0;
+#endif // FIXME
 	s = va( "%d", pid );
 	com_pid = Cvar_Get( "com_pid", s, CVAR_ROM );
 #endif // RTCW_XX

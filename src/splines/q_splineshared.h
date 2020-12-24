@@ -140,7 +140,7 @@ If you have questions concerning this license or the applicable additional terms
 extern "C" {
 #endif
 
-void *osxAllocateMemory( long size );
+void *osxAllocateMemory( int32_t size );
 void osxFreeMemory( void *pointer );
 
 #ifdef __cplusplus
@@ -181,6 +181,7 @@ void Sys_PumpEvents( void );
 #define _alloca alloca
 #endif
 
+#if FIXME
 //======================= LINUX DEFINES =================================
 
 // the mac compiler can't handle >32k of locals, so we
@@ -202,6 +203,7 @@ void Sys_PumpEvents( void );
 #endif
 
 //=============================================================
+#endif // FIXME
 
 
 

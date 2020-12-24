@@ -29,6 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "server.h"
 
+#include "rtcw_vm_args.h"
+
+
 /*
 ===============================================================================
 
@@ -323,12 +326,16 @@ static void SV_Map_f( void ) {
 					FS_Delete( va( "%scurrent.sav", savedir ) );
 #endif // RTCW_XX
 
+#if FIXME
 // TTimo
 #ifdef __linux__
 				Com_Error( ERR_DROP, "Unable to save game.\n\nPlease check that you have at least 5mb free of disk space in your home directory." );
 #else
 				Com_Error( ERR_DROP, "Insufficient free disk space.\n\nPlease free at least 5mb of free space on game drive." );
 #endif
+#else
+					Com_Error( ERR_DROP, "Unable to save game." );
+#endif // FIXME
 				return;
 			}
 		}
@@ -832,12 +839,12 @@ static void SV_MapRestart_f( void ) {
 
 #if !defined RTCW_ET
 	for ( i = 0 ; i < 3 ; i++ ) {
-		VM_Call( gvm, GAME_RUN_FRAME, svs.time );
+		VM_Call(gvm, GAME_RUN_FRAME, rtcw::to_vm_arg(svs.time));
 		svs.time += 100;
 	}
 #else
 	for ( i = 0; i < GAME_INIT_FRAMES; i++ ) {
-		VM_Call( gvm, GAME_RUN_FRAME, svs.time );
+		VM_Call(gvm, GAME_RUN_FRAME, rtcw::to_vm_arg(svs.time));
 		svs.time += FRAMETIME;
 	}
 #endif // RTCW_XX
@@ -877,7 +884,17 @@ static void SV_MapRestart_f( void ) {
 		SV_AddServerCommand( client, "map_restart\n" );
 
 		// connect the client again, without the firstTime flag
-		denied = static_cast<char*> (VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot ) ));
+		denied = rtcw::from_vm_arg<char*>(VM_ExplicitArgPtr(
+			gvm,
+			VM_Call(
+				gvm,
+				GAME_CLIENT_CONNECT,
+				rtcw::to_vm_arg(i),
+				rtcw::to_vm_arg(qfalse),
+				rtcw::to_vm_arg(isBot)
+			)
+		));
+
 		if ( denied ) {
 			// this generally shouldn't happen, because the client
 			// was connected before the level change
@@ -902,7 +919,7 @@ static void SV_MapRestart_f( void ) {
 	}
 
 	// run another frame to allow things to look at all the players
-	VM_Call( gvm, GAME_RUN_FRAME, svs.time );
+	VM_Call(gvm, GAME_RUN_FRAME, rtcw::to_vm_arg(svs.time));
 
 #if !defined RTCW_ET
 	svs.time += 100;

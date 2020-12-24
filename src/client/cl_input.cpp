@@ -28,7 +28,11 @@ If you have questions concerning this license or the applicable additional terms
 
 // cl.input.c  -- builds an intended movement command to send to the server
 
+
 #include "client.h"
+
+#include "rtcw_vm_args.h"
+
 
 unsigned frame_msec;
 int old_com_frameTime;
@@ -325,7 +329,7 @@ void IN_CenterView( void ) {
 #elif defined RTCW_MP
 	qboolean ok = qtrue;
 	if ( cgvm ) {
-		ok = VM_Call( cgvm, CG_CHECKCENTERVIEW );
+		ok = VM_Call(cgvm, CG_CHECKCENTERVIEW);
 	}
 	if ( ok ) {
 		cl.viewangles[PITCH] = -SHORT2ANGLE( cl.snap.ps.delta_angles[PITCH] );
@@ -346,7 +350,7 @@ void IN_Notebook( void ) {
 #if defined RTCW_SP
 	if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
 		Cvar_Set( "cg_youGotMail", "0" ); // clear icon	//----(SA)	added
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NOTEBOOK );    // startup notebook
+		VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_NOTEBOOK));    // startup notebook
 	}
 #else
 	//if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
@@ -358,7 +362,7 @@ void IN_Notebook( void ) {
 
 void IN_Help( void ) {
 	if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_HELP );        // startup help system
+		VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_HELP));        // startup help system
 	}
 }
 
@@ -532,27 +536,27 @@ void CL_MouseEvent( int dx, int dy, int time ) {
 	if ( cls.keyCatchers & KEYCATCH_UI ) {
 
 #if defined RTCW_SP
-		VM_Call( uivm, UI_MOUSE_EVENT, dx, dy );
+		VM_Call(uivm, UI_MOUSE_EVENT, rtcw::to_vm_arg(dx), rtcw::to_vm_arg(dy));
 #else
 		// NERVE - SMF - if we just want to pass it along to game
 		if ( cl_bypassMouseInput->integer == 1 ) {
 			cl.mouseDx[cl.mouseIndex] += dx;
 			cl.mouseDy[cl.mouseIndex] += dy;
 		} else {
-			VM_Call( uivm, UI_MOUSE_EVENT, dx, dy );
+			VM_Call(uivm, UI_MOUSE_EVENT, rtcw::to_vm_arg(dx), rtcw::to_vm_arg(dy));
 		}
 #endif // RTCW_XX
 
 	} else if ( cls.keyCatchers & KEYCATCH_CGAME ) {
 
 #if !defined RTCW_ET
-		VM_Call( cgvm, CG_MOUSE_EVENT, dx, dy );
+		VM_Call(cgvm, CG_MOUSE_EVENT, rtcw::to_vm_arg(dx), rtcw::to_vm_arg(dy));
 #else
 		if ( cl_bypassMouseInput->integer == 1 ) {
 			cl.mouseDx[cl.mouseIndex] += dx;
 			cl.mouseDy[cl.mouseIndex] += dy;
 		} else {
-			VM_Call( cgvm, CG_MOUSE_EVENT, dx, dy );
+			VM_Call(cgvm, CG_MOUSE_EVENT, rtcw::to_vm_arg(dx), rtcw::to_vm_arg(dy));
 		}
 #endif // RTCW_XX
 

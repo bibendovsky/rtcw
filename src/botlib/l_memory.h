@@ -53,30 +53,30 @@ If you have questions concerning this license or the applicable additional terms
 #define GetMemory( size )             GetMemoryDebug( size, # size, __FILE__, __LINE__ )
 #define GetClearedMemory( size )      GetClearedMemoryDebug( size, # size, __FILE__, __LINE__ )
 //allocate a memory block of the given size
-void *GetMemoryDebug( unsigned long size, char *label, char *file, int line );
+void *GetMemoryDebug( uint32_t size, char *label, char *file, int line );
 //allocate a memory block of the given size and clear it
-void *GetClearedMemoryDebug( unsigned long size, char *label, char *file, int line );
+void *GetClearedMemoryDebug( uint32_t size, char *label, char *file, int line );
 //
 #define GetHunkMemory( size )         GetHunkMemoryDebug( size, # size, __FILE__, __LINE__ )
 #define GetClearedHunkMemory( size )  GetClearedHunkMemoryDebug( size, # size, __FILE__, __LINE__ )
 //allocate a memory block of the given size
-void *GetHunkMemoryDebug( unsigned long size, char *label, char *file, int line );
+void *GetHunkMemoryDebug( uint32_t size, char *label, char *file, int line );
 //allocate a memory block of the given size and clear it
-void *GetClearedHunkMemoryDebug( unsigned long size, char *label, char *file, int line );
+void *GetClearedHunkMemoryDebug( uint32_t size, char *label, char *file, int line );
 #else
 //allocate a memory block of the given size
-void *GetMemory( unsigned long size );
+void *GetMemory( uint32_t size );
 //allocate a memory block of the given size and clear it
-void *GetClearedMemory( unsigned long size );
+void *GetClearedMemory( uint32_t size );
 //
 #ifdef BSPC
 #define GetHunkMemory GetMemory
 #define GetClearedHunkMemory GetClearedMemory
 #else
 //allocate a memory block of the given size
-void *GetHunkMemory( unsigned long size );
+void *GetHunkMemory( uint32_t size );
 //allocate a memory block of the given size and clear it
-void *GetClearedHunkMemory( unsigned long size );
+void *GetClearedHunkMemory( uint32_t size );
 #endif
 #endif
 

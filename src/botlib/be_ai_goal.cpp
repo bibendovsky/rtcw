@@ -146,7 +146,11 @@ typedef struct iteminfo_s
 	int number;                         //number of the item info
 } iteminfo_t;
 
+#if FIXME
 #define ITEMINFO_OFS( x ) (int)&( ( (iteminfo_t *)0 )->x )
+#else
+#define ITEMINFO_OFS(x) (static_cast<int>(offsetof(iteminfo_t, x)))
+#endif // FIXME
 
 fielddef_t iteminfo_fields[] =
 {

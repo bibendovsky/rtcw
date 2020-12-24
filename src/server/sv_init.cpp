@@ -33,7 +33,11 @@ If you have questions concerning this license or the applicable additional terms
  *
 */
 
+
 #include "server.h"
+
+#include "rtcw_vm_args.h"
+
 
 /*
 ===============
@@ -1072,7 +1076,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	for ( i = 0 ; i < GAME_INIT_FRAMES ; i++ ) {
 #endif // RTCW_XX
 
-		VM_Call( gvm, GAME_RUN_FRAME, svs.time );
+		VM_Call(gvm, GAME_RUN_FRAME, rtcw::to_vm_arg(svs.time));
 		SV_BotFrame( svs.time );
 
 #if !defined RTCW_ET
@@ -1113,7 +1117,17 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 			}
 
 			// connect the client again
-			denied = static_cast<char*> (VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot ) ));   // firstTime = qfalse
+			denied = rtcw::from_vm_arg<char*>(VM_ExplicitArgPtr(
+				gvm,
+				VM_Call(
+					gvm,
+					GAME_CLIENT_CONNECT,
+					rtcw::to_vm_arg(i),
+					rtcw::to_vm_arg(qfalse),
+					rtcw::to_vm_arg(isBot)
+				)
+			)); // firstTime = qfalse
+
 			if ( denied ) {
 				// this generally shouldn't happen, because the client
 				// was connected before the level change
@@ -1136,14 +1150,14 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 					client->deltaMessage = -1;
 					client->nextSnapshotTime = svs.time;    // generate a snapshot immediately
 
-					VM_Call( gvm, GAME_CLIENT_BEGIN, i );
+					VM_Call(gvm, GAME_CLIENT_BEGIN, rtcw::to_vm_arg(i));
 				}
 			}
 		}
 	}
 
 	// run another frame to allow things to look at all the players
-	VM_Call( gvm, GAME_RUN_FRAME, svs.time );
+	VM_Call(gvm, GAME_RUN_FRAME, rtcw::to_vm_arg(svs.time));
 	SV_BotFrame( svs.time );
 
 #if !defined RTCW_ET

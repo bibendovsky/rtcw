@@ -97,13 +97,23 @@ template<class T>
 void G_Save_Decode (const byte* src_bytes, int src_size, T& dst_struct);
 
 
+template<
+	typename TPointer
+>
+int32_t ptr_to_i32(
+	TPointer* ptr) noexcept
+{
+	return static_cast<int32_t>(reinterpret_cast<intptr_t>(ptr));
+}
+
+
 void cast_state_t::convert_from_32 (
 	const Struct32& struct32)
 {
 	const Struct32& src = struct32;
 	Struct& dst = *this;
 
-	dst.bs = reinterpret_cast<bot_state_t*> (rtcw::Endian::le(src.bs));
+	dst.bs = reinterpret_cast<bot_state_t*>(rtcw::Endian::le(src.bs));
 	dst.entityNum = rtcw::Endian::le(src.entityNum);
 	dst.aasWorldIndex = rtcw::Endian::le(src.aasWorldIndex);
 	dst.aiCharacter = rtcw::Endian::le(src.aiCharacter);
@@ -266,7 +276,7 @@ void cast_state_t::convert_to_32 (
 	const Struct& src = *this;
 	Struct32& dst = struct32;
 
-	dst.bs = rtcw::Endian::le(reinterpret_cast<int> (src.bs));
+	dst.bs = rtcw::Endian::le(ptr_to_i32(src.bs));
 	dst.entityNum = rtcw::Endian::le(src.entityNum);
 	dst.aasWorldIndex = rtcw::Endian::le(src.aasWorldIndex);
 	dst.aiCharacter = rtcw::Endian::le(src.aiCharacter);
@@ -282,7 +292,7 @@ void cast_state_t::convert_to_32 (
 	dst.movestateType = rtcw::Endian::le(src.movestateType);
 	rtcw::Endian::le(src.attributes, AICAST_MAX_ATTRIBUTES, dst.attributes);
 	dst.numCastScriptEvents = rtcw::Endian::le(src.numCastScriptEvents);
-	dst.castScriptEvents = rtcw::Endian::le(reinterpret_cast<int> (src.castScriptEvents));
+	dst.castScriptEvents = rtcw::Endian::le(ptr_to_i32(src.castScriptEvents));
 	dst.castScriptStatus = rtcw::Endian::le(src.castScriptStatus);
 	dst.castScriptStatusCurrent = rtcw::Endian::le(src.castScriptStatusCurrent);
 	dst.castScriptStatusBackup = rtcw::Endian::le(src.castScriptStatusBackup);
@@ -290,20 +300,20 @@ void cast_state_t::convert_to_32 (
 	dst.scriptAnimTime = rtcw::Endian::le(src.scriptAnimTime);
 	dst.scriptAnimNum = rtcw::Endian::le(src.scriptAnimNum);
 	rtcw::Endian::le(src.scriptAccumBuffer, MAX_SCRIPT_ACCUM_BUFFERS, dst.scriptAccumBuffer);
-	dst.weaponInfo = rtcw::Endian::le(reinterpret_cast<int> (src.weaponInfo));
+	dst.weaponInfo = rtcw::Endian::le(ptr_to_i32(src.weaponInfo));
 	rtcw::Endian::le(src.vislist, MAX_CLIENTS, dst.vislist);
 	rtcw::Endian::le(src.weaponFireTimes, MAX_WEAPONS, dst.weaponFireTimes);
-	dst.aifunc = rtcw::Endian::le(reinterpret_cast<int> (src.aifunc));
-	dst.oldAifunc = rtcw::Endian::le(reinterpret_cast<int> (src.oldAifunc));
-	dst.aifuncAttack1 = rtcw::Endian::le(reinterpret_cast<int> (src.aifuncAttack1));
-	dst.aifuncAttack2 = rtcw::Endian::le(reinterpret_cast<int> (src.aifuncAttack2));
-	dst.aifuncAttack3 = rtcw::Endian::le(reinterpret_cast<int> (src.aifuncAttack3));
-	dst.painfunc = rtcw::Endian::le(reinterpret_cast<int> (src.painfunc));
-	dst.deathfunc = rtcw::Endian::le(reinterpret_cast<int> (src.deathfunc));
-	dst.sightfunc = rtcw::Endian::le(reinterpret_cast<int> (src.sightfunc));
-	dst.sightEnemy = rtcw::Endian::le(reinterpret_cast<int> (src.sightEnemy));
-	dst.sightFriend = rtcw::Endian::le(reinterpret_cast<int> (src.sightFriend));
-	dst.activate = rtcw::Endian::le(reinterpret_cast<int> (src.activate));
+	dst.aifunc = rtcw::Endian::le(ptr_to_i32(src.aifunc));
+	dst.oldAifunc = rtcw::Endian::le(ptr_to_i32(src.oldAifunc));
+	dst.aifuncAttack1 = rtcw::Endian::le(ptr_to_i32(src.aifuncAttack1));
+	dst.aifuncAttack2 = rtcw::Endian::le(ptr_to_i32(src.aifuncAttack2));
+	dst.aifuncAttack3 = rtcw::Endian::le(ptr_to_i32(src.aifuncAttack3));
+	dst.painfunc = rtcw::Endian::le(ptr_to_i32(src.painfunc));
+	dst.deathfunc = rtcw::Endian::le(ptr_to_i32(src.deathfunc));
+	dst.sightfunc = rtcw::Endian::le(ptr_to_i32(src.sightfunc));
+	dst.sightEnemy = rtcw::Endian::le(ptr_to_i32(src.sightEnemy));
+	dst.sightFriend = rtcw::Endian::le(ptr_to_i32(src.sightFriend));
+	dst.activate = rtcw::Endian::le(ptr_to_i32(src.activate));
 	dst.followEntity = rtcw::Endian::le(src.followEntity);
 	dst.followDist = rtcw::Endian::le(src.followDist);
 	dst.followIsGoto = rtcw::Endian::le(src.followIsGoto);
@@ -516,17 +526,17 @@ void gclient_t::convert_to_32 (Struct32& struct32) const
 	dst.airOutTime = rtcw::Endian::le(src.airOutTime);
 	dst.lastKillTime = rtcw::Endian::le(src.lastKillTime);
 	dst.fireHeld = rtcw::Endian::le(src.fireHeld);
-	dst.hook = rtcw::Endian::le(reinterpret_cast<int> (src.hook));
+	dst.hook = rtcw::Endian::le(ptr_to_i32(src.hook));
 	dst.switchTeamTime = rtcw::Endian::le(src.switchTeamTime);
 	dst.timeResidual = rtcw::Endian::le(src.timeResidual);
 	dst.currentAimSpreadScale = rtcw::Endian::le(src.currentAimSpreadScale);
 	dst.medicHealAmt = rtcw::Endian::le(src.medicHealAmt);
-	dst.modelInfo = rtcw::Endian::le(reinterpret_cast<int> (src.modelInfo));
-	dst.persistantPowerup = rtcw::Endian::le(reinterpret_cast<int> (src.persistantPowerup));
+	dst.modelInfo = rtcw::Endian::le(ptr_to_i32(src.modelInfo));
+	dst.persistantPowerup = rtcw::Endian::le(ptr_to_i32(src.persistantPowerup));
 	dst.portalID = rtcw::Endian::le(src.portalID);
 	rtcw::Endian::le(src.ammoTimes, WP_NUM_WEAPONS, dst.ammoTimes);
 	dst.invulnerabilityTime = rtcw::Endian::le(src.invulnerabilityTime);
-	dst.cameraPortal = rtcw::Endian::le(reinterpret_cast<int> (src.cameraPortal));
+	dst.cameraPortal = rtcw::Endian::le(ptr_to_i32(src.cameraPortal));
 	rtcw::Endian::le(src.cameraOrigin, 3, dst.cameraOrigin);
 	dst.limboDropWeapon = rtcw::Endian::le(src.limboDropWeapon);
 	dst.deployQueueNumber = rtcw::Endian::le(src.deployQueueNumber);
@@ -562,7 +572,7 @@ void g_script_status_t::convert_to_32 (
 	dst.scriptEventIndex = rtcw::Endian::le(src.scriptEventIndex);
 	dst.scriptId = rtcw::Endian::le(src.scriptId);
 	dst.scriptFlags = rtcw::Endian::le(src.scriptFlags);
-	dst.animatingParams = rtcw::Endian::le(reinterpret_cast<int> (src.animatingParams));
+	dst.animatingParams = rtcw::Endian::le(ptr_to_i32(src.animatingParams));
 }
 
 void gentity_t::convert_from_32 (
@@ -728,14 +738,14 @@ void gentity_t::convert_to_32 (
 
 	dst.s = rtcw::Endian::le(src.s);
 	dst.r = rtcw::Endian::le(src.r);
-	dst.client = rtcw::Endian::le(reinterpret_cast<int> (src.client));
+	dst.client = rtcw::Endian::le(ptr_to_i32(src.client));
 	dst.inuse = rtcw::Endian::le(src.inuse);
-	dst.classname = rtcw::Endian::le(reinterpret_cast<int> (src.classname));
+	dst.classname = rtcw::Endian::le(ptr_to_i32(src.classname));
 	dst.spawnflags = rtcw::Endian::le(src.spawnflags);
 	dst.neverFree = rtcw::Endian::le(src.neverFree);
 	dst.flags = rtcw::Endian::le(src.flags);
-	dst.model = rtcw::Endian::le(reinterpret_cast<int> (src.model));
-	dst.model2 = rtcw::Endian::le(reinterpret_cast<int> (src.model2));
+	dst.model = rtcw::Endian::le(ptr_to_i32(src.model));
+	dst.model2 = rtcw::Endian::le(ptr_to_i32(src.model2));
 	dst.freetime = rtcw::Endian::le(src.freetime);
 	dst.eventTime = rtcw::Endian::le(src.eventTime);
 	dst.freeAfterEvent = rtcw::Endian::le(src.freeAfterEvent);
@@ -758,22 +768,22 @@ void gentity_t::convert_to_32 (
 	dst.soundSoftendo = rtcw::Endian::le(src.soundSoftendo);
 	dst.soundSoftclose = rtcw::Endian::le(src.soundSoftclose);
 	dst.soundSoftendc = rtcw::Endian::le(src.soundSoftendc);
-	dst.parent = rtcw::Endian::le(reinterpret_cast<int> (src.parent));
-	dst.nextTrain = rtcw::Endian::le(reinterpret_cast<int> (src.nextTrain));
-	dst.prevTrain = rtcw::Endian::le(reinterpret_cast<int> (src.prevTrain));
+	dst.parent = rtcw::Endian::le(ptr_to_i32(src.parent));
+	dst.nextTrain = rtcw::Endian::le(ptr_to_i32(src.nextTrain));
+	dst.prevTrain = rtcw::Endian::le(ptr_to_i32(src.prevTrain));
 	rtcw::Endian::le(src.pos1, 3, dst.pos1);
 	rtcw::Endian::le(src.pos2, 3, dst.pos2);
 	rtcw::Endian::le(src.pos3, 3, dst.pos3);
-	dst.message = rtcw::Endian::le(reinterpret_cast<int> (src.message));
+	dst.message = rtcw::Endian::le(ptr_to_i32(src.message));
 	dst.timestamp = rtcw::Endian::le(src.timestamp);
 	dst.angle = rtcw::Endian::le(src.angle);
-	dst.target = rtcw::Endian::le(reinterpret_cast<int> (src.target));
-	dst.targetdeath = rtcw::Endian::le(reinterpret_cast<int> (src.targetdeath));
-	dst.targetname = rtcw::Endian::le(reinterpret_cast<int> (src.targetname));
-	dst.team = rtcw::Endian::le(reinterpret_cast<int> (src.team));
-	dst.targetShaderName = rtcw::Endian::le(reinterpret_cast<int> (src.targetShaderName));
-	dst.targetShaderNewName = rtcw::Endian::le(reinterpret_cast<int> (src.targetShaderNewName));
-	dst.target_ent = rtcw::Endian::le(reinterpret_cast<int> (src.target_ent));
+	dst.target = rtcw::Endian::le(ptr_to_i32(src.target));
+	dst.targetdeath = rtcw::Endian::le(ptr_to_i32(src.targetdeath));
+	dst.targetname = rtcw::Endian::le(ptr_to_i32(src.targetname));
+	dst.team = rtcw::Endian::le(ptr_to_i32(src.team));
+	dst.targetShaderName = rtcw::Endian::le(ptr_to_i32(src.targetShaderName));
+	dst.targetShaderNewName = rtcw::Endian::le(ptr_to_i32(src.targetShaderNewName));
+	dst.target_ent = rtcw::Endian::le(ptr_to_i32(src.target_ent));
 	dst.speed = rtcw::Endian::le(src.speed);
 	dst.closespeed = rtcw::Endian::le(src.closespeed);
 	rtcw::Endian::le(src.movedir, 3, dst.movedir);
@@ -782,13 +792,13 @@ void gentity_t::convert_to_32 (
 	rtcw::Endian::le(src.gDelta, 3, dst.gDelta);
 	rtcw::Endian::le(src.gDeltaBack, 3, dst.gDeltaBack);
 	dst.nextthink = rtcw::Endian::le(src.nextthink);
-	dst.think = rtcw::Endian::le(reinterpret_cast<int> (src.think));
-	dst.reached = rtcw::Endian::le(reinterpret_cast<int> (src.reached));
-	dst.blocked = rtcw::Endian::le(reinterpret_cast<int> (src.blocked));
-	dst.touch = rtcw::Endian::le(reinterpret_cast<int> (src.touch));
-	dst.use = rtcw::Endian::le(reinterpret_cast<int> (src.use));
-	dst.pain = rtcw::Endian::le(reinterpret_cast<int> (src.pain));
-	dst.die = rtcw::Endian::le(reinterpret_cast<int> (src.die));
+	dst.think = rtcw::Endian::le(ptr_to_i32(src.think));
+	dst.reached = rtcw::Endian::le(ptr_to_i32(src.reached));
+	dst.blocked = rtcw::Endian::le(ptr_to_i32(src.blocked));
+	dst.touch = rtcw::Endian::le(ptr_to_i32(src.touch));
+	dst.use = rtcw::Endian::le(ptr_to_i32(src.use));
+	dst.pain = rtcw::Endian::le(ptr_to_i32(src.pain));
+	dst.die = rtcw::Endian::le(ptr_to_i32(src.die));
 	dst.pain_debounce_time = rtcw::Endian::le(src.pain_debounce_time);
 	dst.fly_sound_debounce_time = rtcw::Endian::le(src.fly_sound_debounce_time);
 	dst.last_move_time = rtcw::Endian::le(src.last_move_time);
@@ -800,11 +810,11 @@ void gentity_t::convert_to_32 (
 	dst.methodOfDeath = rtcw::Endian::le(src.methodOfDeath);
 	dst.splashMethodOfDeath = rtcw::Endian::le(src.splashMethodOfDeath);
 	dst.count = rtcw::Endian::le(src.count);
-	dst.chain = rtcw::Endian::le(reinterpret_cast<int> (src.chain));
-	dst.enemy = rtcw::Endian::le(reinterpret_cast<int> (src.enemy));
-	dst.activator = rtcw::Endian::le(reinterpret_cast<int> (src.activator));
-	dst.teamchain = rtcw::Endian::le(reinterpret_cast<int> (src.teamchain));
-	dst.teammaster = rtcw::Endian::le(reinterpret_cast<int> (src.teammaster));
+	dst.chain = rtcw::Endian::le(ptr_to_i32(src.chain));
+	dst.enemy = rtcw::Endian::le(ptr_to_i32(src.enemy));
+	dst.activator = rtcw::Endian::le(ptr_to_i32(src.activator));
+	dst.teamchain = rtcw::Endian::le(ptr_to_i32(src.teamchain));
+	dst.teammaster = rtcw::Endian::le(ptr_to_i32(src.teammaster));
 	dst.watertype = rtcw::Endian::le(src.watertype);
 	dst.waterlevel = rtcw::Endian::le(src.waterlevel);
 	dst.noise_index = rtcw::Endian::le(src.noise_index);
@@ -816,18 +826,18 @@ void gentity_t::convert_to_32 (
 	dst.duration = rtcw::Endian::le(src.duration);
 	rtcw::Endian::le(src.rotate, 3, dst.rotate);
 	rtcw::Endian::le(src.TargetAngles, 3, dst.TargetAngles);
-	dst.item = rtcw::Endian::le(reinterpret_cast<int> (src.item));
-	dst.aiAttributes = rtcw::Endian::le(reinterpret_cast<int> (src.aiAttributes));
-	dst.aiName = rtcw::Endian::le(reinterpret_cast<int> (src.aiName));
+	dst.item = rtcw::Endian::le(ptr_to_i32(src.item));
+	dst.aiAttributes = rtcw::Endian::le(ptr_to_i32(src.aiAttributes));
+	dst.aiName = rtcw::Endian::le(ptr_to_i32(src.aiName));
 	dst.aiTeam = rtcw::Endian::le(src.aiTeam);
-	dst.AIScript_AlertEntity = rtcw::Endian::le(reinterpret_cast<int> (src.AIScript_AlertEntity));
+	dst.AIScript_AlertEntity = rtcw::Endian::le(ptr_to_i32(src.AIScript_AlertEntity));
 	dst.aiInactive = rtcw::Endian::le(src.aiInactive);
 	dst.aiCharacter = rtcw::Endian::le(src.aiCharacter);
-	dst.aiSkin = rtcw::Endian::le(reinterpret_cast<int> (src.aiSkin));
-	dst.aihSkin = rtcw::Endian::le(reinterpret_cast<int> (src.aihSkin));
+	dst.aiSkin = rtcw::Endian::le(ptr_to_i32(src.aiSkin));
+	dst.aihSkin = rtcw::Endian::le(ptr_to_i32(src.aihSkin));
 	rtcw::Endian::le(src.dl_color, 3, dst.dl_color);
-	dst.dl_stylestring = rtcw::Endian::le(reinterpret_cast<int> (src.dl_stylestring));
-	dst.dl_shader = rtcw::Endian::le(reinterpret_cast<int> (src.dl_shader));
+	dst.dl_stylestring = rtcw::Endian::le(ptr_to_i32(src.dl_stylestring));
+	dst.dl_shader = rtcw::Endian::le(ptr_to_i32(src.dl_shader));
 	dst.dl_atten = rtcw::Endian::le(src.dl_atten);
 	dst.key = rtcw::Endian::le(src.key);
 	dst.active = rtcw::Endian::le(src.active);
@@ -845,8 +855,8 @@ void gentity_t::convert_to_32 (
 	dst.end_size = rtcw::Endian::le(src.end_size);
 	dst.isProp = rtcw::Endian::le(src.isProp);
 	dst.mg42BaseEnt = rtcw::Endian::le(src.mg42BaseEnt);
-	dst.melee = rtcw::Endian::le(reinterpret_cast<int> (src.melee));
-	dst.spawnitem = rtcw::Endian::le(reinterpret_cast<int> (src.spawnitem));
+	dst.melee = rtcw::Endian::le(ptr_to_i32(src.melee));
+	dst.spawnitem = rtcw::Endian::le(ptr_to_i32(src.spawnitem));
 	dst.nopickup = rtcw::Endian::le(src.nopickup);
 	dst.flameQuota = rtcw::Endian::le(src.flameQuota);
 	dst.flameQuotaTime = rtcw::Endian::le(src.flameQuotaTime);
@@ -855,17 +865,17 @@ void gentity_t::convert_to_32 (
 	dst.grenadeExplodeTime = rtcw::Endian::le(src.grenadeExplodeTime);
 	dst.grenadeFired = rtcw::Endian::le(src.grenadeFired);
 	dst.mg42ClampTime = rtcw::Endian::le(src.mg42ClampTime);
-	dst.track = rtcw::Endian::le(reinterpret_cast<int> (src.track));
-	dst.scriptName = rtcw::Endian::le(reinterpret_cast<int> (src.scriptName));
+	dst.track = rtcw::Endian::le(ptr_to_i32(src.track));
+	dst.scriptName = rtcw::Endian::le(ptr_to_i32(src.scriptName));
 	dst.numScriptEvents = rtcw::Endian::le(src.numScriptEvents);
-	dst.scriptEvents = rtcw::Endian::le(reinterpret_cast<int> (src.scriptEvents));
+	dst.scriptEvents = rtcw::Endian::le(ptr_to_i32(src.scriptEvents));
 	src.scriptStatus.convert_to_32 (dst.scriptStatus);
 	src.scriptStatusBackup.convert_to_32 (dst.scriptStatusBackup);
 	rtcw::Endian::le(src.scriptAccumBuffer, G_MAX_SCRIPT_ACCUM_BUFFERS, dst.scriptAccumBuffer);
 	dst.AASblocking = rtcw::Endian::le(src.AASblocking);
 	dst.accuracy = rtcw::Endian::le(src.accuracy);
-	dst.tagName = rtcw::Endian::le(reinterpret_cast<int> (src.tagName));
-	dst.tagParent = rtcw::Endian::le(reinterpret_cast<int> (src.tagParent));
+	dst.tagName = rtcw::Endian::le(ptr_to_i32(src.tagName));
+	dst.tagParent = rtcw::Endian::le(ptr_to_i32(src.tagParent));
 	dst.headshotDamageScale = rtcw::Endian::le(src.headshotDamageScale);
 	src.scriptStatusCurrent.convert_to_32 (dst.scriptStatusCurrent);
 	dst.emitID = rtcw::Endian::le(src.emitID);
@@ -1119,12 +1129,16 @@ G_SaveWriteError
 ===============
 */
 void G_SaveWriteError( void ) {
+#if FIXME
 // TTimo
 #ifdef __linux__
 	G_Error( "Unable to save game.\n\nPlease check that you have at least 5mb free of disk space in your home directory." );
 #else
 	G_Error( "Insufficient free disk space.\n\nPlease free at least 5mb of free space on game drive." );
 #endif
+#else
+	G_Error("Unable to save game.");
+#endif // FIXME
 }
 
 static int saveByteCount;

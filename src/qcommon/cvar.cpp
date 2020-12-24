@@ -59,9 +59,9 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force );
 return a hash value for the filename
 ================
 */
-static long generateHashValue( const char *fname ) {
+static int32_t generateHashValue( const char *fname ) {
 	int i;
-	long hash;
+	int32_t hash;
 	char letter;
 
 	if ( !fname ) {
@@ -71,7 +71,7 @@ static long generateHashValue( const char *fname ) {
 	i = 0;
 	while ( fname[i] != '\0' ) {
 		letter = tolower( fname[i] );
-		hash += (long)( letter ) * ( i + 119 );
+		hash += (int32_t)( letter ) * ( i + 119 );
 		i++;
 	}
 	hash &= ( FILE_HASH_SIZE - 1 );
@@ -106,7 +106,7 @@ Cvar_FindVar
 */
 static cvar_t *Cvar_FindVar( const char *var_name ) {
 	cvar_t  *var;
-	long hash;
+	int32_t hash;
 
 	hash = generateHashValue( var_name );
 
@@ -260,7 +260,7 @@ The flags will be or'ed in if the variable exists.
 */
 cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 	cvar_t  *var;
-	long hash;
+	int32_t hash;
 
 	if ( !var_name || !var_value ) {
 		Com_Error( ERR_FATAL, "Cvar_Get: NULL parameter" );

@@ -186,16 +186,16 @@ qboolean UI_OutOfMemory() {
 return a hash value for the string
 ================
 */
-static long hashForString( const char *str ) {
+static int32_t hashForString( const char *str ) {
 	int i;
-	long hash;
+	int32_t hash;
 	char letter;
 
 	hash = 0;
 	i = 0;
 	while ( str[i] != '\0' ) {
 		letter = tolower( str[i] );
-		hash += (long)( letter ) * ( i + 119 );
+		hash += (int32_t)( letter ) * ( i + 119 );
 		i++;
 	}
 	hash &= ( HASH_TABLE_SIZE - 1 );
@@ -216,7 +216,7 @@ static stringDef_t *strHandle[HASH_TABLE_SIZE];
 
 const char *String_Alloc( const char *p ) {
 	int len;
-	long hash;
+	int32_t hash;
 	stringDef_t *str, *last;
 	static const char *staticNULL = "";
 
@@ -5530,7 +5530,7 @@ typedef struct keywordHash_s
 } keywordHash_t;
 
 int KeywordHash_Key( const char *keyword ) {
-	int register hash, i;
+	int hash, i;
 
 	hash = 0;
 	for ( i = 0; keyword[i] != '\0'; i++ ) {

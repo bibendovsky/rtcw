@@ -314,7 +314,11 @@ winding_t   *CopyWinding( winding_t *w ) {
 	winding_t   *c;
 
 	c = AllocWinding( w->numpoints );
+#if FIXME
 	size = (int)( (winding_t *)0 )->p[w->numpoints];
+#else
+	size = static_cast<int>(reinterpret_cast<intptr_t>((static_cast<winding_t*>(nullptr))->p[w->numpoints]));
+#endif // FIXME
 
 #if defined RTCW_SP
 	Com_Memcpy( c, w, size );

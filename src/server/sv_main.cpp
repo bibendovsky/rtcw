@@ -29,6 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "server.h"
 
+#include "rtcw_vm_args.h"
+
+
 serverStatic_t svs;                 // persistant server info
 server_t sv;                        // local server
 vm_t            *gvm = NULL;                // game virtual machine // bk001212 init
@@ -1534,7 +1537,7 @@ void SV_Frame( int msec ) {
 		// let everything in the world think and move
 
 #if !defined RTCW_MP || (defined RTCW_MP && !UPDATE_SERVER)
-		VM_Call( gvm, GAME_RUN_FRAME, svs.time );
+		VM_Call(gvm, GAME_RUN_FRAME, rtcw::to_vm_arg(svs.time));
 #endif // RTCW_XX
 
 	}

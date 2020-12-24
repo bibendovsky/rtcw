@@ -47,7 +47,7 @@ If you have questions concerning this license or the applicable additional terms
 
 qboolean BG_LoadCampaignSave( const char *filename, cpsFile_t *file, const char *profile ) {
 	fileHandle_t f;
-	long hash;
+	int32_t hash;
 	char *ch;
 	int i, j;
 
@@ -73,7 +73,7 @@ qboolean BG_LoadCampaignSave( const char *filename, cpsFile_t *file, const char 
 
 	// generate hash for profile
 	for ( hash = 0, ch = (char *)profile; *ch != '\0'; ch++ ) {
-		hash += (long)( tolower( *ch ) ) * ( ( ch - profile ) + 119 );
+		hash += (int32_t)( tolower( *ch ) ) * ( ( ch - profile ) + 119 );
 	}
 
 	if ( file->header.profileHash != hash ) {
@@ -101,7 +101,7 @@ qboolean BG_LoadCampaignSave( const char *filename, cpsFile_t *file, const char 
 
 qboolean BG_StoreCampaignSave( const char *filename, cpsFile_t *file, const char *profile ) {
 	fileHandle_t f;
-	long hash;
+	int32_t hash;
 	char *ch;
 	int i, j;
 
@@ -120,7 +120,7 @@ qboolean BG_StoreCampaignSave( const char *filename, cpsFile_t *file, const char
 
 	// generate hash for profile
 	for ( hash = 0, ch = (char *)profile; *ch != '\0'; ch++ ) {
-		hash += (long)( tolower( *ch ) ) * ( ( ch - profile ) + 119 );
+		hash += (int32_t)( tolower( *ch ) ) * ( ( ch - profile ) + 119 );
 	}
 
 	file->header.profileHash = (int)hash;

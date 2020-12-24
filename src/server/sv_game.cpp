@@ -28,9 +28,13 @@ If you have questions concerning this license or the applicable additional terms
 
 // sv_game.c -- interface to the game dll
 
+
 #include "server.h"
 
 #include "botlib.h"
+
+#include "rtcw_vm_args.h"
+
 
 botlib_export_t *botlib_export;
 
@@ -47,7 +51,7 @@ void SV_GamePrint( const char *string ) {
 int SV_NumForGentity( sharedEntity_t *ent ) {
 	int num;
 
-	num = ( (byte *)ent - (byte *)sv.gentities ) / sv.gentitySize;
+	num = static_cast<int>( (byte *)ent - (byte *)sv.gentities ) / sv.gentitySize;
 
 	return num;
 }
@@ -78,7 +82,7 @@ svEntity_t  *SV_SvEntityForGentity( sharedEntity_t *gEnt ) {
 sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt ) {
 	int num;
 
-	num = svEnt - sv.svEntities;
+	num = static_cast<int>(svEnt - sv.svEntities);
 	return SV_GentityNum( num );
 }
 
@@ -361,7 +365,14 @@ SV_GameBinaryMessageReceived
 ====================
 */
 void SV_GameBinaryMessageReceived( int cno, const char *buf, int buflen, int commandTime ) {
-	VM_Call( gvm, GAME_MESSAGERECEIVED, cno, buf, buflen, commandTime );
+	VM_Call(
+		gvm,
+		GAME_MESSAGERECEIVED,
+		rtcw::to_vm_arg(cno),
+		rtcw::to_vm_arg(buf),
+		rtcw::to_vm_arg(buflen),
+		rtcw::to_vm_arg(commandTime)
+	);
 }
 #endif // RTCW_XX
 
@@ -376,14 +387,10 @@ void SV_GameBinaryMessageReceived( int cno, const char *buf, int buflen, int com
 //	return temp;
 //}
 
-static intptr_t FloatAsInt (
-	float x)
+static int FloatAsInt(
+	float x) noexcept
 {
-	intptr_t result;
-
-	*reinterpret_cast<float*> (&result) = x;
-
-	return result;
+	return reinterpret_cast<const int&>(x);
 }
 // BBi
 
@@ -394,17 +401,25 @@ SV_GameSystemCalls
 The module is making a system call
 ====================
 */
+#if FIXME
 //rcg010207 - see my comments in VM_DllSyscall(), in qcommon/vm.c ...
 #if ( ( defined __linux__ ) && ( defined __powerpc__ ) ) || ( defined MACOS_X )
 #define VMA( x ) ( (void *) args[x] )
 #else
 #define VMA( x ) VM_ArgPtr( args[x] )
 #endif
+#else
+#define VMA(x) VM_ArgPtr(args[x])
+#endif // FIXME
 
+#if FIXME
 // BBi
 //#define VMF( x )  ( (float *)args )[x]
 #define VMF(x) (*reinterpret_cast<const float*> (args + x))
 // BBi
+#else
+#define VMF(x) (rtcw::from_vm_arg<float>(args[x]))
+#endif // FIXME
 
 #if defined RTCW_ET
 // show_bug.cgi?id=574
@@ -414,215 +429,383 @@ extern int S_GetSoundLength( sfxHandle_t sfxHandle );
 
 // BBi
 //int SV_GameSystemCalls( int *args ) {
-intptr_t SV_GameSystemCalls (
+int32_t SV_GameSystemCalls (
 	intptr_t* args)
 {
 // BBi
 
-	switch ( args[0] ) {
+	switch ( rtcw::from_vm_arg<gameImport_t>(args[0]) ) {
 	case G_PRINT:
-
-#if !defined RTCW_ET
-		Com_Printf( "%s", VMA( 1 ) );
-#else
-		Com_Printf( "%s", (char *)VMA( 1 ) );
-#endif // RTCW_XX
-
+		Com_Printf("%s", rtcw::from_vm_arg<const char*>(VMA(1)));
 		return 0;
+
 	case G_ERROR:
-
-#if !defined RTCW_ET
-		Com_Error( ERR_DROP, "%s", VMA( 1 ) );
-#else
-		Com_Error( ERR_DROP, "%s", (char *)VMA( 1 ) );
-#endif // RTCW_XX
-
+		Com_Error(ERR_DROP, "%s", rtcw::from_vm_arg<const char*>(VMA(1)));
 		return 0;
 
 #if defined RTCW_SP
 	case G_ENDGAME:
-		Com_Error( ERR_ENDGAME, "endgame" );  // no message, no error print
+		Com_Error(ERR_ENDGAME, "endgame");  // no message, no error print
 		return 0;
 #endif // RTCW_XX
 
 	case G_MILLISECONDS:
 		return Sys_Milliseconds();
+
 	case G_CVAR_REGISTER:
-		Cvar_Register( static_cast<vmCvar_t*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), static_cast<const char*> (VMA( 3 )), args[4] );
+		Cvar_Register(
+			rtcw::from_vm_arg<vmCvar_t*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<const char*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
 		return 0;
+
 	case G_CVAR_UPDATE:
-		Cvar_Update( static_cast<vmCvar_t*> (VMA( 1 )) );
+		Cvar_Update(rtcw::from_vm_arg<vmCvar_t*>(VMA(1)));
 		return 0;
+
 	case G_CVAR_SET:
-		Cvar_Set( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )) );
+		Cvar_Set(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 		return 0;
+
 	case G_CVAR_VARIABLE_INTEGER_VALUE:
-		return Cvar_VariableIntegerValue( static_cast<const char*> (VMA( 1 )) );
+		return Cvar_VariableIntegerValue(rtcw::from_vm_arg<const char*>(VMA(1)));
+
 	case G_CVAR_VARIABLE_STRING_BUFFER:
-		Cvar_VariableStringBuffer( static_cast<const char*> (VMA( 1 )), static_cast<char*> (VMA( 2 )), args[3] );
+		Cvar_VariableStringBuffer(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 
 #if defined RTCW_ET
 	case G_CVAR_LATCHEDVARIABLESTRINGBUFFER:
-		Cvar_LatchedVariableStringBuffer( static_cast<const char*> (VMA( 1 )), static_cast<char*> (VMA( 2 )), args[3] );
+		Cvar_LatchedVariableStringBuffer(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 #endif // RTCW_XX
 
 	case G_ARGC:
 		return Cmd_Argc();
+
 	case G_ARGV:
-		Cmd_ArgvBuffer( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		Cmd_ArgvBuffer(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
+
 	case G_SEND_CONSOLE_COMMAND:
-		Cbuf_ExecuteText( args[1], static_cast<const char*> (VMA( 2 )) );
+		Cbuf_ExecuteText(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 		return 0;
 
 	case G_FS_FOPEN_FILE:
-		return FS_FOpenFileByMode( static_cast<const char*> (VMA( 1 )), static_cast<fileHandle_t*> (VMA( 2 )), fsMode_t (args[3]) );
+		return FS_FOpenFileByMode(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<fileHandle_t*>(VMA(2)),
+			rtcw::from_vm_arg<fsMode_t>(args[3])
+		);
+
 	case G_FS_READ:
-		FS_Read( VMA( 1 ), args[2], args[3] );
+		FS_Read(
+			rtcw::from_vm_arg<void*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<fileHandle_t>(args[3])
+		);
 		return 0;
+
 	case G_FS_WRITE:
-		return FS_Write( VMA( 1 ), args[2], args[3] );
+		return FS_Write(
+			rtcw::from_vm_arg<const void*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<fileHandle_t>(args[3])
+		);
+
 	case G_FS_RENAME:
-		FS_Rename( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )) );
+		FS_Rename(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 		return 0;
+
 	case G_FS_FCLOSE_FILE:
-		FS_FCloseFile( args[1] );
+		FS_FCloseFile(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 
 #if defined RTCW_SP
 	case G_FS_COPY_FILE:
-		FS_CopyFileOS( static_cast<char*> (VMA( 1 )), static_cast<char*> (VMA( 2 )) );    //DAJ
+		FS_CopyFileOS(
+			rtcw::from_vm_arg<char*>(VMA(1)),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		); //DAJ
 		return 0;
 #endif // RTCW_XX
 
 	case G_FS_GETFILELIST:
-		return FS_GetFileList( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), static_cast<char*> (VMA( 3 )), args[4] );
+		return FS_GetFileList(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<char*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
 
 	case G_LOCATE_GAME_DATA:
-		SV_LocateGameData( static_cast<sharedEntity_t*> (VMA( 1 )), args[2], args[3], static_cast<playerState_t*> (VMA( 4 )), args[5] );
+		SV_LocateGameData(
+			rtcw::from_vm_arg<sharedEntity_t*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<playerState_t*>(VMA(4)),
+			rtcw::from_vm_arg<int>(args[5])
+		);
 		return 0;
+
 	case G_DROP_CLIENT:
-
-#if !defined RTCW_ET
-		SV_GameDropClient( args[1], static_cast<const char*> (VMA( 2 )) );
-#else
-		SV_GameDropClient( args[1], static_cast<const char*> (VMA( 2 )), args[3] );
+		SV_GameDropClient(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+#if defined RTCW_ET
+			,
+			rtcw::from_vm_arg<int>(args[3])
 #endif // RTCW_XX
+		);
+		return 0;
 
-		return 0;
 	case G_SEND_SERVER_COMMAND:
-		SV_GameSendServerCommand( args[1], static_cast<const char*> (VMA( 2 )) );
+		SV_GameSendServerCommand(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 		return 0;
+
 	case G_LINKENTITY:
-		SV_LinkEntity( static_cast<sharedEntity_t*> (VMA( 1 )) );
+		SV_LinkEntity(rtcw::from_vm_arg<sharedEntity_t*>(VMA(1)));
 		return 0;
+
 	case G_UNLINKENTITY:
-		SV_UnlinkEntity( static_cast<sharedEntity_t*> (VMA( 1 )) );
+		SV_UnlinkEntity(rtcw::from_vm_arg<sharedEntity_t*>(VMA(1)));
 		return 0;
+
 	case G_ENTITIES_IN_BOX:
-		return SV_AreaEntities( static_cast<const vec_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )), static_cast<int*> (VMA( 3 )), args[4] );
+		return SV_AreaEntities(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<int*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
+
 	case G_ENTITY_CONTACT:
-		return SV_EntityContact( static_cast<const vec_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )), static_cast<const sharedEntity_t*> (VMA( 3 )), /* int capsule */ qfalse );
+		return SV_EntityContact(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<const sharedEntity_t*>(VMA(3)),
+			qfalse
+		);
+
 	case G_ENTITY_CONTACTCAPSULE:
-		return SV_EntityContact( static_cast<const vec_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )), static_cast<const sharedEntity_t*> (VMA( 3 )), /* int capsule */ qtrue );
+		return SV_EntityContact(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<const sharedEntity_t*>(VMA(3)),
+			qtrue
+		);
+
 	case G_TRACE:
-		SV_Trace( static_cast<trace_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )), static_cast<const vec_t*> (VMA( 3 )), static_cast<const vec_t*> (VMA( 4 )), static_cast<const vec_t*> (VMA( 5 )), args[6], args[7], /* int capsule */ qfalse );
+		SV_Trace(
+			rtcw::from_vm_arg<trace_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(3)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(4)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(5)),
+			rtcw::from_vm_arg<int>(args[6]),
+			rtcw::from_vm_arg<int>(args[7]),
+			qfalse
+		);
 		return 0;
+
 	case G_TRACECAPSULE:
-		SV_Trace( static_cast<trace_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )), static_cast<const vec_t*> (VMA( 3 )), static_cast<const vec_t*> (VMA( 4 )), static_cast<const vec_t*> (VMA( 5 )), args[6], args[7], /* int capsule */ qtrue );
+		SV_Trace(
+			rtcw::from_vm_arg<trace_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(3)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(4)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(5)),
+			rtcw::from_vm_arg<int>(args[6]),
+			rtcw::from_vm_arg<int>(args[7]),
+			qtrue
+		);
 		return 0;
+
 	case G_POINT_CONTENTS:
-		return SV_PointContents( static_cast<const vec_t*> (VMA( 1 )), args[2] );
+		return SV_PointContents(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2])
+		);
+
 	case G_SET_BRUSH_MODEL:
-		SV_SetBrushModel( static_cast<sharedEntity_t*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )) );
+		SV_SetBrushModel(
+			rtcw::from_vm_arg<sharedEntity_t*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 		return 0;
+
 	case G_IN_PVS:
-		return SV_inPVS( static_cast<const vec_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )) );
+		return SV_inPVS(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2))
+		);
+
 	case G_IN_PVS_IGNORE_PORTALS:
-		return SV_inPVSIgnorePortals( static_cast<const vec_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )) );
+		return SV_inPVSIgnorePortals(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2))
+		);
 
 	case G_SET_CONFIGSTRING:
-		SV_SetConfigstring( args[1], static_cast<const char*> (VMA( 2 )) );
+		SV_SetConfigstring(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 		return 0;
+
 	case G_GET_CONFIGSTRING:
-		SV_GetConfigstring( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		SV_GetConfigstring(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
+
 	case G_SET_USERINFO:
-		SV_SetUserinfo( args[1], static_cast<const char*> (VMA( 2 )) );
+		SV_SetUserinfo(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 		return 0;
+
 	case G_GET_USERINFO:
-		SV_GetUserinfo( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		SV_GetUserinfo(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
+
 	case G_GET_SERVERINFO:
-		SV_GetServerinfo( static_cast<char*> (VMA( 1 )), args[2] );
+		SV_GetServerinfo(
+			rtcw::from_vm_arg<char*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 		return 0;
+
 	case G_ADJUST_AREA_PORTAL_STATE:
-		SV_AdjustAreaPortalState( static_cast<sharedEntity_t*> (VMA( 1 )), args[2] );
+		SV_AdjustAreaPortalState(
+			rtcw::from_vm_arg<sharedEntity_t*>(VMA(1)),
+			rtcw::from_vm_arg<qboolean>(args[2])
+		);
 		return 0;
+
 	case G_AREAS_CONNECTED:
-		return CM_AreasConnected( args[1], args[2] );
+		return CM_AreasConnected(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 
 	case G_BOT_ALLOCATE_CLIENT:
-
-#if !defined RTCW_ET
-		return SV_BotAllocateClient();
-#else
-		return SV_BotAllocateClient( args[1] );
+		return SV_BotAllocateClient(
+#if defined RTCW_ET
+			rtcw::from_vm_arg<int>(args[1])
 #endif // RTCW_XX
+		);
 
 	case G_BOT_FREE_CLIENT:
-		SV_BotFreeClient( args[1] );
+		SV_BotFreeClient(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 
 	case G_GET_USERCMD:
-		SV_GetUsercmd( args[1], static_cast<usercmd_t*> (VMA( 2 )) );
+		SV_GetUsercmd(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<usercmd_t*>(VMA(2))
+		);
 		return 0;
+
 	case G_GET_ENTITY_TOKEN:
 	{
-		const char  *s;
+		const auto s = COM_Parse(const_cast<const char**>(&sv.entityParsePoint));
+		Q_strncpyz(rtcw::from_vm_arg<char*>(VMA(1)), s, rtcw::from_vm_arg<int>(args[2]));
 
-		s = COM_Parse( const_cast<const char**>(&sv.entityParsePoint) );
-		Q_strncpyz( static_cast<char*> (VMA( 1 )), s, args[2] );
-		if ( !sv.entityParsePoint && !s[0] ) {
+		if (sv.entityParsePoint == nullptr && s[0] == '\0')
+		{
 			return qfalse;
-		} else {
+		}
+		else
+		{
 			return qtrue;
 		}
 	}
 
 	case G_DEBUG_POLYGON_CREATE:
-		return BotImport_DebugPolygonCreate( args[1], args[2], static_cast<vec3_t*> (VMA( 3 )) );
-	case G_DEBUG_POLYGON_DELETE:
-		BotImport_DebugPolygonDelete( args[1] );
-		return 0;
-	case G_REAL_TIME:
-		return Com_RealTime( static_cast<qtime_t*> (VMA( 1 )) );
-	case G_SNAPVECTOR:
-		Sys_SnapVector( static_cast<float*> (VMA( 1 )) );
-		return 0;
-	case G_GETTAG:
+		return BotImport_DebugPolygonCreate(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<vec3_t*>(VMA(3))
+		);
 
+	case G_DEBUG_POLYGON_DELETE:
+		BotImport_DebugPolygonDelete(rtcw::from_vm_arg<int>(args[1]));
+		return 0;
+
+	case G_REAL_TIME:
+		return Com_RealTime(rtcw::from_vm_arg<qtime_t*>(VMA(1)));
+
+	case G_SNAPVECTOR:
+		Sys_SnapVector(rtcw::from_vm_arg<float*>(VMA(1)));
+		return 0;
+
+	case G_GETTAG:
 #if !defined RTCW_ET
-		return SV_GetTag( args[1], static_cast<char*> (VMA( 2 )), static_cast<orientation_t*> (VMA( 3 )) );
+		return SV_GetTag(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<orientation_t*>(VMA(3))
+		);
 #else
-		return SV_GetTag( args[1], args[2], static_cast<char*> (VMA( 3 )), static_cast<orientation_t*> (VMA( 4 )) );
+		return SV_GetTag(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<char*>(VMA(3)),
+			rtcw::from_vm_arg<orientation_t*>(VMA(4))
+		);
 #endif // RTCW_XX
 
 #if defined RTCW_ET
 	case G_REGISTERTAG:
-		return SV_LoadTag( static_cast<const char*> (VMA( 1 )) );
+		return SV_LoadTag(rtcw::from_vm_arg<const char*>(VMA(1)));
 
 		// START	xkan, 10/28/2002
 	case G_REGISTERSOUND:
 #ifdef DOOMSOUND    ///// (SA) DOOMSOUND
-		return S_RegisterSound( VMA( 1 ) );
+		return S_RegisterSound( VMA(1) );
 #else
-		return S_RegisterSound( static_cast<const char*> (VMA( 1 )), args[2] );
+		return S_RegisterSound(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<qboolean>(args[2])
+		);
 #endif  ///// (SA) DOOMSOUND
+
 	case G_GET_SOUND_LENGTH:
-		return S_GetSoundLength( args[1] );
+		return S_GetSoundLength(rtcw::from_vm_arg<sfxHandle_t>(rtcw::from_vm_arg<int>(args[1])));
 		// END		xkan, 10/28/2002
 #endif // RTCW_XX
 
@@ -630,513 +813,1043 @@ intptr_t SV_GameSystemCalls (
 
 	case BOTLIB_SETUP:
 		return SV_BotLibSetup();
+
 	case BOTLIB_SHUTDOWN:
 		return SV_BotLibShutdown();
+
 	case BOTLIB_LIBVAR_SET:
-		return botlib_export->BotLibVarSet( static_cast<char*> (VMA( 1 )), static_cast<char*> (VMA( 2 )) );
+		return botlib_export->BotLibVarSet(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
+
 	case BOTLIB_LIBVAR_GET:
-		return botlib_export->BotLibVarGet( static_cast<char*> (VMA( 1 )), static_cast<char*> (VMA( 2 )), args[3] );
+		return botlib_export->BotLibVarGet(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 
 	case BOTLIB_PC_ADD_GLOBAL_DEFINE:
-		return botlib_export->PC_AddGlobalDefine( static_cast<char*> (VMA( 1 )) );
+		return botlib_export->PC_AddGlobalDefine(rtcw::from_vm_arg<const char*>(VMA(1)));
+
 	case BOTLIB_PC_LOAD_SOURCE:
-		return botlib_export->PC_LoadSourceHandle( static_cast<const char*> (VMA( 1 )) );
+		return botlib_export->PC_LoadSourceHandle(rtcw::from_vm_arg<const char*>(VMA(1)));
+
 	case BOTLIB_PC_FREE_SOURCE:
-		return botlib_export->PC_FreeSourceHandle( args[1] );
+		return botlib_export->PC_FreeSourceHandle(rtcw::from_vm_arg<int>(args[1]));
+
 	case BOTLIB_PC_READ_TOKEN:
-		return botlib_export->PC_ReadTokenHandle( args[1], static_cast<pc_token_t*> (VMA( 2 )) );
+		return botlib_export->PC_ReadTokenHandle(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<pc_token_t*>(VMA(2))
+		);
 	case BOTLIB_PC_SOURCE_FILE_AND_LINE:
-		return botlib_export->PC_SourceFileAndLine( args[1], static_cast<char*> (VMA( 2 )), static_cast<int*> (VMA( 3 )) );
+		return botlib_export->PC_SourceFileAndLine(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int*>(VMA(3))
+		);
 
 #if defined RTCW_ET
 	case BOTLIB_PC_UNREAD_TOKEN:
-		botlib_export->PC_UnreadLastTokenHandle( args[1] );
+		botlib_export->PC_UnreadLastTokenHandle(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 #endif // RTCW_XX
 
 	case BOTLIB_START_FRAME:
-		return botlib_export->BotLibStartFrame( VMF( 1 ) );
+		return botlib_export->BotLibStartFrame(VMF(1));
+
 	case BOTLIB_LOAD_MAP:
-		return botlib_export->BotLibLoadMap( static_cast<const char*> (VMA( 1 )) );
+		return botlib_export->BotLibLoadMap(rtcw::from_vm_arg<const char*>(VMA(1)));
+
 	case BOTLIB_UPDATENTITY:
-		return botlib_export->BotLibUpdateEntity( args[1], static_cast<bot_entitystate_t*> (VMA( 2 )) );
+		return botlib_export->BotLibUpdateEntity(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<bot_entitystate_t*>(VMA(2))
+		);
+
 	case BOTLIB_TEST:
-		return botlib_export->Test( args[1], static_cast<char*> (VMA( 2 )), static_cast<vec_t*> (VMA( 3 )), static_cast<vec_t*> (VMA( 4 )) );
+		return botlib_export->Test(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<vec_t*>(VMA(3)),
+			rtcw::from_vm_arg<vec_t*>(VMA(4))
+		);
 
 	case BOTLIB_GET_SNAPSHOT_ENTITY:
-		return SV_BotGetSnapshotEntity( args[1], args[2] );
+		return SV_BotGetSnapshotEntity(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2])
+		);
+
 	case BOTLIB_GET_CONSOLE_MESSAGE:
-		return SV_BotGetConsoleMessage( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		return SV_BotGetConsoleMessage(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
+
 	case BOTLIB_USER_COMMAND:
-		SV_ClientThink( &svs.clients[args[1]], static_cast<usercmd_t*> (VMA( 2 )) );
+		SV_ClientThink(
+			&svs.clients[args[1]],
+			rtcw::from_vm_arg<usercmd_t*>(VMA(2))
+		);
 		return 0;
 
 	case BOTLIB_AAS_ENTITY_INFO:
-		botlib_export->aas.AAS_EntityInfo( args[1], static_cast<aas_entityinfo_s*> (VMA( 2 )) );
+		botlib_export->aas.AAS_EntityInfo(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<aas_entityinfo_s*>(VMA(2))
+		);
 		return 0;
 
 	case BOTLIB_AAS_INITIALIZED:
 		return botlib_export->aas.AAS_Initialized();
+
 	case BOTLIB_AAS_PRESENCE_TYPE_BOUNDING_BOX:
-		botlib_export->aas.AAS_PresenceTypeBoundingBox( args[1], static_cast<vec_t*> (VMA( 2 )), static_cast<vec_t*> (VMA( 3 )) );
+		botlib_export->aas.AAS_PresenceTypeBoundingBox(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<vec_t*>(VMA(3))
+		);
 		return 0;
+
 	case BOTLIB_AAS_TIME:
-		return FloatAsInt( botlib_export->aas.AAS_Time() );
+		return FloatAsInt(botlib_export->aas.AAS_Time());
 
 		// Ridah
 	case BOTLIB_AAS_SETCURRENTWORLD:
-		botlib_export->aas.AAS_SetCurrentWorld( args[1] );
+		botlib_export->aas.AAS_SetCurrentWorld(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 		// done.
 
 	case BOTLIB_AAS_POINT_AREA_NUM:
-		return botlib_export->aas.AAS_PointAreaNum( static_cast<vec_t*> (VMA( 1 )) );
+		return botlib_export->aas.AAS_PointAreaNum(rtcw::from_vm_arg<vec_t*>(VMA(1)));
+
 	case BOTLIB_AAS_TRACE_AREAS:
-		return botlib_export->aas.AAS_TraceAreas( static_cast<vec_t*> (VMA( 1 )), static_cast<vec_t*> (VMA( 2 )), static_cast<int*> (VMA( 3 )), static_cast<vec3_t*> (VMA( 4 )), args[5] );
+		return botlib_export->aas.AAS_TraceAreas(
+			rtcw::from_vm_arg<vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<int*>(VMA(3)),
+			rtcw::from_vm_arg<vec3_t*>(VMA(4)),
+			rtcw::from_vm_arg<int>(args[5])
+		);
 
 #if defined RTCW_ET
 	case BOTLIB_AAS_BBOX_AREAS:
-		return botlib_export->aas.AAS_BBoxAreas( static_cast<vec_t*> (VMA( 1 )), static_cast<vec_t*> (VMA( 2 )), static_cast<int*> (VMA( 3 )), args[4] );
+		return botlib_export->aas.AAS_BBoxAreas(
+			rtcw::from_vm_arg<vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<int*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
+
 	case BOTLIB_AAS_AREA_CENTER:
-		botlib_export->aas.AAS_AreaCenter( args[1], static_cast<vec_t*> (VMA( 2 )) );
+		botlib_export->aas.AAS_AreaCenter(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<vec_t*>(VMA(2))
+		);
 		return 0;
+
 	case BOTLIB_AAS_AREA_WAYPOINT:
-		return botlib_export->aas.AAS_AreaWaypoint( args[1], static_cast<vec_t*> (VMA( 2 )) );
+		return botlib_export->aas.AAS_AreaWaypoint(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<vec_t*>(VMA(2))
+		);
 #endif // RTCW_XX
 
 	case BOTLIB_AAS_POINT_CONTENTS:
-		return botlib_export->aas.AAS_PointContents( static_cast<vec_t*> (VMA( 1 )) );
+		return botlib_export->aas.AAS_PointContents(rtcw::from_vm_arg<vec_t*>(VMA(1)));
+
 	case BOTLIB_AAS_NEXT_BSP_ENTITY:
-		return botlib_export->aas.AAS_NextBSPEntity( args[1] );
+		return botlib_export->aas.AAS_NextBSPEntity(rtcw::from_vm_arg<int>(args[1]));
+
 	case BOTLIB_AAS_VALUE_FOR_BSP_EPAIR_KEY:
-		return botlib_export->aas.AAS_ValueForBSPEpairKey( args[1],static_cast<char*> ( VMA( 2 )), static_cast<char*> (VMA( 3 )), args[4] );
+		return botlib_export->aas.AAS_ValueForBSPEpairKey(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<char*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
+
 	case BOTLIB_AAS_VECTOR_FOR_BSP_EPAIR_KEY:
-		return botlib_export->aas.AAS_VectorForBSPEpairKey( args[1], static_cast<char*> (VMA( 2 )), static_cast<vec_t*> (VMA( 3 )) );
+		return botlib_export->aas.AAS_VectorForBSPEpairKey(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<vec_t*>(VMA(3))
+		);
+
 	case BOTLIB_AAS_FLOAT_FOR_BSP_EPAIR_KEY:
-		return botlib_export->aas.AAS_FloatForBSPEpairKey( args[1], static_cast<char*> (VMA( 2 )), static_cast<float*> (VMA( 3 )) );
+		return botlib_export->aas.AAS_FloatForBSPEpairKey(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<float*>(VMA(3))
+		);
+
 	case BOTLIB_AAS_INT_FOR_BSP_EPAIR_KEY:
-		return botlib_export->aas.AAS_IntForBSPEpairKey( args[1], static_cast<char*> (VMA( 2 )), static_cast<int*> (VMA( 3 )) );
+		return botlib_export->aas.AAS_IntForBSPEpairKey(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<int*>(VMA(3))
+		);
 
 	case BOTLIB_AAS_AREA_REACHABILITY:
-		return botlib_export->aas.AAS_AreaReachability( args[1] );
+		return botlib_export->aas.AAS_AreaReachability(rtcw::from_vm_arg<int>(args[1]));
 
 #if defined RTCW_ET
 	case BOTLIB_AAS_AREA_LADDER:
-		return botlib_export->aas.AAS_AreaLadder( args[1] );
+		return botlib_export->aas.AAS_AreaLadder(rtcw::from_vm_arg<int>(args[1]));
 #endif // RTCW_XX
 
 	case BOTLIB_AAS_AREA_TRAVEL_TIME_TO_GOAL_AREA:
-		return botlib_export->aas.AAS_AreaTravelTimeToGoalArea( args[1], static_cast<vec_t*> (VMA( 2 )), args[3], args[4] );
+		return botlib_export->aas.AAS_AreaTravelTimeToGoalArea(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<int>(args[4])
+		);
 
 	case BOTLIB_AAS_SWIMMING:
-		return botlib_export->aas.AAS_Swimming( static_cast<vec_t*> (VMA( 1 )) );
+		return botlib_export->aas.AAS_Swimming(rtcw::from_vm_arg<vec_t*>(VMA(1)));
+
 	case BOTLIB_AAS_PREDICT_CLIENT_MOVEMENT:
-		return botlib_export->aas.AAS_PredictClientMovement( static_cast<aas_clientmove_s*> (VMA( 1 )), args[2], static_cast<vec_t*> (VMA( 3 )), args[4], args[5],
-															 static_cast<vec_t*> (VMA( 6 )), static_cast<vec_t*> (VMA( 7 )), args[8], args[9], VMF( 10 ), args[11], args[12], args[13] );
+		return botlib_export->aas.AAS_PredictClientMovement(
+			rtcw::from_vm_arg<aas_clientmove_s*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<vec_t*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<int>(args[5]),
+			rtcw::from_vm_arg<vec_t*>(VMA(6)),
+			rtcw::from_vm_arg<vec_t*>(VMA(7)),
+			rtcw::from_vm_arg<int>(args[8]),
+			rtcw::from_vm_arg<int>(args[9]),
+			VMF(10),
+			rtcw::from_vm_arg<int>(args[11]),
+			rtcw::from_vm_arg<int>(args[12]),
+			rtcw::from_vm_arg<int>(args[13])
+		);
 
 		// Ridah, route-tables
 	case BOTLIB_AAS_RT_SHOWROUTE:
-		botlib_export->aas.AAS_RT_ShowRoute( static_cast<vec_t*> (VMA( 1 )), args[2], args[3] );
+		botlib_export->aas.AAS_RT_ShowRoute(
+			rtcw::from_vm_arg<vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 
 #if !defined RTCW_ET
 	case BOTLIB_AAS_RT_GETHIDEPOS:
-		return botlib_export->aas.AAS_RT_GetHidePos( static_cast<vec_t*> (VMA( 1 )), args[2], args[3], static_cast<vec_t*> (VMA( 4 )), args[5], args[6], static_cast<vec_t*> (VMA( 7 )) );
+		return botlib_export->aas.AAS_RT_GetHidePos(
+			rtcw::from_vm_arg<vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<vec_t*>(VMA(4)),
+			rtcw::from_vm_arg<int>(args[5]),
+			rtcw::from_vm_arg<int>(args[6]),
+			rtcw::from_vm_arg<vec_t*>(VMA(7))
+		);
 
 	case BOTLIB_AAS_FINDATTACKSPOTWITHINRANGE:
-		return botlib_export->aas.AAS_FindAttackSpotWithinRange( args[1], args[2], args[3], VMF( 4 ), args[5], static_cast<float*> (VMA( 6 )) );
+		return botlib_export->aas.AAS_FindAttackSpotWithinRange(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3]),
+			VMF(4),
+			rtcw::from_vm_arg<int>(args[5]),
+			rtcw::from_vm_arg<float*>(VMA(6))
+		);
 #else
 		//case BOTLIB_AAS_RT_GETHIDEPOS:
 		//	return botlib_export->aas.AAS_RT_GetHidePos( VMA(1), args[2], args[3], VMA(4), args[5], args[6], VMA(7) );
 
 		//case BOTLIB_AAS_FINDATTACKSPOTWITHINRANGE:
-		//	return botlib_export->aas.AAS_FindAttackSpotWithinRange( args[1], args[2], args[3], VMF(4), args[5], VMA(6) );
+		//	return botlib_export->aas.AAS_FindAttackSpotWithinRange(rtcw::from_vm_arg<int>(args[1]), args[2], args[3], VMF(4), args[5], VMA(6) );
 #endif // RTCW_XX
 
 #if defined RTCW_SP
 	case BOTLIB_AAS_GETROUTEFIRSTVISPOS:
-		return botlib_export->aas.AAS_GetRouteFirstVisPos( static_cast<vec_t*> (VMA( 1 )), static_cast<vec_t*> (VMA( 2 )), args[3], static_cast<vec_t*> (VMA( 4 )) );
+		return botlib_export->aas.AAS_GetRouteFirstVisPos(
+			rtcw::from_vm_arg<vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<vec_t*>(VMA(4))
+		);
 #endif // RTCW_XX
 
 #if defined RTCW_ET
 	case BOTLIB_AAS_NEARESTHIDEAREA:
-		return botlib_export->aas.AAS_NearestHideArea( args[1], static_cast<vec_t*> (VMA( 2 )), args[3], args[4], static_cast<vec_t*> (VMA( 5 )), args[6], args[7], VMF( 8 ), static_cast<vec_t*> (VMA( 9 )) );
+		return botlib_export->aas.AAS_NearestHideArea(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<vec_t*>(VMA(5)),
+			rtcw::from_vm_arg<int>(args[6]),
+			rtcw::from_vm_arg<int>(args[7]),
+			VMF(8),
+			rtcw::from_vm_arg<vec_t*>(VMA(9))
+		);
 
 	case BOTLIB_AAS_LISTAREASINRANGE:
-		return botlib_export->aas.AAS_ListAreasInRange( static_cast<vec_t*> (VMA( 1 )), args[2], VMF( 3 ), args[4], static_cast<vec3_t*> (VMA( 5 )), args[6] );
+		return botlib_export->aas.AAS_ListAreasInRange(
+			rtcw::from_vm_arg<vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			VMF(3),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<vec3_t*>(VMA(5)),
+			rtcw::from_vm_arg<int>(args[6])
+		);
 
 	case BOTLIB_AAS_AVOIDDANGERAREA:
-		return botlib_export->aas.AAS_AvoidDangerArea( static_cast<vec_t*> (VMA( 1 )), args[2], static_cast<vec_t*> (VMA( 3 )), args[4], VMF( 5 ), args[6] );
+		return botlib_export->aas.AAS_AvoidDangerArea(
+			rtcw::from_vm_arg<vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<vec_t*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4]),
+			VMF(5),
+			rtcw::from_vm_arg<int>(args[6])
+		);
 
 	case BOTLIB_AAS_RETREAT:
-		return botlib_export->aas.AAS_Retreat( static_cast<int*> (VMA( 1 )), args[2], static_cast<vec_t*> (VMA( 3 )), args[4], static_cast<vec_t*> (VMA( 5 )), args[6], VMF( 7 ), VMF( 8 ), args[9] );
+		return botlib_export->aas.AAS_Retreat(
+			rtcw::from_vm_arg<int*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<vec_t*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<vec_t*>(VMA(5)),
+			rtcw::from_vm_arg<int>(args[6]),
+			VMF(7),
+			VMF(8),
+			rtcw::from_vm_arg<int>(args[9])
+		);
 
 	case BOTLIB_AAS_ALTROUTEGOALS:
-		return botlib_export->aas.AAS_AlternativeRouteGoals( static_cast<vec_t*> (VMA( 1 )), static_cast<vec_t*> (VMA( 2 )), args[3], static_cast<aas_altroutegoal_t*> (VMA( 4 )), args[5], args[6] );
+		return botlib_export->aas.AAS_AlternativeRouteGoals(
+			rtcw::from_vm_arg<vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<aas_altroutegoal_t*>(VMA(4)),
+			rtcw::from_vm_arg<int>(args[5]),
+			rtcw::from_vm_arg<int>(args[6])
+		);
 #endif // RTCW_XX
 
 	case BOTLIB_AAS_SETAASBLOCKINGENTITY:
-		botlib_export->aas.AAS_SetAASBlockingEntity( static_cast<vec_t*> (VMA( 1 )), static_cast<vec_t*> (VMA( 2 )), args[3] );
+		botlib_export->aas.AAS_SetAASBlockingEntity(
+			rtcw::from_vm_arg<vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 
 #if defined RTCW_ET
 	case BOTLIB_AAS_RECORDTEAMDEATHAREA:
-		botlib_export->aas.AAS_RecordTeamDeathArea( static_cast<vec_t*> (VMA( 1 )), args[2], args[3], args[4], args[5] );
+		botlib_export->aas.AAS_RecordTeamDeathArea(
+			rtcw::from_vm_arg<vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<int>(args[5])
+		);
 		return 0;
 #endif // RTCW_XX
 
 		// done.
 
 	case BOTLIB_EA_SAY:
-		botlib_export->ea.EA_Say( args[1], static_cast<char*> (VMA( 2 )) );
+		botlib_export->ea.EA_Say(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
 		return 0;
 	case BOTLIB_EA_SAY_TEAM:
-		botlib_export->ea.EA_SayTeam( args[1], static_cast<char*> (VMA( 2 )) );
+		botlib_export->ea.EA_SayTeam(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
 		return 0;
+
 	case BOTLIB_EA_USE_ITEM:
-		botlib_export->ea.EA_UseItem( args[1], static_cast<char*> (VMA( 2 )) );
+		botlib_export->ea.EA_UseItem(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
 		return 0;
+
 	case BOTLIB_EA_DROP_ITEM:
-		botlib_export->ea.EA_DropItem( args[1], static_cast<char*> (VMA( 2 )) );
+		botlib_export->ea.EA_DropItem(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
 		return 0;
+
 	case BOTLIB_EA_USE_INV:
-		botlib_export->ea.EA_UseInv( args[1], static_cast<char*> (VMA( 2 )) );
+		botlib_export->ea.EA_UseInv(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
 		return 0;
+
 	case BOTLIB_EA_DROP_INV:
-		botlib_export->ea.EA_DropInv( args[1], static_cast<char*> (VMA( 2 )) );
+		botlib_export->ea.EA_DropInv(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
 		return 0;
+
 	case BOTLIB_EA_GESTURE:
-		botlib_export->ea.EA_Gesture( args[1] );
+		botlib_export->ea.EA_Gesture(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_EA_COMMAND:
-		botlib_export->ea.EA_Command( args[1], static_cast<char*> (VMA( 2 )) );
+		botlib_export->ea.EA_Command(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
 		return 0;
 
 	case BOTLIB_EA_SELECT_WEAPON:
-		botlib_export->ea.EA_SelectWeapon( args[1], args[2] );
+		botlib_export->ea.EA_SelectWeapon(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 		return 0;
+
 	case BOTLIB_EA_TALK:
-		botlib_export->ea.EA_Talk( args[1] );
+		botlib_export->ea.EA_Talk(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_EA_ATTACK:
-		botlib_export->ea.EA_Attack( args[1] );
+		botlib_export->ea.EA_Attack(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_EA_RELOAD:
-		botlib_export->ea.EA_Reload( args[1] );
+		botlib_export->ea.EA_Reload(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_EA_USE:
-		botlib_export->ea.EA_Use( args[1] );
+		botlib_export->ea.EA_Use(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_EA_RESPAWN:
-		botlib_export->ea.EA_Respawn( args[1] );
+		botlib_export->ea.EA_Respawn(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_EA_JUMP:
-		botlib_export->ea.EA_Jump( args[1] );
+		botlib_export->ea.EA_Jump(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_EA_DELAYED_JUMP:
-		botlib_export->ea.EA_DelayedJump( args[1] );
+		botlib_export->ea.EA_DelayedJump(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_EA_CROUCH:
-		botlib_export->ea.EA_Crouch( args[1] );
+		botlib_export->ea.EA_Crouch(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 
 #if defined RTCW_ET
 	case BOTLIB_EA_WALK:
-		botlib_export->ea.EA_Walk( args[1] );
+		botlib_export->ea.EA_Walk(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 #endif // RTCW_XX
 
 	case BOTLIB_EA_MOVE_UP:
-		botlib_export->ea.EA_MoveUp( args[1] );
+		botlib_export->ea.EA_MoveUp(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_EA_MOVE_DOWN:
-		botlib_export->ea.EA_MoveDown( args[1] );
+		botlib_export->ea.EA_MoveDown(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_EA_MOVE_FORWARD:
-		botlib_export->ea.EA_MoveForward( args[1] );
+		botlib_export->ea.EA_MoveForward(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_EA_MOVE_BACK:
-		botlib_export->ea.EA_MoveBack( args[1] );
+		botlib_export->ea.EA_MoveBack(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_EA_MOVE_LEFT:
-		botlib_export->ea.EA_MoveLeft( args[1] );
+		botlib_export->ea.EA_MoveLeft(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_EA_MOVE_RIGHT:
-		botlib_export->ea.EA_MoveRight( args[1] );
+		botlib_export->ea.EA_MoveRight(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_EA_MOVE:
-		botlib_export->ea.EA_Move( args[1], static_cast<vec_t*> (VMA( 2 )), VMF( 3 ) );
+		botlib_export->ea.EA_Move(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<vec_t*>(VMA(2)),
+			VMF(3)
+		);
 		return 0;
+
 	case BOTLIB_EA_VIEW:
-		botlib_export->ea.EA_View( args[1], static_cast<vec_t*> (VMA( 2 )) );
+		botlib_export->ea.EA_View(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<vec_t*>(VMA(2))
+		);
 		return 0;
 
 #if defined RTCW_ET
 	case BOTLIB_EA_PRONE:
-		botlib_export->ea.EA_Prone( args[1] );
+		botlib_export->ea.EA_Prone(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 #endif // RTCW_XX
 
 	case BOTLIB_EA_END_REGULAR:
-		botlib_export->ea.EA_EndRegular( args[1], VMF( 2 ) );
+		botlib_export->ea.EA_EndRegular(
+			rtcw::from_vm_arg<int>(args[1]),
+			VMF(2)
+		);
 		return 0;
+
 	case BOTLIB_EA_GET_INPUT:
-		botlib_export->ea.EA_GetInput( args[1], VMF( 2 ), static_cast<bot_input_t*> (VMA( 3 )) );
+		botlib_export->ea.EA_GetInput(
+			rtcw::from_vm_arg<int>(args[1]),
+			VMF(2),
+			rtcw::from_vm_arg<bot_input_t*>(VMA(3))
+		);
 		return 0;
+
 	case BOTLIB_EA_RESET_INPUT:
-		botlib_export->ea.EA_ResetInput( args[1], static_cast<bot_input_t*> (VMA( 2 )) );
+		botlib_export->ea.EA_ResetInput(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<bot_input_t*>(VMA(2))
+		);
 		return 0;
 
 	case BOTLIB_AI_LOAD_CHARACTER:
-		return botlib_export->ai.BotLoadCharacter( static_cast<char*> (VMA( 1 )), args[2] );
+		return botlib_export->ai.BotLoadCharacter(
+			rtcw::from_vm_arg<char*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2])
+		);
+
 	case BOTLIB_AI_FREE_CHARACTER:
-		botlib_export->ai.BotFreeCharacter( args[1] );
+		botlib_export->ai.BotFreeCharacter(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_AI_CHARACTERISTIC_FLOAT:
-		return FloatAsInt( botlib_export->ai.Characteristic_Float( args[1], args[2] ) );
+		return FloatAsInt(botlib_export->ai.Characteristic_Float(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2])
+		));
+
 	case BOTLIB_AI_CHARACTERISTIC_BFLOAT:
-		return FloatAsInt( botlib_export->ai.Characteristic_BFloat( args[1], args[2], VMF( 3 ), VMF( 4 ) ) );
+		return FloatAsInt(botlib_export->ai.Characteristic_BFloat(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			VMF(3),
+			VMF(4)
+		));
+
 	case BOTLIB_AI_CHARACTERISTIC_INTEGER:
-		return botlib_export->ai.Characteristic_Integer( args[1], args[2] );
+		return botlib_export->ai.Characteristic_Integer(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2])
+		);
+
 	case BOTLIB_AI_CHARACTERISTIC_BINTEGER:
-		return botlib_export->ai.Characteristic_BInteger( args[1], args[2], args[3], args[4] );
+		return botlib_export->ai.Characteristic_BInteger(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<int>(args[4])
+		);
+
 	case BOTLIB_AI_CHARACTERISTIC_STRING:
-		botlib_export->ai.Characteristic_String( args[1], args[2], static_cast<char*> (VMA( 3 )), args[4] );
+		botlib_export->ai.Characteristic_String(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<char*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
 		return 0;
 
 	case BOTLIB_AI_ALLOC_CHAT_STATE:
 		return botlib_export->ai.BotAllocChatState();
+
 	case BOTLIB_AI_FREE_CHAT_STATE:
-		botlib_export->ai.BotFreeChatState( args[1] );
+		botlib_export->ai.BotFreeChatState(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_AI_QUEUE_CONSOLE_MESSAGE:
-		botlib_export->ai.BotQueueConsoleMessage( args[1], args[2], static_cast<char*> (VMA( 3 )) );
+		botlib_export->ai.BotQueueConsoleMessage(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<char*>(VMA(3))
+		);
 		return 0;
+
 	case BOTLIB_AI_REMOVE_CONSOLE_MESSAGE:
-		botlib_export->ai.BotRemoveConsoleMessage( args[1], args[2] );
+		botlib_export->ai.BotRemoveConsoleMessage(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 		return 0;
+
 	case BOTLIB_AI_NEXT_CONSOLE_MESSAGE:
-		return botlib_export->ai.BotNextConsoleMessage( args[1], static_cast<bot_consolemessage_s*> (VMA( 2 )) );
+		return botlib_export->ai.BotNextConsoleMessage(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<bot_consolemessage_s*>(VMA(2))
+		);
+
 	case BOTLIB_AI_NUM_CONSOLE_MESSAGE:
-		return botlib_export->ai.BotNumConsoleMessages( args[1] );
+		return botlib_export->ai.BotNumConsoleMessages(rtcw::from_vm_arg<int>(args[1]));
+
 	case BOTLIB_AI_INITIAL_CHAT:
-		botlib_export->ai.BotInitialChat( args[1], static_cast<char*> (VMA( 2 )), args[3], static_cast<char*> (VMA( 4 )), static_cast<char*> (VMA( 5 )), static_cast<char*> (VMA( 6 )), static_cast<char*> (VMA( 7 )), static_cast<char*> (VMA( 8 )), static_cast<char*> (VMA( 9 )), static_cast<char*> (VMA( 10 )), static_cast<char*> (VMA( 11 )) );
+		botlib_export->ai.BotInitialChat(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<char*>(VMA(4)),
+			rtcw::from_vm_arg<char*>(VMA(5)),
+			rtcw::from_vm_arg<char*>(VMA(6)),
+			rtcw::from_vm_arg<char*>(VMA(7)),
+			rtcw::from_vm_arg<char*>(VMA(8)),
+			rtcw::from_vm_arg<char*>(VMA(9)),
+			rtcw::from_vm_arg<char*>(VMA(10)),
+			rtcw::from_vm_arg<char*>(VMA(11))
+		);
 		return 0;
+
 	case BOTLIB_AI_NUM_INITIAL_CHATS:
-		return botlib_export->ai.BotNumInitialChats( args[1], static_cast<char*> (VMA( 2 )) );
+		return botlib_export->ai.BotNumInitialChats(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
+
 	case BOTLIB_AI_REPLY_CHAT:
-		return botlib_export->ai.BotReplyChat( args[1], static_cast<char*> (VMA( 2 )), args[3], args[4], static_cast<char*> (VMA( 5 )), static_cast<char*> (VMA( 6 )), static_cast<char*> (VMA( 7 )), static_cast<char*> (VMA( 8 )), static_cast<char*> (VMA( 9 )), static_cast<char*> (VMA( 10 )), static_cast<char*> (VMA( 11 )), static_cast<char*> (VMA( 12 )) );
+		return botlib_export->ai.BotReplyChat(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<char*>(VMA(5)),
+			rtcw::from_vm_arg<char*>(VMA(6)),
+			rtcw::from_vm_arg<char*>(VMA(7)),
+			rtcw::from_vm_arg<char*>(VMA(8)),
+			rtcw::from_vm_arg<char*>(VMA(9)),
+			rtcw::from_vm_arg<char*>(VMA(10)),
+			rtcw::from_vm_arg<char*>(VMA(11)),
+			rtcw::from_vm_arg<char*>(VMA(12))
+		);
+
 	case BOTLIB_AI_CHAT_LENGTH:
-		return botlib_export->ai.BotChatLength( args[1] );
+		return botlib_export->ai.BotChatLength(rtcw::from_vm_arg<int>(args[1]));
+
 	case BOTLIB_AI_ENTER_CHAT:
-		botlib_export->ai.BotEnterChat( args[1], args[2], args[3] );
+		botlib_export->ai.BotEnterChat(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
+
 	case BOTLIB_AI_GET_CHAT_MESSAGE:
-		botlib_export->ai.BotGetChatMessage( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		botlib_export->ai.BotGetChatMessage(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
+
 	case BOTLIB_AI_STRING_CONTAINS:
-		return botlib_export->ai.StringContains( static_cast<char*> (VMA( 1 )), static_cast<char*> (VMA( 2 )), args[3] );
+		return botlib_export->ai.StringContains(
+			rtcw::from_vm_arg<char*>(VMA(1)),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
+
 	case BOTLIB_AI_FIND_MATCH:
-		return botlib_export->ai.BotFindMatch( static_cast<char*> (VMA( 1 )), static_cast<bot_match_s*> (VMA( 2 )), args[3] );
+		return botlib_export->ai.BotFindMatch(
+			rtcw::from_vm_arg<char*>(VMA(1)),
+			rtcw::from_vm_arg<bot_match_s*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
+
 	case BOTLIB_AI_MATCH_VARIABLE:
-		botlib_export->ai.BotMatchVariable( static_cast<bot_match_s*> (VMA( 1 )), args[2], static_cast<char*> (VMA( 3 )), args[4] );
+		botlib_export->ai.BotMatchVariable(
+			rtcw::from_vm_arg<bot_match_s*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<char*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
 		return 0;
+
 	case BOTLIB_AI_UNIFY_WHITE_SPACES:
-		botlib_export->ai.UnifyWhiteSpaces( static_cast<char*> (VMA( 1 )) );
+		botlib_export->ai.UnifyWhiteSpaces(rtcw::from_vm_arg<char*>(VMA(1)));
 		return 0;
+
 	case BOTLIB_AI_REPLACE_SYNONYMS:
-		botlib_export->ai.BotReplaceSynonyms( static_cast<char*> (VMA( 1 )), args[2] );
+		botlib_export->ai.BotReplaceSynonyms(
+			rtcw::from_vm_arg<char*>(VMA(1)),
+			rtcw::from_vm_arg<uint32_t>(args[2])
+		);
 		return 0;
+
 	case BOTLIB_AI_LOAD_CHAT_FILE:
-		return botlib_export->ai.BotLoadChatFile( args[1], static_cast<char*> (VMA( 2 )), static_cast<char*> (VMA( 3 )) );
+		return botlib_export->ai.BotLoadChatFile(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<char*>(VMA(3))
+		);
+
 	case BOTLIB_AI_SET_CHAT_GENDER:
-		botlib_export->ai.BotSetChatGender( args[1], args[2] );
+		botlib_export->ai.BotSetChatGender(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 		return 0;
+
 	case BOTLIB_AI_SET_CHAT_NAME:
-		botlib_export->ai.BotSetChatName( args[1], static_cast<char*> (VMA( 2 )) );
+		botlib_export->ai.BotSetChatName(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
 		return 0;
 
 	case BOTLIB_AI_RESET_GOAL_STATE:
-		botlib_export->ai.BotResetGoalState( args[1] );
+		botlib_export->ai.BotResetGoalState(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_AI_RESET_AVOID_GOALS:
-		botlib_export->ai.BotResetAvoidGoals( args[1] );
+		botlib_export->ai.BotResetAvoidGoals(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_AI_REMOVE_FROM_AVOID_GOALS:
-		botlib_export->ai.BotRemoveFromAvoidGoals( args[1], args[2] );
+		botlib_export->ai.BotRemoveFromAvoidGoals(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 		return 0;
+
 	case BOTLIB_AI_PUSH_GOAL:
-		botlib_export->ai.BotPushGoal( args[1], static_cast<bot_goal_s*> (VMA( 2 )) );
+		botlib_export->ai.BotPushGoal(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<bot_goal_s*>(VMA(2))
+		);
 		return 0;
+
 	case BOTLIB_AI_POP_GOAL:
-		botlib_export->ai.BotPopGoal( args[1] );
+		botlib_export->ai.BotPopGoal(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_AI_EMPTY_GOAL_STACK:
-		botlib_export->ai.BotEmptyGoalStack( args[1] );
+		botlib_export->ai.BotEmptyGoalStack(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_AI_DUMP_AVOID_GOALS:
-		botlib_export->ai.BotDumpAvoidGoals( args[1] );
+		botlib_export->ai.BotDumpAvoidGoals(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_AI_DUMP_GOAL_STACK:
-		botlib_export->ai.BotDumpGoalStack( args[1] );
+		botlib_export->ai.BotDumpGoalStack(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_AI_GOAL_NAME:
-		botlib_export->ai.BotGoalName( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		botlib_export->ai.BotGoalName(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
+
 	case BOTLIB_AI_GET_TOP_GOAL:
-		return botlib_export->ai.BotGetTopGoal( args[1], static_cast<bot_goal_s*> (VMA( 2 )) );
+		return botlib_export->ai.BotGetTopGoal(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<bot_goal_s*>(VMA(2))
+		);
+
 	case BOTLIB_AI_GET_SECOND_GOAL:
-		return botlib_export->ai.BotGetSecondGoal( args[1], static_cast<bot_goal_s*> (VMA( 2 )) );
+		return botlib_export->ai.BotGetSecondGoal(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<bot_goal_s*>(VMA(2))
+		);
+
 	case BOTLIB_AI_CHOOSE_LTG_ITEM:
-		return botlib_export->ai.BotChooseLTGItem( args[1], static_cast<vec_t*> (VMA( 2 )), static_cast<int*> (VMA( 3 )), args[4] );
+		return botlib_export->ai.BotChooseLTGItem(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<int*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
+
 	case BOTLIB_AI_CHOOSE_NBG_ITEM:
-		return botlib_export->ai.BotChooseNBGItem( args[1], static_cast<vec_t*> (VMA( 2 )), static_cast<int*> (VMA( 3 )), args[4], static_cast<bot_goal_s*> (VMA( 5 )), VMF( 6 ) );
+		return botlib_export->ai.BotChooseNBGItem(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<int*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<bot_goal_s*>(VMA(5)),
+			VMF(6)
+		);
+
 	case BOTLIB_AI_TOUCHING_GOAL:
-		return botlib_export->ai.BotTouchingGoal( static_cast<vec_t*> (VMA( 1 )), static_cast<bot_goal_s*> (VMA( 2 )) );
+		return botlib_export->ai.BotTouchingGoal(
+			rtcw::from_vm_arg<vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<bot_goal_s*>(VMA(2))
+		);
+
 	case BOTLIB_AI_ITEM_GOAL_IN_VIS_BUT_NOT_VISIBLE:
-		return botlib_export->ai.BotItemGoalInVisButNotVisible( args[1], static_cast<vec_t*> (VMA( 2 )), static_cast<vec_t*> (VMA( 3 )), static_cast<bot_goal_s*> (VMA( 4 )) );
+		return botlib_export->ai.BotItemGoalInVisButNotVisible(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<vec_t*>(VMA(3)),
+			rtcw::from_vm_arg<bot_goal_s*>(VMA(4))
+		);
+
 	case BOTLIB_AI_GET_LEVEL_ITEM_GOAL:
-		return botlib_export->ai.BotGetLevelItemGoal( args[1], static_cast<char*> (VMA( 2 )), static_cast<bot_goal_s*> (VMA( 3 )) );
+		return botlib_export->ai.BotGetLevelItemGoal(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<bot_goal_s*>(VMA(3))
+		);
+
 	case BOTLIB_AI_GET_NEXT_CAMP_SPOT_GOAL:
-		return botlib_export->ai.BotGetNextCampSpotGoal( args[1], static_cast<bot_goal_s*> (VMA( 2 )) );
+		return botlib_export->ai.BotGetNextCampSpotGoal(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<bot_goal_s*>(VMA(2))
+		);
+
 	case BOTLIB_AI_GET_MAP_LOCATION_GOAL:
-		return botlib_export->ai.BotGetMapLocationGoal( static_cast<char*> (VMA( 1 )), static_cast<bot_goal_s*> (VMA( 2 )) );
+		return botlib_export->ai.BotGetMapLocationGoal(
+			rtcw::from_vm_arg<char*>(VMA(1)),
+			rtcw::from_vm_arg<bot_goal_s*>(VMA(2))
+		);
+
 	case BOTLIB_AI_AVOID_GOAL_TIME:
-		return FloatAsInt( botlib_export->ai.BotAvoidGoalTime( args[1], args[2] ) );
+		return FloatAsInt(botlib_export->ai.BotAvoidGoalTime(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2])
+		));
+
 	case BOTLIB_AI_INIT_LEVEL_ITEMS:
 		botlib_export->ai.BotInitLevelItems();
 		return 0;
+
 	case BOTLIB_AI_UPDATE_ENTITY_ITEMS:
 		botlib_export->ai.BotUpdateEntityItems();
 		return 0;
+
 	case BOTLIB_AI_LOAD_ITEM_WEIGHTS:
-		return botlib_export->ai.BotLoadItemWeights( args[1], static_cast<char*> (VMA( 2 )) );
+		return botlib_export->ai.BotLoadItemWeights(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
+
 	case BOTLIB_AI_FREE_ITEM_WEIGHTS:
-		botlib_export->ai.BotFreeItemWeights( args[1] );
+		botlib_export->ai.BotFreeItemWeights(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_AI_INTERBREED_GOAL_FUZZY_LOGIC:
-		botlib_export->ai.BotInterbreedGoalFuzzyLogic( args[1], args[2], args[3] );
+		botlib_export->ai.BotInterbreedGoalFuzzyLogic(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
+
 	case BOTLIB_AI_SAVE_GOAL_FUZZY_LOGIC:
-		botlib_export->ai.BotSaveGoalFuzzyLogic( args[1], static_cast<char*> (VMA( 2 )) );
+		botlib_export->ai.BotSaveGoalFuzzyLogic(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
 		return 0;
+
 	case BOTLIB_AI_MUTATE_GOAL_FUZZY_LOGIC:
-		botlib_export->ai.BotMutateGoalFuzzyLogic( args[1], VMF( 2 ) );
+		botlib_export->ai.BotMutateGoalFuzzyLogic(
+			rtcw::from_vm_arg<int>(args[1]),
+			VMF(2)
+		);
 		return 0;
+
 	case BOTLIB_AI_ALLOC_GOAL_STATE:
-		return botlib_export->ai.BotAllocGoalState( args[1] );
+		return botlib_export->ai.BotAllocGoalState(rtcw::from_vm_arg<int>(args[1]));
+
 	case BOTLIB_AI_FREE_GOAL_STATE:
-		botlib_export->ai.BotFreeGoalState( args[1] );
+		botlib_export->ai.BotFreeGoalState(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 
 	case BOTLIB_AI_RESET_MOVE_STATE:
-		botlib_export->ai.BotResetMoveState( args[1] );
+		botlib_export->ai.BotResetMoveState(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_AI_MOVE_TO_GOAL:
-		botlib_export->ai.BotMoveToGoal( static_cast<bot_moveresult_s*> (VMA( 1 )), args[2], static_cast<bot_goal_s*> (VMA( 3 )), args[4] );
+		botlib_export->ai.BotMoveToGoal(
+			rtcw::from_vm_arg<bot_moveresult_s*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<bot_goal_s*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
 		return 0;
+
 	case BOTLIB_AI_MOVE_IN_DIRECTION:
-		return botlib_export->ai.BotMoveInDirection( args[1], static_cast<vec_t*> (VMA( 2 )), VMF( 3 ), args[4] );
+		return botlib_export->ai.BotMoveInDirection(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<vec_t*>(VMA(2)),
+			VMF(3),
+			rtcw::from_vm_arg<int>(args[4])
+		);
+
 	case BOTLIB_AI_RESET_AVOID_REACH:
-		botlib_export->ai.BotResetAvoidReach( args[1] );
+		botlib_export->ai.BotResetAvoidReach(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_AI_RESET_LAST_AVOID_REACH:
-		botlib_export->ai.BotResetLastAvoidReach( args[1] );
+		botlib_export->ai.BotResetLastAvoidReach(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_AI_REACHABILITY_AREA:
-		return botlib_export->ai.BotReachabilityArea( static_cast<vec_t*> (VMA( 1 )), args[2] );
+		return botlib_export->ai.BotReachabilityArea(
+			rtcw::from_vm_arg<vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2])
+		);
+
 	case BOTLIB_AI_MOVEMENT_VIEW_TARGET:
-		return botlib_export->ai.BotMovementViewTarget( args[1], static_cast<bot_goal_s*> (VMA( 2 )), args[3], VMF( 4 ), static_cast<vec_t*> (VMA( 5 )) );
+		return botlib_export->ai.BotMovementViewTarget(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<bot_goal_s*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3]),
+			VMF(4),
+			rtcw::from_vm_arg<vec_t*>(VMA(5))
+		);
+
 	case BOTLIB_AI_PREDICT_VISIBLE_POSITION:
-		return botlib_export->ai.BotPredictVisiblePosition( static_cast<vec_t*> (VMA( 1 )), args[2], static_cast<bot_goal_s*> (VMA( 3 )), args[4], static_cast<vec_t*> (VMA( 5 )) );
+		return botlib_export->ai.BotPredictVisiblePosition(
+			rtcw::from_vm_arg<vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<bot_goal_s*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<vec_t*>(VMA(5))
+		);
+
 	case BOTLIB_AI_ALLOC_MOVE_STATE:
 		return botlib_export->ai.BotAllocMoveState();
+
 	case BOTLIB_AI_FREE_MOVE_STATE:
-		botlib_export->ai.BotFreeMoveState( args[1] );
+		botlib_export->ai.BotFreeMoveState(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_AI_INIT_MOVE_STATE:
-		botlib_export->ai.BotInitMoveState( args[1], static_cast<bot_initmove_s*> (VMA( 2 )) );
+		botlib_export->ai.BotInitMoveState(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<bot_initmove_s*>(VMA(2))
+		);
 		return 0;
+
 		// Ridah
 	case BOTLIB_AI_INIT_AVOID_REACH:
-		botlib_export->ai.BotInitAvoidReach( args[1] );
+		botlib_export->ai.BotInitAvoidReach(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 		// done.
 
 	case BOTLIB_AI_CHOOSE_BEST_FIGHT_WEAPON:
-		return botlib_export->ai.BotChooseBestFightWeapon( args[1], static_cast<int*> (VMA( 2 )) );
+		return botlib_export->ai.BotChooseBestFightWeapon(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int*>(VMA(2))
+		);
+
 	case BOTLIB_AI_GET_WEAPON_INFO:
-		botlib_export->ai.BotGetWeaponInfo( args[1], args[2], static_cast<weaponinfo_s*> (VMA( 3 )) );
+		botlib_export->ai.BotGetWeaponInfo(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<weaponinfo_s*>(VMA(3))
+		);
 		return 0;
+
 	case BOTLIB_AI_LOAD_WEAPON_WEIGHTS:
-		return botlib_export->ai.BotLoadWeaponWeights( args[1], static_cast<char*> (VMA( 2 )) );
+		return botlib_export->ai.BotLoadWeaponWeights(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
+
 	case BOTLIB_AI_ALLOC_WEAPON_STATE:
 		return botlib_export->ai.BotAllocWeaponState();
+
 	case BOTLIB_AI_FREE_WEAPON_STATE:
-		botlib_export->ai.BotFreeWeaponState( args[1] );
+		botlib_export->ai.BotFreeWeaponState(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case BOTLIB_AI_RESET_WEAPON_STATE:
-		botlib_export->ai.BotResetWeaponState( args[1] );
+		botlib_export->ai.BotResetWeaponState(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 
 	case BOTLIB_AI_GENETIC_PARENTS_AND_CHILD_SELECTION:
-		return botlib_export->ai.GeneticParentsAndChildSelection( args[1], static_cast<float*> (VMA( 2 )), static_cast<int*> (VMA( 3 )), static_cast<int*> (VMA( 4 )), static_cast<int*> (VMA( 5 )) );
+		return botlib_export->ai.GeneticParentsAndChildSelection(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<float*>(VMA(2)),
+			rtcw::from_vm_arg<int*>(VMA(3)),
+			rtcw::from_vm_arg<int*>(VMA(4)),
+			rtcw::from_vm_arg<int*>(VMA(5))
+		);
 
+// FIXME Not used
+#if FIXME
 	case TRAP_MEMSET:
-		memset( VMA( 1 ), args[2], args[3] );
+		memset( VMA(1), args[2], args[3] );
 		return 0;
 
 	case TRAP_MEMCPY:
-		memcpy( VMA( 1 ), VMA( 2 ), args[3] );
+		memcpy( VMA(1), VMA(2), args[3] );
 		return 0;
 
 	case TRAP_STRNCPY:
-		return (int)strncpy( static_cast<char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), args[3] );
+		return (int)strncpy( static_cast<char*>(VMA(1)), static_cast<const char*>(VMA(2)), args[3] );
 
 	case TRAP_SIN:
-		return FloatAsInt( c::sin( VMF( 1 ) ) );
+		return FloatAsInt( c::sin( VMF(1) ) );
 
 	case TRAP_COS:
-		return FloatAsInt( c::cos( VMF( 1 ) ) );
+		return FloatAsInt( c::cos( VMF(1) ) );
 
 	case TRAP_ATAN2:
-		return FloatAsInt( c::atan2( VMF( 1 ), VMF( 2 ) ) );
+		return FloatAsInt( c::atan2( VMF(1), VMF(2) ) );
 
 	case TRAP_SQRT:
-		return FloatAsInt( c::sqrt( VMF( 1 ) ) );
+		return FloatAsInt( c::sqrt( VMF(1) ) );
 
 	case TRAP_MATRIXMULTIPLY:
-		MatrixMultiply( static_cast<float(*)[3]> (VMA( 1 )), static_cast<float(*)[3]> (VMA( 2 )), static_cast<float(*)[3]> (VMA( 3 )) );
+		MatrixMultiply( static_cast<float(*)[3]>(VMA(1)), static_cast<float(*)[3]>(VMA(2)), static_cast<float(*)[3]>(VMA(3)) );
 		return 0;
 
 	case TRAP_ANGLEVECTORS:
-		AngleVectors( static_cast<const vec_t*> (VMA( 1 )), static_cast<vec_t*> (VMA( 2 )), static_cast<vec_t*> (VMA( 3 )), static_cast<vec_t*> (VMA( 4 )) );
+		AngleVectors( static_cast<const vec_t*>(VMA(1)), static_cast<vec_t*>(VMA(2)), static_cast<vec_t*>(VMA(3)), static_cast<vec_t*>(VMA(4)) );
 		return 0;
 
 	case TRAP_PERPENDICULARVECTOR:
-		PerpendicularVector( static_cast<vec_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )) );
+		PerpendicularVector( static_cast<vec_t*>(VMA(1)), static_cast<const vec_t*>(VMA(2)) );
 		return 0;
 
 	case TRAP_FLOOR:
-		return FloatAsInt( c::floor( VMF( 1 ) ) );
+		return FloatAsInt( c::floor( VMF(1) ) );
 
 	case TRAP_CEIL:
-		return FloatAsInt( c::ceil( VMF( 1 ) ) );
+		return FloatAsInt( c::ceil( VMF(1) ) );
+#endif // FIXME
 
 
 #if defined RTCW_ET
 	case PB_STAT_REPORT:
-		return 0 ;
+		return 0;
 
 	case G_SENDMESSAGE:
-		SV_SendBinaryMessage( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		SV_SendBinaryMessage(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
+
 	case G_MESSAGESTATUS:
-		return SV_BinaryMessageStatus( args[1] );
+		return SV_BinaryMessageStatus(rtcw::from_vm_arg<int>(args[1]));
 #endif // RTCW_XX
 
 	default:
-		Com_Error( ERR_DROP, "Bad game system trap: %i", args[0] );
+		Com_Error(ERR_DROP, "Bad game system trap: %i", rtcw::from_vm_arg<int>(args[0]));
 	}
 	return -1;
 }
@@ -1152,7 +1865,7 @@ void SV_ShutdownGameProgs( void ) {
 	if ( !gvm ) {
 		return;
 	}
-	VM_Call( gvm, GAME_SHUTDOWN, qfalse );
+	VM_Call(gvm, GAME_SHUTDOWN, rtcw::to_vm_arg(qfalse));
 	VM_Free( gvm );
 	gvm = NULL;
 }
@@ -1173,7 +1886,13 @@ static void SV_InitGameVM( qboolean restart ) {
 #if defined RTCW_SP
 	// use the current msec count for a random seed
 	// init for this gamestate
-	VM_Call( gvm, GAME_INIT, svs.time, Com_Milliseconds(), restart );
+	VM_Call(
+		gvm,
+		GAME_INIT,
+		rtcw::to_vm_arg(svs.time),
+		rtcw::to_vm_arg(Com_Milliseconds()),
+		rtcw::to_vm_arg(restart)
+	);
 #endif // RTCW_XX
 
 	// clear all gentity pointers that might still be set from
@@ -1185,7 +1904,13 @@ static void SV_InitGameVM( qboolean restart ) {
 #if !defined RTCW_SP
 	// use the current msec count for a random seed
 	// init for this gamestate
-	VM_Call( gvm, GAME_INIT, svs.time, Com_Milliseconds(), restart );
+	VM_Call(
+		gvm,
+		GAME_INIT,
+		rtcw::to_vm_arg(svs.time),
+		rtcw::to_vm_arg(Com_Milliseconds()),
+		rtcw::to_vm_arg(restart)
+	);
 #endif // RTCW_XX
 
 }
@@ -1203,7 +1928,7 @@ void SV_RestartGameProgs( void ) {
 	if ( !gvm ) {
 		return;
 	}
-	VM_Call( gvm, GAME_SHUTDOWN, qtrue );
+	VM_Call(gvm, GAME_SHUTDOWN, rtcw::to_vm_arg(qtrue));
 
 	// do a restart instead of a free
 	gvm = VM_Restart( gvm );
@@ -1274,7 +1999,7 @@ qboolean SV_GameCommand( void ) {
 		return qfalse;
 	}
 
-	return VM_Call( gvm, GAME_CONSOLE_COMMAND );
+	return VM_Call(gvm, GAME_CONSOLE_COMMAND);
 }
 
 #if !defined RTCW_ET
@@ -1287,7 +2012,12 @@ void SV_SendMoveSpeedsToGame( int entnum, char *text ) {
 	if ( !gvm ) {
 		return;
 	}
-	VM_Call( gvm, GAME_RETRIEVE_MOVESPEEDS_FROM_CLIENT, entnum, text );
+	VM_Call(
+		gvm,
+		GAME_RETRIEVE_MOVESPEEDS_FROM_CLIENT,
+		rtcw::to_vm_arg(entnum),
+		rtcw::to_vm_arg(text)
+	);
 }
 #endif // RTCW_XX
 
@@ -1375,7 +2105,13 @@ SV_GetModelInfo
 ===================
 */
 qboolean SV_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo ) {
-	return VM_Call( gvm, GAME_GETMODELINFO, clientNum, modelName, modelInfo );
+	return VM_Call(
+		gvm,
+		GAME_GETMODELINFO,
+		rtcw::to_vm_arg(clientNum),
+		rtcw::to_vm_arg(modelName),
+		rtcw::to_vm_arg(modelInfo)
+	);
 }
 #endif // RTCW_XX
 

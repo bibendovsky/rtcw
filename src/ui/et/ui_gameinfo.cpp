@@ -791,7 +791,7 @@ void UI_LoadCampaigns( void ) {
 	char*       dirptr;
 	int i, j;
 	int dirlen;
-	long hash;
+	int32_t hash;
 	char        *ch;
 
 	uiInfo.campaignCount = 0;
@@ -846,7 +846,7 @@ void UI_LoadCampaigns( void ) {
 	for ( i = 0; i < uiInfo.campaignCount; i++ ) {
 		// generate hash for campaign shortname
 		for ( hash = 0, ch = (char *)uiInfo.campaignList[i].campaignShortName; *ch != '\0'; ch++ ) {
-			hash += (long)( tolower( *ch ) ) * ( ( ch - uiInfo.campaignList[i].campaignShortName ) + 119 );
+			hash += (int32_t)( tolower( *ch ) ) * ( ( ch - uiInfo.campaignList[i].campaignShortName ) + 119 );
 		}
 
 		// find the entry in the campaignsave

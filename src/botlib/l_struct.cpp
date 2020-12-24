@@ -83,7 +83,7 @@ fielddef_t *FindField( fielddef_t *defs, char *name ) {
 qboolean ReadNumber( source_t *source, fielddef_t *fd, void *p ) {
 	token_t token;
 	int negative = qfalse;
-	long int intval, intmin = 0, intmax = 0;
+	int32_t intval, intmin = 0, intmax = 0;
 	double floatval;
 
 	if ( !PC_ExpectAnyToken( source, &token ) ) {

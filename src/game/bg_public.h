@@ -3884,8 +3884,8 @@ typedef struct {
 	qboolean priv;
 } fireteamData_t;
 
-long BG_StringHashValue( const char *fname );
-long BG_StringHashValue_Lwr( const char *fname );
+int32_t BG_StringHashValue( const char *fname );
+int32_t BG_StringHashValue_Lwr( const char *fname );
 
 void BG_RotatePoint( vec3_t point, const vec3_t matrix[3] );
 void BG_TransposeMatrix( const vec3_t matrix[3], vec3_t transpose[3] );
@@ -4036,7 +4036,7 @@ typedef struct bg_speaker_s {
 	qhandle_t noise;
 	vec3_t origin;
 	char targetname[32];
-	long targetnamehash;
+	int32_t targetnamehash;
 
 	speakerLoopType_t loop;
 	speakerBroadcastType_t broadcast;

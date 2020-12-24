@@ -28,9 +28,13 @@ If you have questions concerning this license or the applicable additional terms
 
 // sv_bot.c
 
+
 #include "server.h"
 #include "botlib.h"
 #include "botai.h"
+
+#include "rtcw_vm_args.h"
+
 
 #if !defined RTCW_ET
 #define MAX_DEBUGPOLYS      128
@@ -614,7 +618,15 @@ BotImport_BotVisibleFromPos
 ==================
 */
 qboolean BotImport_BotVisibleFromPos( vec3_t srcorigin, int srcnum, vec3_t destorigin, int destent, qboolean dummy ) {
-	return VM_Call( gvm, BOT_VISIBLEFROMPOS, srcorigin, srcnum, destorigin, destent, dummy );
+	return VM_Call(
+		gvm,
+		BOT_VISIBLEFROMPOS,
+		rtcw::to_vm_arg(srcorigin),
+		rtcw::to_vm_arg(srcnum),
+		rtcw::to_vm_arg(destorigin),
+		rtcw::to_vm_arg(destent),
+		rtcw::to_vm_arg(dummy)
+	);
 }
 
 /*
@@ -623,7 +635,15 @@ BotImport_BotCheckAttackAtPos
 ==================
 */
 qboolean BotImport_BotCheckAttackAtPos( int entnum, int enemy, vec3_t pos, qboolean ducking, qboolean allowHitWorld ) {
-	return VM_Call( gvm, BOT_CHECKATTACKATPOS, entnum, enemy, pos, ducking, allowHitWorld );
+	return VM_Call(
+		gvm,
+		BOT_CHECKATTACKATPOS,
+		rtcw::to_vm_arg(entnum),
+		rtcw::to_vm_arg(enemy),
+		rtcw::to_vm_arg(pos),
+		rtcw::to_vm_arg(ducking),
+		rtcw::to_vm_arg(allowHitWorld)
+	);
 }
 #endif // RTCW_XX
 
@@ -662,7 +682,7 @@ void SV_BotFrame( int time ) {
 	if ( !gvm ) {
 		return;
 	}
-	VM_Call( gvm, BOTAI_START_FRAME, time );
+	VM_Call(gvm, BOTAI_START_FRAME, rtcw::to_vm_arg(time));
 }
 
 /*
@@ -797,7 +817,15 @@ BotImport_AICast_VisibleFromPos
 */
 qboolean BotImport_AICast_VisibleFromPos(   vec3_t srcpos, int srcnum,
 											vec3_t destpos, int destnum, qboolean updateVisPos ) {
-	return VM_Call( gvm, AICAST_VISIBLEFROMPOS, reinterpret_cast<intptr_t> (srcpos), srcnum,reinterpret_cast<intptr_t> (destpos), destnum, updateVisPos );
+	return VM_Call(
+		gvm,
+		AICAST_VISIBLEFROMPOS,
+		rtcw::to_vm_arg(srcpos),
+		rtcw::to_vm_arg(srcnum),
+		rtcw::to_vm_arg(destpos),
+		rtcw::to_vm_arg(destnum),
+		rtcw::to_vm_arg(updateVisPos)
+	);
 }
 
 /*
@@ -806,7 +834,15 @@ BotImport_AICast_CheckAttackAtPos
 ===============
 */
 qboolean BotImport_AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, qboolean ducking, qboolean allowHitWorld ) {
-	return VM_Call( gvm, AICAST_CHECKATTACKATPOS, entnum, enemy, reinterpret_cast<intptr_t> (pos), ducking, allowHitWorld );
+	return VM_Call(
+		gvm,
+		AICAST_CHECKATTACKATPOS,
+		rtcw::to_vm_arg(entnum),
+		rtcw::to_vm_arg(enemy),
+		rtcw::to_vm_arg(pos),
+		rtcw::to_vm_arg(ducking),
+		rtcw::to_vm_arg(allowHitWorld)
+	);
 }
 // done.
 #endif // RTCW_XX

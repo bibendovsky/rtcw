@@ -1999,6 +1999,8 @@ void CG_ForceTapOut_f( void );
 static void CG_ServerCommand( void ) {
 	const char  *cmd;
 	char text[MAX_SAY_TEXT];
+	static char arg_1_buffer[MAX_STRING_CHARS];
+	static char arg_2_buffer[MAX_STRING_CHARS];
 
 	cmd = CG_Argv( 0 );
 
@@ -2254,12 +2256,22 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !Q_stricmp( cmd, "startCam" ) ) {
+#if FIXME
 		CG_StartCamera( CG_Argv( 1 ), atoi( CG_Argv( 2 ) ) );
+#else
+		Q_strncpyz(arg_1_buffer, CG_Argv( 1 ), MAX_STRING_CHARS);
+		CG_StartCamera( arg_1_buffer, atoi( CG_Argv( 2 ) ) );
+#endif // FIXME
 		return;
 	}
 
 	if ( !Q_stricmp( cmd, "SetInitialCamera" ) ) {
+#if FIXME
 		CG_SetInitialCamera( CG_Argv( 1 ), atoi( CG_Argv( 2 ) ) );
+#else
+		Q_strncpyz(arg_1_buffer, CG_Argv( 1 ), MAX_STRING_CHARS);
+		CG_SetInitialCamera( arg_1_buffer, atoi( CG_Argv( 2 ) ) );
+#endif // FIXME
 		return;
 	}
 
@@ -2350,7 +2362,13 @@ static void CG_ServerCommand( void ) {
 
 	if ( Q_stricmp( cmd, "remapShader" ) == 0 ) {
 		if ( trap_Argc() == 4 ) {
+#if FIXME
 			trap_R_RemapShader( CG_Argv( 1 ), CG_Argv( 2 ), CG_Argv( 3 ) );
+#else
+			Q_strncpyz(arg_1_buffer, CG_Argv( 1 ), MAX_STRING_CHARS);
+			Q_strncpyz(arg_2_buffer, CG_Argv( 2 ), MAX_STRING_CHARS);
+			trap_R_RemapShader( arg_1_buffer, arg_2_buffer, CG_Argv( 3 ) );
+#endif // FIXME
 		}
 	}
 
@@ -2368,7 +2386,12 @@ static void CG_ServerCommand( void ) {
 			fadeTime = atoi( text );
 		}
 
+#if FIXME
 		trap_S_StartBackgroundTrack( CG_Argv( 1 ), CG_Argv( 1 ), fadeTime );
+#else
+		const auto arg_1 = CG_Argv( 1 );
+		trap_S_StartBackgroundTrack( arg_1, arg_1, fadeTime );
+#endif // FIXME
 		return;
 	}
 	// plays once then back to whatever the loop was \/

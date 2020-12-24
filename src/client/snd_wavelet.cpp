@@ -48,11 +48,11 @@ If you have questions concerning this license or the applicable additional terms
 #define C2 0.2241438680420134
 #define C3 -0.1294095225512604
 
-void daub4( float b[], unsigned long n, int isign ) {
+void daub4( float b[], uint32_t n, int isign ) {
 	float wksp[4097];
 	float   *a = b - 1;                     // numerical recipies so a[1] = b[0]
 
-	unsigned long nh,nh1,i,j;
+	uint32_t nh,nh1,i,j;
 
 	if ( n < 4 ) {
 		return;
@@ -79,8 +79,8 @@ void daub4( float b[], unsigned long n, int isign ) {
 	}
 }
 
-void wt1( float a[], unsigned long n, int isign ) {
-	unsigned long nn;
+void wt1( float a[], uint32_t n, int isign ) {
+	uint32_t nn;
 	int inverseStartLength = n / 4;
 	if ( n < inverseStartLength ) {
 		return;
@@ -105,7 +105,7 @@ static unsigned char numBits[] = {
 };
 
 byte MuLawEncode( short s ) {
-	unsigned long adjusted;
+	uint32_t adjusted;
 	byte sign, exponent, mantissa;
 
 	sign = ( s < 0 ) ? 0 : 0x80;
@@ -113,7 +113,7 @@ byte MuLawEncode( short s ) {
 	if ( s < 0 ) {
 		s = -s;
 	}
-	adjusted = (long)s << ( 16 - sizeof( short ) * 8 );
+	adjusted = (int32_t)s << ( 16 - sizeof( short ) * 8 );
 	adjusted += 128L + 4L;
 	if ( adjusted > 32767 ) {
 		adjusted = 32767;
@@ -124,7 +124,7 @@ byte MuLawEncode( short s ) {
 }
 
 short MuLawDecode( byte uLaw ) {
-	signed long adjusted;
+	int32_t adjusted;
 	byte exponent, mantissa;
 
 	uLaw = ~uLaw;

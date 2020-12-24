@@ -38,7 +38,11 @@ If you have questions concerning this license or the applicable additional terms
 =======================================================================
 */
 
+
 #include "ui_local.h"
+
+#include "rtcw_vm_args.h"
+
 
 uiInfo_t uiInfo;
 
@@ -209,12 +213,20 @@ extern "C" intptr_t vmMain (
 #if defined( __MACOS__ )
 #pragma export off
 #endif
+#if FIXME
 	switch ( command ) {
+#else
+	switch ( rtcw::from_vm_arg<int>(command) ) {
+#endif // FIXME
 	case UI_GETAPIVERSION:
 		return UI_API_VERSION;
 
 	case UI_INIT:
+#if FIXME
 		_UI_Init( arg0 );
+#else
+		_UI_Init(rtcw::from_vm_arg<qboolean>(arg0));
+#endif // FIXME
 		return 0;
 
 	case UI_SHUTDOWN:

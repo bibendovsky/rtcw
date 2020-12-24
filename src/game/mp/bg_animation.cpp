@@ -281,16 +281,16 @@ static animConditionTable_t animConditionsTable[NUM_ANIM_CONDITIONS] =
 return a hash value for the given string
 ================
 */
-static long BG_StringHashValue( const char *fname ) {
+static int32_t BG_StringHashValue( const char *fname ) {
 	int i;
-	long hash;
+	int32_t hash;
 	char letter;
 
 	hash = 0;
 	i = 0;
 	while ( fname[i] != '\0' ) {
 		letter = tolower( fname[i] );
-		hash += (long)( letter ) * ( i + 119 );
+		hash += (int32_t)( letter ) * ( i + 119 );
 		i++;
 	}
 	if ( hash == -1 ) {
@@ -1868,7 +1868,11 @@ int BG_GetConditionValue( int client, int condition, qboolean checkConversion ) 
 	int value, i;
 
 	// TTimo gcc: assignment makes integer from pointer without a cast
+#if FIXME
 	value = (int)globalScriptData->clientConditions[client][condition];
+#else
+	value = static_cast<int>(reinterpret_cast<intptr_t>(globalScriptData->clientConditions[client][condition]));
+#endif // FIXME
 
 	if ( checkConversion ) {
 		// we may need to convert to a value

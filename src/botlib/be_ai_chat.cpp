@@ -123,7 +123,7 @@ typedef struct bot_synonym_s
 //list with synonyms
 typedef struct bot_synonymlist_s
 {
-	unsigned long int context;
+	uint32_t context;
 	float totalweight;
 	bot_synonym_t *firstsynonym;
 	struct bot_synonymlist_s *next;
@@ -147,7 +147,7 @@ typedef struct bot_matchpiece_s
 //match template
 typedef struct bot_matchtemplate_s
 {
-	unsigned long int context;
+	uint32_t context;
 	int type;
 	int subtype;
 	bot_matchpiece_t *first;
@@ -626,7 +626,7 @@ void BotDumpSynonymList( bot_synonymlist_t *synlist ) {
 //===========================================================================
 bot_synonymlist_t *BotLoadSynonyms( char *filename ) {
 	int pass, size, contextlevel, numsynonyms;
-	unsigned long int context, contextstack[32];
+	uint32_t context, contextstack[32];
 	char *ptr = NULL;
 	source_t *source;
 	token_t token;
@@ -777,7 +777,7 @@ bot_synonymlist_t *BotLoadSynonyms( char *filename ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void BotReplaceSynonyms( char *string, unsigned long int context ) {
+void BotReplaceSynonyms( char *string, uint32_t context ) {
 	bot_synonymlist_t *syn;
 	bot_synonym_t *synonym;
 
@@ -798,7 +798,7 @@ void BotReplaceSynonyms( char *string, unsigned long int context ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void BotReplaceWeightedSynonyms( char *string, unsigned long int context ) {
+void BotReplaceWeightedSynonyms( char *string, uint32_t context ) {
 	bot_synonymlist_t *syn;
 	bot_synonym_t *synonym, *replacement;
 	float weight, curweight;
@@ -840,7 +840,7 @@ void BotReplaceWeightedSynonyms( char *string, unsigned long int context ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void BotReplaceReplySynonyms( char *string, unsigned long int context ) {
+void BotReplaceReplySynonyms( char *string, uint32_t context ) {
 	char *str1, *str2, *replacement;
 	bot_synonymlist_t *syn;
 	bot_synonym_t *synonym;
@@ -1314,7 +1314,7 @@ bot_matchtemplate_t *BotLoadMatchTemplates( char *matchfile ) {
 	source_t *source;
 	token_t token;
 	bot_matchtemplate_t *matchtemplate, *matches, *lastmatch;
-	unsigned long int context;
+	uint32_t context;
 
 	source = LoadSourceFile( matchfile );
 	if ( !source ) {
@@ -1470,7 +1470,7 @@ int StringsMatch( bot_matchpiece_t *pieces, bot_match_t *match ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotFindMatch( char *str, bot_match_t *match, unsigned long int context ) {
+int BotFindMatch( char *str, bot_match_t *match, uint32_t context ) {
 	int i;
 	bot_matchtemplate_t *ms;
 
@@ -2195,8 +2195,8 @@ int BotLoadChatFile( int chatstate, char *chatfile, char *chatname ) {
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int BotExpandChatMessage( char *outmessage, char *message, unsigned long mcontext,
-						  bot_matchvariable_t *variables, unsigned long vcontext, int reply ) {
+int BotExpandChatMessage( char *outmessage, char *message, uint32_t mcontext,
+						  bot_matchvariable_t *variables, uint32_t vcontext, int reply ) {
 	int num, len, i, expansion;
 	char *outputbuf, *ptr, *msgptr;
 	char temp[MAX_MESSAGE_SIZE];
@@ -2310,8 +2310,8 @@ int BotExpandChatMessage( char *outmessage, char *message, unsigned long mcontex
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void BotConstructChatMessage( bot_chatstate_t *chatstate, char *message, unsigned long mcontext,
-							  bot_matchvariable_t *variables, unsigned long vcontext, int reply ) {
+void BotConstructChatMessage( bot_chatstate_t *chatstate, char *message, uint32_t mcontext,
+							  bot_matchvariable_t *variables, uint32_t vcontext, int reply ) {
 	int i;
 	char srcmessage[MAX_MESSAGE_SIZE];
 

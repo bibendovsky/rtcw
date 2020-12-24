@@ -203,13 +203,13 @@ SquareRootFloat
 ================
 */
 float SquareRootFloat( float number ) {
-	long i;
+	int32_t i;
 	float x, y;
 	const float f = 1.5F;
 
 	x = number * 0.5F;
 	y  = number;
-	i  = *( long * ) &y;
+	i  = *( int32_t * ) &y;
 	i  = 0x5f3759df - ( i >> 1 );
 	y  = *( float * ) &i;
 	y  = y * ( f - ( x * y * y ) );

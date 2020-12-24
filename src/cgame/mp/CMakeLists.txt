@@ -13,9 +13,28 @@ option (RTCW_USE_PCH "Use precompiled headers if available." ON)
 message (STATUS "[${PROJECT_NAME}] Precompiled headers: ${RTCW_USE_PCH}")
 
 
+#
+# CPU architecture.
+#
+if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+	set (RTCW_ARCH_STRING "x86")
+elseif (CMAKE_SIZEOF_VOID_P EQUAL 8)
+	set (RTCW_ARCH_STRING "x64")
+else ()
+	unset (RTCW_ARCH_STRING)
+endif ()
+
+if (RTCW_ARCH_STRING)
+	message (STATUS "[${PROJECT_NAME}] Arch: ${RTCW_ARCH_STRING}")
+else ()
+	message (FATAL_ERROR "[${PROJECT_NAME}] Unsupported platform.")
+endif ()
+
+
 find_package (SDL2W 2.0.4 REQUIRED)
 
 add_library (${PROJECT_NAME} SHARED "")
+
 
 set_target_properties (
 	${PROJECT_NAME}
@@ -29,7 +48,7 @@ set_target_properties (
 	${PROJECT_NAME}
 	PROPERTIES
 		PREFIX ""
-		OUTPUT_NAME cgame_mp_x86
+		OUTPUT_NAME "cgame_mp_${RTCW_ARCH_STRING}"
 )
 
 target_include_directories (
@@ -98,6 +117,7 @@ target_sources (
 		../../game/q_shared.h
 		../../game/surfaceflags.h
 		../../game/mp/bg_local.h
+		../../qcommon/rtcw_vm_args.h
 		../../ui/keycodes.h
 		../../ui/mp/menudef.h
 		../../ui/mp/ui_shared.h
@@ -151,6 +171,9 @@ endif ()
 
 install (
 	TARGETS
-	${PROJECT_NAME}
-	RUNTIME DESTINATION mp/Main
+		${PROJECT_NAME}
+	LIBRARY
+		DESTINATION mp/main
+	RUNTIME
+		DESTINATION mp/main
 )

@@ -468,7 +468,7 @@ void    VM_Init( void );
 //					vmInterpret_t interpret );
 vm_t* VM_Create (
 	const char* module,
-	intptr_t (*systemCalls) (intptr_t*));
+	int32_t (*systemCalls) (intptr_t*));
 // BBi
 
 // module should be bare: "cgame", not "cgame.dll" or "vm/cgame.qvm"
@@ -479,7 +479,7 @@ vm_t    *VM_Restart( vm_t *vm );
 
 // BBi
 //int QDECL VM_Call( vm_t *vm, int callNum, ... );
-intptr_t QDECL VM_Call (
+int32_t QDECL VM_Call(
 	vm_t* vm,
 	intptr_t callNum,
 	...);
@@ -489,13 +489,24 @@ void    VM_Debug( int level );
 
 // BBi
 //void    *VM_ArgPtr( int intValue );
-void* VM_ArgPtr (
-	intptr_t intValue);
+#if FIXME
+void* VM_ArgPtr(
+	intptr_t intValue) noexcept;
+#else
+intptr_t VM_ArgPtr(
+	intptr_t intValue) noexcept;
+#endif // FIXME
 
 //void    *VM_ExplicitArgPtr( vm_t *vm, int intValue );
-void* VM_ExplicitArgPtr (
+#if FIXME
+void* VM_ExplicitArgPtr(
 	vm_t* vm,
-	intptr_t intValue);
+	intptr_t intValue) noexcept;
+#else
+intptr_t VM_ExplicitArgPtr(
+	vm_t* vm,
+	intptr_t intValue) noexcept;
+#endif // FIXME
 // BBi
 
 /*
@@ -708,14 +719,6 @@ issues.
 
 #define MAX_FILE_HANDLES    64
 
-#if defined RTCW_ET
-#ifdef WIN32
-	#define Q_rmdir _rmdir
-#else
-	#define Q_rmdir rmdir
-#endif
-#endif // RTCW_XX
-
 qboolean FS_Initialized();
 
 void    FS_InitFilesystem( void );
@@ -821,7 +824,7 @@ void QDECL FS_Printf( fileHandle_t f, const char *fmt, ... );
 int     FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode );
 // opens a file for reading, writing, or appending depending on the value of mode
 
-int     FS_Seek( fileHandle_t f, long offset, int origin );
+int     FS_Seek( fileHandle_t f, int32_t offset, int origin );
 // seek on a file (doesn't work for zip files!!!!!!!!)
 
 qboolean FS_FilenameCompare( const char *s1, const char *s2 );
@@ -1309,7 +1312,7 @@ const char* Sys_GetDLLName(
 	const char* name);
 
 
-typedef intptr_t (QDECL* DllEntryPoint)(intptr_t, ...);
+typedef int32_t (QDECL* DllEntryPoint)(intptr_t, ...);
 
 // fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
 void* QDECL Sys_LoadDll(
@@ -1419,6 +1422,7 @@ void Sys_OpenURL( const char *url, qboolean doexit );                     // NER
 void Sys_OpenURL( const char *url, qboolean doexit );                       // NERVE - SMF
 #endif // RTCW_XX
 
+#if FIXME
 #if !defined RTCW_SP
 #ifdef __linux__
 // TTimo only on linux .. maybe on Mac too?
@@ -1426,6 +1430,7 @@ void Sys_OpenURL( const char *url, qboolean doexit );                       // N
 void Sys_Chmod( char *file, int mode );
 #endif
 #endif // RTCW_XX
+#endif // FIXME
 
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
  * Compression book.  The ranks are not actually stored, but implicitly defined
@@ -1490,6 +1495,7 @@ void Com_GetHunkInfo( int* hunkused, int* hunkexpected );
 // dll checksuming stuff, centralizing OS-dependent parts
 // *_SHIFT is the shifting we applied to the reference string
 
+#if FIXME
 #if defined( _WIN32 )
 
 // qagame_mp_x86.dll
@@ -1578,6 +1584,39 @@ void Com_GetHunkInfo( int* hunkused, int* hunkexpected );
 #else
 #error unknown OS
 #endif
+#else
+
+#ifdef _WIN32
+
+// qagame_mp_x86.dll
+#define SYS_DLLNAME_QAGAME_SHIFT 6
+#define SYS_DLLNAME_QAGAME "wgmgskesve~><4jrr"
+
+// cgame_mp_x86.dll
+#define SYS_DLLNAME_CGAME_SHIFT 2
+#define SYS_DLLNAME_CGAME "eicogaoraz:80fnn"
+
+// ui_mp_x86.dll
+#define SYS_DLLNAME_UI_SHIFT 5
+#define SYS_DLLNAME_UI "zndrud}=;3iqq"
+
+#else
+
+// qagame.mp.i386.so
+#define SYS_DLLNAME_QAGAME_SHIFT 6
+#define SYS_DLLNAME_QAGAME "wgmgsk4sv4o9><4yu"
+
+// cgame.mp.i386.so
+#define SYS_DLLNAME_CGAME_SHIFT 2
+#define SYS_DLLNAME_CGAME "eicog0or0k5:80uq"
+
+// ui.mp.i386.so
+#define SYS_DLLNAME_UI_SHIFT 5
+#define SYS_DLLNAME_UI "zn3ru3n8=;3xt"
+
+#endif // _WIN32
+
+#endif // FIXME
 #endif // RTCW_XX
 
 #endif // _QCOMMON_H_
