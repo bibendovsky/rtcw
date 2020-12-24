@@ -1115,7 +1115,11 @@ extern level_locals_t level;
 extern gentity_t g_entities[];          //DAJ was explicit set to MAX_ENTITIES
 extern gentity_t       *g_camEnt;
 
+#if FIXME
 #define FOFS( x ) ( (int)&( ( (gentity_t *)0 )->x ) )
+#else
+#define FOFS(x) (static_cast<int>(offsetof(gentity_t, x)))
+#endif // FIXME
 
 extern vmCvar_t g_gametype;
 
@@ -1375,10 +1379,10 @@ int     trap_BotChatLength( int chatstate );
 void    trap_BotEnterChat( int chatstate, int client, int sendto );
 void    trap_BotGetChatMessage( int chatstate, char *buf, int size );
 int     trap_StringContains( char *str1, char *str2, int casesensitive );
-int     trap_BotFindMatch( char *str, void /* struct bot_match_s */ *match, unsigned long int context );
+int     trap_BotFindMatch( char *str, void /* struct bot_match_s */ *match, uint32_t context );
 void    trap_BotMatchVariable( void /* struct bot_match_s */ *match, int variable, char *buf, int size );
 void    trap_UnifyWhiteSpaces( char *string );
-void    trap_BotReplaceSynonyms( char *string, unsigned long int context );
+void    trap_BotReplaceSynonyms( char *string, uint32_t context );
 int     trap_BotLoadChatFile( int chatstate, char *chatfile, char *chatname );
 void    trap_BotSetChatGender( int chatstate, int gender );
 void    trap_BotSetChatName( int chatstate, char *name );

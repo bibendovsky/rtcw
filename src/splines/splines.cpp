@@ -337,7 +337,7 @@ float idSplineList::totalDistance() {
 	return dist;
 }
 
-void idSplineList::initPosition( long bt, long totalTime ) {
+void idSplineList::initPosition( int32_t bt, int32_t totalTime ) {
 
 	if ( dirty ) {
 		buildSpline();
@@ -405,7 +405,7 @@ void idSplineList::setSelectedPoint( idVec3 *p ) {
 	}
 }
 
-const idVec3 *idSplineList::getPosition( long t ) {
+const idVec3 *idSplineList::getPosition( int32_t t ) {
 	static idVec3 interpolatedPos;
 //	static long lastTime = -1; // TTimo unused
 
@@ -540,7 +540,7 @@ void idCameraDef::getActiveSegmentInfo( int segment, idVec3 &origin, idVec3 &dir
 */
 }
 
-bool idCameraDef::getCameraInfo( long time, idVec3 &origin, idVec3 &direction, float *fv ) {
+bool idCameraDef::getCameraInfo( int32_t time, idVec3 &origin, idVec3 &direction, float *fv ) {
 
 	char buff[1024];
 
@@ -689,9 +689,9 @@ void idCameraDef::buildCamera() {
 
 #if !defined RTCW_MP
 		case idCameraEvent::EVENT_FEATHER: {
-			long startTime = 0;
+			int32_t startTime = 0;
 			float speed = 0;
-			long loopTime = 10;
+			int32_t loopTime = 10;
 			float stepGoal = cameraPosition->getBaseVelocity() / ( 1000 / loopTime );
 			while ( startTime <= 1000 ) {
 				cameraPosition->addVelocity( startTime, loopTime, speed );
@@ -705,8 +705,8 @@ void idCameraDef::buildCamera() {
 			// TTimo gcc warns: assignment to `long int' from `float'
 			// more efficient to do (long int)(totalTime) * 1000 - 1000
 			// safer to (long int)(totalTime * 1000 - 1000)
-			startTime = ( long int )( totalTime * 1000 - 1000 );
-			long endTime = startTime + 1000;
+			startTime = ( int32_t )( totalTime * 1000 - 1000 );
+			int32_t endTime = startTime + 1000;
 			speed = cameraPosition->getBaseVelocity();
 			while ( startTime < endTime ) {
 				speed -= stepGoal;
@@ -726,12 +726,12 @@ void idCameraDef::buildCamera() {
 
 			//FIXME: this is quite hacky for Wolf E3, accel and decel needs
 			// do be parameter based etc..
-			long startTime = events[i]->getTime() - 1000;
+			int32_t startTime = events[i]->getTime() - 1000;
 			if ( startTime < 0 ) {
 				startTime = 0;
 			}
 			float speed = cameraPosition->getBaseVelocity();
-			long loopTime = 10;
+			int32_t loopTime = 10;
 			float steps = speed / ( ( events[i]->getTime() - startTime ) / loopTime );
 			while ( startTime <= events[i]->getTime() - loopTime ) {
 				cameraPosition->addVelocity( startTime, loopTime, speed );
@@ -745,8 +745,8 @@ void idCameraDef::buildCamera() {
 			cameraPosition->addVelocity( events[i]->getTime(), (int)( atof( events[i]->getParam() ) * 1000 ), 0 );
 #endif // RTCW_XX
 
-			startTime = ( long int )( events[i]->getTime() + atof( events[i]->getParam() ) * 1000 );
-			long endTime = startTime + 1000;
+			startTime = ( int32_t )( events[i]->getTime() + atof( events[i]->getParam() ) * 1000 );
+			int32_t endTime = startTime + 1000;
 			speed = 0;
 			while ( startTime <= endTime ) {
 				cameraPosition->addVelocity( startTime, loopTime, speed );
@@ -803,10 +803,10 @@ void idCameraDef::buildCamera() {
 
 	// on a new target switch, we need to take time to this point ( since last target switch )
 	// and allocate it across the active target, then reset time to this point
-	long timeSoFar = 0;
-	long total = ( long int )( totalTime * 1000 );
+	int32_t timeSoFar = 0;
+	int32_t total = ( int32_t )( totalTime * 1000 );
 	for ( i = 0; i < targets.Num(); i++ ) {
-		long t;
+		int32_t t;
 		if ( i < targets.Num() - 1 ) {
 			t = events[targets[i + 1]]->getTime();
 		} else {
@@ -821,7 +821,7 @@ void idCameraDef::buildCamera() {
 
 }
 
-void idCameraDef::startCamera( long t ) {
+void idCameraDef::startCamera( int32_t t ) {
 
 #if !defined RTCW_MP
 	cameraPosition->clearVelocities();
@@ -969,7 +969,7 @@ void idCameraDef::addEvent( idCameraEvent *event ) {
 	//events.Sort(&sortEvents);
 
 }
-void idCameraDef::addEvent( idCameraEvent::eventType t, const char *param, long time ) {
+void idCameraDef::addEvent( idCameraEvent::eventType t, const char *param, int32_t time ) {
 	addEvent( new idCameraEvent( t, param, time ) );
 	buildCamera();
 }
@@ -1064,7 +1064,7 @@ const char *idCameraPosition::positionStr[] = {
 
 
 
-const idVec3 *idInterpolatedPosition::getPosition( long t ) {
+const idVec3 *idInterpolatedPosition::getPosition( int32_t t ) {
 	static idVec3 interpolatedPos;
 
 #if !defined RTCW_MP
@@ -1173,9 +1173,9 @@ bool idCameraPosition::parseToken( const char *key, const char *( *text ) ) {
 		type = static_cast<idCameraPosition::positionType>( atoi( token ) );
 		return true;
 	} else if ( Q_stricmp( key, "velocity" ) == 0 ) {
-		long t = atol( token );
+		int32_t t = atol( token );
 		token = Com_Parse( text );
-		long d = atol( token );
+		int32_t d = atol( token );
 		token = Com_Parse( text );
 		float s = atof( token );
 		addVelocity( t, d, s );
@@ -1428,7 +1428,7 @@ void idCameraDef::addTarget( const char *name, idCameraPosition::positionType ty
 	}
 }
 
-const idVec3 *idSplinePosition::getPosition( long t ) {
+const idVec3 *idSplinePosition::getPosition( int32_t t ) {
 	static idVec3 interpolatedPos;
 
 	float velocity = getVelocity( t );

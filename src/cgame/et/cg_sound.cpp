@@ -48,9 +48,9 @@ int numSoundScriptSounds = 0;
 return a hash value for the filename
 ================
 */
-static long generateHashValue( const char *fname ) {
+static int32_t generateHashValue( const char *fname ) {
 	int i;
-	long hash;
+	int32_t hash;
 	char letter;
 
 	hash = 0;
@@ -63,7 +63,7 @@ static long generateHashValue( const char *fname ) {
 		if ( letter == '\\' ) {
 			letter = '/';                   // damn path names
 		}
-		hash += (long)( letter ) * ( i + 119 );
+		hash += (int32_t)( letter ) * ( i + 119 );
 		i++;
 	}
 	hash &= ( FILE_HASH_SIZE - 1 );
@@ -79,7 +79,7 @@ CG_SoundScriptPrecache
 */
 int CG_SoundScriptPrecache( const char *name ) {
 	soundScriptSound_t *scriptSound;
-	long hash;
+	int32_t hash;
 	char *s;
 	soundScript_t   *sound;
 //	byte buf[1024];
@@ -204,7 +204,7 @@ CG_SoundPlaySoundScript
 ==============
 */
 int CG_SoundPlaySoundScript( const char *name, vec3_t org, int entnum, qboolean buffer ) {
-	long hash;
+	int32_t hash;
 	char *s;
 	soundScript_t   *sound;
 
@@ -266,7 +266,7 @@ static void CG_SoundParseSounds( char *filename, const char *buffer ) {
 	char *token;
 	const char** text;
 	int s;
-	long hash;
+	int32_t hash;
 	soundScript_t sound;                // the current sound being read
 	soundScriptSound_t  *scriptSound = NULL;
 	qboolean inSound, wantSoundName;

@@ -31,6 +31,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "botlib.h"
 
+#include "rtcw_vm_args.h"
+
+
 extern botlib_export_t *botlib_export;
 
 vm_t *uivm;
@@ -1046,24 +1049,30 @@ FloatAsInt
 //
 //	return temp;
 //}
-static intptr_t FloatAsInt (
-	float x)
+static int FloatAsInt(
+	float x) noexcept
 {
-	intptr_t result;
-
-	*reinterpret_cast<float*> (&result) = x;
-
-	return result;
+	return reinterpret_cast<const int&>(x);
 }
 // BBi
 
+#if FIXME
 void *VM_ArgPtr( int intValue );
+#else
+intptr_t VM_ArgPtr(
+	int intValue) noexcept;
+#endif // FIXME
+
 #define VMA( x ) VM_ArgPtr( args[x] )
 
+#if FIXME
 // BBi
 //#define VMF( x )  ( (float *)args )[x]
 #define VMF(x) (*reinterpret_cast<const float*> (args + x))
 // BBi
+#else
+#define VMF(x) (rtcw::from_vm_arg<float>(args[x]))
+#endif // FIXME
 
 /*
 ====================
@@ -1075,190 +1084,297 @@ The ui module is making a system call
 
 // BBi
 //int CL_UISystemCalls( int *args ) {
-intptr_t CL_UISystemCalls (
+int32_t CL_UISystemCalls (
 	intptr_t* args)
 {
 // BBi
+#if FIXME
 	switch ( args[0] ) {
-	case UI_ERROR:
-
-#if !defined RTCW_ET
-		Com_Error( ERR_DROP, "%s", VMA( 1 ) );
 #else
-		Com_Error( ERR_DROP, "%s", (char *)VMA( 1 ) );
-#endif // RTCW_XX
-
+	switch (rtcw::from_vm_arg<uiImport_t>(args[0]))
+	{
+#endif // FIXME
+	case UI_ERROR:
+		Com_Error(ERR_DROP, "%s", rtcw::from_vm_arg<const char*>(VMA(1)));
 		return 0;
 
 	case UI_PRINT:
-
-#if !defined RTCW_ET
-		Com_Printf( "%s", VMA( 1 ) );
-#else
-		Com_Printf( "%s", (char *)VMA( 1 ) );
-#endif // RTCW_XX
-
+		Com_Printf("%s", rtcw::from_vm_arg<const char*>(VMA(1)));
 		return 0;
 
 	case UI_MILLISECONDS:
 		return Sys_Milliseconds();
 
 	case UI_CVAR_REGISTER:
-		Cvar_Register( static_cast<vmCvar_t*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), static_cast<const char*> (VMA( 3 )), args[4] );
+		Cvar_Register(
+			rtcw::from_vm_arg<vmCvar_t*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<const char*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
 		return 0;
 
 	case UI_CVAR_UPDATE:
-		Cvar_Update( static_cast<vmCvar_t*> (VMA( 1 )) );
+		Cvar_Update(rtcw::from_vm_arg<vmCvar_t*>(VMA(1)));
 		return 0;
 
 	case UI_CVAR_SET:
-		Cvar_Set( static_cast<const char*> (VMA( 1 )), static_cast<char*> (VMA( 2 )) );
+		Cvar_Set(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 		return 0;
 
 	case UI_CVAR_VARIABLEVALUE:
-		return FloatAsInt( Cvar_VariableValue( static_cast<const char*> (VMA( 1 )) ) );
+		return FloatAsInt(Cvar_VariableValue(rtcw::from_vm_arg<const char*>(VMA(1))));
 
 	case UI_CVAR_VARIABLESTRINGBUFFER:
-		Cvar_VariableStringBuffer( static_cast<const char*> (VMA( 1 )), static_cast<char*> (VMA( 2 )), args[3] );
+		Cvar_VariableStringBuffer(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 
 #if defined RTCW_ET
 	case UI_CVAR_LATCHEDVARIABLESTRINGBUFFER:
-		Cvar_LatchedVariableStringBuffer( static_cast<const char*> (VMA( 1 )), static_cast<char*> (VMA( 2 )), args[3] );
+		Cvar_LatchedVariableStringBuffer(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 #endif // RTCW_XX
 
 	case UI_CVAR_SETVALUE:
-		Cvar_SetValue( static_cast<const char*> (VMA( 1 )), VMF( 2 ) );
+		Cvar_SetValue(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			VMF(2)
+		);
 		return 0;
 
 	case UI_CVAR_RESET:
-		Cvar_Reset( static_cast<const char*> (VMA( 1 )) );
+		Cvar_Reset(rtcw::from_vm_arg<const char*>(VMA(1)));
 		return 0;
 
 	case UI_CVAR_CREATE:
-		Cvar_Get( static_cast<const char*> (VMA( 1 )), static_cast<char*> (VMA( 2 )), args[3] );
+		Cvar_Get(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 
 	case UI_CVAR_INFOSTRINGBUFFER:
-		Cvar_InfoStringBuffer( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		Cvar_InfoStringBuffer(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 
 	case UI_ARGC:
 		return Cmd_Argc();
 
 	case UI_ARGV:
-		Cmd_ArgvBuffer( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		Cmd_ArgvBuffer(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 
 	case UI_CMD_EXECUTETEXT:
-		Cbuf_ExecuteText( args[1], static_cast<const char*> (VMA( 2 )) );
+		Cbuf_ExecuteText(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 		return 0;
 
 #if defined RTCW_ET
 	case UI_ADDCOMMAND:
-		Cmd_AddCommand( static_cast<const char*> (VMA( 1 )), NULL );
+		Cmd_AddCommand(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			nullptr
+		);
 		return 0;
 #endif // RTCW_XX
 
 	case UI_FS_FOPENFILE:
-		return FS_FOpenFileByMode( static_cast<const char*> (VMA( 1 )), static_cast<fileHandle_t*> (VMA( 2 )), fsMode_t (args[3]) );
+		return FS_FOpenFileByMode(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<fileHandle_t*>(VMA(2)),
+			rtcw::from_vm_arg<fsMode_t>(args[3])
+		);
 
 	case UI_FS_READ:
-		FS_Read( VMA( 1 ), args[2], args[3] );
+		FS_Read(
+			rtcw::from_vm_arg<void*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<fileHandle_t>(args[3])
+		);
 		return 0;
 
 #if defined RTCW_SP
 //----(SA)	added
 	case UI_FS_SEEK:
-		FS_Seek( args[1], args[2], args[3] );
+		FS_Seek(
+			rtcw::from_vm_arg<fileHandle_t>(args[1]),
+			rtcw::from_vm_arg<int32_t>(args[2]),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 //----(SA)	end
 #endif // RTCW_XX
 
 	case UI_FS_WRITE:
-		FS_Write( VMA( 1 ), args[2], args[3] );
+		FS_Write(
+			rtcw::from_vm_arg<const void*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<fileHandle_t>(args[3])
+		);
 		return 0;
 
 	case UI_FS_FCLOSEFILE:
-		FS_FCloseFile( args[1] );
+		FS_FCloseFile(rtcw::from_vm_arg<fileHandle_t>(args[1]));
 		return 0;
 
 	case UI_FS_DELETEFILE:
-		return FS_Delete( static_cast<char*> (VMA( 1 )) );
+		return FS_Delete(rtcw::from_vm_arg<char*>(VMA(1)));
 
 	case UI_FS_GETFILELIST:
-		return FS_GetFileList( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), static_cast<char*> (VMA( 3 )), args[4] );
+		return FS_GetFileList(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<char*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
 
 	case UI_R_REGISTERMODEL:
-		return re.RegisterModel( static_cast<const char*> (VMA( 1 )) );
+		return re.RegisterModel(rtcw::from_vm_arg<const char*>(VMA(1)));
 
 	case UI_R_REGISTERSKIN:
-		return re.RegisterSkin( static_cast<const char*> (VMA( 1 )) );
+		return re.RegisterSkin(rtcw::from_vm_arg<const char*>(VMA(1)));
 
 	case UI_R_REGISTERSHADERNOMIP:
-		return re.RegisterShaderNoMip( static_cast<const char*> (VMA( 1 )) );
+		return re.RegisterShaderNoMip(rtcw::from_vm_arg<const char*>(VMA(1)));
 
 	case UI_R_CLEARSCENE:
 		re.ClearScene();
 		return 0;
 
 	case UI_R_ADDREFENTITYTOSCENE:
-		re.AddRefEntityToScene( static_cast<const refEntity_t*> (VMA( 1 )) );
+		re.AddRefEntityToScene(rtcw::from_vm_arg<const refEntity_t*>(VMA(1)));
 		return 0;
 
 	case UI_R_ADDPOLYTOSCENE:
-		re.AddPolyToScene( args[1], args[2], static_cast<const polyVert_t*> (VMA( 3 )) );
+		re.AddPolyToScene(
+			rtcw::from_vm_arg<qhandle_t>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<const polyVert_t*>(VMA(3))
+		);
 		return 0;
 
 		// Ridah
 	case UI_R_ADDPOLYSTOSCENE:
-		re.AddPolysToScene( args[1], args[2], static_cast<const polyVert_t*> (VMA( 3 )), args[4] );
+		re.AddPolysToScene(
+			rtcw::from_vm_arg<qhandle_t>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<const polyVert_t*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
 		return 0;
 		// done.
 
 	case UI_R_ADDLIGHTTOSCENE:
-
-#if !defined RTCW_ET
-		re.AddLightToScene( static_cast<const vec_t*> (VMA( 1 )), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), args[6] );
-#else
 		// ydnar: new dlight code
 		//%	re.AddLightToScene( VMA(1), VMF(2), VMF(3), VMF(4), VMF(5), args[6] );
-		re.AddLightToScene( static_cast<const vec_t*> (VMA( 1 )), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ), args[7], args[8] );
+		re.AddLightToScene(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			VMF(2),
+			VMF(3),
+			VMF(4),
+			VMF(5),
+#if defined RTCW_ET
+			VMF(6)
+#else
+			rtcw::from_vm_arg<int>(args[8])
 #endif // RTCW_XX
-
+#if defined RTCW_ET
+			,
+			rtcw::from_vm_arg<qhandle_t>(args[7]),
+			rtcw::from_vm_arg<int>(args[8])
+#endif // RTCW_XX
+		);
 		return 0;
 
 	case UI_R_ADDCORONATOSCENE:
-		re.AddCoronaToScene( static_cast<const vec_t*> (VMA( 1 )), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), args[6], args[7] );
+		re.AddCoronaToScene(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			VMF(2),
+			VMF(3),
+			VMF(4),
+			VMF(5),
+			rtcw::from_vm_arg<int>(args[6]),
+			rtcw::from_vm_arg<int>(args[7])
+		);
 		return 0;
 
 	case UI_R_RENDERSCENE:
-		re.RenderScene( static_cast<const refdef_t*> (VMA( 1 )) );
+		re.RenderScene(rtcw::from_vm_arg<const refdef_t*>(VMA(1)));
 		return 0;
 
 	case UI_R_SETCOLOR:
-		re.SetColor( static_cast<const float*> (VMA( 1 )) );
+		re.SetColor(rtcw::from_vm_arg<const float*>(VMA(1)));
 		return 0;
 
 #if defined RTCW_ET
 	case UI_R_DRAW2DPOLYS:
-		re.Add2dPolys( static_cast<polyVert_t*> (VMA( 1 )), args[2], args[3] );
+		re.Add2dPolys(
+			rtcw::from_vm_arg<polyVert_t*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<qhandle_t>(args[3])
+		);
 		return 0;
 #endif // RTCW_XX
 
 	case UI_R_DRAWSTRETCHPIC:
-		re.DrawStretchPic( VMF( 1 ), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ), VMF( 7 ), VMF( 8 ), args[9] );
+		re.DrawStretchPic(
+			VMF(1),
+			VMF(2),
+			VMF(3),
+			VMF(4),
+			VMF(5),
+			VMF(6),
+			VMF(7),
+			VMF(8),
+			rtcw::from_vm_arg<qhandle_t>(args[9])
+		);
 		return 0;
 
 #if defined RTCW_ET
 	case UI_R_DRAWROTATEDPIC:
-		re.DrawRotatedPic( VMF( 1 ), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ), VMF( 7 ), VMF( 8 ), args[9], VMF( 10 ) );
+		re.DrawRotatedPic(
+			VMF(1),
+			VMF(2),
+			VMF(3),
+			VMF(4),
+			VMF(5),
+			VMF(6),
+			VMF(7),
+			VMF(8),
+			rtcw::from_vm_arg<qhandle_t>(args[9]),
+			VMF(10)
+		);
 		return 0;
 #endif // RTCW_XX
 
 	case UI_R_MODELBOUNDS:
-		re.ModelBounds( args[1], static_cast<vec_t*> (VMA( 2 )), static_cast<vec_t*> (VMA( 3 )) );
+		re.ModelBounds(
+			rtcw::from_vm_arg<qhandle_t>(args[1]),
+			rtcw::from_vm_arg<vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<vec_t*>(VMA(3))
+		);
 		return 0;
 
 	case UI_UPDATESCREEN:
@@ -1266,75 +1382,110 @@ intptr_t CL_UISystemCalls (
 		return 0;
 
 	case UI_CM_LERPTAG:
-		return re.LerpTag( static_cast<orientation_t*> (VMA( 1 )), static_cast<refEntity_t*> (VMA( 2 )), static_cast<const char*> (VMA( 3 )), args[4] );
+		return re.LerpTag(
+			rtcw::from_vm_arg<orientation_t*>(VMA(1)),
+			rtcw::from_vm_arg<const refEntity_t*>(VMA(2)),
+			rtcw::from_vm_arg<const char*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
 
 	case UI_S_REGISTERSOUND:
 #ifdef DOOMSOUND    ///// (SA) DOOMSOUND
-		return S_RegisterSound( VMA( 1 ) );
+		return S_RegisterSound( VMA(1) );
 #else
 
 #if !defined RTCW_ET
-		return S_RegisterSound( static_cast<const char*> (VMA( 1 )), qfalse );
+		return S_RegisterSound(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			qfalse
+		);
 #else
-		return S_RegisterSound( static_cast<const char*> (VMA( 1 )), args[2] );
+		return S_RegisterSound(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<qboolean>(args[2])
+		);
 #endif // RTCW_XX
 
 #endif  ///// (SA) DOOMSOUND
 
 	case UI_S_STARTLOCALSOUND:
-
-#if !defined RTCW_ET
-		S_StartLocalSound( args[1], args[2] );
-#else
-		S_StartLocalSound( args[1], args[2], args[3] );
+		S_StartLocalSound(
+			rtcw::from_vm_arg<sfxHandle_t>(args[1]),
+			rtcw::from_vm_arg<int>(args[2])
+#if defined RTCW_ET
+			,
+			rtcw::from_vm_arg<int>(args[3])
 #endif // RTCW_XX
+		);
 
 		return 0;
 
 #if !defined RTCW_MP
 //----(SA)	added
 	case UI_S_FADESTREAMINGSOUND:
-		S_FadeStreamingSound( VMF( 1 ), args[2], args[3] );
+		S_FadeStreamingSound(
+			VMF(1),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 
 	case UI_S_FADEALLSOUNDS:
 
-#if !defined RTCW_ET
-		S_FadeAllSounds( VMF( 1 ), args[2] );
-#else
-		S_FadeAllSounds( VMF( 1 ), args[2], args[3] );
+		S_FadeAllSounds(
+			VMF(1),
+			rtcw::from_vm_arg<int>(args[2])
+#if defined RTCW_ET
+			,
+			rtcw::from_vm_arg<qboolean>(args[3])
 #endif // RTCW_XX
+		);
 
 		return 0;
 //----(SA)	end
 #endif // RTCW_XX
 
 	case UI_KEY_KEYNUMTOSTRINGBUF:
-		Key_KeynumToStringBuf( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		Key_KeynumToStringBuf(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 
 	case UI_KEY_GETBINDINGBUF:
-		Key_GetBindingBuf( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		Key_GetBindingBuf(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 
 	case UI_KEY_SETBINDING:
-		Key_SetBinding( args[1], static_cast<const char*> (VMA( 2 )) );
+		Key_SetBinding(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 		return 0;
 
 #if defined RTCW_ET
 	case UI_KEY_BINDINGTOKEYS:
-		Key_GetBindingByString( static_cast<const char*> (VMA( 1 )), static_cast<int*> (VMA( 2 )), static_cast<int*> (VMA( 3 )) );
+		Key_GetBindingByString(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<int*>(VMA(2)),
+			rtcw::from_vm_arg<int*>(VMA(3))
+		);
 		return 0;
 #endif // RTCW_XX
 
 	case UI_KEY_ISDOWN:
-		return Key_IsDown( args[1] );
+		return Key_IsDown(rtcw::from_vm_arg<int>(args[1]));
 
 	case UI_KEY_GETOVERSTRIKEMODE:
 		return Key_GetOverstrikeMode();
 
 	case UI_KEY_SETOVERSTRIKEMODE:
-		Key_SetOverstrikeMode( args[1] );
+		Key_SetOverstrikeMode(rtcw::from_vm_arg<qboolean>(args[1]));
 		return 0;
 
 	case UI_KEY_CLEARSTATES:
@@ -1345,23 +1496,30 @@ intptr_t CL_UISystemCalls (
 		return Key_GetCatcher();
 
 	case UI_KEY_SETCATCHER:
-		Key_SetCatcher( args[1] );
+		Key_SetCatcher(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 
 	case UI_GETCLIPBOARDDATA:
-		GetClipboardData( static_cast<char*> (VMA( 1 )), args[2] );
+		GetClipboardData(
+			rtcw::from_vm_arg<char*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 		return 0;
 
 	case UI_GETCLIENTSTATE:
-		GetClientState( static_cast<uiClientState_t*> (VMA( 1 )) );
+		GetClientState(rtcw::from_vm_arg<uiClientState_t*>(VMA(1)));
 		return 0;
 
 	case UI_GETGLCONFIG:
-		CL_GetGlconfig( static_cast<glconfig_t*> (VMA( 1 )) );
+		CL_GetGlconfig(rtcw::from_vm_arg<glconfig_t*>(VMA(1)));
 		return 0;
 
 	case UI_GETCONFIGSTRING:
-		return GetConfigString( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		return GetConfigString(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 
 	case UI_LAN_LOADCACHEDSERVERS:
 		LAN_LoadCachedServers();
@@ -1372,61 +1530,104 @@ intptr_t CL_UISystemCalls (
 		return 0;
 
 	case UI_LAN_ADDSERVER:
-		return LAN_AddServer( args[1], static_cast<const char*> (VMA( 2 )), static_cast<const char*> (VMA( 3 )) );
+		return LAN_AddServer(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<const char*>(VMA(3))
+		);
 
 	case UI_LAN_REMOVESERVER:
-		LAN_RemoveServer( args[1], static_cast<const char*> (VMA( 2 )) );
+		LAN_RemoveServer(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 		return 0;
 
 	case UI_LAN_GETPINGQUEUECOUNT:
 		return LAN_GetPingQueueCount();
 
 	case UI_LAN_CLEARPING:
-		LAN_ClearPing( args[1] );
+		LAN_ClearPing(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 
 	case UI_LAN_GETPING:
-		LAN_GetPing( args[1], static_cast<char*> (VMA( 2 )), args[3], static_cast<int*> (VMA( 4 )) );
+		LAN_GetPing(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<int*>(VMA(4))
+		);
 		return 0;
 
 	case UI_LAN_GETPINGINFO:
-		LAN_GetPingInfo( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		LAN_GetPingInfo(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 
 	case UI_LAN_GETSERVERCOUNT:
-		return LAN_GetServerCount( args[1] );
+		return LAN_GetServerCount(rtcw::from_vm_arg<int>(args[1]));
 
 	case UI_LAN_GETSERVERADDRESSSTRING:
-		LAN_GetServerAddressString( args[1], args[2], static_cast<char*> (VMA( 3 )), args[4] );
+		LAN_GetServerAddressString(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<char*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
 		return 0;
 
 	case UI_LAN_GETSERVERINFO:
-		LAN_GetServerInfo( args[1], args[2], static_cast<char*> (VMA( 3 )), args[4] );
+		LAN_GetServerInfo(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<char*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
 		return 0;
 
 	case UI_LAN_GETSERVERPING:
-		return LAN_GetServerPing( args[1], args[2] );
+		return LAN_GetServerPing(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 
 	case UI_LAN_MARKSERVERVISIBLE:
-		LAN_MarkServerVisible( args[1], args[2], args[3] );
+		LAN_MarkServerVisible(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<qboolean>(args[3])
+		);
 		return 0;
 
 	case UI_LAN_SERVERISVISIBLE:
-		return LAN_ServerIsVisible( args[1], args[2] );
+		return LAN_ServerIsVisible(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 
 	case UI_LAN_UPDATEVISIBLEPINGS:
-		return LAN_UpdateVisiblePings( args[1] );
+		return LAN_UpdateVisiblePings(rtcw::from_vm_arg<int>(args[1]));
 
 	case UI_LAN_RESETPINGS:
-		LAN_ResetPings( args[1] );
+		LAN_ResetPings(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 
 	case UI_LAN_SERVERSTATUS:
-		return LAN_GetServerStatus( static_cast<char*> (VMA( 1 )), static_cast<char*> (VMA( 2 )), args[3] );
+		return LAN_GetServerStatus(
+			rtcw::from_vm_arg<char*>(VMA(1)),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 
 #if defined RTCW_ET
 	case UI_LAN_SERVERISINFAVORITELIST:
-		return LAN_ServerIsInFavoriteList( args[1], args[2] );
+		return LAN_ServerIsInFavoriteList(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 #endif // RTCW_XX
 
 #if !defined RTCW_SP
@@ -1438,52 +1639,68 @@ intptr_t CL_UISystemCalls (
 #endif // RTCW_XX
 
 	case UI_LAN_COMPARESERVERS:
-		return LAN_CompareServers( args[1], args[2], args[3], args[4], args[5] );
+		return LAN_CompareServers(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<int>(args[5])
+		);
 
 	case UI_MEMORY_REMAINING:
 		return Hunk_MemoryRemaining();
 
 	case UI_GET_CDKEY:
-		CLUI_GetCDKey( static_cast<char*> (VMA( 1 )), args[2] );
+		CLUI_GetCDKey(
+			rtcw::from_vm_arg<char*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 		return 0;
 
 	case UI_SET_CDKEY:
-		CLUI_SetCDKey( static_cast<char*> (VMA( 1 )) );
+		CLUI_SetCDKey(rtcw::from_vm_arg<char*>(VMA(1)));
 		return 0;
 
 	case UI_R_REGISTERFONT:
-		re.RegisterFont( static_cast<const char*> (VMA( 1 )), args[2], static_cast<fontInfo_t*> (VMA( 3 )) );
+		re.RegisterFont(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<fontInfo_t*> (VMA(3))
+		);
 		return 0;
 
+// FIXME Not used
+#if FIXME
 	case UI_MEMSET:
-		return (int)memset( VMA( 1 ), args[2], args[3] );
+		return (int)memset( VMA(1), args[2], args[3] );
 
 	case UI_MEMCPY:
-		return (int)memcpy( VMA( 1 ), VMA( 2 ), args[3] );
+		return (int)memcpy( VMA(1), VMA(2), args[3] );
 
 	case UI_STRNCPY:
-		return (int)strncpy( static_cast<char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), args[3] );
+		return (int)strncpy( static_cast<char*> (VMA(1)), static_cast<const char*> (VMA(2)), args[3] );
 
 	case UI_SIN:
-		return FloatAsInt( c::sin( VMF( 1 ) ) );
+		return FloatAsInt( c::sin( VMF(1) ) );
 
 	case UI_COS:
-		return FloatAsInt( c::cos( VMF( 1 ) ) );
+		return FloatAsInt( c::cos( VMF(1) ) );
 
 	case UI_ATAN2:
-		return FloatAsInt( c::atan2( VMF( 1 ), VMF( 2 ) ) );
+		return FloatAsInt( c::atan2( VMF(1), VMF(2) ) );
 
 	case UI_SQRT:
-		return FloatAsInt( c::sqrt( VMF( 1 ) ) );
+		return FloatAsInt( c::sqrt( VMF(1) ) );
 
 	case UI_FLOOR:
-		return FloatAsInt( c::floor( VMF( 1 ) ) );
+		return FloatAsInt( c::floor( VMF(1) ) );
 
 	case UI_CEIL:
-		return FloatAsInt( c::ceil( VMF( 1 ) ) );
+		return FloatAsInt( c::ceil( VMF(1) ) );
+#endif // FIXME
 
 	case UI_PC_ADD_GLOBAL_DEFINE:
-		return botlib_export->PC_AddGlobalDefine( static_cast<char*> (VMA( 1 )) );
+		return botlib_export->PC_AddGlobalDefine(rtcw::from_vm_arg<const char*>(VMA(1)));
 
 #if defined RTCW_ET
 	case UI_PC_REMOVE_ALL_GLOBAL_DEFINES:
@@ -1492,65 +1709,100 @@ intptr_t CL_UISystemCalls (
 #endif // RTCW_XX
 
 	case UI_PC_LOAD_SOURCE:
-		return botlib_export->PC_LoadSourceHandle( static_cast<const char*> (VMA( 1 )) );
+		return botlib_export->PC_LoadSourceHandle(rtcw::from_vm_arg<const char*>(VMA(1)));
+
 	case UI_PC_FREE_SOURCE:
-		return botlib_export->PC_FreeSourceHandle( args[1] );
+		return botlib_export->PC_FreeSourceHandle(rtcw::from_vm_arg<int>(args[1]));
+
 	case UI_PC_READ_TOKEN:
-		return botlib_export->PC_ReadTokenHandle( args[1], static_cast<pc_token_t*> (VMA( 2 )) );
+		return botlib_export->PC_ReadTokenHandle(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<pc_token_t*>(VMA(2))
+		);
+
 	case UI_PC_SOURCE_FILE_AND_LINE:
-		return botlib_export->PC_SourceFileAndLine( args[1], static_cast<char*> (VMA( 2 )), static_cast<int*> (VMA( 3 )) );
+		return botlib_export->PC_SourceFileAndLine(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int*>(VMA(3))
+		);
 
 #if defined RTCW_ET
 	case UI_PC_UNREAD_TOKEN:
-		botlib_export->PC_UnreadLastTokenHandle( args[1] );
+		botlib_export->PC_UnreadLastTokenHandle(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 #endif // RTCW_XX
-
 
 	case UI_S_STOPBACKGROUNDTRACK:
 		S_StopBackgroundTrack();
 		return 0;
+
 	case UI_S_STARTBACKGROUNDTRACK:
-
+		S_StartBackgroundTrack(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2))
 #if !defined RTCW_MP
-		S_StartBackgroundTrack( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), args[3] );   //----(SA)	added fadeup time
-#else
-		S_StartBackgroundTrack( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )) );
+			,
+			rtcw::from_vm_arg<int>(args[3])
 #endif // RTCW_XX
-
+		);   //----(SA)	added fadeup time
 		return 0;
 
 	case UI_REAL_TIME:
-		return Com_RealTime( static_cast<qtime_t*> (VMA( 1 )) );
+		return Com_RealTime(rtcw::from_vm_arg<qtime_t*>(VMA(1)));
 
 	case UI_CIN_PLAYCINEMATIC:
-		Com_DPrintf( "UI_CIN_PlayCinematic\n" );
-		return CIN_PlayCinematic( static_cast<const char*> (VMA( 1 )), args[2], args[3], args[4], args[5], args[6] );
+		Com_DPrintf("UI_CIN_PlayCinematic\n");
+
+		return CIN_PlayCinematic(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<int>(args[5]),
+			rtcw::from_vm_arg<int>(args[6])
+		);
 
 	case UI_CIN_STOPCINEMATIC:
-		return CIN_StopCinematic( args[1] );
+		return CIN_StopCinematic(rtcw::from_vm_arg<int>(args[1]));
 
 	case UI_CIN_RUNCINEMATIC:
-		return CIN_RunCinematic( args[1] );
+		return CIN_RunCinematic(rtcw::from_vm_arg<int>(args[1]));
 
 	case UI_CIN_DRAWCINEMATIC:
-		CIN_DrawCinematic( args[1] );
+		CIN_DrawCinematic(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 
 	case UI_CIN_SETEXTENTS:
-		CIN_SetExtents( args[1], args[2], args[3], args[4], args[5] );
+		CIN_SetExtents(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<int>(args[5])
+		);
 		return 0;
 
 	case UI_R_REMAP_SHADER:
-		re.RemapShader( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), static_cast<const char*> (VMA( 3 )) );
+		re.RemapShader(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<const char*>(VMA(3))
+		);
 		return 0;
 
 	case UI_VERIFY_CDKEY:
-		return CL_CDKeyValidate( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )) );
+		return CL_CDKeyValidate(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 
 		// NERVE - SMF
 	case UI_CL_GETLIMBOSTRING:
-		return CL_GetLimboString( args[1], static_cast<char*> (VMA( 2 )) );
+		return CL_GetLimboString(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
 
 #if defined RTCW_SP
 		// -NERVE - SMF
@@ -1558,7 +1810,10 @@ intptr_t CL_UISystemCalls (
 
 #if !defined RTCW_SP
 	case UI_CL_TRANSLATE_STRING:
-		CL_TranslateString( static_cast<const char*> (VMA( 1 )), static_cast<char*> (VMA( 2 )) );
+		CL_TranslateString(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
 		return 0;
 		// -NERVE - SMF
 
@@ -1573,20 +1828,22 @@ intptr_t CL_UISystemCalls (
 		// DHM - Nerve
 
 	case UI_OPENURL:
-		CL_OpenURL( (const char *)VMA( 1 ) );
+		CL_OpenURL(rtcw::from_vm_arg<const char*>(VMA(1)));
 		return 0;
 #endif // RTCW_XX
 
 #if defined RTCW_ET
 	case UI_GETHUNKDATA:
-		Com_GetHunkInfo( static_cast<int*> (VMA( 1 )), static_cast<int*> (VMA( 2 )) );
+		Com_GetHunkInfo(
+			rtcw::from_vm_arg<int*>(VMA(1)),
+			rtcw::from_vm_arg<int*>(VMA(2))
+		);
 		return 0;
 #endif // RTCW_XX
 
 
 	default:
 		Com_Error( ERR_DROP, "Bad UI system trap: %i", args[0] );
-
 	}
 
 	return 0;
@@ -1603,7 +1860,7 @@ void CL_ShutdownUI( void ) {
 	if ( !uivm ) {
 		return;
 	}
-	VM_Call( uivm, UI_SHUTDOWN );
+	VM_Call(uivm, UI_SHUTDOWN);
 	VM_Free( uivm );
 	uivm = NULL;
 }
@@ -1648,20 +1905,25 @@ void CL_InitUI( void ) {
 	}
 
 	// sanity check
-	v = VM_Call( uivm, UI_GETAPIVERSION );
+	v = VM_Call(uivm, UI_GETAPIVERSION);
+
 	if ( v != UI_API_VERSION ) {
 		Com_Error( ERR_FATAL, "User Interface is version %d, expected %d", v, UI_API_VERSION );
 		cls.uiStarted = qfalse;
 	}
 
 	// init for this gamestate
-	VM_Call( uivm, UI_INIT, ( cls.state >= CA_AUTHORIZING && cls.state < CA_ACTIVE ) );
+	VM_Call(
+		uivm,
+		rtcw::to_vm_arg(UI_INIT),
+		rtcw::to_vm_arg(cls.state >= CA_AUTHORIZING && cls.state < CA_ACTIVE)
+	);
 }
 
 
 qboolean UI_usesUniqueCDKey() {
 	if ( uivm ) {
-		return ( VM_Call( uivm, UI_HASUNIQUECDKEY ) == qtrue );
+		return ( VM_Call(uivm, UI_HASUNIQUECDKEY) == qtrue );
 	} else {
 		return qfalse;
 	}
@@ -1670,7 +1932,7 @@ qboolean UI_usesUniqueCDKey() {
 #if !defined RTCW_SP
 qboolean UI_checkKeyExec( int key ) {
 	if ( uivm ) {
-		return VM_Call( uivm, UI_CHECKEXECKEY, key );
+		return VM_Call(uivm, UI_CHECKEXECKEY, rtcw::to_vm_arg(key));
 	} else {
 		return qfalse;
 	}
@@ -1689,5 +1951,5 @@ qboolean UI_GameCommand( void ) {
 		return qfalse;
 	}
 
-	return VM_Call( uivm, UI_CONSOLE_COMMAND, cls.realtime );
+	return VM_Call(uivm, UI_CONSOLE_COMMAND, rtcw::to_vm_arg(cls.realtime));
 }

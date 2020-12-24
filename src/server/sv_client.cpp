@@ -28,7 +28,11 @@ If you have questions concerning this license or the applicable additional terms
 
 // sv_client.c -- server code for dealing with clients
 
+
 #include "server.h"
+
+#include "rtcw_vm_args.h"
+
 
 static void SV_CloseDownload( client_t *cl );
 
@@ -531,7 +535,7 @@ void SV_DirectConnect( netadr_t from ) {
 #if defined RTCW_SP
 			// disconnect the client from the game first so any flags the
 			// player might have are dropped
-			VM_Call( gvm, GAME_CLIENT_DISCONNECT, newcl - svs.clients );
+			VM_Call(gvm, GAME_CLIENT_DISCONNECT, rtcw::to_vm_arg(newcl - svs.clients));
 			//
 #elif defined RTCW_ET
 			// this doesn't work because it nukes the players userinfo
@@ -634,10 +638,16 @@ gotnewcl:
 	Q_strncpyz( newcl->userinfo, userinfo, sizeof( newcl->userinfo ) );
 
 	// get the game a chance to reject this connection or modify the userinfo
-	denied = (char *)VM_Call( gvm, GAME_CLIENT_CONNECT, clientNum, qtrue, qfalse ); // firstTime = qtrue
+	denied = rtcw::from_vm_arg<char*>(VM_Call(
+		gvm,
+		GAME_CLIENT_CONNECT,
+		rtcw::to_vm_arg(clientNum),
+		rtcw::to_vm_arg(qtrue),
+		rtcw::to_vm_arg(qfalse)
+	)); // firstTime = qtrue
 	if ( denied ) {
 		// we can't just use VM_ArgPtr, because that is only valid inside a VM_Call
-		denied = static_cast<char*> (VM_ExplicitArgPtr( gvm, (int)denied ));
+		denied = rtcw::from_vm_arg<char*>(VM_ExplicitArgPtr(gvm, rtcw::to_vm_arg(denied)));
 
 #if !defined RTCW_ET
 		NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", denied );
@@ -801,7 +811,11 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 
 	// call the prog function for removing a client
 	// this will remove the body, among other things
-	VM_Call( gvm, GAME_CLIENT_DISCONNECT, drop - svs.clients );
+	VM_Call(
+		gvm,
+		GAME_CLIENT_DISCONNECT,
+		rtcw::to_vm_arg(drop - svs.clients)
+	);
 
 #if defined RTCW_SP
 	// Ridah, no need to tell the player if an AI drops
@@ -951,7 +965,11 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	client->lastUsercmd = *cmd;
 
 	// call the game begin function
-	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients );
+	VM_Call(
+		gvm,
+		GAME_CLIENT_BEGIN,
+		rtcw::to_vm_arg(client - svs.clients)
+	);
 }
 
 /*
@@ -1910,7 +1928,11 @@ static void SV_UpdateUserinfo_f( client_t *cl ) {
 
 	SV_UserinfoChanged( cl );
 	// call prog code to allow overrides
-	VM_Call( gvm, GAME_CLIENT_USERINFO_CHANGED, cl - svs.clients );
+	VM_Call(
+		gvm,
+		GAME_CLIENT_USERINFO_CHANGED,
+		rtcw::to_vm_arg(cl - svs.clients)
+	);
 }
 
 
@@ -1996,7 +2018,11 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK, qb
 	if ( clientOK ) {
 		// pass unknown strings to the game
 		if ( !u->name && sv.state == SS_GAME ) {
-			VM_Call( gvm, GAME_CLIENT_COMMAND, cl - svs.clients );
+			VM_Call(
+				gvm,
+				GAME_CLIENT_COMMAND,
+				rtcw::to_vm_arg(cl - svs.clients)
+			);
 		}
 
 #if !defined RTCW_SP
@@ -2146,7 +2172,11 @@ void SV_ClientThink( client_t *cl, usercmd_t *cmd ) {
 		return;     // may have been kicked during the last usercmd
 	}
 
-	VM_Call( gvm, GAME_CLIENT_THINK, cl - svs.clients );
+	VM_Call(
+		gvm,
+		GAME_CLIENT_THINK,
+		rtcw::to_vm_arg(cl - svs.clients)
+	);
 }
 
 /*

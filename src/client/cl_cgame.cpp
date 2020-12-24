@@ -28,9 +28,13 @@ If you have questions concerning this license or the applicable additional terms
 
 // cl_cgame.c  -- client system interaction with client game
 
+
 #include "client.h"
 
 #include "botlib.h"
+
+#include "rtcw_vm_args.h"
+
 
 extern botlib_export_t *botlib_export;
 
@@ -261,7 +265,7 @@ void CL_CgameError( const char *string ) {
 #if defined RTCW_ET
 qboolean CL_CGameCheckKeyExec( int key ) {
 	if ( cgvm ) {
-		return VM_Call( cgvm, CG_CHECKEXECKEY, key );
+		return VM_Call(cgvm, CG_CHECKEXECKEY, rtcw::to_vm_arg(key));
 	} else {
 		return qfalse;
 	}
@@ -581,7 +585,7 @@ CL_CGameBinaryMessageReceived
 ====================
 */
 void CL_CGameBinaryMessageReceived( const char *buf, int buflen, int serverTime ) {
-	VM_Call( cgvm, CG_MESSAGERECEIVED, buf, buflen, serverTime );
+	VM_Call(cgvm, CG_MESSAGERECEIVED, rtcw::to_vm_arg(buf), rtcw::to_vm_arg(buflen), rtcw::to_vm_arg(serverTime));
 }
 #endif // RTCW_XX
 
@@ -623,7 +627,7 @@ void CL_ShutdownCGame( void ) {
 	if ( !cgvm ) {
 		return;
 	}
-	VM_Call( cgvm, CG_SHUTDOWN );
+	VM_Call(cgvm, CG_SHUTDOWN);
 	VM_Free( cgvm );
 	cgvm = NULL;
 }
@@ -637,14 +641,10 @@ void CL_ShutdownCGame( void ) {
 //	return temp;
 //}
 
-static intptr_t FloatAsInt (
-	float x)
+static int FloatAsInt(
+	float x) noexcept
 {
-	intptr_t result;
-
-	*reinterpret_cast<float*> (&result) = x;
-
-	return result;
+	return reinterpret_cast<const int&>(x);
 }
 // BBi
 
@@ -662,97 +662,145 @@ The cgame module is making a system call
 
 #define VMA( x ) VM_ArgPtr( args[x] )
 
+#if FIXME
 // BBi FIXME Use portable defines
 //#define VMF( x )  ( (float *)args )[x]
 #define VMF(x) (*reinterpret_cast<const float*> (args + x))
 // BBi
+#else
+#define VMF(x) (rtcw::from_vm_arg<float>(args[x]))
+#endif // FIXME
 
 // BBi
 //int CL_CgameSystemCalls( int *args ) {
-intptr_t CL_CgameSystemCalls (
+int32_t CL_CgameSystemCalls (
 	intptr_t* args)
 {
 // BBi
-	switch ( args[0] ) {
+	switch ( rtcw::from_vm_arg<cgameExport_t>(args[0]) ) {
 	case CG_PRINT:
-
-#if !defined RTCW_ET
-		Com_Printf( "%s", VMA( 1 ) );
-#else
-		Com_Printf( "%s", (char *)VMA( 1 ) );
-#endif // RTCW_XX
-
+		Com_Printf( "%s", rtcw::from_vm_arg<const char*>(VMA(1)) );
 		return 0;
+
 	case CG_ERROR:
-
-#if !defined RTCW_ET
-		Com_Error( ERR_DROP, "%s", VMA( 1 ) );
-#else
-		Com_Error( ERR_DROP, "%s", (char *)VMA( 1 ) );
-#endif // RTCW_XX
-
+		Com_Error( ERR_DROP, "%s", rtcw::from_vm_arg<const char*>(VMA(1)) );
 		return 0;
+
 	case CG_MILLISECONDS:
 		return Sys_Milliseconds();
+
 	case CG_CVAR_REGISTER:
-		Cvar_Register( static_cast<vmCvar_t*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), static_cast<const char*> (VMA( 3 )), args[4] );
+		Cvar_Register(
+			rtcw::from_vm_arg<vmCvar_t*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<const char*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
 		return 0;
+
 	case CG_CVAR_UPDATE:
-		Cvar_Update( static_cast<vmCvar_t*> (VMA( 1 )) );
+		Cvar_Update(rtcw::from_vm_arg<vmCvar_t*>(VMA(1)));
 		return 0;
+
 	case CG_CVAR_SET:
-		Cvar_Set( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )) );
+		Cvar_Set(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 		return 0;
+
 	case CG_CVAR_VARIABLESTRINGBUFFER:
-		Cvar_VariableStringBuffer( static_cast<const char*> (VMA( 1 )), static_cast<char*> (VMA( 2 )), args[3] );
+		Cvar_VariableStringBuffer(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 
 #if defined RTCW_ET
 	case CG_CVAR_LATCHEDVARIABLESTRINGBUFFER:
-		Cvar_LatchedVariableStringBuffer( static_cast<const char*> (VMA( 1 )), static_cast<char*> (VMA( 2 )), args[3] );
+		Cvar_LatchedVariableStringBuffer(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 #endif // RTCW_XX
 
 	case CG_ARGC:
 		return Cmd_Argc();
+
 	case CG_ARGV:
-		Cmd_ArgvBuffer( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		Cmd_ArgvBuffer(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
+
 	case CG_ARGS:
-		Cmd_ArgsBuffer( static_cast<char*> (VMA( 1 )), args[2] );
+		Cmd_ArgsBuffer(
+			rtcw::from_vm_arg<char*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 		return 0;
+
 	case CG_FS_FOPENFILE:
-		return FS_FOpenFileByMode( static_cast<const char*> (VMA( 1 )), static_cast<fileHandle_t*> (VMA( 2 )), fsMode_t (args[3]) );
+		return FS_FOpenFileByMode(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<fileHandle_t*>(VMA(2)),
+			rtcw::from_vm_arg<fsMode_t>(args[3])
+		);
+
 	case CG_FS_READ:
-		FS_Read( VMA( 1 ), args[2], args[3] );
+		FS_Read(
+			rtcw::from_vm_arg<void*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<fileHandle_t>(args[3])
+		);
 		return 0;
+
 	case CG_FS_WRITE:
-		return FS_Write( VMA( 1 ), args[2], args[3] );
+		return FS_Write(
+			rtcw::from_vm_arg<const void*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<fileHandle_t>(args[3])
+		);
+
 	case CG_FS_FCLOSEFILE:
-		FS_FCloseFile( args[1] );
+		FS_FCloseFile(rtcw::from_vm_arg<fileHandle_t>(args[1]));
 		return 0;
 
 #if defined RTCW_ET
 	case CG_FS_GETFILELIST:
-		return FS_GetFileList( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), static_cast<char*> (VMA( 3 )), args[4] );
+		return FS_GetFileList(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<char*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
+
 	case CG_FS_DELETEFILE:
-		return FS_Delete( static_cast<char*> (VMA( 1 )) );
+		return FS_Delete(rtcw::from_vm_arg<const char*>(VMA(1)));
 #endif // RTCW_XX
 
 	case CG_SENDCONSOLECOMMAND:
-		Cbuf_AddText( static_cast<const char*> (VMA( 1 )) );
+		Cbuf_AddText(rtcw::from_vm_arg<const char*>(VMA(1)));
 		return 0;
-	case CG_ADDCOMMAND:
-		CL_AddCgameCommand( static_cast<const char*> (VMA( 1 )) );
-		return 0;
-	case CG_REMOVECOMMAND:
-		Cmd_RemoveCommand( static_cast<const char*> (VMA( 1 )) );
-		return 0;
-	case CG_SENDCLIENTCOMMAND:
-		CL_AddReliableCommand( static_cast<const char*> (VMA( 1 )) );
-		return 0;
-	case CG_UPDATESCREEN:
 
+	case CG_ADDCOMMAND:
+		CL_AddCgameCommand(rtcw::from_vm_arg<const char*>(VMA(1)));
+		return 0;
+
+	case CG_REMOVECOMMAND:
+		Cmd_RemoveCommand(rtcw::from_vm_arg<const char*>(VMA(1)));
+		return 0;
+
+	case CG_SENDCLIENTCOMMAND:
+		CL_AddReliableCommand(rtcw::from_vm_arg<const char*>(VMA(1)));
+		return 0;
+
+	case CG_UPDATESCREEN:
 #if !defined RTCW_ET
 		// this is used during lengthy level loading, so pump message loop
 //		Com_EventLoop();	// FIXME: if a server restarts here, BAD THINGS HAPPEN!
@@ -763,60 +811,141 @@ intptr_t CL_CgameSystemCalls (
 
 		SCR_UpdateScreen();
 		return 0;
+
 	case CG_CM_LOADMAP:
-		CL_CM_LoadMap( static_cast<const char*> (VMA( 1 )) );
+		CL_CM_LoadMap(rtcw::from_vm_arg<const char*>(VMA(1)));
 		return 0;
+
 	case CG_CM_NUMINLINEMODELS:
 		return CM_NumInlineModels();
+
 	case CG_CM_INLINEMODEL:
-		return CM_InlineModel( args[1] );
+		return CM_InlineModel(rtcw::from_vm_arg<int>(args[1]));
+
 	case CG_CM_TEMPBOXMODEL:
-		return CM_TempBoxModel( static_cast<const vec_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )), qfalse );
+		return CM_TempBoxModel(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<int>(qfalse)
+		);
+
 	case CG_CM_TEMPCAPSULEMODEL:
-		return CM_TempBoxModel( static_cast<const vec_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )), qtrue );
+		return CM_TempBoxModel(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<int>(qtrue)
+		);
+
 	case CG_CM_POINTCONTENTS:
-		return CM_PointContents( static_cast<const vec_t*> (VMA( 1 )), args[2] );
+		return CM_PointContents(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<clipHandle_t>(args[2])
+		);
+
 	case CG_CM_TRANSFORMEDPOINTCONTENTS:
-		return CM_TransformedPointContents( static_cast<const vec_t*> (VMA( 1 )), args[2], static_cast<const vec_t*> (VMA( 3 )), static_cast<const vec_t*> (VMA( 4 )) );
+		return CM_TransformedPointContents(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<clipHandle_t>(args[2]),
+			rtcw::from_vm_arg<const vec_t*>(VMA(3)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(4))
+		);
+
 	case CG_CM_BOXTRACE:
-
 #if defined RTCW_ET
 //		numtraces++;
 #endif // RTCW_XX
 
-		CM_BoxTrace( static_cast<trace_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )), static_cast<const vec_t*> (VMA( 3 )), static_cast<const vec_t*> (VMA( 4 )), static_cast<const vec_t*> (VMA( 5 )), args[6], args[7], /*int capsule*/ qfalse );
+		CM_BoxTrace(
+			rtcw::from_vm_arg<trace_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(3)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(4)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(5)),
+			rtcw::from_vm_arg<clipHandle_t>(args[6]),
+			rtcw::from_vm_arg<int>(args[7]),
+			rtcw::from_vm_arg<int>(qfalse)
+		);
 		return 0;
+
 	case CG_CM_TRANSFORMEDBOXTRACE:
-
 #if defined RTCW_ET
 //		numtraces++;
 #endif // RTCW_XX
 
-		CM_TransformedBoxTrace( static_cast<trace_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )), static_cast<const vec_t*> (VMA( 3 )), static_cast<const vec_t*> (VMA( 4 )), static_cast<const vec_t*> (VMA( 5 )), args[6], args[7], static_cast<const vec_t*> (VMA( 8 )), static_cast<const vec_t*> (VMA( 9 )), /*int capsule*/ qfalse );
+		CM_TransformedBoxTrace(
+			rtcw::from_vm_arg<trace_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(3)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(4)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(5)),
+			rtcw::from_vm_arg<clipHandle_t>(args[6]),
+			rtcw::from_vm_arg<int>(args[7]),
+			rtcw::from_vm_arg<const vec_t*>(VMA(8)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(9)),
+			rtcw::from_vm_arg<int>(qfalse)
+		);
 		return 0;
+
 	case CG_CM_CAPSULETRACE:
-
 #if defined RTCW_ET
 //		numtraces++;
 #endif // RTCW_XX
 
-		CM_BoxTrace( static_cast<trace_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )), static_cast<const vec_t*> (VMA( 3 )), static_cast<const vec_t*> (VMA( 4 )), static_cast<const vec_t*> (VMA( 5 )), args[6], args[7], /*int capsule*/ qtrue );
+		CM_BoxTrace(
+			rtcw::from_vm_arg<trace_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(3)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(4)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(5)),
+			rtcw::from_vm_arg<clipHandle_t>(args[6]),
+			rtcw::from_vm_arg<int>(args[7]),
+			rtcw::from_vm_arg<int>(qtrue)
+		);
 		return 0;
+
 	case CG_CM_TRANSFORMEDCAPSULETRACE:
-
 #if defined RTCW_ET
 //		numtraces++;
 #endif // RTCW_XX
 
-		CM_TransformedBoxTrace( static_cast<trace_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )), static_cast<const vec_t*> (VMA( 3 )), static_cast<const vec_t*> (VMA( 4 )), static_cast<const vec_t*> (VMA( 5 )), args[6], args[7], static_cast<const vec_t*> (VMA( 8 )), static_cast<const vec_t*> (VMA( 9 )), /*int capsule*/ qtrue );
+		CM_TransformedBoxTrace(
+			rtcw::from_vm_arg<trace_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(3)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(4)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(5)),
+			rtcw::from_vm_arg<clipHandle_t>(args[6]),
+			rtcw::from_vm_arg<int>(args[7]),
+			rtcw::from_vm_arg<const vec_t*>(VMA(8)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(9)),
+			rtcw::from_vm_arg<int>(qtrue)
+		);
 		return 0;
+
 	case CG_CM_MARKFRAGMENTS:
-		return re.MarkFragments( args[1], static_cast<const vec3_t*> (VMA( 2 )), static_cast<const vec_t*> (VMA( 3 )), args[4], static_cast<vec_t*> (VMA( 5 )), args[6], static_cast<markFragment_t*> (VMA( 7 )) );
+		return re.MarkFragments(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const vec3_t*>(VMA(2)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<vec_t*>(VMA(5)),
+			rtcw::from_vm_arg<int>(args[6]),
+			rtcw::from_vm_arg<markFragment_t*>(VMA(7))
+		);
 
 #if defined RTCW_ET
 	case CG_R_PROJECTDECAL:
-		re.ProjectDecal( args[ 1 ], args[ 2 ], static_cast<vec3_t*> (VMA( 3 )), static_cast<vec_t*> (VMA( 4 )), static_cast<vec_t*> (VMA( 5 )), args[ 6 ], args[ 7 ] );
+		re.ProjectDecal(
+			rtcw::from_vm_arg<qhandle_t>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<vec3_t*>(VMA(3)),
+			rtcw::from_vm_arg<vec_t*>(VMA(4)),
+			rtcw::from_vm_arg<vec_t*>(VMA(5)),
+			rtcw::from_vm_arg<int>(args[6]),
+			rtcw::from_vm_arg<int>(args[7])
+		);
 		return 0;
+
 	case CG_R_CLEARDECALS:
 		re.ClearDecals();
 		return 0;
@@ -824,47 +953,58 @@ intptr_t CL_CgameSystemCalls (
 
 	case CG_S_STARTSOUND:
 
-#if !defined RTCW_ET
-		S_StartSound( static_cast<vec_t*> (VMA( 1 )), args[2], args[3], args[4] );
-#else
-		S_StartSound( static_cast<vec_t*> (VMA( 1 )), args[2], args[3], args[4], args[5] );
+		S_StartSound(
+			rtcw::from_vm_arg<vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<sfxHandle_t>(args[4])
+#if defined RTCW_ET
+			,
+			rtcw::from_vm_arg<int>(args[5])
 #endif // RTCW_XX
+		);
 
 		return 0;
+
 //----(SA)	added
 	case CG_S_STARTSOUNDEX:
-
-#if !defined RTCW_ET
-		S_StartSoundEx( static_cast<vec_t*> (VMA( 1 )), args[2], args[3], args[4], args[5] );
-#else
-		S_StartSoundEx( static_cast<vec_t*> (VMA( 1 )), args[2], args[3], args[4], args[5], args[6] );
+		S_StartSoundEx(
+			rtcw::from_vm_arg<vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<sfxHandle_t>(args[4]),
+			rtcw::from_vm_arg<int>(args[5])
+#if defined RTCW_ET
+			,
+			rtcw::from_vm_arg<int>(args[6])
 #endif // RTCW_XX
-
+		);
 		return 0;
 //----(SA)	end
+
 	case CG_S_STARTLOCALSOUND:
-
-#if !defined RTCW_ET
-		S_StartLocalSound( args[1], args[2] );
-#else
-		S_StartLocalSound( args[1], args[2], args[3] );
+		S_StartLocalSound(
+			rtcw::from_vm_arg<sfxHandle_t>(args[1]),
+			rtcw::from_vm_arg<int>(args[2])
+#if defined RTCW_ET
+			,
+			rtcw::from_vm_arg<int>(args[3])
 #endif // RTCW_XX
-
+		);
 		return 0;
-	case CG_S_CLEARLOOPINGSOUNDS:
 
-#if !defined RTCW_ET
+	case CG_S_CLEARLOOPINGSOUNDS:
 		S_ClearLoopingSounds(); // (SA) modified so no_pvs sounds can function
-#else
-		S_ClearLoopingSounds();
-#endif // RTCW_XX
 
 #if defined RTCW_SP
 		// RF, if killall, then stop all sounds
-		if ( args[1] == 1 ) {
-			S_ClearSounds( qtrue, qfalse );
-		} else if ( args[1] == 2 ) {
-			S_ClearSounds( qtrue, qtrue );
+		if (rtcw::from_vm_arg<qboolean>(args[1]) == 1)
+		{
+			S_ClearSounds(qtrue, qfalse);
+		}
+		else if (rtcw::from_vm_arg<qboolean>(args[1]) == 2)
+		{
+			S_ClearSounds(qtrue, qtrue);
 		}
 #endif // RTCW_XX
 
@@ -872,28 +1012,52 @@ intptr_t CL_CgameSystemCalls (
 
 #if defined RTCW_ET
 	case CG_S_CLEARSOUNDS:
-		if ( args[1] == 0 ) {
-			S_ClearSounds( qtrue, qfalse );
-		} else if ( args[1] == 1 ) {
-			S_ClearSounds( qtrue, qtrue );
+		if (rtcw::from_vm_arg<qboolean>(args[1]) == 0)
+		{
+			S_ClearSounds(qtrue, qfalse);
 		}
+		else if (rtcw::from_vm_arg<qboolean>(args[1]) == 1)
+		{
+			S_ClearSounds(qtrue, qtrue);
+		}
+
 		return 0;
 #endif // RTCW_XX
 
 	case CG_S_ADDLOOPINGSOUND:
 		// FIXME MrE: handling of looping sounds changed
-
 #if !defined RTCW_ET
-		S_AddLoopingSound( args[1], static_cast<const vec_t*> (VMA( 2 )), static_cast<const vec_t*> (VMA( 3 )), args[4], args[5], args[6] );
+		S_AddLoopingSound(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<sfxHandle_t>(args[5]),
+			rtcw::from_vm_arg<int>(args[6])
+		);
 #else
-		S_AddLoopingSound( static_cast<const vec_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )), args[3], args[4], args[5], args[6] );
+		S_AddLoopingSound(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<sfxHandle_t>(args[4]),
+			rtcw::from_vm_arg<int>(args[5]),
+			rtcw::from_vm_arg<int>(args[6])
+		);
 #endif // RTCW_XX
 
 		return 0;
 
 #if defined RTCW_ET
 	case CG_S_ADDREALLOOPINGSOUND:
-		S_AddRealLoopingSound( static_cast<const vec_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )), args[3], args[4], args[5], args[6] );
+		S_AddRealLoopingSound(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<sfxHandle_t>(args[4]),
+			rtcw::from_vm_arg<int>(args[5]),
+			rtcw::from_vm_arg<int>(args[6])
+		);
 		return 0;
 #endif // RTCW_XX
 
@@ -910,10 +1074,17 @@ intptr_t CL_CgameSystemCalls (
 #endif // RTCW_XX
 
 	case CG_S_STOPSTREAMINGSOUND:
-		S_StopEntStreamingSound( args[1] );
+		S_StopEntStreamingSound(rtcw::from_vm_arg<int>(args[1]));
 #else
 	case CG_S_ADDREALLOOPINGSOUND:
-		S_AddLoopingSound( args[1], static_cast<const vec_t*> (VMA( 2 )), static_cast<const vec_t*> (VMA( 3 )), args[4], args[5], args[6] );
+		S_AddLoopingSound(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(3)),
+			rtcw::from_vm_arg<sfxHandle_t>(args[4]),
+			rtcw::from_vm_arg<int>(args[5]),
+			rtcw::from_vm_arg<int>(args[6])
+		);
 		//S_AddRealLoopingSound( args[1], VMA(2), VMA(3), args[4], args[5] );
 #endif // RTCW_XX
 
@@ -926,21 +1097,26 @@ intptr_t CL_CgameSystemCalls (
 #if !defined RTCW_ET
 	case CG_S_STOPLOOPINGSOUND:
 		// RF, not functional anymore, since we reverted to old looping code
-		//S_StopLoopingSound( args[1] );
+		//S_StopLoopingSound(args[1]);
 #endif // RTCW_XX
 
 		return 0;
+
 	case CG_S_UPDATEENTITYPOSITION:
-		S_UpdateEntityPosition( args[1], static_cast<const vec_t*> (VMA( 2 )) );
+		S_UpdateEntityPosition(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2))
+		);
 		return 0;
+
 // Ridah, talking animations
 	case CG_S_GETVOICEAMPLITUDE:
-		return S_GetVoiceAmplitude( args[1] );
+		return S_GetVoiceAmplitude(rtcw::from_vm_arg<int>(args[1]));
 // done.
 
 #if defined RTCW_ET
 	case CG_S_GETSOUNDLENGTH:
-		return S_GetSoundLength( args[1] );
+		return S_GetSoundLength(rtcw::from_vm_arg<int>(args[1]));
 
 		// ydnar: for looped sound starts
 	case CG_S_GETCURRENTSOUNDTIME:
@@ -948,342 +1124,579 @@ intptr_t CL_CgameSystemCalls (
 #endif // RTCW_XX
 
 	case CG_S_RESPATIALIZE:
-		S_Respatialize( args[1], static_cast<const vec_t*> (VMA( 2 )), static_cast<vec3_t*> (VMA( 3 )), args[4] );
+		S_Respatialize(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<vec3_t*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
 		return 0;
+
 	case CG_S_REGISTERSOUND:
 #ifdef DOOMSOUND    ///// (SA) DOOMSOUND
-		return S_RegisterSound( VMA( 1 ) );
+		return S_RegisterSound( VMA(1) );
 #else
 
 #if !defined RTCW_ET
-		return S_RegisterSound( static_cast<const char*> (VMA( 1 )), qfalse );
+		return S_RegisterSound(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<qboolean>(qfalse)
+		);
 #else
-		return S_RegisterSound( static_cast<const char*> (VMA( 1 )), args[2] );
+		return S_RegisterSound(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<qboolean>(args[2])
+		);
 #endif // RTCW_XX
 
 #endif  ///// (SA) DOOMSOUND
 
 #if !defined RTCW_MP
 	case CG_S_STARTBACKGROUNDTRACK:
-		S_StartBackgroundTrack( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), args[3] );  //----(SA)	added fadeup time
+		S_StartBackgroundTrack(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);  //----(SA)	added fadeup time
 		return 0;
+
 	case CG_S_FADESTREAMINGSOUND:
-		S_FadeStreamingSound( VMF( 1 ), args[2], args[3] ); //----(SA)	added music/all-streaming options
+		S_FadeStreamingSound(
+			VMF(1),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3])
+		); //----(SA)	added music/all-streaming options
 		return 0;
 #else
 	case CG_S_STARTBACKGROUNDTRACK:
-		S_StartBackgroundTrack( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )) );
+		S_StartBackgroundTrack(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 		return 0;
 #endif // RTCW_XX
 
 	case CG_S_STARTSTREAMINGSOUND:
-
 #if !defined RTCW_ET
-		S_StartStreamingSound( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), args[3], args[4], args[5] );
+		S_StartStreamingSound(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<int>(args[5])
+		);
 		return 0;
 #else
-		return S_StartStreamingSound( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), args[3], args[4], args[5] );
+		return static_cast<int32_t>(S_StartStreamingSound(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<int>(args[5])
+		));
 #endif // RTCW_XX
 
 #if defined RTCW_SP
 	case CG_S_FADEALLSOUNDS:
-		S_FadeAllSounds( VMF( 1 ), args[2] );   //----(SA)	added
+		S_FadeAllSounds(
+			VMF(1),
+			rtcw::from_vm_arg<int>(args[2])
+		); //----(SA)	added
 		return 0;
 #endif // RTCW_XX
 
 	case CG_R_LOADWORLDMAP:
-		re.LoadWorld( static_cast<const char*> (VMA( 1 )) );
+		re.LoadWorld(rtcw::from_vm_arg<const char*>(VMA(1)));
 		return 0;
+
 	case CG_R_REGISTERMODEL:
-		return re.RegisterModel( static_cast<const char*> (VMA( 1 )) );
+		return re.RegisterModel(rtcw::from_vm_arg<const char*>(VMA(1)));
+
 	case CG_R_REGISTERSKIN:
-		return re.RegisterSkin( static_cast<const char*> (VMA( 1 )) );
+		return re.RegisterSkin(rtcw::from_vm_arg<const char*>(VMA(1)));
 
 		//----(SA)	added
 	case CG_R_GETSKINMODEL:
-		return re.GetSkinModel( args[1], static_cast<const char*> (VMA( 2 )), static_cast<char*> (VMA( 3 )) );
+		return re.GetSkinModel(
+			rtcw::from_vm_arg<qhandle_t>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<char*>(VMA(3))
+		);
+
 	case CG_R_GETMODELSHADER:
-		return re.GetShaderFromModel( args[1], args[2], args[3] );
+		return re.GetShaderFromModel(
+			rtcw::from_vm_arg<qhandle_t>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		//----(SA)	end
 
 	case CG_R_REGISTERSHADER:
-		return re.RegisterShader( static_cast<const char*> (VMA( 1 )) );
-	case CG_R_REGISTERFONT:
-		re.RegisterFont( static_cast<const char*> (VMA( 1 )), args[2], static_cast<fontInfo_t*> (VMA( 3 )) );
+		return re.RegisterShader(rtcw::from_vm_arg<const char*>(VMA(1)));
 
+	case CG_R_REGISTERFONT:
+		re.RegisterFont(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<fontInfo_t*>(VMA(3))
+		);
+
+// FIXME Return for all games?
 #if defined RTCW_ET
 		return 0;
 #endif // RTCW_XX
 
 	case CG_R_REGISTERSHADERNOMIP:
-		return re.RegisterShaderNoMip( static_cast<const char*> (VMA( 1 )) );
+		return re.RegisterShaderNoMip(rtcw::from_vm_arg<const char*>(VMA(1)));
+
 	case CG_R_CLEARSCENE:
 		re.ClearScene();
 		return 0;
+
 	case CG_R_ADDREFENTITYTOSCENE:
-		re.AddRefEntityToScene( static_cast<refEntity_t*> (VMA( 1 )) );
+		re.AddRefEntityToScene(rtcw::from_vm_arg<refEntity_t*>(VMA(1)));
 		return 0;
+
 	case CG_R_ADDPOLYTOSCENE:
-		re.AddPolyToScene( args[1], args[2], static_cast<const polyVert_t*> (VMA( 3 )) );
+		re.AddPolyToScene(
+			rtcw::from_vm_arg<qhandle_t>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<const polyVert_t*>(VMA(3))
+		);
 		return 0;
+
 		// Ridah
 	case CG_R_ADDPOLYSTOSCENE:
-		re.AddPolysToScene( args[1], args[2], static_cast<const polyVert_t*> (VMA( 3 )), args[4] );
+		re.AddPolysToScene(
+			rtcw::from_vm_arg<qhandle_t>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<const polyVert_t*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
 		return 0;
 
 #if defined RTCW_SP
 	case CG_RB_ZOMBIEFXADDNEWHIT:
-		re.ZombieFXAddNewHit( args[1], static_cast<const vec_t*> (VMA( 2 )), static_cast<const vec_t*> (VMA( 3 )) );
+		re.ZombieFXAddNewHit(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(3))
+		);
 		return 0;
 #endif // RTCW_XX
 
 #if defined RTCW_ET
 	case CG_R_ADDPOLYBUFFERTOSCENE:
-		re.AddPolyBufferToScene( static_cast<polyBuffer_t*> (VMA( 1 )) );
+		re.AddPolyBufferToScene(rtcw::from_vm_arg<polyBuffer_t*>(VMA(1)));
 		break;
 #endif // RTCW_XX
 
 		// done.
+
 //	case CG_R_LIGHTFORPOINT:
 //		return re.LightForPoint( VMA(1), VMA(2), VMA(3), VMA(4) );
-	case CG_R_ADDLIGHTTOSCENE:
 
-#if !defined RTCW_ET
-		re.AddLightToScene( static_cast<const vec_t*> (VMA( 1 )), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), args[6] );
-#else
+	case CG_R_ADDLIGHTTOSCENE:
 		// ydnar: new dlight code
 		//%	re.AddLightToScene( VMA(1), VMF(2), VMF(3), VMF(4), VMF(5), args[6] );
-		re.AddLightToScene( static_cast<const vec_t*> (VMA( 1 )), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ), args[7], args[8] );
+		re.AddLightToScene(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			VMF(2),
+			VMF(3),
+			VMF(4),
+			VMF(5),
+#if defined RTCW_ET
+			VMF(6)
+#else
+			rtcw::from_vm_arg<int>(args[6])
 #endif // RTCW_XX
-
+#if defined RTCW_ET
+			,
+			rtcw::from_vm_arg<qhandle_t>(args[7]),
+			rtcw::from_vm_arg<int>(args[8])
+#endif // RTCW_XX
+		);
 		return 0;
+
 //	case CG_R_ADDADDITIVELIGHTTOSCENE:
 //		re.AddAdditiveLightToScene( VMA(1), VMF(2), VMF(3), VMF(4), VMF(5) );
 //		return 0;
+
 	case CG_R_ADDCORONATOSCENE:
-		re.AddCoronaToScene( static_cast<const vec_t*> (VMA( 1 )), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), args[6], args[7] );
+		re.AddCoronaToScene(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			VMF(2),
+			VMF(3),
+			VMF(4),
+			VMF(5),
+			rtcw::from_vm_arg<int>(args[6]),
+			rtcw::from_vm_arg<qboolean>(args[7])
+		);
 		return 0;
+
 	case CG_R_SETFOG:
-		re.SetFog( args[1], args[2], args[3], VMF( 4 ), VMF( 5 ), VMF( 6 ), VMF( 7 ) );
+		re.SetFog(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3]),
+			VMF(4),
+			VMF(5),
+			VMF(6),
+			VMF(7)
+		);
 		return 0;
 
 #if defined RTCW_ET
 	case CG_R_SETGLOBALFOG:
-		re.SetGlobalFog( args[1], args[2], VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ) );
+		re.SetGlobalFog(
+			rtcw::from_vm_arg<qboolean>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			VMF(3),
+			VMF(4),
+			VMF(5),
+			VMF(6)
+		);
 		return 0;
 #endif // RTCW_XX
 
 	case CG_R_RENDERSCENE:
-		re.RenderScene( static_cast<const refdef_t*> (VMA( 1 )) );
+		re.RenderScene(rtcw::from_vm_arg<const refdef_t*>(VMA(1)));
 		return 0;
 
 #if defined RTCW_ET
 	case CG_R_SAVEVIEWPARMS:
 		re.SaveViewParms();
 		return 0;
+
 	case CG_R_RESTOREVIEWPARMS:
 		re.RestoreViewParms();
 		return 0;
 #endif // RTCW_XX
 
 	case CG_R_SETCOLOR:
-		re.SetColor( static_cast<const float*> (VMA( 1 )) );
+		re.SetColor(rtcw::from_vm_arg<const float*>(VMA(1)));
 		return 0;
+
 	case CG_R_DRAWSTRETCHPIC:
-		re.DrawStretchPic( VMF( 1 ), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ), VMF( 7 ), VMF( 8 ), args[9] );
+		re.DrawStretchPic(
+			VMF(1),
+			VMF(2),
+			VMF(3),
+			VMF(4),
+			VMF(5),
+			VMF(6),
+			VMF(7),
+			VMF(8),
+			rtcw::from_vm_arg<qhandle_t>(args[9])
+		);
 		return 0;
 
 #if !defined RTCW_SP
 	case CG_R_DRAWROTATEDPIC:
-		re.DrawRotatedPic( VMF( 1 ), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ), VMF( 7 ), VMF( 8 ), args[9], VMF( 10 ) );
+		re.DrawRotatedPic(
+			VMF(1),
+			VMF(2),
+			VMF(3),
+			VMF(4),
+			VMF(5),
+			VMF(6),
+			VMF(7),
+			VMF(8),
+			rtcw::from_vm_arg<qhandle_t>(args[9]),
+			VMF(10)
+		);
 		return 0;
 #endif // RTCW_XX
 
 	case CG_R_DRAWSTRETCHPIC_GRADIENT:
-		re.DrawStretchPicGradient( VMF( 1 ), VMF( 2 ), VMF( 3 ), VMF( 4 ), VMF( 5 ), VMF( 6 ), VMF( 7 ), VMF( 8 ), args[9], static_cast<const float*> (VMA( 10 )), args[11] );
+		re.DrawStretchPicGradient(
+			VMF(1),
+			VMF(2),
+			VMF(3),
+			VMF(4),
+			VMF(5),
+			VMF(6),
+			VMF(7),
+			VMF(8),
+			rtcw::from_vm_arg<qhandle_t>(args[9]),
+			rtcw::from_vm_arg<const float*>(VMA(10)),
+			rtcw::from_vm_arg<int>(args[11])
+		);
 		return 0;
 
 #if defined RTCW_ET
 	case CG_R_DRAW2DPOLYS:
-		re.Add2dPolys( static_cast<polyVert_t*> (VMA( 1 )), args[2], args[3] );
+		re.Add2dPolys(
+			rtcw::from_vm_arg<polyVert_t*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<qhandle_t>(args[3])
+		);
 		return 0;
 #endif // RTCW_XX
 
 	case CG_R_MODELBOUNDS:
-		re.ModelBounds( args[1], static_cast<vec_t*> (VMA( 2 )), static_cast<vec_t*> (VMA( 3 )) );
+		re.ModelBounds(
+			rtcw::from_vm_arg<qhandle_t>(args[1]),
+			rtcw::from_vm_arg<vec_t*>(VMA(2)),
+			rtcw::from_vm_arg<vec_t*>(VMA(3))
+		);
 		return 0;
+
 	case CG_R_LERPTAG:
-		return re.LerpTag( static_cast<orientation_t*> (VMA( 1 )), static_cast<refEntity_t*> (VMA( 2 )), static_cast<const char*> (VMA( 3 )), args[4] );
+		return re.LerpTag(
+			rtcw::from_vm_arg<orientation_t*>(VMA(1)),
+			rtcw::from_vm_arg<refEntity_t*>(VMA(2)),
+			rtcw::from_vm_arg<const char*>(VMA(3)),
+			rtcw::from_vm_arg<int>(args[4])
+		);
+
 	case CG_GETGLCONFIG:
-		CL_GetGlconfig( static_cast<glconfig_t*> (VMA( 1 )) );
+		CL_GetGlconfig(rtcw::from_vm_arg<glconfig_t*>(VMA(1)));
 		return 0;
+
 	case CG_GETGAMESTATE:
-		CL_GetGameState( static_cast<gameState_t*> (VMA( 1 )) );
+		CL_GetGameState(rtcw::from_vm_arg<gameState_t*>(VMA(1)));
 		return 0;
+
 	case CG_GETCURRENTSNAPSHOTNUMBER:
-		CL_GetCurrentSnapshotNumber( static_cast<int*> (VMA( 1 )), static_cast<int*> (VMA( 2 )) );
+		CL_GetCurrentSnapshotNumber(
+			rtcw::from_vm_arg<int*>(VMA(1)),
+			rtcw::from_vm_arg<int*>(VMA(2))
+		);
 		return 0;
+
 	case CG_GETSNAPSHOT:
-		return CL_GetSnapshot( args[1], static_cast<snapshot_t*> (VMA( 2 )) );
+		return CL_GetSnapshot(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<snapshot_t*>(VMA(2))
+		);
+
 	case CG_GETSERVERCOMMAND:
-		return CL_GetServerCommand( args[1] );
+		return CL_GetServerCommand(rtcw::from_vm_arg<int>(args[1]));
+
 	case CG_GETCURRENTCMDNUMBER:
 		return CL_GetCurrentCmdNumber();
-	case CG_GETUSERCMD:
-		return CL_GetUserCmd( args[1], static_cast<usercmd_t*> (VMA( 2 )) );
-	case CG_SETUSERCMDVALUE:
 
+	case CG_GETUSERCMD:
+		return CL_GetUserCmd(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<usercmd_t*>(VMA(2))
+		);
+
+	case CG_SETUSERCMDVALUE:
+#if FIXME
 #if defined RTCW_SP
-		CL_SetUserCmdValue( args[1], args[2], VMF( 3 ), args[4] );    //----(SA)	modified	// NERVE - SMF - added fourth arg [cld]
+		CL_SetUserCmdValue( args[1], args[2], VMF(3), args[4] );    //----(SA)	modified	// NERVE - SMF - added fourth arg [cld]
 #elif defined RTCW_MP
-		CL_SetUserCmdValue( args[1], args[2], VMF( 3 ), args[4], args[5] );
+		CL_SetUserCmdValue( args[1], args[2], VMF(3), args[4], args[5] );
 #else
-		CL_SetUserCmdValue( args[1], args[2], VMF( 3 ), args[4] );
+		CL_SetUserCmdValue( args[1], args[2], VMF(3), args[4] );
 #endif // RTCW_XX
+#else
+		//----(SA)	modified
+		// NERVE - SMF - added fourth arg [cld]
+		CL_SetUserCmdValue(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			VMF(3),
+			rtcw::from_vm_arg<int>(args[4])
+#if defined RTCW_MP
+			,
+			rtcw::from_vm_arg<int>(args[5])
+#endif // RTCW_XX
+#endif // FIXME
+		);
 
 		return 0;
 
 #if !defined RTCW_SP
 	case CG_SETCLIENTLERPORIGIN:
-		CL_SetClientLerpOrigin( VMF( 1 ), VMF( 2 ), VMF( 3 ) );
+		CL_SetClientLerpOrigin(
+			VMF(1),
+			VMF(2),
+			VMF(3)
+		);
 #endif // RTCW_XX
 
 		return 0;
+
 	case CG_MEMORY_REMAINING:
 		return Hunk_MemoryRemaining();
+
 	case CG_KEY_ISDOWN:
-		return Key_IsDown( args[1] );
+		return Key_IsDown(rtcw::from_vm_arg<int>(args[1]));
+
 	case CG_KEY_GETCATCHER:
 		return Key_GetCatcher();
+
 	case CG_KEY_SETCATCHER:
-		Key_SetCatcher( args[1] );
+		Key_SetCatcher(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
+
 	case CG_KEY_GETKEY:
-		return Key_GetKey( static_cast<const char*> (VMA( 1 )) );
+		return Key_GetKey(rtcw::from_vm_arg<const char*>(VMA(1)));
 
 #if defined RTCW_ET
 	case CG_KEY_GETOVERSTRIKEMODE:
 		return Key_GetOverstrikeMode();
+
 	case CG_KEY_SETOVERSTRIKEMODE:
-		Key_SetOverstrikeMode( args[1] );
+		Key_SetOverstrikeMode(rtcw::from_vm_arg<qboolean>(args[1]));
 		return 0;
 #endif // RTCW_XX
 
-
-
+// FIXME Unused
+#if FIXME
 	case CG_MEMSET:
-		return (int)memset( VMA( 1 ), args[2], args[3] );
+		return (int)memset( VMA(1), args[2], args[3] );
+
 	case CG_MEMCPY:
-		return (int)memcpy( VMA( 1 ), VMA( 2 ), args[3] );
+		return (int)memcpy( VMA(1), VMA(2), args[3] );
+
 	case CG_STRNCPY:
-		return (int)strncpy( static_cast<char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), args[3] );
+		return (int)strncpy( static_cast<char*> (VMA(1)), static_cast<const char*> (VMA(2)), args[3] );
+
 	case CG_SIN:
-		return FloatAsInt( c::sin( VMF( 1 ) ) );
+		return FloatAsInt( c::sin( VMF(1) ) );
+
 	case CG_COS:
-		return FloatAsInt( c::cos( VMF( 1 ) ) );
+		return FloatAsInt( c::cos( VMF(1) ) );
+
 	case CG_ATAN2:
-		return FloatAsInt( c::atan2( VMF( 1 ), VMF( 2 ) ) );
+		return FloatAsInt( c::atan2( VMF(1), VMF(2) ) );
+
 	case CG_SQRT:
-		return FloatAsInt( c::sqrt( VMF( 1 ) ) );
+		return FloatAsInt( c::sqrt( VMF(1) ) );
+
 	case CG_FLOOR:
-		return FloatAsInt( c::floor( VMF( 1 ) ) );
+		return FloatAsInt( c::floor( VMF(1) ) );
+
 	case CG_CEIL:
-		return FloatAsInt( c::ceil( VMF( 1 ) ) );
+		return FloatAsInt( c::ceil( VMF(1) ) );
+
 	case CG_ACOS:
-		return FloatAsInt( Q_acos( VMF( 1 ) ) );
+		return FloatAsInt( Q_acos( VMF(1) ) );
+#endif // FIXME
 
 	case CG_PC_ADD_GLOBAL_DEFINE:
-		return botlib_export->PC_AddGlobalDefine( static_cast<char*> (VMA( 1 )) );
+		return botlib_export->PC_AddGlobalDefine(rtcw::from_vm_arg<char*>(VMA(1)));
+
 	case CG_PC_LOAD_SOURCE:
-		return botlib_export->PC_LoadSourceHandle( static_cast<const char*> (VMA( 1 )) );
+		return botlib_export->PC_LoadSourceHandle(rtcw::from_vm_arg<const char*> (VMA(1)));
+
 	case CG_PC_FREE_SOURCE:
-		return botlib_export->PC_FreeSourceHandle( args[1] );
+		return botlib_export->PC_FreeSourceHandle(rtcw::from_vm_arg<int>(args[1]));
+
 	case CG_PC_READ_TOKEN:
-		return botlib_export->PC_ReadTokenHandle( args[1], static_cast<pc_token_t*> (VMA( 2 )) );
+		return botlib_export->PC_ReadTokenHandle(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<pc_token_t*>(VMA(2))
+		);
+
 	case CG_PC_SOURCE_FILE_AND_LINE:
-		return botlib_export->PC_SourceFileAndLine( args[1], static_cast<char*> (VMA( 2 )), static_cast<int*> (VMA( 3 )) );
+		return botlib_export->PC_SourceFileAndLine(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int*>(VMA(3))
+		);
 
 #if defined RTCW_ET
 	case CG_PC_UNREAD_TOKEN:
-		botlib_export->PC_UnreadLastTokenHandle( args[1] );
+		botlib_export->PC_UnreadLastTokenHandle(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 #endif // RTCW_XX
-
 
 	case CG_S_STOPBACKGROUNDTRACK:
 		S_StopBackgroundTrack();
 		return 0;
 
 	case CG_REAL_TIME:
-		return Com_RealTime( static_cast<qtime_t*> (VMA( 1 )) );
+		return Com_RealTime(rtcw::from_vm_arg<qtime_t*>(VMA(1)));
+
 	case CG_SNAPVECTOR:
-		Sys_SnapVector( static_cast<float*> (VMA( 1 )) );
+		Sys_SnapVector(rtcw::from_vm_arg<float*>(VMA(1)));
 		return 0;
 
 #if !defined RTCW_ET
 	case CG_SENDMOVESPEEDSTOGAME:
-		SV_SendMoveSpeedsToGame( args[1], static_cast<char*> (VMA( 2 )) );
+		SV_SendMoveSpeedsToGame(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
 		return 0;
 #endif // RTCW_XX
 
 	case CG_CIN_PLAYCINEMATIC:
-		return CIN_PlayCinematic( static_cast<const char*> (VMA( 1 )), args[2], args[3], args[4], args[5], args[6] );
+		return CIN_PlayCinematic(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<int>(args[5]),
+			rtcw::from_vm_arg<int>(args[6])
+		);
 
 	case CG_CIN_STOPCINEMATIC:
-		return CIN_StopCinematic( args[1] );
+		return CIN_StopCinematic(rtcw::from_vm_arg<int>(args[1]));
 
 	case CG_CIN_RUNCINEMATIC:
-		return CIN_RunCinematic( args[1] );
+		return CIN_RunCinematic(rtcw::from_vm_arg<int>(args[1]));
 
 	case CG_CIN_DRAWCINEMATIC:
-		CIN_DrawCinematic( args[1] );
+		CIN_DrawCinematic(rtcw::from_vm_arg<int>(args[1]));
 		return 0;
 
 	case CG_CIN_SETEXTENTS:
-		CIN_SetExtents( args[1], args[2], args[3], args[4], args[5] );
+		CIN_SetExtents(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<int>(args[5])
+		);
 		return 0;
 
 	case CG_R_REMAP_SHADER:
-		re.RemapShader( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )), static_cast<const char*> (VMA( 3 )) );
+		re.RemapShader(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2)),
+			rtcw::from_vm_arg<const char*>(VMA(3))
+		);
 		return 0;
 
 	case CG_TESTPRINTINT:
-
-#if !defined RTCW_ET
-		Com_Printf( "%s%i\n", VMA( 1 ), args[2] );
-#else
-		Com_Printf( "%s%i\n", (char *)VMA( 1 ), args[2] );
-#endif // RTCW_XX
-
+		Com_Printf(
+			"%s%i\n",
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 		return 0;
+
 	case CG_TESTPRINTFLOAT:
-
-#if !defined RTCW_ET
-		Com_Printf( "%s%f\n", VMA( 1 ), VMF( 2 ) );
-#else
-		Com_Printf( "%s%f\n", (char *)VMA( 1 ), VMF( 2 ) );
-#endif // RTCW_XX
-
+		Com_Printf(
+			"%s%f\n",
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			VMF(2)
+		);
 		return 0;
 
 	case CG_LOADCAMERA:
-		return loadCamera( args[1], static_cast<const char*> (VMA( 2 )) );
+		return loadCamera(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 
 	case CG_STARTCAMERA:
-
 #if !defined RTCW_MP
 		if ( args[1] == 0 ) {  // CAM_PRIMARY
-
-#if !defined RTCW_ET
 			cl.cameraMode = qtrue;  //----(SA)	added
-#else
-			cl.cameraMode = qtrue;
-#endif // RTCW_XX
-
 		}
 #endif // RTCW_XX
 
-		startCamera( args[1], args[2] );
+		startCamera(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 		return 0;
 
 #if defined RTCW_SP
@@ -1304,65 +1717,94 @@ intptr_t CL_CgameSystemCalls (
 #endif // RTCW_XX
 
 	case CG_GETCAMERAINFO:
-		return getCameraInfo( args[1], args[2], static_cast<float*> (VMA( 3 )), static_cast<float*> (VMA( 4 )), static_cast<float*> (VMA( 5 )) );
+		return getCameraInfo(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<float*>(VMA(3)),
+			rtcw::from_vm_arg<float*>(VMA(4)),
+			rtcw::from_vm_arg<float*>(VMA(5))
+		);
 
 	case CG_GET_ENTITY_TOKEN:
-		return re.GetEntityToken( static_cast<char*> (VMA( 1 )), args[2] );
+		return re.GetEntityToken(
+			rtcw::from_vm_arg<char*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 
 	case CG_INGAME_POPUP:
-
 #if defined RTCW_SP
-		if ( VMA( 1 ) && !Q_stricmp( static_cast<const char*> (VMA( 1 )), "briefing" ) ) {  //----(SA) added
-			VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_BRIEFING );
+		if (VMA(1) && !Q_stricmp(rtcw::from_vm_arg<const char*>(VMA(1)), "briefing"))
+		{
+			//----(SA) added
+			VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_BRIEFING));
 			return 0;
 		}
 #endif // RTCW_XX
 
-		if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
-
+		if (cls.state == CA_ACTIVE && !clc.demoplaying)
+		{
 #if !defined RTCW_ET
 			// NERVE - SMF
-			if ( VMA( 1 ) && !Q_stricmp( static_cast<const char*> (VMA( 1 )), "UIMENU_WM_PICKTEAM" ) ) {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_WM_PICKTEAM );
-			} else if ( VMA( 1 ) && !Q_stricmp( static_cast<const char*> (VMA( 1 )), "UIMENU_WM_PICKPLAYER" ) )    {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_WM_PICKPLAYER );
-			} else if ( VMA( 1 ) && !Q_stricmp( static_cast<const char*> (VMA( 1 )), "UIMENU_WM_QUICKMESSAGE" ) )    {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_WM_QUICKMESSAGE );
-
-#if defined RTCW_MP
-			} else if ( VMA( 1 ) && !Q_stricmp( static_cast<const char*> (VMA( 1 )), "UIMENU_WM_QUICKMESSAGEALT" ) )    {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_WM_QUICKMESSAGEALT );
-#endif // RTCW_XX
-
-			} else if ( VMA( 1 ) && !Q_stricmp( static_cast<const char*> (VMA( 1 )), "UIMENU_WM_LIMBO" ) )    {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_WM_LIMBO );
-
-#if defined RTCW_MP
-			} else if ( VMA( 1 ) && !Q_stricmp( static_cast<const char*> (VMA( 1 )), "UIMENU_WM_AUTOUPDATE" ) )    {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_WM_AUTOUPDATE );
-#endif // RTCW_XX
-
+			if (VMA(1) && !Q_stricmp(rtcw::from_vm_arg<const char*>(VMA(1)), "UIMENU_WM_PICKTEAM"))
+			{
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_WM_PICKTEAM));
 			}
+			else if (VMA(1) && !Q_stricmp(rtcw::from_vm_arg<const char*>(VMA(1)), "UIMENU_WM_PICKPLAYER"))
+			{
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_WM_PICKPLAYER));
+			}
+			else if (VMA(1) && !Q_stricmp(rtcw::from_vm_arg<const char*>(VMA(1)), "UIMENU_WM_QUICKMESSAGE"))
+			{
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_WM_QUICKMESSAGE));
+			}
+#if defined RTCW_MP
+			else if (VMA(1) && !Q_stricmp(rtcw::from_vm_arg<const char*>(VMA(1)), "UIMENU_WM_QUICKMESSAGEALT"))
+			{
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_WM_QUICKMESSAGEALT));
+			}
+#endif // RTCW_XX
+			else if (VMA(1) && !Q_stricmp(rtcw::from_vm_arg<const char*>(VMA(1)), "UIMENU_WM_LIMBO"))
+			{
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_WM_LIMBO));
+			}
+#if defined RTCW_MP
+			else if (VMA(1) && !Q_stricmp(rtcw::from_vm_arg<const char*>(VMA(1)), "UIMENU_WM_AUTOUPDATE"))
+			{
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_WM_AUTOUPDATE));
+			}
+#endif // RTCW_XX
 			// -NERVE - SMF
-			else if ( VMA( 1 ) && !Q_stricmp( static_cast<const char*> (VMA( 1 )), "hbook1" ) ) {   //----(SA)
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_BOOK1 );
-			} else if ( VMA( 1 ) && !Q_stricmp( static_cast<const char*> (VMA( 1 )), "hbook2" ) )    { //----(SA)
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_BOOK2 );
-			} else if ( VMA( 1 ) && !Q_stricmp( static_cast<const char*> (VMA( 1 )), "hbook3" ) )    { //----(SA)
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_BOOK3 );
-
+			else if (VMA(1) && !Q_stricmp(rtcw::from_vm_arg<const char*>(VMA(1)), "hbook1"))
+			{
+				//----(SA)
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_BOOK1));
+			}
+			else if (VMA(1) && !Q_stricmp(rtcw::from_vm_arg<const char*>(VMA(1)), "hbook2"))
+			{
+				//----(SA)
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_BOOK2));
+			}
+			else if (VMA(1) && !Q_stricmp(rtcw::from_vm_arg<const char*>(VMA(1)), "hbook3"))
+			{
+				//----(SA)
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_BOOK3));
+			}
 #if defined RTCW_SP
-			} else if ( VMA( 1 ) && !Q_stricmp( static_cast<const char*> (VMA( 1 )), "pregame" ) )    { //----(SA) added
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_PREGAME );
+			else if (VMA(1) && !Q_stricmp(rtcw::from_vm_arg<const char*>(VMA(1)), "pregame"))
+			{
+				//----(SA) added
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_PREGAME));
+			}
 #endif // RTCW_XX
-
-			} else {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_CLIPBOARD );
+			else
+			{
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_CLIPBOARD));
 #else
-			if ( uivm ) { // Gordon: can be called as the system is shutting down
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, args[1] );
+			if (uivm)
+			{
+				// Gordon: can be called as the system is shutting down
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, args[1]);
 #endif // RTCW_XX
-
 			}
 		}
 		return 0;
@@ -1372,15 +1814,16 @@ intptr_t CL_CgameSystemCalls (
 #endif // RTCW_XX
 
 	case CG_INGAME_CLOSEPOPUP:
-
 #if defined RTCW_SP
-		VM_Call( uivm, UI_KEY_EVENT, K_ESCAPE, qtrue );
+		VM_Call(uivm, UI_KEY_EVENT, rtcw::to_vm_arg(K_ESCAPE), rtcw::to_vm_arg(qtrue));
 #elif defined RTCW_MP
 		// if popup menu is up, then close it
-		if ( VMA( 1 ) && !Q_stricmp( static_cast<const char*> (VMA( 1 )), "UIMENU_WM_LIMBO" ) ) {
-			if ( VM_Call( uivm, UI_GET_ACTIVE_MENU ) == UIMENU_WM_LIMBO ) {
-				VM_Call( uivm, UI_KEY_EVENT, K_ESCAPE, qtrue );
-				VM_Call( uivm, UI_KEY_EVENT, K_ESCAPE, qtrue );
+		if (VMA(1) && !Q_stricmp(rtcw::from_vm_arg<const char*>(VMA(1)), "UIMENU_WM_LIMBO"))
+		{
+			if (VM_Call(uivm, UI_GET_ACTIVE_MENU) == UIMENU_WM_LIMBO)
+			{
+				VM_Call(uivm, UI_KEY_EVENT, rtcw::to_vm_arg(K_ESCAPE), rtcw::to_vm_arg(qtrue));
+				VM_Call(uivm, UI_KEY_EVENT, rtcw::to_vm_arg(K_ESCAPE), rtcw::to_vm_arg(qtrue));
 			}
 		}
 #endif // RTCW_XX
@@ -1389,8 +1832,9 @@ intptr_t CL_CgameSystemCalls (
 
 #if !defined RTCW_ET
 	case CG_LIMBOCHAT:
-		if ( VMA( 1 ) ) {
-			CL_AddToLimboChat( static_cast<const char*> (VMA( 1 )) );
+		if (VMA(1))
+		{
+			CL_AddToLimboChat(rtcw::from_vm_arg<const char*>(VMA(1)));
 		}
 		return 0;
 #endif // RTCW_XX
@@ -1398,30 +1842,52 @@ intptr_t CL_CgameSystemCalls (
 #if defined RTCW_SP
 		// - NERVE - SMF
 	case CG_GETMODELINFO:
-		return SV_GetModelInfo( args[1], static_cast<char*> (VMA( 2 )), static_cast<animModelInfo_t**> (VMA( 3 )) );
+		return SV_GetModelInfo(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<animModelInfo_t**>(VMA(3))
+		);
 #endif // RTCW_XX
 
 #if !defined RTCW_SP
 	case CG_KEY_GETBINDINGBUF:
-		Key_GetBindingBuf( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		Key_GetBindingBuf(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 
 	case CG_KEY_SETBINDING:
-		Key_SetBinding( args[1], static_cast<const char*> (VMA( 2 )) );
+		Key_SetBinding(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
 		return 0;
 
 	case CG_KEY_KEYNUMTOSTRINGBUF:
-		Key_KeynumToStringBuf( args[1], static_cast<char*> (VMA( 2 )), args[3] );
+		Key_KeynumToStringBuf(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<char*>(VMA(2)),
+			rtcw::from_vm_arg<int>(args[3])
+		);
 		return 0;
 
 #if defined RTCW_ET
 	case CG_KEY_BINDINGTOKEYS:
-		Key_GetBindingByString( static_cast<const char*> (VMA( 1 )), static_cast<int*> (VMA( 2 )), static_cast<int*> (VMA( 3 )) );
+		Key_GetBindingByString(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<int*>(VMA(2)),
+			rtcw::from_vm_arg<int*>(VMA(3))
+		);
 		return 0;
 #endif // RTCW_XX
 
 	case CG_TRANSLATE_STRING:
-		CL_TranslateString( static_cast<const char*> (VMA( 1 )), static_cast<char*> (VMA( 2 )) );
+		CL_TranslateString(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<char*>(VMA(2))
+		);
 		return 0;
 
 #if !defined RTCW_ET
@@ -1432,14 +1898,24 @@ intptr_t CL_CgameSystemCalls (
 
 #if defined RTCW_ET
 	case CG_S_FADEALLSOUNDS:
-		S_FadeAllSounds( VMF( 1 ), args[2], args[3] );
+		S_FadeAllSounds(
+			VMF(1),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<qboolean>(args[3])
+		);
 		return 0;
 
 	case CG_R_INPVS:
-		return re.inPVS( static_cast<const vec_t*> (VMA( 1 )), static_cast<const vec_t*> (VMA( 2 )) );
+		return re.inPVS(
+			rtcw::from_vm_arg<const vec_t*>(VMA(1)),
+			rtcw::from_vm_arg<const vec_t*>(VMA(2))
+		);
 
 	case CG_GETHUNKDATA:
-		Com_GetHunkInfo( static_cast<int*> (VMA( 1 )), static_cast<int*> (VMA( 2 )) );
+		Com_GetHunkInfo(
+			rtcw::from_vm_arg<int*>(VMA(1)),
+			rtcw::from_vm_arg<int*>(VMA(2))
+		);
 		return 0;
 
 	case CG_PUMPEVENTLOOP:
@@ -1449,20 +1925,37 @@ intptr_t CL_CgameSystemCalls (
 
 		//zinx - binary channel
 	case CG_SENDMESSAGE:
-		CL_SendBinaryMessage( static_cast<const char*> (VMA( 1 )), args[2] );
+		CL_SendBinaryMessage(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<int>(args[2])
+		);
 		return 0;
+
 	case CG_MESSAGESTATUS:
 		return CL_BinaryMessageStatus();
+
 		//bani - dynamic shaders
 	case CG_R_LOADDYNAMICSHADER:
-		return re.LoadDynamicShader( static_cast<const char*> (VMA( 1 )), static_cast<const char*> (VMA( 2 )) );
+		return re.LoadDynamicShader(
+			rtcw::from_vm_arg<const char*>(VMA(1)),
+			rtcw::from_vm_arg<const char*>(VMA(2))
+		);
+
 		// fretn - render to texture
 	case CG_R_RENDERTOTEXTURE:
-		re.RenderToTexture( args[1], args[2], args[3], args[4], args[5] );
+		re.RenderToTexture(
+			rtcw::from_vm_arg<int>(args[1]),
+			rtcw::from_vm_arg<int>(args[2]),
+			rtcw::from_vm_arg<int>(args[3]),
+			rtcw::from_vm_arg<int>(args[4]),
+			rtcw::from_vm_arg<int>(args[5])
+		);
 		return 0;
+
 		//bani
 	case CG_R_GETTEXTUREID:
-		return re.GetTextureId( static_cast<const char*> (VMA( 1 )) );
+		return re.GetTextureId(rtcw::from_vm_arg<const char*>(VMA(1)));
+
 		//bani - flush gl rendering buffers
 	case CG_R_FINISH:
 		re.Finish();
@@ -1648,12 +2141,18 @@ void CL_InitCGame( void ) {
 	// use the lastExecutedServerCommand instead of the serverCommandSequence
 	// otherwise server commands sent just before a gamestate are dropped
 
-#if !defined RTCW_ET
-	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
-#else
 	//bani - added clc.demoplaying, since some mods need this at init time, and drawactiveframe is too late for them
-	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum, clc.demoplaying );
+	VM_Call(
+		cgvm,
+		CG_INIT,
+		rtcw::to_vm_arg(clc.serverMessageSequence),
+		rtcw::to_vm_arg(clc.lastExecutedServerCommand),
+		rtcw::to_vm_arg(clc.clientNum)
+#if defined RTCW_ET
+		,
+		rtcw::to_vm_arg(clc.demoplaying)
 #endif // RTCW_XX
+	);
 
 #if defined RTCW_SP
 //	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.serverCommandSequence );
@@ -1703,7 +2202,7 @@ qboolean CL_GameCommand( void ) {
 		return qfalse;
 	}
 
-	return VM_Call( cgvm, CG_CONSOLE_COMMAND );
+	return VM_Call(cgvm, CG_CONSOLE_COMMAND);
 }
 
 
@@ -1724,7 +2223,14 @@ void CL_CGameRendering( stereoFrame_t stereo ) {
 	}*/
 #endif // RTCW_XX
 
-	VM_Call( cgvm, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying );
+	VM_Call(
+		cgvm,
+		CG_DRAW_ACTIVE_FRAME,
+		rtcw::to_vm_arg(cl.serverTime),
+		rtcw::to_vm_arg(stereo),
+		rtcw::to_vm_arg(clc.demoplaying)
+	);
+
 	VM_Debug( 0 );
 }
 
@@ -1983,5 +2489,11 @@ qboolean CL_GetTag( int clientNum, char *tagname, orientation_t *orient ) {
 		return qfalse;
 	}
 
-	return VM_Call( cgvm, CG_GET_TAG, clientNum, tagname, orient );
+	return VM_Call(
+		cgvm,
+		CG_GET_TAG,
+		rtcw::to_vm_arg(clientNum),
+		rtcw::to_vm_arg(tagname),
+		rtcw::to_vm_arg(orient)
+	);
 }

@@ -571,7 +571,11 @@ typedef struct {
 	int anim;
 } painAnimForTag_t;
 
+#if FIXME
 #define PEFOFS( x ) ( (int)&( ( (playerEntity_t *)0 )->x ) )
+#else
+#define PEFOFS(x) (static_cast<int>(offsetof(playerEntity_t, x)))
+#endif // FIXME
 
 void CG_PainEvent( centity_t *cent, int health, qboolean crouching ) {
 	const char    *snd;

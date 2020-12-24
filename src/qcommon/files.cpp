@@ -39,14 +39,18 @@ If you have questions concerning this license or the applicable additional terms
 #define MP_LEGACY_PAK 0x7776DC09
 #endif // RTCW_XX
 
+#include <filesystem>
 #include <fstream>
 #include <limits>
 #include <memory>
 #include <string>
-#include "q_shared.h"
-#include "qcommon.h"
+
 #include "miniz.h"
 
+#include "q_shared.h"
+#include "qcommon.h"
+
+#if FIXME
 #if defined RTCW_ET
 #ifdef _WIN32
 #include <direct.h>
@@ -55,6 +59,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <unistd.h>
 #endif
 #endif // RTCW_XX
+#endif // FIXME
 
 /*
 =============================================================================
@@ -818,9 +823,9 @@ int FS_LoadStack() {
 return a hash value for the filename
 ================
 */
-static long FS_HashFileName( const char *fname, int hashSize ) {
+static int32_t FS_HashFileName( const char *fname, int hashSize ) {
 	int i;
-	long hash;
+	int32_t hash;
 	char letter;
 
 	hash = 0;
@@ -836,7 +841,7 @@ static long FS_HashFileName( const char *fname, int hashSize ) {
 		if ( letter == PATH_SEP ) {
 			letter = '/';                           // damn path names
 		}
-		hash += (long)( letter ) * ( i + 119 );
+		hash += (int32_t)( letter ) * ( i + 119 );
 		i++;
 	}
 	hash = ( hash ^ ( hash >> 10 ) ^ ( hash >> 20 ) );
@@ -1131,9 +1136,26 @@ FS_Remove
 
 ===========
 */
+#if FIXME
 static void FS_Remove( const char *osPath ) {
 	remove( osPath );
 }
+#else
+static bool FS_Remove(
+	const char* osPath)
+{
+	try
+	{
+		const auto osPath_u8 = std::filesystem::u8path(osPath);
+
+		return std::filesystem::remove(osPath_u8);
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+#endif // FIXME
 
 /*
 ================
@@ -1317,6 +1339,25 @@ int FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp ) {
 }
 
 
+static bool sys_fs_rename(
+	const char* old_name,
+	const char* new_name)
+{
+	try
+	{
+		const auto old_name_u8 = std::filesystem::u8path(old_name);
+		const auto new_name_u8 = std::filesystem::u8path(new_name);
+
+		std::filesystem::rename(old_name_u8, new_name_u8);
+
+		return true;
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+
 /*
 ===========
 FS_SV_Rename
@@ -1347,7 +1388,12 @@ void FS_SV_Rename( const char *from, const char *to ) {
 		Com_Printf( "FS_SV_Rename: %s --> %s\n", from_ospath, to_ospath );
 	}
 
+#if FIXME
 	if ( rename( from_ospath, to_ospath ) ) {
+#else
+	if (!sys_fs_rename(from_ospath, to_ospath))
+	{
+#endif // FIXME
 		// Failed, try copying it and deleting the original
 		FS_CopyFile( from_ospath, to_ospath );
 		FS_Remove( from_ospath );
@@ -1384,7 +1430,12 @@ void FS_Rename( const char *from, const char *to ) {
 		Com_Printf( "FS_Rename: %s --> %s\n", from_ospath, to_ospath );
 	}
 
+#if FIXME
 	if ( rename( from_ospath, to_ospath ) ) {
+#else
+	if (!sys_fs_rename(from_ospath, to_ospath))
+	{
+#endif // FIXME
 
 #if defined RTCW_SP
 		// Failed first attempt, try deleting destination, and renaming again
@@ -1732,7 +1783,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 	pack_t          *pak;
 	fileInPack_t    *pakFile;
 	directory_t     *dir;
-	long hash;
+	int32_t hash;
 
 	FILE            *temp;
 	int l;
@@ -2215,6 +2266,7 @@ qboolean FS_CL_ExtractFromPakFile( const char *fullpath, const char *gamedir, co
 
 		FS_FCloseFile( f );
 
+#if FIXME
 #ifdef __linux__
 		// show_bug.cgi?id=463
 		// need to keep track of what versions we extract
@@ -2222,6 +2274,7 @@ qboolean FS_CL_ExtractFromPakFile( const char *fullpath, const char *gamedir, co
 			Cvar_Set( cvar_lastVersion, Cvar_VariableString( "version" ) );
 		}
 #endif
+#endif // FIXME
 	}
 
 	FS_FreeFile( srcData );
@@ -2245,6 +2298,22 @@ qboolean FS_AllowDeletion( const char *filename ) {
 	}
 
 	return qtrue;
+}
+
+static bool sys_fs_remove(
+	const char* path)
+{
+	try
+	{
+		const auto path_u8 = std::filesystem::u8path(path);
+		std::filesystem::remove(path_u8);
+
+		return true;
+	}
+	catch (...)
+	{
+		return false;
+	}
 }
 
 /*
@@ -2294,7 +2363,12 @@ int FS_DeleteDir( const char *dirname, qboolean nonEmpty, qboolean recursive ) {
 		for ( i = 0; i < nFiles; i++ ) {
 			ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, va( "%s/%s", dirname, pFiles[i] ) );
 
+#if FIXME
 			if ( remove( ospath ) == -1 ) {  // failure
+#else
+			if (!sys_fs_remove(ospath))
+			{
+#endif // FIXME
 				return 0;
 			}
 		}
@@ -2303,7 +2377,12 @@ int FS_DeleteDir( const char *dirname, qboolean nonEmpty, qboolean recursive ) {
 
 	ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, dirname );
 
+#if FIXME
 	if ( Q_rmdir( ospath ) == 0 ) {
+#else
+	if (sys_fs_remove(ospath))
+	{
+#endif // FIXME
 		return 1;
 	}
 
@@ -2319,6 +2398,7 @@ returns 1 if directory
 returns 0 otherwise
 ==============
 */
+#if FIXME
 #ifdef WIN32
 int FS_OSStatFile( char *ospath ) {
 	struct _stat stat;
@@ -2342,6 +2422,29 @@ int FS_OSStatFile( char *ospath ) {
 	return 0;
 }
 #endif
+#else
+int FS_OSStatFile(
+	const char* ospath)
+{
+	try
+	{
+		const auto ospath_u8 = std::filesystem::u8path(ospath);
+		const auto status = std::filesystem::status(ospath_u8);
+
+		if (status.type() == std::filesystem::file_type::directory)
+		{
+			return 1;
+		}
+
+		return 0;
+	}
+	catch (...)
+	{
+		return -1;
+	}
+}
+#endif // FIXME
+
 #endif // RTCW_XX
 
 
@@ -2392,7 +2495,12 @@ int FS_Delete( const char *filename ) {
 	if ( stat == 1 ) {
 		return( FS_DeleteDir( filename, qtrue, qtrue ) );
 	} else {
+#if FIXME
 		if ( remove( ospath ) != -1 ) {  // success
+#else
+		if (sys_fs_remove(ospath))
+		{
+#endif // FIXME
 			return 1;
 		}
 	}
@@ -2580,7 +2688,7 @@ FS_Seek
 
 =================
 */
-int FS_Seek( fileHandle_t f, long offset, int origin ) {
+int FS_Seek( fileHandle_t f, int32_t offset, int origin ) {
 	int _origin;
 	char foo[65536];
 
@@ -2692,7 +2800,7 @@ int FS_FileIsInPAK( const char *filename, int *pChecksum ) {
 	searchpath_t    *search;
 	pack_t          *pak;
 	fileInPack_t    *pakFile;
-	long hash = 0;
+	int32_t hash = 0;
 
 	if ( !fs_searchpaths ) {
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
@@ -2954,7 +3062,7 @@ static pack_t* FS_LoadZipFile(
 	pack_t          *pack;
 	auto filename_inzip = std::string{};
 	int i, len;
-	long hash;
+	int32_t hash;
 	int fs_numHeaderLongs;
 	int             *fs_headerLongs;
 	char            *namePtr;

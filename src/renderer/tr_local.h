@@ -462,7 +462,7 @@ typedef struct shader_s {
 	struct shader_s *currentShader;                     // current state if this is a state shader
 	struct shader_s *parentShader;                      // current state if this is a state shader
 	int currentState;                                   // current state index for cycle purposes
-	long expireTime;                                    // time in milliseconds this expires
+	int32_t expireTime;                                    // time in milliseconds this expires
 
 	struct shader_s *remappedShader;                    // current shader this one is remapped too
 
@@ -1452,7 +1452,7 @@ typedef struct {
 	qboolean finishCalled;
 	int texEnv[2];
 	int faceCulling;
-	unsigned long glStateBits;
+	uint32_t glStateBits;
 } glstate_t;
 
 
@@ -1980,7 +1980,7 @@ void    GL_TextureAnisotropy( float anisotropy );
 // BBi
 
 void    GL_CheckErrors( void );
-void    GL_State( unsigned long stateVector );
+void    GL_State( uint32_t stateVector );
 void    GL_TexEnv( int env );
 void    GL_Cull( int cullType );
 
@@ -2101,7 +2101,7 @@ qhandle_t RE_RegisterShaderFromImage( const char *name, int lightmapIndex, image
 
 shader_t    *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImage );
 shader_t    *R_GetShaderByHandle( qhandle_t hShader );
-shader_t    *R_GetShaderByState( int index, long *cycleTime );
+shader_t    *R_GetShaderByState( int index, int32_t *cycleTime );
 shader_t *R_FindShaderByName( const char *name );
 void        R_InitShaders( void );
 void        R_ShaderList_f( void );

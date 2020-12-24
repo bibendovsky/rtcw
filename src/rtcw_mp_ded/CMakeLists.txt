@@ -13,10 +13,29 @@ option (RTCW_USE_PCH "Use precompiled headers if available." ON)
 message (STATUS "[${PROJECT_NAME}] Precompiled headers: ${RTCW_USE_PCH}")
 
 
+#
+# CPU architecture.
+#
+if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+	set (RTCW_ARCH_STRING "x86")
+elseif (CMAKE_SIZEOF_VOID_P EQUAL 8)
+	set (RTCW_ARCH_STRING "x64")
+else ()
+	unset (RTCW_ARCH_STRING)
+endif ()
+
+if (RTCW_ARCH_STRING)
+	message (STATUS "[${PROJECT_NAME}] Arch: ${RTCW_ARCH_STRING}")
+else ()
+	message (FATAL_ERROR "[${PROJECT_NAME}] Unsupported platform.")
+endif ()
+
+
 find_package (SDL2W 2.0.4 REQUIRED)
 find_package (SDL2W_net 2.0.1 REQUIRED)
 
 add_executable (${PROJECT_NAME} "")
+
 
 set_target_properties (
 	${PROJECT_NAME}
@@ -29,7 +48,7 @@ set_target_properties (
 set_target_properties (
 	${PROJECT_NAME}
 	PROPERTIES
-		OUTPUT_NAME rtcw_mp_ded_x86
+		OUTPUT_NAME "rtcw_mp_ded_${RTCW_ARCH_STRING}"
 )
 
 if (WIN32)
@@ -70,8 +89,8 @@ target_compile_definitions (
 		DEDICATED
 		DO_LIGHT_DEDICATED
 		BOTLIB
-		RTCW_32
 		RTCW_MP
+		"RTCW_ARCH_STRING=\"${RTCW_ARCH_STRING}\""
 )
 
 if (MSVC)
@@ -127,6 +146,14 @@ if (MINGW)
 		PRIVATE
 			iphlpapi
 			ws2_32
+	)
+endif ()
+
+if (CMAKE_COMPILER_IS_GNUCXX AND (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9))
+	target_link_libraries (
+		${PROJECT_NAME}
+		PRIVATE
+			-lstdc++fs
 	)
 endif ()
 
@@ -308,6 +335,7 @@ endif ()
 
 install (
 	TARGETS
-	${PROJECT_NAME}
-	RUNTIME DESTINATION mp
+		${PROJECT_NAME}
+	RUNTIME
+		DESTINATION mp
 )

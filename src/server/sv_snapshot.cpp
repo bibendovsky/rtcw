@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "server.h"
 
+#include "rtcw_vm_args.h"
+
 
 /*
 =============================================================================
@@ -306,7 +308,12 @@ static void SV_AddEntToSnapshot( sharedEntity_t* clientEnt, svEntity_t *svEnt, s
 
 #if defined RTCW_ET
 	if ( gEnt->r.snapshotCallback ) {
-		if ( !(qboolean)VM_Call( gvm, GAME_SNAPSHOT_CALLBACK, gEnt->s.number, clientEnt->s.number ) ) {
+		if (!VM_Call(
+			gvm,
+			GAME_SNAPSHOT_CALLBACK,
+			rtcw::to_vm_arg(gEnt->s.number),
+			rtcw::to_vm_arg(clientEnt->s.number)))
+		{
 			return;
 		}
 	}

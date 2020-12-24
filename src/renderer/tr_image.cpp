@@ -197,9 +197,9 @@ textureMode_t modes[] = {
 return a hash value for the filename
 ================
 */
-static long generateHashValue( const char *fname ) {
+static int32_t generateHashValue( const char *fname ) {
 	int i;
-	long hash;
+	int32_t hash;
 	char letter;
 
 	hash = 0;
@@ -212,7 +212,7 @@ static long generateHashValue( const char *fname ) {
 		if ( letter == '\\' ) {
 			letter = '/';                   // damn path names
 		}
-		hash += (long)( letter ) * ( i + 119 );
+		hash += (int32_t)( letter ) * ( i + 119 );
 		i++;
 	}
 	hash &= ( FILE_HASH_SIZE - 1 );
@@ -1281,7 +1281,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 
 	image_t     *image;
 	qboolean isLightmap = qfalse;
-	long hash;
+	int32_t hash;
 	qboolean noCompress = qfalse;
 
 	if ( strlen( name ) >= MAX_QPATH ) {
@@ -1516,33 +1516,33 @@ static void LoadBMP( const char *name, byte **pic, int *width, int *height ) {
 
 	bmpHeader.id[0] = *buf_p++;
 	bmpHeader.id[1] = *buf_p++;
-	bmpHeader.fileSize = rtcw::Endian::le( *( long * ) buf_p );
+	bmpHeader.fileSize = rtcw::Endian::le( *( int32_t * ) buf_p );
 	buf_p += 4;
-	bmpHeader.reserved0 = rtcw::Endian::le( *( long * ) buf_p );
+	bmpHeader.reserved0 = rtcw::Endian::le( *( int32_t * ) buf_p );
 	buf_p += 4;
-	bmpHeader.bitmapDataOffset = rtcw::Endian::le( *( long * ) buf_p );
+	bmpHeader.bitmapDataOffset = rtcw::Endian::le( *( int32_t * ) buf_p );
 	buf_p += 4;
-	bmpHeader.bitmapHeaderSize = rtcw::Endian::le( *( long * ) buf_p );
+	bmpHeader.bitmapHeaderSize = rtcw::Endian::le( *( int32_t * ) buf_p );
 	buf_p += 4;
-	bmpHeader.width = rtcw::Endian::le( *( long * ) buf_p );
+	bmpHeader.width = rtcw::Endian::le( *( int32_t * ) buf_p );
 	buf_p += 4;
-	bmpHeader.height = rtcw::Endian::le( *( long * ) buf_p );
+	bmpHeader.height = rtcw::Endian::le( *( int32_t * ) buf_p );
 	buf_p += 4;
 	bmpHeader.planes = rtcw::Endian::le( *( short * ) buf_p );
 	buf_p += 2;
 	bmpHeader.bitsPerPixel = rtcw::Endian::le( *( short * ) buf_p );
 	buf_p += 2;
-	bmpHeader.compression = rtcw::Endian::le( *( long * ) buf_p );
+	bmpHeader.compression = rtcw::Endian::le( *( int32_t * ) buf_p );
 	buf_p += 4;
-	bmpHeader.bitmapDataSize = rtcw::Endian::le( *( long * ) buf_p );
+	bmpHeader.bitmapDataSize = rtcw::Endian::le( *( int32_t * ) buf_p );
 	buf_p += 4;
-	bmpHeader.hRes = rtcw::Endian::le( *( long * ) buf_p );
+	bmpHeader.hRes = rtcw::Endian::le( *( int32_t * ) buf_p );
 	buf_p += 4;
-	bmpHeader.vRes = rtcw::Endian::le( *( long * ) buf_p );
+	bmpHeader.vRes = rtcw::Endian::le( *( int32_t * ) buf_p );
 	buf_p += 4;
-	bmpHeader.colors = rtcw::Endian::le( *( long * ) buf_p );
+	bmpHeader.colors = rtcw::Endian::le( *( int32_t * ) buf_p );
 	buf_p += 4;
-	bmpHeader.importantColors = rtcw::Endian::le( *( long * ) buf_p );
+	bmpHeader.importantColors = rtcw::Endian::le( *( int32_t * ) buf_p );
 	buf_p += 4;
 
 	memcpy( bmpHeader.palette, buf_p, sizeof( bmpHeader.palette ) );
@@ -2389,7 +2389,7 @@ image_t *R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 	image_t *image;
 	int width, height;
 	byte    *pic;
-	long hash;
+	int32_t hash;
 
 #if defined RTCW_ET
 	qboolean allowCompress = qfalse;
@@ -2993,11 +2993,13 @@ void R_SetColorMappings( void ) {
 		ri.Cvar_Set( "r_intensity", "1" );
 	}
 
+#if FIXME
 #if defined RTCW_ET
 #ifdef __linux__
 	if ( r_gamma->value != -1 ) {
 #endif
 #endif // RTCW_XX
+#endif // FIXME
 
 	if ( r_gamma->value < 0.5f ) {
 		ri.Cvar_Set( "r_gamma", "0.5" );
@@ -3007,6 +3009,7 @@ void R_SetColorMappings( void ) {
 
 	g = r_gamma->value;
 
+#if FIXME
 #if defined RTCW_ET
 #ifdef __linux__
 } else {
@@ -3014,6 +3017,7 @@ void R_SetColorMappings( void ) {
 }
 #endif
 #endif // RTCW_XX
+#endif // FIXME
 
 	shift = tr.overbrightBits;
 
@@ -3312,7 +3316,7 @@ qhandle_t RE_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightma
 //			if(surf->shader->lightmapIndex != LIGHTMAP_NONE) {
 			if ( surf->shader->lightmapIndex > LIGHTMAP_NONE ) {
 				image_t *image;
-				long hash;
+				int32_t hash;
 				qboolean mip = qtrue;   // mip generation on by default
 
 				// get mipmap info for original texture

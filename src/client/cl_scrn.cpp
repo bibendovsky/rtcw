@@ -28,7 +28,11 @@ If you have questions concerning this license or the applicable additional terms
 
 // cl_scrn.c -- master for refresh, status bar, console, chat, notify, etc
 
+
 #include "client.h"
+
+#include "rtcw_vm_args.h"
+
 
 qboolean scr_initialized;           // ready to draw
 
@@ -506,7 +510,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 
 	// if the menu is going to cover the entire screen, we
 	// don't need to render anything under it
-	if ( !VM_Call( uivm, UI_IS_FULLSCREEN ) ) {
+	if ( !VM_Call(uivm, UI_IS_FULLSCREEN) ) {
 		switch ( cls.state ) {
 		default:
 			Com_Error( ERR_FATAL, "SCR_DrawScreenField: bad cls.state" );
@@ -517,15 +521,15 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 		case CA_DISCONNECTED:
 			// force menu up
 			S_StopAllSounds();
-			VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN );
+			VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_MAIN));
 			break;
 		case CA_CONNECTING:
 		case CA_CHALLENGING:
 		case CA_CONNECTED:
 			// connecting clients will only show the connection dialog
 			// refresh to update the time
-			VM_Call( uivm, UI_REFRESH, cls.realtime );
-			VM_Call( uivm, UI_DRAW_CONNECT_SCREEN, qfalse );
+			VM_Call(uivm, UI_REFRESH, rtcw::to_vm_arg(cls.realtime));
+			VM_Call(uivm, UI_DRAW_CONNECT_SCREEN, rtcw::to_vm_arg(qfalse));
 			break;
 //			// Ridah, if the cgame is valid, fall through to there
 //			if (!cls.cgameStarted || !com_sv_running->integer) {
@@ -541,8 +545,8 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 			// also draw the connection information, so it doesn't
 			// flash away too briefly on local or lan games
 			//if (!com_sv_running->value || Cvar_VariableIntegerValue("sv_cheats"))	// Ridah, don't draw useless text if not in dev mode
-			VM_Call( uivm, UI_REFRESH, cls.realtime );
-			VM_Call( uivm, UI_DRAW_CONNECT_SCREEN, qtrue );
+			VM_Call(uivm, UI_REFRESH, rtcw::to_vm_arg(cls.realtime));
+			VM_Call(uivm, UI_DRAW_CONNECT_SCREEN, rtcw::to_vm_arg(qtrue));
 			break;
 		case CA_ACTIVE:
 			CL_CGameRendering( stereoFrame );
@@ -553,7 +557,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 
 	// the menu draws next
 	if ( cls.keyCatchers & KEYCATCH_UI && uivm ) {
-		VM_Call( uivm, UI_REFRESH, cls.realtime );
+		VM_Call(uivm, UI_REFRESH, rtcw::to_vm_arg(cls.realtime));
 	}
 
 	// console draws next

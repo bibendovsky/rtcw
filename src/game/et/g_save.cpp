@@ -281,12 +281,16 @@ G_SaveWriteError
 ===============
 */
 void G_SaveWriteError( void ) {
+#if FIXME
 // TTimo
 #ifdef __linux__
 	G_Error( "Unable to save game.\n\nPlease check that you have at least 5mb free of disk space in your home directory." );
 #else
 	G_Error( "Insufficient free disk space.\n\nPlease free at least 5mb of free space on game drive." );
 #endif
+#else
+	G_Error("Unable to save game.");
+#endif // FIXME
 }
 
 static int saveByteCount;
@@ -1285,7 +1289,7 @@ qboolean G_SaveGame( char *username ) {
 	bot_state_t *bs;
 	//int		playtime, minutes;
 	char cl_profileStr[256];
-	long hash;
+	int32_t hash;
 	char    *ch;
 	char userinfo[MAX_INFO_STRING];
 
@@ -1320,7 +1324,7 @@ qboolean G_SaveGame( char *username ) {
 
 	// generate hash for profile
 	for ( hash = 0, ch = (char *)cl_profileStr; *ch != '\0'; ch++ ) {
-		hash += (long)( tolower( *ch ) ) * ( ( ch - cl_profileStr ) + 119 );
+		hash += (int32_t)( tolower( *ch ) ) * ( ( ch - cl_profileStr ) + 119 );
 	}
 
 	// open the file
@@ -1588,7 +1592,7 @@ void G_LoadGame( void ) {
 	char            *p;
 	int k;
 	char cl_profileStr[256];
-	long hash, fhash;
+	int32_t hash, fhash;
 	char            *ch;
 	char userinfo[MAX_INFO_STRING];
 
@@ -1606,7 +1610,7 @@ void G_LoadGame( void ) {
 
 	// generate hash for profile
 	for ( hash = 0, ch = (char *)cl_profileStr; *ch != '\0'; ch++ ) {
-		hash += (long)( tolower( *ch ) ) * ( ( ch - cl_profileStr ) + 119 );
+		hash += (int32_t)( tolower( *ch ) ) * ( ( ch - cl_profileStr ) + 119 );
 	}
 
 	// enforce the "current" savegame, since that is used for all loads

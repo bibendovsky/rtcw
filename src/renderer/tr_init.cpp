@@ -1621,11 +1621,13 @@ void GL_SetDefaultState( void ) {
 	// BBi
 }
 
+#if FIXME
 #if defined RTCW_ET
 #ifdef __linux__
 extern const char *glx_extensions_string;
 #endif
 #endif // RTCW_XX
+#endif // FIXME
 
 // BBi
 static void gfxPrintExtensions ()
@@ -1690,11 +1692,13 @@ void GfxInfo_f( void ) {
 	gfxPrintExtensions ();
 	// BBi
 
+#if FIXME
 #if defined RTCW_ET
 #ifdef __linux__
 	ri.Printf( PRINT_ALL, "GLX_EXTENSIONS: %s\n", glx_extensions_string );
 #endif
 #endif // RTCW_XX
+#endif // FIXME
 
 	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
 	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_UNITS_ARB: %d\n", glConfig.maxActiveTextures );
@@ -1897,6 +1901,7 @@ void R_Register( void ) {
 
 //----(SA)	end
 
+#if FIXME
 #if !defined RTCW_ET
 #ifdef __linux__ // broken on linux
 	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "0", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1910,6 +1915,17 @@ void R_Register( void ) {
 	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
 #endif
 #endif // RTCW_XX
+#else
+	r_ext_texture_env_add = ri.Cvar_Get(
+		"r_ext_texture_env_add",
+		"1",
+		CVAR_ARCHIVE | CVAR_LATCH
+#if defined RTCW_ET
+		|
+		CVAR_UNSAFE
+#endif // RTCW_XX
+	);
+#endif // FIXME
 
 #if defined RTCW_ET
 	r_clampToEdge = ri.Cvar_Get( "r_clampToEdge", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE ); // ydnar: opengl 1.2 GL_CLAMP_TO_EDGE support
@@ -1954,6 +1970,7 @@ void R_Register( void ) {
 	r_stereo = ri.Cvar_Get( "r_stereo", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
 #endif // RTCW_XX
 
+#if FIXME
 #if !defined RTCW_ET
 #ifdef __linux__
 	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1987,6 +2004,17 @@ void R_Register( void ) {
 	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
 #endif
 #endif // RTCW_XX
+#else
+	r_stencilbits = ri.Cvar_Get(
+		"r_stencilbits",
+		"0",
+		CVAR_ARCHIVE | CVAR_LATCH
+#if defined RTCW_ET
+		|
+		CVAR_UNSAFE
+#endif // RTCW_XX
+	);
+#endif // FIXME
 
 #if !defined RTCW_ET
 	r_depthbits = ri.Cvar_Get( "r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
@@ -2355,7 +2383,12 @@ void R_Init( void ) {
 	//Swap_Init();
 	// BBi
 
+#if FIXME
 	if ( (int)tess.xyz & 15 ) {
+#else
+	if ((reinterpret_cast<uintptr_t>(tess.xyz) & 15) != 0)
+	{
+#endif // FIXME
 		Com_Printf( "WARNING: tess.xyz not 16 byte aligned\n" );
 	}
 	memset( tess.constantColor255, 255, sizeof( tess.constantColor255 ) );

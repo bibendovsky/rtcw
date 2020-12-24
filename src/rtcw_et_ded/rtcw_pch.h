@@ -18,17 +18,15 @@
 #include <memory>
 #include <stack>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 #include <assert.h>
 #include <ctype.h>
-#include <direct.h>
 #include <float.h>
 #include <inttypes.h>
-#include <io.h>
 #include <limits.h>
-#include <malloc.h>
 #include <math.h>
 #include <setjmp.h>
 #include <stdarg.h>
@@ -38,4 +36,3 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <sys/stat.h>

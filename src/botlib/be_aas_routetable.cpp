@@ -76,7 +76,7 @@ unsigned short CRC_ProcessString( unsigned char *data, int length );
 //===========================================================================
 // Memory debugging/optimization
 
-void *AAS_RT_GetClearedMemory( unsigned long size ) {
+void *AAS_RT_GetClearedMemory( uint32_t size ) {
 	void *ptr;
 
 	memorycount += size;

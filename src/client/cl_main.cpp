@@ -32,9 +32,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <limits.h>
 
 #if defined RTCW_MP
-#ifdef __linux__
-#include <sys/stat.h>
-#endif
 
 cvar_t  *cl_wavefilerecord;
 #endif // RTCW_XX
@@ -44,6 +41,9 @@ cvar_t  *cl_wavefilerecord;
 
 cvar_t  *cl_wavefilerecord;
 #endif // RTCW_XX
+
+#include "rtcw_vm_args.h"
+
 
 cvar_t  *cl_nodelta;
 cvar_t  *cl_debugMove;
@@ -1428,7 +1428,7 @@ void CL_Disconnect( qboolean showMainMenu ) {
 	}
 
 	if ( uivm && showMainMenu ) {
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NONE );
+		VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_NONE));
 	}
 
 	SCR_StopCinematic();
@@ -2303,7 +2303,7 @@ void CL_DownloadsComplete( void ) {
 
 #if defined RTCW_MP
 #ifndef _WIN32
-	char    *fs_write_path;
+	const char* fs_write_path;
 #endif
 	char    *fn;
 
@@ -2317,9 +2317,11 @@ void CL_DownloadsComplete( void ) {
 #else
 			fs_write_path = Cvar_VariableString( "fs_homepath" );
 			fn = FS_BuildOSPath( fs_write_path, FS_ShiftStr( AUTOUPDATE_DIR, AUTOUPDATE_DIR_SHIFT ), autoupdateFilename );
+#if FIXME
 #ifdef __linux__
 			Sys_Chmod( fn, S_IXUSR );
 #endif
+#endif // FIXME
 #endif
 			Sys_StartProcess( fn, qtrue );
 		}
@@ -2358,7 +2360,7 @@ void CL_DownloadsComplete( void ) {
 
 #else
 #ifndef _WIN32
-	char    *fs_write_path;
+	const char* fs_write_path;
 #endif
 	char    *fn;
 
@@ -2372,9 +2374,11 @@ void CL_DownloadsComplete( void ) {
 #else
 			fs_write_path = Cvar_VariableString( "fs_homepath" );
 			fn = FS_BuildOSPath( fs_write_path, FS_ShiftStr( AUTOUPDATE_DIR, AUTOUPDATE_DIR_SHIFT ), autoupdateFilename );
+#if FIXME
 #ifndef __MACOS__
 			Sys_Chmod( fn, S_IXUSR );
 #endif
+#endif // FIXME
 #endif
 			// will either exit with a successful process spawn, or will Com_Error ERR_DROP
 			// so we need to clear the disconnected download data if needed
@@ -3482,22 +3486,22 @@ void CL_Frame( int msec ) {
 
 #if defined RTCW_SP
 #ifdef __MACOS__    //DAJ hide the cursor for intro movie
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_BRIEFING );
+		VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_BRIEFING));
 #else
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NEED_CD );
+		VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_NEED_CD));
 #endif
 	} else if ( cls.endgamemenu ) {
 		cls.endgamemenu = qfalse;
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_ENDGAME );
+		VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_ENDGAME));
 #else
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NEED_CD );
+		VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_NEED_CD));
 #endif // RTCW_XX
 
 	} else if ( cls.state == CA_DISCONNECTED && !( cls.keyCatchers & KEYCATCH_UI )
 				&& !com_sv_running->integer ) {
 		// if disconnected, bring up the menu
 		S_StopAllSounds();
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN );
+		VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_MAIN));
 	}
 
 	// if recording an avi, lock to a fixed fps
@@ -5122,7 +5126,7 @@ void CL_UpdateInfoPacket( netadr_t from ) {
 
 	if ( !Q_stricmp( cl_updateavailable->string, "1" ) ) {
 		Cvar_Set( "cl_updatefiles", Cmd_Argv( 2 ) );
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_WM_AUTOUPDATE );
+		VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_WM_AUTOUPDATE));
 	}
 }
 // DHM - Nerve
@@ -5995,16 +5999,16 @@ static trans_t* AllocTrans( char *original, char *translated[MAX_LANGUAGES] ) {
 generateHashValue
 =======================
 */
-static long generateHashValue( const char *fname ) {
+static int32_t generateHashValue( const char *fname ) {
 	int i;
-	long hash;
+	int32_t hash;
 	char letter;
 
 	hash = 0;
 	i = 0;
 	while ( fname[i] != '\0' ) {
 		letter = tolower( fname[i] );
-		hash += (long)( letter ) * ( i + 119 );
+		hash += (int32_t)( letter ) * ( i + 119 );
 		i++;
 	}
 	hash &= ( FILE_HASH_SIZE - 1 );
@@ -6018,7 +6022,7 @@ LookupTrans
 */
 static trans_t* LookupTrans( char *original, char *translated[MAX_LANGUAGES], qboolean isLoading ) {
 	trans_t *t, *newt, *prev = NULL;
-	long hash;
+	int32_t hash;
 
 	hash = generateHashValue( original );
 

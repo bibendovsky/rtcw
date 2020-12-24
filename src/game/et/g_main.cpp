@@ -505,7 +505,7 @@ extern "C" intptr_t vmMain
 		G_ShutdownGame( arg0 );
 		return 0;
 	case GAME_CLIENT_CONNECT:
-		return (int)ClientConnect( arg0, arg1, arg2 );
+		return reinterpret_cast<intptr_t>(ClientConnect( arg0, arg1, arg2 ));
 	case GAME_CLIENT_THINK:
 		ClientThink( arg0 );
 		return 0;

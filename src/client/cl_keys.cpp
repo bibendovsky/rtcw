@@ -26,7 +26,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+
 #include "client.h"
+
+#include "rtcw_vm_args.h"
+
 
 /*
 
@@ -1734,9 +1738,9 @@ const char *Key_KeynumToString( int keynum, qboolean bTranslate ) {
 #if defined RTCW_ET
 #define BIND_HASH_SIZE 1024
 
-static long generateHashValue( const char *fname ) {
+static int32_t generateHashValue( const char *fname ) {
 	int i;
-	long hash;
+	int32_t hash;
 
 	if ( !fname ) {
 		return 0;
@@ -1745,7 +1749,7 @@ static long generateHashValue( const char *fname ) {
 	hash = 0;
 	i = 0;
 	while ( fname[i] != '\0' ) {
-		hash += (long)( fname[i] ) * ( i + 119 );
+		hash += (int32_t)( fname[i] ) * ( i + 119 );
 		i++;
 	}
 	hash &= ( BIND_HASH_SIZE - 1 );
@@ -2157,7 +2161,7 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 #if defined RTCW_SP
 //----(SA)	get the active menu if in ui mode
 	if ( cls.keyCatchers & KEYCATCH_UI ) {
-		activeMenu = VM_Call( uivm, UI_GET_ACTIVE_MENU );
+		activeMenu = VM_Call(uivm, rtcw::to_vm_arg(UI_GET_ACTIVE_MENU));
 	}
 #endif // RTCW_XX
 
@@ -2172,7 +2176,7 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 		// escape always gets out of CGAME stuff
 		if ( cls.keyCatchers & KEYCATCH_CGAME ) {
 			cls.keyCatchers &= ~KEYCATCH_CGAME;
-			VM_Call( cgvm, CG_EVENT_HANDLING, CGAME_EVENT_NONE );
+			VM_Call(cgvm, CG_EVENT_HANDLING, rtcw::to_vm_arg(CGAME_EVENT_NONE));
 			return;
 		}
 
@@ -2180,20 +2184,20 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 			if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
 
 #if !defined RTCW_ET
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_INGAME );
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_INGAME));
 #else
 				// Arnout: on request
 				if ( cls.keyCatchers & KEYCATCH_CONSOLE ) {  // get rid of the console
 					Con_ToggleConsole_f();
 				} else {
-					VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_INGAME );
+					VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_INGAME));
 				}
 #endif // RTCW_XX
 
 			} else {
 				CL_Disconnect_f();
 				S_StopAllSounds();
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN );
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_MAIN));
 			}
 			return;
 		}
@@ -2204,7 +2208,7 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 		}
 #endif // RTCW_XX
 
-		VM_Call( uivm, UI_KEY_EVENT, key, down );
+		VM_Call(uivm, UI_KEY_EVENT, rtcw::to_vm_arg(key), rtcw::to_vm_arg(down));
 		return;
 	}
 
@@ -2226,17 +2230,17 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 		if ( cls.keyCatchers & KEYCATCH_UI && uivm ) {
 
 #if !defined RTCW_ET
-			VM_Call( uivm, UI_KEY_EVENT, key, down );
+			VM_Call(uivm, UI_KEY_EVENT, rtcw::to_vm_arg(key), rtcw::to_vm_arg(down));
 		} else if ( cls.keyCatchers & KEYCATCH_CGAME && cgvm ) {
-			VM_Call( cgvm, CG_KEY_EVENT, key, down );
+			VM_Call(cgvm, CG_KEY_EVENT, rtcw::to_vm_arg(key), rtcw::to_vm_arg(down));
 		}
 #else
-			if ( !onlybinds || VM_Call( uivm, UI_WANTSBINDKEYS ) ) {
-				VM_Call( uivm, UI_KEY_EVENT, key, down );
+			if ( !onlybinds || VM_Call(uivm, UI_WANTSBINDKEYS) ) {
+				VM_Call(uivm, UI_KEY_EVENT, rtcw::to_vm_arg(key), rtcw::to_vm_arg(down));
 			}
 		} else if ( cls.keyCatchers & KEYCATCH_CGAME && cgvm ) {
-			if ( !onlybinds || VM_Call( cgvm, CG_WANTSBINDKEYS ) ) {
-				VM_Call( cgvm, CG_KEY_EVENT, key, down );
+			if ( !onlybinds || VM_Call(cgvm, CG_WANTSBINDKEYS) ) {
+				VM_Call(cgvm, CG_KEY_EVENT, rtcw::to_vm_arg(key), rtcw::to_vm_arg(down));
 			}
 		}
 #endif // RTCW_XX
@@ -2286,7 +2290,7 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 #if defined RTCW_SP
 		if ( activeMenu == UIMENU_CLIPBOARD ) {
 #elif defined RTCW_MP
-		if ( VM_Call( uivm, UI_GET_ACTIVE_MENU ) == UIMENU_CLIPBOARD ) {
+		if ( VM_Call(uivm, UI_GET_ACTIVE_MENU) == UIMENU_CLIPBOARD ) {
 #endif // RTCW_XX
 
 			// any key gets out of clipboard
@@ -2305,7 +2309,7 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 
 			if ( kb ) {
 				if ( !Q_stricmp( "notebook", kb ) ) {
-					if ( VM_Call( uivm, UI_GET_ACTIVE_MENU ) == UIMENU_NOTEBOOK ) {
+					if ( VM_Call(uivm, UI_GET_ACTIVE_MENU) == UIMENU_NOTEBOOK ) {
 						key = K_ESCAPE;
 					}
 				}
@@ -2317,7 +2321,7 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 ///				}
 #elif defined RTCW_MP
 				if ( !Q_stricmp( "help", kb ) ) {
-					if ( VM_Call( uivm, UI_GET_ACTIVE_MENU ) == UIMENU_HELP ) {
+					if ( VM_Call(uivm, UI_GET_ACTIVE_MENU) == UIMENU_HELP ) {
 						key = K_ESCAPE;
 					}
 				}
@@ -2328,15 +2332,15 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 
 #if defined RTCW_SP
 		if ( uivm ) {
-			VM_Call( uivm, UI_KEY_EVENT, key, down );
+			VM_Call(uivm, UI_KEY_EVENT, rtcw::to_vm_arg(key), rtcw::to_vm_arg(down));
 		}
 #elif defined RTCW_MP
-		VM_Call( uivm, UI_KEY_EVENT, key, down );
+		VM_Call(uivm, UI_KEY_EVENT, rtcw::to_vm_arg(key), rtcw::to_vm_arg(down));
 #endif // RTCW_XX
 
 	} else if ( cls.keyCatchers & KEYCATCH_CGAME ) {
 		if ( cgvm ) {
-			VM_Call( cgvm, CG_KEY_EVENT, key, down );
+			VM_Call(cgvm, CG_KEY_EVENT, rtcw::to_vm_arg(key), rtcw::to_vm_arg(down));
 		}
 	} else if ( cls.keyCatchers & KEYCATCH_MESSAGE ) {
 		Message_Key( key );
@@ -2348,13 +2352,13 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 			Console_Key( key );
 		}
 	} else if ( cls.keyCatchers & KEYCATCH_UI && !bypassMenu ) {
-		if ( !onlybinds || VM_Call( uivm, UI_WANTSBINDKEYS ) ) {
-			VM_Call( uivm, UI_KEY_EVENT, key, down );
+		if ( !onlybinds || VM_Call(uivm, UI_WANTSBINDKEYS) ) {
+			VM_Call(uivm, UI_KEY_EVENT, rtcw::to_vm_arg(key), rtcw::to_vm_arg(down));
 		}
 	} else if ( cls.keyCatchers & KEYCATCH_CGAME && !bypassMenu ) {
 		if ( cgvm ) {
-			if ( !onlybinds || VM_Call( cgvm, CG_WANTSBINDKEYS ) ) {
-				VM_Call( cgvm, CG_KEY_EVENT, key, down );
+			if ( !onlybinds || VM_Call(cgvm, CG_WANTSBINDKEYS) ) {
+				VM_Call(cgvm, CG_KEY_EVENT, rtcw::to_vm_arg(key), rtcw::to_vm_arg(down));
 			}
 		}
 	} else if ( cls.keyCatchers & KEYCATCH_MESSAGE ) {
@@ -2410,7 +2414,7 @@ void CL_CharEvent( int key ) {
 	// fretn - this should be fixed in Com_EventLoop
 	// but I can't be arsed to leave this as is
 
-	if ( key == (unsigned char) '`' || key == (unsigned char) '~' || key == (unsigned char) '¬' ) {
+	if ( key == (unsigned char) '`' || key == (unsigned char) '~' || key == (unsigned char) '\xAC' ) {
 #endif // RTCW_XX
 
 		return;
@@ -2420,11 +2424,11 @@ void CL_CharEvent( int key ) {
 	if ( cls.keyCatchers & KEYCATCH_CONSOLE ) {
 		Field_CharEvent( &g_consoleField, key );
 	} else if ( cls.keyCatchers & KEYCATCH_UI )   {
-		VM_Call( uivm, UI_KEY_EVENT, key | K_CHAR_FLAG, qtrue );
+		VM_Call(uivm, UI_KEY_EVENT, rtcw::to_vm_arg(key | K_CHAR_FLAG), rtcw::to_vm_arg(qtrue));
 
 #if defined RTCW_ET
 	} else if ( cls.keyCatchers & KEYCATCH_CGAME )   {
-		VM_Call( cgvm, CG_KEY_EVENT, key | K_CHAR_FLAG, qtrue );
+		VM_Call(cgvm, CG_KEY_EVENT, rtcw::to_vm_arg(key | K_CHAR_FLAG), rtcw::to_vm_arg(qtrue));
 #endif // RTCW_XX
 
 	} else if ( cls.keyCatchers & KEYCATCH_MESSAGE )   {

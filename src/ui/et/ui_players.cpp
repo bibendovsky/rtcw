@@ -995,16 +995,16 @@ return a hash value for the given string
 // rain - renamed from BG_StringHashValue to UI_StringHashValue, so that
 // it doesn't conflict with the BG_ version (which is prototyped, but
 // not linked in to save space from all the extra bg_ baggage.)
-static long UI_StringHashValue( const char *fname ) {
+static int32_t UI_StringHashValue( const char *fname ) {
 	int i;
-	long hash;
+	int32_t hash;
 	char letter;
 
 	hash = 0;
 	i = 0;
 	while ( fname[i] != '\0' ) {
 		letter = tolower( fname[i] );
-		hash += (long)( letter ) * ( i + 119 );
+		hash += (int32_t)( letter ) * ( i + 119 );
 		i++;
 	}
 	if ( hash == -1 ) {

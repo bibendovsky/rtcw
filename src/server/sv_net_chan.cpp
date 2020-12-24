@@ -48,7 +48,7 @@ static void SV_Netchan_Encode( client_t *client, msg_t *msg ) {
 static void SV_Netchan_Encode( client_t *client, msg_t *msg, char *commandString ) {
 #endif // RTCW_XX
 
-	long reliableAcknowledge, i, index;
+	int32_t reliableAcknowledge, i, index;
 	byte key, *string;
 	int srdc, sbit, soob;
 

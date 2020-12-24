@@ -329,9 +329,9 @@ static animConditionTable_t animConditionsTable[NUM_ANIM_CONDITIONS] =
 return a hash value for the given string
 ================
 */
-long BG_StringHashValue( const char *fname ) {
+int32_t BG_StringHashValue( const char *fname ) {
 	int i;
-	long hash;
+	int32_t hash;
 
 	if ( !fname ) {
 		return -1;
@@ -341,9 +341,9 @@ long BG_StringHashValue( const char *fname ) {
 	i = 0;
 	while ( fname[i] != '\0' ) {
 		if ( Q_isupper( fname[i] ) ) {
-			hash += (long)( fname[i] + ( 'a' - 'A' ) ) * ( i + 119 );
+			hash += (int32_t)( fname[i] + ( 'a' - 'A' ) ) * ( i + 119 );
 		} else {
-			hash += (long)( fname[i] ) * ( i + 119 );
+			hash += (int32_t)( fname[i] ) * ( i + 119 );
 		}
 
 		i++;
@@ -359,14 +359,14 @@ long BG_StringHashValue( const char *fname ) {
 return a hash value for the given string (make sure the strings and lowered first)
 ================
 */
-long BG_StringHashValue_Lwr( const char *fname ) {
+int32_t BG_StringHashValue_Lwr( const char *fname ) {
 	int i;
-	long hash;
+	int32_t hash;
 
 	hash = 0;
 	i = 0;
 	while ( fname[i] != '\0' ) {
-		hash += (long)( fname[i] ) * ( i + 119 );
+		hash += (int32_t)( fname[i] ) * ( i + 119 );
 		i++;
 	}
 	if ( hash == -1 ) {
@@ -1662,7 +1662,11 @@ int BG_GetConditionValue( int client, int condition, qboolean checkConversion ) 
 			return 0;
 		} else {
 			// xkan, 1/14/2003 - must use COM_BitCheck on the result.
+#if FIXME
 			return (int)globalScriptData->clientConditions[client][condition];
+#else
+			return static_cast<int>(reinterpret_cast<intptr_t>(globalScriptData->clientConditions[client][condition]));
+#endif // FIXME
 		}
 		//BG_AnimParseError( "BG_GetConditionValue: internal error" );
 	} else {

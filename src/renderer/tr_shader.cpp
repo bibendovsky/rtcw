@@ -67,9 +67,9 @@ shaderStringPointer_t shaderChecksumLookup[FILE_HASH_SIZE];
 return a hash value for the filename
 ================
 */
-static long generateHashValue( const char *fname ) {
+static int32_t generateHashValue( const char *fname ) {
 	int i;
-	long hash;
+	int32_t hash;
 	char letter;
 
 	hash = 0;
@@ -85,7 +85,7 @@ static long generateHashValue( const char *fname ) {
 		if ( letter == PATH_SEP ) {
 			letter = '/';                           // damn path names
 		}
-		hash += (long)( letter ) * ( i + 119 );
+		hash += (int32_t)( letter ) * ( i + 119 );
 		i++;
 	}
 	hash &= ( FILE_HASH_SIZE - 1 );
@@ -4086,7 +4086,7 @@ static void ScanAndLoadShaderFiles( void ) {
 	int numShaders;
 	int i;
 
-	long sum = 0;
+	int32_t sum = 0;
 	// scan for shader files
 	shaderFiles = ri.FS_ListFiles( "scripts", ".shader", &numShaders );
 

@@ -141,7 +141,7 @@ struct vm_s {
 
 	// BBi
 	//int (*systemCall) (int* parms);
-	intptr_t (*systemCall)(intptr_t* parms);
+	int32_t (*systemCall)(intptr_t* parms);
 	// BBi
 
 	//------------------------------------
@@ -156,7 +156,7 @@ struct vm_s {
 
 	// BBi
 	//int (QDECL* entryPoint) (int callNum, ...);
-	intptr_t (QDECL* entryPoint) (intptr_t callNum, ...);
+	int32_t (QDECL* entryPoint) (intptr_t callNum, ...);
 	// BBi
 
 	// BBi

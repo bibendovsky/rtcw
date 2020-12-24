@@ -528,9 +528,9 @@ S_HashSFXName
 return a hash value for the sfx name
 ================
 */
-static long S_HashSFXName( const char *name ) {
+static int32_t S_HashSFXName( const char *name ) {
 	int i;
-	long hash;
+	int32_t hash;
 	char letter;
 
 	hash = 0;
@@ -543,7 +543,7 @@ static long S_HashSFXName( const char *name ) {
 		if ( letter == '\\' ) {
 			letter = '/';                   // damn path names
 		}
-		hash += (long)( letter ) * ( i + 119 );
+		hash += (int32_t)( letter ) * ( i + 119 );
 		i++;
 	}
 	hash &= ( LOOP_HASH - 1 );

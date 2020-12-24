@@ -183,7 +183,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <climits>
 
 #if defined RTCW_ET
-#include <sys/stat.h> // rain
 #include <float.h>
 #endif // RTCW_XX
 // BBi
@@ -196,28 +195,25 @@ If you have questions concerning this license or the applicable additional terms
 
 // for windows fastcall option
 
-#define QDECL
-
-//======================= WIN32 DEFINES =================================
-
-#ifdef __WIN32__
+#ifdef _WIN32
 
 #define MAC_STATIC
-
-#undef QDECL
 #define QDECL __cdecl
-
 #define PATH_SEP '\\'
 
 #else
-	#error Unknown platform
+
+#define MAC_STATIC
+#define QDECL
+#define PATH_SEP '/'
+
 #endif
 
 typedef uint8_t byte;
 
 typedef int32_t qboolean;
-const qboolean qfalse = 0;
-const qboolean qtrue = 1;
+constexpr qboolean qfalse = 0;
+constexpr qboolean qtrue = 1;
 
 
 typedef int qhandle_t;
@@ -382,6 +378,7 @@ void *Hunk_AllocDebug( int size, ha_pref preference, char *label, char *file, in
 void *Hunk_Alloc( int size, ha_pref preference );
 #endif
 
+#if FIXME
 #if !defined RTCW_SP
 #ifdef __linux__
 // show_bug.cgi?id=371
@@ -391,6 +388,9 @@ void Snd_Memset( void* dest, const int val, const size_t count );
 #define Snd_Memset Com_Memset
 #endif
 #endif // RTCW_XX
+#else
+#define Snd_Memset Com_Memset
+#endif // FIXME
 
 void Com_Memset( void* dest, const int val, const size_t count );
 void Com_Memcpy( void* dest, const void* src, const size_t count );

@@ -631,7 +631,7 @@ void PC_PrintDefineHashTable( define_t **definehash ) {
 //char primes[16] = {1, 3, 5, 7, 11, 13, 17, 19, 23, 27, 29, 31, 37, 41, 43, 47};
 
 int PC_NameHash( char *name ) {
-	int register hash, i;
+	int hash, i;
 
 	hash = 0;
 	for ( i = 0; name[i] != '\0'; i++ )
@@ -792,7 +792,7 @@ void PC_AddBuiltinDefines( source_t *source ) {
 int PC_ExpandBuiltinDefine( source_t *source, token_t *deftoken, define_t *define,
 							token_t **firsttoken, token_t **lasttoken ) {
 	token_t *token;
-	unsigned long t;    //	time_t t; //to prevent LCC warning
+	uint32_t t;    //	time_t t; //to prevent LCC warning
 	char *curtime;
 
 	token = PC_CopyToken( deftoken );
@@ -1691,7 +1691,7 @@ typedef struct operator_s
 
 typedef struct value_s
 {
-	signed long int intvalue;
+	int32_t intvalue;
 	double floatvalue;
 	int parentheses;
 	struct value_s *prev, *next;
@@ -1758,7 +1758,7 @@ int PC_OperatorPriority( int op ) {
 		op = &operator_heap[numoperators++];}
 #define FreeOperator( op )
 
-int PC_EvaluateTokens( source_t *source, token_t *tokens, signed long int *intvalue,
+int PC_EvaluateTokens( source_t *source, token_t *tokens, int32_t *intvalue,
 					   double *floatvalue, int integer ) {
 	operator_t *o, *firstoperator, *lastoperator;
 	value_t *v, *firstvalue, *lastvalue, *v1, *v2;
@@ -2224,7 +2224,7 @@ int PC_EvaluateTokens( source_t *source, token_t *tokens, signed long int *intva
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-int PC_Evaluate( source_t *source, signed long int *intvalue,
+int PC_Evaluate( source_t *source, int32_t *intvalue,
 				 double *floatvalue, int integer ) {
 	token_t token, *firsttoken, *lasttoken;
 	token_t *t, *nexttoken;
@@ -2328,7 +2328,7 @@ int PC_Evaluate( source_t *source, signed long int *intvalue,
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-int PC_DollarEvaluate( source_t *source, signed long int *intvalue,
+int PC_DollarEvaluate( source_t *source, int32_t *intvalue,
 					   double *floatvalue, int integer ) {
 	int indent, defined = qfalse;
 	token_t token, *firsttoken, *lasttoken;
@@ -2446,7 +2446,7 @@ int PC_DollarEvaluate( source_t *source, signed long int *intvalue,
 // Changes Globals:		-
 //============================================================================
 int PC_Directive_elif( source_t *source ) {
-	signed long int value;
+	int32_t value;
 	int type, skip;
 
 	PC_PopIndent( source, &type, &skip );
@@ -2468,7 +2468,7 @@ int PC_Directive_elif( source_t *source ) {
 // Changes Globals:		-
 //============================================================================
 int PC_Directive_if( source_t *source ) {
-	signed long int value;
+	int32_t value;
 	int skip;
 
 	if ( !PC_Evaluate( source, &value, NULL, qtrue ) ) {
@@ -2540,7 +2540,7 @@ void UnreadSignToken( source_t *source ) {
 // Changes Globals:		-
 //============================================================================
 int PC_Directive_eval( source_t *source ) {
-	signed long int value;
+	int32_t value;
 	token_t token;
 
 	if ( !PC_Evaluate( source, &value, NULL, qtrue ) ) {
@@ -2652,7 +2652,7 @@ int PC_ReadDirective( source_t *source ) {
 // Changes Globals:		-
 //============================================================================
 int PC_DollarDirective_evalint( source_t *source ) {
-	signed long int value;
+	int32_t value;
 	token_t token;
 
 	if ( !PC_DollarEvaluate( source, &value, NULL, qtrue ) ) {
@@ -2703,7 +2703,7 @@ int PC_DollarDirective_evalfloat( source_t *source ) {
 	token.type = TT_NUMBER;
 	token.subtype = TT_FLOAT | TT_LONG | TT_DECIMAL;
 #ifdef NUMBERVALUE
-	token.intvalue = (unsigned long) value;
+	token.intvalue = (uint32_t) value;
 	token.floatvalue = value;
 #endif //NUMBERVALUE
 	PC_UnreadSourceToken( source, &token );

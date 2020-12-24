@@ -1873,7 +1873,7 @@ G_ScriptAction_ToggleSpeaker
 */
 qboolean G_ScriptAction_ToggleSpeaker( gentity_t *ent, const char* params ) {
 	int i;
-	long hash;
+	int32_t hash;
 	gentity_t       *tent;
 	bg_speaker_t    *speaker;
 
@@ -1909,7 +1909,7 @@ G_ScriptAction_DisableSpeaker
 */
 qboolean G_ScriptAction_DisableSpeaker( gentity_t *ent, const char* params ) {
 	int i;
-	long hash;
+	int32_t hash;
 	gentity_t       *tent;
 	bg_speaker_t    *speaker;
 
@@ -1945,7 +1945,7 @@ G_ScriptAction_EnableSpeaker
 */
 qboolean G_ScriptAction_EnableSpeaker( gentity_t *ent, const char* params ) {
 	int i;
-	long hash;
+	int32_t hash;
 	gentity_t       *tent;
 	bg_speaker_t    *speaker;
 

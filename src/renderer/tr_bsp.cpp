@@ -516,7 +516,12 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	numIndexes = rtcw::Endian::le( ds->numIndexes );
 
 	// create the srfSurfaceFace_t
+#if FIXME
 	sfaceSize = ( int ) &( (srfSurfaceFace_t *)0 )->points[numPoints];
+#else
+	sfaceSize = static_cast<int>(reinterpret_cast<intptr_t>(&(static_cast<srfSurfaceFace_t*>(nullptr))->points[numPoints]));
+#endif // FIXME
+
 	ofsIndexes = sfaceSize;
 	sfaceSize += sizeof( int ) * numIndexes;
 

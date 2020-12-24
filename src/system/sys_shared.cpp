@@ -38,6 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
+#include <string>
 #include <string_view>
 
 #include "SDL.h"
@@ -354,7 +355,16 @@ public:
 			}
 			else
 			{
-				extension_string_view_ = extension_;
+				if (extension_[0] == '.')
+				{
+					extension_u8_ = std::filesystem::u8path(extension_);
+				}
+				else
+				{
+					const auto extension_with_dot = std::string{"."} + extension;
+					extension_u8_ = std::filesystem::u8path(extension_with_dot);
+				}
+
 				is_match_method_ = &SysListFilesEntryFilter::is_match_extension_internal;
 			}
 		}
@@ -377,7 +387,7 @@ private:
 
 
 	const char* extension_{};
-	std::string_view extension_string_view_{};
+	std::filesystem::path extension_u8_{};
 	const char* filter_{};
 	Method is_match_method_{};
 
@@ -415,9 +425,9 @@ private:
 			return false;
 		}
 
-		const auto entry_extension_u6 = dir_entry.path().extension().u8string();
+		const auto entry_extension_u8 = dir_entry.path().extension().u8string();
 
-		return entry_extension_u6 == extension_string_view_;
+		return entry_extension_u8 == extension_u8_;
 	}
 }; // SysListFilesEntryFilter
 
@@ -611,15 +621,7 @@ extern int cl_connectedToPureServer;
 const char* Sys_GetDLLName(
 	const char* name)
 {
-	static const auto bits = std::string{
-#if defined RTCW_32
-		"x86"
-#elif defined RTCW_64
-		"x64"
-#else
-#error Unknown CPU architecture
-#endif
-	};
+	static const auto bits = std::string{RTCW_ARCH_STRING};
 
 	static const auto game = std::string{
 #ifdef RTCW_SP
@@ -645,7 +647,9 @@ const char* Sys_GetDLLName(
 #endif
 	};
 
-	static const auto buffer = name + game + bits + demo + ext;
+	static auto buffer = std::string{};
+
+	buffer = name + game + bits + demo + ext;
 
 	return buffer.c_str();
 }
