@@ -27,8 +27,11 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
+#include <algorithm>
 #include <memory>
+
 #include "SDL_video.h"
+
 #include "tr_local.h"
 
 
@@ -304,7 +307,7 @@ void gl_initialize_extensions()
 		{
 			if (r_ext_multitexture->integer != 0)
 			{
-				glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &::glConfig.maxActiveTextures);
+				glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glConfig.maxActiveTextures);
 
 				if (glConfig.maxActiveTextures > 1)
 				{
@@ -440,17 +443,14 @@ void GLimp_Init()
 	r_allowSoftwareGL = ri.Cvar_Get("r_allowSoftwareGL", "0", 0);
 	r_maskMinidriver = ri.Cvar_Get("r_maskMinidriver", "0", 0);
 
-	static_cast<void>(ri.Cvar_Get(
-		"r_lastValidRenderer",
-		"(uninitialized)",
-		CVAR_ARCHIVE));
+	ri.Cvar_Get("r_lastValidRenderer", "(uninitialized)", CVAR_ARCHIVE);
 
-	bool is_succeed = true;
-	int sdl_result = 0;
+	auto is_succeed = true;
+	auto sdl_result = 0;
 
 	if (is_succeed)
 	{
-		const auto sdl_result = SDL_GL_LoadLibrary(nullptr);
+		sdl_result = SDL_GL_LoadLibrary(nullptr);
 
 		if (sdl_result != 0)
 		{
@@ -459,35 +459,38 @@ void GLimp_Init()
 		}
 	}
 
-	int display_width = 0;
-	int display_height = 0;
-	int display_refresh_rate = 0;
+	auto display_width = 0;
+	auto display_height = 0;
+	auto display_refresh_rate = 0;
 
-	if (is_succeed) {
+	if (is_succeed)
+	{
 		SDL_DisplayMode dm;
 
-		sdl_result = SDL_GetCurrentDisplayMode(
-			0,
-			&dm);
+		sdl_result = SDL_GetCurrentDisplayMode(0, &dm);
 
-		if (sdl_result == 0) {
+		if (sdl_result == 0)
+		{
 			display_width = dm.w;
 			display_height = dm.h;
 			display_refresh_rate = dm.refresh_rate;
-		} else {
+		}
+		else
+		{
 			is_succeed = false;
 			ri.Error(ERR_FATAL, "Failed to get a current dispay mode.\n");
 		}
 	}
 
-	int width = 0;
-	int height = 0;
-	float aspect_ratio = 0.0F;
-	bool is_native_mode = false;
-	bool is_fullscreen = (r_fullscreen->integer != 0);
-	bool is_stereo = (r_stereo->integer != 0);
+	auto width = 0;
+	auto height = 0;
+	auto aspect_ratio = 0.0F;
+	auto is_native_mode = false;
+	const auto is_fullscreen = (r_fullscreen->integer != 0);
+	const auto is_stereo = (r_stereo->integer != 0);
 
-	if (is_succeed) {
+	if (is_succeed)
+	{
 		qboolean api_result = qfalse;
 
 		ri.Printf(PRINT_ALL, "  setting mode: %d\n", r_mode->integer);
@@ -496,26 +499,34 @@ void GLimp_Init()
 			&width,
 			&height,
 			&aspect_ratio,
-			r_mode->integer);
+			r_mode->integer
+		);
 
-		if (api_result) {
-			is_native_mode = (
-				width == display_width &&
-				height == display_height);
-		} else {
+		if (!api_result)
+		{
 			is_succeed = false;
 			ri.Error(ERR_FATAL, "Invalid mode: %d.\n", r_mode->integer);
 		}
 	}
 
-	if (is_succeed) {
-		Uint32 window_flags =
-			SDL_WINDOW_OPENGL |
-			SDL_WINDOW_HIDDEN;
+	auto sdl_width = 0;
+	auto sdl_height = 0;
+	auto sdl_aspect_ratio = 0.0F;
 
-		if (is_fullscreen) {
-			window_flags |= is_native_mode ?
-				SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN;
+	if (is_succeed)
+	{
+		Uint32 sdl_window_flags =
+			SDL_WINDOW_OPENGL |
+			SDL_WINDOW_HIDDEN
+			;
+
+		if (is_fullscreen)
+		{
+#if _DEBUG
+			sdl_window_flags |= SDL_WINDOW_BORDERLESS;
+#else
+			sdl_window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+#endif
 		}
 
 		sdl_result = SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
@@ -527,91 +538,74 @@ void GLimp_Init()
 		sdl_result = SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 		sdl_result = SDL_GL_SetAttribute(SDL_GL_STEREO, is_stereo);
 
-		cvar_t* x_cvar = ri.Cvar_Get("vid_xpos", "0", 0);
-		int x = x_cvar->integer;
+		auto sdl_x = 0;
+		auto sdl_y = 0;
 
-		cvar_t* y_cvar = ri.Cvar_Get("vid_ypos", "0", 0);
-		int y = y_cvar->integer;
+		if (is_fullscreen)
+		{
+			sdl_x = SDL_WINDOWPOS_CENTERED;
+			sdl_y = SDL_WINDOWPOS_CENTERED;
 
-		if (x < 0)
-			x = 0;
+			sdl_width = display_width;
+			sdl_height = display_height;
+		}
+		else
+		{
+			const auto x_cvar = ri.Cvar_Get("vid_xpos", "0", 0);
+			sdl_x = std::clamp(x_cvar->integer, 0, display_width - 1);
 
-		if (y < 0)
-			y = 0;
+			const auto y_cvar = ri.Cvar_Get("vid_ypos", "0", 0);
+			sdl_y = std::clamp(y_cvar->integer, 0, display_height - 1);
 
-		if ((x + display_width) < width && (y + display_height) < height) {
-			if ((x + width) > display_width)
-				x = display_width - width;
+			if (sdl_x == 0)
+			{
+				sdl_x = SDL_WINDOWPOS_CENTERED;
+			}
 
-			if ((y + height) > display_height)
-				y = display_height - height;
+			if (sdl_y == 0)
+			{
+				sdl_y = SDL_WINDOWPOS_CENTERED;
+			}
+
+			sdl_width = width;
+			sdl_height = height;
 		}
 
-		const char* window_title =
-			"Return to Castle Wolfenstein: "
+		sdl_aspect_ratio = static_cast<float>(sdl_width) / static_cast<float>(sdl_height);
+
+		const auto window_title =
+			"Return to Castle Wolfenstein ("
 #if defined RTCW_SP
-				"Single Player"
+			"single-player"
 #elif defined RTCW_MP
-				"Multi Player"
+			"multi-player"
+#elif defined RTCW_ET
+			"Enemy Territory"
 #else
-				"Enemy Territory"
+			"???"
 #endif // RTCW_XX
-			;
+			")"
+		;
 
-		bool is_fallback_mode = (
-			width == FALLBACK_WIDTH ||
-			height == FALLBACK_HEIGHT);
+		sys_gl_window = SDL_CreateWindow(
+			window_title,
+			sdl_x,
+			sdl_y,
+			sdl_width,
+			sdl_height,
+			sdl_window_flags
+		);
 
-		while (is_succeed) {
-			sys_gl_window = SDL_CreateWindow(
-				window_title,
-				x,
-				y,
-				width,
-				height,
-				window_flags);
-
-			if (sys_gl_window != NULL)
-				break;
-
-			x = 0;
-			y = 0;
-
-			if (is_fullscreen) {
-				ri.Printf(PRINT_ALL, S_COLOR_YELLOW
-					"  SDL: %s\n", SDL_GetError());
-
-				ri.Printf(PRINT_ALL, S_COLOR_YELLOW
-					"  trying windowed mode...\n");
-
-				is_fullscreen = false;
-
-				window_flags &= ~(SDL_WINDOW_FULLSCREEN |
-					SDL_WINDOW_FULLSCREEN_DESKTOP);
-			} else {
-				if (is_fallback_mode) {
-					is_succeed = false;
-
-					ri.Printf(PRINT_ALL, S_COLOR_RED
-						"  SDL: %s\n", SDL_GetError());
-				} else {
-					ri.Printf(PRINT_ALL, S_COLOR_YELLOW
-						"  SDL: %s\n", SDL_GetError());
-
-					ri.Printf(PRINT_ALL, S_COLOR_YELLOW
-						"  trying fallback mode: %dx%d windowed...\n",
-						FALLBACK_WIDTH, FALLBACK_HEIGHT);
-
-					width = FALLBACK_WIDTH;
-					height = FALLBACK_HEIGHT;
-				}
-			}
+		if (sys_gl_window == nullptr)
+		{
+			ri.Error(ERR_FATAL, "Failed to create SDL window (%s).\n", SDL_GetError());
 		}
 	}
 
 	bool is_support_gamma = false;
 
-	if (is_succeed) {
+	if (is_succeed)
+	{
 		Uint16 ramp[3][256];
 
 		sdl_result = SDL_GetWindowGammaRamp(
@@ -623,10 +617,12 @@ void GLimp_Init()
 		is_support_gamma = (sdl_result == 0);
 	}
 
-	if (is_succeed) {
+	if (is_succeed)
+	{
 		gl_context = SDL_GL_CreateContext(sys_gl_window);
 
-		if (gl_context == NULL) {
+		if (gl_context == NULL)
+		{
 			is_succeed = false;
 			ri.Error(ERR_FATAL, "Failed to create an OpenGL context.\n");
 		}
@@ -634,48 +630,15 @@ void GLimp_Init()
 
 	if (is_succeed)
 	{
-		if (!::gladLoadGLLoader(SDL_GL_GetProcAddress))
+		if (!gladLoadGLLoader(SDL_GL_GetProcAddress))
 		{
 			is_succeed = false;
 			ri.Error(ERR_FATAL, "Failed to initialize GLAD\n");
 		}
 	}
 
-	std::string gl_renderer;
-	std::string gl_vendor;
-	std::string gl_version;
-	std::string gl_extensions;
-
-	if (is_succeed) {
-		const int MAX_GL_STRING_LENGTH = MAX_STRING_CHARS - 1;
-		const int MAX_GL_EXT_STRING_LENGTH = (4 * MAX_STRING_CHARS) - 1;
-
-		gl_renderer = reinterpret_cast<const char*>(
-			glGetString(GL_RENDERER));
-
-		if (gl_renderer.size() > MAX_GL_STRING_LENGTH)
-			gl_renderer.resize(MAX_GL_STRING_LENGTH);
-
-		gl_vendor = reinterpret_cast<const char*>(
-			glGetString(GL_VENDOR));
-
-		if (gl_vendor.size() > MAX_GL_STRING_LENGTH)
-			gl_vendor.resize(MAX_GL_STRING_LENGTH);
-
-		gl_version = reinterpret_cast<const char*>(
-			glGetString(GL_VERSION));
-
-		if (gl_version.size() > MAX_GL_STRING_LENGTH)
-			gl_version.resize(MAX_GL_STRING_LENGTH);
-
-		gl_extensions = reinterpret_cast<const char*>(
-			glGetString(GL_EXTENSIONS));
-
-		if (gl_extensions.size() > MAX_GL_EXT_STRING_LENGTH)
-			gl_extensions.resize(MAX_GL_EXT_STRING_LENGTH);
-	}
-
-	if (is_succeed) {
+	if (is_succeed)
+	{
 		const char* strings[2] = {
 			"disabled",
 			"enabled",
@@ -711,70 +674,68 @@ void GLimp_Init()
 	}
 
 
-	std::uninitialized_fill_n(
-		reinterpret_cast<char*>(&glConfig),
-		sizeof(glConfig),
-		0);
-
+	glConfig = glconfig_t{};
 	glConfigEx.reset();
 
-	if (is_succeed) {
+	if (is_succeed)
+	{
+		const auto gl_renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+		const auto gl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+		const auto gl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+		const auto gl_extensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
+
+		constexpr auto max_gl_string_size = MAX_STRING_CHARS;
+		constexpr auto max_gl_extensions_string_size = 4 * MAX_STRING_CHARS;
+
 		glConfig.colorBits = 32;
 		glConfig.depthBits = 24;
 		glConfig.deviceSupportsGamma = is_support_gamma;
 		glConfig.displayFrequency = display_refresh_rate;
 		glConfig.driverType = GLDRV_ICD;
-		std::uninitialized_copy(
-			gl_extensions.c_str(),
-			gl_extensions.c_str() + gl_extensions.size(),
-			glConfig.extensions_string);
+		Q_strncpyz(glConfig.extensions_string, gl_extensions, max_gl_extensions_string_size);
 		glConfig.hardwareType = GLHW_GENERIC;
 		glConfig.isFullscreen = is_fullscreen;
-		std::uninitialized_copy(
-			gl_renderer.c_str(),
-			gl_renderer.c_str() + gl_renderer.size(),
-			glConfig.renderer_string);
+		Q_strncpyz(glConfig.renderer_string, gl_renderer, max_gl_string_size);
 		glConfig.stencilBits = 8;
 		glConfig.stereoEnabled = is_stereo;
 		glConfig.textureCompression = TC_NONE;
-		std::uninitialized_copy(
-			gl_vendor.c_str(),
-			gl_vendor.c_str() + gl_vendor.size(),
-			glConfig.vendor_string);
-		std::uninitialized_copy(
-			gl_version.c_str(),
-			gl_version.c_str() + gl_version.size(),
-			glConfig.version_string);
-		glConfig.vidHeight = height;
-		glConfig.vidWidth = width;
-		glConfig.windowAspect = aspect_ratio;
+		Q_strncpyz(glConfig.vendor_string, gl_vendor, max_gl_string_size);
+		Q_strncpyz(glConfig.version_string, gl_version, max_gl_string_size);
+		glConfig.vidHeight = sdl_height;
+		glConfig.vidWidth = sdl_width;
+		glConfig.windowAspect = sdl_aspect_ratio;
 
 		gl_initialize_extensions();
 
 		ri.Cvar_Set("r_highQualityVideo", "1");
-		ri.Cvar_Set("r_lastValidRenderer", gl_renderer.c_str());
+		ri.Cvar_Set("r_lastValidRenderer", gl_renderer);
 
 		SDL_ShowWindow(sys_gl_window);
 
 		// Clear the screen.
 		//
 		glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		SDL_GL_SwapWindow(sys_gl_window);
-	} else {
-		if (gl_context != NULL) {
-			SDL_GL_MakeCurrent(sys_gl_window, NULL);
+	}
+	else
+	{
+		if (gl_context != nullptr)
+		{
+			SDL_GL_MakeCurrent(sys_gl_window, nullptr);
 			SDL_GL_DeleteContext(gl_context);
-			gl_context = NULL;
+			gl_context = nullptr;
 		}
 
-		if (sys_gl_window != NULL) {
+		if (sys_gl_window != nullptr)
+		{
 			SDL_DestroyWindow(sys_gl_window);
-			sys_gl_window = NULL;
+			sys_gl_window = nullptr;
 		}
 	}
 
-	if (!is_succeed) {
+	if (!is_succeed)
+	{
 		ri.Error(ERR_FATAL, "Failed to create a window.\n");
 		throw 0;
 	}
@@ -784,24 +745,22 @@ void GLimp_Init()
 
 void GLimp_Shutdown()
 {
-	if (gl_context != NULL) {
-		SDL_GL_MakeCurrent(sys_gl_window, NULL);
+	if (gl_context != nullptr)
+	{
+		SDL_GL_MakeCurrent(sys_gl_window, nullptr);
 		SDL_GL_DeleteContext(gl_context);
-		gl_context = NULL;
+		gl_context = nullptr;
 	}
 
-	if (sys_gl_window != NULL) {
+	if (sys_gl_window != nullptr)
+	{
 		SDL_DestroyWindow(sys_gl_window);
-		sys_gl_window = NULL;
+		sys_gl_window = nullptr;
 	}
 
-	sys_main_window_id = {};
+	sys_main_window_id = Uint32{};
 
-	std::uninitialized_fill_n(
-		reinterpret_cast<char*>(&glConfig),
-		sizeof(glConfig),
-		0);
-
+	glConfig = glconfig_t{};
 	glConfigEx.reset();
 
 	SDL_GL_UnloadLibrary();
@@ -809,7 +768,7 @@ void GLimp_Shutdown()
 
 void GLimp_EndFrame()
 {
-	if (!::sys_gl_window)
+	if (!sys_gl_window)
 	{
 		return;
 	}
@@ -904,6 +863,7 @@ void GLimp_Activate (
 
 bool GLimp_SetFullscreen(bool value)
 {
+#if FIXME
 	ri.Printf(PRINT_ALL, "Trying to set %s mode without video restart...\n",
 		value ? "fullscreen" : "windowed");
 
@@ -925,4 +885,8 @@ bool GLimp_SetFullscreen(bool value)
 
 	ri.Printf(PRINT_ALL, "  failed.\n");
 	return false;
+#else
+	// Updating `glConfig` attributes not enough.
+	return false;
+#endif // FIXME
 }
