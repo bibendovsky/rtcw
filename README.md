@@ -10,7 +10,7 @@ OS: Windows XP
 Minimum compiling requirements
 ------------------------------
 - C++17 compatible compiler
-- Windows build target
+- Target platforms: Windows, Linux
 
 
 Third party use
