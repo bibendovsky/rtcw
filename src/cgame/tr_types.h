@@ -348,11 +348,10 @@ typedef struct {
 	char vendor_string[MAX_STRING_CHARS];
 	char version_string[MAX_STRING_CHARS];
 
-#if defined RTCW_SP
-	char extensions_string[4 * MAX_STRING_CHARS];                       // this is actually too short for many current cards/drivers  // (SA) doubled from 2x to 4x MAX_STRING_CHARS
-#else
-	char extensions_string[MAX_STRING_CHARS * 4];                  // TTimo - bumping, some cards have a big extension string
-#endif // RTCW_XX
+	// this is actually too short for many current cards/drivers
+	// (SA) doubled from 2x to 4x MAX_STRING_CHARS
+	// TTimo - bumping, some cards have a big extension string
+	char extensions_string[4 * MAX_STRING_CHARS];
 
 	int maxTextureSize;                             // queried from GL
 	int maxActiveTextures;                          // multitexture ability
