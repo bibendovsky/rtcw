@@ -45,10 +45,14 @@ static qboolean R_LoadMDX( model_t *mod, void *buffer, const char *name );
 
 model_t *loadmodel;
 
-#if !defined RTCW_ET
+// BBi
+//#if !defined RTCW_ET
+// BBi
 extern cvar_t *r_compressModels;
 extern cvar_t *r_exportCompressedModels;
-#endif // RTCW_XX
+// BBi
+//#endif // RTCW_XX
+// BBi
 
 extern cvar_t *r_buildScript;
 

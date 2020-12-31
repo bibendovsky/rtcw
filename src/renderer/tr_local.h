@@ -1694,9 +1694,13 @@ extern cvar_t   *r_drawSun;             // controls drawing of sun quad
 										// "2" also draw lens flare effect centered on sun
 extern cvar_t   *r_dynamiclight;        // dynamic lights enabled/disabled
 
-#if defined RTCW_SP
+// BBi
+//#if defined RTCW_SP
+// BBi
 extern cvar_t   *r_dlightScale;         // global user attenuation of dlights
-#endif // RTCW_XX
+// BBi
+//#endif // RTCW_XX
+// BBi
 
 extern cvar_t   *r_dlightBacks;         // dlight non-facing surfaces for continuity
 
@@ -1780,13 +1784,17 @@ extern cvar_t   *r_ati_truform_pointmode;   // linear/cubic
 extern cvar_t   *r_ati_fsaa_samples;                //DAJ
 #endif // RTCW_XX
 
-#if defined RTCW_SP
+// BBi
+//#if defined RTCW_SP
+// BBi
 //----(SA)	end
 
 extern cvar_t  *r_waterFogColor;        //----(SA)	added
 extern cvar_t  *r_mapFogColor;          //----(SA)	added
 extern cvar_t  *r_savegameFogColor;     //----(SA)	added
-#endif // RTCW_XX
+// BBi
+//#endif // RTCW_XX
+// BBi
 
 extern cvar_t  *r_nobind;                       // turns off binding to appropriate textures
 extern cvar_t  *r_singleShader;                 // make most world faces use default shader
@@ -1825,17 +1833,25 @@ extern cvar_t  *r_textureAnisotropy;
 extern cvar_t  *r_offsetFactor;
 extern cvar_t  *r_offsetUnits;
 
+#if FIXME
 #if defined RTCW_SP
 extern cvar_t  *r_fullbright;                   // avoid lightmap pass
 #elif defined RTCW_MP
 //extern	cvar_t	*r_fullbright;					// avoid lightmap pass // JPW NERVE removed per atvi request
 #endif // RTCW_XX
+#else
+extern cvar_t* r_fullbright; // avoid lightmap pass
+#endif // FIXME
 
 extern cvar_t  *r_lightmap;                     // render lightmaps only
 
-#if !defined RTCW_ET
+// BBi
+//#if !defined RTCW_ET
+// BBi
 extern cvar_t  *r_vertexLight;                  // vertex lighting mode for better performance
-#endif // RTCW_XX
+// BBi
+//#endif // RTCW_XX
+// BBi
 
 extern cvar_t  *r_uiFullScreen;                 // ui is running fullscreen
 

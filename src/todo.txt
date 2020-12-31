@@ -19,3 +19,4 @@
 - Use fixed-size types.
 - Try to toggle between fake fullscreen mode and windowed mode without restarting the video subsystem.
 - `memory.log`
+- Support `CVAR_UNSAFE` in all games.
