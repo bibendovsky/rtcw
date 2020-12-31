@@ -387,13 +387,11 @@ void gl_initialize_extensions()
 			}
 			else
 			{
-				ri.Cvar_Set("r_ext_texture_filter_anisotropic", "0");
 				gl_print_ignored_extension(extension_name);
 			}
 		}
 		else
 		{
-			ri.Cvar_Set("r_ext_texture_filter_anisotropic", "0");
 			gl_print_missed_extension(extension_name);
 		}
 	}
