@@ -18,6 +18,4 @@
 - Remove __MACOS__ related code.
 - Use fixed-size types.
 - Try to toggle between fake fullscreen mode and windowed mode without restarting the video subsystem.
-- Fix overall darkness in fullscreen mode.
 - `memory.log`
-- Fix anisotropy filtering.

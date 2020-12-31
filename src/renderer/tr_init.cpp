@@ -2015,6 +2015,7 @@ void R_Register( void ) {
 	);
 #endif // FIXME
 
+#if FIXME
 #if !defined RTCW_ET
 	r_depthbits = ri.Cvar_Get( "r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_overBrightBits = ri.Cvar_Get( "r_overBrightBits", "1", CVAR_ARCHIVE | CVAR_LATCH );
@@ -2022,6 +2023,23 @@ void R_Register( void ) {
 	r_depthbits = ri.Cvar_Get( "r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
 	r_overBrightBits = ri.Cvar_Get( "r_overBrightBits", "0", CVAR_ARCHIVE | CVAR_LATCH ); // Arnout: disable overbrightbits by default
 #endif // RTCW_XX
+#else
+	r_depthbits = ri.Cvar_Get(
+		"r_depthbits",
+		"0",
+		CVAR_ARCHIVE | CVAR_LATCH
+#if defined RTCW_ET
+		|
+		CVAR_UNSAFE
+#endif // RTCW_XX
+	);
+
+	r_overBrightBits = ri.Cvar_Get(
+		"r_overBrightBits",
+		"0",
+		CVAR_ARCHIVE | CVAR_LATCH
+	); // Arnout: disable overbrightbits by default
+#endif // FIXME
 
 #if defined RTCW_ET
 	AssertCvarRange( r_overBrightBits, 0, 1, qtrue );                                   // ydnar: limit to overbrightbits 1 (sorry 1337 players)
