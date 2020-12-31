@@ -1469,6 +1469,17 @@ void R_ScreenShotJPEG_f( void ) {
 ** GL_SetDefaultState
 */
 void GL_SetDefaultState( void ) {
+	if (glConfig.anisotropicAvailable)
+	{
+		float maxAnisotropy;
+
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
+		glConfig.maxAnisotropy = maxAnisotropy;
+	}
+
+	glConfig.maxAnisotropy = std::max(glConfig.maxAnisotropy, 1.0F);
+
+
 	// BBi
 	ogl_tess_state.set_default_values ();
 	// BBi
@@ -1540,16 +1551,6 @@ void GL_SetDefaultState( void ) {
 	}
 	// BBi
 
-// BBi
-//#if defined RTCW_ET
-// BBi
-
-	GL_TextureAnisotropy( r_textureAnisotropy->value );
-
-// BBi
-//#endif // RTCW_XX
-// BBi
-
 	GL_TexEnv( GL_MODULATE );
 
 	if (glConfigEx.is_path_ogl_1_x ())
@@ -1603,16 +1604,6 @@ void GL_SetDefaultState( void ) {
 //		qglPNTrianglesiATI( GL_PN_TRIANGLES_TESSELATION_LEVEL_ATI, r_ati_truform_tess->value );
 //	}
 // BBi
-
-	if ( glConfig.anisotropicAvailable ) {
-		float maxAnisotropy;
-
-		glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy );
-		glConfig.maxAnisotropy = maxAnisotropy;
-
-		// set when rendering
-//	   qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, glConfig.maxAnisotropy);
-	}
 
 //----(SA)	end
 
@@ -1869,21 +1860,29 @@ void R_Register( void ) {
 	r_ati_truform_pointmode         = ri.Cvar_Get( "r_ati_truform_pointmode", "GL_PN_TRIANGLES_POINT_MODE_LINEAR", CVAR_ARCHIVE );
 #endif // RTCW_XX
 
-#if !defined RTCW_ET
-	// BBi
-	//r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE );       //DAJ valids are 1, 2, 4
-	r_ati_fsaa_samples = ri.Cvar_Get ("r_ati_fsaa_samples", "0", CVAR_ARCHIVE);
-	//r_ext_texture_filter_anisotropic    = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE );
-	r_ext_texture_filter_anisotropic = ri.Cvar_Get ("r_ext_texture_filter_anisotropic", "1", CVAR_ARCHIVE);
-	// BBi
-#else
+
 	// BBi
 	//r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE | CVAR_UNSAFE );        //DAJ valids are 1, 2, 4
-	r_ati_fsaa_samples = ri.Cvar_Get ("r_ati_fsaa_samples", "0", CVAR_ARCHIVE | CVAR_UNSAFE);
-	//r_ext_texture_filter_anisotropic    = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
-	r_ext_texture_filter_anisotropic = ri.Cvar_Get ("r_ext_texture_filter_anisotropic", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
-	// BBi
+	r_ati_fsaa_samples = ri.Cvar_Get(
+		"r_ati_fsaa_samples",
+		"0",
+		CVAR_ARCHIVE
+#if defined RTCW_ET
+		|
+		CVAR_UNSAFE
 #endif // RTCW_XX
+	);
+	//r_ext_texture_filter_anisotropic    = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
+	r_ext_texture_filter_anisotropic = ri.Cvar_Get(
+		"r_ext_texture_filter_anisotropic",
+		"1",
+		CVAR_ARCHIVE | CVAR_LATCH
+#if defined RTCW_ET
+		|
+		CVAR_UNSAFE
+#endif // RTCW_XX
+	);
+	// BBi
 
 #if defined RTCW_SP
 	r_ext_NV_fog_dist                   = ri.Cvar_Get( "r_ext_NV_fog_dist", "1", CVAR_ARCHIVE | CVAR_LATCH );
@@ -2165,7 +2164,7 @@ void R_Register( void ) {
 //#if defined RTCW_ET
 // BBi
 
-	r_textureAnisotropy = ri.Cvar_Get( "r_textureAnisotropy", "1.0", CVAR_ARCHIVE );
+	r_textureAnisotropy = ri.Cvar_Get( "r_textureAnisotropy", "0.0", CVAR_ARCHIVE );
 
 // BBi
 //#endif // RTCW_XX

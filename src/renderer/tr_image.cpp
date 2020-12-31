@@ -304,28 +304,36 @@ void GL_TextureMode( const char *string ) {
 GL_TextureAnisotropy
 ===============
 */
-void GL_TextureAnisotropy( float anisotropy ) {
-	int i;
-	image_t *glt;
-
-	if ( r_ext_texture_filter_anisotropic->integer == 1 ) {
-		if ( anisotropy < 1.0 || anisotropy > glConfig.maxAnisotropy ) {
-			ri.Printf( PRINT_ALL, "anisotropy out of range\n" );
-			return;
+void GL_TextureAnisotropy(float anisotropy)
+{
+	if (r_ext_texture_filter_anisotropic->integer == 1 &&
+		glConfig.anisotropicAvailable)
+	{
+		if (anisotropy < 1.0F)
+		{
+			gl_anisotropy = glConfig.maxAnisotropy;
+		}
+		else
+		{
+			gl_anisotropy = std::clamp(anisotropy, 1.0F, glConfig.maxAnisotropy);
 		}
 	}
+	else
+	{
+		gl_anisotropy = 1.0F;
+	}
 
-	gl_anisotropy = anisotropy;
-
-	if ( !glConfig.anisotropicAvailable ) {
+	if (!glConfig.anisotropicAvailable)
+	{
 		return;
 	}
 
 	// change all the existing texture objects
-	for ( i = 0 ; i < tr.numImages ; i++ ) {
-		glt = tr.images[ i ];
-		GL_Bind( glt );
-		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, gl_anisotropy );
+	for (auto i = 0; i < tr.numImages; ++i)
+	{
+		auto glt = tr.images[i];
+		GL_Bind(glt);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, gl_anisotropy);
 	}
 }
 
