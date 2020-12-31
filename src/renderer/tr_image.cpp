@@ -4342,7 +4342,11 @@ R_PurgeImage
 void R_PurgeImage( image_t *image ) {
 
 #if !defined RTCW_ET
+#if FIXME
 	texnumImages[image->texnum - 1024] = NULL;
+#else
+	texnumImages[image->texnum] = nullptr;
+#endif // FIXME
 #else
 	//%	texnumImages[image->texnum - 1024] = NULL;
 #endif // RTCW_XX
