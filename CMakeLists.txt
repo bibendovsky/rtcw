@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
 project(rtcw VERSION 1.0.0)
 
+
 set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
 
 message (STATUS "")
 message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
@@ -9,10 +11,10 @@ message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 option (RTCW_SP "Build single-player." ON)
 message (STATUS "[${PROJECT_NAME}] Single-player: ${RTCW_SP}")
 
-option (RTCW_MP "Build multiplayer." ON)
+option (RTCW_MP "Build multi-player." ON)
 message (STATUS "[${PROJECT_NAME}] Multiplayer: ${RTCW_MP}")
 
-option (RTCW_MP_DED "Build multiplayer (dedicated)." ON)
+option (RTCW_MP_DED "Build multi-player (dedicated)." ON)
 message (STATUS "[${PROJECT_NAME}] Multiplayer (dedicated): ${RTCW_MP_DED}")
 
 option (RTCW_ET "Build Enemy Territory." ON)
@@ -28,6 +30,10 @@ if (NOT (RTCW_ET OR
 	RTCW_SP))
 	message (FATAL_ERROR "[${PROJECT_NAME}] Nothing to build!")
 endif ()
+
+
+include (rtcw)
+
 
 add_subdirectory (src/lib/dear_imgui)
 add_subdirectory (src/lib/miniz)

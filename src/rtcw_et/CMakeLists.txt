@@ -4,45 +4,6 @@ project (rtcw_et VERSION 1.0.0 LANGUAGES CXX)
 message (STATUS "")
 message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 
-option (RTCW_MULTI_PROCESS_COMPILATION "Enable multi-process compilation if available." ON)
-message (STATUS "[${PROJECT_NAME}] Multi-process compilation: ${RTCW_MULTI_PROCESS_COMPILATION}")
-
-option (RTCW_CURL "Use cURL (Enemy Territory)." ON)
-message (STATUS "[${PROJECT_NAME}] cURL (Enemy Territory): ${RTCW_CURL}")
-
-option (RTCW_CURL_STATIC "Link cURL statically." ON)
-message (STATUS "[${PROJECT_NAME}] Link cURL statically: ${RTCW_CURL_STATIC}")
-
-# Precompiled headers.
-#
-option (RTCW_USE_PCH "Use precompiled headers if available." ON)
-message (STATUS "[${PROJECT_NAME}] Precompiled headers: ${RTCW_USE_PCH}")
-
-
-#
-# CPU architecture.
-#
-if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-	set (RTCW_ARCH_STRING "x86")
-elseif (CMAKE_SIZEOF_VOID_P EQUAL 8)
-	set (RTCW_ARCH_STRING "x64")
-else ()
-	unset (RTCW_ARCH_STRING)
-endif ()
-
-if (RTCW_ARCH_STRING)
-	message (STATUS "[${PROJECT_NAME}] Arch: ${RTCW_ARCH_STRING}")
-else ()
-	message (FATAL_ERROR "[${PROJECT_NAME}] Unsupported platform.")
-endif ()
-
-
-find_package (SDL2W 2.0.4 REQUIRED)
-find_package (SDL2W_net 2.0.1 REQUIRED)
-
-if (RTCW_CURL)
-	find_package (CURL 7.0.0 REQUIRED)
-endif ()
 
 add_executable (${PROJECT_NAME} "")
 
@@ -50,32 +11,8 @@ add_executable (${PROJECT_NAME} "")
 set_target_properties (
 	${PROJECT_NAME}
 	PROPERTIES
-		CXX_STANDARD 17
-		CXX_STANDARD_REQUIRED ON
-		CXX_EXTENSIONS OFF
-)
-
-set_target_properties (
-	${PROJECT_NAME}
-	PROPERTIES
 		OUTPUT_NAME "rtcw_et_${RTCW_ARCH_STRING}"
 )
-
-if (WIN32)
-	set_target_properties (
-		${PROJECT_NAME}
-		PROPERTIES
-			WIN32_EXECUTABLE TRUE
-	)
-
-	if (MSVC)
-		set_target_properties (
-			${PROJECT_NAME}
-			PROPERTIES
-				LINK_FLAGS -STACK:8388608
-		)
-	endif ()
-endif ()
 
 target_include_directories (
 	${PROJECT_NAME}
@@ -99,104 +36,9 @@ target_compile_definitions (
 	PRIVATE
 		BOTLIB
 		RTCW_ET
-		"RTCW_ARCH_STRING=\"${RTCW_ARCH_STRING}\""
 )
 
-if (RTCW_CURL AND RTCW_CURL_STATIC)
-	target_compile_definitions (
-		${PROJECT_NAME}
-		PRIVATE
-			CURL_STATICLIB
-	)
-endif ()
-
-if (MSVC)
-	target_compile_definitions (
-		${PROJECT_NAME}
-		PRIVATE
-			_CRT_SECURE_NO_WARNINGS
-	)
-endif ()
-
-if (RTCW_MULTI_PROCESS_COMPILATION)
-	if (MSVC)
-		target_compile_options (
-			${PROJECT_NAME}
-			PRIVATE
-				-MP
-		)
-	endif ()
-endif ()
-
-
-#
-# Precompile headers.
-#
-if (RTCW_USE_PCH AND NOT (${CMAKE_VERSION} VERSION_LESS "3.16"))
-	target_precompile_headers(
-		${PROJECT_NAME}
-		PRIVATE
-			rtcw_pch.h
-	)
-endif ()
-
-
-if (MINGW)
-	target_link_libraries (
-		${PROJECT_NAME}
-		PRIVATE
-			mingw32
-	)
-endif ()
-
-if (CMAKE_COMPILER_IS_GNUCXX AND (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9))
-	target_link_libraries (
-		${PROJECT_NAME}
-		PRIVATE
-			-lstdc++fs
-	)
-endif ()
-
-target_link_libraries (
-	${PROJECT_NAME}
-	PRIVATE
-		SDL2W::SDL2Wmain
-		SDL2W::SDL2W
-		SDL2W_net::SDL2W_net
-)
-
-if (RTCW_CURL)
-	if (WIN32)
-		target_link_libraries (
-			${PROJECT_NAME}
-			PRIVATE
-				crypt32
-				wldap32
-		)
-	endif ()
-
-	target_link_libraries (
-		${PROJECT_NAME}
-		PRIVATE
-			CURL::libcurl
-	)
-endif ()
-
-if (WIN32)
-	target_link_libraries (
-		${PROJECT_NAME}
-		PRIVATE
-			iphlpapi
-			ws2_32
-	)
-endif ()
-
-target_link_libraries (
-	${PROJECT_NAME}
-	PRIVATE
-		rtcw_lib_dear_imgui
-		rtcw_lib_miniz
-)
+rtcw_configure_target (${PROJECT_NAME})
 
 target_sources (
 	${PROJECT_NAME}
