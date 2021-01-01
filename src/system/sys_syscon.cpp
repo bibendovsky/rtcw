@@ -27,7 +27,9 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
+#ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 #define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+#endif // !IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 
 
 #include <deque>
