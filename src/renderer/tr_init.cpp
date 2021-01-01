@@ -2287,7 +2287,7 @@ void R_Register( void ) {
 #else
 	r_ignorehwgamma = ri.Cvar_Get(
 		"r_ignorehwgamma",
-		"1",
+		"0",
 		CVAR_ARCHIVE | CVAR_LATCH
 	); //----(SA) changed this to default to '1' for Drew
 #endif // FIXME
