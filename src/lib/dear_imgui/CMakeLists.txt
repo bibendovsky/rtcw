@@ -4,18 +4,7 @@ project (rtcw_lib_dear_imgui VERSION 1.0.0 LANGUAGES CXX)
 message (STATUS "")
 message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 
-option (RTCW_MULTI_PROCESS_COMPILATION "Enable multi-process compilation if available." ON)
-message (STATUS "[${PROJECT_NAME}] Multi-process compilation: ${RTCW_MULTI_PROCESS_COMPILATION}")
-
 add_library (${PROJECT_NAME} STATIC "")
-
-set_target_properties (
-	${PROJECT_NAME}
-	PROPERTIES
-		CXX_STANDARD 14
-		CXX_STANDARD_REQUIRED ON
-		CXX_EXTENSIONS OFF
-)
 
 target_include_directories (
 	${PROJECT_NAME}
@@ -29,15 +18,7 @@ target_compile_definitions (
 		IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 )
 
-if (RTCW_MULTI_PROCESS_COMPILATION)
-	if (MSVC)
-		target_compile_options (
-			${PROJECT_NAME}
-			PRIVATE
-				-MP
-		)
-	endif ()
-endif ()
+rtcw_configure_3rd_party_target (${PROJECT_NAME})
 
 target_sources (
 	${PROJECT_NAME}

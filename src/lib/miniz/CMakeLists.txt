@@ -6,14 +6,6 @@ message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 
 add_library (${PROJECT_NAME} STATIC "")
 
-set_target_properties (
-	${PROJECT_NAME}
-	PROPERTIES
-		CXX_STANDARD 14
-		CXX_STANDARD_REQUIRED ON
-		CXX_EXTENSIONS OFF
-)
-
 target_include_directories (
 	${PROJECT_NAME}
 	PUBLIC
@@ -26,6 +18,8 @@ target_compile_definitions (
 		MINIZ_NO_STDIO
 		MINIZ_NO_TIME
 )
+
+rtcw_configure_3rd_party_target (${PROJECT_NAME})
 
 target_sources (
 	${PROJECT_NAME}

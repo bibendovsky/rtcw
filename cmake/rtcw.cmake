@@ -39,12 +39,25 @@ message (STATUS "[${PROJECT_NAME}] Enable cURL: ${RTCW_CURL}")
 option (RTCW_CURL_STATIC "Link cURL statically." ON)
 message (STATUS "[${PROJECT_NAME}] Link cURL statically: ${RTCW_CURL_STATIC}")
 
+
+# Static linking.
+#
+option (RTCW_ENABLE_STATIC_LINKING "Enable static linking." ON)
+message (STATUS "[${PROJECT_NAME}] Enable static linking: ${RTCW_ENABLE_STATIC_LINKING}")
+
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-find_package (SDL2W 2.0.4 REQUIRED)
+if (RTCW_ENABLE_STATIC_LINKING)
+	set(RTCW_TMP_SDL2_COMPONENTS "static")
+else ()
+	set(RTCW_TMP_SDL2_COMPONENTS "")
+endif ()
+
+find_package(SDL2W 2.0.4 REQUIRED COMPONENTS ${RTCW_TMP_SDL2_COMPONENTS})
+
 find_package (SDL2W_net 2.0.1 REQUIRED)
 
 if (RTCW_CURL)
@@ -121,6 +134,17 @@ function (rtcw_configure_target)
 		endif ()
 	endif ()
 
+	if (RTCW_ENABLE_STATIC_LINKING)
+		if (MSVC)
+			target_compile_options(
+				${ARGV0}
+				PRIVATE
+					$<$<CONFIG:DEBUG>:-MTd>
+					$<$<NOT:$<CONFIG:DEBUG>>:-MT>
+			)
+		endif ()
+	endif ()
+
 	if (RTCW_USE_PCH AND NOT (${CMAKE_VERSION} VERSION_LESS "3.16"))
 		target_precompile_headers(
 			${ARGV0}
@@ -154,6 +178,17 @@ function (rtcw_configure_target)
 		)
 	endif ()
 
+	if (RTCW_ENABLE_STATIC_LINKING)
+		if (WIN32)
+			target_link_libraries (
+				${ARGV0}
+				PRIVATE
+					ws2_32
+					iphlpapi
+			)
+		endif ()
+	endif ()
+
 	target_link_libraries (
 		${ARGV0}
 		PRIVATE
@@ -164,5 +199,53 @@ function (rtcw_configure_target)
 			rtcw_lib_miniz
 	)
 endfunction (rtcw_configure_target)
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+function (rtcw_configure_3rd_party_target)
+	if (NOT (${ARGC} EQUAL 1))
+		message (FATAL_ERROR "Usage: rtcw_configure_3rd_party_target <target_name>")
+	endif ()
+
+	set_target_properties (
+		${ARGV0}
+		PROPERTIES
+			CXX_STANDARD 17
+			CXX_STANDARD_REQUIRED ON
+			CXX_EXTENSIONS OFF
+	)
+
+	if (MSVC)
+		target_compile_definitions (
+			${ARGV0}
+			PRIVATE
+				_CRT_SECURE_NO_WARNINGS
+		)
+	endif ()
+
+	if (RTCW_MULTI_PROCESS_COMPILATION)
+		if (MSVC)
+			target_compile_options (
+				${ARGV0}
+				PRIVATE
+					-MP
+			)
+		endif ()
+	endif ()
+
+	if (RTCW_ENABLE_STATIC_LINKING)
+		if (MSVC)
+			target_compile_options(
+				${ARGV0}
+				PRIVATE
+					$<$<CONFIG:DEBUG>:-MTd>
+					$<$<NOT:$<CONFIG:DEBUG>>:-MT>
+			)
+		endif ()
+	endif ()
+endfunction (rtcw_configure_3rd_party_target)
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
