@@ -79,7 +79,7 @@ install (
 	TARGETS
 		${PROJECT_NAME}
 	LIBRARY
-		DESTINATION et/main
+		DESTINATION et/etmain
 	RUNTIME
-		DESTINATION et/main
+		DESTINATION et/etmain
 )
