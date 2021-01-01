@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
 project (rtcw_lib_dear_imgui VERSION 1.0.0 LANGUAGES CXX)
 
-message (STATUS "")
+
 message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 
 add_library (${PROJECT_NAME} STATIC "")

@@ -5,7 +5,6 @@ project(rtcw VERSION 1.0.0)
 set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 
-message (STATUS "")
 message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 
 option (RTCW_SP "Build single-player." ON)
