@@ -460,6 +460,7 @@ void Sys_SendPacket(
 	netadr_t to)
 {
 	if (to.type != NA_BROADCAST &&
+		to.type != NA_BROADCAST_IPX &&
 		to.type != NA_IP)
 	{
 		Com_Error(
