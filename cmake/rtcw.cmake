@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
-cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
 
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

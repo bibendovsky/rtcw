@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.8.2 FATAL_ERROR)
 project (rtcw_ui_sp VERSION 1.0.0 LANGUAGES CXX)
 
-message (STATUS "")
+
 message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 
 
