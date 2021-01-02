@@ -709,7 +709,11 @@ void RB_CalcColorFromEntity( unsigned char *dstColors ) {
 void RB_CalcColorFromOneMinusEntity( unsigned char *dstColors ) {
 	int i;
 	int *pColors = ( int * ) dstColors;
+#if FIXME
 	unsigned char invModulate[3];
+#else
+	unsigned char invModulate[4];
+#endif // FIXME
 	int c;
 
 	if ( !backEnd.currentEntity ) {

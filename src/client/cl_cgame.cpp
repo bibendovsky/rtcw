@@ -394,7 +394,11 @@ rescan:
 #else
 		// NERVE - SMF - allow server to indicate why they were disconnected
 		if ( argc >= 2 ) {
+#if FIXME
 			Com_Error( ERR_SERVERDISCONNECT, va( "Server Disconnected - %s", Cmd_Argv( 1 ) ) );
+#else
+			Com_Error( ERR_SERVERDISCONNECT, "Server Disconnected - %s", Cmd_Argv( 1 ) );
+#endif // FIXME
 		} else {
 			Com_Error( ERR_SERVERDISCONNECT,"Server disconnected\n" );
 		}
@@ -677,7 +681,7 @@ int32_t CL_CgameSystemCalls (
 	intptr_t* args)
 {
 // BBi
-	switch ( rtcw::from_vm_arg<cgameExport_t>(args[0]) ) {
+	switch ( rtcw::from_vm_arg<cgameImport_t>(args[0]) ) {
 	case CG_PRINT:
 		Com_Printf( "%s", rtcw::from_vm_arg<const char*>(VMA(1)) );
 		return 0;
@@ -1963,7 +1967,11 @@ int32_t CL_CgameSystemCalls (
 #endif // RTCW_XX
 
 	default:
+#if FIXME
 		Com_Error( ERR_DROP, "Bad cgame system trap: %i", args[0] );
+#else
+		Com_Error( ERR_DROP, "Bad cgame system trap: %" PRIiPTR, args[0] );
+#endif // FIXME
 	}
 	return 0;
 }

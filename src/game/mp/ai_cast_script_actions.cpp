@@ -1191,7 +1191,13 @@ qboolean AICast_ScriptAction_TakeWeapon( cast_state_t *cs, const char* params ) 
 
 	}
 
+#if FIXME
 	if ( !g_entities[cs->entityNum].client->ps.weapons ) {
+#else
+	if (g_entities[cs->entityNum].client->ps.weapons[0] == 0 &&
+		g_entities[cs->entityNum].client->ps.weapons[1] == 0)
+	{
+#endif // FIXME
 		if ( cs->bs ) {
 			cs->bs->weaponnum = WP_NONE;
 		} else {

@@ -1138,10 +1138,15 @@ void CG_RegisterWeapon( int weaponNum ) {
 		strcpy( comppath, item->world_model[W_FP_MODEL] );  // first try the fp view weap
 	} else if ( item->world_model[W_TP_MODEL] )                                                                {
 		strcpy( comppath, item->world_model[W_TP_MODEL] );  // not there, use the standard view hand
-
 	}
+	
+#if FIXME
 	if ( ( !comppath || !cg_drawFPGun.integer ) &&     // then if it didn't find the 1st person one or you are set to not use one
 		 item->world_model[W_TP_MODEL] ) {
+#else
+	// then if it didn't find the 1st person one or you are set to not use one
+	if (!cg_drawFPGun.integer && item->world_model[W_TP_MODEL]) {
+#endif // FIXME
 		strcpy( comppath, item->world_model[W_TP_MODEL] );  // use the standard view hand
 
 	}

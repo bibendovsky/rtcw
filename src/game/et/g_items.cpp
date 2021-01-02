@@ -568,7 +568,15 @@ int Pickup_Weapon( gentity_t *ent, gentity_t *other ) {
 				if ( !( ent->parent->client->PCSpecialPickedUpCount % LT_SPECIAL_PICKUP_MOD ) ) {
 					AddScore( ent->parent, WOLF_AMMO_UP );
 					if ( ent->parent && ent->parent->client ) {
+#if FIXME
 						G_LogPrintf( "Ammo_Pack: %d %d\n", ent->parent - g_entities, other - g_entities );  // OSP
+#else
+						G_LogPrintf(
+							"Ammo_Pack: %" PRIdPTR " %" PRIdPTR "\n",
+							ent->parent - g_entities,
+							other - g_entities
+						);  // OSP
+#endif // FIXME
 					}
 				}
 				ent->parent->client->PCSpecialPickedUpCount++;
@@ -684,7 +692,15 @@ int Pickup_Health( gentity_t *ent, gentity_t *other ) {
 		if ( ent->parent && ent->parent->client && other->client->sess.sessionTeam == ent->parent->client->sess.sessionTeam ) {
 			if ( !( ent->parent->client->PCSpecialPickedUpCount % MEDIC_SPECIAL_PICKUP_MOD ) ) {
 				AddScore( ent->parent, WOLF_HEALTH_UP );
+#if FIXME
 				G_LogPrintf( "Health_Pack: %d %d\n", ent->parent - g_entities, other - g_entities );    // OSP
+#else
+				G_LogPrintf(
+					"Health_Pack: %" PRIdPTR " %" PRIdPTR "\n",
+					ent->parent - g_entities,
+					other - g_entities
+				); // OSP
+#endif // FIXME
 			}
 			G_AddSkillPoints( ent->parent, SK_FIRST_AID, 1.f );
 			G_DebugAddSkillPoints( ent->parent, SK_FIRST_AID, 1.f, "health pack picked up" );

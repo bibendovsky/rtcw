@@ -4568,7 +4568,7 @@ void R_LoadCacheImages( void ) {
 	const char* pString;
 	char name[MAX_QPATH];
 
-#if !defined RTCW_ET
+#if defined RTCW_MP
 	int parms[3], i;
 #else
 	int parms[4], i;
@@ -4587,11 +4587,7 @@ void R_LoadCacheImages( void ) {
 	buf = (byte *)ri.Hunk_AllocateTempMemory( len );
 	ri.FS_ReadFile( "image.cache", (void **)&buf );
 
-#if defined RTCW_SP
-	pString = reinterpret_cast<const char*> (buf);   //DAJ added (char*)
-#else
-	pString = reinterpret_cast<const char*> (buf);
-#endif // RTCW_XX
+	pString = reinterpret_cast<const char*> (buf); //DAJ added (char*)
 
 	while ( ( token = COM_ParseExt( &pString, qtrue ) ) && token[0] ) {
 		Q_strncpyz( name, token, sizeof( name ) );

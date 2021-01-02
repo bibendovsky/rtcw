@@ -388,11 +388,7 @@ int AAS_LoadMap( const char *mapname ) {
 
 	qboolean loaded = qfalse;
 
-#if !defined RTCW_ET
-	int missingErrNum = 0;     // TTimo: init
-#else
-	int missingErrNum = 0;
-#endif // RTCW_XX
+	int missingErrNum = 0; // TTimo: init
 
 	for ( i = 0; i < MAX_AAS_WORLDS; i++ )
 	{
@@ -400,6 +396,7 @@ int AAS_LoadMap( const char *mapname ) {
 
 		strncpy( this_mapname, mapname, 256 );
 
+#if FIXME
 #if !defined RTCW_ET
 		strncat( this_mapname, "_b", 256 );
 		sprintf( intstr, "%i", i );
@@ -409,6 +406,13 @@ int AAS_LoadMap( const char *mapname ) {
 		//sprintf( intstr, "%i", i );
 		//strncat( this_mapname, intstr, 256 );
 #endif // RTCW_XX
+#else
+#if !defined RTCW_ET
+		strncat(this_mapname, "_b", 255);
+		sprintf(intstr, "%i", i);
+		strncat(this_mapname, intstr, 255);
+#endif // RTCW_XX
+#endif // FIXME
 
 		//if no mapname is provided then the string indexes are updated
 		if ( !mapname ) {

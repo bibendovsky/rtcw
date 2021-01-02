@@ -408,7 +408,11 @@ void CG_AddLightstyle( centity_t *cent ) {
 	int otime;
 	int lastch, nextch;
 
+#if FIXME
 	if ( !cent->dl_stylestring ) {
+#else
+	if ( (*cent->dl_stylestring) == '\0' ) {
+#endif // FIXME
 		return;
 	}
 
@@ -1687,8 +1691,11 @@ static void CG_Efx( centity_t *cent ) {
 		}
 
 		for ( i = 0; i < MAX_TESLA_BOLTS; i++ ) {
-
+#if FIXME
 			if ( cent->boltCrawlDirs[0] || cent->boltCrawlDirs[1] || cent->boltCrawlDirs[2] ) {
+#else
+			if ( cent->boltCrawlDirs[i][0] || cent->boltCrawlDirs[i][1] || cent->boltCrawlDirs[i][2] ) {
+#endif // FIXME
 				VectorMA( cent->boltLocs[i], cent->boltTimes[i] - cg.time, cent->boltCrawlDirs[i], perpvec );
 			} else {
 				VectorCopy( cent->boltLocs[i], perpvec );

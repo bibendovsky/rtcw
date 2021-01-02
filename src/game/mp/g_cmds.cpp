@@ -1114,7 +1114,11 @@ static void G_VoiceTo( gentity_t *ent, gentity_t *other, int mode, const char *i
 		return;
 	}
 	// no chatting to players in tournements
+#if FIXME
 	if ( ( g_gametype.integer == GT_TOURNAMENT ) ) {
+#else
+	if ( g_gametype.integer == GT_TOURNAMENT ) {
+#endif // FIXME
 		return;
 	}
 

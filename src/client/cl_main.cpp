@@ -2309,8 +2309,11 @@ void CL_DownloadsComplete( void ) {
 
 	// DHM - Nerve :: Auto-update (not finished yet)
 	if ( autoupdateStarted ) {
-
+#if FIXME
 		if ( autoupdateFilename && ( strlen( autoupdateFilename ) > 4 ) ) {
+#else
+		if (strlen( autoupdateFilename ) > 4) {
+#endif // FIXME
 #ifdef _WIN32
 			// win32's Sys_StartProcess prepends the current dir
 			fn = va( "%s/%s", FS_ShiftStr( AUTOUPDATE_DIR, AUTOUPDATE_DIR_SHIFT ), autoupdateFilename );
@@ -2366,8 +2369,11 @@ void CL_DownloadsComplete( void ) {
 
 	// DHM - Nerve :: Auto-update (not finished yet)
 	if ( autoupdateStarted ) {
-
+#if FIXME
 		if ( autoupdateFilename && ( strlen( autoupdateFilename ) > 4 ) ) {
+#else
+		if ( strlen( autoupdateFilename ) > 4 ) {
+#endif // FIXME
 #ifdef _WIN32
 			// win32's Sys_StartProcess prepends the current dir
 			fn = va( "%s/%s", FS_ShiftStr( AUTOUPDATE_DIR, AUTOUPDATE_DIR_SHIFT ), autoupdateFilename );
@@ -2789,14 +2795,22 @@ void CL_DisconnectPacket( netadr_t from ) {
 #elif defined RTCW_MP
 	// drop the connection
 	message = CL_TranslateStringBuf( "Server disconnected for unknown reason\n" );
+#if FIXME
 	Com_Printf( message );
+#else
+	Com_Printf( "%s", message );
+#endif // FIXME
 	Cvar_Set( "com_errorMessage", message );
 #else
 	// if we are doing a disconnected download, leave the 'connecting' screen on with the progress information
 	if ( !cls.bWWWDlDisconnected ) {
 		// drop the connection
 		message = "Server disconnected for unknown reason";
+#if FIXME
 		Com_Printf( message );
+#else
+		Com_Printf( "%s", message );
+#endif // FIXME
 		Cvar_Set( "com_errorMessage", message );
 #endif // RTCW_XX
 
@@ -2869,18 +2883,34 @@ void CL_PrintPacket( netadr_t from, msg_t *msg ) {
 		Cvar_Set( "com_errorMessage", CL_TranslateStringBuf( PROTOCOL_MISMATCH_ERROR_LONG ) );
 #else
 		// Cvar_Set("com_errorMessage", clc.serverMessage );
+#if FIXME
 		Com_Error( ERR_DROP, clc.serverMessage );
+#else
+		Com_Error( ERR_DROP, "%s", clc.serverMessage );
+#endif // FIXME
 	} else if ( !Q_stricmpn( s, "[err_prot]", 10 ) )       {
 		Q_strncpyz( clc.serverMessage, s + 10, sizeof( clc.serverMessage ) );
 		// Cvar_Set("com_errorMessage", CL_TranslateStringBuf( PROTOCOL_MISMATCH_ERROR_LONG ) );
+#if FIXME
 		Com_Error( ERR_DROP, CL_TranslateStringBuf( PROTOCOL_MISMATCH_ERROR_LONG ) );
+#else
+		Com_Error( ERR_DROP, "%s", CL_TranslateStringBuf( PROTOCOL_MISMATCH_ERROR_LONG ) );
+#endif // FIXME
 	} else if ( !Q_stricmpn( s, "[err_update]", 12 ) )       {
 		Q_strncpyz( clc.serverMessage, s + 12, sizeof( clc.serverMessage ) );
+#if FIXME
 		Com_Error( ERR_AUTOUPDATE, clc.serverMessage );
+#else
+		Com_Error( ERR_AUTOUPDATE, "%s", clc.serverMessage );
+#endif // FIXME
 	} else if ( !Q_stricmpn( s, "ET://", 5 ) )       { // fretn
 		Q_strncpyz( clc.serverMessage, s, sizeof( clc.serverMessage ) );
 		Cvar_Set( "com_errorMessage", clc.serverMessage );
+#if FIXME
 		Com_Error( ERR_DROP, clc.serverMessage );
+#else
+		Com_Error( ERR_DROP, "%s", clc.serverMessage );
+#endif // FIXME
 #endif // RTCW_XX
 
 	} else {
@@ -3428,7 +3458,11 @@ void CL_WWWDownload( void ) {
 			const char *error = va( "Download failure while getting '%s'\n", cls.downloadName ); // get the msg before clearing structs
 			cls.bWWWDlDisconnected = qfalse; // need clearing structs before ERR_DROP, or it goes into endless reload
 			CL_ClearStaticDownload();
+#if FIXME
 			Com_Error( ERR_DROP, error );
+#else
+			Com_Error( ERR_DROP, "%s", error );
+#endif // FIXME
 		} else {
 			// see CL_ParseDownload, same abort strategy
 			Com_Printf( "Download failure while getting '%s'\n", cls.downloadName );
@@ -5091,7 +5125,11 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	Q_strncpyz( info, MSG_ReadString( msg ), MAX_INFO_STRING );
 	if ( strlen( info ) ) {
 		if ( info[strlen( info ) - 1] != '\n' ) {
+#if FIXME
 			strncat( info, "\n", sizeof( info ) );
+#else
+			strncat( info, "\n", sizeof( info ) - 1 );
+#endif // FIXME
 		}
 		Com_Printf( "%s: %s", NET_AdrToString( from ), info );
 	}
@@ -6613,7 +6651,11 @@ CL_OpenURLForCvar
 */
 void CL_OpenURL( const char *url ) {
 	if ( !url || !strlen( url ) ) {
+#if FIXME
 		Com_Printf( CL_TranslateStringBuf( "invalid/empty URL\n" ) );
+#else
+		Com_Printf( "%s", CL_TranslateStringBuf( "invalid/empty URL\n" ) );
+#endif // FIXME
 		return;
 	}
 	Sys_OpenURL( url, qtrue );

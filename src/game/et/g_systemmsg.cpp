@@ -153,7 +153,11 @@ void G_CheckForNeededClasses( void ) {
 		}
 
 		cnt = 0;
+#if FIXME
 		for ( i = 0; i < NUM_PLAYER_CLASSES; i++ ) {
+#else
+		for ( i = 0; i < (NUM_PLAYER_CLASSES - 1); i++ ) {
+#endif // FIXME
 			if ( !playerClasses[i][0] ) {
 				cnt++;
 			}
@@ -162,7 +166,11 @@ void G_CheckForNeededClasses( void ) {
 		if ( cnt != 0 ) {
 			cnt = rand() % cnt;
 
+#if FIXME
 			for ( i = 0; i < NUM_PLAYER_CLASSES; i++ ) {
+#else
+			for ( i = 0; i < (NUM_PLAYER_CLASSES - 1); i++ ) {
+#endif // FIXME
 				if ( !playerClasses[i][0] ) {
 					if ( cnt-- == 0 ) {
 						G_SendSystemMessage( sysMsg_t (SM_NEED_MEDIC + i), TEAM_AXIS );
@@ -179,7 +187,11 @@ void G_CheckForNeededClasses( void ) {
 		}
 
 		cnt = 0;
+#if FIXME
 		for ( i = 0; i < NUM_PLAYER_CLASSES; i++ ) {
+#else
+		for ( i = 0; i < (NUM_PLAYER_CLASSES - 1); i++ ) {
+#endif // FIXME
 			if ( !playerClasses[i][1] ) {
 				cnt++;
 			}
@@ -188,7 +200,11 @@ void G_CheckForNeededClasses( void ) {
 		if ( cnt != 0 ) {
 			cnt = rand() % cnt;
 
+#if FIXME
 			for ( i = 0; i < NUM_PLAYER_CLASSES; i++ ) {
+#else
+			for ( i = 0; i < (NUM_PLAYER_CLASSES - 1); i++ ) {
+#endif // FIXME
 				if ( !playerClasses[i][1] ) {
 					if ( cnt-- == 0 ) {
 						G_SendSystemMessage( sysMsg_t (SM_NEED_MEDIC + i), TEAM_ALLIES );
