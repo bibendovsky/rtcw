@@ -725,7 +725,7 @@ vec4 apply_tex_env(
 	int env_index)
 {
 	vec4 result = previous_color;
-	vec4 texel = texture2D(tex_2d[env_index], tc[env_index]);
+	vec4 texel = texture2D((env_index == 0 ? tex_2d[0] : tex_2d[1]), tc[env_index]);
 
 	if (tex_env_mode[env_index] == GL_REPLACE)
 	{
@@ -880,7 +880,7 @@ bool r_probe_programs()
 
 	if (!::glConfigEx.is_path_ogl_2_x())
 	{
-		ri.Printf(PRINT_WARNING, "No OpenGL 2.1+.\n");
+		ri.Printf(PRINT_WARNING, "No OpenGL 2.0+.\n");
 		return false;
 	}
 
@@ -910,7 +910,7 @@ void r_reload_programs_f()
 
 	if (!glConfigEx.is_path_ogl_2_x())
 	{
-		ri.Printf(PRINT_WARNING, "%s.\n", "No OpenGL 2.1+.\n");
+		ri.Printf(PRINT_WARNING, "%s.\n", "No OpenGL 2.0+.\n");
 		return;
 	}
 
