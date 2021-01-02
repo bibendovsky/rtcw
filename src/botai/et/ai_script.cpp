@@ -1014,10 +1014,12 @@ qboolean Bot_ScriptRun( bot_state_t *bs, qboolean force ) {
 		return qtrue;
 	}
 
+#if FIXME
 	if ( !bs->script.data->events ) {
 		bs->script.status.eventIndex = -1;
 		return qtrue;
 	}
+#endif // FIXME
 
 	if ( !force && ( bs->script.pauseTime >= level.time ) ) {
 		return qtrue;

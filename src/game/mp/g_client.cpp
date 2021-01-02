@@ -1258,7 +1258,11 @@ qboolean G_CheckForExistingModelInfo( gclient_t *cl, char *modelName, animModelI
 	} else {
 		*modelInfo = firstFree;
 		// clear the structure out ready for use
+#if FIXME
 		memset( *modelInfo, 0, sizeof( *modelInfo ) );
+#else
+		**modelInfo = animModelInfo_t{};
+#endif // FIXME
 	}
 	// qfalse signifies that we need to parse the information from the script files
 	return qfalse;
@@ -1630,7 +1634,11 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if ( firstTime ) {
 		// Ridah
+#if FIXME
 		if ( !ent->r.svFlags & SVF_CASTAI ) {
+#else
+		if ( (ent->r.svFlags & SVF_CASTAI) == 0 ) {
+#endif // FIXME
 			// done.
 			trap_SendServerCommand( -1, va( "print \"[lof]%s" S_COLOR_WHITE " [lon]connected\n\"", client->pers.netname ) );
 		}
@@ -1753,7 +1761,11 @@ void ClientBegin( int clientNum ) {
 
 		if ( g_gametype.integer != GT_TOURNAMENT ) {
 			// Ridah
+#if FIXME
 			if ( !ent->r.svFlags & SVF_CASTAI ) {
+#else
+			if ( (ent->r.svFlags & SVF_CASTAI) == 0 ) {
+#endif // FIXME
 				// done.
 				trap_SendServerCommand( -1, va( "print \"[lof]%s" S_COLOR_WHITE " [lon]entered the game\n\"", client->pers.netname ) );
 			}

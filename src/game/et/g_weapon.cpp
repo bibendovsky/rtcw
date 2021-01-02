@@ -580,7 +580,15 @@ void Weapon_Syringe( gentity_t *ent ) {
 					ent->client->sess.aWeaponStats[WS_SYRINGE].hits++;
 				}
 				if ( ent && ent->client ) {
+#if FIXME
 					G_LogPrintf( "Medic_Revive: %d %d\n", ent - g_entities, traceEnt - g_entities );                // OSP
+#else
+					G_LogPrintf(
+						"Medic_Revive: %" PRIdPTR " %" PRIdPTR "\n",
+						ent - g_entities,
+						traceEnt - g_entities
+					); // OSP
+#endif // FIXME
 
 				}
 				if ( !traceEnt->isProp ) { // Gordon: flag for if they were teamkilled or not
@@ -1194,7 +1202,11 @@ static qboolean TryConstructing( gentity_t *ent ) {
 				{
 					gentity_t* tent = NULL;
 					while ( ( tent = G_Find( tent, FOFS( target ), constructible->targetname ) ) != NULL ) {
+#if FIXME
 						if ( ( tent->s.eType == ET_OID_TRIGGER ) ) {
+#else
+						if ( tent->s.eType == ET_OID_TRIGGER ) {
+#endif // FIXME
 							e->parent = tent;
 						}
 					}
@@ -1377,7 +1389,11 @@ void AutoBuildConstruction( gentity_t* constructible ) {
 			e->s.eType = ET_EXPLOSIVE_INDICATOR;
 
 			while ( ( tent = G_Find( tent, FOFS( target ), constructible->targetname ) ) != NULL ) {
+#if FIXME
 				if ( ( tent->s.eType == ET_OID_TRIGGER ) ) {
+#else
+				if ( tent->s.eType == ET_OID_TRIGGER ) {
+#endif // FIXME
 					if ( tent->spawnflags & 8 ) {
 						e->s.eType = ET_TANK_INDICATOR;
 					}
@@ -1388,7 +1404,11 @@ void AutoBuildConstruction( gentity_t* constructible ) {
 			{
 				gentity_t* tent = NULL;
 				while ( ( tent = G_Find( tent, FOFS( target ), constructible->targetname ) ) != NULL ) {
+#if FIXME
 					if ( ( tent->s.eType == ET_OID_TRIGGER ) ) {
+#else
+					if ( tent->s.eType == ET_OID_TRIGGER ) {
+#endif // FIXME
 						e->parent = tent;
 					}
 				}
@@ -1571,7 +1591,11 @@ void Weapon_Engineer( gentity_t *ent ) {
 				traceEnt->health = MG42_MULTIPLAYER_HEALTH;
 			}
 
+#if FIXME
 			G_LogPrintf( "Repair: %d\n", ent - g_entities );    // OSP
+#else
+			G_LogPrintf( "Repair: %" PRIdPTR "\n", ent - g_entities ); // OSP
+#endif // FIXME
 
 			if ( traceEnt->sound3to2 != ent->client->sess.sessionTeam ) {
 				AddScore( ent, WOLF_REPAIR_BONUS ); // JPW NERVE props to the E for the fixin'
@@ -1885,7 +1909,11 @@ evilbanigoto:
 						continue;
 					}
 
+#if FIXME
 					if ( ( hit->s.eType == ET_OID_TRIGGER ) ) {
+#else
+					if ( hit->s.eType == ET_OID_TRIGGER ) {
+#endif // FIXME
 						if ( !( hit->spawnflags & ( AXIS_OBJECTIVE | ALLIED_OBJECTIVE ) ) ) {
 							continue;
 						}
@@ -1956,7 +1984,11 @@ evilbanigoto:
 					if ( !( hit->r.contents & CONTENTS_TRIGGER ) ) {
 						continue;
 					}
+#if FIXME
 					if ( ( hit->s.eType == ET_OID_TRIGGER ) ) {
+#else
+					if ( hit->s.eType == ET_OID_TRIGGER ) {
+#endif // FIXME
 
 						if ( !( hit->spawnflags & ( AXIS_OBJECTIVE | ALLIED_OBJECTIVE ) ) ) {
 							continue;
@@ -1991,7 +2023,11 @@ evilbanigoto:
 							if ( !( hit->spawnflags & OBJECTIVE_DESTROYED ) ) {
 								AddScore( traceEnt->parent, WOLF_DYNAMITE_PLANT ); // give drop score to guy who dropped it
 								if ( traceEnt->parent && traceEnt->parent->client ) {
+#if FIXME
 									G_LogPrintf( "Dynamite_Plant: %d\n", traceEnt->parent - g_entities );   // OSP
+#else
+									G_LogPrintf( "Dynamite_Plant: %" PRIdPTR "\n", traceEnt->parent - g_entities ); // OSP
+#endif // FIXME
 								}
 								traceEnt->parent = ent; // give explode score to guy who armed it
 							}
@@ -2061,7 +2097,11 @@ evilbanigoto:
 								 hit->s.teamNum && ( hit->s.teamNum == ent->client->sess.sessionTeam ) ) { // ==, as it's inverse
 								AddScore( traceEnt->parent, WOLF_DYNAMITE_PLANT ); // give drop score to guy who dropped it
 								if ( traceEnt->parent && traceEnt->parent->client ) {
+#if FIXME
 									G_LogPrintf( "Dynamite_Plant: %d\n", traceEnt->parent - g_entities );   // OSP
+#else
+									G_LogPrintf( "Dynamite_Plant: %" PRIdPTR "\n", traceEnt->parent - g_entities ); // OSP
+#endif // FIXME
 								}
 								traceEnt->parent = ent; // give explode score to guy who armed it
 							}
@@ -2121,7 +2161,11 @@ evilbanigoto:
 						if ( !( hit->r.contents & CONTENTS_TRIGGER ) ) {
 							continue;
 						}
+#if FIXME
 						if ( ( hit->s.eType == ET_OID_TRIGGER ) ) {
+#else
+						if ( hit->s.eType == ET_OID_TRIGGER ) {
+#endif // FIXME
 
 							if ( !( hit->spawnflags & ( AXIS_OBJECTIVE | ALLIED_OBJECTIVE ) ) ) {
 								continue;
@@ -2227,7 +2271,11 @@ evilbanigoto:
 								if ( hit->s.teamNum == TEAM_AXIS && ( !scored ) ) {
 									AddScore( ent,WOLF_DYNAMITE_DIFFUSE );
 									if ( ent && ent->client ) {
+#if FIXME
 										G_LogPrintf( "Dynamite_Diffuse: %d\n", ent - g_entities );                  // OSP
+#else
+										G_LogPrintf( "Dynamite_Diffuse: %" PRIdPTR "\n", ent - g_entities ); // OSP
+#endif // FIXME
 									}
 									G_AddSkillPoints( ent, SK_EXPLOSIVES_AND_CONSTRUCTION, 6.f );
 									G_DebugAddSkillPoints( ent, SK_EXPLOSIVES_AND_CONSTRUCTION, 6.f, "defusing enemy dynamite" );
@@ -2247,7 +2295,11 @@ evilbanigoto:
 								if ( hit->s.teamNum == TEAM_ALLIES && ( !scored ) ) {
 									AddScore( ent,WOLF_DYNAMITE_DIFFUSE );
 									if ( ent && ent->client ) {
+#if FIXME
 										G_LogPrintf( "Dynamite_Diffuse: %d\n", ent - g_entities );                  // OSP
+#else
+										G_LogPrintf( "Dynamite_Diffuse: %" PRIdPTR "\n", ent - g_entities ); // OSP
+#endif // FIXME
 									}
 									G_AddSkillPoints( ent, SK_EXPLOSIVES_AND_CONSTRUCTION, 6.f );
 									G_DebugAddSkillPoints( ent, SK_EXPLOSIVES_AND_CONSTRUCTION, 6.f, "defusing enemy dynamite" );

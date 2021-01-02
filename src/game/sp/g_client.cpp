@@ -1531,7 +1531,11 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if ( firstTime ) {
 		// Ridah
+#if FIXME
 		if ( !ent->r.svFlags & SVF_CASTAI ) {
+#else
+		if ( (ent->r.svFlags & SVF_CASTAI) == 0 ) {
+#endif // FIXME
 			// done.
 			trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname ) );
 		}
@@ -1613,7 +1617,11 @@ void ClientBegin( int clientNum ) {
 
 		if ( g_gametype.integer != GT_TOURNAMENT ) {
 			// Ridah
+#if FIXME
 			if ( !ent->r.svFlags & SVF_CASTAI ) {
+#else
+			if ( (ent->r.svFlags & SVF_CASTAI) == 0 ) {
+#endif // FIXME
 				// done.
 				trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
 			}

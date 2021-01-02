@@ -818,7 +818,11 @@ void CL_ParseDownload( msg_t *msg ) {
 		Cvar_SetValue( "cl_downloadSize", clc.downloadSize );
 
 		if ( clc.downloadSize < 0 ) {
+#if FIXME
 			Com_Error( ERR_DROP, MSG_ReadString( msg ) );
+#else
+			Com_Error( ERR_DROP, "%s", MSG_ReadString( msg ) );
+#endif // FIXME
 			return;
 		}
 	}

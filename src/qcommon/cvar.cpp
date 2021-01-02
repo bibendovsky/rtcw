@@ -424,9 +424,17 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 		char *cleaned = Cvar_ClearForeignCharacters( value );
 		if ( strcmp( value, cleaned ) ) {
 #ifdef DEDICATED
+#if FIXME
 			Com_Printf( FOREIGN_MSG );
 #else
+			Com_Printf( "%s", FOREIGN_MSG );
+#endif // FIXME
+#else
+#if FIXME
 			Com_Printf( CL_TranslateStringBuf( FOREIGN_MSG ) );
+#else
+			Com_Printf( "%s", CL_TranslateStringBuf( FOREIGN_MSG ) );
+#endif // FIXME
 #endif
 			Com_Printf( "Using %s instead of %s\n", cleaned, value );
 			return Cvar_Set2( var_name, cleaned, force );
@@ -1006,7 +1014,11 @@ void Cvar_Restart_f( void ) {
 			}
 			// clear the var completely, since we
 			// can't remove the index from the list
+#if FIXME
 			memset( var, 0, sizeof( var ) );
+#else
+			(*var) = cvar_t{};
+#endif // FIXME
 			continue;
 		}
 
@@ -1122,6 +1134,7 @@ void    Cvar_Update( vmCvar_t *vmCvar ) {
 	// bk001129 - mismatches.
 	if ( strlen( cv->string ) + 1 > MAX_CVAR_VALUE_STRING ) {
 
+#if FIXME
 #if !defined RTCW_ET
 		Com_Error( ERR_DROP, "Cvar_Update: src %s length %d exceeds MAX_CVAR_VALUE_STRING",
 #else
@@ -1131,6 +1144,15 @@ void    Cvar_Update( vmCvar_t *vmCvar ) {
 				   cv->string,
 				   strlen( cv->string ),
 				   sizeof( vmCvar->string ) );
+#else
+		Com_Error(
+			ERR_DROP,
+			"Cvar_Update: src %s length %" PRIdPTR " exceeds MAX_CVAR_VALUE_STRING(%" PRIdPTR ")",
+			cv->string,
+			strlen( cv->string ),
+			sizeof( vmCvar->string )
+		);
+#endif // FIXME
 	}
 	// bk001212 - Q_strncpyz guarantees zero padding and dest[MAX_CVAR_VALUE_STRING-1]==0
 	// bk001129 - paranoia. Never trust the destination string.

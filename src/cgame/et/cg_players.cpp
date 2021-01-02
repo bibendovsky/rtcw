@@ -2820,7 +2820,11 @@ weaponType_t* WM_FindWeaponTypeForWeapon( weapon_t weapon ) {
 		return NULL;
 	}
 
+#if FIXME
 	while ( w->weapindex != -1 ) {
+#else
+	while ( w->weapindex != static_cast<weapon_t>(-1) ) {
+#endif // FIXME
 		if ( w->weapindex == weapon ) {
 			return w;
 		}

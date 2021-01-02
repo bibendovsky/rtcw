@@ -2816,7 +2816,11 @@ extWeaponStats_t CG_LimboPanel_GetSelectedWeaponStat( void ) {
 int CG_LimboPanel_TeamCount( weapon_t weap ) {
 	int i, cnt;
 
+#if FIXME
 	if ( weap == -1 ) { // we aint checking for a weapon, so always include ourselves
+#else
+	if ( weap == static_cast<weapon_t>(-1) ) { // we aint checking for a weapon, so always include ourselves
+#endif // FIXME
 		cnt = 1;
 	} else { // we ARE checking for a weapon, so ignore ourselves
 		cnt = 0;
@@ -2835,7 +2839,11 @@ int CG_LimboPanel_TeamCount( weapon_t weap ) {
 			continue;
 		}
 
+#if FIXME
 		if ( weap != -1 ) {
+#else
+		if ( weap != static_cast<weapon_t>(-1) ) {
+#endif // FIXME
 			if ( cgs.clientinfo[i].weapon != weap && cgs.clientinfo[i].latchedweapon != weap ) {
 				continue;
 			}

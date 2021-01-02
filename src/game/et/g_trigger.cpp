@@ -1535,6 +1535,8 @@ void SP_trigger_objective_info( gentity_t *ent ) {
 // JPW NERVE -- field which is acted upon (cgame side) by screenshakes to drop dust particles
 void trigger_concussive_touch( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	return; // FIXME this should be NULLed out in SP_trigger_concussive_dust after everything works
+
+#if FIXME
 	G_Printf( "hit concussive ent %d mins=%f,%f,%f maxs=%f,%f,%f\n",ent - g_entities,
 			  ent->r.mins[0],
 			  ent->r.mins[1],
@@ -1542,6 +1544,18 @@ void trigger_concussive_touch( gentity_t *ent, gentity_t *other, trace_t *trace 
 			  ent->r.maxs[0],
 			  ent->r.maxs[1],
 			  ent->r.maxs[2] );
+#else
+	G_Printf(
+		"hit concussive ent %" PRIdPTR " mins=%f,%f,%f maxs=%f,%f,%f\n",
+		ent - g_entities,
+		ent->r.mins[0],
+		ent->r.mins[1],
+		ent->r.mins[2],
+		ent->r.maxs[0],
+		ent->r.maxs[1],
+		ent->r.maxs[2]
+	);
+#endif // FIXME
 }
 
 /*QUAKED trigger_concussive_dust (.5 .5 .5) ?

@@ -35,7 +35,7 @@ OglTessProgram::OglTessProgram(
 	u_tex_env_mode[0] = -1;
 	u_tex_env_mode[1] = -1;
 	u_tex_2d[0] = -1;
-	u_tex_2d[2] = -1;
+	u_tex_2d[1] = -1;
 }
 
 OglTessProgram::OglTessProgram(
@@ -66,7 +66,7 @@ OglTessProgram::OglTessProgram(
 	u_tex_env_mode[0] = -1;
 	u_tex_env_mode[1] = -1;
 	u_tex_2d[0] = -1;
-	u_tex_2d[2] = -1;
+	u_tex_2d[1] = -1;
 }
 
 OglTessProgram::~OglTessProgram()

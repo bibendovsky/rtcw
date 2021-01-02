@@ -519,7 +519,11 @@ qboolean BotFindNearbyGoal( bot_state_t *bs ) {
 			gitem_t* item = &bg_itemlist[ent->s.modelindex];
 			switch ( item->giType ) {
 			case IT_TEAM:
+#if FIXME
 				switch ( item->giType ) {
+#else
+				switch ( static_cast<powerup_t>(item->giType) ) {
+#endif // FIXME
 				case PW_REDFLAG:
 					if ( bs->sess.sessionTeam == TEAM_AXIS ) {
 						continue;
@@ -538,7 +542,11 @@ qboolean BotFindNearbyGoal( bot_state_t *bs ) {
 				if ( !needAmmo ) {
 					continue;
 				}
+#if FIXME
 				switch ( item->giType ) {
+#else
+				switch ( static_cast<weapon_t>(item->giType) ) {
+#endif // FIXME
 				case WP_AMMO:
 					break;
 				default:
@@ -5476,7 +5484,11 @@ void BotMoveToIntermission( int client ) {
 	int winner;                             // DHM - Nerve
 	bot_state_t *bs;
 
+#if FIXME
 	if ( !g_entities[client].r.svFlags & SVF_BOT ) {
+#else
+	if ( (g_entities[client].r.svFlags & SVF_BOT) == 0 ) {
+#endif // FIXME
 		return;
 	}
 

@@ -582,7 +582,11 @@ void BG_ParseConditionBits( const char **text_pp, animStringItem_t *stringTable,
 
 	//indexBits = 0;
 	currentString[0] = '\0';
+#if FIXME
 	memset( result, 0, sizeof( result ) );
+#else
+	memset( result, 0, 2 * sizeof( int ) );
+#endif // FIXME
 	memset( tempBits, 0, sizeof( tempBits ) );
 
 	while ( !endFlag ) {
@@ -773,7 +777,11 @@ static void BG_ParseCommands( const char **input, animScriptItem_t *scriptItem, 
 				BG_AnimParseError( "BG_ParseCommands: exceeded maximum number of animations (%i)", MAX_ANIMSCRIPT_ANIMCOMMANDS );
 			}
 			command = &scriptItem->commands[scriptItem->numCommands++];
+#if FIXME
 			memset( command, 0, sizeof( command ) );
+#else
+			(*command) = animScriptCommand_t{};
+#endif // FIXME
 		}
 
 		command->bodyPart[partIndex] = BG_IndexForString( token, animBodyPartsStr, qtrue );

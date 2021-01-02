@@ -494,7 +494,11 @@ void AICast_Init( void ) {
 	aicast_skillscale = (float)trap_Cvar_VariableIntegerValue( "g_gameSkill" ) / (float)GSKILL_MAX;
 
 	caststates = static_cast<cast_state_t*> (G_Alloc( aicast_maxclients * sizeof( cast_state_t ) ));
+#if FIXME
 	memset( caststates, 0, sizeof( caststates ) );
+#else
+	memset( caststates, 0, aicast_maxclients * sizeof( cast_state_t ) );
+#endif // FIXME
 	for ( i = 0; i < MAX_CLIENTS; i++ ) {
 		caststates[i].entityNum = i;
 	}

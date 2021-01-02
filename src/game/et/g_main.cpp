@@ -1983,8 +1983,11 @@ void QDECL Com_Error( int level, const char *error, ... ) {
 
 	G_Error( "%s", text );
 }
+
+#if FIXME
 //bani
 void QDECL Com_Error( int level, const char *error, ... ) _attribute( ( format( printf,2,3 ) ) );
+#endif // FIXME
 
 void QDECL Com_Printf( const char *msg, ... ) {
 	va_list argptr;
@@ -1996,8 +1999,11 @@ void QDECL Com_Printf( const char *msg, ... ) {
 
 	G_Printf( "%s", text );
 }
+
+#if FIXME
 //bani
 void QDECL Com_Printf( const char *msg, ... ) _attribute( ( format( printf,1,2 ) ) );
+#endif // FIXME
 
 #endif
 
@@ -2151,8 +2157,15 @@ void CalculateRanks( void ) {
 	level.numFinalDead[0] = 0;      // NERVE - SMF
 	level.numFinalDead[1] = 0;      // NERVE - SMF
 
+#if FIXME
 	level.voteInfo.numVotingTeamClients[ 0 ] = 0;
 	level.voteInfo.numVotingTeamClients[ 1 ] = 0;
+#else
+	for (auto& numVotingTeamClients : level.voteInfo.numVotingTeamClients)
+	{
+		numVotingTeamClients = 0;
+	}
+#endif // FIXME
 
 	for ( i = 0; i < TEAM_NUM_TEAMS; i++ ) {
 		if ( i < 2 ) {
