@@ -443,14 +443,8 @@ static void SV_Map_f( void ) {
 		// may not set sv_maxclients directly, always set latched
 #endif // RTCW_XX
 
-#if defined RTCW_SP
+#if defined RTCW_SP || defined RTCW_MP
 		Cvar_SetLatched( "sv_maxclients", "32" ); // Ridah, modified this
-#elif defined RTCW_MP
-#ifdef __MACOS__
-		Cvar_SetLatched( "sv_maxclients", "16" ); //DAJ HOG
-#else
-		Cvar_SetLatched( "sv_maxclients", "32" ); // Ridah, modified this
-#endif
 #endif // RTCW_XX
 
 #if !defined RTCW_ET

@@ -4366,11 +4366,10 @@ void Controls_SetConfig( qboolean restart ) {
 		}
 	}
 
-#if !defined( __MACOS__ )
 	if ( restart ) {
 		DC->executeText( EXEC_APPEND, "in_restart\n" );
 	}
-#endif
+
 	//trap_Cmd_ExecuteText( EXEC_APPEND, "in_restart\n" );
 }
 

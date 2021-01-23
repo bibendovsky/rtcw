@@ -1992,11 +1992,11 @@ void S_ByteSwapRawSamples( int samples, int width, int s_channels, short *data )
 	if ( width != 2 ) {
 		return;
 	}
-#ifndef __MACOS__   //DAJ save this test
+
 	if (!rtcw::Endian::is_little ()) {
 		return;
 	}
-#endif
+
 	//DAJ use a faster loop technique
 	if ( s_channels == 2 ) {
 		i = samples << 1;

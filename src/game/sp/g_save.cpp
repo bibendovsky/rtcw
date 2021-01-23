@@ -2503,10 +2503,6 @@ qboolean G_SaveGame( const char *username ) {
 	}
 
 	trap_FS_FCloseFile( f );
-#ifdef __MACOS__
-	trap_FS_CopyFile( mapstr, "save\\current.svg" );
-
-#endif
 
 	return qtrue;
 }

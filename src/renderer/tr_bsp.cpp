@@ -212,7 +212,7 @@ static void R_LoadLightmaps( lump_t *l ) {
 #endif // RTCW_XX
 
 	int len;
-	MAC_STATIC byte image[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
+	byte image[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
 
 #if !defined RTCW_ET
 	int i, j;
@@ -607,7 +607,7 @@ static void ParseMesh( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
 	srfGridMesh_t   *grid;
 	int i, j;
 	int width, height, numPoints;
-	MAC_STATIC drawVert_t points[MAX_PATCH_SIZE * MAX_PATCH_SIZE];
+	drawVert_t points[MAX_PATCH_SIZE * MAX_PATCH_SIZE];
 	int lightmapNum;
 	vec3_t bounds[2];
 	vec3_t tmpVec;

@@ -1630,11 +1630,7 @@ void GL_SetDefaultState( void ) {
 //		int maxtess;
 //		// get max supported tesselation
 //		qglGetIntegerv( GL_MAX_PN_TRIANGLES_TESSELATION_LEVEL_ATI, (GLint*)&maxtess );
-//#ifdef __MACOS__
-//		glConfig.ATIMaxTruformTess = 7;
-//#else
 //		glConfig.ATIMaxTruformTess = maxtess;
-//#endif
 //		// cap if necessary
 //		if ( r_ati_truform_tess->value > maxtess ) {
 //			ri.Cvar_Set( "r_ati_truform_tess", va( "%d", maxtess ) );
@@ -2198,41 +2194,6 @@ void R_Register( void ) {
 	);
 #endif // FIXME
 
-#if FIXME
-#if !defined RTCW_ET
-#ifdef __linux__
-	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
-
-#if defined RTCW_SP
-#elif defined ( __MACOS__ )
-	{
-//	extern long gSystemVersion;
-//	if(gSystemVersion >= 0x1000)
-//		r_stencilbits = ri.Cvar_Get( "r_stencilbits", "8", CVAR_ARCHIVE | CVAR_LATCH );
-//	else
-		r_stencilbits = ri.Cvar_Get( "r_stencilbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
-	}
-#endif // RTCW_XX
-
-#else
-
-#if defined RTCW_SP
-	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "8", CVAR_ARCHIVE | CVAR_LATCH );
-#elif defined RTCW_MP
-	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
-#endif // RTCW_XX
-
-#endif
-#endif // RTCW_XX
-
-#if defined RTCW_ET
-#ifdef __linux__
-	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
-#else
-	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
-#endif
-#endif // RTCW_XX
-#else
 	r_stencilbits = ri.Cvar_Get(
 		"r_stencilbits",
 		"0",
@@ -2241,7 +2202,6 @@ void R_Register( void ) {
 		| CVAR_UNSAFE
 #endif // RTCW_XX
 	);
-#endif // FIXME
 
 #if FIXME
 #if !defined RTCW_ET
@@ -2498,15 +2458,7 @@ void R_Register( void ) {
 	r_swapInterval = ri.Cvar_Get( "r_swapInterval", "1", CVAR_ARCHIVE );
 #endif // FIXME
 
-#if FIXME
-#ifdef __MACOS__
-	r_gamma = ri.Cvar_Get( "r_gamma", "1.2", CVAR_ARCHIVE );
-#else
 	r_gamma = ri.Cvar_Get( "r_gamma", "1.3", CVAR_ARCHIVE );
-#endif
-#else
-	r_gamma = ri.Cvar_Get( "r_gamma", "1.3", CVAR_ARCHIVE );
-#endif // FIXME
 
 	r_facePlaneCull = ri.Cvar_Get( "r_facePlaneCull", "1", CVAR_ARCHIVE );
 

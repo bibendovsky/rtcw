@@ -336,11 +336,7 @@ void SV_BoundMaxClients( int minimum ) {
 #if defined RTCW_SP
 	Cvar_Get( "sv_maxclients", "8", 0 );
 #else
-#ifdef __MACOS__
-	Cvar_Get( "sv_maxclients", "16", 0 );         //DAJ HOG
-#else
 	Cvar_Get( "sv_maxclients", "20", 0 );         // NERVE - SMF - changed to 20 from 8
-#endif
 #endif // RTCW_XX
 
 #if defined RTCW_ET
@@ -1403,11 +1399,7 @@ void SV_Init( void ) {
 	//
 #endif // RTCW_XX
 
-#ifdef __MACOS__
-	sv_maxclients = Cvar_Get( "sv_maxclients", "16", CVAR_SERVERINFO | CVAR_LATCH );               //DAJ HOG
-#else
 	sv_maxclients = Cvar_Get( "sv_maxclients", "20", CVAR_SERVERINFO | CVAR_LATCH );               // NERVE - SMF - changed to 20 from 8
-#endif
 #endif // RTCW_XX
 
 	sv_maxRate = Cvar_Get( "sv_maxRate", "0", CVAR_ARCHIVE | CVAR_SERVERINFO );

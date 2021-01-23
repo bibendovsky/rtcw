@@ -55,9 +55,6 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
-#if defined( __MACOS__ )
-#pragma export on
-#endif
 
 // BBi
 //int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
@@ -78,9 +75,6 @@ extern "C" intptr_t vmMain (
 {
 // BBi
 
-#if defined( __MACOS__ )
-#pragma export off
-#endif
 	switch ( command ) {
 	case CG_INIT:
 		CG_Init( arg0, arg1, arg2 );

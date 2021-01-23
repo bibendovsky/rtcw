@@ -979,7 +979,7 @@ static void ProjectDlightTexture( void ) {
 	float   *texCoords;
 	byte    *colors;
 	byte clipBits[SHADER_MAX_VERTEXES];
-	MAC_STATIC float texCoordsArray[SHADER_MAX_VERTEXES][2];
+	float texCoordsArray[SHADER_MAX_VERTEXES][2];
 	byte colorArray[SHADER_MAX_VERTEXES][4];
 	unsigned hitIndexes[SHADER_MAX_INDEXES];
 	int numIndexes;
@@ -2251,11 +2251,7 @@ void RB_StageIteratorGeneric( void ) {
 //	if ( glPNTrianglesiATI && tess.ATI_tess ) {
 //		// RF< so we can send the normals as an array
 //		glEnableClientState( GL_NORMAL_ARRAY );
-//#ifdef __MACOS__    //DAJ ATI
-//		glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 1 );
-//#else
 //		glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
-//#endif
 //	}
 //#endif // RTCW_XX
 // BBi
@@ -2426,11 +2422,7 @@ void RB_StageIteratorGeneric( void ) {
 //#if defined RTCW_SP
 //	// turn truform back off
 //	if ( glPNTrianglesiATI && tess.ATI_tess ) {
-//#ifdef __MACOS__    //DAJ ATI
-//		glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 0 );
-//#else
 //		glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
-//#endif
 //		glDisableClientState( GL_NORMAL_ARRAY );
 //	}
 //#endif // RTCW_XX
@@ -2494,11 +2486,7 @@ void RB_StageIteratorVertexLitTexture( void ) {
 // BBi
 //#if defined RTCW_SP
 //	if ( glPNTrianglesiATI && tess.ATI_tess ) {
-//#ifdef __MACOS__    //DAJ ATI
-//		glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 1 );
-//#else
 //		glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
-//#endif
 //		glEnableClientState( GL_NORMAL_ARRAY );         // RF< so we can send the normals as an array
 //		glNormalPointer( GL_FLOAT, 16, input->normal );
 //	}
@@ -2580,13 +2568,8 @@ void RB_StageIteratorVertexLitTexture( void ) {
 // BBi
 //#if defined RTCW_SP
 //	if ( glPNTrianglesiATI && tess.ATI_tess )
-//#ifdef __MACOS__ //DAJ ATI{
-//		glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 0 );
-//	}
-//#else
 //	{ glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
 //	}
-//#endif
 //#endif // RTCW_XX
 // BBi
 
@@ -2637,11 +2620,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 // BBi
 //#if defined RTCW_SP
 //	if ( glPNTrianglesiATI && tess.ATI_tess ) {
-//#ifdef __MACOS__    //DAJ ATI
-//		glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 1 );
-//#else
 //		glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
-//#endif
 //		glNormalPointer( GL_FLOAT, 16, input->normal );
 //	}
 //#endif // RTCW_XX
@@ -2829,13 +2808,8 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 // BBi
 //#if defined RTCW_SP
 //	if ( glPNTrianglesiATI && tess.ATI_tess )
-//#ifdef __MACOS__ //DAJ ATI{
-//		glPNTrianglesiATI( GL_PN_TRIANGLES_ATI, 0 );
-//	}
-//#else
 //	{ glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
 //	}
-//#endif
 //#endif // RTCW_XX
 // BBi
 

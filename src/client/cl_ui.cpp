@@ -156,37 +156,10 @@ void LAN_SaveServersToCache() {
 #if defined RTCW_SP
 	// TTimo: stub, this is only relevant to MP, SP kills the servercache.dat (and favorites)
 	// show_bug.cgi?id=445
-	/*
-	  int size;
-	  fileHandle_t fileOut;
-  #ifdef __MACOS__	//DAJ MacOS file typing
-	  {
-		  extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-		  _ftype = 'WlfB';
-		  _fcreator = 'WlfS';
-	  }
-  #endif
-	  fileOut = FS_SV_FOpenFileWrite("servercache.dat");
-	  FS_Write(&cls.numglobalservers, sizeof(int), fileOut);
-	  FS_Write(&cls.nummplayerservers, sizeof(int), fileOut);
-	  FS_Write(&cls.numfavoriteservers, sizeof(int), fileOut);
-	  size = sizeof(cls.globalServers) + sizeof(cls.favoriteServers) + sizeof(cls.mplayerServers);
-	  FS_Write(&size, sizeof(int), fileOut);
-	  FS_Write(&cls.globalServers, sizeof(cls.globalServers), fileOut);
-	  FS_Write(&cls.mplayerServers, sizeof(cls.mplayerServers), fileOut);
-	  FS_Write(&cls.favoriteServers, sizeof(cls.favoriteServers), fileOut);
-	  FS_FCloseFile(fileOut);
-	*/
 #elif defined RTCW_MP
 	int size;
 	fileHandle_t fileOut;
-#ifdef __MACOS__    //DAJ MacOS file typing
-	{
-		extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-		_ftype = 'WlfB';
-		_fcreator = 'WlfM';
-	}
-#endif
+
 	fileOut = FS_SV_FOpenFileWrite( "servercache.dat" );
 	FS_Write( &cls.numglobalservers, sizeof( int ), fileOut );
 	FS_Write( &cls.nummplayerservers, sizeof( int ), fileOut );

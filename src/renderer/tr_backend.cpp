@@ -1233,16 +1233,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	int atiTess = 0, oldAtiTess;
 #endif // RTCW_XX
 
-#ifdef __MACOS__
-	int macEventTime;
-
-	Sys_PumpEvents();       // crutch up the mac's limited buffer queue size
-
-	// we don't want to pump the event loop too often and waste time, so
-	// we are going to check every shader change
-	macEventTime = ri.Milliseconds() + MAC_EVENT_PUMP_MSEC;
-#endif
-
 	// save original time for entity shader offsets
 	originalTime = backEnd.refdef.floatTime;
 
@@ -1315,16 +1305,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 			 || ( entityNum != oldEntityNum && !shader->entityMergable ) ) {
 			if ( oldShader != NULL ) {
-#ifdef __MACOS__    // crutch up the mac's limited buffer queue size
-				int t;
-
-				t = ri.Milliseconds();
-				if ( t > macEventTime ) {
-					macEventTime = t + MAC_EVENT_PUMP_MSEC;
-					Sys_PumpEvents();
-				}
-#endif
-
 #if defined RTCW_SP
 // GR - pass tessellation flag to the shader command
 //		make sure to use oldAtiTess!!!
@@ -1542,10 +1522,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 	// add light flares on lights that aren't obscured
 	RB_RenderFlares();
-
-#ifdef __MACOS__
-	Sys_PumpEvents();       // crutch up the mac's limited buffer queue size
-#endif
 }
 
 

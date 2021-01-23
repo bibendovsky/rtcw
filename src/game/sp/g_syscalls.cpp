@@ -40,13 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 
 static int32_t ( QDECL * syscall )( intptr_t arg, ... ) = ( int32_t ( QDECL * )( intptr_t, ... ) ) - 1;
 
-#if defined( __MACOS__ )
-#pragma export on
-#endif
 extern "C" void dllEntry( int32_t ( QDECL *syscallptr )( intptr_t arg,... ) ) {
-#if defined( __MACOS__ )
-#pragma export off
-#endif
 	syscall = syscallptr;
 }
 

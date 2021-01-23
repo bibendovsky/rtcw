@@ -1563,10 +1563,6 @@ qboolean G_SaveGame( char *username ) {
 	}
 
 	trap_FS_FCloseFile( f );
-#ifdef __MACOS__
-	trap_FS_CopyFile( mapstr, va( "profiles/%s/save/current.sav", cl_profileStr );
-
-#endif
 
 	return qtrue;
 }

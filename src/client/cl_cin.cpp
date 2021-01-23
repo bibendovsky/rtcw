@@ -709,12 +709,8 @@ static unsigned short yuv_to_rgb( int32_t y, int32_t u, int32_t v ) {
 ******************************************************************************/
 
 #if defined RTCW_SP
-#if defined( __MACOS__ )
-
-static inline unsigned int yuv_to_rgb24( int32_t y, int32_t u, int32_t v ) {
-	int32_t r,g,b,YY;
-
-	YY = (int32_t)( ROQ_YY_tab[( y )] );
+static unsigned int yuv_to_rgb24( int32_t y, int32_t u, int32_t v ) {
+	int32_t r,g,b,YY = (int32_t)( ROQ_YY_tab[( y )] );
 
 	r = ( YY + ROQ_VR_tab[v] ) >> 6;
 	g = ( YY + ROQ_UG_tab[u] + ROQ_VG_tab[v] ) >> 6;
@@ -739,9 +735,8 @@ static inline unsigned int yuv_to_rgb24( int32_t y, int32_t u, int32_t v ) {
 		b = 255;
 	}
 
-	return ( ( r << 24 ) | ( g << 16 ) | ( b << 8 ) ) | ( 255 );  //+(255<<24));
+	return rtcw::Endian::le(r | (g << 8) | (b << 16) | (255 << 24));
 }
-
 #else
 static unsigned int yuv_to_rgb24( int32_t y, int32_t u, int32_t v ) {
 	int32_t r,g,b,YY = (int32_t)( ROQ_YY_tab[( y )] );
@@ -771,71 +766,6 @@ static unsigned int yuv_to_rgb24( int32_t y, int32_t u, int32_t v ) {
 
 	return rtcw::Endian::le(r | (g << 8) | (b << 16) | (255 << 24));
 }
-#endif
-#else
-#if defined( MACOS_X )
-
-static inline unsigned int yuv_to_rgb24( int32_t y, int32_t u, int32_t v ) {
-	int32_t r,g,b,YY;
-
-	YY = (int32_t)( ROQ_YY_tab[( y )] );
-
-	r = ( YY + ROQ_VR_tab[v] ) >> 6;
-	g = ( YY + ROQ_UG_tab[u] + ROQ_VG_tab[v] ) >> 6;
-	b = ( YY + ROQ_UB_tab[u] ) >> 6;
-
-	if ( r < 0 ) {
-		r = 0;
-	}
-	if ( g < 0 ) {
-		g = 0;
-	}
-	if ( b < 0 ) {
-		b = 0;
-	}
-	if ( r > 255 ) {
-		r = 255;
-	}
-	if ( g > 255 ) {
-		g = 255;
-	}
-	if ( b > 255 ) {
-		b = 255;
-	}
-
-	return ( ( r << 24 ) | ( g << 16 ) | ( b << 8 ) ) | ( 255 );  //+(255<<24));
-}
-
-#else
-static unsigned int yuv_to_rgb24( int32_t y, int32_t u, int32_t v ) {
-	int32_t r,g,b,YY = (int32_t)( ROQ_YY_tab[( y )] );
-
-	r = ( YY + ROQ_VR_tab[v] ) >> 6;
-	g = ( YY + ROQ_UG_tab[u] + ROQ_VG_tab[v] ) >> 6;
-	b = ( YY + ROQ_UB_tab[u] ) >> 6;
-
-	if ( r < 0 ) {
-		r = 0;
-	}
-	if ( g < 0 ) {
-		g = 0;
-	}
-	if ( b < 0 ) {
-		b = 0;
-	}
-	if ( r > 255 ) {
-		r = 255;
-	}
-	if ( g > 255 ) {
-		g = 255;
-	}
-	if ( b > 255 ) {
-		b = 255;
-	}
-
-	return rtcw::Endian::le(r | (g << 8) | (b << 16) | (255 << 24));
-}
-#endif
 #endif // RTCW_XX
 
 /******************************************************************************
@@ -1243,19 +1173,6 @@ static void readQuadInfo( byte *qData ) {
 		//}
 		// BBi
 	}
-
-#if defined RTCW_SP
-#if defined( MACOS_X )
-	cinTable[currentHandle].drawX = 256;
-	cinTable[currentHandle].drawX = 256;
-#endif
-#else
-//#ifdef __MACOS__
-//	cinTable[currentHandle].drawX = 256;
-//	cinTable[currentHandle].drawX = 256;
-//#endif
-#endif // RTCW_XX
-
 }
 
 /******************************************************************************

@@ -3689,9 +3689,9 @@ void Controls_SetConfig( qboolean restart ) {
 	//trap_Cvar_SetValue( "in_joystick", s_controls.joyenable.curvalue );
 	//trap_Cvar_SetValue( "joy_threshold", s_controls.joythreshold.curvalue );
 	//trap_Cvar_SetValue( "cl_freelook", s_controls.freelook.curvalue );
-#if !defined( __MACOS__ )
+
 	DC->executeText( EXEC_APPEND, "in_restart\n" );
-#endif
+
 	//trap_Cmd_ExecuteText( EXEC_APPEND, "in_restart\n" );
 }
 

@@ -2584,11 +2584,9 @@ void R_Hunk_End ()
 //	}
 //#endif // RTCW_XX
 //
-//#if !defined RTCW_ET || (defined RTCW_ET && !defined __MACOS__)
 //	if ( !membase ) {
 //		ri.Error( ERR_DROP, "R_Hunk_Reset called without a membase!" );
 //	}
-//#endif
 //
 //#ifdef _WIN32
 //	// mark the existing committed pages as reserved, but not committed
@@ -2642,19 +2640,6 @@ R_CacheModelAlloc
 */
 void *R_CacheModelAlloc( int size ) {
 	if ( r_cache->integer && r_cacheModels->integer ) {
-
-// BBi
-//#if defined RTCW_SP
-//#if defined( __MACOS__ )
-//		return malloc( size );      //DAJ FIXME was co
-//#else
-//		return R_Hunk_Alloc( size );
-//#endif
-//#else
-//		return R_Hunk_Alloc( size );
-//#endif // RTCW_XX
-// BBi
-
 		return R_Hunk_Alloc (size);
 	} else {
 
@@ -2675,15 +2660,6 @@ R_CacheModelFree
 void R_CacheModelFree( void *ptr ) {
 	if ( r_cache->integer && r_cacheModels->integer ) {
 		// TTimo: it's in the hunk, leave it there, next R_Hunk_Begin will clear it all
-
-// BBi
-//#if defined RTCW_SP
-//#if defined( __MACOS__ )
-//		free( ptr );    //DAJ FIXME was co
-//#endif
-//#endif // RTCW_XX
-// BBi
-
 	} else
 	{
 

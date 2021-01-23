@@ -501,19 +501,6 @@ void CL_Record_f( void ) {
 #if !defined RTCW_ET
 	// open the demo file
 
-#ifdef __MACOS__    //DAJ MacOS file typing
-	{
-		extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-		_ftype = 'WlfB';
-
-#if defined RTCW_SP
-		_fcreator = 'WlfS';
-#elif defined RTCW_MP
-		_fcreator = 'WlfM';
-#endif // RTCW_XX
-
-	}
-#endif
 	Com_Printf( "recording to %s.\n", name );
 	clc.demofile = FS_FOpenFileWrite( name );
 	if ( !clc.demofile ) {
@@ -2380,11 +2367,6 @@ void CL_DownloadsComplete( void ) {
 #else
 			fs_write_path = Cvar_VariableString( "fs_homepath" );
 			fn = FS_BuildOSPath( fs_write_path, FS_ShiftStr( AUTOUPDATE_DIR, AUTOUPDATE_DIR_SHIFT ), autoupdateFilename );
-#if FIXME
-#ifndef __MACOS__
-			Sys_Chmod( fn, S_IXUSR );
-#endif
-#endif // FIXME
 #endif
 			// will either exit with a successful process spawn, or will Com_Error ERR_DROP
 			// so we need to clear the disconnected download data if needed
@@ -3519,11 +3501,7 @@ void CL_Frame( int msec ) {
 		cls.cddialog = qfalse;
 
 #if defined RTCW_SP
-#ifdef __MACOS__    //DAJ hide the cursor for intro movie
-		VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_BRIEFING));
-#else
 		VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_NEED_CD));
-#endif
 	} else if ( cls.endgamemenu ) {
 		cls.endgamemenu = qfalse;
 		VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_ENDGAME));
@@ -3721,29 +3699,9 @@ static void CL_Cache_EndGather_f( void ) {
 
 	cachePass = (int)c::floor( (float)cacheIndex * CACHE_HIT_RATIO );
 
-#if defined RTCW_MP
-#ifdef __MACOS__    //DAJ MacOS file typing
-	{
-		extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-		_ftype = 'WlfB';
-		_fcreator = 'WlfM';
-	}
-#endif
-#endif // RTCW_XX
-
 	for ( i = 0; i < CACHE_NUMGROUPS; i++ ) {
 		Q_strncpyz( filename, cacheGroups[i].name, MAX_QPATH );
 		Q_strcat( filename, MAX_QPATH, ".cache" );
-
-#if defined RTCW_SP
-#ifdef __MACOS__    //DAJ MacOS file typing
-		{
-			extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-			_ftype = 'WlfB';
-			_fcreator = 'WlfS';
-		}
-#endif
-#endif // RTCW_XX
 
 		handle = FS_FOpenFileWrite( filename );
 
@@ -4284,19 +4242,7 @@ void CL_ClientDamageCommand( void ) {
 
 #if defined RTCW_SP
 void CL_startMultiplayer_f( void ) {
-
-// BBi
-//#ifdef __MACOS__    //DAJ
-//	Sys_StartProcess( "Wolfenstein MP", qtrue );
-//#elif defined( __linux__ )
-//	Sys_StartProcess( "./wolf.x86", qtrue );
-//#else
-//	Sys_StartProcess( "WolfMP.exe", qtrue );
-//#endif
-
 	Sys_StartProcess ("rtcw_mp_x86", qtrue);
-// BBi
-
 }
 // -NERVE - SMF
 
@@ -4385,7 +4331,6 @@ void CL_singlePlayLink_f( void ) {
 #endif
 #endif // RTCW_XX
 
-#if !defined( __MACOS__ )
 void CL_SaveTranslations_f( void ) {
 	CL_SaveTransTable( "scripts/translation.cfg", qfalse );
 }
@@ -4407,7 +4352,6 @@ void CL_LoadTranslations_f( void ) {
 	CL_ReloadTranslation();
 }
 // -NERVE - SMF
-#endif
 #endif // RTCW_XX
 
 //===========================================================================================
@@ -4744,11 +4688,10 @@ void CL_Init( void ) {
 	// RF, prevent users from issuing a map_restart manually
 	Cmd_AddCommand( "map_restart", CL_MapRestart_f );
 #else
-#ifndef __MACOS__  //DAJ USA
 	Cmd_AddCommand( "SaveTranslations", CL_SaveTranslations_f );     // NERVE - SMF - localization
 	Cmd_AddCommand( "SaveNewTranslations", CL_SaveNewTranslations_f );   // NERVE - SMF - localization
 	Cmd_AddCommand( "LoadTranslations", CL_LoadTranslations_f );     // NERVE - SMF - localization
-#endif
+
 	// NERVE - SMF - don't do this in multiplayer
 	// RF, add this command so clients can't bind a key to send client damage commands to the server
 //	Cmd_AddCommand ("cld", CL_ClientDamageCommand );
@@ -4789,9 +4732,7 @@ void CL_Init( void ) {
 	autoupdateChecked = qfalse;
 	autoupdateStarted = qfalse;
 
-#ifndef __MACOS__  //DAJ USA
 	CL_InitTranslation();   // NERVE - SMF - localization
-#endif
 #endif // RTCW_XX
 
 	Com_Printf( "----- Client Initialization Complete -----\n" );
@@ -5992,7 +5933,6 @@ qboolean CL_GetLimboString( int index, char *buf ) {
 #define MAX_VA_STRING       32000
 #define MAX_TRANS_STRING    4096
 
-#ifndef __MACOS__   //DAJ USA
 typedef struct trans_s {
 	char original[MAX_TRANS_STRING];
 	char translated[MAX_LANGUAGES][MAX_TRANS_STRING];
@@ -6497,16 +6437,6 @@ void CL_InitTranslation() {
 	}
 }
 
-#else
-typedef struct trans_s {
-	char original[MAX_TRANS_STRING];
-	struct  trans_s *next;
-	float x_offset;
-	float y_offset;
-} trans_t;
-
-#endif  //DAJ USA
-
 /*
 =======================
 CL_TranslateString
@@ -6535,7 +6465,7 @@ void CL_TranslateString( const char *string, char *dest_buffer ) {
 		strcpy( buf, string );
 		return;
 	}
-#if !defined( __MACOS__ )
+
 	// ignore newlines
 	if ( string[strlen( string ) - 1] == '\n' ) {
 		newline = qtrue;
@@ -6609,7 +6539,6 @@ void CL_TranslateString( const char *string, char *dest_buffer ) {
 			}
 		}
 	}
-#endif //DAJ USA
 }
 
 /*
