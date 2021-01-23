@@ -224,25 +224,12 @@ typedef struct {
 	byte *funcPtr;
 } funcList_t;
 
-//-----------------
-// MSVC likes to needlessly(?) warn about these defines, so disable certain warnings temporarily
-#ifdef _WIN32
-#pragma warning( push )
-#pragma warning( disable : 4054 )
-#endif
-//-----------------
 
 #include "g_func_decs.h" // declare all game functions
 
 funcList_t funcList[] = {
 	#include "g_funcs.h"
 };
-
-//-----------------
-#ifdef _WIN32
-#pragma warning( pop ) // return previous warning state
-#endif
-//-----------------
 
 
 //=========================================================

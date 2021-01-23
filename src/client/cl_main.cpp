@@ -1705,16 +1705,7 @@ void CL_Setenv_f( void ) {
 			strcat( buffer, " " );
 		}
 
-#if !defined RTCW_MP
 		Q_putenv( buffer );
-#else
-#ifdef _WIN32
-		_putenv( buffer );
-#else
-		putenv( buffer );
-#endif
-#endif // RTCW_XX
-
 	} else if ( argc == 2 ) {
 		char *env = getenv( Cmd_Argv( 1 ) );
 
@@ -2031,11 +2022,7 @@ doesn't know what graphics to reload
 =================
 */
 
-#if defined RTCW_ET
-#ifdef _WIN32
 extern void Sys_In_Restart_f( void ); // fretn
-#endif
-#endif // RTCW_XX
 
 void CL_Vid_Restart_f( void ) {
 
@@ -2095,11 +2082,7 @@ void CL_Vid_Restart_f( void ) {
 	// startup all the client stuff
 	CL_StartHunkUsers();
 
-#if defined RTCW_ET
-#ifdef _WIN32
 	Sys_In_Restart_f(); // fretn
-#endif
-#endif // RTCW_XX
 
 	// start the cgame if connected
 	if ( cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC ) {

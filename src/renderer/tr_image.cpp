@@ -2478,7 +2478,7 @@ image_t *R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 // I'd still want that code in the release builds on linux
 // (possibly for mod authors)
 // /me maintained off for win32, using otherwise but printing diagnostics as developer
-#if !defined( _WIN32 )
+#if !_WIN32
 		char altname[MAX_QPATH];                            // copy the name
 		int len;                                          //
 		strcpy( altname, name );                          //
