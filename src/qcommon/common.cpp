@@ -40,22 +40,6 @@ If you have questions concerning this license or the applicable additional terms
 #define MAXPRINTMSG 4096
 #endif // RTCW_XX
 
-#if FIXME
-#if defined RTCW_ET
-// htons
-#ifdef __linux__
-#include <netinet/in.h>
-// getpid
-#include <unistd.h>
-#elif __MACOS__
-// getpid
-#include <unistd.h>
-#else
-#include <winsock.h>
-#endif
-#endif // RTCW_XX
-#endif // FIXME
-
 
 #define MAX_NUM_ARGVS   50
 
@@ -291,16 +275,6 @@ int QDECL Com_VPrintf( const char *fmt, va_list argptr ) {
 
 			time( &aclock );
 			newtime = localtime( &aclock );
-
-#if !defined RTCW_ET
-#ifdef __MACOS__    //DAJ MacOS file typing
-			{
-				extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-				_ftype = 'TEXT';
-				_fcreator = 'R*ch';
-			}
-#endif
-#endif // RTCW_XX
 
 #if defined RTCW_SP
 			logfile = FS_FOpenFileWrite( "rtcwconsole.log" );    //----(SA)	changed name for Wolf
@@ -1824,11 +1798,9 @@ void Com_InitZoneMemory( void ) {
 	// allocate the random block zone
 	cv = Cvar_Get( "com_zoneMegs", DEF_COMZONEMEGS, CVAR_LATCH | CVAR_ARCHIVE );
 
-#ifndef __MACOS__   //DAJ HOG
 	if ( cv->integer < 16 ) {
 		s_zoneTotal = 1024 * 1024 * 16;
 	} else
-#endif
 	{
 		s_zoneTotal = cv->integer * 1024 * 1024;
 	}
@@ -2431,21 +2403,6 @@ void Com_InitJournaling( void ) {
 #endif // RTCW_XX
 
 #if !defined RTCW_ET
-#ifdef __MACOS__    //DAJ MacOS file typing
-		{
-			extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-
-#if defined RTCW_SP
-			_ftype = 'WlfB';
-			_fcreator = 'WlfS';
-#elif defined RTCW_MP
-			_ftype = 'TEXT';
-			_fcreator = 'WlfM';
-#endif // RTCW_XX
-
-		}
-#endif
-
 #if defined RTCW_MP
 		Com_Printf( "Journaling events\n" );
 #endif // RTCW_XX
@@ -2907,22 +2864,6 @@ static void Com_WriteCDKey( const char *filename, const char *ikey ) {
 		return;
 	}
 
-#if !defined RTCW_ET
-#ifdef __MACOS__    //DAJ MacOS file typing
-	{
-		extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-		_ftype = 'TEXT';
-
-#if defined RTCW_SP
-		_fcreator = 'WlfS';
-#elif defined RTCW_MP
-		_fcreator = 'WlfM';
-#endif // RTCW_XX
-
-	}
-#endif
-#endif // RTCW_XX
-
 	f = FS_SV_FOpenFileWrite( fbuffer );
 	if ( !f ) {
 		Com_Printf( "Couldn't write %s.\n", filename );
@@ -2938,11 +2879,7 @@ static void Com_WriteCDKey( const char *filename, const char *ikey ) {
 #endif // RTCW_XX
 
 	FS_Printf( f, "// Do not give this file to ANYONE.\r\n" );
-#ifdef __MACOS__ // TTimo
-	FS_Printf( f, "// Aspyr will NOT ask you to send this file to them.\r\n" );
-#else
 	FS_Printf( f, "// id Software and Activision will NOT ask you to send this file to them.\r\n" );
-#endif
 	FS_FCloseFile( f );
 }
 #endif
@@ -3203,13 +3140,6 @@ void Com_Init( char *commandLine ) {
 // Add appropriate system function?
 #if FIXME
 	// bani: init pid
-#ifdef _WIN32
-	pid = GetCurrentProcessId();
-#elif __linux__
-	pid = getpid();
-#elif __MACOS__
-	pid = getpid();
-#endif
 #else
 	pid = 0;
 #endif // FIXME
@@ -3490,10 +3420,6 @@ void Com_Init( char *commandLine ) {
 	if ( !com_dedicated->integer ) {
 		//Cbuf_AddText ("cinematic gmlogo.RoQ\n");
 		if ( !com_introPlayed->integer ) {
-		#ifdef __MACOS__
-			extern void PlayIntroMovies( void );
-			PlayIntroMovies();
-		#endif
 			//Cvar_Set( com_introPlayed->name, "1" );		//----(SA)	force this to get played every time (but leave cvar for override)
 			Cbuf_AddText( "cinematic wolfintro.RoQ 3\n" );
 			//Cvar_Set( "nextmap", "cinematic wolfintro.RoQ" );
@@ -3537,13 +3463,6 @@ void Com_Init( char *commandLine ) {
 void Com_WriteConfigToFile( const char *filename ) {
 	fileHandle_t f;
 
-#ifdef __MACOS__    //DAJ MacOS file typing
-	{
-		extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-		_ftype = 'TEXT';
-		_fcreator = 'R*ch';
-	}
-#endif
 	f = FS_FOpenFileWrite( filename );
 	if ( !f ) {
 		Com_Printf( "Couldn't write %s.\n", filename );

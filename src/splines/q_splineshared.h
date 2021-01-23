@@ -84,8 +84,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef WIN32
 
-#define MAC_STATIC
-
 #undef QDECL
 #define QDECL   __cdecl
 
@@ -109,86 +107,12 @@ If you have questions concerning this license or the applicable additional terms
 
 #endif
 
-#if !defined RTCW_ET
-//======================= MAC OS X SERVER DEFINES =====================
-
-#if defined( __MACH__ ) && defined( __APPLE__ )
-
-#define MAC_STATIC
-
-#ifdef __ppc__
-#define CPUSTRING   "MacOSXS-ppc"
-#elif defined __i386__
-#define CPUSTRING   "MacOSXS-i386"
-#else
-#define CPUSTRING   "MacOSXS-other"
-#endif
-
-#define PATH_SEP    '/'
-
-#define GAME_HARD_LINKED
-#define CGAME_HARD_LINKED
-#define UI_HARD_LINKED
-#define _alloca alloca
-
-#undef ALIGN_ON
-#undef ALIGN_OFF
-#define ALIGN_ON        # pragma align( 16 )
-#define ALIGN_OFF       # pragma align()
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void *osxAllocateMemory( int32_t size );
-void osxFreeMemory( void *pointer );
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif
-#endif // RTCW_XX
-
-//======================= MAC DEFINES =================================
-
-#ifdef __MACOS__
-
-//DAJ #define	MAC_STATIC static
-#define MAC_STATIC
-
-#define CPUSTRING   "MacOS-PPC"
-
-#define PATH_SEP ':'
-
-void Sys_PumpEvents( void );
-
-#endif
-
-#ifdef __MRC__
-
-#define MAC_STATIC
-
-#define CPUSTRING   "MacOS-PPC"
-
-#define PATH_SEP ':'
-
-void Sys_PumpEvents( void );
-
-#undef QDECL
-#define QDECL   __cdecl
-
-#define _alloca alloca
-#endif
-
 #if FIXME
 //======================= LINUX DEFINES =================================
 
 // the mac compiler can't handle >32k of locals, so we
 // just waste space and make big arrays static...
 #ifdef __linux__
-
-#define MAC_STATIC
 
 #ifdef __i386__
 #define CPUSTRING   "linux-i386"

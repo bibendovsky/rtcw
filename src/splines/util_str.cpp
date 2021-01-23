@@ -34,13 +34,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <stdio.h>
 #include <stdarg.h>
 
-#if defined RTCW_ET
-#if __MACOS__
-// LBO 2/1/05. Apple's system headers define these as macros. D'oh!
-#undef tolower
-#undef toupper
-#endif
-#endif // RTCW_XX
 
 static const int STR_ALLOC_GRAN = 20;
 

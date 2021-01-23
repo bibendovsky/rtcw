@@ -54,9 +54,6 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
-#if defined( __MACOS__ ) // TTimo: guarding
-#pragma export on
-#endif
 
 // BBi
 //int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
@@ -77,9 +74,6 @@ extern "C" intptr_t vmMain (
 {
 // BBi
 
-#if defined( __MACOS__ )
-#pragma export off
-#endif
 	switch ( command ) {
 	case CG_GET_TAG:
 		return CG_GetTag( arg0, (char *)arg1, (orientation_t *)arg2 );
@@ -607,7 +601,7 @@ void QDECL CG_Error( const char *msg, ... ) {
 }
 
 // TTimo: was commented out for Mac, guarding
-#if !defined( CGAME_HARD_LINKED ) || defined( __MACOS__ )
+#if !defined( CGAME_HARD_LINKED )
 // this is only here so the functions in q_shared.c and bg_*.c can link (FIXME)
 
 void QDECL Com_Error( int level, const char *error, ... ) {

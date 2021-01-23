@@ -2081,10 +2081,6 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 					 && Q_stricmp( filename + l - 4, ".dat" ) // for journal files
 					 && Q_stricmp( filename + l - 8, "bots.txt" )
 					 && Q_stricmp( filename + l - 8, ".botents" )
-#ifdef __MACOS__
-					 // even when pure is on, let the server game be loaded
-					 && Q_stricmp( filename, "qagame_mac" )
-#endif
 					 ) {
 #endif // RTCW_XX
 
@@ -5588,23 +5584,6 @@ int     FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) 
 		r = FS_FOpenFileRead( qpath, f, qtrue );
 		break;
 	case FS_WRITE:
-
-#if !defined RTCW_ET
-#ifdef __MACOS__    //DAJ MacOS file typing
-		{
-			extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-			_ftype = 'WlfB';
-
-#if defined RTCW_SP
-			_fcreator = 'WlfS';
-#elif defined RTCW_MP
-			_fcreator = 'WlfM';
-#endif // RTCW_XX
-
-		}
-#endif
-#endif // RTCW_XX
-
 		*f = FS_FOpenFileWrite( qpath );
 		r = 0;
 		if ( *f == 0 ) {
@@ -5614,23 +5593,6 @@ int     FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) 
 	case FS_APPEND_SYNC:
 		sync = qtrue;
 	case FS_APPEND:
-
-#if !defined RTCW_ET
-#ifdef __MACOS__    //DAJ MacOS file typing
-		{
-			extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-			_ftype = 'WlfB';
-
-#if defined RTCW_SP
-			_fcreator = 'WlfS';
-#elif defined RTCW_MP
-			_fcreator = 'WlfM';
-#endif // RTCW_XX
-
-		}
-#endif
-#endif // RTCW_XX
-
 		*f = FS_FOpenFileAppend( qpath );
 		r = 0;
 		if ( *f == 0 ) {

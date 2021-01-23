@@ -3275,19 +3275,11 @@ typedef enum {
 #define MAX_ANIMSCRIPT_ANIMCOMMANDS         8
 #define MAX_ANIMSCRIPT_ITEMS                32
 #elif defined RTCW_MP
-#if defined( __MACOS__ )  //DAJ HOG
-#define MAX_ANIMSCRIPT_MODELS               32      //DAJ tried 24 // allocated dynamically, so limit is scalable
-#define MAX_ANIMSCRIPT_ITEMS_PER_MODEL      1024    //512
-#define MAX_MODEL_ANIMATIONS                256     // animations per model
-#define MAX_ANIMSCRIPT_ANIMCOMMANDS         8
-#define MAX_ANIMSCRIPT_ITEMS                64
-#else
 #define MAX_ANIMSCRIPT_MODELS               32
 #define MAX_ANIMSCRIPT_ITEMS_PER_MODEL      2048
 #define MAX_MODEL_ANIMATIONS                512     // animations per model
 #define MAX_ANIMSCRIPT_ANIMCOMMANDS         8
 #define MAX_ANIMSCRIPT_ITEMS                128
-#endif
 #else
 #define MAX_ANIMSCRIPT_MODELS               32
 #define MAX_ANIMSCRIPT_ITEMS_PER_MODEL      2048

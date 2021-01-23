@@ -1216,10 +1216,6 @@ void VM_LogSyscalls (
 // BBi
 
 // BBi
-//#ifdef __MACOS__
-//#define DLL_ONLY    //DAJ
-//#endif
-//
 //#ifdef DLL_ONLY // bk010215 - for DLL_ONLY dedicated servers/builds w/o VM
 //int VM_CallCompiled( vm_t *vm, int *args ) {
 //	return( 0 );

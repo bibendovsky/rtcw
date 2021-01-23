@@ -2041,22 +2041,6 @@ void CL_UpdateLevelHunkUsage( void ) {
 			}
 		}
 
-#if !defined RTCW_ET
-#ifdef __MACOS__    //DAJ MacOS file typing
-		{
-			extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-
-#if defined RTCW_SP
-			_ftype = 'WlfB';
-#elif defined RTCW_MP
-			_ftype = 'TEXT';
-#endif // RTCW_XX
-
-			_fcreator = 'WlfS';
-		}
-#endif
-#endif // RTCW_XX
-
 		handle = FS_FOpenFileWrite( memlistfile );
 		if ( handle < 0 ) {
 			Com_Error( ERR_DROP, "cannot create %s\n", memlistfile );

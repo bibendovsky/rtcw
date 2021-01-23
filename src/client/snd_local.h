@@ -55,13 +55,6 @@ typedef struct {
 typedef struct adpcm_state {
 	short sample;       /* Previous output value */
 	char index;         /* Index into stepsize table */
-
-#if !defined RTCW_MP
-#if defined( __MACOS__ )
-	char pad;           /* //DAJ added pad for alignment */
-#endif
-#endif // RTCW_XX
-
 } adpcm_state_t;
 
 typedef struct sndBuffer_s {
@@ -195,19 +188,7 @@ void    SNDDMA_Submit( void );
 
 //====================================================================
 
-#if !defined RTCW_MP
-#if defined( __MACOS__ )
-  #define   MAX_CHANNELS 64
-#else
-  #define MAX_CHANNELS 96
-#endif
-#else
-#ifdef __MACOS__
-#define MAX_CHANNELS 64
-#else
 #define MAX_CHANNELS 96
-#endif
-#endif // RTCW_XX
 
 extern channel_t s_channels[MAX_CHANNELS];
 extern channel_t loop_channels[MAX_CHANNELS];
@@ -341,11 +322,7 @@ extern snd_t snd;   // globals for sound
 #if !defined RTCW_MP
 #define MAX_STREAMING_SOUNDS    12  // need to keep it low, or the rawsamples will get too big
 #else
-#ifdef __MACOS__
-#define MAX_STREAMING_SOUNDS    12  //DAJ use SP number (was 24)	// need to keep it low, or the rawsamples will get too big
-#else
 #define MAX_STREAMING_SOUNDS    24  // need to keep it low, or the rawsamples will get too big
-#endif
 #endif // RTCW_XX
 
 #define MAX_RAW_SAMPLES         16384

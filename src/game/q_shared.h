@@ -197,13 +197,11 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef _WIN32
 
-#define MAC_STATIC
 #define QDECL __cdecl
 #define PATH_SEP '\\'
 
 #else
 
-#define MAC_STATIC
 #define QDECL
 #define PATH_SEP '/'
 
@@ -2213,13 +2211,10 @@ typedef enum _flag_status {
 
 // NERVE - SMF - localization
 typedef enum {
-
-#if defined RTCW_SP || (!defined RTCW_SP && !defined __MACOS__)
 	LANGUAGE_FRENCH = 0,
 	LANGUAGE_GERMAN,
 	LANGUAGE_ITALIAN,
 	LANGUAGE_SPANISH,
-#endif // RTCW_XX
 
 	MAX_LANGUAGES
 } languages_t;

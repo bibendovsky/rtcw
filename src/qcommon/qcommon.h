@@ -1495,97 +1495,6 @@ void Com_GetHunkInfo( int* hunkused, int* hunkexpected );
 // dll checksuming stuff, centralizing OS-dependent parts
 // *_SHIFT is the shifting we applied to the reference string
 
-#if FIXME
-#if defined( _WIN32 )
-
-// qagame_mp_x86.dll
-#define SYS_DLLNAME_QAGAME_SHIFT 6
-#define SYS_DLLNAME_QAGAME "wgmgskesve~><4jrr"
-
-// cgame_mp_x86.dll
-#define SYS_DLLNAME_CGAME_SHIFT 2
-#define SYS_DLLNAME_CGAME "eicogaoraz:80fnn"
-
-// ui_mp_x86.dll
-#define SYS_DLLNAME_UI_SHIFT 5
-#define SYS_DLLNAME_UI "zndrud}=;3iqq"
-
-#elif defined( __linux__ )
-
-// qagame.mp.i386.so
-#define SYS_DLLNAME_QAGAME_SHIFT 6
-#define SYS_DLLNAME_QAGAME "wgmgsk4sv4o9><4yu"
-
-// cgame.mp.i386.so
-#define SYS_DLLNAME_CGAME_SHIFT 2
-#define SYS_DLLNAME_CGAME "eicog0or0k5:80uq"
-
-// ui.mp.i386.so
-#define SYS_DLLNAME_UI_SHIFT 5
-#define SYS_DLLNAME_UI "zn3ru3n8=;3xt"
-
-#elif defined( __MACOS__ )
-
-#if !defined RTCW_ET
-#if 1 //DAJ
-// qagame.mp.i386.so
-#define SYS_DLLNAME_QAGAME_SHIFT 6
-#define SYS_DLLNAME_QAGAME "wgmgsk4sv4o9><4yu"
-
-// cgame.mp.i386.so
-#define SYS_DLLNAME_CGAME_SHIFT 2
-#define SYS_DLLNAME_CGAME "eicog0or0k5:80uq"
-
-// ui.mp.i386.so
-#define SYS_DLLNAME_UI_SHIFT 5
-#define SYS_DLLNAME_UI "zn3ru3n8=;3xt"
-
-#else   //DAJ
-// qagame.mp.i386.so
-#define SYS_DLLNAME_QAGAME_SHIFT 0
-#define SYS_DLLNAME_QAGAME "qgame_MP.dll"
-
-// cgame.mp.i386.so
-#define SYS_DLLNAME_CGAME_SHIFT 0
-#define SYS_DLLNAME_CGAME "cgame_MP.dll"
-
-// ui.mp.i386.so
-#define SYS_DLLNAME_UI_SHIFT 0
-#define SYS_DLLNAME_UI "ui_MP.dll"
-#endif  //DAJ
-#else
-#ifdef _DEBUG
-// qagame_d_mac
-	#define SYS_DLLNAME_QAGAME_SHIFT 6
-	#define SYS_DLLNAME_QAGAME "wgmgskejesgi"
-
-// cgame_d_mac
-	#define SYS_DLLNAME_CGAME_SHIFT 2
-	#define SYS_DLLNAME_CGAME "eicogafaoce"
-
-// ui_d_mac
-	#define SYS_DLLNAME_UI_SHIFT 5
-	#define SYS_DLLNAME_UI "zndidrfh"
-#else
-// qagame_mac
-	#define SYS_DLLNAME_QAGAME_SHIFT 6
-	#define SYS_DLLNAME_QAGAME "wgmgskesgi"
-
-// cgame_mac
-	#define SYS_DLLNAME_CGAME_SHIFT 2
-	#define SYS_DLLNAME_CGAME "eicogaoce"
-
-// ui_mac
-	#define SYS_DLLNAME_UI_SHIFT 5
-	#define SYS_DLLNAME_UI "zndrfh"
-#endif
-#endif // RTCW_XX
-
-#else
-#error unknown OS
-#endif
-#else
-
 #ifdef _WIN32
 
 // qagame_mp_x86.dll
@@ -1616,7 +1525,6 @@ void Com_GetHunkInfo( int* hunkused, int* hunkexpected );
 
 #endif // _WIN32
 
-#endif // FIXME
 #endif // RTCW_XX
 
 #endif // _QCOMMON_H_

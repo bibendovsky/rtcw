@@ -3646,9 +3646,7 @@ void Controls_SetConfig( qboolean restart ) {
 
 	// TTimo: FIXME
 	// show_bug.cgi?id=430
-#if !defined( __MACOS__ )
 	DC->executeText( EXEC_APPEND, "in_restart\n" );
-#endif
 }
 
 /*

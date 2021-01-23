@@ -340,16 +340,6 @@ void Con_Dump_f( void ) {
 
 	Com_Printf( "Dumped console text to %s.\n", Cmd_Argv( 1 ) );
 
-#if !defined RTCW_ET
-#ifdef __MACOS__    //DAJ MacOS file typing
-	{
-		extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-		_ftype = 'TEXT';
-		_fcreator = 'R*ch';
-	}
-#endif
-#endif // RTCW_XX
-
 	f = FS_FOpenFileWrite( Cmd_Argv( 1 ) );
 	if ( !f ) {
 		Com_Printf( "ERROR: couldn't open.\n" );
@@ -416,7 +406,7 @@ If the line width has changed, reformat the buffer.
 */
 void Con_CheckResize( void ) {
 	int i, j, width, oldwidth, oldtotallines, numlines, numchars;
-	MAC_STATIC short tbuf[CON_TEXTSIZE];
+	short tbuf[CON_TEXTSIZE];
 
 #if !defined RTCW_ET
 	width = ( SCREEN_WIDTH / SMALLCHAR_WIDTH ) - 2;

@@ -323,9 +323,6 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
-#if defined( __MACOS__ )
-#pragma export on
-#endif
 
 // BBi
 //int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6 ) {
@@ -341,9 +338,6 @@ extern "C" intptr_t vmMain
 {
 // BBi
 
-#if defined( __MACOS__ )
-#pragma export off
-#endif
 	switch ( command ) {
 	case GAME_INIT:
 		G_InitGame( arg0, arg1, arg2 );
