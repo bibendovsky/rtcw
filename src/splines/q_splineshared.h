@@ -107,29 +107,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #endif
 
-#if FIXME
-//======================= LINUX DEFINES =================================
-
-// the mac compiler can't handle >32k of locals, so we
-// just waste space and make big arrays static...
-#ifdef __linux__
-
-#ifdef __i386__
-#define CPUSTRING   "linux-i386"
-#elif defined __axp__
-#define CPUSTRING   "linux-alpha"
-#else
-#define CPUSTRING   "linux-other"
-#endif
-
-#define PATH_SEP '/'
-
-#endif
-
-//=============================================================
-#endif // FIXME
-
-
 
 //typedef enum {qfalse, qtrue}    qboolean;
 typedef int qboolean;

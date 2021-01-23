@@ -326,16 +326,7 @@ static void SV_Map_f( void ) {
 					FS_Delete( va( "%scurrent.sav", savedir ) );
 #endif // RTCW_XX
 
-#if FIXME
-// TTimo
-#ifdef __linux__
-				Com_Error( ERR_DROP, "Unable to save game.\n\nPlease check that you have at least 5mb free of disk space in your home directory." );
-#else
-				Com_Error( ERR_DROP, "Insufficient free disk space.\n\nPlease free at least 5mb of free space on game drive." );
-#endif
-#else
-					Com_Error( ERR_DROP, "Unable to save game." );
-#endif // FIXME
+				Com_Error( ERR_DROP, "Unable to save game." );
 				return;
 			}
 		}

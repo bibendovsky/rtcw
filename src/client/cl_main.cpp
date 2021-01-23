@@ -2307,11 +2307,6 @@ void CL_DownloadsComplete( void ) {
 #else
 			fs_write_path = Cvar_VariableString( "fs_homepath" );
 			fn = FS_BuildOSPath( fs_write_path, FS_ShiftStr( AUTOUPDATE_DIR, AUTOUPDATE_DIR_SHIFT ), autoupdateFilename );
-#if FIXME
-#ifdef __linux__
-			Sys_Chmod( fn, S_IXUSR );
-#endif
-#endif // FIXME
 #endif
 			Sys_StartProcess( fn, qtrue );
 		}
@@ -4281,25 +4276,6 @@ void CL_ShellExecute_URL_f( void ) {
 }
 //----(SA) end
 #else
-
-// BBi
-//#if !defined RTCW_ET
-//void CL_startSingleplayer_f( void ) {
-//#if defined( __linux__ )
-//	Sys_StartProcess( "./wolfsp.x86", qtrue );
-//#else
-//	Sys_StartProcess( "WolfSP.exe", qtrue );
-//#endif
-//}
-//#else
-///*void CL_startSingleplayer_f( void ) {
-//#if defined(__linux__)
-//	Sys_StartProcess( "./wolfsp.x86", qtrue );
-//#else
-//	Sys_StartProcess( "WolfSP.exe", qtrue );
-//#endif
-//}*/
-//#endif // RTCW_XX
 
 void CL_startSingleplayer_f ()
 {

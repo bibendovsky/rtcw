@@ -1422,15 +1422,6 @@ void Sys_OpenURL( const char *url, qboolean doexit );                     // NER
 void Sys_OpenURL( const char *url, qboolean doexit );                       // NERVE - SMF
 #endif // RTCW_XX
 
-#if FIXME
-#if !defined RTCW_SP
-#ifdef __linux__
-// TTimo only on linux .. maybe on Mac too?
-// will OR with the existing mode (chmod ..+..)
-void Sys_Chmod( char *file, int mode );
-#endif
-#endif // RTCW_XX
-#endif // FIXME
 
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
  * Compression book.  The ranks are not actually stored, but implicitly defined

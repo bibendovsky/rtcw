@@ -1648,13 +1648,6 @@ void GL_SetDefaultState( void ) {
 	// BBi
 }
 
-#if FIXME
-#if defined RTCW_ET
-#ifdef __linux__
-extern const char *glx_extensions_string;
-#endif
-#endif // RTCW_XX
-#endif // FIXME
 
 // BBi
 static void gfxPrintExtensions ()
@@ -1718,14 +1711,6 @@ void GfxInfo_f( void ) {
 	ri.Printf (PRINT_ALL, "GL_EXTENSIONS:\n");
 	gfxPrintExtensions ();
 	// BBi
-
-#if FIXME
-#if defined RTCW_ET
-#ifdef __linux__
-	ri.Printf( PRINT_ALL, "GLX_EXTENSIONS: %s\n", glx_extensions_string );
-#endif
-#endif // RTCW_XX
-#endif // FIXME
 
 	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
 	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_UNITS_ARB: %d\n", glConfig.maxActiveTextures );
@@ -2061,21 +2046,6 @@ void R_Register( void ) {
 
 //----(SA)	end
 
-#if FIXME
-#if !defined RTCW_ET
-#ifdef __linux__ // broken on linux
-	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "0", CVAR_ARCHIVE | CVAR_LATCH );
-#else
-	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "1", CVAR_ARCHIVE | CVAR_LATCH );
-#endif
-#else
-#ifdef __linux__ // broken on linux
-	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
-#else
-	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
-#endif
-#endif // RTCW_XX
-#else
 	r_ext_texture_env_add = ri.Cvar_Get(
 		"r_ext_texture_env_add",
 		"1",
@@ -2084,7 +2054,6 @@ void R_Register( void ) {
 		| CVAR_UNSAFE
 #endif // RTCW_XX
 	);
-#endif // FIXME
 
 // BBi
 //#if defined RTCW_ET
@@ -2294,27 +2263,6 @@ void R_Register( void ) {
 	r_uiFullScreen = ri.Cvar_Get( "r_uifullscreen", "0", 0 );
 	r_subdivisions = ri.Cvar_Get( "r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH );
 
-#if FIXME
-#if !defined RTCW_ET
-#ifdef MACOS_X
-	// Default to using SMP on Mac OS X if we have multiple processors
-	r_smp = ri.Cvar_Get( "r_smp", Sys_ProcessorCount() > 1 ? "1" : "0", CVAR_ARCHIVE | CVAR_LATCH );
-#else
-	r_smp = ri.Cvar_Get( "r_smp", "0", CVAR_ARCHIVE | CVAR_LATCH );
-#endif
-#else
-#ifdef MACOS_X
-	// Default to using SMP on Mac OS X if we have multiple processors
-	r_smp = ri.Cvar_Get( "r_smp", Sys_ProcessorCount() > 1 ? "1" : "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
-#elif defined WIN32
-	// ydnar: r_smp is nonfunctional on windows
-	r_smp = ri.Cvar_Get( "r_smp", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE | CVAR_ROM );
-	Cvar_Set( "r_smp", "0" );
-#else
-	r_smp = ri.Cvar_Get( "r_smp", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
-#endif
-#endif // RTCW_XX
-#else
 	r_smp = ri.Cvar_Get(
 		"r_smp",
 		"0",
@@ -2323,7 +2271,6 @@ void R_Register( void ) {
 		| CVAR_UNSAFE
 #endif // RTCW_XX
 	);
-#endif // FIXME
 
 #if FIXME
 #if !defined RTCW_ET
