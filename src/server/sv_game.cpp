@@ -795,14 +795,10 @@ int32_t SV_GameSystemCalls (
 
 		// START	xkan, 10/28/2002
 	case G_REGISTERSOUND:
-#ifdef DOOMSOUND    ///// (SA) DOOMSOUND
-		return S_RegisterSound( VMA(1) );
-#else
 		return S_RegisterSound(
 			rtcw::from_vm_arg<const char*>(VMA(1)),
 			rtcw::from_vm_arg<qboolean>(args[2])
 		);
-#endif  ///// (SA) DOOMSOUND
 
 	case G_GET_SOUND_LENGTH:
 		return S_GetSoundLength(rtcw::from_vm_arg<sfxHandle_t>(rtcw::from_vm_arg<int>(args[1])));

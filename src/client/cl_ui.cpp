@@ -1390,10 +1390,6 @@ int32_t CL_UISystemCalls (
 		);
 
 	case UI_S_REGISTERSOUND:
-#ifdef DOOMSOUND    ///// (SA) DOOMSOUND
-		return S_RegisterSound( VMA(1) );
-#else
-
 #if !defined RTCW_ET
 		return S_RegisterSound(
 			rtcw::from_vm_arg<const char*>(VMA(1)),
@@ -1405,8 +1401,6 @@ int32_t CL_UISystemCalls (
 			rtcw::from_vm_arg<qboolean>(args[2])
 		);
 #endif // RTCW_XX
-
-#endif  ///// (SA) DOOMSOUND
 
 	case UI_S_STARTLOCALSOUND:
 		S_StartLocalSound(

@@ -14,7 +14,6 @@
 - cpu id: remove or fix
 - Exclude source files from dedicated builds with preprocessor.
 - Gfx lags for windowed mode (x64 SP, x64 MP).
-- Remove DOOMSOUND code
 - Remove __MACOS__ related code.
 - Use fixed-size types.
 - Try to toggle between fake fullscreen mode and windowed mode without restarting the video subsystem.
