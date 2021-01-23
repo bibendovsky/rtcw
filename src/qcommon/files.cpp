@@ -2276,21 +2276,6 @@ qboolean FS_AllowDeletion( const char *filename ) {
 	return qtrue;
 }
 
-static bool sys_fs_remove(
-	const char* path)
-{
-	try
-	{
-		const auto path_u8 = std::filesystem::u8path(path);
-		std::filesystem::remove(path_u8);
-
-		return true;
-	}
-	catch (...)
-	{
-		return false;
-	}
-}
 
 /*
 ==============
@@ -2342,7 +2327,7 @@ int FS_DeleteDir( const char *dirname, qboolean nonEmpty, qboolean recursive ) {
 #if FIXME
 			if ( remove( ospath ) == -1 ) {  // failure
 #else
-			if (!sys_fs_remove(ospath))
+			if (!FS_Remove(ospath))
 			{
 #endif // FIXME
 				return 0;
@@ -2356,7 +2341,7 @@ int FS_DeleteDir( const char *dirname, qboolean nonEmpty, qboolean recursive ) {
 #if FIXME
 	if ( Q_rmdir( ospath ) == 0 ) {
 #else
-	if (sys_fs_remove(ospath))
+	if (FS_Remove(ospath))
 	{
 #endif // FIXME
 		return 1;
@@ -2459,7 +2444,12 @@ int FS_Delete( const char *filename ) {
 	ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, filename );
 
 #if !defined RTCW_ET
+#if FIXME
 	if ( remove( ospath ) != -1 ) {  // success
+#else
+	if (FS_Remove(ospath))
+	{
+#endif // FIXME
 		return 1;
 	}
 #else
@@ -2474,7 +2464,7 @@ int FS_Delete( const char *filename ) {
 #if FIXME
 		if ( remove( ospath ) != -1 ) {  // success
 #else
-		if (sys_fs_remove(ospath))
+		if (FS_Remove(ospath))
 		{
 #endif // FIXME
 			return 1;
