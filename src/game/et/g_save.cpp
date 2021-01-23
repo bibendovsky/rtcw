@@ -281,16 +281,7 @@ G_SaveWriteError
 ===============
 */
 void G_SaveWriteError( void ) {
-#if FIXME
-// TTimo
-#ifdef __linux__
-	G_Error( "Unable to save game.\n\nPlease check that you have at least 5mb free of disk space in your home directory." );
-#else
-	G_Error( "Insufficient free disk space.\n\nPlease free at least 5mb of free space on game drive." );
-#endif
-#else
 	G_Error("Unable to save game.");
-#endif // FIXME
 }
 
 static int saveByteCount;

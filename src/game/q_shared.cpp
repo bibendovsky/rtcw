@@ -34,26 +34,11 @@ If you have questions concerning this license or the applicable additional terms
 // q_shared.c -- stateless support routines that are included in each code dll
 #include "q_shared.h"
 
-#if defined RTCW_SP
 /*
 ============
 Com_Clamp
 ============
 */
-#else
-// os x game bundles have no standard library links, and the defines are not always defined!
-
-#ifdef MACOS_X
-int qmax( int x, int y ) {
-	return ( ( ( x ) > ( y ) ) ? ( x ) : ( y ) );
-}
-
-int qmin( int x, int y ) {
-	return ( ( ( x ) < ( y ) ) ? ( x ) : ( y ) );
-}
-#endif
-#endif // RTCW_XX
-
 float Com_Clamp( float min, float max, float value ) {
 	if ( value < min ) {
 		return min;

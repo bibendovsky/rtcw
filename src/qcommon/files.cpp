@@ -50,16 +50,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "q_shared.h"
 #include "qcommon.h"
 
-#if FIXME
-#if defined RTCW_ET
-#ifdef _WIN32
-#include <direct.h>
-#endif
-#ifdef __linux__
-#include <unistd.h>
-#endif
-#endif // RTCW_XX
-#endif // FIXME
 
 /*
 =============================================================================
@@ -2261,16 +2251,6 @@ qboolean FS_CL_ExtractFromPakFile( const char *fullpath, const char *gamedir, co
 		FS_Write( srcData, srcLength, f );
 
 		FS_FCloseFile( f );
-
-#if FIXME
-#ifdef __linux__
-		// show_bug.cgi?id=463
-		// need to keep track of what versions we extract
-		if ( cvar_lastVersion ) {
-			Cvar_Set( cvar_lastVersion, Cvar_VariableString( "version" ) );
-		}
-#endif
-#endif // FIXME
 	}
 
 	FS_FreeFile( srcData );
