@@ -1137,10 +1137,6 @@ int32_t CL_CgameSystemCalls (
 		return 0;
 
 	case CG_S_REGISTERSOUND:
-#ifdef DOOMSOUND    ///// (SA) DOOMSOUND
-		return S_RegisterSound( VMA(1) );
-#else
-
 #if !defined RTCW_ET
 		return S_RegisterSound(
 			rtcw::from_vm_arg<const char*>(VMA(1)),
@@ -1152,8 +1148,6 @@ int32_t CL_CgameSystemCalls (
 			rtcw::from_vm_arg<qboolean>(args[2])
 		);
 #endif // RTCW_XX
-
-#endif  ///// (SA) DOOMSOUND
 
 #if !defined RTCW_MP
 	case CG_S_STARTBACKGROUNDTRACK:
