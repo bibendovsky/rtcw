@@ -451,7 +451,7 @@ public:
 }; // GlConfigEx
 // BBi
 
-#if !defined _WIN32
+#if !_WIN32
 
 #define _3DFX_DRIVER_NAME   "libMesaVoodooGL.so.3.1"
 

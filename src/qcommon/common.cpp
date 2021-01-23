@@ -121,7 +121,7 @@ cvar_t  *com_logosPlaying;
 cvar_t  *cl_paused;
 cvar_t  *sv_paused;
 cvar_t  *com_cameraMode;
-#if defined( _WIN32 ) && defined( _DEBUG )
+#if _WIN32 && _DEBUG
 cvar_t  *com_noErrorInterrupt;
 #endif
 cvar_t  *com_recommendedSet;
@@ -3343,7 +3343,7 @@ void Com_Init( char *commandLine ) {
 	Cvar_Get( "savegame_loading", "0", CVAR_ROM );
 #endif // RTCW_XX
 
-#if defined( _WIN32 ) && defined( _DEBUG )
+#if _WIN32 && _DEBUG
 	com_noErrorInterrupt = Cvar_Get( "com_noErrorInterrupt", "0", 0 );
 #endif
 

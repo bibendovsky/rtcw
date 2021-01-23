@@ -51,7 +51,7 @@ If you have questions concerning this license or the applicable additional terms
 
 //#define DEBUG			//debug code
 #define RANDOMIZE       //randomize bot behaviour
-#if defined( _WIN32 )
+#if _WIN32
 #define AASZIP          //allow reading directly from aasX.zip files
 #endif
 #define QUAKE2          //bot for Quake2
