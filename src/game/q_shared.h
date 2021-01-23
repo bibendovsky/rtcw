@@ -188,13 +188,6 @@ If you have questions concerning this license or the applicable additional terms
 // BBi
 
 
-// this is the define for determining if we have an asm version of a C function
-#ifndef id386
-#define id386 (0)
-#endif
-
-// for windows fastcall option
-
 #ifdef _WIN32
 
 #define QDECL __cdecl

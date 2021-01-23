@@ -72,11 +72,6 @@ If you have questions concerning this license or the applicable additional terms
 // use MSVC inline asm version of C functions
 #endif // RTCW_XX
 
-#ifndef id386
-#define id386 (0)
-#endif
-
-// for windows fastcall option
 
 #define QDECL
 
@@ -86,22 +81,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #undef QDECL
 #define QDECL   __cdecl
-
-// buildstring will be incorporated into the version string
-#ifdef NDEBUG
-#ifdef _M_IX86
-#define CPUSTRING   "win-x86"
-#elif defined _M_ALPHA
-#define CPUSTRING   "win-AXP"
-#endif
-#else
-#ifdef _M_IX86
-#define CPUSTRING   "win-x86-debug"
-#elif defined _M_ALPHA
-#define CPUSTRING   "win-AXP-debug"
-#endif
-#endif
-
 
 #define PATH_SEP '\\'
 
