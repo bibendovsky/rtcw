@@ -44,7 +44,29 @@ extern "C" int main(
 {
 	if (SDL_Init(0) != 0)
 	{
-		// TODO Print out some message.
+		auto sdl_error_message = SDL_GetError();
+
+		if (sdl_error_message == nullptr)
+		{
+			sdl_error_message = "";
+		}
+
+		const auto sdl_error_message_size = std::string::traits_type::length(sdl_error_message);
+
+		auto error_message = std::string{};
+		error_message.reserve(sdl_error_message_size + 64);
+		error_message += "Failed to initialize SDL (";
+		error_message.append(sdl_error_message, sdl_error_message_size);
+		error_message += ").";
+
+		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "%s", error_message.c_str());
+
+		SDL_ShowSimpleMessageBox(
+			SDL_MESSAGEBOX_ERROR,
+			"rtcw",
+			error_message.c_str(),
+			nullptr);
+
 		return 1;
 	}
 
