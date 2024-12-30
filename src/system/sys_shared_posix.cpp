@@ -41,6 +41,11 @@ If you have questions concerning this license or the applicable additional terms
 
 namespace {
 
+template<typename T>
+void ignore_result(const T&) {}
+
+// ==========================================================================
+
 class SysDirPosix
 {
 public:
@@ -66,9 +71,6 @@ private:
 private:
 	SysDirPosix(const char* path);
 	~SysDirPosix();
-
-	template<typename T>
-	static void ignore_result(const T&) {}
 
 	bool is_open() const;
 	void close();
@@ -250,6 +252,22 @@ const SysDirEntry* sys_read_dir(SysDirHandle handle)
 void sys_close_dir(SysDirHandle& handle)
 {
 	SysDirPosix::destroy(reinterpret_cast<SysDirPosix*>(handle));
+}
+
+// ==========================================================================
+
+void Sys_Mkdir(const char* path)
+{
+	const int posix_result = ::mkdir(path, 0777);
+
+#ifndef NDEBUG
+	if (posix_result != 0)
+	{
+		assert(errno == EEXIST);
+	}
+#endif
+
+	ignore_result(posix_result);
 }
 
 #endif // _WIN32

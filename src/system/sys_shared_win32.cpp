@@ -41,6 +41,11 @@ If you have questions concerning this license or the applicable additional terms
 
 namespace {
 
+template<typename T>
+void ignore_result(const T&) {}
+
+// ==========================================================================
+
 class SysDirWin32
 {
 public:
@@ -67,9 +72,6 @@ private:
 private:
 	SysDirWin32(const char* path);
 	~SysDirWin32();
-
-	template<typename T>
-	static void ignore_result(const T&) {}
 
 	bool is_open() const;
 	void close();
@@ -259,6 +261,36 @@ const SysDirEntry* sys_read_dir(SysDirHandle handle)
 void sys_close_dir(SysDirHandle& handle)
 {
 	SysDirWin32::destroy(reinterpret_cast<SysDirWin32*>(handle));
+}
+
+// ==========================================================================
+
+void Sys_Mkdir(const char* path)
+{
+	const int max_path_size = 1024;
+	wchar_t u16_path[max_path_size];
+
+	// Convert the path to UTF-16.
+	//
+	const int u16_path_size = ::MultiByteToWideChar(CP_UTF8, 0, path, -1, u16_path, max_path_size);
+
+	if (u16_path_size == 0)
+	{
+		assert(false && "MultiByteToWideChar");
+		return;
+	}
+
+	const BOOL win32_result = ::CreateDirectoryW(u16_path, NULL);
+
+#ifndef NDEBUG
+	if (win32_result != TRUE)
+	{
+		const DWORD last_error = ::GetLastError();
+		assert(last_error == ERROR_ALREADY_EXISTS);
+	}
+#endif // NDEBUG
+
+	ignore_result(win32_result);
 }
 
 #endif // _WIN32

@@ -161,16 +161,7 @@ void Sys_Print(
 	Conbuf_AppendText(msg);
 }
 
-void Sys_Mkdir(
-	const char* path)
-try
-{
-	const auto path_u8 = std::filesystem::u8path(path);
-	std::filesystem::create_directory(path_u8);
-}
-catch (...)
-{
-}
+extern void Sys_Mkdir(const char* path);
 
 char* Sys_Cwd()
 {
