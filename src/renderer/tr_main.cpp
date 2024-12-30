@@ -1912,16 +1912,20 @@ qsort replacement
 */
 
 // BBi
+namespace {
+
 //#define SWAP_DRAW_SURF( a,b ) temp = ( (int *)a )[0]; ( (int *)a )[0] = ( (int *)b )[0]; ( (int *)b )[0] = temp; temp = ( (int *)a )[1]; ( (int *)a )[1] = ( (int *)b )[1]; ( (int *)b )[1] = temp;
-static inline void SWAP_DRAW_SURF (drawSurf_t* a, drawSurf_t* b)
+void SWAP_DRAW_SURF (drawSurf_t* a, drawSurf_t* b)
 {
-	std::swap (*a, *b);
+	std::swap(*a, *b);
 }
 
-static inline void SWAP_DRAW_SURF (char* a, char* b)
+void SWAP_DRAW_SURF (char* a, char* b)
 {
-	std::swap_ranges (a, a + sizeof (drawSurf_t), b);
+	SWAP_DRAW_SURF(reinterpret_cast<drawSurf_t*>(a), reinterpret_cast<drawSurf_t*>(b));
 }
+
+} // namespace
 // BBi
 
 /* this parameter defines the cutoff between using quick sort and
