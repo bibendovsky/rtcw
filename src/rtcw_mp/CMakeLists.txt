@@ -123,6 +123,7 @@ target_sources (
 		../system/sys_events.h
 		../system/sys_input.h
 		../system/sys_local.h
+		../system/sys_shared.h
 		../ui/keycodes.h
 		../ui/ui_public.h
 		../win32/rtcw_mp_resource.h
@@ -259,6 +260,8 @@ target_sources (
 		../system/sys_main.cpp
 		../system/sys_net.cpp
 		../system/sys_shared.cpp
+		../system/sys_shared_posix.cpp
+		../system/sys_shared_win32.cpp
 		../system/sys_syscon.cpp
 )
 

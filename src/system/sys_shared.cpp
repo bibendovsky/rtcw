@@ -47,6 +47,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "qcommon.h"
 #include "sys_events.h"
 #include "sys_local.h"
+#include "sys_shared.h"
 
 
 int Sys_Milliseconds()
@@ -198,253 +199,90 @@ const char* Sys_DefaultBasePath()
 	return Sys_Cwd();
 }
 
+namespace {
 
-struct SysListFilesIteratorContext
+const int MAX_FOUND_FILES = 0x1000;
+
+void Sys_ListFilteredFiles(const char* basedir, const char* subdirs, const char* filter, char** list, int* numfiles)
 {
-	bool is_recursive;
-
-	std::filesystem::directory_iterator iterator;
-	std::filesystem::directory_iterator end_iterator;
-
-	std::filesystem::recursive_directory_iterator r_iterator;
-	std::filesystem::recursive_directory_iterator end_r_iterator;
-}; // SysListFilesIteratorContext
-
-
-class SysListFilesIteratorProxy
-{
-public:
-	SysListFilesIteratorProxy() noexcept = default;
-
-	SysListFilesIteratorProxy(
-		SysListFilesIteratorContext* context)
-		:
-		context_{context}
+	if (numfiles == NULL || *numfiles >= MAX_FOUND_FILES - 1)
 	{
+		return;
 	}
 
+	char search[MAX_OSPATH];
 
-	bool operator==(
-		const SysListFilesIteratorProxy& rhs) const noexcept
+	if (subdirs[0] != '\0')
 	{
-		return context_ == rhs.context_;
+		Com_sprintf(search, sizeof(search), "%s%c%s", basedir, PATH_SEP, subdirs);
+	}
+	else
+	{
+		Com_sprintf(search, sizeof(search), "%s", basedir);
 	}
 
-	bool operator!=(
-		const SysListFilesIteratorProxy& rhs) const noexcept
+	SysDirHandle fdir;
+
+	if ((fdir = sys_open_dir(search)) == NULL)
 	{
-		return !operator==(rhs);
+		return;
 	}
 
+	const SysDirEntry* d;
+	char newsubdirs[MAX_OSPATH];
+	char filename[MAX_OSPATH];
 
-	const std::filesystem::directory_entry& operator*() const
+	while ((d = sys_read_dir(fdir)) != NULL)
 	{
-		assert(context_ != nullptr);
+		Com_sprintf(filename, sizeof(filename), "%s%c%s", search, PATH_SEP, d->name);
 
-		if (context_->is_recursive)
+		if (d->is_dir)
 		{
-			return context_->r_iterator.operator*();
-		}
-		else
-		{
-			return context_->iterator.operator*();
-		}
-	}
-
-	const std::filesystem::directory_entry* operator->() const
-	{
-		assert(context_ != nullptr);
-
-		if (context_->is_recursive)
-		{
-			return context_->r_iterator.operator->();
-		}
-		else
-		{
-			return context_->iterator.operator->();
-		}
-	}
-
-	void operator++()
-	{
-		assert(context_ != nullptr);
-
-		if (context_->is_recursive)
-		{
-			++context_->r_iterator;
-
-			if (context_->r_iterator == std::filesystem::recursive_directory_iterator{})
+			if (Q_stricmp(d->name, ".") != 0 && Q_stricmp(d->name, "..") != 0)
 			{
-				context_ = nullptr;
-			}
-		}
-		else
-		{
-			++context_->iterator;
-
-			if (context_->iterator == std::filesystem::directory_iterator{})
-			{
-				context_ = nullptr;
-			}
-		}
-	}
-
-
-private:
-	SysListFilesIteratorContext* context_{};
-}; // SysListFilesIteratorProxy
-
-
-class SysListFilesIterator
-{
-public:
-	SysListFilesIterator(
-		const std::filesystem::path& path,
-		bool is_recursive)
-	{
-		context_.is_recursive = is_recursive;
-
-		const auto flags =
-			std::filesystem::directory_options::follow_directory_symlink |
-			std::filesystem::directory_options::skip_permission_denied;
-
-		if (context_.is_recursive)
-		{
-			context_.r_iterator = std::filesystem::recursive_directory_iterator{path, flags};
-		}
-		else
-		{
-			context_.iterator = std::filesystem::directory_iterator{path, flags};
-		}
-	}
-
-	SysListFilesIteratorProxy begin()
-	{
-		return SysListFilesIteratorProxy{&context_};
-	}
-
-	SysListFilesIteratorProxy end()
-	{
-		return SysListFilesIteratorProxy{};
-	}
-
-
-private:
-	SysListFilesIteratorContext context_{};
-}; // SysListFilesIterator
-
-class SysListFilesEntryFilter
-{
-public:
-	SysListFilesEntryFilter(
-		const char* extension,
-		const char* filter)
-		:
-		extension_{extension != nullptr ? extension : ""},
-		filter_{filter}
-	{
-		if (filter_ != nullptr)
-		{
-			is_match_method_ = &SysListFilesEntryFilter::is_match_filter_internal;
-		}
-		else if (extension_[0] != '\0')
-		{
-			if (extension_[0] == '/' && extension_[1] == '\0')
-			{
-				is_match_method_ = &SysListFilesEntryFilter::is_match_all_dirs_internal;
-			}
-			else
-			{
-				if (extension_[0] == '.')
+				if (subdirs[0] != '\0')
 				{
-					extension_u8_ = std::filesystem::u8path(extension_);
+					Com_sprintf(newsubdirs, sizeof(newsubdirs), "%s%c%s", subdirs, PATH_SEP, d->name);
 				}
 				else
 				{
-					const auto extension_with_dot = std::string{"."} + extension;
-					extension_u8_ = std::filesystem::u8path(extension_with_dot);
+					Com_sprintf(newsubdirs, sizeof(newsubdirs), "%s", d->name);
 				}
 
-				is_match_method_ = &SysListFilesEntryFilter::is_match_extension_internal;
+				Sys_ListFilteredFiles(basedir, newsubdirs, filter, list, numfiles);
 			}
 		}
-		else
+
+		if (*numfiles >= MAX_FOUND_FILES - 1)
 		{
-			is_match_method_ = &SysListFilesEntryFilter::is_match_all_files_internal;
-		}
-	}
-
-	bool is_match(
-		const std::filesystem::directory_entry& dir_entry) const
-	{
-		return (this->*is_match_method_)(dir_entry);
-	}
-
-
-private:
-	using Method = bool (SysListFilesEntryFilter::*)(
-		const std::filesystem::directory_entry& dir_entry) const;
-
-
-	const char* extension_{};
-	std::filesystem::path extension_u8_{};
-	const char* filter_{};
-	Method is_match_method_{};
-
-
-	bool is_match_all_files_internal(
-		const std::filesystem::directory_entry& dir_entry) const
-	{
-		return dir_entry.is_regular_file();
-	}
-
-	bool is_match_filter_internal(
-		const std::filesystem::directory_entry& dir_entry) const
-	{
-		if (!dir_entry.is_regular_file())
-		{
-			return false;
+			break;
 		}
 
-		const auto entry_path_u8 = dir_entry.path().u8string();
+		Com_sprintf(filename, sizeof(filename), "%s%c%s", subdirs, PATH_SEP, d->name);
 
-		return Com_FilterPath(filter_, entry_path_u8.c_str(), false) != 0;
-	}
-
-	bool is_match_all_dirs_internal(
-		const std::filesystem::directory_entry& dir_entry) const
-	{
-		return dir_entry.is_directory();
-	}
-
-	bool is_match_extension_internal(
-		const std::filesystem::directory_entry& dir_entry) const
-	{
-		if (!dir_entry.is_regular_file())
+		if (!Com_FilterPath(filter, filename, qfalse))
 		{
-			return false;
+			continue;
 		}
 
-		const auto entry_extension_u8 = dir_entry.path().extension().u8string();
-
-		return entry_extension_u8 == extension_u8_;
+		list[*numfiles] = CopyString(filename);
+		(*numfiles)++;
 	}
-}; // SysListFilesEntryFilter
 
+	sys_close_dir(fdir);
+}
 
-bool sys_list_files_sort_predicate(
-	const char* s0,
-	const char* s1)
+bool strgtr(const char* s0, const char* s1)
 {
-	auto l0 = strlen(s0);
-	const auto l1 = strlen(s1);
+	size_t l0 = strlen(s0);
+	const size_t l1 = strlen(s1);
 
 	if (l1 < l0)
 	{
 		l0 = l1;
 	}
 
-	for (auto i = 0; i < l0; ++i)
+	for (size_t i = 0; i < l0; ++i)
 	{
 		if (s1[i] > s0[i])
 		{
@@ -460,6 +298,8 @@ bool sys_list_files_sort_predicate(
 	return false;
 }
 
+} // namespace
+
 char** Sys_ListFiles(
 	const char* directory,
 	const char* extension,
@@ -467,88 +307,111 @@ char** Sys_ListFiles(
 	int* numfiles,
 	qboolean wantsubs)
 {
-	if (numfiles == nullptr)
+	char* list[MAX_FOUND_FILES];
+
+	if (filter != NULL)
 	{
-		return nullptr;
+		int nfiles = 0;
+		Sys_ListFilteredFiles(directory, "", filter, list, &nfiles);
+		list[nfiles] = NULL;
+		*numfiles = nfiles;
+
+		if (nfiles == 0)
+		{
+			return NULL;
+		}
+
+		char** list_copy = static_cast<char**>(Z_Malloc((nfiles + 1) * sizeof(*list_copy)));
+		std::copy(list, &list[nfiles], list_copy);
+		list_copy[nfiles] = NULL;
+		return list_copy;
 	}
 
-	auto& file_count = *numfiles;
+	qboolean dironly = wantsubs;
 
-	file_count = 0;
-
-	if (directory == nullptr)
-	{
-		directory = "";
-	}
-
-	if (extension == nullptr)
+	if (extension == NULL)
 	{
 		extension = "";
 	}
 
-	constexpr auto MAX_FOUND_FILES = 0x1000;
-	char* list[MAX_FOUND_FILES];
-
-	auto directory_length = 0;
-
-	const auto directory_string_view = std::string_view{directory};
-
-	if (!directory_string_view.empty())
+	if (extension[0] == '/' && extension[1] == '\0')
 	{
-		directory_length = static_cast<int>(directory_string_view.size());
+		extension = "";
+		dironly = qtrue;
+	}
 
-		const auto last_char = directory_string_view.back();
+	int nfiles = 0;
+	SysDirHandle fdir;
 
-		if (last_char != '\\' && last_char != '/')
+	if ((fdir = sys_open_dir(directory)) == NULL)
+	{
+		*numfiles = 0;
+		return NULL;
+	}
+
+	const SysDirEntry* d;
+	char search[MAX_OSPATH];
+
+	while ((d = sys_read_dir(fdir)) != NULL)
+	{
+		Com_sprintf(search, sizeof(search), "%s%c%s", directory, PATH_SEP, d->name);
+
+		if ((dironly && !d->is_dir) || (!dironly && d->is_dir))
 		{
-			directory_length += 1;
+			continue;
+		}
+
+		if (extension[0] != '\0')
+		{
+			if (strlen(d->name) < strlen(extension) ||
+				Q_stricmp(d->name + strlen(d->name) - strlen(extension), extension))
+			{
+				continue; // didn't match
+			}
+		}
+
+		if (nfiles == MAX_FOUND_FILES - 1)
+		{
+			break;
+		}
+
+		list[nfiles] = CopyString(d->name);
+		++nfiles;
+	}
+
+	list[nfiles] = NULL;
+	sys_close_dir(fdir);
+
+	// return a copy of the list
+	*numfiles = nfiles;
+
+	if (nfiles == 0)
+	{
+		return NULL;
+	}
+
+	char** list_copy = static_cast<char**>(Z_Malloc((nfiles + 1) * sizeof(*list_copy)));
+	std::copy(list, &list[nfiles], list_copy);
+	list_copy[nfiles] = NULL;
+
+	bool flag;
+
+	do
+	{
+		flag = false;
+
+		for (int i = 1; i < nfiles; ++i)
+		{
+			if (strgtr(list_copy[i - 1], list_copy[i]))
+			{
+				char* temp = list_copy[i];
+				list_copy[i] = list_copy[i - 1];
+				list_copy[i - 1] = temp;
+				flag = true;
+			}
 		}
 	}
-
-	try
-	{
-		const auto directory_u8 = std::filesystem::u8path(directory);
-
-		const auto entry_filter = SysListFilesEntryFilter{extension, filter};
-
-		for (const auto& entry : SysListFilesIterator{directory_u8, wantsubs != 0})
-		{
-			if (!entry_filter.is_match(entry))
-			{
-				continue;
-			}
-
-			if (file_count == (MAX_FOUND_FILES - 1))
-			{
-				break;
-			}
-
-			const auto entry_path_u8 = entry.path().u8string();
-			const auto entry_name_u8 = entry_path_u8.c_str() + directory_length;
-
-			list[file_count] = CopyString(entry_name_u8);
-			file_count += 1;
-		}
-	}
-	catch (...)
-	{
-	}
-
-	if (file_count == 0)
-	{
-		return nullptr;
-	}
-
-	list[file_count] = nullptr;
-
-	std::sort(list, list + file_count, sys_list_files_sort_predicate);
-
-	auto list_copy = static_cast<char**>(Z_Malloc((file_count + 1) * static_cast<int>(sizeof(char*))));
-
-	for (auto i = 0; i <= file_count; ++i)
-	{
-		list_copy[i] = list[i];
-	}
+	while (flag);
 
 	return list_copy;
 }
