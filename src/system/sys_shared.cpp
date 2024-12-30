@@ -37,9 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <algorithm>
 #include <chrono>
-#include <filesystem>
 #include <string>
-#include <string_view>
 
 #include "SDL.h"
 
@@ -162,23 +160,7 @@ void Sys_Print(
 }
 
 extern void Sys_Mkdir(const char* path);
-
-char* Sys_Cwd()
-{
-	static auto current_path = std::string{};
-
-	try
-	{
-		const auto path = std::filesystem::current_path();
-		current_path = path.u8string();
-	}
-	catch (...)
-	{
-		current_path.clear();
-	}
-
-	return current_path.data();
-}
+extern char* Sys_Cwd();
 
 const char* Sys_DefaultCDPath()
 {

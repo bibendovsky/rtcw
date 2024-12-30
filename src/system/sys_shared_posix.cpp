@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <string.h>
 #include <new>
 #include <dirent.h>
+#include <unistd.h>
 #include <sys/stat.h>
 
 // ==========================================================================
@@ -268,6 +269,23 @@ void Sys_Mkdir(const char* path)
 #endif
 
 	ignore_result(posix_result);
+}
+
+// ==========================================================================
+
+char* Sys_Cwd()
+{
+	const int max_path_size = 1024;
+	static char path[max_path_size];
+	char* posix_result = ::getcwd(path, max_path_size);
+
+	if (posix_result == NULL)
+	{
+		assert(false && "getcwd");
+		path[0] = '\0';
+	}
+
+	return path;
 }
 
 #endif // _WIN32

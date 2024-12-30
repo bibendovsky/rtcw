@@ -43,5 +43,6 @@ const SysDirEntry* sys_read_dir(SysDirHandle handle);
 void sys_close_dir(SysDirHandle& handle);
 
 void Sys_Mkdir(const char* path);
+char* Sys_Cwd();
 
 #endif // SYS_SHARED_INCLUDED

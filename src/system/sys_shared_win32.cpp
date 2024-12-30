@@ -293,4 +293,35 @@ void Sys_Mkdir(const char* path)
 	ignore_result(win32_result);
 }
 
+// ==========================================================================
+
+char* Sys_Cwd()
+{
+	const DWORD max_path_size = 1024;
+	static char u8_path[max_path_size];
+	wchar_t u16_path[max_path_size];
+
+	const DWORD u16_path_length = ::GetCurrentDirectoryW(max_path_size - 1, u16_path);
+
+	if (u16_path_length > max_path_size - 1)
+	{
+		assert(false && "Path buffer too small.");
+		u8_path[0] = '\0';
+		return u8_path;
+	}
+
+	const int u16_size = static_cast<int>(u16_path_length + 1);
+	const int u8_size = ::WideCharToMultiByte(
+		CP_UTF8, 0, u16_path, u16_size, u8_path, static_cast<int>(max_path_size), NULL, NULL);
+
+	if (u8_size == 0)
+	{
+		assert(false && "Path buffer too small.");
+		u8_path[0] = '\0';
+		return u8_path;
+	}
+
+	return u8_path;
+}
+
 #endif // _WIN32
