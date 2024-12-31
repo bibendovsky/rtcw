@@ -44,5 +44,6 @@ void sys_close_dir(SysDirHandle& handle);
 
 void Sys_Mkdir(const char* path);
 char* Sys_Cwd();
+int Sys_Milliseconds();
 
 #endif // SYS_SHARED_INCLUDED

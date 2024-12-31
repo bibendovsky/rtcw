@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <string.h>
 #include <new>
 #include <dirent.h>
+#include <time.h>
 #include <unistd.h>
 #include <sys/stat.h>
 
@@ -286,6 +287,34 @@ char* Sys_Cwd()
 	}
 
 	return path;
+}
+
+// ==========================================================================
+
+int Sys_Milliseconds()
+{
+	static bool is_initialized = false;
+	static long long time_base_ms = 0;
+
+	struct timespec posix_timespec;
+	const int posix_result = ::clock_gettime(CLOCK_REALTIME, &posix_timespec);
+
+	if (posix_result != 0)
+	{
+		return -1;
+	}
+
+	const long long current_time_ms = (posix_timespec.tv_sec * 1000000000LL + posix_timespec.tv_nsec) / 1000000LL;
+
+	if (!is_initialized)
+	{
+		is_initialized = true;
+		time_base_ms = current_time_ms;
+		return 0;
+	}
+
+	const long long diff_ms = current_time_ms - time_base_ms;
+	return static_cast<int>(diff_ms);
 }
 
 #endif // _WIN32

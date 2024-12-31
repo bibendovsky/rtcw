@@ -28,8 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef _WIN32
 
-#define WIN32_LEAN_AND_MEAN
-
 #include "sys_shared.h"
 #include <assert.h>
 #include <stddef.h>
@@ -322,6 +320,26 @@ char* Sys_Cwd()
 	}
 
 	return u8_path;
+}
+
+// ==========================================================================
+
+int Sys_Milliseconds()
+{
+	static bool is_initialized = false;
+	static DWORD time_base_ms = 0;
+
+	const DWORD current_time_ms = ::timeGetTime();
+
+	if (!is_initialized)
+	{
+		is_initialized = true;
+		time_base_ms = current_time_ms;
+		return 0;
+	}
+
+	const DWORD time_diff = current_time_ms - time_base_ms;
+	return static_cast<int>(time_diff);
 }
 
 #endif // _WIN32

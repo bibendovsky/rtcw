@@ -36,7 +36,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <cmath>
 
 #include <algorithm>
-#include <chrono>
 #include <string>
 
 #include "SDL.h"
@@ -47,30 +46,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "sys_local.h"
 #include "sys_shared.h"
 
-
-int Sys_Milliseconds()
-{
-	using Clock = std::chrono::steady_clock;
-	using TimePoint = Clock::time_point;
-
-	static auto time_base = TimePoint{};
-	static auto is_initialized = false;
-
-	if (is_initialized)
-	{
-		const auto time_delta = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - time_base);
-		const auto time_delta_ms = time_delta.count();
-
-		return static_cast<int>(time_delta_ms);
-	}
-	else
-	{
-		is_initialized = true;
-		time_base = Clock::now();
-
-		return 0;
-	}
-}
+extern int Sys_Milliseconds();
 
 void Sys_SnapVector(
 	float* v)
