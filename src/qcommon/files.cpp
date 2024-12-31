@@ -1120,32 +1120,7 @@ void FS_CopyFileOS( char *from, char *to ) {
 }
 #endif // RTCW_XX
 
-/*
-===========
-FS_Remove
-
-===========
-*/
-#if FIXME
-static void FS_Remove( const char *osPath ) {
-	remove( osPath );
-}
-#else
-static bool FS_Remove(
-	const char* osPath)
-{
-	try
-	{
-		const auto osPath_u8 = std::filesystem::u8path(osPath);
-
-		return std::filesystem::remove(osPath_u8);
-	}
-	catch (...)
-	{
-		return false;
-	}
-}
-#endif // FIXME
+extern bool FS_Remove(const char* path);
 
 /*
 ================

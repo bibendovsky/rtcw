@@ -200,6 +200,8 @@ target_sources (
 		../qcommon/common.cpp
 		../qcommon/cvar.cpp
 		../qcommon/files.cpp
+		../qcommon/files_posix.cpp
+		../qcommon/files_win32.cpp
 		../qcommon/huffman.cpp
 		../qcommon/md4.cpp
 		../qcommon/msg.cpp
