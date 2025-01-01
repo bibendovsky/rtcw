@@ -1303,25 +1303,7 @@ int FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp ) {
 	return 0;
 }
 
-
-static bool sys_fs_rename(
-	const char* old_name,
-	const char* new_name)
-{
-	try
-	{
-		const auto old_name_u8 = std::filesystem::u8path(old_name);
-		const auto new_name_u8 = std::filesystem::u8path(new_name);
-
-		std::filesystem::rename(old_name_u8, new_name_u8);
-
-		return true;
-	}
-	catch (...)
-	{
-		return false;
-	}
-}
+extern bool sys_fs_rename(const char* old_path, const char* new_path);
 
 /*
 ===========
@@ -1353,12 +1335,8 @@ void FS_SV_Rename( const char *from, const char *to ) {
 		Com_Printf( "FS_SV_Rename: %s --> %s\n", from_ospath, to_ospath );
 	}
 
-#if FIXME
-	if ( rename( from_ospath, to_ospath ) ) {
-#else
 	if (!sys_fs_rename(from_ospath, to_ospath))
 	{
-#endif // FIXME
 		// Failed, try copying it and deleting the original
 		FS_CopyFile( from_ospath, to_ospath );
 		FS_Remove( from_ospath );
@@ -1395,17 +1373,13 @@ void FS_Rename( const char *from, const char *to ) {
 		Com_Printf( "FS_Rename: %s --> %s\n", from_ospath, to_ospath );
 	}
 
-#if FIXME
-	if ( rename( from_ospath, to_ospath ) ) {
-#else
 	if (!sys_fs_rename(from_ospath, to_ospath))
 	{
-#endif // FIXME
-
 #if defined RTCW_SP
 		// Failed first attempt, try deleting destination, and renaming again
 		FS_Remove( to_ospath );
-		if ( rename( from_ospath, to_ospath ) ) {
+		if (!sys_fs_rename(from_ospath, to_ospath))
+		{
 #endif // RTCW_XX
 
 			// Failed, try copying it and deleting the original

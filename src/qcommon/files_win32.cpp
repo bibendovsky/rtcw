@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 #include <assert.h>
 #include <windows.h>
 
+// ==========================================================================
+
 bool FS_Remove(const char* path)
 {
 	const int max_path_size = 1024;
@@ -45,6 +47,34 @@ bool FS_Remove(const char* path)
 	}
 
 	const BOOL win32_result = ::DeleteFileW(u16_path);
+	return win32_result == TRUE;
+}
+
+// ==========================================================================
+
+bool sys_fs_rename(const char* old_path, const char* new_path)
+{
+	const int max_path_size = 1024;
+	wchar_t u16_old_path[max_path_size];
+	wchar_t u16_new_path[max_path_size];
+
+	const int u16_old_path_size = ::MultiByteToWideChar(CP_UTF8, 0, old_path, -1, u16_old_path, max_path_size);
+
+	if (u16_old_path_size == 0)
+	{
+		assert(false && "MultiByteToWideChar");
+		return false;
+	}
+
+	const int u16_new_path_size = ::MultiByteToWideChar(CP_UTF8, 0, new_path, -1, u16_new_path, max_path_size);
+
+	if (u16_new_path_size == 0)
+	{
+		assert(false && "MultiByteToWideChar");
+		return false;
+	}
+
+	const BOOL win32_result = ::MoveFileW(u16_old_path, u16_new_path);
 	return win32_result == TRUE;
 }
 

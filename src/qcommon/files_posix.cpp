@@ -30,9 +30,19 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <stdio.h>
 
+// ==========================================================================
+
 bool FS_Remove(const char* path)
 {
 	const int posix_result = ::remove(path);
+	return posix_result == 0;
+}
+
+// ==========================================================================
+
+bool sys_fs_rename(const char* old_path, const char* new_path)
+{
+	const int posix_result = ::rename(old_path, new_path);
 	return posix_result == 0;
 }
 
