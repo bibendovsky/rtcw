@@ -59,7 +59,6 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 #include <cmath>
 
 #include <algorithm>
-#include <array>
 #include <bitset>
 #include <limits>
 #include <utility>

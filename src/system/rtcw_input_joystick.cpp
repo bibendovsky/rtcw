@@ -29,8 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "rtcw_input_joystick.h"
 
-#include <array>
-
 #include "SDL.h"
 
 #include "qcommon.h"
@@ -363,9 +361,8 @@ void Joystick::handle_hat_event(
 {
 	assert(e.type == SDL_JOYHATMOTION);
 
-	using Indices = std::array<int, 2>;
-
-	auto indices = Indices{-1, -1};
+	const int max_indices = 2;
+	int indices[max_indices] = {-1, -1};
 
 	switch (e.value)
 	{
@@ -406,8 +403,10 @@ void Joystick::handle_hat_event(
 			break;
 	}
 
-	for (const auto index : indices)
+	for (int i = 0; i < max_indices; ++i)
 	{
+		const int index = indices[i];
+
 		if (index < 0)
 		{
 			continue;
