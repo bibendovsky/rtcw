@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef _WIN32
 
 #include <stdio.h>
+#include <sys/stat.h>
 
 // ==========================================================================
 
@@ -44,6 +45,20 @@ bool sys_fs_rename(const char* old_path, const char* new_path)
 {
 	const int posix_result = ::rename(old_path, new_path);
 	return posix_result == 0;
+}
+
+// ==========================================================================
+
+int FS_OSStatFile(const char* path)
+{
+	struct stat posix_stat;
+
+	if (::stat(path, &posix_stat) != 0)
+	{
+		return -1;
+	}
+
+	return S_ISDIR(posix_stat.st_mode) != 0;
 }
 
 #endif // _WIN32

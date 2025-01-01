@@ -78,4 +78,29 @@ bool sys_fs_rename(const char* old_path, const char* new_path)
 	return win32_result == TRUE;
 }
 
+// ==========================================================================
+
+int FS_OSStatFile(const char* path)
+{
+	const int max_path_size = 1024;
+	wchar_t u16_path[max_path_size];
+
+	int u16_path_size = ::MultiByteToWideChar(CP_UTF8, 0, path, -1, u16_path, max_path_size);
+
+	if (u16_path_size == 0)
+	{
+		assert(false && "MultiByteToWideChar");
+		return false;
+	}
+
+	const DWORD win32_result = ::GetFileAttributesW(u16_path);
+
+	if (win32_result == INVALID_FILE_ATTRIBUTES)
+	{
+		return -1;
+	}
+
+	return (win32_result & FILE_ATTRIBUTE_DIRECTORY) != 0;
+}
+
 #endif // _WIN32

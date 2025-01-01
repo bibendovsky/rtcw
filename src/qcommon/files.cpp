@@ -39,7 +39,6 @@ If you have questions concerning this license or the applicable additional terms
 #define MP_LEGACY_PAK 0x7776DC09
 #endif // RTCW_XX
 
-#include <filesystem>
 #include <fstream>
 #include <limits>
 #include <memory>
@@ -2308,52 +2307,7 @@ returns 1 if directory
 returns 0 otherwise
 ==============
 */
-#if FIXME
-#ifdef WIN32
-int FS_OSStatFile( char *ospath ) {
-	struct _stat stat;
-	if ( _stat( ospath, &stat ) == -1 ) {
-		return -1;
-	}
-	if ( stat.st_mode & _S_IFDIR ) {
-		return 1;
-	}
-	return 0;
-}
-#else
-int FS_OSStatFile( char *ospath ) {
-	struct stat stat_buf;
-	if ( stat( ospath, &stat_buf ) == -1 ) {
-		return -1;
-	}
-	if ( S_ISDIR( stat_buf.st_mode ) ) {
-		return 1;
-	}
-	return 0;
-}
-#endif
-#else
-int FS_OSStatFile(
-	const char* ospath)
-{
-	try
-	{
-		const auto ospath_u8 = std::filesystem::u8path(ospath);
-		const auto status = std::filesystem::status(ospath_u8);
-
-		if (status.type() == std::filesystem::file_type::directory)
-		{
-			return 1;
-		}
-
-		return 0;
-	}
-	catch (...)
-	{
-		return -1;
-	}
-}
-#endif // FIXME
+extern int FS_OSStatFile(const char* path);
 
 #endif // RTCW_XX
 
