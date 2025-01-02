@@ -89,7 +89,7 @@ int     trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
 		G_FS_FOPEN_FILE,
 		rtcw::to_vm_arg(qpath),
 		rtcw::to_vm_arg(f),
-		rtcw::to_vm_arg(mode)
+		rtcw::to_vm_arg(static_cast<int>(mode))
 	);
 }
 

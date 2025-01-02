@@ -1,149 +1,181 @@
 #ifndef RTCW_VM_ARGS_INCLUDED
 #define RTCW_VM_ARGS_INCLUDED
 
+#include <stddef.h>
 
-#include <cstdint>
+namespace rtcw {
 
-#include <type_traits>
+namespace detail {
 
-
-namespace rtcw
+template<bool TCond, typename TTrue, typename TFalse>
+struct VmArgCond
 {
+	typedef TFalse Type;
+};
 
-
-namespace detail
+template<typename TTrue, typename TFalse>
+struct VmArgCond<true, TTrue, TFalse>
 {
+	typedef TTrue Type;
+};
 
+// --------------------------------------------------------------------------
 
-struct VmArgSimpleTag{};
-struct VmArgPointerTag{};
-struct VmArgFloatTag{};
-
-
-template<
-	typename T
->
-inline std::intptr_t to_vm_arg(
-	T simple_value,
-	VmArgSimpleTag) noexcept
+template<typename T>
+struct VmArgIsPtr
 {
-	return static_cast<std::intptr_t>(simple_value);
+	static const bool value = false;
+};
+
+template<typename T>
+struct VmArgIsPtr<T*>
+{
+	static const bool value = true;
+};
+
+template<typename T>
+struct VmArgIsPtr<const T*>
+{
+	static const bool value = true;
+};
+
+// --------------------------------------------------------------------------
+
+template<typename T>
+struct VmArgIsFloat
+{
+	static const bool value = false;
+};
+
+template<>
+struct VmArgIsFloat<float>
+{
+	static const bool value = true;
+};
+
+template<>
+struct VmArgIsFloat<const float>
+{
+	static const bool value = true;
+};
+
+// --------------------------------------------------------------------------
+
+typedef
+	VmArgCond<
+		sizeof(unsigned char) == sizeof(float),
+		unsigned char,
+		VmArgCond<
+			sizeof(unsigned short) == sizeof(float),
+			unsigned short,
+			VmArgCond<
+				sizeof(unsigned int) == sizeof(float),
+				unsigned int,
+				VmArgCond<
+					sizeof(unsigned long) == sizeof(float),
+					unsigned long,
+					VmArgCond<
+						sizeof(unsigned long long) == sizeof(float),
+						unsigned long long,
+						void
+					>::Type
+				>::Type
+			>::Type
+		>::Type
+	>::Type
+VmArgFloatImage;
+
+// --------------------------------------------------------------------------
+
+struct VmArgPtrTag {}; // A poiner.
+struct VmArgFloatTag {}; // A binary32.
+struct VmArgValueTag {}; // Everything else.
+
+// --------------------------------------------------------------------------
+
+inline ptrdiff_t to_vm_arg(const void* value, VmArgPtrTag)
+{
+	return reinterpret_cast<ptrdiff_t>(value);
 }
 
-template<
-	typename T
->
-inline std::intptr_t to_vm_arg(
-	T* pointer_value,
-	VmArgPointerTag) noexcept
+inline ptrdiff_t to_vm_arg(float value, VmArgFloatTag)
 {
-	return reinterpret_cast<std::intptr_t>(pointer_value);
+	return static_cast<ptrdiff_t>(*reinterpret_cast<const VmArgFloatImage*>(&value));
 }
 
-template<
-	typename T
->
-inline std::intptr_t to_vm_arg(
-	T float_value,
-	VmArgFloatTag) noexcept
+template<typename T>
+inline ptrdiff_t to_vm_arg(T value, VmArgValueTag)
 {
-	return reinterpret_cast<const std::int32_t&>(float_value);
+	return value;
 }
 
+// --------------------------------------------------------------------------
 
-} // detail
-
-
-template<
-	typename T
->
-inline std::intptr_t to_vm_arg(
-	T value) noexcept
+template<typename T>
+inline T from_vm_arg(ptrdiff_t value, VmArgPtrTag)
 {
-	using Tag = std::conditional_t<
-		(std::is_integral_v<T> || std::is_enum_v<T>) && sizeof(T) <= sizeof(std::intptr_t),
-		detail::VmArgSimpleTag,
-		std::conditional_t<
-			std::is_pointer_v<T>,
-			detail::VmArgPointerTag,
-			std::conditional_t<
-				std::is_same_v<T, float> && sizeof(T) == 4,
+	return reinterpret_cast<T>(value);
+}
+
+template<typename T>
+inline T from_vm_arg(ptrdiff_t value, VmArgFloatTag)
+{
+	const VmArgFloatImage image = static_cast<VmArgFloatImage>(value);
+	return *reinterpret_cast<const float*>(&image);
+}
+
+template<typename T>
+inline T from_vm_arg(ptrdiff_t value, VmArgValueTag)
+{
+	return static_cast<T>(value);
+}
+
+} // namespace detail
+
+template<typename T>
+inline ptrdiff_t to_vm_arg(T value)
+{
+	typedef
+		typename detail::VmArgCond<
+			sizeof(T) <= sizeof(ptrdiff_t) && detail::VmArgIsPtr<T>::value,
+			detail::VmArgPtrTag,
+			typename detail::VmArgCond<
+				sizeof(T) <= sizeof(ptrdiff_t) && detail::VmArgIsFloat<T>::value,
 				detail::VmArgFloatTag,
-				void
-			>
-		>
-	>;
+				typename detail::VmArgCond<
+					sizeof(T) <= sizeof(ptrdiff_t),
+					detail::VmArgValueTag,
+					void
+				>::Type
+			>::Type
+		>::Type
+	Tag;
 
-	static_assert(!std::is_same_v<Tag, void>, "Unsupported type.");
-
-	return detail::to_vm_arg(value, Tag{});
+	return detail::to_vm_arg(value, Tag());
 }
 
-
-namespace detail
+template<typename T>
+inline T from_vm_arg(ptrdiff_t vm_arg)
 {
-
-
-template<
-	typename T
->
-inline T from_vm_arg(
-	std::intptr_t vm_arg,
-	VmArgSimpleTag) noexcept
-{
-	return static_cast<T>(vm_arg);
-}
-
-template<
-	typename T
->
-inline T from_vm_arg(
-	std::intptr_t vm_arg,
-	VmArgPointerTag) noexcept
-{
-	return reinterpret_cast<T>(vm_arg);
-}
-
-template<
-	typename T
->
-inline T from_vm_arg(
-	std::intptr_t vm_arg,
-	VmArgFloatTag) noexcept
-{
-	const auto float_image = static_cast<std::int32_t>(vm_arg);
-	return reinterpret_cast<const float&>(float_image);
-}
-
-
-} // detail
-
-
-template<
-	typename T
->
-inline T from_vm_arg(
-	std::intptr_t vm_arg) noexcept
-{
-	using Tag = std::conditional_t<
-		(std::is_integral_v<T> || std::is_enum_v<T>) && sizeof(T) <= 4,
-		detail::VmArgSimpleTag,
-		std::conditional_t<
-			std::is_pointer_v<T>,
-			detail::VmArgPointerTag,
-			std::conditional_t<
-				std::is_same_v<T, float> && sizeof(T) == 4,
+	typedef
+		typename detail::VmArgCond<
+			sizeof(T) <= sizeof(ptrdiff_t) && detail::VmArgIsPtr<T>::value,
+			detail::VmArgPtrTag,
+			typename detail::VmArgCond<
+				sizeof(T) <= sizeof(ptrdiff_t) && detail::VmArgIsFloat<T>::value,
 				detail::VmArgFloatTag,
-				void
-			>
-		>
-	>;
+				typename detail::VmArgCond<
+					sizeof(T) <= sizeof(ptrdiff_t),
+					detail::VmArgValueTag,
+					void
+				>::Type
+			>::Type
+		>::Type
+	Tag;
 
-	return detail::from_vm_arg<T>(vm_arg, Tag{});
+	return detail::from_vm_arg<T>(vm_arg, Tag());
 }
 
+} // namespace rtcw
 
-} // rtcw
-
-
-#endif // !RTCW_VM_ARGS_INCLUDED
+#endif // RTCW_VM_ARGS_INCLUDED

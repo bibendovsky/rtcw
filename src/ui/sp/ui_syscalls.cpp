@@ -85,7 +85,7 @@ int trap_Milliseconds( void ) {
 
 void trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags ) {
 	syscall(
-		rtcw::to_vm_arg(UI_CVAR_REGISTER),
+		rtcw::to_vm_arg(static_cast<int>(UI_CVAR_REGISTER)),
 		rtcw::to_vm_arg(cvar),
 		rtcw::to_vm_arg(var_name),
 		rtcw::to_vm_arg(value),
@@ -185,7 +185,7 @@ int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
 		UI_FS_FOPENFILE,
 		rtcw::to_vm_arg(qpath),
 		rtcw::to_vm_arg(f),
-		rtcw::to_vm_arg(mode)
+		rtcw::to_vm_arg(static_cast<int>(mode))
 	);
 }
 
