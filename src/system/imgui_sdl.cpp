@@ -500,7 +500,7 @@ public:
 
 
 private:
-	using Color = std::uint32_t; // A8R8G8B8
+	using Color = uint32_t; // A8R8G8B8
 	using FrameBuffer = std::vector<Color>;
 
 
@@ -510,7 +510,7 @@ private:
 
 	struct PaintTarget
 	{
-		std::uint32_t* pixels;
+		uint32_t* pixels;
 		int width;
 		int height;
 		ImVec2 scale; // Multiply ImGui (point) coordinates with this to get pixel coordinates.
@@ -518,15 +518,15 @@ private:
 
 	struct ColorInt
 	{
-		std::uint32_t a;
-		std::uint32_t b;
-		std::uint32_t g;
-		std::uint32_t r;
+		uint32_t a;
+		uint32_t b;
+		uint32_t g;
+		uint32_t r;
 
 		ColorInt() = default;
 
 		explicit ColorInt(
-			const std::uint32_t x)
+			const uint32_t x)
 		{
 			a = (x >> IM_COL32_A_SHIFT) & 0xFF;
 			b = (x >> IM_COL32_B_SHIFT) & 0xFF;
@@ -534,7 +534,7 @@ private:
 			r = (x >> IM_COL32_R_SHIFT) & 0xFF;
 		}
 
-		std::uint32_t to_uint32() const
+		uint32_t to_uint32() const
 		{
 			return (a << 24) | (r << 16) | (g << 8) | b;
 		}
@@ -556,8 +556,8 @@ private:
 
 	struct Point
 	{
-		std::int64_t x;
-		std::int64_t y;
+		int64_t x;
+		int64_t y;
 	}; // Point
 
 
@@ -630,10 +630,10 @@ private:
 	{
 		ImU32 out;
 
-		out = static_cast<std::uint32_t>((in.x * 255.0F) + 0.5F) << 16;
-		out |= static_cast<std::uint32_t>((in.y * 255.0F) + 0.5F) << 8;
-		out |= static_cast<std::uint32_t>((in.z * 255.0F) + 0.5F) << 0;
-		out |= static_cast<std::uint32_t>((in.w * 255.0F) + 0.5F) << 24;
+		out = static_cast<uint32_t>((in.x * 255.0F) + 0.5F) << 16;
+		out |= static_cast<uint32_t>((in.y * 255.0F) + 0.5F) << 8;
+		out |= static_cast<uint32_t>((in.z * 255.0F) + 0.5F) << 0;
+		out |= static_cast<uint32_t>((in.w * 255.0F) + 0.5F) << 24;
 
 		return out;
 	}
@@ -642,9 +642,9 @@ private:
 	// For fast and subpixel-perfect triangle rendering we used fixed point arithmetic.
 	// To keep the code simple we use 64 bits to avoid overflows.
 
-	static const std::int64_t fixed_bias = 256;
+	static const int64_t fixed_bias = 256;
 
-	static std::int64_t orient2d(
+	static int64_t orient2d(
 		const Point& a,
 		const Point& b,
 		const Point& c)
@@ -652,10 +652,10 @@ private:
 		return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 	}
 
-	static std::int64_t as_int(
+	static int64_t as_int(
 		const float v)
 	{
-		return static_cast<std::int64_t>(std::floor(v * fixed_bias));
+		return static_cast<int64_t>(std::floor(v * fixed_bias));
 	}
 
 	static Point as_point(
@@ -698,7 +698,7 @@ private:
 		return ((b.x - a.x) * (point.y - a.y)) - ((b.y - a.y) * (point.x - a.x));
 	}
 
-	static std::uint32_t sample_texture(
+	static uint32_t sample_texture(
 		const SDL_Surface& texture,
 		const ImVec2& uv)
 	{
@@ -711,7 +711,7 @@ private:
 		ty = std::max(ty, 0);
 		ty = std::min(ty, texture.h - 1);
 
-		auto row = reinterpret_cast<const std::uint32_t*>(static_cast<const std::uint8_t*>(texture.pixels) + (ty * texture.pitch));
+		auto row = reinterpret_cast<const uint32_t*>(static_cast<const uint8_t*>(texture.pixels) + (ty * texture.pitch));
 
 		const auto argb_color = row[tx];
 
@@ -949,7 +949,7 @@ private:
 		const auto& c2 = color_convert_u32_to_float4(v2.col);
 
 		// We often blend the same colors over and over again, so optimize for this (saves 10% total cpu):
-		auto last_target_pixel = std::uint32_t{};
+		auto last_target_pixel = uint32_t{};
 		auto last_output = blend(ColorInt{last_target_pixel}, ColorInt{v0.col}).to_uint32();
 
 		for (int y = min_y_i; y < max_y_i; ++y)

@@ -54,7 +54,6 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 #define IMGUI_SDL_INCLUDED
 
 
-#include <cstdint>
 #include <memory>
 #include <string>
 #include "SDL_events.h"

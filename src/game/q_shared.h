@@ -33,8 +33,8 @@ If you have questions concerning this license or the applicable additional terms
 // A user mod should never modify this file
 
 // BBi
+#include <inttypes.h>
 #include <cstddef>
-#include <stdint.h>
 
 #include <algorithm>
 #include <string>

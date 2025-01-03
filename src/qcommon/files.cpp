@@ -280,13 +280,13 @@ public:
 		return filebuf_.is_open();
 	}
 
-	std::int64_t get_file_size() const
+	int64_t get_file_size() const
 	{
 		return file_size_;
 	}
 
 	std::size_t read(
-		const std::int64_t position,
+		const int64_t position,
 		void* buffer_ptr,
 		const std::size_t count)
 	{
@@ -324,9 +324,9 @@ public:
 
 private:
 	std::filebuf filebuf_;
-	std::int64_t position_;
+	int64_t position_;
 	bool is_position_valid_;
-	std::int64_t file_size_;
+	int64_t file_size_;
 }; // MinizIo
 
 class MinizZip
@@ -335,7 +335,7 @@ public:
 	struct FileStat
 	{
 		std::string file_name_;
-		std::uint32_t crc_;
+		uint32_t crc_;
 		int compressed_size_;
 		int uncompressed_size_;
 		bool is_directory_;
@@ -589,7 +589,7 @@ private:
 
 		auto& miniz_io = *static_cast<MinizIo*>(opaque);
 
-		return miniz_io.read(static_cast<std::int64_t>(position), buffer_ptr, count);
+		return miniz_io.read(static_cast<int64_t>(position), buffer_ptr, count);
 	}
 }; // MinizZip
 

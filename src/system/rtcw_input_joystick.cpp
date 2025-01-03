@@ -494,7 +494,7 @@ bool Joystick::can_debug()
 }
 
 const char* Joystick::pov_hat_value_to_string(
-	std::uint8_t value)
+	uint8_t value)
 {
 	switch (value)
 	{
@@ -531,7 +531,7 @@ const char* Joystick::pov_hat_value_to_string(
 }
 
 const char* Joystick::button_state_to_string(
-	std::uint8_t value)
+	uint8_t value)
 {
 	switch (value)
 	{
@@ -547,7 +547,7 @@ const char* Joystick::button_state_to_string(
 }
 
 const char* Joystick::device_state_to_string(
-	std::uint32_t value)
+	uint32_t value)
 {
 	switch (value)
 	{

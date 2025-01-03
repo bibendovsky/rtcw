@@ -31,8 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 #define RTCW_INPUT_JOYSTICK_INCLUDED
 
 
-#include <cstdint>
-
 #include <bitset>
 #include <string>
 
@@ -104,13 +102,13 @@ private:
 	static bool can_debug();
 
 	static const char* pov_hat_value_to_string(
-		std::uint8_t value);
+		uint8_t value);
 
 	static const char* button_state_to_string(
-		std::uint8_t value);
+		uint8_t value);
 
 	static const char* device_state_to_string(
-		std::uint32_t value);
+		uint32_t value);
 }; // Joystick
 
 
