@@ -734,7 +734,7 @@ int32_t SV_GameSystemCalls (
 
 	case G_GET_ENTITY_TOKEN:
 	{
-		const auto s = COM_Parse(const_cast<const char**>(&sv.entityParsePoint));
+		char* s = COM_Parse(const_cast<const char**>(&sv.entityParsePoint));
 		Q_strncpyz(rtcw::from_vm_arg<char*>(VMA(1)), s, rtcw::from_vm_arg<int>(args[2]));
 
 		if (sv.entityParsePoint == nullptr && s[0] == '\0')

@@ -981,7 +981,7 @@ static void CG_ServerCommand( void ) {
 #if FIXME
 		trap_S_StartBackgroundTrack( CG_Argv( 1 ), CG_Argv( 1 ), fadeTime );
 #else
-		const auto arg_1 = CG_Argv( 1 );
+		const char* arg_1 = CG_Argv( 1 );
 		trap_S_StartBackgroundTrack( arg_1, arg_1, fadeTime );
 #endif // FIXME
 		return;

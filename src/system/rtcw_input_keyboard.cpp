@@ -71,7 +71,7 @@ bool Keyboard::initialize()
 
 	Com_Printf("Initializing keyboard input...\n");
 
-	auto sdl_result = 0;
+	int sdl_result = 0;
 
 	if (SDL_WasInit(SDL_INIT_VIDEO) == 0)
 	{
@@ -133,15 +133,15 @@ void Keyboard::handle_key_event(
 		return;
 	}
 
-	const auto key_code = e.keysym.sym;
-	const auto key = map_to_rtcw(key_code);
+	const SDL_Keycode key_code = e.keysym.sym;
+	const int key = map_to_rtcw(key_code);
 
 	if (key == 0)
 	{
 		return;
 	}
 
-	const auto key_mod = e.keysym.mod;
+	const Uint16 key_mod = e.keysym.mod;
 
 	bool is_alt_pressed = ((key_mod & KMOD_ALT) != 0);
 
@@ -152,7 +152,7 @@ void Keyboard::handle_key_event(
 		if (r_fullscreen != nullptr)
 		{
 			Cvar_SetValue("r_fullscreen", !r_fullscreen->integer);
-			const auto is_fullscreen = (r_fullscreen->integer != 0);
+			const bool is_fullscreen = (r_fullscreen->integer != 0);
 
 			if (GLimp_SetFullscreen(is_fullscreen))
 			{
@@ -181,7 +181,7 @@ void Keyboard::handle_key_event(
 		return;
 	}
 
-	const auto key_char = map_to_char(e);
+	const char key_char = map_to_char(e);
 
 	if (key_char != 0)
 	{
@@ -204,7 +204,7 @@ void Keyboard::register_cvars()
 char Keyboard::map_to_char(
 	const SDL_KeyboardEvent& e)
 {
-	const auto flags = e.keysym.mod;
+	const Uint16 flags = e.keysym.mod;
 
 	if ((flags & (
 		KMOD_LCTRL |
@@ -218,7 +218,7 @@ char Keyboard::map_to_char(
 		return 0;
 	}
 
-	auto is_caps = false;
+	bool is_caps = false;
 
 	if ((flags & KMOD_CAPS) != 0)
 	{
@@ -230,7 +230,7 @@ char Keyboard::map_to_char(
 		is_caps = !is_caps;
 	}
 
-	const auto key_code = e.keysym.sym;
+	const SDL_Keycode key_code = e.keysym.sym;
 
 	switch (key_code)
 	{

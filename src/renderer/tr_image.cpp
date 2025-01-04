@@ -329,9 +329,9 @@ void GL_TextureAnisotropy(float anisotropy)
 	}
 
 	// change all the existing texture objects
-	for (auto i = 0; i < tr.numImages; ++i)
+	for (int i = 0; i < tr.numImages; ++i)
 	{
-		auto glt = tr.images[i];
+		image_t* glt = tr.images[i];
 		GL_Bind(glt);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, gl_anisotropy);
 	}

@@ -103,7 +103,7 @@ bool Sys_StringToSockaddr(
 	const char *s,
 	IPaddress& sadr)
 {
-	auto sdl_result = SDLNet_ResolveHost(
+	int sdl_result = SDLNet_ResolveHost(
 		&sadr,
 		s,
 		0);
@@ -132,7 +132,7 @@ UDPsocket NET_IPSocket(
 			port);
 	}
 
-	auto is_succeed = true;
+	bool is_succeed = true;
 	UDPsocket udp_socket = nullptr;
 
 	if (is_succeed) {
@@ -194,7 +194,7 @@ void NET_GetLocalAddress()
 		nullptr,
 		0);
 
-	auto host_name = SDLNet_ResolveIP(
+	const char* host_name = SDLNet_ResolveIP(
 		&current_address);
 
 	if (!host_name) {
@@ -212,7 +212,7 @@ void NET_GetLocalAddress()
 		MAX_IPS);
 
 	for (int i = 0; i < numIP; ++i) {
-		const auto& address = addresses[i];
+		const IPaddress& address = addresses[i];
 
 		localIP[i][0] = static_cast<byte>((address.host >>  0) & 0xFF);
 		localIP[i][1] = static_cast<byte>((address.host >>  8) & 0xFF);
@@ -230,12 +230,12 @@ void NET_GetLocalAddress()
 
 void NET_OpenIP()
 {
-	auto ip = Cvar_Get(
+	cvar_t* ip = Cvar_Get(
 		"net_ip",
 		"localhost",
 		CVAR_LATCH);
 
-	auto port = Cvar_Get(
+	int port = Cvar_Get(
 		"net_port",
 		va("%i", PORT_SERVER),
 		CVAR_LATCH)->integer;
@@ -264,7 +264,7 @@ void NET_OpenIP()
 
 bool NET_GetCvars()
 {
-	auto modified = false;
+	bool modified = false;
 
 	if (net_noudp && net_noudp->modified) {
 		modified = true;
@@ -285,7 +285,7 @@ void NET_Config(
 	bool start = false;
 
 	// get any latched changes to cvars
-	auto modified = NET_GetCvars();
+	bool modified = NET_GetCvars();
 
 	if (net_noudp->integer != 0) {
 		enableNetworking = false;
@@ -339,7 +339,7 @@ void NET_Config(
 void NET_Init()
 {
 #ifndef RTCW_SP
-	auto init_result = SDLNet_Init();
+	int init_result = SDLNet_Init();
 
 	if (init_result != 0) {
 		Com_Printf(
@@ -421,7 +421,7 @@ bool Sys_GetPacket(
 
 	udp_packet.data = net_message->data;
 
-	auto sdl_result = SDLNet_UDP_Recv(
+	int sdl_result = SDLNet_UDP_Recv(
 		ip_socket,
 		&::udp_packet);
 
@@ -484,7 +484,7 @@ void Sys_SendPacket(
 	udp_packet.len = length;
 	udp_packet.data = static_cast<Uint8*>(const_cast<void*>(data));
 
-	auto sdl_result = SDLNet_UDP_Send(
+	int sdl_result = SDLNet_UDP_Send(
 		ip_socket,
 		-1,
 		&::udp_packet);

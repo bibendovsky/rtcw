@@ -367,7 +367,7 @@ int32_t QDECL VM_DllSyscall (
 	va_list ap;
 	va_start( ap, arg );
 
-	for (auto i = 1; i < sizeof(args) / sizeof(args[i]); ++i)
+	for (size_t i = 1; i < sizeof(args) / sizeof(args[i]); ++i)
 	{
 		args[i] = va_arg(ap, intptr_t);
 	}
@@ -936,7 +936,7 @@ int32_t QDECL VM_Call(
 #if FIXME
 	int r = 0;
 #else
-	auto r = int32_t{};
+	int32_t r = 0;
 #endif // FIXME
 
 	//rcg010207 see dissertation at top of VM_DllSyscall() in this file.
@@ -966,9 +966,9 @@ int32_t QDECL VM_Call(
 
 		va_start(ap, callnum);
 
-		for (auto& arg : args)
+		for (int i = 0; i < 16; ++i)
 		{
-			arg = va_arg(ap, intptr_t);
+			args[i] = va_arg(ap, intptr_t);
 		}
 
 		va_end(ap);

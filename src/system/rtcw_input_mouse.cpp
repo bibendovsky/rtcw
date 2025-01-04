@@ -70,7 +70,7 @@ bool Mouse::initialize()
 
 	Com_Printf("Initializing mouse input...\n");
 
-	auto sdl_result = 0;
+	int sdl_result = 0;
 
 	if (SDL_WasInit(SDL_INIT_VIDEO) == 0)
 	{
@@ -166,7 +166,7 @@ void Mouse::activate(
 	{
 		SDL_SetRelativeMouseMode(SDL_FALSE);
 
-		const auto window_flags = SDL_GetWindowFlags(sys_gl_window);
+		const Uint32 window_flags = SDL_GetWindowFlags(sys_gl_window);
 		bool is_fullscreen = ((window_flags & SDL_WINDOW_FULLSCREEN) != 0);
 
 		if (is_fullscreen)
@@ -185,7 +185,7 @@ void Mouse::update()
 		return;
 	}
 
-	auto activate_value = true;
+	bool activate_value = true;
 
 	if (activate_value)
 	{
@@ -194,7 +194,7 @@ void Mouse::update()
 
 	if (activate_value)
 	{
-		const auto window_flags = SDL_GetWindowFlags(sys_gl_window);
+		const Uint32 window_flags = SDL_GetWindowFlags(sys_gl_window);
 		activate_value = ((window_flags & SDL_WINDOW_INPUT_FOCUS) != 0);
 	}
 
@@ -208,18 +208,18 @@ void Mouse::reset_state()
 		return;
 	}
 
-	const auto timestamp = SDL_GetTicks();
+	const Uint32 timestamp = SDL_GetTicks();
 
 	for (int i = 0; i < MAX_BUTTONS_COUNT; ++i)
 	{
-		const auto state = buttons_states_.test(i);
+		const bool state = buttons_states_.test(i);
 
 		if (!state)
 		{
 			continue;
 		}
 
-		const auto game_button = get_game_button_by_state_index(i);
+		const int game_button = get_game_button_by_state_index(i);
 
 		Sys_QueEvent(
 			timestamp,
@@ -247,18 +247,18 @@ void Mouse::handle_button_event(
 		return;
 	}
 
-	const auto button = e.button;
-	const auto state_index = get_state_index_by_sys_button(button);
+	const Uint8 button = e.button;
+	const int state_index = get_state_index_by_sys_button(button);
 
 	if (state_index < 0)
 	{
 		return;
 	}
 
-	const auto game_button = get_game_button_by_sys_button(button);
+	const int game_button = get_game_button_by_sys_button(button);
 
 	buttons_states_.flip(state_index);
-	const auto state = buttons_states_.test(state_index);
+	const bool state = buttons_states_.test(state_index);
 
 	Sys_QueEvent(
 		e.timestamp,
@@ -301,7 +301,7 @@ void Mouse::handle_wheel_event(
 		return;
 	}
 
-	const auto which = (e.y > 0 ? K_MWHEELUP : K_MWHEELDOWN);
+	const keyNum_t which = (e.y > 0 ? K_MWHEELUP : K_MWHEELDOWN);
 
 	Sys_QueEvent(
 		e.timestamp,

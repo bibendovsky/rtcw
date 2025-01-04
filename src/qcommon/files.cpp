@@ -308,7 +308,7 @@ public:
 			is_position_valid_ = true;
 		}
 
-		const auto read_result = filebuf_.sgetn(static_cast<char*>(buffer_ptr), count);
+		const std::streamsize read_result = filebuf_.sgetn(static_cast<char*>(buffer_ptr), count);
 
 		if (read_result < 0)
 		{
@@ -372,7 +372,7 @@ public:
 				return 0;
 			}
 
-			const auto read_result = static_cast<int>(mz_zip_reader_extract_iter_read(miniz_file_state_, buffer_ptr, count));
+			const int read_result = static_cast<int>(mz_zip_reader_extract_iter_read(miniz_file_state_, buffer_ptr, count));
 
 			position_ += read_result;
 
@@ -452,7 +452,7 @@ public:
 			return false;
 		}
 
-		const auto miniz_file_count = mz_zip_reader_get_num_files(&miniz_zip_);
+		const mz_uint miniz_file_count = mz_zip_reader_get_num_files(&miniz_zip_);
 
 		if (miniz_file_count > static_cast<mz_uint>(std::numeric_limits<int>::max()))
 		{
@@ -489,7 +489,8 @@ public:
 			return {};
 		}
 
-		auto miniz_file_state  = mz_zip_reader_extract_iter_new(&miniz_zip_, static_cast<mz_uint>(file_index), 0);
+		mz_zip_reader_extract_iter_state* miniz_file_state =
+			mz_zip_reader_extract_iter_new(&miniz_zip_, static_cast<mz_uint>(file_index), 0);
 
 		if (!miniz_file_state)
 		{
@@ -511,11 +512,11 @@ public:
 			return 0;
 		}
 
-		auto size = 0;
+		int size = 0;
 
-		for (auto i = 0; i < file_count_; ++i)
+		for (int i = 0; i < file_count_; ++i)
 		{
-			const auto file_name_size = static_cast<int>(
+			const int file_name_size = static_cast<int>(
 				mz_zip_reader_get_filename(&miniz_zip_, static_cast<mz_uint>(i), nullptr, 0));
 
 			if (file_name_size == 0)
@@ -537,14 +538,14 @@ public:
 			return {};
 		}
 
-		auto miniz_file_stat = mz_zip_archive_file_stat{};
+		mz_zip_archive_file_stat miniz_file_stat;
 
 		if (!::mz_zip_reader_file_stat(&miniz_zip_, static_cast<mz_uint>(file_index), &miniz_file_stat))
 		{
 			return {};
 		}
 
-		auto file_stat = FileStat{};
+		FileStat file_stat;
 
 		file_stat.file_name_ = miniz_file_stat.m_filename;
 		file_stat.crc_ = miniz_file_stat.m_crc32;
@@ -587,7 +588,7 @@ private:
 			return 0;
 		}
 
-		auto& miniz_io = *static_cast<MinizIo*>(opaque);
+		MinizIo& miniz_io = *static_cast<MinizIo*>(opaque);
 
 		return miniz_io.read(static_cast<int64_t>(position), buffer_ptr, count);
 	}
@@ -842,7 +843,7 @@ static fileHandle_t FS_HandleForFile( void ) {
 	int i;
 
 	for ( i = 1 ; i < MAX_FILE_HANDLES ; i++ ) {
-		const auto& file = fsh[i].handleFiles.file;
+		const qfile_gut& file = fsh[i].handleFiles.file;
 
 		if (!(file.o || file.miniz_file_ptr_ || file.miniz_zip_ptr_)) {
 			return i;
@@ -1409,7 +1410,7 @@ void FS_FCloseFile( fileHandle_t f ) {
 
 	if (fsh[f].zipFile == qtrue)
 	{
-		auto& file = fsh[f].handleFiles.file;
+		qfile_gut& file = fsh[f].handleFiles.file;
 
 		delete file.miniz_file_ptr_;
 		file.miniz_file_ptr_ = nullptr;
@@ -1934,7 +1935,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 					if (uniqueFILE)
 					{
 						// open a new file on the pakfile
-						auto miniz_zip_uptr = std::make_unique<MinizZip>();
+						std::unique_ptr<MinizZip> miniz_zip_uptr = std::make_unique<MinizZip>();
 
 						if (!miniz_zip_uptr->open(pak->pakFilename))
 						{
@@ -1951,8 +1952,8 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 					Q_strncpyz(fsh[*file].name, filename, sizeof(fsh[*file].name));
 					fsh[*file].zipFile = qtrue;
 
-					auto miniz_zip_ptr = fsh[*file].handleFiles.file.miniz_zip_ptr_;
-					auto miniz_file_ptr = miniz_zip_ptr->open_file(pakFile->miniz_file_index_);
+					MinizZip* miniz_zip_ptr = fsh[*file].handleFiles.file.miniz_zip_ptr_;
+					MinizZip::File* miniz_file_ptr = miniz_zip_ptr->open_file(pakFile->miniz_file_index_);
 
 					fsh[*file].handleFiles.file.miniz_file_ptr_ = miniz_file_ptr;
 					fsh[*file].zipFilePos = pakFile->miniz_file_index_;
@@ -1965,7 +1966,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 							filename, pak->pakFilename);
 					}
 
-					const auto file_info = miniz_zip_ptr->get_file_stat(pakFile->miniz_file_index_);
+					const MinizZip::FileStat file_info = miniz_zip_ptr->get_file_stat(pakFile->miniz_file_index_);
 
 					return file_info.uncompressed_size_;
 				}
@@ -2454,7 +2455,7 @@ int FS_Read( void *buffer, int len, fileHandle_t f ) {
 		}
 		return len;
 	} else {
-		auto miniz_file_ptr = fsh[f].handleFiles.file.miniz_file_ptr_;
+		MinizZip::File* miniz_file_ptr = fsh[f].handleFiles.file.miniz_file_ptr_;
 
 		if (!miniz_file_ptr)
 		{
@@ -2581,9 +2582,9 @@ int FS_Seek( fileHandle_t f, int32_t offset, int origin ) {
 			return -1;
 		}
 
-		auto& file = fsh[f].handleFiles.file;
+		qfile_gut& file = fsh[f].handleFiles.file;
 
-		const auto current_position = file.miniz_file_ptr_->get_position();
+		const int current_position = file.miniz_file_ptr_->get_position();
 
 		// Best case.
 		//
@@ -2596,8 +2597,8 @@ int FS_Seek( fileHandle_t f, int32_t offset, int origin ) {
 		//
 		if (current_position < offset)
 		{
-			const auto skip_count = offset - current_position;
-			const auto skip_result = file.miniz_file_ptr_->read(foo, skip_count);
+			const int skip_count = offset - current_position;
+			const int skip_result = file.miniz_file_ptr_->read(foo, skip_count);
 
 			if (skip_result != skip_count)
 			{
@@ -2624,7 +2625,7 @@ int FS_Seek( fileHandle_t f, int32_t offset, int origin ) {
 			return 0;
 		}
 
-		const auto skip_result = file.miniz_file_ptr_->read(foo, offset);
+		const int skip_result = file.miniz_file_ptr_->read(foo, offset);
 
 		if (skip_result != offset)
 		{
@@ -2929,7 +2930,7 @@ static pack_t* FS_LoadZipFile(
 {
 	fileInPack_t    *buildBuffer;
 	pack_t          *pack;
-	auto filename_inzip = std::string{};
+	std::string filename_inzip;
 	int i, len;
 	int32_t hash;
 	int fs_numHeaderLongs;
@@ -2938,14 +2939,14 @@ static pack_t* FS_LoadZipFile(
 
 	fs_numHeaderLongs = 0;
 
-	auto miniz_zip_uptr = std::make_unique<MinizZip>();
+	std::unique_ptr<MinizZip> miniz_zip_uptr = std::make_unique<MinizZip>();
 
 	if (!miniz_zip_uptr->open(zipfile))
 	{
 		return nullptr;
 	}
 
-	const auto file_count = miniz_zip_uptr->get_file_count();
+	const int file_count = miniz_zip_uptr->get_file_count();
 
 	fs_packFiles += file_count;
 	len = miniz_zip_uptr->calculate_file_names_size();
@@ -2986,7 +2987,7 @@ static pack_t* FS_LoadZipFile(
 
 	for (i = 0; i < file_count; ++i)
 	{
-		const auto file_info = pack->miniz_zip_ptr_->get_file_stat(i);
+		const MinizZip::FileStat file_info = pack->miniz_zip_ptr_->get_file_stat(i);
 
 		if (file_info.uncompressed_size_ > 0)
 		{
@@ -5504,7 +5505,7 @@ int     FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) 
 int     FS_FTell( fileHandle_t f ) {
 	int pos;
 	if ( fsh[f].zipFile == qtrue ) {
-		auto miniz_file_ptr = fsh[f].handleFiles.file.miniz_file_ptr_;
+		MinizZip::File* miniz_file_ptr = fsh[f].handleFiles.file.miniz_file_ptr_;
 
 		if (!miniz_file_ptr)
 		{

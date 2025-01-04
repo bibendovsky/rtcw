@@ -53,15 +53,15 @@ namespace
 {
 
 
-constexpr auto screen_width = 540;
-constexpr auto screen_height = 450;
+constexpr int screen_width = 540;
+constexpr int screen_height = 450;
 
-constexpr auto max_log_lines = 4096;
-constexpr auto line_min_reserved_size = 1024;
+constexpr int max_log_lines = 4096;
+constexpr int line_min_reserved_size = 1024;
 
-const auto max_edit_buffer_size = 128;
+const int max_edit_buffer_size = 128;
 
-constexpr auto window_title =
+constexpr const char* window_title =
 #if defined(RTCW_SP)
 	"RTCW Single-player Console"
 #elif defined(RTCW_MP)
@@ -82,33 +82,33 @@ using Log = std::deque<std::string>;
 using EditBuffer = std::vector<char>;
 
 
-auto error_message_ = std::string{};
+std::string error_message_;
 
-auto sdl_window_id_ = Uint32{};
+Uint32 sdl_window_id_ = 0;
 SDL_Window* sdl_window_ = nullptr;
 SDL_Renderer* sdl_renderer_ = nullptr;
 SDL_Surface* sdl_font_surface_ = nullptr;
 
-auto log_ = Log{};
-auto error_text_ = std::string{};
-auto returned_commands_ = std::string{};
-auto entered_commands_ = std::string{};
-auto append_buffer_ = std::string{};
-auto window_status_ = ImGuiSdl::WindowStatus{};
-auto imgui_sdl_ = ImGuiSdl{};
+Log log_;
+std::string error_text_;
+std::string returned_commands_;
+std::string entered_commands_;
+std::string append_buffer_;
+ImGuiSdl::WindowStatus window_status_ = ImGuiSdl::WindowStatus::none;
+ImGuiSdl imgui_sdl_;
 ImGuiContext* imgui_context_ = nullptr;
 
-auto edit_buffer_ = EditBuffer{};
+EditBuffer edit_buffer_;
 
-auto is_initialized_ = false;
-auto quit_on_close_ = false;
+bool is_initialized_ = false;
+bool quit_on_close_ = false;
 
-auto is_log_scrolled_ = false;
-auto is_edit_activated_ = false;
+bool is_log_scrolled_ = false;
+bool is_edit_activated_ = false;
 
-auto is_enter_pressed_ = false;
-auto is_tab_entered_ = false;
-auto is_quit_ = false;
+bool is_enter_pressed_ = false;
+bool is_tab_entered_ = false;
+bool is_quit_ = false;
 
 
 int edit_callback(
@@ -188,12 +188,12 @@ void append_text_to_log(
 		return;
 	}
 
-	auto i = 0;
+	int i = 0;
 	append_buffer_.clear();
 
 	while (true)
 	{
-		const auto ch = text[i];
+		const char ch = text[i];
 
 		if (ch == '\0')
 		{
@@ -206,7 +206,7 @@ void append_text_to_log(
 		}
 		else
 		{
-			const auto next_ch = text[i + 1];
+			const char next_ch = text[i + 1];
 
 			if (ch == '\r' && next_ch == '\n')
 			{
@@ -295,12 +295,12 @@ void uninitialize()
 
 bool initialize_font_atlas()
 {
-	auto& imgui_io = ImGui::GetIO();
+	ImGuiIO& imgui_io = ImGui::GetIO();
 
 	unsigned char* out_pixels = nullptr;
-	auto out_width = 0;
-	auto out_height = 0;
-	auto out_bytes_per_pixel = 0;
+	int out_width = 0;
+	int out_height = 0;
+	int out_bytes_per_pixel = 0;
 
 	imgui_io.Fonts->GetTexDataAsRGBA32(&out_pixels, &out_width, &out_height, &out_bytes_per_pixel);
 
@@ -325,36 +325,36 @@ bool initialize_font_atlas()
 
 void setup_imgui()
 {
-	auto& imgui_io = ImGui::GetIO();
+	ImGuiIO& imgui_io = ImGui::GetIO();
 
 	imgui_io.IniFilename = nullptr;
 	imgui_io.DisplaySize.x = static_cast<float>(screen_width);
 	imgui_io.DisplaySize.y = static_cast<float>(screen_height);
 
-	auto& style = ImGui::GetStyle();
+	ImGuiStyle& style = ImGui::GetStyle();
 	style.Alpha = 1.0F;
 	style.AntiAliasedFill = false;
 	style.AntiAliasedLines = false;
-	style.ChildRounding = {};
-	style.FrameBorderSize = {};
+	style.ChildRounding = 0;
+	style.FrameBorderSize = 0;
 	style.FramePadding = {};
-	style.FrameRounding = {};
-	style.GrabRounding = {};
+	style.FrameRounding = 0;
+	style.GrabRounding = 0;
 	style.ItemInnerSpacing = {};
 	style.ItemSpacing = {};
-	style.PopupRounding = {};
-	style.ScrollbarRounding = {};
+	style.PopupRounding = 0;
+	style.ScrollbarRounding = 0;
 	style.TouchExtraPadding = {};
-	style.WindowBorderSize = {};
+	style.WindowBorderSize = 0;
 	style.WindowPadding = {};
-	style.WindowRounding = {};
+	style.WindowRounding = 0;
 }
 
 bool initialize_internal()
 {
 	error_message_.clear();
 
-	auto sdl_result = 0;
+	int sdl_result = 0;
 
 	if (SDL_WasInit(SDL_INIT_VIDEO) == 0)
 	{
@@ -454,7 +454,7 @@ void show(
 {
 	quit_on_close_ = quit_on_close;
 
-	const auto new_window_status = get_window_status_by_visibility_level(visibility_level);
+	const ImGuiSdl::WindowStatus new_window_status = get_window_status_by_visibility_level(visibility_level);
 
 	if (new_window_status == window_status_)
 	{
@@ -520,22 +520,22 @@ void imgui_draw()
 	imgui_sdl_.new_frame();
 
 
-	const auto is_show_error = (!error_text_.empty());
+	const bool is_show_error = (!error_text_.empty());
 
-	auto error_control_position = ImVec2{5.0F, 5.0F};
-	auto error_control_size = ImVec2{530.0F, 30.0F};
+	ImVec2 error_control_position = {5.0F, 5.0F};
+	ImVec2 error_control_size = {530.0F, 30.0F};
 
-	auto log_control_position = ImVec2{5.0F, 40.0F};
-	auto log_control_size = ImVec2{530.0F, 355.0F};
+	ImVec2 log_control_position = {5.0F, 40.0F};
+	ImVec2 log_control_size = {530.0F, 355.0F};
 
-	auto command_control_position = ImVec2{5.0F, 400.0F};
-	auto command_control_size = ImVec2{530.0F, 20.0F};
+	ImVec2 command_control_position = {5.0F, 400.0F};
+	ImVec2 command_control_size = {530.0F, 20.0F};
 
-	auto copy_button_control_position = ImVec2{5.0F, 425.0F};
-	auto clear_button_control_position = ImVec2{85.0F, 425.0F};
-	auto quit_button_control_position = ImVec2{465.0F, 425.0F};
+	ImVec2 copy_button_control_position = {5.0F, 425.0F};
+	ImVec2 clear_button_control_position = {85.0F, 425.0F};
+	ImVec2 quit_button_control_position = {465.0F, 425.0F};
 
-	auto button_control_size = ImVec2{70.0F, 20.0F};
+	ImVec2 button_control_size = {70.0F, 20.0F};
 
 	if (is_show_error)
 	{
@@ -549,7 +549,7 @@ void imgui_draw()
 
 	// Main window (begin)
 	//
-	const auto window_flags =
+	const int window_flags =
 		ImGuiWindowFlags_NoTitleBar |
 		ImGuiWindowFlags_NoResize |
 		ImGuiWindowFlags_NoMove |
@@ -567,7 +567,7 @@ void imgui_draw()
 	//
 	if (is_show_error)
 	{
-		const auto error_flags =
+		const int error_flags =
 			ImGuiWindowFlags_NoTitleBar |
 			ImGuiWindowFlags_NoResize |
 			ImGuiWindowFlags_NoMove |
@@ -586,7 +586,7 @@ void imgui_draw()
 
 	// Log
 	//
-	const auto log_flags =
+	const int log_flags =
 			ImGuiWindowFlags_NoTitleBar |
 			ImGuiWindowFlags_NoResize |
 			ImGuiWindowFlags_NoMove |
@@ -600,13 +600,13 @@ void imgui_draw()
 
 	if (!log_.empty())
 	{
-		auto log_im_clipper = ImGuiListClipper{static_cast<int>(log_.size())};
+		ImGuiListClipper log_im_clipper(static_cast<int>(log_.size()));
 
 		while (log_im_clipper.Step())
 		{
-			for (auto i = log_im_clipper.DisplayStart; i < log_im_clipper.DisplayEnd; ++i)
+			for (int i = log_im_clipper.DisplayStart; i < log_im_clipper.DisplayEnd; ++i)
 			{
-				const auto& line = log_[i];
+				const std::string& line = log_[i];
 				ImGui::TextUnformatted(line.data(), line.data() + line.length());
 			}
 		}
@@ -615,8 +615,8 @@ void imgui_draw()
 		{
 			ImGui::SetScrollHereY(0.5F);
 
-			const auto y = ImGui::GetScrollY();
-			const auto max_y = ImGui::GetScrollMaxY();
+			const float y = ImGui::GetScrollY();
+			const float max_y = ImGui::GetScrollMaxY();
 
 			if (max_y > 0.0F && y >= max_y)
 			{
@@ -630,11 +630,11 @@ void imgui_draw()
 
 	// Input text
 	//
-	auto is_command_enter_pressed = false;
+	bool is_command_enter_pressed = false;
 
 	if (!is_show_error)
 	{
-		const auto edit_flags =
+		const int edit_flags =
 			ImGuiInputTextFlags_CallbackCharFilter |
 			ImGuiInputTextFlags_EnterReturnsTrue |
 			0;
@@ -666,12 +666,12 @@ void imgui_draw()
 	// Button "copy"
 	//
 	ImGui::SetCursorPos(copy_button_control_position);
-	const auto is_copy_clicked = ImGui::Button("Copy", button_control_size);
+	const bool is_copy_clicked = ImGui::Button("Copy", button_control_size);
 
 
 	// Button "clear"
 	//
-	auto is_clear_clicked = false;
+	bool is_clear_clicked = false;
 
 	if (!is_show_error)
 	{
@@ -683,7 +683,7 @@ void imgui_draw()
 	// Button "quit"
 	//
 	ImGui::SetCursorPos(quit_button_control_position);
-	const auto is_quit_clicked = ImGui::Button("Quit", button_control_size);
+	const bool is_quit_clicked = ImGui::Button("Quit", button_control_size);
 
 	// Main window (end)
 	// 
@@ -703,12 +703,15 @@ void imgui_draw()
 
 	if (is_copy_clicked)
 	{
-		auto clipboard_buffer = std::string{};
+		std::string clipboard_buffer;
 
-		auto is_first_line = true;
+		bool is_first_line = true;
+		const size_t line_count = log_.size();
 
-		for (const auto& line : log_)
+		for (size_t i_line = 0; i_line < line_count; ++i_line)
 		{
+			const std::string& line = log_[i_line];
+
 			if (is_first_line)
 			{
 				is_first_line = false;
@@ -735,7 +738,7 @@ void imgui_draw()
 	}
 
 	ImGui::Render();
-	const auto imgui_draw_data = ImGui::GetDrawData();
+	ImDrawData* imgui_draw_data = ImGui::GetDrawData();
 
 	imgui_sdl_.draw(imgui_draw_data);
 	imgui_sdl_.present();
@@ -854,9 +857,9 @@ void Sys_ClearViewlog_f()
 
 void sys_run_console()
 {
-	auto e = SDL_Event{};
+	SDL_Event e = {};
 
-	auto is_quit = false;
+	bool is_quit = false;
 
 	while (!is_quit)
 	{
@@ -865,13 +868,13 @@ void sys_run_console()
 			imgui_sdl_.handle_event(e);
 		}
 
-		const auto window_status = imgui_sdl_.get_window_status();
+		const ImGuiSdl::WindowStatus window_status = imgui_sdl_.get_window_status();
 
 		update_window_status(window_status);
 
 		if (window_status == ImGuiSdl::WindowStatus::shown)
 		{
-			auto is_close_requested = false;
+			bool is_close_requested = false;
 
 			update(is_close_requested);
 
@@ -903,7 +906,7 @@ void sys_update_console()
 		return;
 	}
 
-	const auto window_status = imgui_sdl_.get_window_status();
+	const ImGuiSdl::WindowStatus window_status = imgui_sdl_.get_window_status();
 
 	update_window_status(window_status);
 
@@ -912,7 +915,7 @@ void sys_update_console()
 		return;
 	}
 
-	auto is_close_requested = false;
+	bool is_close_requested = false;
 
 	update(is_close_requested);
 }

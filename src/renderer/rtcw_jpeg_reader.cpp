@@ -35,7 +35,7 @@ bool JpegReader::open(
 	}
 
 
-	auto is_succeed = true;
+	bool is_succeed = true;
 
 	if (is_succeed)
 	{
@@ -104,7 +104,7 @@ bool JpegReader::decode(
 		return false;
 	}
 
-	auto is_succeed = true;
+	bool is_succeed = true;
 
 	if (is_succeed)
 	{
@@ -117,20 +117,20 @@ bool JpegReader::decode(
 
 	if (is_succeed)
 	{
-		const auto dst_pitch = 4 * width_;
-		auto dst_buffer = static_cast<unsigned char*>(dst_data);
+		const int dst_pitch = 4 * width_;
+		unsigned char* dst_buffer = static_cast<unsigned char*>(dst_data);
 
-		for (auto y = 0; y < height_; ++y)
+		for (int y = 0; y < height_; ++y)
 		{
 			const void* raw_scanline = nullptr;
 			jpgd::uint scanline_length = 0;
 
-			auto decode_result = decoder_->decode(&raw_scanline, &scanline_length);
+			int decode_result = decoder_->decode(&raw_scanline, &scanline_length);
 
 			if (decode_result == jpgd::JPGD_SUCCESS ||
 				decode_result == jpgd::JPGD_DONE)
 			{
-				auto scanline = static_cast<const unsigned char*>(raw_scanline);
+				const unsigned char* scanline = static_cast<const unsigned char*>(raw_scanline);
 
 				if (is_grayscale_)
 				{
@@ -187,7 +187,7 @@ void JpegReader::gray_to_rgba(
 	int src_width,
 	unsigned char* dst_row)
 {
-	for (auto i = 0; i < src_width; ++i)
+	for (int i = 0; i < src_width; ++i)
 	{
 		dst_row[(4 * i) + 0] = src_row[i];
 		dst_row[(4 * i) + 1] = src_row[i];

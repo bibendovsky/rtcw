@@ -72,7 +72,7 @@ public:
 
 
 private:
-	static constexpr auto MAX_BUTTONS_STATES = std::size_t{16};
+	static constexpr size_t MAX_BUTTONS_STATES = 16;
 
 
 	using ButtonsStates = std::bitset<MAX_BUTTONS_STATES>;

@@ -55,7 +55,7 @@ void OglTessState::set_default_values()
 
 void OglTessState::commit_changes()
 {
-	const auto has_changes =
+	const bool has_changes =
 		model_view.is_modified() ||
 		projection.is_modified() ||
 		use_multitexturing.is_modified() ||
@@ -82,7 +82,7 @@ void OglTessState::commit_changes()
 		return;
 	}
 
-	const auto use_program = is_program_valid();
+	const bool use_program = is_program_valid();
 
 	if (use_program)
 	{

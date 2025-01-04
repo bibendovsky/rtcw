@@ -176,16 +176,16 @@ void gl_print_ignored_extension(const char* extension_name)
 
 void gl_probe_swap_control()
 {
-	const auto old_swap_interval = SDL_GL_GetSwapInterval();
+	const int old_swap_interval = SDL_GL_GetSwapInterval();
 
-	const auto adaptive_result = SDL_GL_SetSwapInterval(-1);
+	const int adaptive_result = SDL_GL_SetSwapInterval(-1);
 	glConfigEx.has_adaptive_swap_control_ = (adaptive_result == 0);
 
-	const auto off_result = SDL_GL_SetSwapInterval(0);
-	const auto on_result = SDL_GL_SetSwapInterval(1);
+	const int off_result = SDL_GL_SetSwapInterval(0);
+	const int on_result = SDL_GL_SetSwapInterval(1);
 	glConfigEx.has_swap_control_ = (off_result == 0 && on_result == 0);
 
-	const auto old_result = SDL_GL_SetSwapInterval(old_swap_interval);
+	const int old_result = SDL_GL_SetSwapInterval(old_swap_interval);
 	static_cast<void>(old_result);
 }
 
@@ -203,7 +203,7 @@ void gl_initialize_extensions()
 
 	if (GLAD_GL_ARB_texture_compression)
 	{
-		auto extension_name = "GL_ARB_texture_compression";
+		const char* extension_name = "GL_ARB_texture_compression";
 
 		if (r_ext_compressed_textures->integer != 0)
 		{
@@ -217,7 +217,7 @@ void gl_initialize_extensions()
 	}
 	else if (GLAD_GL_EXT_texture_compression_s3tc)
 	{
-		auto extension_name = "GL_EXT_texture_compression_s3tc";
+		const char* extension_name = "GL_EXT_texture_compression_s3tc";
 
 		if (r_ext_compressed_textures->integer != 0)
 		{
@@ -231,7 +231,7 @@ void gl_initialize_extensions()
 	}
 	else if (GLAD_GL_S3_s3tc)
 	{
-		auto extension_name = "GL_S3_s3tc";
+		const char* extension_name = "GL_S3_s3tc";
 
 		if (r_ext_compressed_textures->integer != 0)
 		{
@@ -249,7 +249,7 @@ void gl_initialize_extensions()
 	}
 
 	{
-		auto extension_name = "GL_EXT_texture_env_add";
+		const char* extension_name = "GL_EXT_texture_env_add";
 
 		if (GLAD_GL_EXT_texture_env_add)
 		{
@@ -273,7 +273,7 @@ void gl_initialize_extensions()
 	gl_probe_swap_control();
 
 	{
-		auto extension_name = "XXX_EXT_swap_control";
+		const char* extension_name = "XXX_EXT_swap_control";
 
 		if (glConfigEx.has_swap_control_)
 		{
@@ -287,7 +287,7 @@ void gl_initialize_extensions()
 	}
 
 	{
-		auto extension_name = "XXX_EXT_swap_control_tear";
+		const char* extension_name = "XXX_EXT_swap_control_tear";
 
 		if (glConfigEx.has_adaptive_swap_control_)
 		{
@@ -301,7 +301,7 @@ void gl_initialize_extensions()
 	}
 
 	{
-		auto extension_name = "GL_ARB_multitexture";
+		const char* extension_name = "GL_ARB_multitexture";
 
 		if (GLAD_GL_ARB_multitexture)
 		{
@@ -332,7 +332,7 @@ void gl_initialize_extensions()
 
 
 	{
-		auto extension_name = "GL_EXT_compiled_vertex_array";
+		const char* extension_name = "GL_EXT_compiled_vertex_array";
 
 		if (GLAD_GL_EXT_compiled_vertex_array)
 		{
@@ -353,7 +353,7 @@ void gl_initialize_extensions()
 	}
 
 	{
-		auto extension_name = "GL_NV_fog_distance";
+		const char* extension_name = "GL_NV_fog_distance";
 
 		if (GLAD_GL_NV_fog_distance)
 		{
@@ -376,7 +376,7 @@ void gl_initialize_extensions()
 	}
 
 	{
-		auto extension_name = "GL_EXT_texture_filter_anisotropic";
+		const char* extension_name = "GL_EXT_texture_filter_anisotropic";
 
 		if (GLAD_GL_EXT_texture_filter_anisotropic)
 		{
@@ -397,7 +397,7 @@ void gl_initialize_extensions()
 	}
 
 	{
-		auto extension_name = "GL_ARB_framebuffer_object";
+		const char* extension_name = "GL_ARB_framebuffer_object";
 
 		if (GLAD_GL_ARB_framebuffer_object)
 		{
@@ -412,7 +412,7 @@ void gl_initialize_extensions()
 	}
 
 	{
-		auto extension_name = "GL_ARB_draw_elements_base_vertex";
+		const char* extension_name = "GL_ARB_draw_elements_base_vertex";
 
 		if (GLAD_GL_ARB_draw_elements_base_vertex)
 		{
@@ -443,8 +443,8 @@ void GLimp_Init()
 
 	ri.Cvar_Get("r_lastValidRenderer", "(uninitialized)", CVAR_ARCHIVE);
 
-	auto is_succeed = true;
-	auto sdl_result = 0;
+	bool is_succeed = true;
+	int sdl_result = 0;
 
 	if (is_succeed)
 	{
@@ -457,9 +457,9 @@ void GLimp_Init()
 		}
 	}
 
-	auto display_width = 0;
-	auto display_height = 0;
-	auto display_refresh_rate = 0;
+	int display_width = 0;
+	int display_height = 0;
+	int display_refresh_rate = 0;
 
 	if (is_succeed)
 	{
@@ -480,12 +480,12 @@ void GLimp_Init()
 		}
 	}
 
-	auto width = 0;
-	auto height = 0;
-	auto aspect_ratio = 0.0F;
-	auto is_native_mode = false;
-	const auto is_fullscreen = (r_fullscreen->integer != 0);
-	const auto is_stereo = (r_stereo->integer != 0);
+	int width = 0;
+	int height = 0;
+	float aspect_ratio = 0.0F;
+	bool is_native_mode = false;
+	const bool is_fullscreen = (r_fullscreen->integer != 0);
+	const bool is_stereo = (r_stereo->integer != 0);
 
 	if (is_succeed)
 	{
@@ -507,9 +507,9 @@ void GLimp_Init()
 		}
 	}
 
-	auto sdl_width = 0;
-	auto sdl_height = 0;
-	auto sdl_aspect_ratio = 0.0F;
+	int sdl_width = 0;
+	int sdl_height = 0;
+	float sdl_aspect_ratio = 0.0F;
 
 	if (is_succeed)
 	{
@@ -536,8 +536,8 @@ void GLimp_Init()
 		sdl_result = SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 		sdl_result = SDL_GL_SetAttribute(SDL_GL_STEREO, is_stereo);
 
-		auto sdl_x = 0;
-		auto sdl_y = 0;
+		int sdl_x = 0;
+		int sdl_y = 0;
 
 		if (is_fullscreen)
 		{
@@ -549,10 +549,10 @@ void GLimp_Init()
 		}
 		else
 		{
-			const auto x_cvar = ri.Cvar_Get("vid_xpos", "0", 0);
+			const cvar_t* x_cvar = ri.Cvar_Get("vid_xpos", "0", 0);
 			sdl_x = std::clamp(x_cvar->integer, 0, display_width - 1);
 
-			const auto y_cvar = ri.Cvar_Get("vid_ypos", "0", 0);
+			const cvar_t* y_cvar = ri.Cvar_Get("vid_ypos", "0", 0);
 			sdl_y = std::clamp(y_cvar->integer, 0, display_height - 1);
 
 			if (sdl_x == 0)
@@ -571,7 +571,7 @@ void GLimp_Init()
 
 		sdl_aspect_ratio = static_cast<float>(sdl_width) / static_cast<float>(sdl_height);
 
-		const auto window_title =
+		const char* window_title =
 			"Return to Castle Wolfenstein ("
 #if defined RTCW_SP
 			"single-player"
@@ -677,13 +677,13 @@ void GLimp_Init()
 
 	if (is_succeed)
 	{
-		const auto gl_renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
-		const auto gl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
-		const auto gl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-		const auto gl_extensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
+		const char* gl_renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+		const char* gl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+		const char* gl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+		const char* gl_extensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
 
-		constexpr auto max_gl_string_size = MAX_STRING_CHARS;
-		constexpr auto max_gl_extensions_string_size = 4 * MAX_STRING_CHARS;
+		constexpr int max_gl_string_size = MAX_STRING_CHARS;
+		constexpr int max_gl_extensions_string_size = 4 * MAX_STRING_CHARS;
 
 		glConfig.colorBits = 32;
 		glConfig.depthBits = 24;
@@ -777,7 +777,7 @@ void GLimp_EndFrame()
 
 		if (glConfigEx.has_swap_control_)
 		{
-			auto swap_interval = 0;
+			int swap_interval = 0;
 
 			if (r_swapInterval->integer < 0)
 			{

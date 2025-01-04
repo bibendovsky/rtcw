@@ -40,7 +40,7 @@ public:
 		const void* buffer,
 		int size) override
 	{
-		auto buf_remaining = buffer_size_ - buffer_offset_;
+		jpge::uint buf_remaining = buffer_size_ - buffer_offset_;
 
 		if (static_cast<jpge::uint>(size) > buf_remaining)
 		{
@@ -110,7 +110,7 @@ bool JpegWriter::encode(
 		return false;
 	}
 
-	const auto dst_max_size = static_cast<jpge::uint>(estimate_dst_size(width, height));
+	const jpge::uint dst_max_size = static_cast<jpge::uint>(estimate_dst_size(width, height));
 
 	if (width == 0 || height == 0)
 	{
@@ -119,16 +119,16 @@ bool JpegWriter::encode(
 
 	MemoryStream stream{dst_data, dst_max_size};
 
-	auto jpg_params = jpge::params{};
+	jpge::params jpg_params;
 	jpg_params.m_quality = quality;
 
 	jpge::jpeg_encoder encoder{};
 
-	auto is_succeed = true;
+	bool is_succeed = true;
 
 	if (is_succeed)
 	{
-		auto init_result = encoder.init(
+		bool init_result = encoder.init(
 			&stream,
 			width,
 			height,
@@ -144,24 +144,24 @@ bool JpegWriter::encode(
 
 	if (is_succeed)
 	{
-		const auto dst_pitch = 3 * width;
+		const int dst_pitch = 3 * width;
 
 		line_buffer_.resize(dst_pitch);
 
-		auto src = static_cast<const unsigned char*>(src_data);
+		const unsigned char* src = static_cast<const unsigned char*>(src_data);
 
-		auto pass_count = encoder.get_total_passes();
+		jpge::uint pass_count = encoder.get_total_passes();
 
-		for (auto p = jpge::uint{}; p < pass_count; ++p)
+		for (jpge::uint p = 0; p < pass_count; ++p)
 		{
 			for (int h = height - 1; h >= 0; --h)
 			{
-				auto src_scanline = src + (h * (width * 4));
-				auto dst_scanline = line_buffer_.data();
+				const unsigned char* src_scanline = src + (h * (width * 4));
+				unsigned char* dst_scanline = line_buffer_.data();
 
 				rgba_to_rgb(src_scanline, width, dst_scanline);
 
-				auto process_result = encoder.process_scanline(dst_scanline);
+				bool process_result = encoder.process_scanline(dst_scanline);
 
 				if (!process_result)
 				{
@@ -176,7 +176,7 @@ bool JpegWriter::encode(
 				break;
 			}
 
-			auto process_result = encoder.process_scanline(nullptr);
+			bool process_result = encoder.process_scanline(nullptr);
 
 			if (!process_result)
 			{
@@ -211,9 +211,9 @@ int JpegWriter::estimate_dst_size(
 		return 0;
 	}
 
-	constexpr auto min_size = 2048;
+	constexpr int min_size = 2048;
 
-	auto size = width * height;
+	int size = width * height;
 
 	if (size < min_size)
 	{

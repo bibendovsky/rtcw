@@ -2157,15 +2157,8 @@ void CalculateRanks( void ) {
 	level.numFinalDead[0] = 0;      // NERVE - SMF
 	level.numFinalDead[1] = 0;      // NERVE - SMF
 
-#if FIXME
 	level.voteInfo.numVotingTeamClients[ 0 ] = 0;
 	level.voteInfo.numVotingTeamClients[ 1 ] = 0;
-#else
-	for (auto& numVotingTeamClients : level.voteInfo.numVotingTeamClients)
-	{
-		numVotingTeamClients = 0;
-	}
-#endif // FIXME
 
 	for ( i = 0; i < TEAM_NUM_TEAMS; i++ ) {
 		if ( i < 2 ) {

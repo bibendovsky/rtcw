@@ -44,16 +44,16 @@ extern "C" int main(
 {
 	if (SDL_Init(0) != 0)
 	{
-		auto sdl_error_message = SDL_GetError();
+		const char* sdl_error_message = SDL_GetError();
 
 		if (sdl_error_message == nullptr)
 		{
 			sdl_error_message = "";
 		}
 
-		const auto sdl_error_message_size = std::string::traits_type::length(sdl_error_message);
+		const size_t sdl_error_message_size = std::string::traits_type::length(sdl_error_message);
 
-		auto error_message = std::string{};
+		std::string error_message;
 		error_message.reserve(sdl_error_message_size + 64);
 		error_message += "Failed to initialize SDL (";
 		error_message.append(sdl_error_message, sdl_error_message_size);
@@ -71,9 +71,9 @@ extern "C" int main(
 	}
 
 
-	constexpr auto command_line_reserve = 1'024;
+	constexpr int command_line_reserve = 1'024;
 
-	auto command_line = std::string{};
+	std::string command_line;
 	command_line.reserve(command_line_reserve);
 
 	for (int i = 1; i < argc; ++i)
@@ -121,7 +121,7 @@ extern "C" int main(
 #endif
 #endif // RTCW_XX
 
-	const auto cwd = Sys_Cwd();
+	const char* cwd = Sys_Cwd();
 	Com_Printf("Working directory: %s\n", cwd);
 
 	// hide the early console since we've reached the point where we
@@ -140,7 +140,7 @@ extern "C" int main(
 			SDL_Delay(5);
 		}
 
-		const auto startTime = Sys_Milliseconds();
+		const int startTime = Sys_Milliseconds();
 
 		// make sure mouse and joystick are only called once a frame
 		IN_Frame();
@@ -148,7 +148,7 @@ extern "C" int main(
 		// run the game
 		Com_Frame();
 
-		const auto endTime = Sys_Milliseconds();
+		const int endTime = Sys_Milliseconds();
 
 		totalMsec += endTime - startTime;
 		countMsec += 1;

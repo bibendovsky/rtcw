@@ -101,8 +101,8 @@ bool Joystick::initialize()
 		return false;
 	}
 
-	auto sdl_result = 0;
-	auto is_succeed = true;
+	int sdl_result = 0;
+	bool is_succeed = true;
 
 	if (is_succeed)
 	{
@@ -120,7 +120,7 @@ bool Joystick::initialize()
 
 	if (is_succeed)
 	{
-		const auto joystick_count = SDL_NumJoysticks();
+		const int joystick_count = SDL_NumJoysticks();
 
 		if (joystick_count > 0)
 		{
@@ -147,23 +147,23 @@ bool Joystick::initialize()
 
 	if (is_succeed)
 	{
-		auto name = SDL_JoystickName(instance_);
+		const char* name = SDL_JoystickName(instance_);
 
 		if (name == nullptr)
 		{
 			name = "";
 		}
 
-		const auto guid = SDL_JoystickGetGUID(instance_);
+		const SDL_JoystickGUID guid = SDL_JoystickGetGUID(instance_);
 
 		char guid_string[33];
 		guid_string[0] = '\0';
 		SDL_JoystickGetGUIDString(guid, guid_string, 33);
 
-		const auto axes_count = SDL_JoystickNumAxes(instance_);
-		const auto trackballs_count = SDL_JoystickNumBalls(instance_);
-		const auto buttons_count = SDL_JoystickNumButtons(instance_);
-		const auto pov_hats_count = SDL_JoystickNumHats(instance_);
+		const int axes_count = SDL_JoystickNumAxes(instance_);
+		const int trackballs_count = SDL_JoystickNumBalls(instance_);
+		const int buttons_count = SDL_JoystickNumButtons(instance_);
+		const int pov_hats_count = SDL_JoystickNumHats(instance_);
 
 		Com_Printf("  Name: %s\n", name);
 		Com_Printf("  GUID: %s\n", guid_string);
@@ -248,11 +248,11 @@ void Joystick::reset_state()
 		return;
 	}
 
-	const auto timestamp = SDL_GetTicks();
+	const Uint32 timestamp = SDL_GetTicks();
 
 	for (int i = 0; i < MAX_BUTTONS_STATES; ++i)
 	{
-		const auto state = buttons_states_.test(i);
+		const bool state = buttons_states_.test(i);
 
 		if (!state)
 			continue;
@@ -293,7 +293,7 @@ void Joystick::handle_axis_event(
 		return;
 	}
 
-	auto threshold = 0.15F;
+	float threshold = 0.15F;
 
 	if (joy_threshold != nullptr)
 	{
@@ -304,10 +304,10 @@ void Joystick::handle_axis_event(
 		Com_DPrintf(S_COLOR_YELLOW "Null cvar: %s\n", "joy_threshold");
 	}
 
-	const auto value = e.value / 32'768.0F;
+	const float value = e.value / 32'768.0F;
 
-	const auto index = (value > threshold ? 1 : 0);
-	const auto key_index = index * e.axis;
+	const int index = (value > threshold ? 1 : 0);
+	const int key_index = index * e.axis;
 
 	buttons_states_.flip(key_index);
 
@@ -331,10 +331,10 @@ void Joystick::handle_ball_event(
 {
 	assert(e.type == SDL_JOYBALLMOTION);
 
-	const auto scale = in_joyBallScale->value;
+	const float scale = in_joyBallScale->value;
 
-	const auto x = static_cast<int>(e.xrel * scale);
-	const auto y = static_cast<int>(e.yrel * scale);
+	const int x = static_cast<int>(e.xrel * scale);
+	const int y = static_cast<int>(e.yrel * scale);
 
 	if (x == 0 && y == 0)
 	{

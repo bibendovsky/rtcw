@@ -373,7 +373,7 @@ void Sys_FreeFileList(
 		return;
 	}
 
-	for (auto i = 0; list[i]; ++i)
+	for (int i = 0; list[i]; ++i)
 	{
 		Z_Free(list[i]);
 	}
@@ -433,33 +433,33 @@ extern int cl_connectedToPureServer;
 const char* Sys_GetDLLName(
 	const char* name)
 {
-	static const auto bits = std::string{RTCW_ARCH_STRING};
+	static const std::string bits(RTCW_ARCH_STRING);
 
-	static const auto game = std::string{
+	static const std::string game(
 #ifdef RTCW_SP
 		""
 #else
 		"_mp_"
 #endif
-	};
+	);
 
-	static const auto demo = std::string{
+	static const std::string demo(
 #ifndef WOLF_SP_DEMO
 		""
 #else
 		"_d"
 #endif
-	};
+	);
 
-	static const auto ext = std::string{
+	static const std::string ext(
 #ifdef __WIN32__
 		".dll"
 #else
 		".so"
 #endif
-	};
+	);
 
-	static auto buffer = std::string{};
+	static std::string buffer;
 
 	buffer = name + game + bits + demo + ext;
 
@@ -476,14 +476,14 @@ void* QDECL Sys_LoadDll(
 
 	*fqpath = '\0'; // added 2/15/02 by T.Ray
 
-	const auto basepath = Cvar_VariableString("fs_basepath");
-	const auto cdpath = Cvar_VariableString("fs_cdpath");
-	const auto gamedir = Cvar_VariableString("fs_game");
+	const char* basepath = Cvar_VariableString("fs_basepath");
+	const char* cdpath = Cvar_VariableString("fs_cdpath");
+	const char* gamedir = Cvar_VariableString("fs_game");
 
-	const auto filename = std::string{Sys_GetDLLName(name)};
+	const std::string filename(Sys_GetDLLName(name));
 
 	// try gamepath first
-	auto fn = FS_BuildOSPath(basepath, gamedir, filename.c_str());
+	char* fn = FS_BuildOSPath(basepath, gamedir, filename.c_str());
 
 #if !defined RTCW_SP
 	// TTimo - this is only relevant for full client
@@ -506,7 +506,7 @@ void* QDECL Sys_LoadDll(
 #endif
 #endif // RTCW_XX
 
-	auto libHandle = SDL_LoadObject(fn);
+	void* libHandle = SDL_LoadObject(fn);
 
 	if (libHandle == nullptr)
 	{
@@ -537,7 +537,7 @@ void* QDECL Sys_LoadDll(
 
 	Q_strncpyz(fqpath, fn, MAX_QPATH); // added 2/15/02 by T.Ray
 
-	const auto dllEntry = reinterpret_cast<DllEntry>(SDL_LoadFunction(libHandle, "dllEntry"));
+	const DllEntry dllEntry = reinterpret_cast<DllEntry>(SDL_LoadFunction(libHandle, "dllEntry"));
 	*entryPoint = reinterpret_cast<DllEntryPoint>(SDL_LoadFunction(libHandle, "vmMain"));
 
 	if ((*entryPoint) == nullptr || dllEntry == nullptr)
@@ -551,8 +551,8 @@ void* QDECL Sys_LoadDll(
 	return libHandle;
 }
 
-constexpr auto MAX_QUED_EVENTS = 256;
-constexpr auto MASK_QUED_EVENTS = MAX_QUED_EVENTS - 1;
+constexpr int MAX_QUED_EVENTS = 256;
+constexpr int MASK_QUED_EVENTS = MAX_QUED_EVENTS - 1;
 
 sysEvent_t eventQue[MAX_QUED_EVENTS];
 int eventHead;
@@ -621,12 +621,12 @@ sysEvent_t Sys_GetEvent()
 	sys_poll_events();
 
 	// check for console commands
-	const auto s = Sys_ConsoleInput();
+	const char* s = Sys_ConsoleInput();
 
 	if (s != nullptr)
 	{
-		const auto len = static_cast<int>(strlen(s)) + 1;
-		const auto b = static_cast<char*> (Z_Malloc(len));
+		const int len = static_cast<int>(strlen(s)) + 1;
+		char* b = static_cast<char*> (Z_Malloc(len));
 
 		Q_strncpyz(b, s, len - 1);
 		Sys_QueEvent(0, SE_CONSOLE, 0, 0, len, b);
@@ -639,8 +639,8 @@ sysEvent_t Sys_GetEvent()
 	{
 		// copy out to a seperate buffer for qeueing
 		// the readcount stepahead is for SOCKS support
-		const auto len = static_cast<int>(sizeof(netadr_t)) + netmsg.cursize - netmsg.readcount;
-		const auto buf = static_cast<netadr_t*>(Z_Malloc(len));
+		const int len = static_cast<int>(sizeof(netadr_t)) + netmsg.cursize - netmsg.readcount;
+		netadr_t* buf = static_cast<netadr_t*>(Z_Malloc(len));
 
 		*buf = adr;
 		memcpy(buf + 1, &netmsg.data[netmsg.readcount], netmsg.cursize - netmsg.readcount);
@@ -691,12 +691,12 @@ void Sys_Init()
 	// FIXME
 	Cvar_Set("arch", SDL_GetPlatform());
 
-	constexpr auto cpuid = CPUID_GENERIC;
+	constexpr int cpuid = CPUID_GENERIC;
 	Cvar_SetValue("sys_cpuid", cpuid);
 
 	Cvar_Get("sys_cpustring", "detect", 0);
 
-	auto cpu_string = Cvar_VariableString("sys_cpustring");
+	const char* cpu_string = Cvar_VariableString("sys_cpustring");
 
 	if (Q_stricmp(cpu_string, "detect") == 0)
 	{
@@ -715,7 +715,7 @@ void Sys_Init()
 #if defined RTCW_ET
 bool Sys_IsNumLockDown()
 {
-	const auto state = SDL_GetModState();
+	const SDL_Keymod state = SDL_GetModState();
 	return (state & KMOD_NUM) != 0;
 }
 #endif // RTCW_XX

@@ -1613,14 +1613,11 @@ void CalculateRanks( void ) {
 
 #if FIXME
 	for ( i = 0; i < TEAM_NUM_TEAMS; i++ ) {
+#else
+	for ( i = 0; i < 2; i++ ) {
+#endif // FIXME
 		level.numteamVotingClients[i] = 0;
 	}
-#else
-	for (auto& numteamVotingClients : level.numteamVotingClients)
-	{
-		numteamVotingClients = 0;
-	}
-#endif // FIXME
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		if ( level.clients[i].pers.connected != CON_DISCONNECTED ) {

@@ -504,9 +504,9 @@ std::string r_dbg_get_glsl_path()
 
 bool r_dbg_probe_programs()
 {
-	auto is_try_successfull = true;
+	bool is_try_successfull = true;
 
-	const auto glsl_dir = r_dbg_get_glsl_path();
+	const std::string glsl_dir = r_dbg_get_glsl_path();
 
 	if (glsl_dir.empty())
 	{
@@ -537,7 +537,7 @@ void r_dbg_reload_programs_f()
 	ri.Printf(PRINT_ALL, "\n======== GLSL (debug) ========\n");
 	ri.Printf(PRINT_ALL, "%s...\n", "Trying to reload programs");
 
-	const auto glsl_dir = r_dbg_get_glsl_path();
+	const std::string glsl_dir = r_dbg_get_glsl_path();
 
 	if (glsl_dir.empty())
 	{
@@ -545,7 +545,7 @@ void r_dbg_reload_programs_f()
 		return;
 	}
 
-	auto is_try_successfull = true;
+	bool is_try_successfull = true;
 
 	ogl_tess_state.set_program(nullptr);
 
