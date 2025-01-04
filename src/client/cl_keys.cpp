@@ -2173,7 +2173,7 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 		// escape always gets out of CGAME stuff
 		if ( cls.keyCatchers & KEYCATCH_CGAME ) {
 			cls.keyCatchers &= ~KEYCATCH_CGAME;
-			VM_Call(cgvm, CG_EVENT_HANDLING, rtcw::to_vm_arg(CGAME_EVENT_NONE));
+			VM_Call(cgvm, CG_EVENT_HANDLING, rtcw::to_vm_arg(static_cast<int>(CGAME_EVENT_NONE)));
 			return;
 		}
 
@@ -2181,7 +2181,7 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 			if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
 
 #if !defined RTCW_ET
-				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_INGAME));
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(static_cast<int>(UIMENU_INGAME)));
 #else
 				// Arnout: on request
 				if ( cls.keyCatchers & KEYCATCH_CONSOLE ) {  // get rid of the console
@@ -2194,7 +2194,7 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 			} else {
 				CL_Disconnect_f();
 				S_StopAllSounds();
-				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(UIMENU_MAIN));
+				VM_Call(uivm, UI_SET_ACTIVE_MENU, rtcw::to_vm_arg(static_cast<int>(UIMENU_MAIN)));
 			}
 			return;
 		}
