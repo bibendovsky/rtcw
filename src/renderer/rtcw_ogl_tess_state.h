@@ -14,28 +14,28 @@ namespace rtcw
 class OglTessState
 {
 public:
-	rtcw::ModValue<glm::mat4> projection{};
-	rtcw::ModValue<glm::mat4> model_view{};
+	rtcw::ModValue<glm::mat4> projection;
+	rtcw::ModValue<glm::mat4> model_view;
 
-	rtcw::ModValue<bool> use_multitexturing{};
+	rtcw::ModValue<bool> use_multitexturing;
 
-	rtcw::ModValue<GLint> tex_2d[2]{};
-	rtcw::ModValue<GLenum> tex_env_mode[2]{};
+	rtcw::ModValue<GLint> tex_2d[2];
+	rtcw::ModValue<GLenum> tex_env_mode[2];
 
-	rtcw::ModValue<glm::vec4> primary_color{};
+	rtcw::ModValue<glm::vec4> primary_color;
 
-	rtcw::ModValue<bool> use_alpha_test{};
-	rtcw::ModValue<GLenum> alpha_test_func{};
-	rtcw::ModValue<float> alpha_test_ref{};
+	rtcw::ModValue<bool> use_alpha_test;
+	rtcw::ModValue<GLenum> alpha_test_func;
+	rtcw::ModValue<float> alpha_test_ref;
 
-	rtcw::ModValue<bool> use_fog{};
-	rtcw::ModValue<GLenum> fog_mode{};
-	rtcw::ModValue<GLenum> fog_dist_mode{};
-	rtcw::ModValue<GLenum> fog_hint{};
-	rtcw::ModValue<float> fog_density{};
-	rtcw::ModValue<float> fog_start{};
-	rtcw::ModValue<float> fog_end{};
-	rtcw::ModValue<glm::vec4> fog_color{};
+	rtcw::ModValue<bool> use_fog;
+	rtcw::ModValue<GLenum> fog_mode;
+	rtcw::ModValue<GLenum> fog_dist_mode;
+	rtcw::ModValue<GLenum> fog_hint;
+	rtcw::ModValue<float> fog_density;
+	rtcw::ModValue<float> fog_start;
+	rtcw::ModValue<float> fog_end;
+	rtcw::ModValue<glm::vec4> fog_color;
 
 
 	OglTessState();
@@ -56,7 +56,7 @@ public:
 
 
 private:
-	rtcw::OglTessProgram* program_{};
+	rtcw::OglTessProgram* program_;
 
 
 	bool is_program_valid() const;

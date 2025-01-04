@@ -57,7 +57,10 @@ namespace input
 {
 
 
-Keyboard::Keyboard() = default;
+Keyboard::Keyboard()
+	:
+	is_initialized_()
+{}
 
 Keyboard::~Keyboard()
 {

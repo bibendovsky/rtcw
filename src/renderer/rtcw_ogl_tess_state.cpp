@@ -9,7 +9,7 @@ namespace rtcw
 
 
 OglTessState::OglTessState() :
-	program_{NULL}
+	program_(NULL)
 {
 	set_default_values();
 }
@@ -26,8 +26,8 @@ void OglTessState::set_program(
 
 void OglTessState::set_default_values()
 {
-	model_view.set(glm::mat4{1});
-	projection.set(glm::mat4{1});
+	model_view.set(glm::mat4(1));
+	projection.set(glm::mat4(1));
 
 	use_multitexturing.set(false);
 
@@ -37,7 +37,7 @@ void OglTessState::set_default_values()
 	tex_env_mode[0].set(GL_MODULATE);
 	tex_env_mode[1].set(GL_MODULATE);
 
-	primary_color.set(glm::vec4{1});
+	primary_color.set(glm::vec4(1));
 
 	use_alpha_test.set(false);
 	alpha_test_func.set(GL_ALWAYS);
@@ -50,7 +50,7 @@ void OglTessState::set_default_values()
 	fog_density.set(1.0F);
 	fog_start.set(0.0F);
 	fog_end.set(1.0F);
-	fog_color.set(glm::vec4{});
+	fog_color.set(glm::vec4());
 }
 
 void OglTessState::commit_changes()

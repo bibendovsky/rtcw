@@ -78,10 +78,10 @@ private:
 	using ButtonsStates = std::bitset<MAX_BUTTONS_STATES>;
 
 
-	bool is_initialized_{};
-	SDL_JoystickID id_{};
-	SDL_Joystick* instance_{};
-	ButtonsStates buttons_states_{};
+	bool is_initialized_;
+	SDL_JoystickID id_;
+	SDL_Joystick* instance_;
+	ButtonsStates buttons_states_;
 
 
 	void handle_axis_event(

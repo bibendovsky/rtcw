@@ -79,8 +79,8 @@ public:
 private:
 	using Stack = std::stack<Matrix>;
 
-	Stack stack_{};
-	Matrix current_{};
+	Stack stack_;
+	Matrix current_;
 }; // OglMatrixStack
 
 

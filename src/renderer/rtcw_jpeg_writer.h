@@ -48,9 +48,9 @@ private:
 
 	using Buffer = std::vector<unsigned char>;
 
-	std::string error_message_{};
+	std::string error_message_;
 
-	Buffer line_buffer_{};
+	Buffer line_buffer_;
 
 	static void rgba_to_rgb(
 		const unsigned char* src_row,

@@ -11,26 +11,26 @@ OglTessProgram::OglTessProgram(
 	const std::string& glsl_dir,
 	const std::string& base_name)
 	:
-	OglProgram{glsl_dir, base_name},
-	a_pos_vec4{-1},
-	a_col_vec4{-1},
-	a_tc0_vec2{-1},
-	a_tc1_vec2{-1},
-	u_projection_mat4{-1},
-	u_model_view_mat4{-1},
-	u_use_alpha_test{-1},
-	u_alpha_test_func{-1},
-	u_alpha_test_ref{-1},
-	u_use_multitexturing{-1},
-	u_primary_color{-1},
-	u_use_fog{-1},
-	u_fog_mode{-1},
-	u_fog_dist_mode{-1},
-	u_fog_hint{-1},
-	u_fog_color{-1},
-	u_fog_density{-1},
-	u_fog_start{-1},
-	u_fog_end{-1}
+	OglProgram(glsl_dir, base_name),
+	a_pos_vec4(-1),
+	a_col_vec4(-1),
+	a_tc0_vec2(-1),
+	a_tc1_vec2(-1),
+	u_projection_mat4(-1),
+	u_model_view_mat4(-1),
+	u_use_alpha_test(-1),
+	u_alpha_test_func(-1),
+	u_alpha_test_ref(-1),
+	u_use_multitexturing(-1),
+	u_primary_color(-1),
+	u_use_fog(-1),
+	u_fog_mode(-1),
+	u_fog_dist_mode(-1),
+	u_fog_hint(-1),
+	u_fog_color(-1),
+	u_fog_density(-1),
+	u_fog_start(-1),
+	u_fog_end(-1)
 {
 	u_tex_env_mode[0] = -1;
 	u_tex_env_mode[1] = -1;
@@ -42,26 +42,26 @@ OglTessProgram::OglTessProgram(
 	const char* v_shader_c_string,
 	const char* f_shader_c_string)
 	:
-	OglProgram{v_shader_c_string, f_shader_c_string},
-	a_pos_vec4{-1},
-	a_col_vec4{-1},
-	a_tc0_vec2{-1},
-	a_tc1_vec2{-1},
-	u_projection_mat4{-1},
-	u_model_view_mat4{-1},
-	u_use_alpha_test{-1},
-	u_alpha_test_func{-1},
-	u_alpha_test_ref{-1},
-	u_use_multitexturing{-1},
-	u_primary_color{-1},
-	u_use_fog{-1},
-	u_fog_mode{-1},
-	u_fog_dist_mode{-1},
-	u_fog_hint{-1},
-	u_fog_color{-1},
-	u_fog_density{-1},
-	u_fog_start{-1},
-	u_fog_end{-1}
+	OglProgram(v_shader_c_string, f_shader_c_string),
+	a_pos_vec4(-1),
+	a_col_vec4(-1),
+	a_tc0_vec2(-1),
+	a_tc1_vec2(-1),
+	u_projection_mat4(-1),
+	u_model_view_mat4(-1),
+	u_use_alpha_test(-1),
+	u_alpha_test_func(-1),
+	u_alpha_test_ref(-1),
+	u_use_multitexturing(-1),
+	u_primary_color(-1),
+	u_use_fog(-1),
+	u_fog_mode(-1),
+	u_fog_dist_mode(-1),
+	u_fog_hint(-1),
+	u_fog_color(-1),
+	u_fog_density(-1),
+	u_fog_start(-1),
+	u_fog_end(-1)
 {
 	u_tex_env_mode[0] = -1;
 	u_tex_env_mode[1] = -1;
@@ -78,14 +78,14 @@ OglProgram* OglTessProgram::create_new(
 	const std::string& glsl_dir,
 	const std::string& base_name)
 {
-	return new OglTessProgram{glsl_dir, base_name};
+	return new OglTessProgram(glsl_dir, base_name);
 }
 
 OglProgram* OglTessProgram::create_new(
 	const char* v_shader_c_string,
 	const char* f_shader_c_string)
 {
-	return new OglTessProgram{v_shader_c_string, f_shader_c_string};
+	return new OglTessProgram(v_shader_c_string, f_shader_c_string);
 }
 
 void OglTessProgram::unload_internal()

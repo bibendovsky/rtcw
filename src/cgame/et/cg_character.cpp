@@ -305,11 +305,7 @@ static qboolean CG_CheckForExistingAnimModelInfo( const char *animationGroup, co
 	} else {
 		*animModelInfo = firstFree;
 		// clear the structure out ready for use
-#if FIXME
 		memset( *animModelInfo, 0, sizeof( *animModelInfo ) );
-#else
-		(**animModelInfo) = animModelInfo_t{};
-#endif // FIXME
 	}
 
 	// qfalse signifies that we need to parse the information from the script files

@@ -77,10 +77,13 @@ namespace input
 {
 
 
-Joystick::Joystick() :
-	id_{-1}
-{
-}
+Joystick::Joystick()
+	:
+	is_initialized_(),
+	id_(-1),
+	instance_(),
+	buttons_states_()
+{}
 
 Joystick::~Joystick()
 {

@@ -252,7 +252,7 @@ void append_text_to_log(
 
 void uninitialize()
 {
-	sdl_window_id_ = {};
+	sdl_window_id_ = 0;
 
 	imgui_sdl_.uninitialize();
 
@@ -260,35 +260,35 @@ void uninitialize()
 	if (imgui_context_)
 	{
 		ImGui::DestroyContext(imgui_context_);
-		imgui_context_ = {};
+		imgui_context_ = NULL;
 	}
 
 	if (sdl_font_surface_)
 	{
 		SDL_FreeSurface(sdl_font_surface_);
-		sdl_font_surface_ = {};
+		sdl_font_surface_ = NULL;
 	}
 
 	if (sdl_renderer_)
 	{
 		SDL_DestroyRenderer(sdl_renderer_);
-		sdl_renderer_ = {};
+		sdl_renderer_ = NULL;
 	}
 
 	if (sdl_window_)
 	{
 		SDL_DestroyWindow(sdl_window_);
-		sdl_window_ = {};
+		sdl_window_ = NULL;
 	}
 
 	log_.clear();
-	window_status_ = {};
+	window_status_ = ImGuiSdl::WindowStatus::none;
 	returned_commands_.clear();
 	entered_commands_.clear();
 	append_buffer_.clear();
 
-	quit_on_close_ = {};
-	is_initialized_ = {};
+	quit_on_close_ = false;
+	is_initialized_ = false;
 
 	edit_buffer_.clear();
 }
@@ -337,16 +337,16 @@ void setup_imgui()
 	style.AntiAliasedLines = false;
 	style.ChildRounding = 0;
 	style.FrameBorderSize = 0;
-	style.FramePadding = {};
+	style.FramePadding = ImVec2();
 	style.FrameRounding = 0;
 	style.GrabRounding = 0;
-	style.ItemInnerSpacing = {};
-	style.ItemSpacing = {};
+	style.ItemInnerSpacing = ImVec2();
+	style.ItemSpacing = ImVec2();
 	style.PopupRounding = 0;
 	style.ScrollbarRounding = 0;
-	style.TouchExtraPadding = {};
+	style.TouchExtraPadding = ImVec2();
 	style.WindowBorderSize = 0;
-	style.WindowPadding = {};
+	style.WindowPadding = ImVec2();
 	style.WindowRounding = 0;
 }
 
@@ -500,7 +500,7 @@ char* get_commands()
 {
 	if (entered_commands_.empty())
 	{
-		return {};
+		return NULL;
 	}
 
 	returned_commands_ = entered_commands_;
@@ -522,20 +522,20 @@ void imgui_draw()
 
 	const bool is_show_error = (!error_text_.empty());
 
-	ImVec2 error_control_position = {5.0F, 5.0F};
-	ImVec2 error_control_size = {530.0F, 30.0F};
+	ImVec2 error_control_position(5.0F, 5.0F);
+	ImVec2 error_control_size(530.0F, 30.0F);
 
-	ImVec2 log_control_position = {5.0F, 40.0F};
-	ImVec2 log_control_size = {530.0F, 355.0F};
+	ImVec2 log_control_position(5.0F, 40.0F);
+	ImVec2 log_control_size(530.0F, 355.0F);
 
-	ImVec2 command_control_position = {5.0F, 400.0F};
-	ImVec2 command_control_size = {530.0F, 20.0F};
+	ImVec2 command_control_position(5.0F, 400.0F);
+	ImVec2 command_control_size(530.0F, 20.0F);
 
-	ImVec2 copy_button_control_position = {5.0F, 425.0F};
-	ImVec2 clear_button_control_position = {85.0F, 425.0F};
-	ImVec2 quit_button_control_position = {465.0F, 425.0F};
+	ImVec2 copy_button_control_position(5.0F, 425.0F);
+	ImVec2 clear_button_control_position(85.0F, 425.0F);
+	ImVec2 quit_button_control_position(465.0F, 425.0F);
 
-	ImVec2 button_control_size = {70.0F, 20.0F};
+	ImVec2 button_control_size(70.0F, 20.0F);
 
 	if (is_show_error)
 	{
@@ -559,8 +559,8 @@ void imgui_draw()
 		0;
 
 	ImGui::Begin("main", NULL, window_flags);
-	ImGui::SetWindowSize({static_cast<float>(screen_width), static_cast<float>(screen_height)}, ImGuiCond_Always);
-	ImGui::SetWindowPos({}, ImGuiCond_Always);
+	ImGui::SetWindowSize(ImVec2(static_cast<float>(screen_width), static_cast<float>(screen_height)), ImGuiCond_Always);
+	ImGui::SetWindowPos(ImVec2(), ImGuiCond_Always);
 
 
 	// Error message
@@ -577,7 +577,7 @@ void imgui_draw()
 			0;
 
 		ImGui::SetCursorPos(error_control_position);
-		ImGui::PushStyleColor(ImGuiCol_Text, {1.0F, 0.0F, 0.0F, 1.0F});
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0F, 0.0F, 0.0F, 1.0F));
 		ImGui::BeginChildFrame(1, error_control_size, error_flags);
 		ImGui::TextWrapped("%s", error_text_.c_str());
 		ImGui::EndChildFrame();
@@ -857,7 +857,7 @@ void Sys_ClearViewlog_f()
 
 void sys_run_console()
 {
-	SDL_Event e = {};
+	SDL_Event e = SDL_Event();
 
 	bool is_quit = false;
 

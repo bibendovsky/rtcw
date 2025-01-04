@@ -9,9 +9,9 @@ namespace rtcw
 
 OglMatrixStack::OglMatrixStack()
 	:
-	current_{1}
-{
-}
+	stack_(),
+	current_(1)
+{}
 
 void OglMatrixStack::pop()
 {
@@ -68,7 +68,7 @@ void OglMatrixStack::push_and_set(
 void OglMatrixStack::push_and_set_identity()
 {
 	push();
-	set_current(Matrix{1});
+	set_current(Matrix(1));
 }
 
 OglMatrixStack::Matrix& OglMatrixStack::get_current()
@@ -100,12 +100,11 @@ void OglMatrixStack::set_current(
 void OglMatrixStack::set_current(
 	const float items[16])
 {
-	current_ = Matrix{
+	current_ = Matrix(
 		items[0], items[1], items[2], items[3],
 		items[4], items[5], items[6], items[7],
 		items[8], items[9], items[10], items[11],
-		items[12], items[13], items[14], items[15]
-	};
+		items[12], items[13], items[14], items[15]);
 }
 
 int OglMatrixStack::get_max_depth()

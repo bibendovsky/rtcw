@@ -223,11 +223,10 @@ class MinizIo
 public:
 	MinizIo()
 		:
-		filebuf_{},
-		position_{},
-		is_position_valid_{}
-	{
-	}
+		filebuf_(),
+		position_(),
+		is_position_valid_()
+	{}
 
 	MinizIo(
 		const MinizIo& that) = delete;
@@ -270,9 +269,9 @@ public:
 	void close()
 	{
 		filebuf_.close();
-		position_ = {};
-		is_position_valid_ = {};
-		file_size_ = {};
+		position_ = 0;
+		is_position_valid_ = false;
+		file_size_ = 0;
 	}
 
 	bool is_open() const
@@ -396,10 +395,9 @@ public:
 		explicit File(
 			mz_zip_reader_extract_iter_state* miniz_file_state)
 			:
-			miniz_file_state_{miniz_file_state},
-			position_{}
-		{
-		}
+			miniz_file_state_(miniz_file_state),
+			position_()
+		{}
 
 		void close()
 		{
@@ -414,12 +412,11 @@ public:
 
 	MinizZip()
 		:
-		is_open_{},
-		miniz_zip_{},
-		io_{},
-		file_count_{}
-	{
-	}
+		is_open_(),
+		miniz_zip_(),
+		io_(),
+		file_count_()
+	{}
 
 	MinizZip(
 		const MinizZip& that) = delete;
@@ -468,12 +465,12 @@ public:
 
 	void close()
 	{
-		is_open_ = {};
+		is_open_ = false;
 		mz_zip_reader_end(&miniz_zip_);
 		io_.close();
-		file_count_ = {};
+		file_count_ = 0;
 
-		miniz_zip_ = mz_zip_archive{};
+		miniz_zip_ = mz_zip_archive();
 	}
 
 	bool is_open() const
@@ -486,7 +483,7 @@ public:
 	{
 		if (!is_open() || file_index < 0 || file_index >= file_count_)
 		{
-			return {};
+			return NULL;
 		}
 
 		mz_zip_reader_extract_iter_state* miniz_file_state =
@@ -494,10 +491,10 @@ public:
 
 		if (!miniz_file_state)
 		{
-			return {};
+			return NULL;
 		}
 
-		return new File{miniz_file_state};
+		return new File(miniz_file_state);
 	}
 
 	int get_file_count() const
@@ -535,14 +532,14 @@ public:
 	{
 		if (!is_open_ || file_index < 0 || file_index >= file_count_)
 		{
-			return {};
+			return FileStat();
 		}
 
 		mz_zip_archive_file_stat miniz_file_stat;
 
 		if (!::mz_zip_reader_file_stat(&miniz_zip_, static_cast<mz_uint>(file_index), &miniz_file_stat))
 		{
-			return {};
+			return FileStat();
 		}
 
 		FileStat file_stat;
@@ -571,7 +568,7 @@ private:
 	{
 		if (!is_open_ || file_index < 0 || file_index >= file_count_)
 		{
-			return {};
+			return NULL;
 		}
 
 		return mz_zip_reader_extract_iter_new(&miniz_zip_, static_cast<mz_uint>(file_index), 0);

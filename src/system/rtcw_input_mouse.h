@@ -80,9 +80,9 @@ private:
 	using ButtonsStates = std::bitset<MAX_BUTTONS_COUNT>;
 
 
-	bool is_initialized_{};
-	bool is_activated_{};
-	ButtonsStates buttons_states_{};
+	bool is_initialized_;
+	bool is_activated_;
+	ButtonsStates buttons_states_;
 
 
 	void handle_button_event(

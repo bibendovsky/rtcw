@@ -49,12 +49,12 @@ public:
 
 
 private:
-	int width_{};
-	int height_{};
-	bool is_grayscale_{};
-	std::unique_ptr<jpgd::jpeg_decoder_mem_stream> stream_{};
-	std::unique_ptr<jpgd::jpeg_decoder> decoder_{};
-	std::string error_message_{};
+	int width_;
+	int height_;
+	bool is_grayscale_;
+	std::unique_ptr<jpgd::jpeg_decoder_mem_stream> stream_;
+	std::unique_ptr<jpgd::jpeg_decoder> decoder_;
+	std::string error_message_;
 
 
 	static void gray_to_rgba(

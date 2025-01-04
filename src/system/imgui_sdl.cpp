@@ -83,21 +83,21 @@ ImVec2 operator*(
 	const float f,
 	const ImVec2& v)
 {
-	return ImVec2{f * v.x, f * v.y};
+	return ImVec2(f * v.x, f * v.y);
 }
 
 ImVec2 operator+(
 	const ImVec2& a,
 	const ImVec2& b)
 {
-	return ImVec2{a.x + b.x, a.y + b.y};
+	return ImVec2(a.x + b.x, a.y + b.y);
 }
 
 ImVec2 operator-(
 	const ImVec2& a,
 	const ImVec2& b)
 {
-	return ImVec2{a.x - b.x, a.y - b.y};
+	return ImVec2(a.x - b.x, a.y - b.y);
 }
 
 bool operator!=(
@@ -111,14 +111,14 @@ ImVec4 operator*(
 	const float f,
 	const ImVec4& v)
 {
-	return ImVec4{f * v.x, f * v.y, f * v.z, f * v.w};
+	return ImVec4(f * v.x, f * v.y, f * v.z, f * v.w);
 }
 
 ImVec4 operator+(
 	const ImVec4& a,
 	const ImVec4& b)
 {
-	return ImVec4{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
+	return ImVec4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
 }
 
 
@@ -136,7 +136,8 @@ Barycentric operator*(
 	const float f,
 	const Barycentric& va)
 {
-	return {f * va.w0, f * va.w1, f * va.w2};
+	const Barycentric result = {f * va.w0, f * va.w1, f * va.w2};
+	return result;
 }
 
 void operator+=(
@@ -152,7 +153,8 @@ Barycentric operator+(
 	const Barycentric& a,
 	const Barycentric& b)
 {
-	return Barycentric{a.w0 + b.w0, a.w1 + b.w1, a.w2 + b.w2};
+	const Barycentric result = {a.w0 + b.w0, a.w1 + b.w1, a.w2 + b.w2};
+	return result;
 }
 
 
@@ -165,19 +167,19 @@ class ImGuiSdl::Impl
 public:
 	Impl()
 		:
-		error_message_{},
-		clipboard_buffer_{},
-		sdl_window_{},
-		sdl_window_id_{},
-		sdl_renderer_{},
-		sdl_framebuffer_texture_{},
-		screen_width_{},
-		screen_height_{},
-		frame_buffer_{},
-		is_close_requested_{},
-		mouse_buttons_state_{}
-	{
-	}
+		error_message_(),
+		clipboard_buffer_(),
+		sdl_window_(),
+		sdl_window_id_(),
+		sdl_renderer_(),
+		sdl_framebuffer_texture_(),
+		screen_width_(),
+		screen_height_(),
+		frame_buffer_(),
+		is_close_requested_(),
+		window_status_(WindowStatus::none),
+		mouse_buttons_state_()
+	{}
 
 	Impl(
 		const Impl& that) = delete;
@@ -286,18 +288,18 @@ public:
 
 	void api_uninitialize()
 	{
-		sdl_window_ = {};
-		sdl_window_id_ = {};
-		sdl_renderer_ = {};
+		sdl_window_ = NULL;
+		sdl_window_id_ = 0;
+		sdl_renderer_ = NULL;
 
 		if (sdl_framebuffer_texture_)
 		{
 			SDL_DestroyTexture(sdl_framebuffer_texture_);
-			sdl_framebuffer_texture_ = {};
+			sdl_framebuffer_texture_ = NULL;
 		}
 
-		screen_width_ = {};
-		screen_height_ = {};
+		screen_width_ = 0;
+		screen_height_ = 0;
 		frame_buffer_.clear();
 
 		mouse_buttons_state_.reset();
@@ -616,13 +618,11 @@ private:
 	{
 		const float s = 1.0F / 255.0F;
 
-		return ImVec4
-		{
+		return ImVec4(
 			((in >> IM_COL32_R_SHIFT) & 0xFF) * s,
 			((in >> IM_COL32_G_SHIFT) & 0xFF) * s,
 			((in >> IM_COL32_B_SHIFT) & 0xFF) * s,
-			((in >> IM_COL32_A_SHIFT) & 0xFF) * s,
-		};
+			((in >> IM_COL32_A_SHIFT) & 0xFF) * s);
 	}
 
 	static ImU32 color_convert_float4_to_u32(
@@ -661,7 +661,8 @@ private:
 	static Point as_point(
 		const ImVec2& v)
 	{
-		return Point{as_int(v.x), as_int(v.y)};
+		const Point result = {as_int(v.x), as_int(v.y)};
+		return result;
 	}
 
 	static float min3(
@@ -946,7 +947,7 @@ private:
 
 		// We often blend the same colors over and over again, so optimize for this (saves 10% total cpu):
 		uint32_t last_target_pixel = 0;
-		Color last_output = blend(ColorInt{last_target_pixel}, ColorInt{v0.col}).to_uint32();
+		Color last_output = blend(ColorInt(last_target_pixel), ColorInt(v0.col)).to_uint32();
 
 		for (int y = min_y_i; y < max_y_i; ++y)
 		{
@@ -996,7 +997,7 @@ private:
 					}
 
 					last_target_pixel = target_pixel;
-					target_pixel = blend(ColorInt{target_pixel}, ColorInt{v0.col}).to_uint32();
+					target_pixel = blend(ColorInt(target_pixel), ColorInt(v0.col)).to_uint32();
 					last_output = target_pixel;
 
 					continue;
@@ -1166,7 +1167,7 @@ private:
 						}
 						else
 						{
-							paint_uniform_rectangle(min, max, ColorInt{v0.col});
+							paint_uniform_rectangle(min, max, ColorInt(v0.col));
 							i += 6;
 							continue;
 						}
@@ -1216,7 +1217,7 @@ private:
 
 	void clear_frame_buffer()
 	{
-		std::uninitialized_fill_n(frame_buffer_.data(), frame_buffer_.size(), Color{});
+		std::uninitialized_fill_n(frame_buffer_.data(), frame_buffer_.size(), Color());
 	}
 
 	void handle_window_event(
@@ -1259,7 +1260,7 @@ private:
 		}
 
 		ImGuiIO& imgui_io = ImGui::GetIO();
-		imgui_io.MousePos = {static_cast<float>(sdl_event.x), static_cast<float>(sdl_event.y)};
+		imgui_io.MousePos = ImVec2(static_cast<float>(sdl_event.x), static_cast<float>(sdl_event.y));
 	}
 
 	void handle_mouse_wheel(
@@ -1449,14 +1450,14 @@ private:
 
 ImGuiSdl::ImGuiSdl()
 	:
-	pimpl_{new Impl{}}
+	pimpl_(new Impl())
 {
 }
 
 ImGuiSdl::ImGuiSdl(
 	ImGuiSdl&& that)
 	:
-	pimpl_{std::move(that.pimpl_)}
+	pimpl_(std::move(that.pimpl_))
 {
 }
 

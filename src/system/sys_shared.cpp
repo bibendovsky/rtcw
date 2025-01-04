@@ -657,7 +657,7 @@ sysEvent_t Sys_GetEvent()
 
 	// create an empty event to return
 
-	ev = sysEvent_t{};
+	ev = sysEvent_t();
 	ev.evTime = Sys_Milliseconds();
 
 	return ev;

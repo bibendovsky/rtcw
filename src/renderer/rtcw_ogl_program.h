@@ -63,14 +63,14 @@ protected:
 	}; // SourceType
 
 
-	SourceType source_type_{};
-	std::string glsl_dir_{};
-	std::string base_name_{};
-	const char* v_shader_c_string_{};
-	const char* f_shader_c_string_{};
+	SourceType source_type_;
+	std::string glsl_dir_;
+	std::string base_name_;
+	const char* v_shader_c_string_;
+	const char* f_shader_c_string_;
 
-	GLuint ogl_vertex_shader_{};
-	GLuint ogl_fragment_shader_{};
+	GLuint ogl_vertex_shader_;
+	GLuint ogl_fragment_shader_;
 
 
 	virtual OglProgram* create_new(

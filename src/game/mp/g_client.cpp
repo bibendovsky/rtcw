@@ -1258,11 +1258,7 @@ qboolean G_CheckForExistingModelInfo( gclient_t *cl, char *modelName, animModelI
 	} else {
 		*modelInfo = firstFree;
 		// clear the structure out ready for use
-#if FIXME
 		memset( *modelInfo, 0, sizeof( *modelInfo ) );
-#else
-		**modelInfo = animModelInfo_t{};
-#endif // FIXME
 	}
 	// qfalse signifies that we need to parse the information from the script files
 	return qfalse;

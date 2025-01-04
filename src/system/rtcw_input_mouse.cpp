@@ -57,7 +57,12 @@ namespace input
 {
 
 
-Mouse::Mouse() = default;
+Mouse::Mouse()
+	:
+	is_initialized_(),
+	is_activated_(),
+	buttons_states_()
+{}
 
 Mouse::~Mouse()
 {

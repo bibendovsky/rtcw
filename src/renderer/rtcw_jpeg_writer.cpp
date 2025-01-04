@@ -24,10 +24,10 @@ public:
 		void* buffer,
 		jpge::uint buffer_size)
 		:
-		buffer_{static_cast<jpge::uint8*>(buffer)},
-		buffer_size_{buffer_size}
-	{
-	}
+		buffer_(static_cast<jpge::uint8*>(buffer)),
+		buffer_size_(buffer_size),
+		buffer_offset_()
+	{}
 
 	MemoryStream(
 		const MemoryStream& that) = delete;
@@ -61,16 +61,20 @@ public:
 
 
 private:
-	jpge::uint8* buffer_{};
-	jpge::uint buffer_size_{};
-	jpge::uint buffer_offset_{};
+	jpge::uint8* buffer_;
+	jpge::uint buffer_size_;
+	jpge::uint buffer_offset_;
 }; // MemoryStream
 
 
 } // namespace
 
 
-JpegWriter::JpegWriter() = default;
+JpegWriter::JpegWriter()
+	:
+	error_message_(),
+	line_buffer_()
+{}
 
 bool JpegWriter::encode(
 	int quality,
@@ -117,12 +121,12 @@ bool JpegWriter::encode(
 		return true;
 	}
 
-	MemoryStream stream{dst_data, dst_max_size};
+	MemoryStream stream(dst_data, dst_max_size);
 
 	jpge::params jpg_params;
 	jpg_params.m_quality = quality;
 
-	jpge::jpeg_encoder encoder{};
+	jpge::jpeg_encoder encoder;
 
 	bool is_succeed = true;
 

@@ -434,7 +434,7 @@ void gl_initialize_extensions()
 
 void GLimp_Init()
 {
-	sys_main_window_id = {};
+	sys_main_window_id = 0;
 
 	ri.Printf(PRINT_ALL, "Initializing OpenGL subsystem\n");
 
@@ -672,7 +672,7 @@ void GLimp_Init()
 	}
 
 
-	glConfig = glconfig_t{};
+	glConfig = glconfig_t();
 	glConfigEx.reset();
 
 	if (is_succeed)
@@ -756,9 +756,9 @@ void GLimp_Shutdown()
 		sys_gl_window = NULL;
 	}
 
-	sys_main_window_id = Uint32{};
+	sys_main_window_id = 0;
 
-	glConfig = glconfig_t{};
+	glConfig = glconfig_t();
 	glConfigEx.reset();
 
 	SDL_GL_UnloadLibrary();

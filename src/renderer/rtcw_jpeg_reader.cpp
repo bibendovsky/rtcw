@@ -12,7 +12,15 @@ namespace rtcw
 {
 
 
-JpegReader::JpegReader() = default;
+JpegReader::JpegReader()
+	:
+	width_(),
+	height_(),
+	is_grayscale_(),
+	stream_(),
+	decoder_(),
+	error_message_()
+{}
 
 bool JpegReader::open(
 	const void* src_data,

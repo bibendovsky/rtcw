@@ -498,7 +498,7 @@ std::string r_dbg_get_glsl_path()
 	}
 	else
 	{
-		return {};
+		return std::string();
 	}
 }
 
@@ -923,7 +923,7 @@ void r_reload_programs_f()
 
 	if (!::ogl_tess_program)
 	{
-		ogl_tess_program = new rtcw::OglTessProgram{r_get_embeded_vertex_shader(), r_get_embeded_fragment_shader()};
+		ogl_tess_program = new rtcw::OglTessProgram(r_get_embeded_vertex_shader(), r_get_embeded_fragment_shader());
 	}
 
 	if (ogl_tess_program)

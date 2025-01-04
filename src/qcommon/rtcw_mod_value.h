@@ -12,7 +12,11 @@ template<
 class ModValue
 {
 public:
-	ModValue() = default;
+	ModValue()
+		:
+		value_(),
+		is_modified_()
+	{}
 
 	bool is_modified() const
 	{
@@ -39,8 +43,8 @@ public:
 
 
 private:
-	T value_{};
-	bool is_modified_{};
+	T value_;
+	bool is_modified_;
 
 
 	ModValue(

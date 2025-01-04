@@ -65,7 +65,7 @@ public:
 
 
 private:
-	bool is_initialized_{};
+	bool is_initialized_;
 
 
 	void handle_key_event(

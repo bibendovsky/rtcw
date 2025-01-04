@@ -11,21 +11,29 @@ OglProgram::OglProgram(
 	const std::string& glsl_dir,
 	const std::string& base_name)
 	:
-	source_type_{SourceType::file},
-	glsl_dir_{glsl_dir},
-	base_name_{base_name}
-{
-}
+	program_(),
+	source_type_(SourceType::file),
+	glsl_dir_(glsl_dir),
+	base_name_(base_name),
+	v_shader_c_string_(),
+	f_shader_c_string_(),
+	ogl_vertex_shader_(),
+	ogl_fragment_shader_()
+{}
 
 OglProgram::OglProgram(
 	const char* v_shader_buffer,
 	const char* f_shader_buffer)
 	:
-	source_type_{SourceType::c_string},
-	v_shader_c_string_{v_shader_buffer},
-	f_shader_c_string_{f_shader_buffer}
-{
-}
+	program_(),
+	source_type_(SourceType::c_string),
+	glsl_dir_(),
+	base_name_(),
+	v_shader_c_string_(v_shader_buffer),
+	f_shader_c_string_(f_shader_buffer),
+	ogl_vertex_shader_(),
+	ogl_fragment_shader_()
+{}
 
 OglProgram::~OglProgram()
 {
@@ -305,7 +313,7 @@ std::string OglProgram::get_compile_log(
 
 	if (info_log_size <= 0)
 	{
-		return std::string{};
+		return std::string();
 	}
 
 	GLsizei info_log_length = 0; // without a null terminator
