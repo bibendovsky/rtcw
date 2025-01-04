@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "keycodes.h"
 
 
-cvar_t* k_language = nullptr;
+cvar_t* k_language = NULL;
 extern Uint32 sys_main_window_id;
 
 
@@ -149,7 +149,7 @@ void Keyboard::handle_key_event(
 
 	if (is_alt_pressed && is_enter_pressed)
 	{
-		if (r_fullscreen != nullptr)
+		if (r_fullscreen != NULL)
 		{
 			Cvar_SetValue("r_fullscreen", !r_fullscreen->integer);
 			const bool is_fullscreen = (r_fullscreen->integer != 0);
@@ -173,7 +173,7 @@ void Keyboard::handle_key_event(
 		key,
 		e.state == SDL_PRESSED,
 		0,
-		nullptr
+		NULL
 	);
 
 	if (e.state == SDL_RELEASED)
@@ -191,7 +191,7 @@ void Keyboard::handle_key_event(
 			key_char,
 			0,
 			0,
-			nullptr
+			NULL
 		);
 	}
 }

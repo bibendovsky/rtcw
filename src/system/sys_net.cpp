@@ -133,7 +133,7 @@ UDPsocket NET_IPSocket(
 	}
 
 	bool is_succeed = true;
-	UDPsocket udp_socket = nullptr;
+	UDPsocket udp_socket = NULL;
 
 	if (is_succeed) {
 		udp_socket = SDLNet_UDP_Open(
@@ -177,7 +177,7 @@ UDPsocket NET_IPSocket(
 			SDLNet_UDP_Close(
 				udp_socket);
 
-			udp_socket = nullptr;
+			udp_socket = NULL;
 		}
 	}
 
@@ -191,7 +191,7 @@ void NET_GetLocalAddress()
 
 	sdl_result = SDLNet_ResolveHost(
 		&current_address,
-		nullptr,
+		NULL,
 		0);
 
 	const char* host_name = SDLNet_ResolveIP(
@@ -321,7 +321,7 @@ void NET_Config(
 			SDLNet_UDP_Close(
 				ip_socket);
 
-			ip_socket = nullptr;
+			ip_socket = NULL;
 		}
 	}
 

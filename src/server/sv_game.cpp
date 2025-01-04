@@ -737,7 +737,7 @@ int32_t SV_GameSystemCalls (
 		char* s = COM_Parse(const_cast<const char**>(&sv.entityParsePoint));
 		Q_strncpyz(rtcw::from_vm_arg<char*>(VMA(1)), s, rtcw::from_vm_arg<int>(args[2]));
 
-		if (sv.entityParsePoint == nullptr && s[0] == '\0')
+		if (sv.entityParsePoint == NULL && s[0] == '\0')
 		{
 			return qfalse;
 		}

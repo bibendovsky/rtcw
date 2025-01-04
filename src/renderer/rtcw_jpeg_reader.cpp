@@ -22,7 +22,7 @@ bool JpegReader::open(
 {
 	close();
 
-	if (src_data == nullptr)
+	if (src_data == NULL)
 	{
 		error_message_ = "Null source data.";
 		return false;
@@ -92,13 +92,13 @@ bool JpegReader::open(
 bool JpegReader::decode(
 	void* dst_data)
 {
-	if (dst_data == nullptr)
+	if (dst_data == NULL)
 	{
 		error_message_ = "Null target buffer.";
 		return false;
 	}
 
-	if (decoder_ == nullptr)
+	if (decoder_ == NULL)
 	{
 		error_message_ = "Decoder not initialized.";
 		return false;
@@ -122,7 +122,7 @@ bool JpegReader::decode(
 
 		for (int y = 0; y < height_; ++y)
 		{
-			const void* raw_scanline = nullptr;
+			const void* raw_scanline = NULL;
 			jpgd::uint scanline_length = 0;
 
 			int decode_result = decoder_->decode(&raw_scanline, &scanline_length);
@@ -161,8 +161,8 @@ void JpegReader::close()
 	height_ = 0;
 	is_grayscale_ = false;
 
-	decoder_ = nullptr;
-	stream_ = nullptr;
+	decoder_ = NULL;
+	stream_ = NULL;
 
 	error_message_.clear();
 }

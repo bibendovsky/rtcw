@@ -85,9 +85,9 @@ using EditBuffer = std::vector<char>;
 std::string error_message_;
 
 Uint32 sdl_window_id_ = 0;
-SDL_Window* sdl_window_ = nullptr;
-SDL_Renderer* sdl_renderer_ = nullptr;
-SDL_Surface* sdl_font_surface_ = nullptr;
+SDL_Window* sdl_window_ = NULL;
+SDL_Renderer* sdl_renderer_ = NULL;
+SDL_Surface* sdl_font_surface_ = NULL;
 
 Log log_;
 std::string error_text_;
@@ -96,7 +96,7 @@ std::string entered_commands_;
 std::string append_buffer_;
 ImGuiSdl::WindowStatus window_status_ = ImGuiSdl::WindowStatus::none;
 ImGuiSdl imgui_sdl_;
-ImGuiContext* imgui_context_ = nullptr;
+ImGuiContext* imgui_context_ = NULL;
 
 EditBuffer edit_buffer_;
 
@@ -297,7 +297,7 @@ bool initialize_font_atlas()
 {
 	ImGuiIO& imgui_io = ImGui::GetIO();
 
-	unsigned char* out_pixels = nullptr;
+	unsigned char* out_pixels = NULL;
 	int out_width = 0;
 	int out_height = 0;
 	int out_bytes_per_pixel = 0;
@@ -327,7 +327,7 @@ void setup_imgui()
 {
 	ImGuiIO& imgui_io = ImGui::GetIO();
 
-	imgui_io.IniFilename = nullptr;
+	imgui_io.IniFilename = NULL;
 	imgui_io.DisplaySize.x = static_cast<float>(screen_width);
 	imgui_io.DisplaySize.y = static_cast<float>(screen_height);
 
@@ -424,7 +424,7 @@ void initialize()
 			SDL_MESSAGEBOX_ERROR,
 			"RTCW",
 			error_message_.c_str(),
-			nullptr
+			NULL
 		));
 	}
 }
@@ -558,7 +558,7 @@ void imgui_draw()
 		ImGuiWindowFlags_NoSavedSettings |
 		0;
 
-	ImGui::Begin("main", nullptr, window_flags);
+	ImGui::Begin("main", NULL, window_flags);
 	ImGui::SetWindowSize({static_cast<float>(screen_width), static_cast<float>(screen_height)}, ImGuiCond_Always);
 	ImGui::SetWindowPos({}, ImGuiCond_Always);
 

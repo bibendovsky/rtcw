@@ -819,13 +819,13 @@ void* VM_ExplicitArgPtr(
 {
 	if (intValue == 0)
 	{
-		return nullptr;
+		return NULL;
 	}
 
 	// bk010124 - currentVM is missing on reconnect here as well?
-	if (vm == nullptr)
+	if (vm == NULL)
 	{
-		return nullptr;
+		return NULL;
 	}
 
 	return reinterpret_cast<void*>(intValue);
@@ -836,7 +836,7 @@ intptr_t VM_ExplicitArgPtr(
 	intptr_t intValue)
 {
 	// bk010124 - currentVM is missing on reconnect here as well?
-	return (vm != nullptr) ? intValue : 0;
+	return (vm != NULL) ? intValue : 0;
 }
 #endif // FIXME
 // BBi

@@ -384,12 +384,12 @@ public:
 
 	void api_present()
 	{
-		void* pixels = nullptr;
+		void* pixels = NULL;
 		int pitch = 0;
 
 		int sdl_result = 0;
 
-		sdl_result = SDL_LockTexture(sdl_framebuffer_texture_, nullptr, &pixels, &pitch);
+		sdl_result = SDL_LockTexture(sdl_framebuffer_texture_, NULL, &pixels, &pitch);
 
 		if (sdl_result == 0)
 		{
@@ -400,7 +400,7 @@ public:
 			SDL_UnlockTexture(sdl_framebuffer_texture_);
 		}
 
-		sdl_result = SDL_RenderCopy(sdl_renderer_, sdl_framebuffer_texture_, nullptr, nullptr);
+		sdl_result = SDL_RenderCopy(sdl_renderer_, sdl_framebuffer_texture_, NULL, NULL);
 
 		SDL_RenderPresent(sdl_renderer_);
 	}
@@ -413,7 +413,7 @@ public:
 	{
 		if (width <= 0 || height <= 0)
 		{
-			return nullptr;
+			return NULL;
 		}
 
 		bool use_converter = false;
@@ -432,7 +432,7 @@ public:
 				break;
 
 			default:
-				return nullptr;
+				return NULL;
 			}
 		}
 
@@ -449,7 +449,7 @@ public:
 
 		if (!sdl_surface)
 		{
-			return nullptr;
+			return NULL;
 		}
 
 		if (!use_converter)
@@ -1186,7 +1186,7 @@ private:
 			}
 
 			const bool has_texture = (v0.uv != white_uv || v1.uv != white_uv || v2.uv != white_uv);
-			paint_triangle(has_texture ? texture : nullptr, pcmd.ClipRect, v0, v1, v2);
+			paint_triangle(has_texture ? texture : NULL, pcmd.ClipRect, v0, v1, v2);
 			i += 3;
 		}
 	}

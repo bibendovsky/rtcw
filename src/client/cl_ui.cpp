@@ -1168,7 +1168,7 @@ int32_t CL_UISystemCalls (
 	case UI_ADDCOMMAND:
 		Cmd_AddCommand(
 			rtcw::from_vm_arg<const char*>(VMA(1)),
-			nullptr
+			NULL
 		);
 		return 0;
 #endif // RTCW_XX

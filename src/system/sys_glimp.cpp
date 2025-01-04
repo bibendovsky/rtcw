@@ -448,7 +448,7 @@ void GLimp_Init()
 
 	if (is_succeed)
 	{
-		sdl_result = SDL_GL_LoadLibrary(nullptr);
+		sdl_result = SDL_GL_LoadLibrary(NULL);
 
 		if (sdl_result != 0)
 		{
@@ -594,7 +594,7 @@ void GLimp_Init()
 			sdl_window_flags
 		);
 
-		if (sys_gl_window == nullptr)
+		if (sys_gl_window == NULL)
 		{
 			ri.Error(ERR_FATAL, "Failed to create SDL window (%s).\n", SDL_GetError());
 		}
@@ -718,17 +718,17 @@ void GLimp_Init()
 	}
 	else
 	{
-		if (gl_context != nullptr)
+		if (gl_context != NULL)
 		{
-			SDL_GL_MakeCurrent(sys_gl_window, nullptr);
+			SDL_GL_MakeCurrent(sys_gl_window, NULL);
 			SDL_GL_DeleteContext(gl_context);
-			gl_context = nullptr;
+			gl_context = NULL;
 		}
 
-		if (sys_gl_window != nullptr)
+		if (sys_gl_window != NULL)
 		{
 			SDL_DestroyWindow(sys_gl_window);
-			sys_gl_window = nullptr;
+			sys_gl_window = NULL;
 		}
 	}
 
@@ -743,17 +743,17 @@ void GLimp_Init()
 
 void GLimp_Shutdown()
 {
-	if (gl_context != nullptr)
+	if (gl_context != NULL)
 	{
-		SDL_GL_MakeCurrent(sys_gl_window, nullptr);
+		SDL_GL_MakeCurrent(sys_gl_window, NULL);
 		SDL_GL_DeleteContext(gl_context);
-		gl_context = nullptr;
+		gl_context = NULL;
 	}
 
-	if (sys_gl_window != nullptr)
+	if (sys_gl_window != NULL)
 	{
 		SDL_DestroyWindow(sys_gl_window);
-		sys_gl_window = nullptr;
+		sys_gl_window = NULL;
 	}
 
 	sys_main_window_id = Uint32{};

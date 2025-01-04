@@ -360,7 +360,7 @@ public:
 
 		bool is_open() const
 		{
-			return miniz_file_state_ != nullptr;
+			return miniz_file_state_ != NULL;
 		}
 
 		int read(
@@ -406,7 +406,7 @@ public:
 			if (miniz_file_state_)
 			{
 				static_cast<void>(mz_zip_reader_extract_iter_free(miniz_file_state_));
-				miniz_file_state_ = nullptr;
+				miniz_file_state_ = NULL;
 			}
 		}
 	}; // File
@@ -517,7 +517,7 @@ public:
 		for (int i = 0; i < file_count_; ++i)
 		{
 			const int file_name_size = static_cast<int>(
-				mz_zip_reader_get_filename(&miniz_zip_, static_cast<mz_uint>(i), nullptr, 0));
+				mz_zip_reader_get_filename(&miniz_zip_, static_cast<mz_uint>(i), NULL, 0));
 
 			if (file_name_size == 0)
 			{
@@ -1413,12 +1413,12 @@ void FS_FCloseFile( fileHandle_t f ) {
 		qfile_gut& file = fsh[f].handleFiles.file;
 
 		delete file.miniz_file_ptr_;
-		file.miniz_file_ptr_ = nullptr;
+		file.miniz_file_ptr_ = NULL;
 
 		if (fsh[f].handleFiles.unique)
 		{
 			delete file.miniz_zip_ptr_;
-			file.miniz_zip_ptr_ = nullptr;
+			file.miniz_zip_ptr_ = NULL;
 		}
 
 		Com_Memset(&fsh[f], 0, sizeof(fsh[f]));
@@ -2943,7 +2943,7 @@ static pack_t* FS_LoadZipFile(
 
 	if (!miniz_zip_uptr->open(zipfile))
 	{
-		return nullptr;
+		return NULL;
 	}
 
 	const int file_count = miniz_zip_uptr->get_file_count();

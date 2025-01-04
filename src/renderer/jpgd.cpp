@@ -624,14 +624,14 @@ namespace jpgd {
 	// Unconditionally frees all allocated m_blocks.
 	void jpeg_decoder::free_all_blocks()
 	{
-		m_pStream = nullptr;
+		m_pStream = NULL;
 		for (mem_block* b = m_pMem_blocks; b; )
 		{
 			mem_block* n = b->m_pNext;
 			jpgd_free(b);
 			b = n;
 		}
-		m_pMem_blocks = nullptr;
+		m_pMem_blocks = NULL;
 	}
 
 	// This method handles all errors. It will never return.
@@ -646,7 +646,7 @@ namespace jpgd {
 	void* jpeg_decoder::alloc(size_t nSize, bool zero)
 	{
 		nSize = (JPGD_MAX(nSize, 1) + 3) & ~3;
-		char* rv = nullptr;
+		char* rv = NULL;
 		for (mem_block* b = m_pMem_blocks; b; b = b->m_pNext)
 		{
 			if ((b->m_used_count + nSize) <= b->m_size)
@@ -1185,7 +1185,7 @@ namespace jpgd {
 	void jpeg_decoder::init(jpeg_decoder_stream* pStream, uint32_t flags)
 	{
 		m_flags = flags;
-		m_pMem_blocks = nullptr;
+		m_pMem_blocks = NULL;
 		m_error_code = JPGD_SUCCESS;
 		m_ready_flag = false;
 		m_image_x_size = m_image_y_size = 0;
@@ -1258,15 +1258,15 @@ namespace jpgd {
 		m_max_mcus_per_col = 0;
 
 		memset(m_last_dc_val, 0, sizeof(m_last_dc_val));
-		m_pMCU_coefficients = nullptr;
-		m_pSample_buf = nullptr;
-		m_pSample_buf_prev = nullptr;
+		m_pMCU_coefficients = NULL;
+		m_pSample_buf = NULL;
+		m_pSample_buf_prev = NULL;
 		m_sample_buf_prev_valid = false;
 
 		m_total_bytes_read = 0;
 
-		m_pScan_line_0 = nullptr;
-		m_pScan_line_1 = nullptr;
+		m_pScan_line_0 = NULL;
+		m_pScan_line_1 = NULL;
 
 		// Ready the input buffer.
 		prep_in_buffer();
@@ -2436,7 +2436,7 @@ namespace jpgd {
 	void jpeg_decoder::check_quant_tables()
 	{
 		for (int i = 0; i < m_comps_in_scan; i++)
-			if (m_quant[m_comp_quant[m_comp_list[i]]] == nullptr)
+			if (m_quant[m_comp_quant[m_comp_list[i]]] == NULL)
 				stop_decoding(JPGD_UNDEFINED_QUANT_TABLE);
 	}
 
@@ -2445,10 +2445,10 @@ namespace jpgd {
 	{
 		for (int i = 0; i < m_comps_in_scan; i++)
 		{
-			if ((m_spectral_start == 0) && (m_huff_num[m_comp_dc_tab[m_comp_list[i]]] == nullptr))
+			if ((m_spectral_start == 0) && (m_huff_num[m_comp_dc_tab[m_comp_list[i]]] == NULL))
 				stop_decoding(JPGD_UNDEFINED_HUFF_TABLE);
 
-			if ((m_spectral_end > 0) && (m_huff_num[m_comp_ac_tab[m_comp_list[i]]] == nullptr))
+			if ((m_spectral_end > 0) && (m_huff_num[m_comp_ac_tab[m_comp_list[i]]] == NULL))
 				stop_decoding(JPGD_UNDEFINED_HUFF_TABLE);
 		}
 
@@ -3070,7 +3070,7 @@ namespace jpgd {
 
 	jpeg_decoder_file_stream::jpeg_decoder_file_stream()
 	{
-		m_pFile = nullptr;
+		m_pFile = NULL;
 		m_eof_flag = false;
 		m_error_flag = false;
 	}
@@ -3080,7 +3080,7 @@ namespace jpgd {
 		if (m_pFile)
 		{
 			fclose(m_pFile);
-			m_pFile = nullptr;
+			m_pFile = NULL;
 		}
 
 		m_eof_flag = false;
@@ -3100,12 +3100,12 @@ namespace jpgd {
 		m_error_flag = false;
 
 #if defined(_MSC_VER)
-		m_pFile = nullptr;
+		m_pFile = NULL;
 		fopen_s(&m_pFile, Pfilename, "rb");
 #else
 		m_pFile = fopen(Pfilename, "rb");
 #endif
-		return m_pFile != nullptr;
+		return m_pFile != NULL;
 	}
 
 	int jpeg_decoder_file_stream::read(uint8* pBuf, int max_bytes_to_read, bool* pEOF_flag)
@@ -3170,18 +3170,18 @@ namespace jpgd {
 	unsigned char* decompress_jpeg_image_from_stream(jpeg_decoder_stream* pStream, int* width, int* height, int* actual_comps, int req_comps, uint32_t flags)
 	{
 		if (!actual_comps)
-			return nullptr;
+			return NULL;
 		*actual_comps = 0;
 
 		if ((!pStream) || (!width) || (!height) || (!req_comps))
-			return nullptr;
+			return NULL;
 
 		if ((req_comps != 1) && (req_comps != 3) && (req_comps != 4))
-			return nullptr;
+			return NULL;
 
 		jpeg_decoder decoder(pStream, flags);
 		if (decoder.get_error_code() != JPGD_SUCCESS)
-			return nullptr;
+			return NULL;
 
 		const int image_width = decoder.get_width(), image_height = decoder.get_height();
 		*width = image_width;
@@ -3189,13 +3189,13 @@ namespace jpgd {
 		*actual_comps = decoder.get_num_components();
 
 		if (decoder.begin_decoding() != JPGD_SUCCESS)
-			return nullptr;
+			return NULL;
 
 		const int dst_bpl = image_width * req_comps;
 
 		uint8* pImage_data = (uint8*)jpgd_malloc(dst_bpl * image_height);
 		if (!pImage_data)
-			return nullptr;
+			return NULL;
 
 		for (int y = 0; y < image_height; y++)
 		{
@@ -3204,7 +3204,7 @@ namespace jpgd {
 			if (decoder.decode((const void**)&pScan_line, &scan_line_len) != JPGD_SUCCESS)
 			{
 				jpgd_free(pImage_data);
-				return nullptr;
+				return NULL;
 			}
 
 			uint8* pDst = pImage_data + y * dst_bpl;
@@ -3276,7 +3276,7 @@ namespace jpgd {
 	{
 		jpgd::jpeg_decoder_file_stream file_stream;
 		if (!file_stream.open(pSrc_filename))
-			return nullptr;
+			return NULL;
 		return decompress_jpeg_image_from_stream(&file_stream, width, height, actual_comps, req_comps, flags);
 	}
 

@@ -4319,7 +4319,7 @@ void R_PurgeImage( image_t *image ) {
 #if FIXME
 	texnumImages[image->texnum - 1024] = NULL;
 #else
-	texnumImages[image->texnum] = nullptr;
+	texnumImages[image->texnum] = NULL;
 #endif // FIXME
 #else
 	//%	texnumImages[image->texnum - 1024] = NULL;

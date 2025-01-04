@@ -46,7 +46,7 @@ extern "C" int main(
 	{
 		const char* sdl_error_message = SDL_GetError();
 
-		if (sdl_error_message == nullptr)
+		if (sdl_error_message == NULL)
 		{
 			sdl_error_message = "";
 		}
@@ -65,7 +65,7 @@ extern "C" int main(
 			SDL_MESSAGEBOX_ERROR,
 			"rtcw",
 			error_message.c_str(),
-			nullptr);
+			NULL);
 
 		return 1;
 	}

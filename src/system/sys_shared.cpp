@@ -368,7 +368,7 @@ char** Sys_ListFiles(
 void Sys_FreeFileList(
 	char** list)
 {
-	if (list == nullptr)
+	if (list == NULL)
 	{
 		return;
 	}
@@ -398,7 +398,7 @@ char* Sys_GetClipboardData()
 		return SDL_GetClipboardText();
 	}
 
-	return nullptr;
+	return NULL;
 }
 
 void Sys_FreeClipboardData(
@@ -495,7 +495,7 @@ void* QDECL Sys_LoadDll(
 	//   (compatibility with other OSes loading procedure)
 	if (cl_connectedToPureServer && Q_strncmp(name, "qagame", 6) != 0)
 	{
-		if (!FS_CL_ExtractFromPakFile(fn, gamedir, filename.c_str(), nullptr))
+		if (!FS_CL_ExtractFromPakFile(fn, gamedir, filename.c_str(), NULL))
 		{
 			Com_Error(
 				ERR_DROP,
@@ -508,7 +508,7 @@ void* QDECL Sys_LoadDll(
 
 	void* libHandle = SDL_LoadObject(fn);
 
-	if (libHandle == nullptr)
+	if (libHandle == NULL)
 	{
 		if (cdpath[0] != '\0')
 		{
@@ -517,21 +517,21 @@ void* QDECL Sys_LoadDll(
 		}
 	}
 
-	if (libHandle == nullptr)
+	if (libHandle == NULL)
 	{
 		fn = FS_BuildOSPath(basepath, BASEGAME, filename.c_str());
 		libHandle = SDL_LoadObject(fn);
 	}
 
-	if (libHandle == nullptr)
+	if (libHandle == NULL)
 	{
 		strcpy(fn, filename.c_str());
 		libHandle = SDL_LoadObject(fn);
 	}
 
-	if (libHandle == nullptr)
+	if (libHandle == NULL)
 	{
-		return nullptr;
+		return NULL;
 	}
 
 
@@ -540,10 +540,10 @@ void* QDECL Sys_LoadDll(
 	const DllEntry dllEntry = reinterpret_cast<DllEntry>(SDL_LoadFunction(libHandle, "dllEntry"));
 	*entryPoint = reinterpret_cast<DllEntryPoint>(SDL_LoadFunction(libHandle, "vmMain"));
 
-	if ((*entryPoint) == nullptr || dllEntry == nullptr)
+	if ((*entryPoint) == NULL || dllEntry == NULL)
 	{
 		SDL_UnloadObject(libHandle);
-		return nullptr;
+		return NULL;
 	}
 
 	dllEntry(systemcalls);
@@ -623,7 +623,7 @@ sysEvent_t Sys_GetEvent()
 	// check for console commands
 	const char* s = Sys_ConsoleInput();
 
-	if (s != nullptr)
+	if (s != NULL)
 	{
 		const int len = static_cast<int>(strlen(s)) + 1;
 		char* b = static_cast<char*> (Z_Malloc(len));
@@ -722,7 +722,7 @@ bool Sys_IsNumLockDown()
 
 const char* Sys_DefaultHomePath()
 {
-	return nullptr;
+	return NULL;
 }
 
 const char* Sys_DefaultInstallPath()

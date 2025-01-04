@@ -547,7 +547,7 @@ void r_dbg_reload_programs_f()
 
 	bool is_try_successfull = true;
 
-	ogl_tess_state.set_program(nullptr);
+	ogl_tess_state.set_program(NULL);
 
 	if (!::ogl_tess_program)
 	{
@@ -919,7 +919,7 @@ void r_reload_programs_f()
 
 	bool is_try_successfull = true;
 
-	ogl_tess_state.set_program(nullptr);
+	ogl_tess_state.set_program(NULL);
 
 	if (!::ogl_tess_program)
 	{

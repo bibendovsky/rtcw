@@ -240,7 +240,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 {
 	ReloadShaderResult result = ReloadShaderResult::none;
 
-	void* source_buffer = nullptr;
+	void* source_buffer = NULL;
 
 	const int source_length = ri.FS_ReadFile(file_name.c_str(), &source_buffer);
 

@@ -35,10 +35,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "keycodes.h"
 
 
-cvar_t* in_joystick = nullptr;
-cvar_t* in_joyBallScale = nullptr;
-cvar_t* in_debugJoystick = nullptr;
-cvar_t* joy_threshold = nullptr;
+cvar_t* in_joystick = NULL;
+cvar_t* in_joyBallScale = NULL;
+cvar_t* in_debugJoystick = NULL;
+cvar_t* joy_threshold = NULL;
 
 
 void Sys_QueEvent(
@@ -138,7 +138,7 @@ bool Joystick::initialize()
 	{
 		instance_ = SDL_JoystickOpen(0);
 
-		if (instance_ == nullptr)
+		if (instance_ == NULL)
 		{
 			is_succeed = false;
 			Com_Printf(S_COLOR_RED "  %s\n", SDL_GetError());
@@ -149,7 +149,7 @@ bool Joystick::initialize()
 	{
 		const char* name = SDL_JoystickName(instance_);
 
-		if (name == nullptr)
+		if (name == NULL)
 		{
 			name = "";
 		}
@@ -195,10 +195,10 @@ void Joystick::uninitialize(
 	is_initialized_ = false;
 	id_ = -1;
 
-	if (instance_ != nullptr)
+	if (instance_ != NULL)
 	{
 		SDL_JoystickClose(instance_);
-		instance_ = nullptr;
+		instance_ = NULL;
 	}
 
 	buttons_states_.reset();
@@ -263,7 +263,7 @@ void Joystick::reset_state()
 			direction_keys[i],
 			false,
 			0,
-			nullptr
+			NULL
 		);
 	}
 
@@ -295,7 +295,7 @@ void Joystick::handle_axis_event(
 
 	float threshold = 0.15F;
 
-	if (joy_threshold != nullptr)
+	if (joy_threshold != NULL)
 	{
 		threshold = joy_threshold->value;
 	}
@@ -317,7 +317,7 @@ void Joystick::handle_axis_event(
 		direction_keys[key_index],
 		buttons_states_[key_index],
 		0,
-		nullptr
+		NULL
 	);
 
 	if (can_debug())
@@ -347,7 +347,7 @@ void Joystick::handle_ball_event(
 		x,
 		y,
 		0,
-		nullptr
+		NULL
 	);
 
 	if (can_debug())
@@ -420,7 +420,7 @@ void Joystick::handle_hat_event(
 			direction_keys[index],
 			buttons_states_[index],
 			0,
-			nullptr
+			NULL
 		);
 	}
 
@@ -446,7 +446,7 @@ void Joystick::handle_button_event(
 		K_JOY1 + e.button,
 		e.state == SDL_PRESSED,
 		0,
-		nullptr
+		NULL
 	);
 
 	if (can_debug())
@@ -483,7 +483,7 @@ void Joystick::handle_device_event(
 
 bool Joystick::can_debug()
 {
-	if (in_debugJoystick != nullptr)
+	if (in_debugJoystick != NULL)
 	{
 		return in_debugJoystick->integer != 0;
 	}

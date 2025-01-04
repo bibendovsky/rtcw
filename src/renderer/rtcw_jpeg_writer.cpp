@@ -86,7 +86,7 @@ bool JpegWriter::encode(
 		return false;
 	}
 
-	if (src_data == nullptr)
+	if (src_data == NULL)
 	{
 		error_message_ = "Null source data.";
 		return false;
@@ -104,7 +104,7 @@ bool JpegWriter::encode(
 		return false;
 	}
 
-	if (dst_data == nullptr)
+	if (dst_data == NULL)
 	{
 		error_message_ = "Null destination data.";
 		return false;
@@ -176,7 +176,7 @@ bool JpegWriter::encode(
 				break;
 			}
 
-			bool process_result = encoder.process_scanline(nullptr);
+			bool process_result = encoder.process_scanline(NULL);
 
 			if (!process_result)
 			{

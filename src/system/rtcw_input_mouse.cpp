@@ -39,7 +39,7 @@ extern SDL_Window* sys_gl_window;
 extern Uint32 sys_main_window_id;
 
 
-cvar_t* in_mouse = nullptr;
+cvar_t* in_mouse = NULL;
 
 
 void Sys_QueEvent(
@@ -227,7 +227,7 @@ void Mouse::reset_state()
 			game_button,
 			false,
 			0,
-			nullptr
+			NULL
 		);
 	}
 
@@ -266,7 +266,7 @@ void Mouse::handle_button_event(
 		game_button,
 		state,
 		0,
-		nullptr
+		NULL
 	);
 }
 
@@ -284,7 +284,7 @@ void Mouse::handle_motion_event(
 		e.xrel,
 		e.yrel,
 		0,
-		nullptr
+		NULL
 	);
 }
 
@@ -309,7 +309,7 @@ void Mouse::handle_wheel_event(
 		which,
 		true,
 		0,
-		nullptr
+		NULL
 	);
 
 	Sys_QueEvent(
@@ -318,7 +318,7 @@ void Mouse::handle_wheel_event(
 		which,
 		false,
 		0,
-		nullptr
+		NULL
 	);
 }
 
