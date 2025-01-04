@@ -18,7 +18,7 @@ class Endian
 {
 public:
 	// Returns "true" if system's endianness is big-endian.
-	static constexpr bool is_big() noexcept
+	static bool is_big() noexcept
 	{
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 		return false;
@@ -28,7 +28,7 @@ public:
 	}
 
 	// Returns "true" if system's endianness is little-endian.
-	static constexpr bool is_little() noexcept
+	static bool is_little() noexcept
 	{
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 		return true;

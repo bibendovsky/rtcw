@@ -551,8 +551,8 @@ void* QDECL Sys_LoadDll(
 	return libHandle;
 }
 
-constexpr int MAX_QUED_EVENTS = 256;
-constexpr int MASK_QUED_EVENTS = MAX_QUED_EVENTS - 1;
+const int MAX_QUED_EVENTS = 256;
+const int MASK_QUED_EVENTS = MAX_QUED_EVENTS - 1;
 
 sysEvent_t eventQue[MAX_QUED_EVENTS];
 int eventHead;
@@ -691,7 +691,7 @@ void Sys_Init()
 	// FIXME
 	Cvar_Set("arch", SDL_GetPlatform());
 
-	constexpr int cpuid = CPUID_GENERIC;
+	const int cpuid = CPUID_GENERIC;
 	Cvar_SetValue("sys_cpuid", cpuid);
 
 	Cvar_Get("sys_cpustring", "detect", 0);

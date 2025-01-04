@@ -504,7 +504,7 @@ private:
 	using FrameBuffer = std::vector<Color>;
 
 
-	static constexpr int max_mouse_button_count = 3;
+	static const int max_mouse_button_count = 3;
 	using MouseButtonsState = std::bitset<max_mouse_button_count>;
 
 
@@ -1048,7 +1048,7 @@ private:
 		const ImDrawIdx* idx_buffer,
 		const ImDrawCmd& pcmd)
 	{
-		const const SDL_Surface* texture = reinterpret_cast<const SDL_Surface*>(pcmd.TextureId);
+		const SDL_Surface* texture = reinterpret_cast<const SDL_Surface*>(pcmd.TextureId);
 		assert(texture);
 
 		// ImGui uses the first pixel for "white".

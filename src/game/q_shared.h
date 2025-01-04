@@ -203,8 +203,8 @@ If you have questions concerning this license or the applicable additional terms
 typedef uint8_t byte;
 
 typedef int32_t qboolean;
-constexpr qboolean qfalse = 0;
-constexpr qboolean qtrue = 1;
+const qboolean qfalse = 0;
+const qboolean qtrue = 1;
 
 
 typedef int qhandle_t;

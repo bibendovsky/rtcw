@@ -682,8 +682,8 @@ void GLimp_Init()
 		const char* gl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 		const char* gl_extensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
 
-		constexpr int max_gl_string_size = MAX_STRING_CHARS;
-		constexpr int max_gl_extensions_string_size = 4 * MAX_STRING_CHARS;
+		const int max_gl_string_size = MAX_STRING_CHARS;
+		const int max_gl_extensions_string_size = 4 * MAX_STRING_CHARS;
 
 		glConfig.colorBits = 32;
 		glConfig.depthBits = 24;

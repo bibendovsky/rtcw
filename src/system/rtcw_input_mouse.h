@@ -74,7 +74,7 @@ public:
 
 
 private:
-	static constexpr int MAX_BUTTONS_COUNT = 5;
+	static const int MAX_BUTTONS_COUNT = 5;
 
 
 	using ButtonsStates = std::bitset<MAX_BUTTONS_COUNT>;

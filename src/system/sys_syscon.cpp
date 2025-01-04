@@ -53,15 +53,15 @@ namespace
 {
 
 
-constexpr int screen_width = 540;
-constexpr int screen_height = 450;
+const int screen_width = 540;
+const int screen_height = 450;
 
-constexpr int max_log_lines = 4096;
-constexpr int line_min_reserved_size = 1024;
+const int max_log_lines = 4096;
+const int line_min_reserved_size = 1024;
 
 const int max_edit_buffer_size = 128;
 
-constexpr const char* window_title =
+const char* window_title =
 #if defined(RTCW_SP)
 	"RTCW Single-player Console"
 #elif defined(RTCW_MP)

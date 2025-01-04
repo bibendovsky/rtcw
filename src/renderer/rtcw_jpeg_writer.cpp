@@ -211,7 +211,7 @@ int JpegWriter::estimate_dst_size(
 		return 0;
 	}
 
-	constexpr int min_size = 2048;
+	const int min_size = 2048;
 
 	int size = width * height;
 
