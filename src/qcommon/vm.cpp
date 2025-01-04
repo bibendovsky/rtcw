@@ -780,13 +780,13 @@ void VM_Clear ()
 
 #if FIXME
 void* VM_ArgPtr(
-	intptr_t intValue) noexcept
+	intptr_t intValue)
 {
 	return VM_ExplicitArgPtr(currentVM, intValue);
 }
 #else
 intptr_t VM_ArgPtr(
-	intptr_t intValue) noexcept
+	intptr_t intValue)
 {
 	return VM_ExplicitArgPtr(currentVM, intValue);
 }
@@ -815,7 +815,7 @@ intptr_t VM_ArgPtr(
 #if FIXME
 void* VM_ExplicitArgPtr(
 	vm_t* vm,
-	intptr_t intValue) noexcept
+	intptr_t intValue)
 {
 	if (intValue == 0)
 	{
@@ -833,7 +833,7 @@ void* VM_ExplicitArgPtr(
 #else
 intptr_t VM_ExplicitArgPtr(
 	vm_t* vm,
-	intptr_t intValue) noexcept
+	intptr_t intValue)
 {
 	// bk010124 - currentVM is missing on reconnect here as well?
 	return (vm != nullptr) ? intValue : 0;

@@ -71,22 +71,22 @@ void OglMatrixStack::push_and_set_identity()
 	set_current(Matrix{1});
 }
 
-OglMatrixStack::Matrix& OglMatrixStack::get_current() noexcept
+OglMatrixStack::Matrix& OglMatrixStack::get_current()
 {
 	return current_;
 }
 
-float* OglMatrixStack::get_current_items() noexcept
+float* OglMatrixStack::get_current_items()
 {
 	return glm::value_ptr(current_);
 }
 
-const float* OglMatrixStack::get_current_items() const noexcept
+const float* OglMatrixStack::get_current_items() const
 {
 	return glm::value_ptr(current_);
 }
 
-const OglMatrixStack::Matrix& OglMatrixStack::get_current() const noexcept
+const OglMatrixStack::Matrix& OglMatrixStack::get_current() const
 {
 	return current_;
 }
@@ -108,7 +108,7 @@ void OglMatrixStack::set_current(
 	};
 }
 
-int OglMatrixStack::get_max_depth() noexcept
+int OglMatrixStack::get_max_depth()
 {
 	return 1;
 }

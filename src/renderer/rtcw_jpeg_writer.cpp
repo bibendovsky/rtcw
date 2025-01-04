@@ -54,7 +54,7 @@ public:
 		return true;
 	}
 
-	jpge::uint get_size() const noexcept
+	jpge::uint get_size() const
 	{
 		return buffer_offset_;
 	}
@@ -197,14 +197,14 @@ bool JpegWriter::encode(
 	return is_succeed;
 }
 
-const std::string& JpegWriter::get_error_message() const noexcept
+const std::string& JpegWriter::get_error_message() const
 {
 	return error_message_;
 }
 
 int JpegWriter::estimate_dst_size(
 	int width,
-	int height) noexcept
+	int height)
 {
 	if (width <= 0 || height <= 0)
 	{

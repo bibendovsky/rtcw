@@ -101,7 +101,7 @@ template<
 	typename TPointer
 >
 int32_t ptr_to_i32(
-	TPointer* ptr) noexcept
+	TPointer* ptr)
 {
 	return static_cast<int32_t>(reinterpret_cast<intptr_t>(ptr));
 }

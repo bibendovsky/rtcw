@@ -491,21 +491,21 @@ void    VM_Debug( int level );
 //void    *VM_ArgPtr( int intValue );
 #if FIXME
 void* VM_ArgPtr(
-	intptr_t intValue) noexcept;
+	intptr_t intValue);
 #else
 intptr_t VM_ArgPtr(
-	intptr_t intValue) noexcept;
+	intptr_t intValue);
 #endif // FIXME
 
 //void    *VM_ExplicitArgPtr( vm_t *vm, int intValue );
 #if FIXME
 void* VM_ExplicitArgPtr(
 	vm_t* vm,
-	intptr_t intValue) noexcept;
+	intptr_t intValue);
 #else
 intptr_t VM_ExplicitArgPtr(
 	vm_t* vm,
-	intptr_t intValue) noexcept;
+	intptr_t intValue);
 #endif // FIXME
 // BBi
 

@@ -39,13 +39,13 @@ public:
 	bool decode(
 		void* dst_data);
 
-	void close() noexcept;
+	void close();
 
-	int get_width() const noexcept;
+	int get_width() const;
 
-	int get_height() const noexcept;
+	int get_height() const;
 
-	const std::string& get_error_message() const noexcept;
+	const std::string& get_error_message() const;
 
 
 private:

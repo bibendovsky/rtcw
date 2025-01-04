@@ -14,12 +14,12 @@ class ModValue
 public:
 	ModValue() = default;
 
-	bool is_modified() const noexcept
+	bool is_modified() const
 	{
 		return is_modified_;
 	}
 
-	const T& get() const noexcept
+	const T& get() const
 	{
 		return value_;
 	}

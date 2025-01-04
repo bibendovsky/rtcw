@@ -646,7 +646,7 @@ void CL_ShutdownCGame( void ) {
 //}
 
 static int FloatAsInt(
-	float x) noexcept
+	float x)
 {
 	return reinterpret_cast<const int&>(x);
 }

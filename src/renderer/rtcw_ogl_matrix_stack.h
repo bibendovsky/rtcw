@@ -53,16 +53,16 @@ public:
 	void push_and_set_identity();
 
 	// Returns a current matrix.
-	Matrix& get_current() noexcept;
+	Matrix& get_current();
 
 	// Returns a current matrix as array.
-	float* get_current_items() noexcept;
+	float* get_current_items();
 
 	// Returns elements of the current matrix.
-	const float* get_current_items() const noexcept;
+	const float* get_current_items() const;
 
 	// Returns elements of the current matrix.
-	const Matrix& get_current() const noexcept;
+	const Matrix& get_current() const;
 
 	// Sets a current matrix.
 	void set_current(
@@ -73,7 +73,7 @@ public:
 	void set_current(
 		const float items[16]);
 
-	static int get_max_depth() noexcept;
+	static int get_max_depth();
 
 
 private:

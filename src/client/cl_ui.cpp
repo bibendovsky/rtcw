@@ -1023,7 +1023,7 @@ FloatAsInt
 //	return temp;
 //}
 static int FloatAsInt(
-	float x) noexcept
+	float x)
 {
 	return reinterpret_cast<const int&>(x);
 }
@@ -1033,7 +1033,7 @@ static int FloatAsInt(
 void *VM_ArgPtr( int intValue );
 #else
 intptr_t VM_ArgPtr(
-	int intValue) noexcept;
+	int intValue);
 #endif // FIXME
 
 #define VMA( x ) VM_ArgPtr( args[x] )

@@ -37,11 +37,11 @@ public:
 		void* dst_data,
 		int& dst_size);
 
-	const std::string& get_error_message() const noexcept;
+	const std::string& get_error_message() const;
 
 	static int estimate_dst_size(
 		int width,
-		int height) noexcept;
+		int height);
 
 private:
 	class Exception;

@@ -388,7 +388,7 @@ void SV_GameBinaryMessageReceived( int cno, const char *buf, int buflen, int com
 //}
 
 static int FloatAsInt(
-	float x) noexcept
+	float x)
 {
 	return reinterpret_cast<const int&>(x);
 }

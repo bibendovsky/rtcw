@@ -59,7 +59,7 @@ private:
 	rtcw::OglTessProgram* program_{};
 
 
-	bool is_program_valid() const noexcept;
+	bool is_program_valid() const;
 
 	OglTessState(const OglTessState& that);
 	OglTessState& operator = (const OglTessState& that);

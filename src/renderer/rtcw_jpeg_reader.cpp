@@ -155,7 +155,7 @@ bool JpegReader::decode(
 	return is_succeed;
 }
 
-void JpegReader::close() noexcept
+void JpegReader::close()
 {
 	width_ = 0;
 	height_ = 0;
@@ -167,17 +167,17 @@ void JpegReader::close() noexcept
 	error_message_.clear();
 }
 
-int JpegReader::get_width() const noexcept
+int JpegReader::get_width() const
 {
 	return width_;
 }
 
-int JpegReader::get_height() const noexcept
+int JpegReader::get_height() const
 {
 	return height_;
 }
 
-const std::string& JpegReader::get_error_message() const noexcept
+const std::string& JpegReader::get_error_message() const
 {
 	return error_message_;
 }

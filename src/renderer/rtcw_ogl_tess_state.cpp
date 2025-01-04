@@ -321,7 +321,7 @@ void OglTessState::invalidate_and_commit()
 	commit_changes();
 }
 
-bool OglTessState::is_program_valid() const noexcept
+bool OglTessState::is_program_valid() const
 {
 	if (program_ == nullptr)
 	{
