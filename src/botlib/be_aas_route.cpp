@@ -1117,7 +1117,7 @@ int AAS_FreeOldestCache( void ) {
 #if FIXME
 	besttime = 999999999;
 #else
-	besttime = 1'000'000'000.0F;
+	besttime = 1000000000.0F;
 #endif // FIXME
 	bestcache = NULL;
 	bestcluster = 0;
@@ -1176,7 +1176,7 @@ int AAS_FreeOldestCache( void ) {
 #if FIXME
 	besttime = 999999999;
 #else
-	besttime = 1'000'000'000.0F;
+	besttime = 1000000000.0F;
 #endif // FIXME
 	bestcache = NULL;
 	bestarea = 0;

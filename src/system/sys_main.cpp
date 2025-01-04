@@ -71,7 +71,7 @@ extern "C" int main(
 	}
 
 
-	const int command_line_reserve = 1'024;
+	const int command_line_reserve = 1024;
 
 	std::string command_line;
 	command_line.reserve(command_line_reserve);

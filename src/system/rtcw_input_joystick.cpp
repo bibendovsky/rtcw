@@ -304,7 +304,7 @@ void Joystick::handle_axis_event(
 		Com_DPrintf(S_COLOR_YELLOW "Null cvar: %s\n", "joy_threshold");
 	}
 
-	const float value = e.value / 32'768.0F;
+	const float value = e.value / 32768.0F;
 
 	const int index = (value > threshold ? 1 : 0);
 	const int key_index = index * e.axis;

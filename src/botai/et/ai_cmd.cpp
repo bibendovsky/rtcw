@@ -199,7 +199,7 @@ float BotGetTime( bot_match_t *match ) {
 #if FIXME
 				t = 99999999;
 #else
-				t = 100'000'000.0F;
+				t = 100000000.0F;
 #endif // FIXME
 			} else {
 				trap_BotMatchVariable( &timematch, TIME, timestring, MAX_MESSAGE_SIZE );
