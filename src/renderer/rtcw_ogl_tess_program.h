@@ -44,16 +44,16 @@ public:
 		const char* v_shader_c_string,
 		const char* f_shader_c_string);
 
-	~OglTessProgram() override;
+	virtual ~OglTessProgram();
 
 
-	OglProgram* create_new(
+	virtual OglProgram* create_new(
 		const std::string& glsl_dir,
-		const std::string& base_name) override;
+		const std::string& base_name);
 
-	OglProgram* create_new(
+	virtual OglProgram* create_new(
 		const char* v_shader_c_string,
-		const char* f_shader_c_string) override;
+		const char* f_shader_c_string);
 
 
 private:
@@ -64,9 +64,9 @@ private:
 
 	bool reload_internal();
 
-	bool do_reload() override;
+	virtual bool do_reload();
 
-	void do_unload() override;
+	virtual void do_unload();
 };
 
 

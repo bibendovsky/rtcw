@@ -29,9 +29,9 @@ public:
 		buffer_offset_()
 	{}
 
-	bool put_buf(
+	virtual bool put_buf(
 		const void* buffer,
-		int size) override
+		int size)
 	{
 		jpge::uint buf_remaining = buffer_size_ - buffer_offset_;
 
