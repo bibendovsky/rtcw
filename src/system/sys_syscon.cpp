@@ -177,7 +177,7 @@ void add_line_to_log(
 		return;
 	}
 
-	add_line_to_log(line.data(), static_cast<int>(line.size()));
+	add_line_to_log(line.c_str(), static_cast<int>(line.size()));
 }
 
 void append_text_to_log(
@@ -607,7 +607,7 @@ void imgui_draw()
 			for (int i = log_im_clipper.DisplayStart; i < log_im_clipper.DisplayEnd; ++i)
 			{
 				const std::string& line = log_[i];
-				ImGui::TextUnformatted(line.data(), line.data() + line.length());
+				ImGui::TextUnformatted(&line[0], &line[line.length()]);
 			}
 		}
 
@@ -644,7 +644,7 @@ void imgui_draw()
 
 		is_command_enter_pressed = ImGui::InputText(
 			"##cmd",
-			edit_buffer_.data(),
+			&edit_buffer_[0],
 			max_edit_buffer_size,
 			edit_flags,
 			edit_callback);
@@ -774,10 +774,10 @@ void update(
 		is_log_scrolled_ = false;
 		is_edit_activated_ = false;
 
-		entered_commands_ += edit_buffer_.data();
+		entered_commands_ += &edit_buffer_[0];
 		entered_commands_ += '\n';
 
-		Sys_Print(va("]%s\n", edit_buffer_.data()));
+		Sys_Print(va("]%s\n", &edit_buffer_[0]));
 		edit_buffer_[0] = '\0';
 	}
 }

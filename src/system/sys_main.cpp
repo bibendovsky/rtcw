@@ -112,7 +112,7 @@ extern "C" int main(
 #endif
 #endif // RTCW_XX
 
-	Com_Init(command_line.data());
+	Com_Init(&command_line[0]);
 	NET_Init();
 
 #if defined RTCW_ET

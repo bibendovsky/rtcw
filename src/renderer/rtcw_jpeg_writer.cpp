@@ -162,7 +162,7 @@ bool JpegWriter::encode(
 			for (int h = height - 1; h >= 0; --h)
 			{
 				const unsigned char* src_scanline = src + (h * (width * 4));
-				unsigned char* dst_scanline = line_buffer_.data();
+				unsigned char* dst_scanline = &line_buffer_[0];
 
 				rgba_to_rgb(src_scanline, width, dst_scanline);
 
