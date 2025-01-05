@@ -181,12 +181,6 @@ public:
 		mouse_buttons_state_()
 	{}
 
-	Impl(
-		const Impl& that) = delete;
-
-	Impl& operator=(
-		const Impl& that) = delete;
-
 	~Impl()
 	{
 		api_uninitialize();
@@ -584,6 +578,8 @@ private:
 	WindowStatus window_status_;
 	MouseButtonsState mouse_buttons_state_;
 
+	Impl(const Impl&);
+	Impl& operator=(const Impl&);
 
 	static Color color_from_imgui(
 		const Color imgui_color)

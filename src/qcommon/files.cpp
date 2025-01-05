@@ -228,12 +228,6 @@ public:
 		is_position_valid_()
 	{}
 
-	MinizIo(
-		const MinizIo& that) = delete;
-
-	MinizIo& operator=(
-		MinizIo& that) = delete;
-
 	~MinizIo()
 	{
 	}
@@ -326,6 +320,10 @@ private:
 	int64_t position_;
 	bool is_position_valid_;
 	int64_t file_size_;
+
+private:
+	MinizIo(const MinizIo& that);
+	MinizIo& operator=(const MinizIo&);
 }; // MinizIo
 
 class MinizZip
@@ -346,12 +344,6 @@ public:
 	class File
 	{
 	public:
-		File(
-			const File& that) = delete;
-
-		File& operator=(
-			const File& that) = delete;
-
 		~File()
 		{
 			close();
@@ -391,6 +383,9 @@ public:
 		mz_zip_reader_extract_iter_state* miniz_file_state_;
 		int position_;
 
+		File(const File&);
+		File& operator=(const File&);
+
 
 		explicit File(
 			mz_zip_reader_extract_iter_state* miniz_file_state)
@@ -417,12 +412,6 @@ public:
 		io_(),
 		file_count_()
 	{}
-
-	MinizZip(
-		const MinizZip& that) = delete;
-
-	MinizZip& operator=(
-		const MinizZip& that) = delete;
 
 	~MinizZip()
 	{
@@ -562,6 +551,8 @@ private:
 	MinizIo io_;
 	int file_count_;
 
+	MinizZip(const MinizZip&);
+	MinizZip& operator=(const MinizZip&);
 
 	mz_zip_reader_extract_iter_state* open_file_internal(
 		const int file_index)

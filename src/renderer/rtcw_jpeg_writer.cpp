@@ -29,13 +29,6 @@ public:
 		buffer_offset_()
 	{}
 
-	MemoryStream(
-		const MemoryStream& that) = delete;
-
-	MemoryStream& operator=(
-		const MemoryStream& that) = delete;
-
-
 	bool put_buf(
 		const void* buffer,
 		int size) override
@@ -64,6 +57,10 @@ private:
 	jpge::uint8* buffer_;
 	jpge::uint buffer_size_;
 	jpge::uint buffer_offset_;
+
+private:
+	MemoryStream(const MemoryStream&);
+	MemoryStream& operator=(const MemoryStream&);
 }; // MemoryStream
 
 

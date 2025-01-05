@@ -22,13 +22,6 @@ class JpegWriter
 public:
 	JpegWriter();
 
-	JpegWriter(
-		const JpegWriter& that) = delete;
-
-	JpegWriter& operator=(
-		const JpegWriter& that) = delete;
-
-
 	bool encode(
 		int quality,
 		const void* src_data,
@@ -51,6 +44,9 @@ private:
 	std::string error_message_;
 
 	Buffer line_buffer_;
+
+	JpegWriter(const JpegWriter&);
+	JpegWriter& operator=(const JpegWriter&);
 
 	static void rgba_to_rgb(
 		const unsigned char* src_row,

@@ -29,12 +29,6 @@ public:
 		const char* v_shader_buffer,
 		const char* f_shader_buffer);
 
-	OglProgram(
-		const OglProgram& that) = delete;
-
-	OglProgram& operator=(
-		const OglProgram& that) = delete;
-
 	virtual ~OglProgram();
 
 
@@ -88,7 +82,6 @@ protected:
 	static const char* get_shader_type_string(
 		const GLenum shader_type);
 
-
 private:
 	virtual bool do_reload();
 
@@ -96,6 +89,8 @@ private:
 
 	virtual void do_unload();
 
+	OglProgram(const OglProgram&);
+	OglProgram& operator=(const OglProgram&);
 
 	ReloadShaderResult reload_shader(
 		const GLenum shader_type,

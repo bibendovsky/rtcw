@@ -84,12 +84,6 @@ public:
 	ImGuiSdl();
 
 	ImGuiSdl(
-		const ImGuiSdl& that) = delete;
-
-	ImGuiSdl& operator=(
-		const ImGuiSdl& that) = delete;
-
-	ImGuiSdl(
 		ImGuiSdl&& that);
 
 	~ImGuiSdl();
@@ -203,6 +197,10 @@ private:
 	using ImplUPtr = std::unique_ptr<Impl>;
 
 	ImplUPtr pimpl_;
+
+private:
+	ImGuiSdl(const ImGuiSdl&);
+	ImGuiSdl& operator=(const ImGuiSdl&);
 }; // ImGuiSdl
 
 

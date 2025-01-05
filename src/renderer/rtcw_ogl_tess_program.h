@@ -44,12 +44,6 @@ public:
 		const char* v_shader_c_string,
 		const char* f_shader_c_string);
 
-	OglTessProgram(
-		const OglTessProgram& that) = delete;
-
-	OglTessProgram& operator=(
-		const OglTessProgram& that) = delete;
-
 	~OglTessProgram() override;
 
 
@@ -63,6 +57,9 @@ public:
 
 
 private:
+	OglTessProgram(const OglTessProgram&);
+	OglTessProgram& operator=(const OglTessProgram&);
+
 	void unload_internal();
 
 	bool reload_internal();

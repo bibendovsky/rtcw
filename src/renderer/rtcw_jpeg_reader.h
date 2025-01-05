@@ -23,13 +23,6 @@ class JpegReader
 public:
 	JpegReader();
 
-	JpegReader(
-		const JpegReader& that) = delete;
-
-	JpegReader& operator=(
-		const JpegReader& that) = delete;
-
-
 	bool open(
 		const void* src_data,
 		int src_size,
@@ -56,6 +49,8 @@ private:
 	std::unique_ptr<jpgd::jpeg_decoder> decoder_;
 	std::string error_message_;
 
+	JpegReader(const JpegReader&);
+	JpegReader& operator=(const JpegReader&);
 
 	static void gray_to_rgba(
 		const unsigned char* src_row,
