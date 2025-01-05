@@ -14,7 +14,7 @@ namespace rtcw
 class OglMatrixStack
 {
 public:
-	using Matrix = glm::mat4;
+	typedef glm::mat4 Matrix;
 
 
 	OglMatrixStack();
@@ -77,7 +77,7 @@ public:
 
 
 private:
-	using Stack = std::stack<Matrix>;
+	typedef std::stack<Matrix> Stack;
 
 	Stack stack_;
 	Matrix current_;

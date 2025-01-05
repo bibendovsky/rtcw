@@ -78,8 +78,8 @@ const char* window_title =
 ;
 
 
-using Log = std::deque<std::string>;
-using EditBuffer = std::vector<char>;
+typedef std::deque<std::string> Log;
+typedef std::vector<char> EditBuffer;
 
 
 std::string error_message_;

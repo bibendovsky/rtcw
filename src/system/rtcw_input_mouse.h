@@ -77,7 +77,7 @@ private:
 	static const int MAX_BUTTONS_COUNT = 5;
 
 
-	using ButtonsStates = std::bitset<MAX_BUTTONS_COUNT>;
+	typedef std::bitset<MAX_BUTTONS_COUNT> ButtonsStates;
 
 
 	bool is_initialized_;

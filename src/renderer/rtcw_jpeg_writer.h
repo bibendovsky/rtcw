@@ -39,7 +39,7 @@ public:
 private:
 	class Exception;
 
-	using Buffer = std::vector<unsigned char>;
+	typedef std::vector<unsigned char> Buffer;
 
 	std::string error_message_;
 

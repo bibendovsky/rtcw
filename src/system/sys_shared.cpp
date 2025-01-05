@@ -472,7 +472,7 @@ void* QDECL Sys_LoadDll(
 	DllEntryPoint* entryPoint,
 	DllEntryPoint systemcalls)
 {
-	using DllEntry = void (QDECL *)(DllEntryPoint);
+	typedef void (QDECL * DllEntry)(DllEntryPoint);
 
 	*fqpath = '\0'; // added 2/15/02 by T.Ray
 

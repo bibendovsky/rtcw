@@ -496,12 +496,12 @@ public:
 
 
 private:
-	using Color = uint32_t; // A8R8G8B8
-	using FrameBuffer = std::vector<Color>;
+	typedef uint32_t Color; // A8R8G8B8
+	typedef std::vector<Color> FrameBuffer;
 
 
 	static const int max_mouse_button_count = 3;
-	using MouseButtonsState = std::bitset<max_mouse_button_count>;
+	typedef std::bitset<max_mouse_button_count> MouseButtonsState;
 
 
 	struct PaintTarget

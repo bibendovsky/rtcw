@@ -194,7 +194,7 @@ public:
 private:
 	class Impl;
 
-	using ImplUPtr = std::unique_ptr<Impl>;
+	typedef std::unique_ptr<Impl> ImplUPtr;
 
 	ImplUPtr pimpl_;
 
