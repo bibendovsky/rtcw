@@ -550,10 +550,28 @@ void GLimp_Init()
 		else
 		{
 			const cvar_t* x_cvar = ri.Cvar_Get("vid_xpos", "0", 0);
-			sdl_x = std::clamp(x_cvar->integer, 0, display_width - 1);
+			sdl_x = x_cvar->integer;
+
+			if (sdl_x < 0)
+			{
+				sdl_x = 0;
+			}
+			else if (sdl_x > display_width - 1)
+			{
+				sdl_x = display_width - 1;
+			}
 
 			const cvar_t* y_cvar = ri.Cvar_Get("vid_ypos", "0", 0);
-			sdl_y = std::clamp(y_cvar->integer, 0, display_height - 1);
+			sdl_y = y_cvar->integer;
+
+			if (sdl_y < 0)
+			{
+				sdl_y = 0;
+			}
+			else if (sdl_y > display_height - 1)
+			{
+				sdl_y = display_height - 1;
+			}
 
 			if (sdl_x == 0)
 			{

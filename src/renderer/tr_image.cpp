@@ -315,7 +315,16 @@ void GL_TextureAnisotropy(float anisotropy)
 		}
 		else
 		{
-			gl_anisotropy = std::clamp(anisotropy, 1.0F, glConfig.maxAnisotropy);
+			gl_anisotropy = anisotropy;
+
+			if (gl_anisotropy < 1)
+			{
+				gl_anisotropy = 1;
+			}
+			else if (gl_anisotropy > glConfig.maxAnisotropy)
+			{
+				gl_anisotropy = glConfig.maxAnisotropy;
+			}
 		}
 	}
 	else
