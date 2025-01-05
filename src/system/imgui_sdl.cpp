@@ -1465,6 +1465,7 @@ ImGuiSdl::ImGuiSdl(
 
 ImGuiSdl::~ImGuiSdl()
 {
+	delete pimpl_;
 }
 
 const std::string& ImGuiSdl::get_error_message() const

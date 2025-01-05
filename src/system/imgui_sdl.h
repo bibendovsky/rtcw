@@ -54,7 +54,6 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 #define IMGUI_SDL_INCLUDED
 
 
-#include <memory>
 #include <string>
 #include "SDL_events.h"
 
@@ -194,9 +193,8 @@ public:
 private:
 	class Impl;
 
-	typedef std::unique_ptr<Impl> ImplUPtr;
-
-	ImplUPtr pimpl_;
+private:
+	Impl* pimpl_;
 
 private:
 	ImGuiSdl(const ImGuiSdl&);

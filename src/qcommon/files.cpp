@@ -41,13 +41,13 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <fstream>
 #include <limits>
-#include <memory>
 #include <string>
 
 #include "miniz.h"
 
 #include "q_shared.h"
 #include "qcommon.h"
+#include "rtcw_unique_ptr.h"
 
 
 /*
@@ -1923,7 +1923,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 					if (uniqueFILE)
 					{
 						// open a new file on the pakfile
-						std::unique_ptr<MinizZip> miniz_zip_uptr = std::make_unique<MinizZip>();
+						rtcw::UniquePtr<MinizZip> miniz_zip_uptr(new MinizZip());
 
 						if (!miniz_zip_uptr->open(pak->pakFilename))
 						{
@@ -2927,7 +2927,7 @@ static pack_t* FS_LoadZipFile(
 
 	fs_numHeaderLongs = 0;
 
-	std::unique_ptr<MinizZip> miniz_zip_uptr = std::make_unique<MinizZip>();
+	rtcw::UniquePtr<MinizZip> miniz_zip_uptr(new MinizZip());
 
 	if (!miniz_zip_uptr->open(zipfile))
 	{

@@ -7,11 +7,10 @@
 #define RTCW_JPEG_READER_INCLUDED
 
 
-#include <memory>
 #include <string>
-#include <vector>
 
 #include "jpgd.h"
+#include "rtcw_unique_ptr.h"
 
 
 namespace rtcw
@@ -45,8 +44,8 @@ private:
 	int width_;
 	int height_;
 	bool is_grayscale_;
-	std::unique_ptr<jpgd::jpeg_decoder_mem_stream> stream_;
-	std::unique_ptr<jpgd::jpeg_decoder> decoder_;
+	rtcw::UniquePtr<jpgd::jpeg_decoder_mem_stream> stream_;
+	rtcw::UniquePtr<jpgd::jpeg_decoder> decoder_;
 	std::string error_message_;
 
 	JpegReader(const JpegReader&);

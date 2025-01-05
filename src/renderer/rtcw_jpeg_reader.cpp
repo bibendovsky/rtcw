@@ -6,7 +6,6 @@
 #include "rtcw_jpeg_reader.h"
 
 #include <algorithm>
-#include <memory>
 
 
 namespace rtcw
@@ -48,12 +47,11 @@ bool JpegReader::open(
 
 	if (is_succeed)
 	{
-		stream_ = std::make_unique<jpgd::jpeg_decoder_mem_stream>(
+		stream_.reset(new jpgd::jpeg_decoder_mem_stream(
 			static_cast<const jpgd::uint8*>(src_data),
-			src_size
-		);
+			src_size));
 
-		decoder_ = std::make_unique<jpgd::jpeg_decoder>(stream_.get());
+		decoder_.reset(new jpgd::jpeg_decoder(stream_.get()));
 
 		if (decoder_->get_error_code() != jpgd::JPGD_SUCCESS)
 		{
@@ -107,7 +105,7 @@ bool JpegReader::decode(
 		return false;
 	}
 
-	if (decoder_ == NULL)
+	if (decoder_.get() == NULL)
 	{
 		error_message_ = "Decoder not initialized.";
 		return false;
@@ -170,8 +168,8 @@ void JpegReader::close()
 	height_ = 0;
 	is_grayscale_ = false;
 
-	decoder_ = NULL;
-	stream_ = NULL;
+	decoder_.reset();
+	stream_.reset();
 
 	error_message_.clear();
 }

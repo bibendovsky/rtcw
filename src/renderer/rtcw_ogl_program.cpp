@@ -1,6 +1,6 @@
 #include "rtcw_ogl_program.h"
-#include <memory>
 #include "tr_local.h"
+#include "rtcw_unique_ptr.h"
 
 
 namespace rtcw
@@ -169,13 +169,13 @@ bool OglProgram::do_try_reload()
 {
 	if (source_type_ == source_type_file)
 	{
-		std::unique_ptr<OglProgram> instance(create_new(glsl_dir_, base_name_));
+		rtcw::UniquePtr<OglProgram> instance(create_new(glsl_dir_, base_name_));
 
 		return instance->reload();
 	}
 	else if (source_type_ == source_type_c_string)
 	{
-		std::unique_ptr<OglProgram> instance(create_new(v_shader_c_string_, f_shader_c_string_));
+		rtcw::UniquePtr<OglProgram> instance(create_new(v_shader_c_string_, f_shader_c_string_));
 
 		return instance->reload();
 	}
