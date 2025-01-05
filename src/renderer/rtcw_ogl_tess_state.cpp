@@ -14,7 +14,7 @@ OglTessState::OglTessState() :
 	set_default_values();
 }
 
-OglTessState::~OglTessState() = default;
+OglTessState::~OglTessState() {}
 
 void OglTessState::set_program(
 	rtcw::OglTessProgram* program)

@@ -525,7 +525,13 @@ private:
 		uint32_t g;
 		uint32_t r;
 
-		ColorInt() = default;
+		ColorInt()
+			:
+			a(),
+			b(),
+			g(),
+			r()
+		{}
 
 		explicit ColorInt(
 			const uint32_t x)
