@@ -9,7 +9,7 @@ namespace rtcw
 {
 
 
-class OglTessProgram final :
+class OglTessProgram :
 	public OglProgram
 {
 public:
