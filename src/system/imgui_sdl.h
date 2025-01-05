@@ -65,19 +65,19 @@ struct ImDrawData;
 class ImGuiSdl
 {
 public:
-	enum class PixelFormat
+	enum PixelFormat
 	{
-		none,
-		standard,
-		imgui,
+		pixel_format_none,
+		pixel_format_standard,
+		pixel_format_imgui,
 	}; // PixelFormat
 
-	enum class WindowStatus
+	enum WindowStatus
 	{
-		none,
-		hidden,
-		shown,
-		minimized,
+		window_status_none,
+		window_status_hidden,
+		window_status_shown,
+		window_status_minimized,
 	}; // WindowStatus
 
 

@@ -40,20 +40,20 @@ public:
 
 
 protected:
-	enum class ReloadShaderResult
+	enum ReloadShaderResult
 	{
-		none,
-		no_source,
-		empty_source,
-		compiled,
-		not_compiled,
+		reload_result_none,
+		reload_result_no_source,
+		reload_result_empty_source,
+		reload_result_compiled,
+		reload_result_not_compiled,
 	}; // ReloadShaderResult
 
-	enum class SourceType
+	enum SourceType
 	{
-		none,
-		file,
-		c_string,
+		source_type_none,
+		source_type_file,
+		source_type_c_string,
 	}; // SourceType
 
 

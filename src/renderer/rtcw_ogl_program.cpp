@@ -12,7 +12,7 @@ OglProgram::OglProgram(
 	const std::string& base_name)
 	:
 	program_(),
-	source_type_(SourceType::file),
+	source_type_(source_type_file),
 	glsl_dir_(glsl_dir),
 	base_name_(base_name),
 	v_shader_c_string_(),
@@ -26,7 +26,7 @@ OglProgram::OglProgram(
 	const char* f_shader_buffer)
 	:
 	program_(),
-	source_type_(SourceType::c_string),
+	source_type_(source_type_c_string),
 	glsl_dir_(),
 	base_name_(),
 	v_shader_c_string_(v_shader_buffer),
@@ -84,7 +84,7 @@ bool OglProgram::reload_internal()
 	bool result = false;
 	bool is_compile_program = false;
 
-	if (source_type_ == SourceType::file)
+	if (source_type_ == source_type_file)
 	{
 		const std::string p_name = glsl_dir_ + base_name_;
 
@@ -95,22 +95,22 @@ bool OglProgram::reload_internal()
 
 		const ReloadShaderResult v_result = reload_shader(GL_VERTEX_SHADER, v_name, ogl_vertex_shader_);
 
-		if (v_result == ReloadShaderResult::compiled)
+		if (v_result == reload_result_compiled)
 		{
 			const ReloadShaderResult f_result = reload_shader(GL_FRAGMENT_SHADER, f_name, ogl_fragment_shader_);
 
-			is_compile_program = (f_result == ReloadShaderResult::compiled);
+			is_compile_program = (f_result == reload_result_compiled);
 		}
 	}
-	else if (source_type_ == SourceType::c_string)
+	else if (source_type_ == source_type_c_string)
 	{
 		const ReloadShaderResult v_result = reload_shader(GL_VERTEX_SHADER, v_shader_c_string_, ogl_vertex_shader_);
 
-		if (v_result == ReloadShaderResult::compiled)
+		if (v_result == reload_result_compiled)
 		{
 			const ReloadShaderResult f_result = reload_shader(GL_FRAGMENT_SHADER, f_shader_c_string_, ogl_fragment_shader_);
 
-			is_compile_program = (f_result == ReloadShaderResult::compiled);
+			is_compile_program = (f_result == reload_result_compiled);
 		}
 	}
 	else
@@ -167,13 +167,13 @@ void OglProgram::do_unload()
 
 bool OglProgram::do_try_reload()
 {
-	if (source_type_ == SourceType::file)
+	if (source_type_ == source_type_file)
 	{
 		std::unique_ptr<OglProgram> instance(create_new(glsl_dir_, base_name_));
 
 		return instance->reload();
 	}
-	else if (source_type_ == SourceType::c_string)
+	else if (source_type_ == source_type_c_string)
 	{
 		std::unique_ptr<OglProgram> instance(create_new(v_shader_c_string_, f_shader_c_string_));
 
@@ -190,7 +190,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 	const char* shader_c_string,
 	GLuint& shader_object)
 {
-	ReloadShaderResult result = ReloadShaderResult::none;
+	ReloadShaderResult result = reload_result_none;
 
 	const GLint source_length = static_cast<GLint>(std::string::traits_type::length(shader_c_string));
 
@@ -221,18 +221,18 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 					get_shader_type_string(shader_type), compile_log.c_str());
 			}
 
-			result = ReloadShaderResult::compiled;
+			result = reload_result_compiled;
 		}
 		else
 		{
 			ri.Printf(PRINT_ALL, "Failed to compile a \"%s\" shader:\n%s\n",
 				get_shader_type_string(shader_type), compile_log.c_str());
 
-			result = ReloadShaderResult::not_compiled;
+			result = reload_result_not_compiled;
 		}
 	}
 
-	if (result != ReloadShaderResult::compiled)
+	if (result != reload_result_compiled)
 	{
 		glDeleteShader(shader_object);
 		shader_object = GL_NONE;
@@ -246,7 +246,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 	const std::string& file_name,
 	GLuint& shader_object)
 {
-	ReloadShaderResult result = ReloadShaderResult::none;
+	ReloadShaderResult result = reload_result_none;
 
 	void* source_buffer = NULL;
 
@@ -279,14 +279,14 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 					file_name.c_str(), compile_log.c_str());
 			}
 
-			result = ReloadShaderResult::compiled;
+			result = reload_result_compiled;
 		}
 		else
 		{
 			ri.Printf(PRINT_ALL, "Failed to compile a shader \"%s\":\n%s\n",
 				file_name.c_str(), compile_log.c_str());
 
-			result = ReloadShaderResult::not_compiled;
+			result = reload_result_not_compiled;
 		}
 	}
 
@@ -295,7 +295,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 		ri.FS_FreeFile(source_buffer);
 	}
 
-	if (result != ReloadShaderResult::compiled)
+	if (result != reload_result_compiled)
 	{
 		glDeleteShader(shader_object);
 		shader_object = GL_NONE;

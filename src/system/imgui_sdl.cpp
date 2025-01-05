@@ -177,7 +177,7 @@ public:
 		screen_height_(),
 		frame_buffer_(),
 		is_close_requested_(),
-		window_status_(WindowStatus::none),
+		window_status_(window_status_none),
 		mouse_buttons_state_()
 	{}
 
@@ -262,19 +262,19 @@ public:
 
 		if ((window_flags & (SDL_WINDOW_SHOWN | SDL_WINDOW_MAXIMIZED)) != 0)
 		{
-			window_status_ = WindowStatus::shown;
+			window_status_ = window_status_shown;
 		}
 		else if ((window_flags & SDL_WINDOW_HIDDEN) != 0)
 		{
-			window_status_ = WindowStatus::hidden;
+			window_status_ = window_status_hidden;
 		}
 		else if ((window_flags & SDL_WINDOW_MINIMIZED) != 0)
 		{
-			window_status_ = WindowStatus::minimized;
+			window_status_ = window_status_minimized;
 		}
 		else
 		{
-			window_status_ = WindowStatus::none;
+			window_status_ = window_status_none;
 		}
 
 		return true;
@@ -418,10 +418,10 @@ public:
 		{
 			switch (src_pixel_format)
 			{
-			case PixelFormat::standard:
+			case pixel_format_standard:
 				break;
 
-			case PixelFormat::imgui:
+			case pixel_format_imgui:
 #ifdef IMGUI_USE_BGRA_PACKED_COLOR
 				use_converter = true;
 #endif // IMGUI_USE_BGRA_PACKED_COLOR
@@ -1236,15 +1236,15 @@ private:
 		case SDL_WINDOWEVENT_MAXIMIZED:
 		case SDL_WINDOWEVENT_RESTORED:
 		case SDL_WINDOWEVENT_SHOWN:
-			window_status_ = WindowStatus::shown;
+			window_status_ = window_status_shown;
 			break;
 
 		case SDL_WINDOWEVENT_HIDDEN:
-			window_status_ = WindowStatus::hidden;
+			window_status_ = window_status_hidden;
 			break;
 
 		case SDL_WINDOWEVENT_MINIMIZED:
-			window_status_ = WindowStatus::minimized;
+			window_status_ = window_status_minimized;
 			break;
 
 		case SDL_WINDOWEVENT_CLOSE:

@@ -94,7 +94,7 @@ std::string error_text_;
 std::string returned_commands_;
 std::string entered_commands_;
 std::string append_buffer_;
-ImGuiSdl::WindowStatus window_status_ = ImGuiSdl::WindowStatus::none;
+ImGuiSdl::WindowStatus window_status_ = ImGuiSdl::window_status_none;
 ImGuiSdl imgui_sdl_;
 ImGuiContext* imgui_context_ = NULL;
 
@@ -282,7 +282,7 @@ void uninitialize()
 	}
 
 	log_.clear();
-	window_status_ = ImGuiSdl::WindowStatus::none;
+	window_status_ = ImGuiSdl::window_status_none;
 	returned_commands_.clear();
 	entered_commands_.clear();
 	append_buffer_.clear();
@@ -310,7 +310,7 @@ bool initialize_font_atlas()
 		return false;
 	}
 
-	sdl_font_surface_ = imgui_sdl_.create_texture_id(out_width, out_height, ImGuiSdl::PixelFormat::imgui, out_pixels);
+	sdl_font_surface_ = imgui_sdl_.create_texture_id(out_width, out_height, ImGuiSdl::pixel_format_imgui, out_pixels);
 
 	if (!sdl_font_surface_)
 	{
@@ -402,7 +402,7 @@ bool initialize_internal()
 	}
 
 
-	window_status_ = ImGuiSdl::WindowStatus::hidden;
+	window_status_ = ImGuiSdl::window_status_hidden;
 	is_initialized_ = true;
 	append_buffer_.reserve(line_min_reserved_size);
 	edit_buffer_.resize(max_edit_buffer_size);
@@ -435,16 +435,16 @@ ImGuiSdl::WindowStatus get_window_status_by_visibility_level(
 	switch (visibility_level)
 	{
 	case 0:
-		return ImGuiSdl::WindowStatus::hidden;
+		return ImGuiSdl::window_status_hidden;
 
 	case 1:
-		return ImGuiSdl::WindowStatus::shown;
+		return ImGuiSdl::window_status_shown;
 
 	case 2:
-		return ImGuiSdl::WindowStatus::minimized;
+		return ImGuiSdl::window_status_minimized;
 
 	default:
-		return ImGuiSdl::WindowStatus::none;
+		return ImGuiSdl::window_status_none;
 	}
 }
 
@@ -465,16 +465,16 @@ void show(
 
 	switch (window_status_)
 	{
-	case ImGuiSdl::WindowStatus::hidden:
-	case ImGuiSdl::WindowStatus::none:
+	case ImGuiSdl::window_status_hidden:
+	case ImGuiSdl::window_status_none:
 		SDL_HideWindow(sdl_window_);
 		break;
 
-	case ImGuiSdl::WindowStatus::shown:
+	case ImGuiSdl::window_status_shown:
 		SDL_ShowWindow(sdl_window_);
 		break;
 
-	case ImGuiSdl::WindowStatus::minimized:
+	case ImGuiSdl::window_status_minimized:
 		SDL_MinimizeWindow(sdl_window_);
 		break;
 
@@ -751,7 +751,7 @@ void update(
 
 	if (imgui_sdl_.is_close_requested())
 	{
-		window_status_ = ImGuiSdl::WindowStatus::hidden;
+		window_status_ = ImGuiSdl::window_status_hidden;
 		SDL_HideWindow(sdl_window_);
 		imgui_sdl_.reset_is_close_requested();
 
@@ -794,15 +794,15 @@ void update_window_status(
 
 	switch (window_status_)
 	{
-	case ImGuiSdl::WindowStatus::hidden:
+	case ImGuiSdl::window_status_hidden:
 		SDL_HideWindow(sdl_window_);
 		break;
 
-	case ImGuiSdl::WindowStatus::minimized:
+	case ImGuiSdl::window_status_minimized:
 		SDL_MinimizeWindow(sdl_window_);
 		break;
 
-	case ImGuiSdl::WindowStatus::shown:
+	case ImGuiSdl::window_status_shown:
 		is_log_scrolled_ = false;
 		SDL_ShowWindow(sdl_window_);
 		break;
@@ -872,7 +872,7 @@ void sys_run_console()
 
 		update_window_status(window_status);
 
-		if (window_status == ImGuiSdl::WindowStatus::shown)
+		if (window_status == ImGuiSdl::window_status_shown)
 		{
 			bool is_close_requested = false;
 
@@ -910,7 +910,7 @@ void sys_update_console()
 
 	update_window_status(window_status);
 
-	if (window_status != ImGuiSdl::WindowStatus::shown)
+	if (window_status != ImGuiSdl::window_status_shown)
 	{
 		return;
 	}
