@@ -580,85 +580,80 @@ void r_dbg_reload_programs_f()
 static const char* r_get_embeded_vertex_shader()
 {
 	static const char* const result =
-R"VERTEX_SHADER(
-
-//
-// Project: RTCW
-// Author: Boris I. Bendovsky
-//
-// Shader type: vertex.
-// Purpose: Generic drawing.
-//
-
-
-//#version 110
-
-
-// Known GL constants.
-const int GL_DONT_CARE = 0x1100;
-const int GL_EXP = 0x0800;
-const int GL_FASTEST = 0x1101;
-const int GL_NICEST = 0x1102;
-const int GL_NONE = 0x0000;
-const int GL_EYE_PLANE = 0x2502;
-const int GL_EYE_RADIAL_NV = 0x855B;
-
-
-attribute vec4 pos_vec4; // position
-attribute vec4 col_vec4; // color
-attribute vec2 tc0_vec2; // texture coords (0)
-attribute vec2 tc1_vec2; // texture coords (1)
-
-uniform bool use_fog;
-uniform int fog_mode;
-uniform int fog_dist_mode; // GL_NV_fog_distance emulation
-uniform int fog_hint;
-
-uniform mat4 projection_mat4; // projection matrix
-uniform mat4 model_view_mat4; // model-view matrix
-
-varying vec4 col; // interpolated color
-varying vec2 tc[2]; // interpolated texture coords
-varying float fog_vc; // interpolated calculated fog coords
-varying vec4 fog_fc; // interpolated fog coords
-
-
-void main()
-{
-	col = col_vec4;
-	tc[0] = tc0_vec2;
-	tc[1] = tc1_vec2;
-
-	vec4 eye_pos = model_view_mat4 * pos_vec4;
-
-	if (use_fog)
-	{
-		if (fog_hint != GL_FASTEST)
-		{
-			fog_fc = eye_pos;
-		}
-		else
-		{
-			if (fog_dist_mode == GL_EYE_RADIAL_NV)
-			{
-				fog_vc = length(eye_pos.xyz);
-			}
-			else if (fog_dist_mode == GL_EYE_PLANE)
-			{
-				fog_vc = eye_pos.z;
-			}
-			else
-			{
-				fog_vc = abs(eye_pos.z);
-			}
-		}
-	}
-
-	gl_Position = projection_mat4 * eye_pos;
-}
-
-)VERTEX_SHADER"
-	;
+		"//\n"
+		"// Project: RTCW\n"
+		"// Author: Boris I. Bendovsky\n"
+		"//\n"
+		"// Shader type: vertex.\n"
+		"// Purpose: Generic drawing.\n"
+		"//\n"
+		"\n"
+		"\n"
+		"//#version 110\n"
+		"\n"
+		"\n"
+		"// Known GL constants.\n"
+		"const int GL_DONT_CARE = 0x1100;\n"
+		"const int GL_EXP = 0x0800;\n"
+		"const int GL_FASTEST = 0x1101;\n"
+		"const int GL_NICEST = 0x1102;\n"
+		"const int GL_NONE = 0x0000;\n"
+		"const int GL_EYE_PLANE = 0x2502;\n"
+		"const int GL_EYE_RADIAL_NV = 0x855B;\n"
+		"\n"
+		"\n"
+		"attribute vec4 pos_vec4; // position\n"
+		"attribute vec4 col_vec4; // color\n"
+		"attribute vec2 tc0_vec2; // texture coords (0)\n"
+		"attribute vec2 tc1_vec2; // texture coords (1)\n"
+		"\n"
+		"uniform bool use_fog;\n"
+		"uniform int fog_mode;\n"
+		"uniform int fog_dist_mode; // GL_NV_fog_distance emulation\n"
+		"uniform int fog_hint;\n"
+		"\n"
+		"uniform mat4 projection_mat4; // projection matrix\n"
+		"uniform mat4 model_view_mat4; // model-view matrix\n"
+		"\n"
+		"varying vec4 col; // interpolated color\n"
+		"varying vec2 tc[2]; // interpolated texture coords\n"
+		"varying float fog_vc; // interpolated calculated fog coords\n"
+		"varying vec4 fog_fc; // interpolated fog coords\n"
+		"\n"
+		"\n"
+		"void main()\n"
+		"{\n"
+		"    col = col_vec4;\n"
+		"    tc[0] = tc0_vec2;\n"
+		"    tc[1] = tc1_vec2;\n"
+		"\n"
+		"    vec4 eye_pos = model_view_mat4 * pos_vec4;\n"
+		"\n"
+		"    if (use_fog)\n"
+		"    {\n"
+		"        if (fog_hint != GL_FASTEST)\n"
+		"        {\n"
+		"            fog_fc = eye_pos;\n"
+		"        }\n"
+		"        else\n"
+		"        {\n"
+		"            if (fog_dist_mode == GL_EYE_RADIAL_NV)\n"
+		"            {\n"
+		"                fog_vc = length(eye_pos.xyz);\n"
+		"            }\n"
+		"            else if (fog_dist_mode == GL_EYE_PLANE)\n"
+		"            {\n"
+		"                fog_vc = eye_pos.z;\n"
+		"            }\n"
+		"            else\n"
+		"            {\n"
+		"                fog_vc = abs(eye_pos.z);\n"
+		"            }\n"
+		"        }\n"
+		"    }\n"
+		"\n"
+		"    gl_Position = projection_mat4 * eye_pos;\n"
+		"}\n";
 
 	return result;
 }
@@ -666,205 +661,200 @@ void main()
 static const char* r_get_embeded_fragment_shader()
 {
 	static const char* const result =
-R"FRAGMENT_SHADER(
-
-//
-// Project: RTCW
-// Author: Boris I. Bendovsky
-//
-// Shader type: fragment.
-// Purpose: Generic drawing.
-//
-
-
-//#version 110
-
-
-// Known constants.
-const int GL_ADD = 0x0104;
-const int GL_DECAL = 0x2101;
-const int GL_DONT_CARE = 0x1100;
-const int GL_EYE_PLANE = 0x2502;
-const int GL_EYE_RADIAL_NV = 0x855B;
-const int GL_EXP = 0x0800;
-const int GL_FASTEST = 0x1101;
-const int GL_GEQUAL = 0x0206;
-const int GL_GREATER = 0x0204;
-const int GL_LESS = 0x0201;
-const int GL_LINEAR = 0x2601;
-const int GL_MODULATE = 0x2100;
-const int GL_NICEST = 0x1102;
-const int GL_REPLACE = 0x1E01;
-
-
-uniform vec4 primary_color; // primary color
-uniform bool use_alpha_test; // alpha test switch
-uniform int alpha_test_func; // alpha test function
-uniform float alpha_test_ref; // alpha test reference value
-uniform int tex_env_mode[2]; // texture environment mode
-uniform bool use_multitexturing; // mutitexturing switch
-uniform sampler2D tex_2d[2]; // textures
-
-uniform bool use_fog;
-uniform int fog_mode;
-uniform int fog_hint;
-uniform int fog_dist_mode; // GL_NV_fog_distance emulation
-uniform vec4 fog_color;
-uniform float fog_density;
-uniform float fog_start;
-uniform float fog_end;
-
-varying vec4 col; // interpolated color
-varying vec2 tc[2]; // interpolated texture coords
-varying float fog_vc; // interpolated calculated fog coords
-varying vec4 fog_fc; // interpolated fog coords
-
-
-vec4 apply_tex_env(
-	vec4 previous_color,
-	int env_index)
-{
-	vec4 result = previous_color;
-	vec4 texel = texture2D((env_index == 0 ? tex_2d[0] : tex_2d[1]), tc[env_index]);
-
-	if (tex_env_mode[env_index] == GL_REPLACE)
-	{
-		result = texel;
-	}
-	else if (tex_env_mode[env_index] == GL_MODULATE)
-	{
-		result *= texel;
-	}
-	else if (tex_env_mode[env_index] == GL_DECAL)
-	{
-		result.rgb = mix(result.rgb, texel.rgb, texel.a);
-	}
-	else if (tex_env_mode[env_index] == GL_ADD)
-	{
-		result.rgb += texel.rgb;
-		result.a *= texel.a;
-	}
-	else
-	{
-		// invalid mode
-		result *= vec4(0.5, 0.0, 0.0, 1.0);
-	}
-
-	return result;
-}
-
-vec4 apply_alpha_test(
-	vec4 color)
-{
-	float test_ref = clamp(alpha_test_ref, 0.0, 1.0);
-
-	if (alpha_test_func == GL_GEQUAL)
-	{
-		if (color.a < test_ref)
-		{
-			discard;
-		}
-	}
-	else if (alpha_test_func == GL_GREATER)
-	{
-		if (color.a <= test_ref)
-		{
-			discard;
-		}
-	}
-	else if (alpha_test_func == GL_LESS)
-	{
-		if (color.a >= test_ref)
-		{
-			discard;
-		}
-	}
-	else
-	{
-		// invalid function
-		color *= vec4(0.0, 0.5, 0.0, 1.0);
-	}
-
-	return color;
-}
-
-vec4 apply_fog(
-	vec4 color)
-{
-	float c;
-
-	if (fog_hint != GL_FASTEST)
-	{
-		vec4 r_fog_fc = fog_fc / fog_fc.w;
-
-		if (fog_dist_mode == GL_EYE_RADIAL_NV)
-		{
-			c = length(r_fog_fc.xyz);
-		}
-		else if (fog_dist_mode == GL_EYE_PLANE)
-		{
-			c = fog_fc.z;
-		}
-		else
-		{
-			c = abs(fog_fc.z);
-		}
-	}
-	else
-	{
-		c = fog_vc;
-	}
-
-
-	float f = 1.0;
-
-	if (fog_mode == GL_LINEAR)
-	{
-		float es = fog_end - fog_start;
-
-		if (es != 0.0)
-		{
-			f = (fog_end - c) / es;
-		}
-	}
-	else
-	{
-		f = exp(-fog_density * c);
-	}
-
-	f = clamp(f, 0.0, 1.0);
-	vec4 mixed_color = mix(fog_color, color, f);
-
-	return vec4(mixed_color.rgb, color.a);
-}
-
-
-void main()
-{
-	vec4 frag_color = primary_color * col;
-
-	frag_color = apply_tex_env(frag_color, 0);
-
-	if (use_multitexturing)
-	{
-		frag_color = apply_tex_env(frag_color, 1);
-	}
-
-	if (use_fog)
-	{
-		frag_color = apply_fog(frag_color);
-	}
-
-	if (use_alpha_test)
-	{
-		frag_color = apply_alpha_test(frag_color);
-	}
-
-	gl_FragColor = frag_color;
-}
-
-)FRAGMENT_SHADER"
-	;
+		"//\n"
+		"// Project: RTCW\n"
+		"// Author: Boris I. Bendovsky\n"
+		"//\n"
+		"// Shader type: fragment.\n"
+		"// Purpose: Generic drawing.\n"
+		"//\n"
+		"\n"
+		"\n"
+		"//#version 110\n"
+		"\n"
+		"\n"
+		"// Known constants.\n"
+		"const int GL_ADD = 0x0104;\n"
+		"const int GL_DECAL = 0x2101;\n"
+		"const int GL_DONT_CARE = 0x1100;\n"
+		"const int GL_EYE_PLANE = 0x2502;\n"
+		"const int GL_EYE_RADIAL_NV = 0x855B;\n"
+		"const int GL_EXP = 0x0800;\n"
+		"const int GL_FASTEST = 0x1101;\n"
+		"const int GL_GEQUAL = 0x0206;\n"
+		"const int GL_GREATER = 0x0204;\n"
+		"const int GL_LESS = 0x0201;\n"
+		"const int GL_LINEAR = 0x2601;\n"
+		"const int GL_MODULATE = 0x2100;\n"
+		"const int GL_NICEST = 0x1102;\n"
+		"const int GL_REPLACE = 0x1E01;\n"
+		"\n"
+		"\n"
+		"uniform vec4 primary_color; // primary color\n"
+		"uniform bool use_alpha_test; // alpha test switch\n"
+		"uniform int alpha_test_func; // alpha test function\n"
+		"uniform float alpha_test_ref; // alpha test reference value\n"
+		"uniform int tex_env_mode[2]; // texture environment mode\n"
+		"uniform bool use_multitexturing; // mutitexturing switch\n"
+		"uniform sampler2D tex_2d[2]; // textures\n"
+		"\n"
+		"uniform bool use_fog;\n"
+		"uniform int fog_mode;\n"
+		"uniform int fog_hint;\n"
+		"uniform int fog_dist_mode; // GL_NV_fog_distance emulation\n"
+		"uniform vec4 fog_color;\n"
+		"uniform float fog_density;\n"
+		"uniform float fog_start;\n"
+		"uniform float fog_end;\n"
+		"\n"
+		"varying vec4 col; // interpolated color\n"
+		"varying vec2 tc[2]; // interpolated texture coords\n"
+		"varying float fog_vc; // interpolated calculated fog coords\n"
+		"varying vec4 fog_fc; // interpolated fog coords\n"
+		"\n"
+		"\n"
+		"vec4 apply_tex_env(\n"
+		"    vec4 previous_color,\n"
+		"    int env_index)\n"
+		"{\n"
+		"    vec4 result = previous_color;\n"
+		"    vec4 texel = texture2D((env_index == 0 ? tex_2d[0] : tex_2d[1]), tc[env_index]);\n"
+		"\n"
+		"    if (tex_env_mode[env_index] == GL_REPLACE)\n"
+		"    {\n"
+		"        result = texel;\n"
+		"    }\n"
+		"    else if (tex_env_mode[env_index] == GL_MODULATE)\n"
+		"    {\n"
+		"        result *= texel;\n"
+		"    }\n"
+		"    else if (tex_env_mode[env_index] == GL_DECAL)\n"
+		"    {\n"
+		"        result.rgb = mix(result.rgb, texel.rgb, texel.a);\n"
+		"    }\n"
+		"    else if (tex_env_mode[env_index] == GL_ADD)\n"
+		"    {\n"
+		"        result.rgb += texel.rgb;\n"
+		"        result.a *= texel.a;\n"
+		"    }\n"
+		"    else\n"
+		"    {\n"
+		"        // invalid mode\n"
+		"        result *= vec4(0.5, 0.0, 0.0, 1.0);\n"
+		"    }\n"
+		"\n"
+		"    return result;\n"
+		"}\n"
+		"\n"
+		"vec4 apply_alpha_test(\n"
+		"    vec4 color)\n"
+		"{\n"
+		"    float test_ref = clamp(alpha_test_ref, 0.0, 1.0);\n"
+		"\n"
+		"    if (alpha_test_func == GL_GEQUAL)\n"
+		"    {\n"
+		"        if (color.a < test_ref)\n"
+		"        {\n"
+		"            discard;\n"
+		"        }\n"
+		"    }\n"
+		"    else if (alpha_test_func == GL_GREATER)\n"
+		"    {\n"
+		"        if (color.a <= test_ref)\n"
+		"        {\n"
+		"            discard;\n"
+		"        }\n"
+		"    }\n"
+		"    else if (alpha_test_func == GL_LESS)\n"
+		"    {\n"
+		"        if (color.a >= test_ref)\n"
+		"        {\n"
+		"            discard;\n"
+		"        }\n"
+		"    }\n"
+		"    else\n"
+		"    {\n"
+		"        // invalid function\n"
+		"        color *= vec4(0.0, 0.5, 0.0, 1.0);\n"
+		"    }\n"
+		"\n"
+		"    return color;\n"
+		"}\n"
+		"\n"
+		"vec4 apply_fog(\n"
+		"    vec4 color)\n"
+		"{\n"
+		"    float c;\n"
+		"\n"
+		"    if (fog_hint != GL_FASTEST)\n"
+		"    {\n"
+		"        vec4 r_fog_fc = fog_fc / fog_fc.w;\n"
+		"\n"
+		"        if (fog_dist_mode == GL_EYE_RADIAL_NV)\n"
+		"        {\n"
+		"            c = length(r_fog_fc.xyz);\n"
+		"        }\n"
+		"        else if (fog_dist_mode == GL_EYE_PLANE)\n"
+		"        {\n"
+		"            c = fog_fc.z;\n"
+		"        }\n"
+		"        else\n"
+		"        {\n"
+		"            c = abs(fog_fc.z);\n"
+		"        }\n"
+		"    }\n"
+		"    else\n"
+		"    {\n"
+		"        c = fog_vc;\n"
+		"    }\n"
+		"\n"
+		"\n"
+		"    float f = 1.0;\n"
+		"\n"
+		"    if (fog_mode == GL_LINEAR)\n"
+		"    {\n"
+		"        float es = fog_end - fog_start;\n"
+		"\n"
+		"        if (es != 0.0)\n"
+		"        {\n"
+		"            f = (fog_end - c) / es;\n"
+		"        }\n"
+		"    }\n"
+		"    else\n"
+		"    {\n"
+		"        f = exp(-fog_density * c);\n"
+		"    }\n"
+		"\n"
+		"    f = clamp(f, 0.0, 1.0);\n"
+		"    vec4 mixed_color = mix(fog_color, color, f);\n"
+		"\n"
+		"    return vec4(mixed_color.rgb, color.a);\n"
+		"}\n"
+		"\n"
+		"\n"
+		"void main()\n"
+		"{\n"
+		"    vec4 frag_color = primary_color * col;\n"
+		"\n"
+		"    frag_color = apply_tex_env(frag_color, 0);\n"
+		"\n"
+		"    if (use_multitexturing)\n"
+		"    {\n"
+		"        frag_color = apply_tex_env(frag_color, 1);\n"
+		"    }\n"
+		"\n"
+		"    if (use_fog)\n"
+		"    {\n"
+		"        frag_color = apply_fog(frag_color);\n"
+		"    }\n"
+		"\n"
+		"    if (use_alpha_test)\n"
+		"    {\n"
+		"        frag_color = apply_alpha_test(frag_color);\n"
+		"    }\n"
+		"\n"
+		"    gl_FragColor = frag_color;\n"
+		"}\n";
 
 	return result;
 }
