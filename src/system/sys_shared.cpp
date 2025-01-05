@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include <cassert>
-#include <cmath>
+#include <math.h>
 
 #include <algorithm>
 #include <string>
@@ -51,9 +51,9 @@ extern int Sys_Milliseconds();
 void Sys_SnapVector(
 	float* v)
 {
-	v[0] = std::trunc(v[0]);
-	v[1] = std::trunc(v[1]);
-	v[2] = std::trunc(v[2]);
+	v[0] = trunc(v[0]);
+	v[1] = trunc(v[1]);
+	v[2] = trunc(v[2]);
 }
 
 int Sys_GetProcessorId()
