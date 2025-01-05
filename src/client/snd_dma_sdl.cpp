@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 // BBi
 
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 #include "SDL.h"
@@ -113,7 +114,7 @@ void sdl_callback(
 	int new_position = sdl_buffer_offset;
 
 	if (sdl_mute_mixer) {
-		std::uninitialized_fill_n(stream, length, 0);
+		std::fill_n(stream, length, 0);
 
 		new_position += length;
 		new_position %= sdl_buffer_size;

@@ -1219,7 +1219,7 @@ private:
 
 	void clear_frame_buffer()
 	{
-		std::uninitialized_fill_n(frame_buffer_.data(), frame_buffer_.size(), Color());
+		std::fill(frame_buffer_.begin(), frame_buffer_.end(), Color());
 	}
 
 	void handle_window_event(
