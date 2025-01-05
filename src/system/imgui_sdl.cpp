@@ -391,7 +391,7 @@ public:
 		{
 			Color* dst_pixels = static_cast<Color*>(pixels);
 
-			std::uninitialized_copy_n(frame_buffer_.data(), frame_buffer_.size(), dst_pixels);
+			std::copy(frame_buffer_.begin(), frame_buffer_.end(), dst_pixels);
 
 			SDL_UnlockTexture(sdl_framebuffer_texture_);
 		}

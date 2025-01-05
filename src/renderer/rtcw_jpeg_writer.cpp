@@ -5,6 +5,7 @@
 
 #include "rtcw_jpeg_writer.h"
 
+#include <algorithm>
 #include <memory>
 
 
@@ -40,7 +41,10 @@ public:
 			return false;
 		}
 
-		std::uninitialized_copy_n(static_cast<const jpge::uint8*>(buffer), size, buffer_ + buffer_offset_);
+		std::copy(
+			static_cast<const jpge::uint8*>(buffer),
+			&static_cast<const jpge::uint8*>(buffer)[size],
+			&buffer_[buffer_offset_]);
 
 		buffer_offset_ += size;
 

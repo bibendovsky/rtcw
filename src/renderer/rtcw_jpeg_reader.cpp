@@ -5,6 +5,7 @@
 
 #include "rtcw_jpeg_reader.h"
 
+#include <algorithm>
 #include <memory>
 
 
@@ -146,7 +147,7 @@ bool JpegReader::decode(
 				}
 				else
 				{
-					std::uninitialized_copy_n(scanline, dst_pitch, dst_buffer);
+					std::copy(scanline, &scanline[dst_pitch], dst_buffer);
 				}
 
 				dst_buffer += dst_pitch;
