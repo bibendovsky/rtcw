@@ -82,9 +82,6 @@ public:
 
 	ImGuiSdl();
 
-	ImGuiSdl(
-		ImGuiSdl&& that);
-
 	~ImGuiSdl();
 
 

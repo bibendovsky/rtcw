@@ -1456,13 +1456,6 @@ ImGuiSdl::ImGuiSdl()
 {
 }
 
-ImGuiSdl::ImGuiSdl(
-	ImGuiSdl&& that)
-	:
-	pimpl_(std::move(that.pimpl_))
-{
-}
-
 ImGuiSdl::~ImGuiSdl()
 {
 	delete pimpl_;
