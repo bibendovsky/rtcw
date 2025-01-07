@@ -136,7 +136,7 @@ int edit_callback(
 
 void add_line_to_log(
 	const char* const line,
-	const int length)
+	int length)
 {
 	if (!line)
 	{
@@ -150,12 +150,12 @@ void add_line_to_log(
 
 	if (length < 0)
 	{
-		log_.emplace_back(line);
+		length = std::string::traits_type::length(line);
 	}
-	else
-	{
-		log_.emplace_back(line, length);
-	}
+
+	log_.push_back(std::string());
+	std::string& string = log_.back();
+	string.assign(line, static_cast<size_t>(length));
 }
 
 void add_line_to_log(
