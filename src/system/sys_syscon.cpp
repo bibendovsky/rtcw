@@ -26,896 +26,209 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
-#ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
-#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
-#endif // !IMGUI_DISABLE_OBSOLETE_FUNCTIONS
-
-
-#include <deque>
-#include <string>
-#include <vector>
-#include "SDL.h"
-#include "imgui.h"
-#include "client.h"
-#include "imgui_sdl.h"
-
-#if defined RTCW_SP
-#include "rtcw_sp_resource.h"
-#elif defined RTCW_MP
-#include "rtcw_mp_resource.h"
-#elif defined RTCW_ET
-#include "rtcw_et_resource.h"
-#endif // RTCW_XX
-
-
-namespace
-{
-
-
-const int screen_width = 540;
-const int screen_height = 450;
-
-const int max_log_lines = 4096;
-const int line_min_reserved_size = 1024;
-
-const int max_edit_buffer_size = 128;
-
-const char* window_title =
 #if defined(RTCW_SP)
-	"RTCW Single-player Console"
+	#define RTCW_SYSCON_RESOURCE_HEADER "rtcw_sp_resource.h"
 #elif defined(RTCW_MP)
-#ifdef UPDATE_SERVER
-	"RTCW Multiplayer Update Server Console"
-#else
-	"RTCW Multiplayer Console"
-#endif // UPDATE_SERVER
+	#define RTCW_SYSCON_RESOURCE_HEADER "rtcw_mp_resource.h"
 #elif defined(RTCW_ET)
-	"RTCW Enemy Territory Console"
-#else
-	"RTCW Console"
-#endif // RTCW_SP
-;
+	#define RTCW_SYSCON_RESOURCE_HEADER "rtcw_et_resource.h"
+#endif // RTCW
 
+#include <algorithm>
+#include <string.h>
+#include "client.h"
+#include "sys_local.h"
+#include "rtcw_syscon.h"
+#include "rtcw_vector_trivial.h"
+#include RTCW_SYSCON_RESOURCE_HEADER
 
-typedef std::deque<std::string> Log;
-typedef std::vector<char> EditBuffer;
+namespace {
 
+const char* const syscon_title =
+#if defined(RTCW_SP)
+	"RTCW-SP Console"
+#elif defined(RTCW_MP)
+	#ifdef UPDATE_SERVER // DHM - Nerve
+		"RTCW-MP Update Server"
+	#else
+		"RTCW-MP Console"
+	#endif
+#elif defined(RTCW_ET)
+	"RTCW-ET Console"
+#endif // RTCW_XX
+	; // syscon_title
 
-std::string error_message_;
+const int syscon_input_initial_capacity = 128 + 2;
 
-Uint32 sdl_window_id_ = 0;
-SDL_Window* sdl_window_ = NULL;
-SDL_Renderer* sdl_renderer_ = NULL;
-SDL_Surface* sdl_font_surface_ = NULL;
+typedef rtcw::VectorTrivial<char> SysconInput;
 
-Log log_;
-std::string error_text_;
-std::string returned_commands_;
-std::string entered_commands_;
-std::string append_buffer_;
-ImGuiSdl::WindowStatus window_status_ = ImGuiSdl::window_status_none;
-ImGuiSdl imgui_sdl_;
-ImGuiContext* imgui_context_ = NULL;
+rtcw::Syscon syscon;
+bool syscon_quit_on_close = false;
+char* syscon_input_ptr = NULL;
+SysconInput syscon_input;
 
-EditBuffer edit_buffer_;
-
-bool is_initialized_ = false;
-bool quit_on_close_ = false;
-
-bool is_log_scrolled_ = false;
-bool is_edit_activated_ = false;
-
-bool is_enter_pressed_ = false;
-bool is_tab_entered_ = false;
-bool is_quit_ = false;
-
-
-int edit_callback(
-	ImGuiInputTextCallbackData* data)
+void syscon_clear_input()
 {
-	if (data->EventFlag != ImGuiInputTextFlags_CallbackCharFilter)
-	{
-		return 0;
-	}
+	syscon_input_ptr = NULL;
 
-	// Allow only ASCII characters.
-	if (data->EventChar > 0x7F)
-	{
-		return 1;
-	}
+	syscon_input.clear();
 
-	if (data->EventChar == '\t')
+	if (syscon_input.get_data() != NULL)
 	{
-		is_tab_entered_ = true;
-		return 1;
+		syscon_input.get_data()[0] = '\0';
 	}
-
-	return 0;
 }
 
-void add_line_to_log(
-	const char* const line,
-	int length)
+void syscon_input_callback(const char* text)
 {
-	if (!line)
+	Sys_Print(va("]%s\n", text));
+
+	const int text_length = static_cast<int>(strlen(text));
+	const int text_length_with_tail = text_length + 2;
+
+	if (!syscon_input.reserve(text_length_with_tail))
 	{
 		return;
 	}
 
-	while (log_.size() >= max_log_lines)
-	{
-		log_.pop_front();
-	}
-
-	if (length < 0)
-	{
-		length = std::string::traits_type::length(line);
-	}
-
-	log_.push_back(std::string());
-	std::string& string = log_.back();
-	string.assign(line, static_cast<size_t>(length));
+	std::copy(text, &text[text_length], syscon_input.get_data());
+	syscon_input.resize_uninitialized(text_length_with_tail);
+	syscon_input[text_length + 0] = '\n';
+	syscon_input[text_length + 1] = '\0';
+	syscon_input_ptr = syscon_input.get_data();
 }
 
-void add_line_to_log(
-	const char* const line)
+void syscon_show_mode_callback(rtcw::Syscon::ShowMode show_mode)
 {
-	if (!line || *line == '\0')
+	if (com_viewlog != NULL && com_dedicated != NULL && com_dedicated->integer == 0)
 	{
-		return;
-	}
-
-	add_line_to_log(line, static_cast<int>(std::string::traits_type::length(line)));
-}
-
-void add_line_to_log(
-	const std::string& line)
-{
-	if (line.empty())
-	{
-		return;
-	}
-
-	add_line_to_log(line.c_str(), static_cast<int>(line.size()));
-}
-
-void append_text_to_log(
-	const char* const text)
-{
-	if (!text || *text == '\0')
-	{
-		return;
-	}
-
-	int i = 0;
-	append_buffer_.clear();
-
-	while (true)
-	{
-		const char ch = text[i];
-
-		if (ch == '\0')
+		if (com_viewlog->integer == 1)
 		{
-			if (!append_buffer_.empty())
+			if (show_mode == rtcw::Syscon::show_mode_minimized)
 			{
-				add_line_to_log(append_buffer_);
+				Cvar_Set("viewlog", "2");
 			}
+		}
+		else if (com_viewlog->integer == 2)
+		{
+			if (show_mode != rtcw::Syscon::show_mode_minimized)
+			{
+				Cvar_Set("viewlog", "1");
+			}
+		}
+	}
+}
 
+void syscon_quit_callback()
+{
+	if (com_dedicated != NULL && com_dedicated->integer != 0)
+	{
+		char* cmd_string = CopyString("quit");
+		Sys_QueEvent(0, SE_CONSOLE, 0, 0, static_cast<int>(strlen(cmd_string)) + 1, cmd_string);
+	}
+	else if (syscon_quit_on_close)
+	{}
+	else
+	{
+		Sys_ShowConsole(0, qfalse);
+		Cvar_Set("viewlog", "0");
+	}
+}
+
+void syscon_callback(rtcw::Syscon::CallbackParam param)
+{
+	switch (param.type)
+	{
+		case rtcw::Syscon::callback_type_input_line:
+			syscon_input_callback(param.input_line_text);
 			break;
-		}
-		else
-		{
-			const char next_ch = text[i + 1];
+			
+		case rtcw::Syscon::callback_type_show_mode:
+			syscon_show_mode_callback(param.show_mode);
+			break;
 
-			if (ch == '\r' && next_ch == '\n')
-			{
-				add_line_to_log(append_buffer_);
-				append_buffer_.clear();
-
-				i += 2;
-			}
-			else if (ch == '\r')
-			{
-				add_line_to_log(append_buffer_);
-				append_buffer_.clear();
-
-				i += 1;
-			}
-			else if (ch == '\n')
-			{
-				add_line_to_log(append_buffer_);
-				append_buffer_.clear();
-
-				i += 1;
-			}
-			else if (ch == Q_COLOR_ESCAPE)
-			{
-				if (next_ch == Q_COLOR_ESCAPE)
-				{
-					append_buffer_ += Q_COLOR_ESCAPE;
-				}
-
-				i += 2;
-			}
-			else
-			{
-				append_buffer_ += ch;
-
-				i += 1;
-			}
-		}
-	}
-
-	is_log_scrolled_ = false;
-}
-
-void uninitialize()
-{
-	sdl_window_id_ = 0;
-
-	imgui_sdl_.uninitialize();
-
-
-	if (imgui_context_)
-	{
-		ImGui::DestroyContext(imgui_context_);
-		imgui_context_ = NULL;
-	}
-
-	if (sdl_font_surface_)
-	{
-		SDL_FreeSurface(sdl_font_surface_);
-		sdl_font_surface_ = NULL;
-	}
-
-	if (sdl_renderer_)
-	{
-		SDL_DestroyRenderer(sdl_renderer_);
-		sdl_renderer_ = NULL;
-	}
-
-	if (sdl_window_)
-	{
-		SDL_DestroyWindow(sdl_window_);
-		sdl_window_ = NULL;
-	}
-
-	log_.clear();
-	window_status_ = ImGuiSdl::window_status_none;
-	returned_commands_.clear();
-	entered_commands_.clear();
-	append_buffer_.clear();
-
-	quit_on_close_ = false;
-	is_initialized_ = false;
-
-	edit_buffer_.clear();
-}
-
-bool initialize_font_atlas()
-{
-	ImGuiIO& imgui_io = ImGui::GetIO();
-
-	unsigned char* out_pixels = NULL;
-	int out_width = 0;
-	int out_height = 0;
-	int out_bytes_per_pixel = 0;
-
-	imgui_io.Fonts->GetTexDataAsRGBA32(&out_pixels, &out_width, &out_height, &out_bytes_per_pixel);
-
-	if (!out_pixels || out_width <= 0 || out_height <= 0 || out_bytes_per_pixel != 4)
-	{
-		error_message_ = "DImGui: Failed to get font's texture data.";
-		return false;
-	}
-
-	sdl_font_surface_ = imgui_sdl_.create_texture_id(out_width, out_height, ImGuiSdl::pixel_format_imgui, out_pixels);
-
-	if (!sdl_font_surface_)
-	{
-		error_message_ = "DImGuiSdl: " + imgui_sdl_.get_error_message();
-		return false;
-	}
-
-	imgui_io.Fonts->TexID = sdl_font_surface_;
-
-	return true;
-}
-
-void setup_imgui()
-{
-	ImGuiIO& imgui_io = ImGui::GetIO();
-
-	imgui_io.IniFilename = NULL;
-	imgui_io.DisplaySize.x = static_cast<float>(screen_width);
-	imgui_io.DisplaySize.y = static_cast<float>(screen_height);
-
-	ImGuiStyle& style = ImGui::GetStyle();
-	style.Alpha = 1.0F;
-	style.AntiAliasedFill = false;
-	style.AntiAliasedLines = false;
-	style.ChildRounding = 0;
-	style.FrameBorderSize = 0;
-	style.FramePadding = ImVec2();
-	style.FrameRounding = 0;
-	style.GrabRounding = 0;
-	style.ItemInnerSpacing = ImVec2();
-	style.ItemSpacing = ImVec2();
-	style.PopupRounding = 0;
-	style.ScrollbarRounding = 0;
-	style.TouchExtraPadding = ImVec2();
-	style.WindowBorderSize = 0;
-	style.WindowPadding = ImVec2();
-	style.WindowRounding = 0;
-}
-
-bool initialize_internal()
-{
-	error_message_.clear();
-
-	int sdl_result = 0;
-
-	if (SDL_WasInit(SDL_INIT_VIDEO) == 0)
-	{
-		sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-		if (sdl_result != 0)
-		{
-			error_message_ = "SDL: Failed to initialize video subsystem.";
-			return false;
-		}
-	}
-
-	sdl_result = SDL_CreateWindowAndRenderer(
-		screen_width,
-		screen_height,
-		SDL_WINDOW_HIDDEN,
-		&sdl_window_,
-		&sdl_renderer_);
-
-	if (sdl_result != 0)
-	{
-		error_message_ = "SDL: Failed to create a window with a renderer.";
-		return false;
-	}
-
-	SDL_SetWindowTitle(sdl_window_, window_title);
-
-	imgui_context_ = ImGui::CreateContext();
-
-	if (!imgui_context_)
-	{
-		error_message_ = "DImGui: Failed to create a context.";
-		return false;
-	}
-
-	if (!imgui_sdl_.initialize(sdl_window_))
-	{
-		error_message_ = "DImGuiSdl: " + imgui_sdl_.get_error_message();
-		return false;
-	}
-
-	if (!initialize_font_atlas())
-	{
-		return false;
-	}
-
-
-	window_status_ = ImGuiSdl::window_status_hidden;
-	is_initialized_ = true;
-	append_buffer_.reserve(line_min_reserved_size);
-	edit_buffer_.resize(max_edit_buffer_size);
-
-	setup_imgui();
-
-	return true;
-}
-
-void initialize()
-{
-	uninitialize();
-
-	if (!initialize_internal())
-	{
-		uninitialize();
-
-		static_cast<void>(SDL_ShowSimpleMessageBox(
-			SDL_MESSAGEBOX_ERROR,
-			"RTCW",
-			error_message_.c_str(),
-			NULL
-		));
+		case rtcw::Syscon::callback_type_quit:
+			syscon_quit_callback();
+			break;
 	}
 }
-
-ImGuiSdl::WindowStatus get_window_status_by_visibility_level(
-	const int visibility_level)
-{
-	switch (visibility_level)
-	{
-	case 0:
-		return ImGuiSdl::window_status_hidden;
-
-	case 1:
-		return ImGuiSdl::window_status_shown;
-
-	case 2:
-		return ImGuiSdl::window_status_minimized;
-
-	default:
-		return ImGuiSdl::window_status_none;
-	}
-}
-
-void show(
-	const int visibility_level,
-	const bool quit_on_close)
-{
-	quit_on_close_ = quit_on_close;
-
-	const ImGuiSdl::WindowStatus new_window_status = get_window_status_by_visibility_level(visibility_level);
-
-	if (new_window_status == window_status_)
-	{
-		return;
-	}
-
-	window_status_ = new_window_status;
-
-	switch (window_status_)
-	{
-	case ImGuiSdl::window_status_hidden:
-	case ImGuiSdl::window_status_none:
-		SDL_HideWindow(sdl_window_);
-		break;
-
-	case ImGuiSdl::window_status_shown:
-		SDL_ShowWindow(sdl_window_);
-		break;
-
-	case ImGuiSdl::window_status_minimized:
-		SDL_MinimizeWindow(sdl_window_);
-		break;
-
-	default:
-		break;
-	}
-}
-
-void set_error_text(
-	const char* const error_text)
-{
-	if (!error_text || *error_text == '\0')
-	{
-		error_text_ = "Generic failure.";
-	}
-	else
-	{
-		error_text_ = error_text;
-	}
-}
-
-char* get_commands()
-{
-	if (entered_commands_.empty())
-	{
-		return NULL;
-	}
-
-	returned_commands_ = entered_commands_;
-
-	entered_commands_.clear();
-
-	return &returned_commands_[0];
-}
-
-void clear_log()
-{
-	log_.clear();
-}
-
-void imgui_draw()
-{
-	imgui_sdl_.new_frame();
-
-
-	const bool is_show_error = (!error_text_.empty());
-
-	ImVec2 error_control_position(5.0F, 5.0F);
-	ImVec2 error_control_size(530.0F, 30.0F);
-
-	ImVec2 log_control_position(5.0F, 40.0F);
-	ImVec2 log_control_size(530.0F, 355.0F);
-
-	ImVec2 command_control_position(5.0F, 400.0F);
-	ImVec2 command_control_size(530.0F, 20.0F);
-
-	ImVec2 copy_button_control_position(5.0F, 425.0F);
-	ImVec2 clear_button_control_position(85.0F, 425.0F);
-	ImVec2 quit_button_control_position(465.0F, 425.0F);
-
-	ImVec2 button_control_size(70.0F, 20.0F);
-
-	if (is_show_error)
-	{
-		log_control_size.y = 380.0F;
-	}
-	else
-	{
-		log_control_position.y = 5.0F;
-		log_control_size.y = 390.0F;
-	}
-
-	// Main window (begin)
-	//
-	const int window_flags =
-		ImGuiWindowFlags_NoTitleBar |
-		ImGuiWindowFlags_NoResize |
-		ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoScrollbar |
-		ImGuiWindowFlags_NoCollapse |
-		ImGuiWindowFlags_NoSavedSettings |
-		0;
-
-	ImGui::Begin("main", NULL, window_flags);
-	ImGui::SetWindowSize(ImVec2(static_cast<float>(screen_width), static_cast<float>(screen_height)), ImGuiCond_Always);
-	ImGui::SetWindowPos(ImVec2(), ImGuiCond_Always);
-
-
-	// Error message
-	//
-	if (is_show_error)
-	{
-		const int error_flags =
-			ImGuiWindowFlags_NoTitleBar |
-			ImGuiWindowFlags_NoResize |
-			ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoScrollbar |
-			ImGuiWindowFlags_NoCollapse |
-			ImGuiWindowFlags_NoSavedSettings |
-			0;
-
-		ImGui::SetCursorPos(error_control_position);
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0F, 0.0F, 0.0F, 1.0F));
-		ImGui::BeginChildFrame(1, error_control_size, error_flags);
-		ImGui::TextWrapped("%s", error_text_.c_str());
-		ImGui::EndChildFrame();
-		ImGui::PopStyleColor();
-	}
-
-	// Log
-	//
-	const int log_flags =
-			ImGuiWindowFlags_NoTitleBar |
-			ImGuiWindowFlags_NoResize |
-			ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoCollapse |
-			ImGuiWindowFlags_NoSavedSettings |
-			0;
-
-	ImGui::SetCursorPos(log_control_position);
-
-	ImGui::BeginChildFrame(20, log_control_size, log_flags);
-
-	if (!log_.empty())
-	{
-		ImGuiListClipper log_im_clipper(static_cast<int>(log_.size()));
-
-		while (log_im_clipper.Step())
-		{
-			for (int i = log_im_clipper.DisplayStart; i < log_im_clipper.DisplayEnd; ++i)
-			{
-				const std::string& line = log_[i];
-				ImGui::TextUnformatted(&line[0], &line[line.length()]);
-			}
-		}
-
-		if (!is_log_scrolled_)
-		{
-			ImGui::SetScrollHereY(0.5F);
-
-			const float y = ImGui::GetScrollY();
-			const float max_y = ImGui::GetScrollMaxY();
-
-			if (max_y > 0.0F && y >= max_y)
-			{
-				is_log_scrolled_ = true;
-			}
-		}
-	}
-
-	ImGui::EndChildFrame();
-
-
-	// Input text
-	//
-	bool is_command_enter_pressed = false;
-
-	if (!is_show_error)
-	{
-		const int edit_flags =
-			ImGuiInputTextFlags_CallbackCharFilter |
-			ImGuiInputTextFlags_EnterReturnsTrue |
-			0;
-
-		ImGui::SetCursorPos(command_control_position);
-		ImGui::PushItemWidth(command_control_size.x);
-
-		is_command_enter_pressed = ImGui::InputText(
-			"##cmd",
-			&edit_buffer_[0],
-			max_edit_buffer_size,
-			edit_flags,
-			edit_callback);
-
-		ImGui::PopItemWidth();
-
-		if (!is_edit_activated_)
-		{
-			ImGui::SetKeyboardFocusHere();
-
-			if (ImGui::IsItemActive())
-			{
-				is_edit_activated_ = true;
-			}
-		}
-	}
-
-
-	// Button "copy"
-	//
-	ImGui::SetCursorPos(copy_button_control_position);
-	const bool is_copy_clicked = ImGui::Button("Copy", button_control_size);
-
-
-	// Button "clear"
-	//
-	bool is_clear_clicked = false;
-
-	if (!is_show_error)
-	{
-		ImGui::SetCursorPos(clear_button_control_position);
-		is_clear_clicked = ImGui::Button("Clear", button_control_size);
-	}
-
-
-	// Button "quit"
-	//
-	ImGui::SetCursorPos(quit_button_control_position);
-	const bool is_quit_clicked = ImGui::Button("Quit", button_control_size);
-
-	// Main window (end)
-	// 
-	ImGui::End();
-
-	if (is_tab_entered_)
-	{
-		is_tab_entered_ = false;
-
-		// TODO Command completion.
-	}
-
-	if (is_command_enter_pressed)
-	{
-		is_enter_pressed_ = true;
-	}
-
-	if (is_copy_clicked)
-	{
-		std::string clipboard_buffer;
-
-		bool is_first_line = true;
-		const size_t line_count = log_.size();
-
-		for (size_t i_line = 0; i_line < line_count; ++i_line)
-		{
-			const std::string& line = log_[i_line];
-
-			if (is_first_line)
-			{
-				is_first_line = false;
-			}
-			else
-			{
-				clipboard_buffer += '\n';
-			}
-
-			clipboard_buffer += line;
-		}
-
-		static_cast<void>(SDL_SetClipboardText(clipboard_buffer.c_str()));
-	}
-
-	if (is_clear_clicked)
-	{
-		log_.clear();
-	}
-
-	if (is_quit_clicked)
-	{
-		is_quit_ = true;
-	}
-
-	ImGui::Render();
-	ImDrawData* imgui_draw_data = ImGui::GetDrawData();
-
-	imgui_sdl_.draw(imgui_draw_data);
-	imgui_sdl_.present();
-}
-
-void update(
-	bool& is_close_requested)
-{
-	imgui_draw();
-
-	if (imgui_sdl_.is_close_requested())
-	{
-		window_status_ = ImGuiSdl::window_status_hidden;
-		SDL_HideWindow(sdl_window_);
-		imgui_sdl_.reset_is_close_requested();
-
-		is_close_requested = true;
-	}
-
-	if (is_quit_)
-	{
-		if (!quit_on_close_)
-		{
-			Com_Quit_f();
-		}
-
-		is_close_requested = true;
-	}
-
-	if (is_enter_pressed_)
-	{
-		is_enter_pressed_ = false;
-		is_log_scrolled_ = false;
-		is_edit_activated_ = false;
-
-		entered_commands_ += &edit_buffer_[0];
-		entered_commands_ += '\n';
-
-		Sys_Print(va("]%s\n", &edit_buffer_[0]));
-		edit_buffer_[0] = '\0';
-	}
-}
-
-void update_window_status(
-	const ImGuiSdl::WindowStatus window_status)
-{
-	if (window_status == window_status_)
-	{
-		return;
-	}
-
-	window_status_ = window_status;
-
-	switch (window_status_)
-	{
-	case ImGuiSdl::window_status_hidden:
-		SDL_HideWindow(sdl_window_);
-		break;
-
-	case ImGuiSdl::window_status_minimized:
-		SDL_MinimizeWindow(sdl_window_);
-		break;
-
-	case ImGuiSdl::window_status_shown:
-		is_log_scrolled_ = false;
-		SDL_ShowWindow(sdl_window_);
-		break;
-
-	default:
-		break;
-	}
-}
-
 
 } // namespace
 
-
 void Sys_CreateConsole()
 {
-	initialize();
+	if (!syscon.initialize(syscon_callback))
+	{
+		Sys_Print(va("[syscon] %s\n", syscon.get_error_message()));
+	}
+
+	syscon.set_title(syscon_title);
+	syscon_input.reserve(syscon_input_initial_capacity);
+	syscon_clear_input();
 }
 
 void Sys_DestroyConsole()
 {
-	uninitialize();
+	syscon.terminate();
 }
 
-void Sys_ShowConsole(
-	const int visibility_level,
-	const qboolean quit_on_close)
+void Sys_ShowConsole(int visibility_level, qboolean quit_on_close)
 {
-	show(visibility_level, quit_on_close);
+	syscon_quit_on_close = quit_on_close == qtrue;
+	rtcw::Syscon::ShowMode show_mode;
+
+	switch (visibility_level)
+	{
+		case 0:
+			show_mode = rtcw::Syscon::show_mode_hidden;
+			break;
+
+		default:
+		case 1:
+			show_mode = rtcw::Syscon::show_mode_normal;
+			break;
+
+		case 2:
+			show_mode = rtcw::Syscon::show_mode_minimized;
+			break;
+	}
+
+	syscon.show(show_mode);
 }
 
 char* Sys_ConsoleInput()
 {
-	return get_commands();
+	char* const old_syscon_input_ptr = syscon_input_ptr;
+	syscon_input_ptr = NULL;
+	return old_syscon_input_ptr;
 }
 
-void Conbuf_AppendText(
-	const char* text)
+void Conbuf_AppendText(const char* text)
 {
-	append_text_to_log(text);
+	syscon.append_text(text);
 }
 
-void Sys_SetErrorText(
-	const char* const text)
+void Sys_SetErrorText(const char* text)
 {
-	set_error_text(text);
+	syscon.set_error_text(text);
 }
 
 void Sys_ClearViewlog_f()
 {
-	log_.clear();
+	syscon.clear_text();
 }
 
 void sys_run_console()
 {
-	SDL_Event e = SDL_Event();
-
-	bool is_quit = false;
-
-	while (!is_quit)
-	{
-		while (SDL_PollEvent(&e))
-		{
-			imgui_sdl_.handle_event(e);
-		}
-
-		const ImGuiSdl::WindowStatus window_status = imgui_sdl_.get_window_status();
-
-		update_window_status(window_status);
-
-		if (window_status == ImGuiSdl::window_status_shown)
-		{
-			bool is_close_requested = false;
-
-			update(is_close_requested);
-
-			if (is_close_requested)
-			{
-				is_quit = true;
-			}
-		}
-
-		SDL_Delay(10);
-	}
+	syscon.run();
 }
 
-void sys_handle_console_sdl_event(
-	const SDL_Event& e)
+void sys_handle_console_sdl_event(const SDL_Event& e)
 {
-	if (!is_initialized_)
-	{
-		return;
-	}
-
-	imgui_sdl_.handle_event(e);
+	syscon.handle_event(e);
 }
 
 void sys_update_console()
 {
-	if (!is_initialized_)
-	{
-		return;
-	}
-
-	const ImGuiSdl::WindowStatus window_status = imgui_sdl_.get_window_status();
-
-	update_window_status(window_status);
-
-	if (window_status != ImGuiSdl::window_status_shown)
-	{
-		return;
-	}
-
-	bool is_close_requested = false;
-
-	update(is_close_requested);
+	syscon.update();
 }

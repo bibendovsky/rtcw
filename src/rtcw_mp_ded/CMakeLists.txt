@@ -112,7 +112,6 @@ target_sources (
 		../splines/splines.h
 		../splines/util_list.h
 		../splines/util_str.h
-		../system/imgui_sdl.h
 		../system/rtcw_endian.h
 		../system/rtcw_input_joystick.h
 		../system/rtcw_input_keyboard.h
@@ -196,7 +195,6 @@ target_sources (
 		../server/sv_net_chan.cpp
 		../server/sv_snapshot.cpp
 		../server/sv_world.cpp
-		../system/imgui_sdl.cpp
 		../system/sys_events.cpp
 		../system/sys_main.cpp
 		../system/sys_net.cpp
@@ -204,6 +202,16 @@ target_sources (
 		../system/sys_shared_posix.cpp
 		../system/sys_shared_win32.cpp
 		../system/sys_syscon.cpp
+		../system/rtcw_array_trivial.cpp
+		../system/rtcw_array_trivial.h
+		../system/rtcw_sdl_utility.cpp
+		../system/rtcw_sdl_utility.h
+		../system/rtcw_syscon.cpp
+		../system/rtcw_syscon.h
+		../system/rtcw_syscon_font_16x8.cpp
+		../system/rtcw_syscon_font_16x8.h
+		../system/rtcw_vector_trivial.cpp
+		../system/rtcw_vector_trivial.h
 )
 
 if (WIN32)

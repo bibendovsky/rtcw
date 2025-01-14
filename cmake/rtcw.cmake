@@ -76,14 +76,18 @@ function (rtcw_configure_target)
 	set_target_properties (
 		${ARGV0}
 		PROPERTIES
-			CXX_STANDARD 17
+			CXX_STANDARD 98
 			CXX_STANDARD_REQUIRED ON
 			CXX_EXTENSIONS OFF
 	)
 
 	get_target_property (RTCW_TMP_TARGET_TYPE ${ARGV0} TYPE)
 
+	unset(RTCW_TMP_IS_EXECUTABLE)
+
 	if (RTCW_TMP_TARGET_TYPE STREQUAL "EXECUTABLE")
+		set(RTCW_TMP_IS_EXECUTABLE TRUE)
+
 		if (WIN32)
 			set_target_properties (
 				${ARGV0}
@@ -104,6 +108,8 @@ function (rtcw_configure_target)
 	target_compile_definitions (
 		${ARGV0}
 		PRIVATE
+			__STDC_LIMIT_MACROS __STDC_CONSTANT_MACROS # stdint.h
+			__STDC_FORMAT_MACROS # inttypes.h
 			"RTCW_ARCH_STRING=\"${RTCW_ARCH_STRING}\""
 	)
 
@@ -152,14 +158,6 @@ function (rtcw_configure_target)
 		)
 	endif ()
 
-	if (CMAKE_COMPILER_IS_GNUCXX AND (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9))
-		target_link_libraries (
-			${ARGV0}
-			PRIVATE
-				-lstdc++fs
-		)
-	endif ()
-
 	if (RTCW_CURL)
 		if (WIN32)
 			target_link_libraries (
@@ -191,11 +189,11 @@ function (rtcw_configure_target)
 	target_link_libraries (
 		${ARGV0}
 		PRIVATE
-			SDL2W::SDL2Wmain
+			$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:SDL2W::SDL2Wmain>
 			SDL2W::SDL2W
 			SDL2W_net::SDL2W_net
-			rtcw_lib_dear_imgui
 			rtcw_lib_miniz
+			$<$<BOOL:${WIN32}>:winmm>
 	)
 endfunction (rtcw_configure_target)
 
@@ -212,7 +210,7 @@ function (rtcw_configure_3rd_party_target)
 	set_target_properties (
 		${ARGV0}
 		PROPERTIES
-			CXX_STANDARD 17
+			CXX_STANDARD 98
 			CXX_STANDARD_REQUIRED ON
 			CXX_EXTENSIONS OFF
 	)

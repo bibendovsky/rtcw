@@ -34,7 +34,6 @@ endif ()
 include (rtcw)
 
 
-add_subdirectory (src/lib/dear_imgui)
 add_subdirectory (src/lib/miniz)
 
 if (RTCW_SP)

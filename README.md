@@ -16,7 +16,6 @@ Minimum compiling requirements
 Third party use
 ---------------
 
-- [Dear ImGui](http://github.com/ocornut/imgui)
 - [glad](http://github.com/Dav1dde/glad)
 - [GLM](http://glm.g-truc.net)
 - [jpeg-compressor](http://github.com/richgel999/jpeg-compressor)

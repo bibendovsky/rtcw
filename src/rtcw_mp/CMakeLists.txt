@@ -115,7 +115,6 @@ target_sources (
 		../splines/splines.h
 		../splines/util_list.h
 		../splines/util_str.h
-		../system/imgui_sdl.h
 		../system/rtcw_endian.h
 		../system/rtcw_input_joystick.h
 		../system/rtcw_input_keyboard.h
@@ -252,10 +251,19 @@ target_sources (
 		../splines/q_parse.cpp
 		../splines/splines.cpp
 		../splines/util_str.cpp
-		../system/imgui_sdl.cpp
+		../system/rtcw_array_trivial.cpp
+		../system/rtcw_array_trivial.h
 		../system/rtcw_input_joystick.cpp
 		../system/rtcw_input_keyboard.cpp
 		../system/rtcw_input_mouse.cpp
+		../system/rtcw_sdl_utility.cpp
+		../system/rtcw_sdl_utility.h
+		../system/rtcw_syscon.cpp
+		../system/rtcw_syscon.h
+		../system/rtcw_syscon_font_16x8.cpp
+		../system/rtcw_syscon_font_16x8.h
+		../system/rtcw_vector_trivial.cpp
+		../system/rtcw_vector_trivial.h
 		../system/sys_events.cpp
 		../system/sys_glimp.cpp
 		../system/sys_input.cpp
