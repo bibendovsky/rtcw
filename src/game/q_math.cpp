@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 
 Return to Castle Wolfenstein single player GPL Source Code
