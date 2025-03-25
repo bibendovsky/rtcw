@@ -38,10 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "qgl.h"
 
 // BBi GLSL
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
-
+#include "rtcw_cgm_vec.h"
 #include "rtcw_ogl_tess_program.h"
 #include "rtcw_ogl_tess_state.h"
 #include "rtcw_ogl_matrix_stack.h"
@@ -2870,8 +2867,8 @@ public:
 	static const std::size_t TC1_SIZE;
 	static const std::size_t COL_SIZE;
 
-	glm::vec4 position[MAX_VERTEX_COUNT];
-	glm::vec2 texture_coords[2][MAX_VERTEX_COUNT];
+	rtcw::cgm::Vec4 position[MAX_VERTEX_COUNT];
+	rtcw::cgm::Vec2 texture_coords[2][MAX_VERTEX_COUNT];
 	color4ub_t color[MAX_VERTEX_COUNT];
 }; // class OglTessLayout
 

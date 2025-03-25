@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // tr_flares.c
 
 #include "tr_local.h"
+#include "rtcw_cgm_clip_space.h"
 
 /*
 =============================================================================
@@ -590,14 +591,13 @@ void RB_RenderFlares( void ) {
 	if (!glConfigEx.is_path_ogl_1_x ()) {
 		ogl_model_view_stack.push_and_set_identity ();
 
-		ogl_projection_stack.push_and_set (glm::ortho (
-			static_cast<float> (backEnd.viewParms.viewportX),
-			static_cast<float> (backEnd.viewParms.viewportX +
-				backEnd.viewParms.viewportWidth),
-			static_cast<float> (backEnd.viewParms.viewportY),
-			static_cast<float> (backEnd.viewParms.viewportY +
-				backEnd.viewParms.viewportHeight),
-			-99999.0F, 99999.0F));
+		ogl_projection_stack.push_and_set(rtcw::cgm::make_ortho_rh_n1p1(
+			static_cast<float>(backEnd.viewParms.viewportX),
+			static_cast<float>(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth),
+			static_cast<float>(backEnd.viewParms.viewportY),
+			static_cast<float>(backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight),
+			-99999.0F,
+			99999.0F));
 
 		ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
 		ogl_tess_state.projection.set (ogl_projection_stack.get_current ());

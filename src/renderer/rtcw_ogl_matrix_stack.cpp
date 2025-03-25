@@ -1,6 +1,5 @@
 #include "rtcw_ogl_matrix_stack.h"
 #include <cassert>
-#include "glm/gtc/type_ptr.hpp"
 
 
 namespace rtcw
@@ -10,7 +9,7 @@ namespace rtcw
 OglMatrixStack::OglMatrixStack()
 	:
 	stack_(),
-	current_(1)
+	current_(Matrix::identity)
 {}
 
 void OglMatrixStack::pop()
@@ -68,7 +67,7 @@ void OglMatrixStack::push_and_set(
 void OglMatrixStack::push_and_set_identity()
 {
 	push();
-	set_current(Matrix(1));
+	set_current(Matrix::identity);
 }
 
 OglMatrixStack::Matrix& OglMatrixStack::get_current()
@@ -78,12 +77,12 @@ OglMatrixStack::Matrix& OglMatrixStack::get_current()
 
 float* OglMatrixStack::get_current_items()
 {
-	return glm::value_ptr(current_);
+	return current_.get_data();
 }
 
 const float* OglMatrixStack::get_current_items() const
 {
-	return glm::value_ptr(current_);
+	return current_.get_data();
 }
 
 const OglMatrixStack::Matrix& OglMatrixStack::get_current() const

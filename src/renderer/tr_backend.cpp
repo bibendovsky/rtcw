@@ -27,6 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "tr_local.h"
+#include "rtcw_cgm_clip_space.h"
 
 #if 0
 backEndData_t   *backEndData[SMP_FRAMES];
@@ -1548,10 +1549,14 @@ void    RB_SetGL2D( void ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_model_view_stack.set_current (glm::mat4 (1.0F));
-		ogl_projection_stack.set_current (glm::ortho (
-			0.0F, static_cast<float> (glConfig.vidWidth),
-			static_cast<float> (glConfig.vidHeight), 0.0F, 0.0F, 1.0F));
+		ogl_model_view_stack.set_current(rtcw::cgm::Mat4::identity);
+		ogl_projection_stack.set_current(rtcw::cgm::make_ortho_rh_n1p1(
+			0.0F,
+			static_cast<float>(glConfig.vidWidth),
+			static_cast<float>(glConfig.vidHeight),
+			0.0F,
+			0.0F,
+			1.0F));
 
 		ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
 		ogl_tess_state.projection.set (ogl_projection_stack.get_current ());
@@ -1670,8 +1675,12 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.primary_color.set (glm::vec4 (
-			tr.identityLight, tr.identityLight, tr.identityLight, 1.0F));
+		ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(
+			tr.identityLight,
+			tr.identityLight,
+			tr.identityLight,
+			1.0F));
+
 		ogl_tess_state.commit_changes ();
 	} else {
 	// BBi
@@ -1684,29 +1693,17 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess2.texture_coords[0][0] =
-			glm::vec2 (0.0F, 0.0F);
-		ogl_tess2.position[0] = glm::vec4 (
-			static_cast<float> (x), static_cast<float> (y),
-			0.0F, 1.0F);
+		ogl_tess2.texture_coords[0][0] = rtcw::cgm::Vec2(0.0F, 0.0F);
+		ogl_tess2.position[0] = rtcw::cgm::Vec4(static_cast<float>(x), static_cast<float>(y), 0.0F, 1.0F);
 
-		ogl_tess2.texture_coords[0][1] =
-			glm::vec2 (1.0F, 0.0F);
-		ogl_tess2.position[1] = glm::vec4 (
-			static_cast<float> (x + w), static_cast<float> (y),
-			0.0F, 1.0F);
+		ogl_tess2.texture_coords[0][1] = rtcw::cgm::Vec2(1.0F, 0.0F);
+		ogl_tess2.position[1] = rtcw::cgm::Vec4(static_cast<float>(x + w), static_cast<float>(y), 0.0F, 1.0F);
 
-		ogl_tess2.texture_coords[0][2] =
-			glm::vec2 (0.0F, 1.0F);
-		ogl_tess2.position[2] = glm::vec4 (
-			static_cast<float> (x), static_cast<float> (y + h),
-			0.0F, 1.0F);
+		ogl_tess2.texture_coords[0][2] = rtcw::cgm::Vec2(0.0F, 1.0F);
+		ogl_tess2.position[2] = rtcw::cgm::Vec4(static_cast<float>(x), static_cast<float>(y + h), 0.0F, 1.0F);
 
-		ogl_tess2.texture_coords[0][3] =
-			glm::vec2 (1.0F, 1.0F);
-		ogl_tess2.position[3] = glm::vec4 (
-			static_cast<float> (x + w), static_cast<float> (y + h),
-			0.0F, 1.0F);
+		ogl_tess2.texture_coords[0][3] = rtcw::cgm::Vec2(1.0F, 1.0F);
+		ogl_tess2.position[3] = rtcw::cgm::Vec4(static_cast<float>(x + w), static_cast<float>(y + h), 0.0F, 1.0F);
 
 		ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, true, false);
 	} else {
@@ -2164,29 +2161,17 @@ void RB_ShowImages( void ) {
 
 		// BBi
 		if (!glConfigEx.is_path_ogl_1_x ()) {
-			ogl_tess2.texture_coords[0][0] =
-				glm::vec2 (0.0F, 0.0F);
-			ogl_tess2.position[0] = glm::vec4 (
-				static_cast<float> (x), static_cast<float> (y),
-				0.0F, 1.0F);
+			ogl_tess2.texture_coords[0][0] = rtcw::cgm::Vec2(0.0F, 0.0F);
+			ogl_tess2.position[0] = rtcw::cgm::Vec4(static_cast<float>(x), static_cast<float>(y), 0.0F, 1.0F);
 
-			ogl_tess2.texture_coords[0][1] =
-				glm::vec2 (1.0F, 0.0F);
-			ogl_tess2.position[1] = glm::vec4 (
-				static_cast<float> (x + w), static_cast<float> (y),
-				0.0F, 1.0F);
+			ogl_tess2.texture_coords[0][1] = rtcw::cgm::Vec2(1.0F, 0.0F);
+			ogl_tess2.position[1] = rtcw::cgm::Vec4(static_cast<float>(x + w), static_cast<float>(y), 0.0F, 1.0F);
 
-			ogl_tess2.texture_coords[0][2] =
-				glm::vec2 (0.0F, 1.0F);
-			ogl_tess2.position[2] = glm::vec4 (
-				static_cast<float> (x), static_cast<float> (y + h),
-				0.0F, 1.0F);
+			ogl_tess2.texture_coords[0][2] = rtcw::cgm::Vec2(0.0F, 1.0F);
+			ogl_tess2.position[2] = rtcw::cgm::Vec4(static_cast<float>(x), static_cast<float>(y + h), 0.0F, 1.0F);
 
-			ogl_tess2.texture_coords[0][3] =
-				glm::vec2 (1.0F, 1.0F);
-			ogl_tess2.position[3] = glm::vec4 (
-				static_cast<float> (x + w), static_cast<float> (y + h),
-				0.0F, 1.0F);
+			ogl_tess2.texture_coords[0][3] = rtcw::cgm::Vec2(1.0F, 1.0F);
+			ogl_tess2.position[3] = rtcw::cgm::Vec4(static_cast<float>(x + w), static_cast<float>(y + h), 0.0F, 1.0F);
 
 			ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, true, false);
 		} else {
@@ -2242,7 +2227,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 255;
 		col[3] = 255;
 
-		ogl_tess2.position[0] = glm::vec4 (mins[0], mins[1], mins[2], 1.0F);
+		ogl_tess2.position[0] = rtcw::cgm::Vec4(mins[0], mins[1], mins[2], 1.0F);
 
 		//
 		col = ogl_tess2.color[1];
@@ -2251,7 +2236,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 255;
 		col[3] = 255;
 
-		ogl_tess2.position[1] = glm::vec4 (maxs[0], mins[1], mins[2], 1.0F);
+		ogl_tess2.position[1] = rtcw::cgm::Vec4(maxs[0], mins[1], mins[2], 1.0F);
 
 		//
 		col = ogl_tess2.color[2];
@@ -2260,7 +2245,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 255;
 		col[3] = 255;
 
-		ogl_tess2.position[2] = glm::vec4 (mins[0], mins[1], mins[2], 1.0F);
+		ogl_tess2.position[2] = rtcw::cgm::Vec4(mins[0], mins[1], mins[2], 1.0F);
 
 		//
 		col = ogl_tess2.color[3];
@@ -2269,7 +2254,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 255;
 		col[3] = 255;
 
-		ogl_tess2.position[3] = glm::vec4 (mins[0], maxs[1], mins[2], 1.0F);
+		ogl_tess2.position[3] = rtcw::cgm::Vec4(mins[0], maxs[1], mins[2], 1.0F);
 
 		//
 		col = ogl_tess2.color[4];
@@ -2278,7 +2263,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 255;
 		col[3] = 255;
 
-		ogl_tess2.position[4] = glm::vec4 (mins[0], mins[1], mins[2], 1.0F);
+		ogl_tess2.position[4] = rtcw::cgm::Vec4(mins[0], mins[1], mins[2], 1.0F);
 
 		//
 		col = ogl_tess2.color[5];
@@ -2287,7 +2272,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 255;
 		col[3] = 255;
 
-		ogl_tess2.position[5] = glm::vec4 (mins[0], mins[1], maxs[2], 1.0F);
+		ogl_tess2.position[5] = rtcw::cgm::Vec4(mins[0], mins[1], maxs[2], 1.0F);
 
 		// ***
 
@@ -2298,7 +2283,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 255;
 		col[3] = 255;
 
-		ogl_tess2.position[6] = glm::vec4 (maxs[0], maxs[1], maxs[2], 1.0F);
+		ogl_tess2.position[6] = rtcw::cgm::Vec4(maxs[0], maxs[1], maxs[2], 1.0F);
 
 		//
 		col = ogl_tess2.color[7];
@@ -2307,7 +2292,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 255;
 		col[3] = 255;
 
-		ogl_tess2.position[7] = glm::vec4 (mins[0], maxs[1], maxs[2], 1.0F);
+		ogl_tess2.position[7] = rtcw::cgm::Vec4(mins[0], maxs[1], maxs[2], 1.0F);
 
 		//
 		col = ogl_tess2.color[8];
@@ -2316,7 +2301,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 255;
 		col[3] = 255;
 
-		ogl_tess2.position[8] = glm::vec4 (maxs[0], maxs[1], maxs[2], 1.0F);
+		ogl_tess2.position[8] = rtcw::cgm::Vec4(maxs[0], maxs[1], maxs[2], 1.0F);
 
 		//
 		col = ogl_tess2.color[9];
@@ -2325,7 +2310,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 255;
 		col[3] = 255;
 
-		ogl_tess2.position[9] = glm::vec4 (maxs[0], mins[1], maxs[2], 1.0F);
+		ogl_tess2.position[9] = rtcw::cgm::Vec4(maxs[0], mins[1], maxs[2], 1.0F);
 
 		//
 		col = ogl_tess2.color[10];
@@ -2334,7 +2319,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 255;
 		col[3] = 255;
 
-		ogl_tess2.position[10] = glm::vec4 (maxs[0], maxs[1], maxs[2], 1.0F);
+		ogl_tess2.position[10] = rtcw::cgm::Vec4(maxs[0], maxs[1], maxs[2], 1.0F);
 
 		//
 		col = ogl_tess2.color[11];
@@ -2343,7 +2328,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 255;
 		col[3] = 255;
 
-		ogl_tess2.position[11] = glm::vec4 (maxs[0], maxs[1], mins[2], 1.0F);
+		ogl_tess2.position[11] = rtcw::cgm::Vec4(maxs[0], maxs[1], mins[2], 1.0F);
 
 		ogl_tess2_draw (GL_LINES, 12, false, true);
 	} else {
@@ -2388,8 +2373,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 0;
 		col[3] = 255;
 
-		ogl_tess2.position[0] = glm::vec4 (
-			mins[0], center[1], center[2], 1.0F);
+		ogl_tess2.position[0] = rtcw::cgm::Vec4(mins[0], center[1], center[2], 1.0F);
 
 		//
 		col = ogl_tess2.color[1];
@@ -2398,8 +2382,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 0;
 		col[3] = 255;
 
-		ogl_tess2.position[1] = glm::vec4 (
-			maxs[0], center[1], center[2], 1.0F);
+		ogl_tess2.position[1] = rtcw::cgm::Vec4(maxs[0], center[1], center[2], 1.0F);
 
 		//
 		col = ogl_tess2.color[2];
@@ -2408,8 +2391,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 0;
 		col[3] = 255;
 
-		ogl_tess2.position[2] = glm::vec4 (
-			center[0], mins[1], center[2], 1.0F);
+		ogl_tess2.position[2] = rtcw::cgm::Vec4(center[0], mins[1], center[2], 1.0F);
 
 		//
 		col = ogl_tess2.color[3];
@@ -2418,8 +2400,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 0;
 		col[3] = 255;
 
-		ogl_tess2.position[3] = glm::vec4 (
-			center[0], maxs[1], center[2], 1.0F);
+		ogl_tess2.position[3] = rtcw::cgm::Vec4(center[0], maxs[1], center[2], 1.0F);
 
 		//
 		col = ogl_tess2.color[4];
@@ -2428,8 +2409,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 0;
 		col[3] = 255;
 
-		ogl_tess2.position[4] = glm::vec4 (
-			center[0], center[1], mins[2], 1.0F);
+		ogl_tess2.position[4] = rtcw::cgm::Vec4(center[0], center[1], mins[2], 1.0F);
 
 		//
 		col = ogl_tess2.color[5];
@@ -2438,8 +2418,7 @@ void RB_DrawBounds( vec3_t mins, vec3_t maxs ) {
 		col[2] = 0;
 		col[3] = 255;
 
-		ogl_tess2.position[5] = glm::vec4 (
-			center[0], center[1], maxs[2], 1.0F);
+		ogl_tess2.position[5] = rtcw::cgm::Vec4(center[0], center[1], maxs[2], 1.0F);
 
 		ogl_tess2_draw (GL_LINES, 6, false, true);
 	} else {

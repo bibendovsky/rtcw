@@ -1565,8 +1565,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 							col[3] = col_buf[3];
 
 							pos = bonePtr->translation;
-							ogl_tess2.position[vertex_index] = glm::vec4 (
-								pos[0], pos[1], pos[2], 1.0F);
+							ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(pos[0], pos[1], pos[2], 1.0F);
 
 							++vertex_index;
 						} else {
@@ -1589,8 +1588,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 							col[2] = col_buf[2];
 							col[3] = col_buf[3];
 
-							ogl_tess2.position[vertex_index] = glm::vec4 (
-								vec[0], vec[1], vec[2], 1.0F);
+							ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(vec[0], vec[1], vec[2], 1.0F);
 
 							++vertex_index;
 						} else {
@@ -1625,8 +1623,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 						col[3] = 255;
 
 						pos = bonePtr->translation;
-						ogl_tess2.position[vertex_index] = glm::vec4 (
-							pos[0], pos[1], pos[2], 1.0F);
+						ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(pos[0], pos[1], pos[2], 1.0F);
 
 						++vertex_index;
 
@@ -1638,8 +1635,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 						col[3] = 255;
 
 						pos = bones[boneInfo[*boneRefs].parent].translation;
-						ogl_tess2.position[vertex_index] = glm::vec4 (
-							pos[0], pos[1], pos[2], 1.0F);
+						ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(pos[0], pos[1], pos[2], 1.0F);
 
 						++vertex_index;
 					} else {
@@ -1704,8 +1700,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 						col[3] = 89;
 
 						pos = bonePtr->translation;
-						ogl_tess2.position[0] = glm::vec4 (
-							pos[0], pos[1], pos[2], 1.0F);
+						ogl_tess2.position[0] = rtcw::cgm::Vec4(pos[0], pos[1], pos[2], 1.0F);
 
 						//
 						col = ogl_tess2.color[1];
@@ -1714,8 +1709,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 						col[2] = 12;
 						col[3] = 89;
 
-						ogl_tess2.position[1] = glm::vec4 (
-							vec[0], vec[1], vec[2], 1.0F);
+						ogl_tess2.position[1] = rtcw::cgm::Vec4(vec[0], vec[1], vec[2], 1.0F);
 
 						ogl_tess2_draw (GL_LINES, 2, false, true);
 					} else {
@@ -1791,8 +1785,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 								col[0] = col_buf[3];
 
 								pos = outTag.origin;
-								ogl_tess2.position[vertex_index] = glm::vec4 (
-									pos[0], pos[1], pos[2], 1.0F);
+								ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(pos[0], pos[1], pos[2], 1.0F);
 
 								++vertex_index;
 							} else {
@@ -1815,8 +1808,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 								col[2] = col_buf[2];
 								col[0] = col_buf[3];
 
-								ogl_tess2.position[vertex_index] = glm::vec4 (
-									vec[0], vec[1], vec[2], 1.0F);
+								ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(vec[0], vec[1], vec[2], 1.0F);
 
 								++vertex_index;
 							} else {
@@ -1868,8 +1860,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 							col[3] = 89;
 
 							pos = outTag.origin;
-							ogl_tess2.position[0] = glm::vec4 (
-								pos[0], pos[1], pos[2], 1.0F);
+							ogl_tess2.position[0] = rtcw::cgm::Vec4(pos[0], pos[1], pos[2], 1.0F);
 
 							//
 							col = ogl_tess2.color[1];
@@ -1878,8 +1869,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 							col[2] = 12;
 							col[3] = 89;
 
-							ogl_tess2.position[1] = glm::vec4 (
-								vec[0], vec[1], vec[2], 1.0F);
+							ogl_tess2.position[1] = rtcw::cgm::Vec4(vec[0], vec[1], vec[2], 1.0F);
 						} else {
 						// BBi
 
@@ -1942,8 +1932,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 					col[3] = col_buf[3];
 
 					pos = tempVert + 4 * pIndexes[0];
-					ogl_tess2.position[vertex_index] = glm::vec4 (
-						pos[0], pos[1], pos[2], 1.0F);
+					ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(pos[0], pos[1], pos[2], 1.0F);
 
 					++vertex_index;
 
@@ -1955,8 +1944,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 					col[3] = col_buf[3];
 
 					pos = tempVert + 4 * pIndexes[1];
-					ogl_tess2.position[vertex_index] = glm::vec4 (
-						pos[0], pos[1], pos[2], 1.0F);
+					ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(pos[0], pos[1], pos[2], 1.0F);
 
 					++vertex_index;
 
@@ -1968,8 +1956,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 					col[3] = col_buf[3];
 
 					pos = tempVert + 4 * pIndexes[1];
-					ogl_tess2.position[vertex_index] = glm::vec4 (
-						pos[0], pos[1], pos[2], 1.0F);
+					ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(pos[0], pos[1], pos[2], 1.0F);
 
 					++vertex_index;
 
@@ -1981,8 +1968,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 					col[3] = col_buf[3];
 
 					pos = tempVert + 4 * pIndexes[2];
-					ogl_tess2.position[vertex_index] = glm::vec4 (
-						pos[0], pos[1], pos[2], 1.0F);
+					ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(pos[0], pos[1], pos[2], 1.0F);
 
 					++vertex_index;
 
@@ -1994,8 +1980,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 					col[3] = col_buf[3];
 
 					pos = tempVert + 4 * pIndexes[2];
-					ogl_tess2.position[vertex_index] = glm::vec4 (
-						pos[0], pos[1], pos[2], 1.0F);
+					ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(pos[0], pos[1], pos[2], 1.0F);
 
 					++vertex_index;
 
@@ -2007,8 +1992,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 					col[3] = col_buf[3];
 
 					pos = tempVert + 4 * pIndexes[0];
-					ogl_tess2.position[vertex_index] = glm::vec4 (
-						pos[0], pos[1], pos[2], 1.0F);
+					ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(pos[0], pos[1], pos[2], 1.0F);
 
 					++vertex_index;
 				} else {
@@ -2128,8 +2112,7 @@ void RB_MDM_SurfaceAnim( mdmSurface_t *surface ) {
 						col[2] = col_buf[2];
 						col[3] = col_buf[3];
 
-						ogl_tess2.position[vertex_index] = glm::vec4 (
-							tempVert[0], tempVert[1], tempVert[2], 1.0F);
+						ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(tempVert[0], tempVert[1], tempVert[2], 1.0F);
 
 						++vertex_index;
 					} else {

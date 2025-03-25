@@ -146,18 +146,16 @@ void R_RenderShadowEdges( void ) {
 			if ( hit[ 1 ] == 0 ) {
 				// BBi
 				if (!glConfigEx.is_path_ogl_1_x ()) {
-					ogl_tess2.position[0] =
-						*reinterpret_cast<const glm::vec4*> (tess.xyz[i].v);
+					ogl_tess2.position[0] = *reinterpret_cast<const rtcw::cgm::Vec4*>(
+						tess.xyz[i].v);
 
-					ogl_tess2.position[1] =
-						*reinterpret_cast<const glm::vec4*> (
-							tess.xyz[i + tess.numVertexes].v);
+					ogl_tess2.position[1] = *reinterpret_cast<const rtcw::cgm::Vec4*>(
+						tess.xyz[i + tess.numVertexes].v);
 
-					ogl_tess2.position[2] =
-						*reinterpret_cast<const glm::vec4*> (tess.xyz[i2].v);
+					ogl_tess2.position[2] = *reinterpret_cast<const rtcw::cgm::Vec4*>(
+						tess.xyz[i2].v);
 
-					ogl_tess2.position[3] =
-						*reinterpret_cast<const glm::vec4*> (
+					ogl_tess2.position[3] = *reinterpret_cast<const rtcw::cgm::Vec4*>(
 						tess.xyz[i2 + tess.numVertexes].v);
 
 					ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, false, false);
@@ -329,9 +327,9 @@ void RB_ShadowFinish( void ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_model_view_stack.set_current (glm::mat4 (1.0F));
-		ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
-		ogl_tess_state.primary_color.set (glm::vec4 (0.6F, 0.6F, 0.6F, 1.0F));
+		ogl_model_view_stack.set_current(rtcw::cgm::Mat4::identity);
+		ogl_tess_state.model_view.set(ogl_model_view_stack.get_current());
+		ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(0.6F, 0.6F, 0.6F, 1.0F));
 		ogl_tess_state.commit_changes ();
 	} else {
 	// BBi
@@ -351,14 +349,14 @@ void RB_ShadowFinish( void ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess2.position[0] = glm::vec4 (-100.0F, 100.0F, -10.0F, 1.0F);
-		ogl_tess2.position[1] = glm::vec4 (100.0F, 100.0F, -10.0F, 1.0F);
-		ogl_tess2.position[2] = glm::vec4 (-100.0F, -100.0F, -10.0F, 1.0F);
-		ogl_tess2.position[3] = glm::vec4 (100.0F, -100.0F, -10.0F, 1.0F);
+		ogl_tess2.position[0] = rtcw::cgm::Vec4(-100.0F, 100.0F, -10.0F, 1.0F);
+		ogl_tess2.position[1] = rtcw::cgm::Vec4(100.0F, 100.0F, -10.0F, 1.0F);
+		ogl_tess2.position[2] = rtcw::cgm::Vec4(-100.0F, -100.0F, -10.0F, 1.0F);
+		ogl_tess2.position[3] = rtcw::cgm::Vec4(100.0F, -100.0F, -10.0F, 1.0F);
 
 		ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, false, false);
 
-		ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
+		ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(1.0F, 1.0F, 1.0F, 1.0F));
 		ogl_tess_state.commit_changes ();
 	} else {
 	// BBi

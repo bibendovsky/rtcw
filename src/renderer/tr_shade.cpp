@@ -454,7 +454,7 @@ static void DrawTris( shaderCommands_t *input ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
+		ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(1.0F, 1.0F, 1.0F, 1.0F));
 		ogl_tess_state.commit_changes ();
 	} else {
 	// BBi
@@ -608,7 +608,7 @@ static void DrawNormals( shaderCommands_t *input ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
+		ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(1.0F, 1.0F, 1.0F, 1.0F));
 		ogl_tess_state.commit_changes ();
 	} else {
 	// BBi
@@ -646,11 +646,12 @@ static void DrawNormals( shaderCommands_t *input ) {
 
 		// BBi
 		if (!glConfigEx.is_path_ogl_1_x ()) {
-			ogl_tess_state.primary_color.set (glm::vec4 (
+			ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(
 				ent->ambientLight[0] / 255.0F,
 				ent->ambientLight[1] / 255.0F,
 				ent->ambientLight[2] / 255.0F,
 				1.0F));
+
 			ogl_tess_state.commit_changes ();
 		} else {
 		// BBi
@@ -665,9 +666,7 @@ static void DrawNormals( shaderCommands_t *input ) {
 
 		// BBi
 		if (!glConfigEx.is_path_ogl_1_x ()) {
-			ogl_tess2.position[0] = glm::vec4 (
-				temp[0], temp[1], temp[2], 1.0F);
-
+			ogl_tess2.position[0] = rtcw::cgm::Vec4(temp[0], temp[1], temp[2], 1.0F);
 			ogl_tess2_draw (GL_POINTS, 1, false, false);
 		} else {
 		// BBi
@@ -685,8 +684,7 @@ static void DrawNormals( shaderCommands_t *input ) {
 		if ( c::fabs( VectorLengthSquared( ent->lightDir ) - 1.0f ) > 0.2f ) {
 			// BBi
 			if (!glConfigEx.is_path_ogl_1_x ()) {
-				ogl_tess_state.primary_color.set (glm::vec4 (
-					1.0F, 0.0F, 0.0F, 1.0F));
+				ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(1.0F, 0.0F, 0.0F, 1.0F));
 			} else {
 			// BBi
 
@@ -698,7 +696,7 @@ static void DrawNormals( shaderCommands_t *input ) {
 		} else {
 			// BBi
 			if (!glConfigEx.is_path_ogl_1_x ()) {
-				ogl_tess_state.primary_color.set (glm::vec4 (
+				ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(
 					ent->directedLight[0] / 255.0F,
 					ent->directedLight[1] / 255.0F,
 					ent->directedLight[2] / 255.0F,
@@ -716,9 +714,7 @@ static void DrawNormals( shaderCommands_t *input ) {
 		// BBi
 		if (!glConfigEx.is_path_ogl_1_x ()) {
 			ogl_tess_state.commit_changes ();
-
-			ogl_tess2.position[0] = glm::vec4 (
-				temp[0], temp[1], temp[2], 1.0F);
+			ogl_tess2.position[0] = rtcw::cgm::Vec4(temp[0], temp[1], temp[2], 1.0F);
 		} else {
 		// BBi
 
@@ -734,9 +730,7 @@ static void DrawNormals( shaderCommands_t *input ) {
 
 		// BBi
 		if (!glConfigEx.is_path_ogl_1_x ()) {
-			ogl_tess2.position[1] = glm::vec4 (
-				temp[0], temp[1], temp[2], 1.0F);
-
+			ogl_tess2.position[1] = rtcw::cgm::Vec4(temp[0], temp[1], temp[2], 1.0F);
 			ogl_tess2_draw (GL_LINES, 2, false, false);
 		} else {
 		// BBi
@@ -757,14 +751,12 @@ static void DrawNormals( shaderCommands_t *input ) {
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
 		int index = 0;
-		glm::vec4 n;
+		rtcw::cgm::Vec4 n;
 
 		for (i = 0; i < input->numVertexes; ++i) {
 // FIXME Create cvar r_normallength for all projects
-			ogl_tess2.position[index + 0] =
-				*reinterpret_cast<const glm::vec4*> (input->xyz[i].v);
-
-			n = *reinterpret_cast<const glm::vec4*> (input->normal[i].v);
+			ogl_tess2.position[index + 0] = *reinterpret_cast<const rtcw::cgm::Vec4*>(input->xyz[i].v);
+			n = *reinterpret_cast<const rtcw::cgm::Vec4*>(input->normal[i].v);
 
 #if !defined RTCW_ET
 			ogl_tess2.position[index + 1] =

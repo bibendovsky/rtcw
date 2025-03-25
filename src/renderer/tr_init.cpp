@@ -1520,7 +1520,7 @@ void GL_SetDefaultState( void ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
+		ogl_tess_state.primary_color.set (rtcw::cgm::Vec4(1.0F, 1.0F, 1.0F, 1.0F));
 	} else {
 	// BBi
 

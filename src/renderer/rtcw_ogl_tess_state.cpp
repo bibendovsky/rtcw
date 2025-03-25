@@ -1,6 +1,5 @@
 #include "rtcw_ogl_tess_state.h"
 #include <cassert>
-#include "glm/gtc/type_ptr.hpp"
 #include "qgl.h"
 
 
@@ -26,8 +25,8 @@ void OglTessState::set_program(
 
 void OglTessState::set_default_values()
 {
-	model_view.set(glm::mat4(1));
-	projection.set(glm::mat4(1));
+	model_view.set(cgm::Mat4::identity);
+	projection.set(cgm::Mat4::identity);
 
 	use_multitexturing.set(false);
 
@@ -37,7 +36,7 @@ void OglTessState::set_default_values()
 	tex_env_mode[0].set(GL_MODULATE);
 	tex_env_mode[1].set(GL_MODULATE);
 
-	primary_color.set(glm::vec4(1));
+	primary_color.set(cgm::Vec4(1.0F, 1.0F, 1.0F, 1.0F));
 
 	use_alpha_test.set(false);
 	alpha_test_func.set(GL_ALWAYS);
@@ -50,7 +49,7 @@ void OglTessState::set_default_values()
 	fog_density.set(1.0F);
 	fog_start.set(0.0F);
 	fog_end.set(1.0F);
-	fog_color.set(glm::vec4());
+	fog_color.set(cgm::Vec4());
 }
 
 void OglTessState::commit_changes()
@@ -94,7 +93,7 @@ void OglTessState::commit_changes()
 	{
 		if (use_program && (program_->u_model_view_mat4 >= 0))
 		{
-			glUniformMatrix4fv(program_->u_model_view_mat4, 1, GL_FALSE, glm::value_ptr(model_view.get()));
+			glUniformMatrix4fv(program_->u_model_view_mat4, 1, GL_FALSE, model_view.get().get_data());
 		}
 
 		model_view.set_modified(false);
@@ -104,7 +103,7 @@ void OglTessState::commit_changes()
 	{
 		if (use_program && (program_->u_projection_mat4 >= 0))
 		{
-			glUniformMatrix4fv(program_->u_projection_mat4, 1, GL_FALSE, glm::value_ptr(projection.get()));
+			glUniformMatrix4fv(program_->u_projection_mat4, 1, GL_FALSE, projection.get().get_data());
 		}
 
 		projection.set_modified(false);
@@ -164,7 +163,7 @@ void OglTessState::commit_changes()
 	{
 		if (use_program && (program_->u_primary_color >= 0))
 		{
-			glUniform4fv(program_->u_primary_color, 1, glm::value_ptr(primary_color.get()));
+			glUniform4fv(program_->u_primary_color, 1, primary_color.get().get_data());
 		}
 
 		primary_color.set_modified(false);
@@ -274,7 +273,7 @@ void OglTessState::commit_changes()
 	{
 		if (use_program && (program_->u_fog_color >= 0))
 		{
-			glUniform4fv(program_->u_fog_color, 1, glm::value_ptr(fog_color.get()));
+			glUniform4fv(program_->u_fog_color, 1, fog_color.get().get_data());
 		}
 
 		fog_color.set_modified(false);

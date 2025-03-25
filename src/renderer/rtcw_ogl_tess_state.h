@@ -1,11 +1,10 @@
 #ifndef RTCW_OGL_TESS_STATE_INCLUDED
 #define RTCW_OGL_TESS_STATE_INCLUDED
 
-
-#include "glm/glm.hpp"
+#include "rtcw_cgm_mat.h"
+#include "rtcw_cgm_vec.h"
 #include "rtcw_mod_value.h"
 #include "rtcw_ogl_tess_program.h"
-
 
 namespace rtcw
 {
@@ -14,15 +13,15 @@ namespace rtcw
 class OglTessState
 {
 public:
-	rtcw::ModValue<glm::mat4> projection;
-	rtcw::ModValue<glm::mat4> model_view;
+	rtcw::ModValue<cgm::Mat4> projection;
+	rtcw::ModValue<cgm::Mat4> model_view;
 
 	rtcw::ModValue<bool> use_multitexturing;
 
 	rtcw::ModValue<GLint> tex_2d[2];
 	rtcw::ModValue<GLenum> tex_env_mode[2];
 
-	rtcw::ModValue<glm::vec4> primary_color;
+	rtcw::ModValue<cgm::Vec4> primary_color;
 
 	rtcw::ModValue<bool> use_alpha_test;
 	rtcw::ModValue<GLenum> alpha_test_func;
@@ -35,7 +34,7 @@ public:
 	rtcw::ModValue<float> fog_density;
 	rtcw::ModValue<float> fog_start;
 	rtcw::ModValue<float> fog_end;
-	rtcw::ModValue<glm::vec4> fog_color;
+	rtcw::ModValue<cgm::Vec4> fog_color;
 
 
 	OglTessState();

@@ -124,8 +124,8 @@ void R_Fog( glfog_t *curfog ) {
 		ogl_tess_state.fog_start.set (fog_start);
 		ogl_tess_state.fog_end.set (fog_end);
 
-		ogl_tess_state.fog_color.set (glm::vec4 (curfog->color[0],
-			curfog->color[1], curfog->color[2], curfog->color[3]));
+		ogl_tess_state.fog_color.set(rtcw::cgm::Vec4(
+			curfog->color[0], curfog->color[1], curfog->color[2], curfog->color[3]));
 
 		ogl_tess_state.commit_changes ();
 	} else {
@@ -2488,16 +2488,17 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.primary_color.set (glm::vec4 (
-			static_cast<float> (color % 2),
-			static_cast<float> ((color / 2) % 2),
-			static_cast<float> ((color / 4) % 2),
+		ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(
+			static_cast<float>(color % 2),
+			static_cast<float>((color / 2) % 2),
+			static_cast<float>((color / 4) % 2),
 			1.0F));
+
 		ogl_tess_state.commit_changes ();
 
 		for (i = 0; i < numPoints; ++i) {
 			const float* v = points + (3 * i);
-			ogl_tess2.position[i] = glm::vec4 (v[0], v[1], v[2], 1.0F);
+			ogl_tess2.position[i] = rtcw::cgm::Vec4(v[0], v[1], v[2], 1.0F);
 		}
 
 		ogl_tess2_draw (GL_TRIANGLE_FAN, numPoints, false, false);
@@ -2521,12 +2522,12 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.primary_color.set (glm::vec4 (1.0F));
+		ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(1.0F, 10.0F, 1.0F, 1.0F));
 		ogl_tess_state.commit_changes ();
 
 		for (i = 0; i < numPoints; ++i) {
 			const float* v = points + (3 * i);
-			ogl_tess2.position[i] = glm::vec4 (v[0], v[1], v[2], 1.0F);
+			ogl_tess2.position[i] = rtcw::cgm::Vec4(v[0], v[1], v[2], 1.0F);
 		}
 
 		ogl_tess2_draw (GL_TRIANGLE_FAN, numPoints, false, false);

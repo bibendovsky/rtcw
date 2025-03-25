@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 // tr_sky.c
 #include "tr_local.h"
+#include "rtcw_cgm_transform.h"
 
 #define SKY_SUBDIVISIONS        8
 #define HALF_SKY_SUBDIVISIONS   ( SKY_SUBDIVISIONS / 2 )
@@ -429,11 +430,8 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
 				tc = s_skyTexCoords[t][s];
 				v = s_skyPoints[t][s];
 
-				ogl_tess2.texture_coords[0][vertex_index] = glm::vec2 (
-					tc[0], tc[1]);
-
-				ogl_tess2.position[vertex_index] = glm::vec4 (
-					v[0], v[1], v[2], 1.0F);
+				ogl_tess2.texture_coords[0][vertex_index] = rtcw::cgm::Vec2(tc[0], tc[1]);
+				ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(v[0], v[1], v[2], 1.0F);
 
 				++vertex_index;
 
@@ -441,11 +439,8 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
 				tc = s_skyTexCoords[t + 1][s];
 				v = s_skyPoints[t + 1][s];
 
-				ogl_tess2.texture_coords[0][vertex_index] = glm::vec2 (
-					tc[0], tc[1]);
-
-				ogl_tess2.position[vertex_index] = glm::vec4 (
-					v[0], v[1], v[2], 1.0F);
+				ogl_tess2.texture_coords[0][vertex_index] = rtcw::cgm::Vec2(tc[0], tc[1]);
+				ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(v[0], v[1], v[2], 1.0F);
 
 				++vertex_index;
 			} else {
@@ -515,11 +510,8 @@ static void DrawSkySideInner( struct image_s *image, const int mins[2], const in
 				tc = s_skyTexCoords[t][s];
 				v = s_skyPoints[t][s];
 
-				ogl_tess2.texture_coords[0][vertex_index] = glm::vec2 (
-					tc[0], tc[1]);
-
-				ogl_tess2.position[vertex_index] = glm::vec4 (
-					v[0], v[1], v[2], 1.0F);
+				ogl_tess2.texture_coords[0][vertex_index] = rtcw::cgm::Vec2(tc[0], tc[1]);
+				ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(v[0], v[1], v[2], 1.0F);
 
 				++vertex_index;
 
@@ -527,11 +519,8 @@ static void DrawSkySideInner( struct image_s *image, const int mins[2], const in
 				tc = s_skyTexCoords[t + 1][s];
 				v = s_skyPoints[t + 1][s];
 
-				ogl_tess2.texture_coords[0][vertex_index] = glm::vec2 (
-					tc[0], tc[1]);
-
-				ogl_tess2.position[vertex_index] = glm::vec4 (
-					v[0], v[1], v[2], 1.0F);
+				ogl_tess2.texture_coords[0][vertex_index] = rtcw::cgm::Vec2(tc[0], tc[1]);
+				ogl_tess2.position[vertex_index] = rtcw::cgm::Vec4(v[0], v[1], v[2], 1.0F);
 
 				++vertex_index;
 			} else {
@@ -1022,11 +1011,11 @@ void RB_DrawSun( void ) {
 
 // BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		glm::mat4& matrix = ogl_model_view_stack.push_and_get ();
+		rtcw::cgm::Mat4& matrix = ogl_model_view_stack.push_and_get();
 
-		ogl_model_view_stack.set_current (backEnd.viewParms.world.modelMatrix);
+		ogl_model_view_stack.set_current(backEnd.viewParms.world.modelMatrix);
 
-		glm::translate (matrix, glm::vec3 (
+		rtcw::cgm::translate(matrix, rtcw::cgm::Vec3(
 			backEnd.viewParms.orientation.origin[0],
 			backEnd.viewParms.orientation.origin[1],
 			backEnd.viewParms.orientation.origin[2]));
@@ -1297,21 +1286,21 @@ void RB_StageIteratorSky( void ) {
 	}
 
 	// BBi
-	glm::mat4 matrix;
+	rtcw::cgm::Mat4 matrix;
 	// BBi
 
 	// draw the outer skybox
 	if ( tess.shader->sky.outerbox[0] && tess.shader->sky.outerbox[0] != tr.defaultImage ) {
 		// BBi
 		if (!glConfigEx.is_path_ogl_1_x ()) {
-			matrix = glm::translate (ogl_model_view_stack.push_and_get (),
-				glm::vec3 (backEnd.viewParms.orientation.origin[0],
+			matrix = rtcw::cgm::translate(ogl_model_view_stack.push_and_get(),
+				rtcw::cgm::Vec3(backEnd.viewParms.orientation.origin[0],
 					backEnd.viewParms.orientation.origin[1],
 					backEnd.viewParms.orientation.origin[2]));
 
-			ogl_tess_state.model_view.set (matrix);
+			ogl_tess_state.model_view.set(matrix);
 
-			ogl_tess_state.primary_color.set (glm::vec4 (
+			ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(
 				tr.identityLight, tr.identityLight, tr.identityLight, 1.0F));
 
 			ogl_tess_state.commit_changes ();
@@ -1374,14 +1363,14 @@ void RB_StageIteratorSky( void ) {
 	if ( tess.shader->sky.innerbox[0] && tess.shader->sky.innerbox[0] != tr.defaultImage ) {
 		// BBi
 		if (!glConfigEx.is_path_ogl_1_x ()) {
-			matrix = glm::translate (ogl_model_view_stack.push_and_get (),
-				glm::vec3 (backEnd.viewParms.orientation.origin[0],
+			matrix = rtcw::cgm::translate(ogl_model_view_stack.push_and_get(),
+				rtcw::cgm::Vec3(backEnd.viewParms.orientation.origin[0],
 					backEnd.viewParms.orientation.origin[1],
 					backEnd.viewParms.orientation.origin[2]));
 
-			ogl_tess_state.model_view.set (matrix);
+			ogl_tess_state.model_view.set(matrix);
 
-			ogl_tess_state.primary_color.set (glm::vec4 (
+			ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(
 				tr.identityLight, tr.identityLight, tr.identityLight, 1.0F));
 
 			ogl_tess_state.commit_changes ();

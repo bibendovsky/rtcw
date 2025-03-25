@@ -1,11 +1,8 @@
 #ifndef RTCW_OGL_MATRIX_STACK_INCLUDED
 #define RTCW_OGL_MATRIX_STACK_INCLUDED
 
-
 #include <stack>
-
-#include "glm/glm.hpp"
-
+#include "rtcw_cgm_mat.h"
 
 namespace rtcw
 {
@@ -14,7 +11,7 @@ namespace rtcw
 class OglMatrixStack
 {
 public:
-	typedef glm::mat4 Matrix;
+	typedef cgm::Mat4 Matrix;
 
 
 	OglMatrixStack();

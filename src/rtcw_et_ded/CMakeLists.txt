@@ -99,6 +99,14 @@ target_sources (
 		../qcommon/vm_local.h
 		../renderer/anorms256.h
 		../renderer/qgl.h
+		../renderer/rtcw_cgm_clip_space.cpp
+		../renderer/rtcw_cgm_clip_space.h
+		../renderer/rtcw_cgm_mat.cpp
+		../renderer/rtcw_cgm_mat.h
+		../renderer/rtcw_cgm_transform.cpp
+		../renderer/rtcw_cgm_transform.h
+		../renderer/rtcw_cgm_vec.cpp
+		../renderer/rtcw_cgm_vec.h
 		../renderer/rtcw_ogl_matrix_stack.h
 		../renderer/rtcw_ogl_program.h
 		../renderer/rtcw_ogl_tess_program.h
@@ -211,6 +219,8 @@ target_sources (
 		../system/rtcw_syscon.h
 		../system/rtcw_syscon_font_16x8.cpp
 		../system/rtcw_syscon_font_16x8.h
+		../system/rtcw_type_utility.cpp
+		../system/rtcw_type_utility.h
 		../system/rtcw_vector_trivial.cpp
 		../system/rtcw_vector_trivial.h
 )

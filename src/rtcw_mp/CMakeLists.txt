@@ -22,7 +22,6 @@ target_include_directories (
 		../cgame
 		../client
 		../game
-		../lib/glm
 		../qcommon
 		../renderer
 		../system
@@ -99,6 +98,14 @@ target_sources (
 		../renderer/jpgd.h
 		../renderer/jpge.h
 		../renderer/qgl.h
+		../renderer/rtcw_cgm_clip_space.cpp
+		../renderer/rtcw_cgm_clip_space.h
+		../renderer/rtcw_cgm_mat.cpp
+		../renderer/rtcw_cgm_mat.h
+		../renderer/rtcw_cgm_transform.cpp
+		../renderer/rtcw_cgm_transform.h
+		../renderer/rtcw_cgm_vec.cpp
+		../renderer/rtcw_cgm_vec.h
 		../renderer/rtcw_jpeg_reader.h
 		../renderer/rtcw_jpeg_writer.h
 		../renderer/rtcw_ogl_matrix_stack.h
@@ -262,6 +269,8 @@ target_sources (
 		../system/rtcw_syscon.h
 		../system/rtcw_syscon_font_16x8.cpp
 		../system/rtcw_syscon_font_16x8.h
+		../system/rtcw_type_utility.cpp
+		../system/rtcw_type_utility.h
 		../system/rtcw_vector_trivial.cpp
 		../system/rtcw_vector_trivial.h
 		../system/sys_events.cpp
