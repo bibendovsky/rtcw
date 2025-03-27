@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.5.0 FATAL_ERROR)
 project (rtcw_lib_miniz VERSION 1.0.0 LANGUAGES CXX)
 
 
