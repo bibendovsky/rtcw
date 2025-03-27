@@ -42,7 +42,11 @@ static int sortedFireTeamClients[MAX_CLIENTS];
 ***** Support Routines
 ****/
 
+#ifdef RTCW_VANILLA
 int QDECL CG_SortFireTeam( const void *a, const void *b ) {
+#else // RTCW_VANILLA
+int CG_SortFireTeam( const void *a, const void *b ) {
+#endif // RTCW_VANILLA
 	clientInfo_t    *ca, *cb;
 	int cna, cnb;
 

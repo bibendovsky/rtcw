@@ -113,7 +113,7 @@ aas_routingcache_t::Struct* aas_routingcache_t::convertFrom32 (
 	dst.time = rtcw::Endian::le(src.time);
 	dst.cluster = rtcw::Endian::le(src.cluster);
 	dst.areanum = rtcw::Endian::le(src.areanum);
-	rtcw::Endian::le(src.origin, dst.origin);
+	rtcw::Endian::le(src.origin, 3, dst.origin);
 	dst.starttraveltime = rtcw::Endian::le(src.starttraveltime);
 	dst.travelflags = rtcw::Endian::le(src.travelflags);
 	dst.prev = 0;
@@ -124,10 +124,10 @@ aas_routingcache_t::Struct* aas_routingcache_t::convertFrom32 (
 
 	int extraSize = src.size - AAS_RCS32_SIZE + AAS_RCS_TT32_SIZE;
 
-	std::uninitialized_copy(
-		reinterpret_cast<const byte*> (&src.traveltimes),
-		reinterpret_cast<const byte*> (&src.traveltimes) + extraSize,
-		reinterpret_cast<byte*> (&dst.traveltimes));
+	std::copy(
+		reinterpret_cast<const byte*>(&src.traveltimes),
+		reinterpret_cast<const byte*>(&src.traveltimes) + extraSize,
+		reinterpret_cast<byte*>(&dst.traveltimes));
 
 	if (!rtcw::Endian::is_little()) {
 		int tt_count = (dst.reachabilities - reinterpret_cast<const unsigned char*>(&dst.traveltimes)) / 2;
@@ -150,7 +150,7 @@ void aas_routingcache_t::convertTo32 (
 	dst.time = rtcw::Endian::le(src.time);
 	dst.cluster = rtcw::Endian::le(src.cluster);
 	dst.areanum = rtcw::Endian::le(src.areanum);
-	rtcw::Endian::le(src.origin, dst.origin);
+	rtcw::Endian::le(src.origin, 3, dst.origin);
 	dst.starttraveltime = rtcw::Endian::le(src.starttraveltime);
 	dst.travelflags = rtcw::Endian::le(src.travelflags);
 	dst.prev = 0;
@@ -159,10 +159,10 @@ void aas_routingcache_t::convertTo32 (
 
 	int extraSize = oldSize - AAS_RCS32_SIZE + AAS_RCS_TT32_SIZE;
 
-	std::uninitialized_copy(
-		reinterpret_cast<const byte*> (&src.traveltimes),
-		reinterpret_cast<const byte*> (&src.traveltimes) + extraSize,
-		reinterpret_cast<byte*> (&dst.traveltimes));
+	std::copy(
+		reinterpret_cast<const byte*>(&src.traveltimes),
+		reinterpret_cast<const byte*>(&src.traveltimes) + extraSize,
+		reinterpret_cast<byte*>(&dst.traveltimes));
 
 	if (!rtcw::Endian::is_little()) {
 		int tt_count = (src.reachabilities - reinterpret_cast<const unsigned char*>(&src.traveltimes)) / 2;
@@ -1917,7 +1917,7 @@ void AAS_WriteRouteCache( void ) {
 	vec3_t vecBuffer;
 
 	for (i = 0; i < aasworld->numareas; ++i) {
-		rtcw::Endian::le(aasworld->areawaypoints[i], vecBuffer);
+		rtcw::Endian::le(aasworld->areawaypoints[i], 3, vecBuffer);
 
 		botimport.FS_Write (vecBuffer, sizeof (vec3_t), fp);
 	}

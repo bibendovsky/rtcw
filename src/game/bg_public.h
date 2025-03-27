@@ -3890,7 +3890,11 @@ int trap_PC_ReadToken( int handle, pc_token_t *pc_token );
 int trap_PC_SourceFileAndLine( int handle, char *filename, int *line );
 int trap_PC_UnReadToken( int handle );
 
+#ifdef RTCW_VANILLA
 void PC_SourceError( int handle, char *format, ... );
+#else // RTCW_VANILLA
+void PC_SourceError( int handle, const char *format, ... );
+#endif // RTCW_VANILLA
 void PC_SourceWarning( int handle, char *format, ... );
 
 #ifdef GAMEDLL

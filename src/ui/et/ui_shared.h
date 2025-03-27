@@ -450,8 +450,13 @@ typedef struct {
 
 	void ( *setBinding )( int keynum, const char *binding );
 	void ( *executeText )( int exec_when, const char *text );
+#ifdef RTCW_VANILLA
 	void ( *Error )( int level, const char *error, ... );
 	void ( *Print )( const char *msg, ... );
+#else // RTCW_VANILLA
+	void ( QDECL *Error )( int level, const char *error, ... );
+	void ( QDECL *Print )( const char *msg, ... );
+#endif // RTCW_VANILLA
 	void ( *Pause )( qboolean b );
 	int ( *ownerDrawWidth )( int ownerDraw, float scale );
 	sfxHandle_t ( *registerSound )( const char *name, qboolean compressed );

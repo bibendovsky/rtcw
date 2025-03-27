@@ -54,22 +54,6 @@ public:
 	// Copies an array of elements with swapped bytes into another array
 	// on non little-endian system.
 	template<
-		typename T,
-		std::size_t N
-	>
-	static void le(
-		const T (&src_data)[N],
-		T (&dst_data)[N])
-	{
-		for (std::size_t i = 0; i < N; ++i)
-		{
-			dst_data[i] = le(src_data[i]);
-		}
-	}
-
-	// Copies an array of elements with swapped bytes into another array
-	// on non little-endian system.
-	template<
 		typename T
 	>
 	static void le(
@@ -95,22 +79,6 @@ public:
 #elif SDL_BYTEORDER == SDL_LIL_ENDIAN
 		return le_be(value);
 #endif
-	}
-
-	// Copies an array of elements with swapped bytes into another array
-	// on non big-endian system.
-	template<
-		typename T,
-		std::size_t N
-	>
-	static void be(
-		const T (&src_data)[N],
-		T (&dst_data)[N])
-	{
-		for (std::size_t i = 0; i < N; ++i)
-		{
-			dst_data[i] = be(src_data[i]);
-		}
 	}
 
 	// Copies an array of elements with swapped bytes into another array
@@ -144,21 +112,6 @@ public:
 	// Swaps bytes in place of an array of elements
 	// on non little-endian system.
 	template<
-		typename T,
-		std::size_t N
-	>
-	static void lei(
-		T (&data)[N])
-	{
-		for (std::size_t i = 0; i < N; ++i)
-		{
-			lei(data[i]);
-		}
-	}
-
-	// Swaps bytes in place of an array of elements
-	// on non little-endian system.
-	template<
 		typename T
 	>
 	static void lei(
@@ -180,21 +133,6 @@ public:
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 		lei_bei(value);
 #endif
-	}
-
-	// Swaps bytes in place of an array of elements
-	// on non big-endian system.
-	template<
-		typename T,
-		std::size_t N
-	>
-	static void bei(
-		T (&data)[N])
-	{
-		for (std::size_t i = 0; i < N; ++i)
-		{
-			bei(data[i]);
-		}
 	}
 
 	// Swaps bytes in place of an array of elements

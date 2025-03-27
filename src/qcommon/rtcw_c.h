@@ -23,7 +23,7 @@ inline int abs(
 	return std::abs(x);
 }
 
-inline div_t div(
+inline std::div_t div(
 	int numerator,
 	int denominator)
 {

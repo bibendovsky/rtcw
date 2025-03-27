@@ -127,7 +127,7 @@ void cast_state_t::convert_from_32 (
 	dst.aiState = rtcw::Endian::le(src.aiState);
 	dst.movestate = rtcw::Endian::le(src.movestate);
 	dst.movestateType = rtcw::Endian::le(src.movestateType);
-	std::uninitialized_copy(src.attributes, src.attributes + AICAST_MAX_ATTRIBUTES, dst.attributes);
+	std::copy(&src.attributes[0], &src.attributes[AICAST_MAX_ATTRIBUTES], dst.attributes);
 	dst.numCastScriptEvents = rtcw::Endian::le(src.numCastScriptEvents);
 	dst.castScriptEvents = reinterpret_cast<cast_script_event_t*> (rtcw::Endian::le(src.castScriptEvents));
 	dst.castScriptStatus = rtcw::Endian::le(src.castScriptStatus);
@@ -255,8 +255,8 @@ void cast_state_t::convert_from_32 (
 	dst.lastMoveThink = rtcw::Endian::le(src.lastMoveThink);
 	dst.numEnemies = rtcw::Endian::le(src.numEnemies);
 	dst.noReloadTime = rtcw::Endian::le(src.noReloadTime);
-	std::uninitialized_copy(src.lastValidAreaNum, src.lastValidAreaNum + 2, dst.lastValidAreaNum);
-	std::uninitialized_copy(src.lastValidAreaTime, src.lastValidAreaTime + 2, dst.lastValidAreaTime);
+	std::copy(&src.lastValidAreaNum[0], &src.lastValidAreaNum[2], dst.lastValidAreaNum);
+	std::copy(&src.lastValidAreaTime[0], &src.lastValidAreaTime[2], dst.lastValidAreaTime);
 	dst.weaponNum = rtcw::Endian::le(src.weaponNum);
 	dst.enemyNum = rtcw::Endian::le(src.enemyNum);
 	rtcw::Endian::le(src.ideal_viewangles, 3, dst.ideal_viewangles);
@@ -418,8 +418,8 @@ void cast_state_t::convert_to_32 (
 	dst.lastMoveThink = rtcw::Endian::le(src.lastMoveThink);
 	dst.numEnemies = rtcw::Endian::le(src.numEnemies);
 	dst.noReloadTime = rtcw::Endian::le(src.noReloadTime);
-	std::uninitialized_copy(src.lastValidAreaNum, src.lastValidAreaNum + 2, dst.lastValidAreaNum);
-	std::uninitialized_copy(src.lastValidAreaTime, lastValidAreaTime + 2, dst.lastValidAreaTime);
+	std::copy(&src.lastValidAreaNum[0], &src.lastValidAreaNum[2], dst.lastValidAreaNum);
+	std::copy(&src.lastValidAreaTime[0], &lastValidAreaTime[2], dst.lastValidAreaTime);
 	dst.weaponNum = rtcw::Endian::le(src.weaponNum);
 	dst.enemyNum = rtcw::Endian::le(src.enemyNum);
 	rtcw::Endian::le(src.ideal_viewangles, 3, dst.ideal_viewangles);

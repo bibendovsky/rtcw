@@ -265,7 +265,11 @@ typedef struct {
 SV_QsortEntityNumbers
 =======================
 */
+#ifdef RTCW_VANILLA
 static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
+#else // RTCW_VANILLA
+static int SV_QsortEntityNumbers( const void *a, const void *b ) {
+#endif // RTCW_VANILLA
 	int *ea, *eb;
 
 	ea = (int *)a;

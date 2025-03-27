@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 /* GLOBAL.H - RSAREF types and constants */
 
+#include <stddef.h>
 #include <stdint.h>
 #include <cstring>
 

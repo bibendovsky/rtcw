@@ -33,6 +33,12 @@ If you have questions concerning this license or the applicable additional terms
 // A user mod should never modify this file
 
 // BBi
+#include <ctype.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #include <inttypes.h>
 #include <cstddef>
 

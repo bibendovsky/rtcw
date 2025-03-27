@@ -70,7 +70,11 @@ CG_FillRect
 Coordinates are 640*480 virtual values
 =================
 */
+#ifdef RTCW_VANILLA
 void CG_FillRect( float x, float y, float width, float height, const float *color ) {
+#else // RTCW_VANILLA
+void CG_FillRect( float x, float y, float width, float height, const vec4_t color ) {
+#endif // RTCW_VANILLA
 	trap_R_SetColor( color );
 
 	CG_AdjustFrom640( &x, &y, &width, &height );

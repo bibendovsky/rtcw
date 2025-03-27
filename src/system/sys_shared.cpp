@@ -48,12 +48,23 @@ If you have questions concerning this license or the applicable additional terms
 
 extern int Sys_Milliseconds();
 
+namespace {
+
+float rtcw_trunc(float x)
+{
+	double result;
+	static_cast<void>(modf(x, &result));
+	return static_cast<float>(result);
+}
+
+} // namespace
+
 void Sys_SnapVector(
 	float* v)
 {
-	v[0] = trunc(v[0]);
-	v[1] = trunc(v[1]);
-	v[2] = trunc(v[2]);
+	v[0] = rtcw_trunc(v[0]);
+	v[1] = rtcw_trunc(v[1]);
+	v[2] = rtcw_trunc(v[2]);
 }
 
 int Sys_GetProcessorId()

@@ -13,7 +13,10 @@ public:
 	UniquePtr();
 
 	template<typename U>
-	explicit UniquePtr(U* ptr);
+	explicit UniquePtr(U* ptr)
+		:
+		ptr_(ptr)
+	{}
 
 	~UniquePtr();
 
@@ -24,7 +27,12 @@ public:
 	void reset();
 
 	template<typename U>
-	void reset(U* ptr);
+	void reset(U* ptr)
+	{
+		assert(ptr == NULL || (ptr != NULL && ptr_ != ptr));
+		delete ptr_;
+		ptr_ = ptr;
+	}
 
 private:
 	T* ptr_;
@@ -40,13 +48,6 @@ template<typename T>
 UniquePtr<T>::UniquePtr()
 	:
 	ptr_()
-{}
-
-template<typename T>
-template<typename U>
-UniquePtr<T>::UniquePtr(U* ptr)
-	:
-	ptr_(ptr)
 {}
 
 template<typename T>
@@ -79,15 +80,6 @@ template<typename T>
 void UniquePtr<T>::reset()
 {
 	reset(static_cast<T*>(NULL));
-}
-
-template<typename T>
-template<typename U>
-void UniquePtr<T>::reset(U* ptr)
-{
-	assert(ptr == NULL || (ptr != NULL && ptr_ != ptr));
-	delete ptr_;
-	ptr_ = ptr;
 }
 
 } // namespace rtcw

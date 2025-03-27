@@ -1536,7 +1536,11 @@ SortRanks
 
 =============
 */
+#ifdef RTCW_VANILLA
 int QDECL SortRanks( const void *a, const void *b ) {
+#else // RTCW_VANILLA
+int SortRanks( const void *a, const void *b ) {
+#endif // RTCW_VANILLA
 	gclient_t   *ca, *cb;
 
 	ca = &level.clients[*(int *)a];

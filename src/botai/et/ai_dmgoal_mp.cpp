@@ -917,7 +917,11 @@ int BotMP_FindGoal_BuildGoalList( bot_state_t* bs, botgoalFind_t* pGoals, int ma
 	return goalNum;
 }
 
+#ifdef RTCW_VANILLA
 int QDECL BotMP_FindGoals_Sort_Standard( const void *a, const void *b ) {
+#else // RTCW_VANILLA
+int BotMP_FindGoals_Sort_Standard( const void *a, const void *b ) {
+#endif // RTCW_VANILLA
 	botgoalFind_t* bg1 = (botgoalFind_t*)a;
 	botgoalFind_t* bg2 = (botgoalFind_t*)b;
 
@@ -936,7 +940,11 @@ int QDECL BotMP_FindGoals_Sort_Standard( const void *a, const void *b ) {
 	return 0;
 }
 
+#ifdef RTCW_VANILLA
 int QDECL BotMP_FindGoals_Sort_Engineer( const void *a, const void *b ) {
+#else // RTCW_VANILLA
+int BotMP_FindGoals_Sort_Engineer( const void *a, const void *b ) {
+#endif // RTCW_VANILLA
 	botgoalFind_t* bg1 = (botgoalFind_t*)a;
 	botgoalFind_t* bg2 = (botgoalFind_t*)b;
 
@@ -955,7 +963,11 @@ int QDECL BotMP_FindGoals_Sort_Engineer( const void *a, const void *b ) {
 	return 0;
 }
 
+#ifdef RTCW_VANILLA
 int QDECL BotMP_FindGoals_Sort_CovertOps( const void *a, const void *b ) {
+#else // RTCW_VANILLA
+int BotMP_FindGoals_Sort_CovertOps( const void *a, const void *b ) {
+#endif // RTCW_VANILLA
 	botgoalFind_t* bg1 = (botgoalFind_t*)a;
 	botgoalFind_t* bg2 = (botgoalFind_t*)b;
 
@@ -974,7 +986,11 @@ int QDECL BotMP_FindGoals_Sort_CovertOps( const void *a, const void *b ) {
 	return 0;
 }
 
+#ifdef RTCW_VANILLA
 typedef int QDECL sortFunc ( const void *a, const void *b );
+#else // RTCW_VANILLA
+typedef int sortFunc ( const void *a, const void *b );
+#endif // RTCW_VANILLA
 
 sortFunc* botmp_sortFuncs[NUM_PLAYER_CLASSES] = {
 	BotMP_FindGoals_Sort_Standard,  // PC_SOLDIER

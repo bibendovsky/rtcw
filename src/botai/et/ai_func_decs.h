@@ -433,9 +433,15 @@ extern qboolean BotMP_AlreadyDoing_FastOut ( bot_state_t * bs , botgoalFind_t * 
 extern void BotMP_FindGoal_PostProcessGoal ( bot_state_t * bs , botgoalFind_t * bg , bot_goal_t * goal ) ;
 extern botMPpg_t BotMP_FindGoal_ProcessGoal ( bot_state_t * bs , botgoalFind_t * bg , bot_goal_t * target_goal ) ;
 extern int BotMP_FindGoal_ClassForGoalType ( botgoalFindType_t type ) ;
+#ifdef RTCW_VANILLA
 extern int QDECL BotMP_FindGoals_Sort_CovertOps ( const void * a , const void * b ) ;
 extern int QDECL BotMP_FindGoals_Sort_Engineer ( const void * a , const void * b ) ;
 extern int QDECL BotMP_FindGoals_Sort_Standard ( const void * a , const void * b ) ;
+#else // RTCW_VANILLA
+extern int BotMP_FindGoals_Sort_CovertOps ( const void * a , const void * b ) ;
+extern int BotMP_FindGoals_Sort_Engineer ( const void * a , const void * b ) ;
+extern int BotMP_FindGoals_Sort_Standard ( const void * a , const void * b ) ;
+#endif // RTCW_VANILLA
 extern int BotMP_FindGoal_BuildGoalList ( bot_state_t * bs , botgoalFind_t * pGoals , int maxGoals ) ;
 extern qboolean BotMP_CheckEmergencyGoals ( bot_state_t * bs ) ;
 extern qboolean BotMP_CheckClassActions ( bot_state_t * bs ) ;

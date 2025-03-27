@@ -933,6 +933,7 @@ namespace jpge {
 		return m_all_stream_writes_succeeded;
 	}
 
+#if 0 // rtcw
 	// Higher level wrappers/examples (optional).
 #include <stdio.h>
 
@@ -1072,5 +1073,6 @@ namespace jpge {
 		buf_size = dst_stream.get_size();
 		return true;
 	}
+#endif // rtcw
 
 } // namespace jpge

@@ -577,7 +577,7 @@ void CMod_LoadPatches( lump_t *surfs, lump_t *verts ) {
 
 		dv_p = dv + rtcw::Endian::le( in->firstVert );
 		for ( j = 0 ; j < c ; j++, dv_p++ )
-			rtcw::Endian::le(dv_p->xyz, points[j]);
+			rtcw::Endian::le(dv_p->xyz, 3, points[j]);
 
 		shaderNum = rtcw::Endian::le( in->shaderNum );
 		patch->contents = cm.shaders[shaderNum].contentFlags;

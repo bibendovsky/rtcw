@@ -1628,7 +1628,11 @@ void G_swapTeams( void ) {
 }
 
 
+#ifdef RTCW_VANILLA
 int QDECL G_SortPlayersByXP( const void *a, const void *b ) {
+#else // RTCW_VANILLA
+int G_SortPlayersByXP( const void *a, const void *b ) {
+#endif // RTCW_VANILLA
 	gclient_t* cla = &level.clients[ *( (int*)a ) ];
 	gclient_t* clb = &level.clients[ *( (int*)b ) ];
 

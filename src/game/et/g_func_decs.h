@@ -345,7 +345,11 @@ extern qboolean G_readyMatchState ( void ) ;
 extern qboolean G_checkReady ( void ) ;
 extern int G_teamID ( gentity_t * ent ) ;
 extern void G_shuffleTeams ( void ) ;
+#ifdef RTCW_VANILLA
 extern int QDECL G_SortPlayersByXP ( const void * a , const void * b ) ;
+#else // RTCW_VANILLA
+extern int G_SortPlayersByXP ( const void * a , const void * b ) ;
+#endif // RTCW_VANILLA
 extern void G_swapTeams ( void ) ;
 extern void G_teamReset ( int team_num , qboolean fClearSpecLock ) ;
 extern int Team_ClassForString ( char * string ) ;
@@ -1089,7 +1093,11 @@ extern void AddKillScore ( gentity_t * ent , int score ) ;
 extern void AddScore ( gentity_t * ent , int score ) ;
 extern void G_weaponRankings_cmd ( gentity_t * ent , unsigned int dwCommand , qboolean state ) ;
 extern void G_weaponStatsLeaders_cmd ( gentity_t * ent , qboolean doTop , qboolean doWindow ) ;
+#ifdef RTCW_VANILLA
 extern int QDECL SortStats ( const void * a , const void * b ) ;
+#else // RTCW_VANILLA
+extern int SortStats ( const void * a , const void * b ) ;
+#endif // RTCW_VANILLA
 extern void G_teamready_cmd ( gentity_t * ent , unsigned int dwCommand , qboolean state ) ;
 extern void G_statsall_cmd ( gentity_t * ent , unsigned int dwCommand , qboolean fDump ) ;
 extern void G_weaponStats_cmd ( gentity_t * ent , unsigned int dwCommand , qboolean fDump ) ;

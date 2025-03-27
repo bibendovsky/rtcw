@@ -428,6 +428,10 @@ void gl_initialize_extensions()
 	glConfigEx.is_2_x_capable_ = gl_is_2_x_capable();
 }
 
+void* glad_symbol_loader(const char *name)
+{
+	return SDL_GL_GetProcAddress(name);
+}
 
 } // namespace
 
@@ -646,7 +650,7 @@ void GLimp_Init()
 
 	if (is_succeed)
 	{
-		if (!gladLoadGLLoader(SDL_GL_GetProcAddress))
+		if (!gladLoadGLLoader(glad_symbol_loader))
 		{
 			is_succeed = false;
 			ri.Error(ERR_FATAL, "Failed to initialize GLAD\n");

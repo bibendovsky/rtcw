@@ -144,7 +144,11 @@ static void UI_FeederSelection( float feederID, int index );
 static void UI_BuildServerDisplayList( qboolean force );
 static void UI_BuildServerStatus( qboolean force );
 static void UI_BuildFindPlayerList( qboolean force );
+#ifdef RTCW_VANILLA
 static int QDECL UI_ServersQsortCompare( const void *arg1, const void *arg2 );
+#else // RTCW_VANILLA
+static int UI_ServersQsortCompare( const void *arg1, const void *arg2 );
+#endif // RTCW_VANILLA
 static int UI_MapCountByGameType( qboolean singlePlayer );
 static const char *UI_SelectedMap( int index, int *actual );
 static int UI_GetIndexFromSelection( int actual );
@@ -162,7 +166,11 @@ extern displayContextDef_t *DC;
 
 
 //----(SA)	added for savegame sorting
+#ifdef RTCW_VANILLA
 static int QDECL UI_SavegamesQsortCompare( const void *arg1, const void *arg2 );
+#else // RTCW_VANILLA
+static int UI_SavegamesQsortCompare( const void *arg1, const void *arg2 );
+#endif // RTCW_VANILLA
 //----(SA)	end
 
 void Text_PaintCenter( float x, float y, int font, float scale, vec4_t color, const char *text, float adjust );
@@ -3477,7 +3485,11 @@ static float UI_GetValue( int ownerDraw, int type ) {
 UI_ServersQsortCompare
 =================
 */
+#ifdef RTCW_VANILLA
 static int QDECL UI_ServersQsortCompare( const void *arg1, const void *arg2 ) {
+#else // RTCW_VANILLA
+static int UI_ServersQsortCompare( const void *arg1, const void *arg2 ) {
+#endif // RTCW_VANILLA
 #ifdef MISSIONPACK
 	return trap_LAN_CompareServers( ui_netSource.integer, uiInfo.serverStatus.sortKey, uiInfo.serverStatus.sortDir, *(int*)arg1, *(int*)arg2 );
 #else
@@ -3512,7 +3524,11 @@ void UI_ServersSort( int column, qboolean force ) {
 UI_SavegamesQsortCompare
 ==============
 */
+#ifdef RTCW_VANILLA
 static int QDECL UI_SavegamesQsortCompare( const void *arg1, const void *arg2 ) {
+#else // RTCW_VANILLA
+static int UI_SavegamesQsortCompare( const void *arg1, const void *arg2 ) {
+#endif // RTCW_VANILLA
 	int *ea, *eb, ret;
 
 	savegameInfo *sg, *sg2;

@@ -39,7 +39,6 @@ If you have questions concerning this license or the applicable additional terms
 #define MP_LEGACY_PAK 0x7776DC09
 #endif // RTCW_XX
 
-#include <fstream>
 #include <limits>
 #include <string>
 
@@ -223,13 +222,14 @@ class MinizIo
 public:
 	MinizIo()
 		:
-		filebuf_(),
+		file_(),
 		position_(),
 		is_position_valid_()
 	{}
 
 	~MinizIo()
 	{
+		close();
 	}
 
 	bool open(
@@ -242,14 +242,15 @@ public:
 			return false;
 		}
 
-		static_cast<void>(filebuf_.open(file_name, std::ios_base::in | std::ios_base::binary | std::ios_base::ate));
+		file_ = fopen(file_name, "rb");
 
-		if (!filebuf_.is_open())
+		if (file_ == NULL)
 		{
 			return false;
 		}
 
-		file_size_ = filebuf_.pubseekoff(0, std::ios_base::cur);
+		fseek(file_, 0, SEEK_END);
+		file_size_ = ftell(file_);
 
 		if (file_size_ < 0)
 		{
@@ -262,7 +263,12 @@ public:
 
 	void close()
 	{
-		filebuf_.close();
+		if (file_ != NULL)
+		{
+			fclose(file_);
+			file_ = NULL;
+		}
+
 		position_ = 0;
 		is_position_valid_ = false;
 		file_size_ = 0;
@@ -270,7 +276,7 @@ public:
 
 	bool is_open() const
 	{
-		return filebuf_.is_open();
+		return file_ != NULL && is_position_valid_;
 	}
 
 	int64_t get_file_size() const
@@ -292,7 +298,8 @@ public:
 		{
 			position_ = position;
 
-			if (filebuf_.pubseekpos(position_) < 0)
+			if (position_ < 0 || position_ > LONG_MAX ||
+				fseek(file_, static_cast<long>(position_), SEEK_SET) != 0)
 			{
 				is_position_valid_ = false;
 				return 0;
@@ -301,22 +308,14 @@ public:
 			is_position_valid_ = true;
 		}
 
-		const std::streamsize read_result = filebuf_.sgetn(static_cast<char*>(buffer_ptr), count);
-
-		if (read_result < 0)
-		{
-			is_position_valid_ = false;
-			return 0;
-		}
-
+		const size_t read_result = fread(buffer_ptr, 1, count, file_);
 		position_ += count;
-
-		return static_cast<std::size_t>(read_result);
+		return read_result;
 	}
 
 
 private:
-	std::filebuf filebuf_;
+	FILE* file_;
 	int64_t position_;
 	bool is_position_valid_;
 	int64_t file_size_;
@@ -567,9 +566,9 @@ private:
 
 	static size_t miniz_file_read_func(
 		void* opaque,
-		const mz_uint64 position,
+		mz_uint64 position,
 		void* buffer_ptr,
-		const size_t count)
+		size_t count)
 	{
 		if (!opaque)
 		{

@@ -106,9 +106,9 @@ int sdl_calculate_buffer_size(
 	return buffer_size;
 }
 
-void sdl_callback(
+void SDLCALL sdl_callback(
 	void* user_data,
-	uint8_t* stream,
+	Uint8* stream,
 	int length)
 {
 	int new_position = sdl_buffer_offset;
@@ -122,7 +122,7 @@ void sdl_callback(
 		int length1 = std::min(length, sdl_buffer_size - new_position);
 		int length2 = length - length1;
 
-		std::uninitialized_copy(
+		std::copy(
 			&sdl_buffer[new_position],
 			&sdl_buffer[new_position] + length1,
 			stream);
@@ -130,7 +130,7 @@ void sdl_callback(
 		new_position += length1;
 
 		if (length2 > 0) {
-			std::uninitialized_copy(
+			std::copy(
 				&sdl_buffer[0],
 				&sdl_buffer[0] + length2,
 				stream);

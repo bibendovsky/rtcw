@@ -661,7 +661,11 @@ const int cQualifyingShots[WS_MAX] = {
 // ************** TOPSHOTS/BOTTOMSHOTS
 //
 // Gives back overall or specific weapon rankings
+#ifdef RTCW_VANILLA
 int QDECL SortStats( const void *a, const void *b ) {
+#else // RTCW_VANILLA
+int SortStats( const void *a, const void *b ) {
+#endif // RTCW_VANILLA
 	gclient_t   *ca, *cb;
 	float accA, accB;
 

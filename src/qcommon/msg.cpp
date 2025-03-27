@@ -1244,7 +1244,11 @@ netField_t entityStateFields[] =
 };
 
 #if defined RTCW_ET
+#ifdef RTCW_VANILLA
 static int QDECL qsort_entitystatefields( const void *a, const void *b ) {
+#else // RTCW_VANILLA
+static int qsort_entitystatefields( const void *a, const void *b ) {
+#endif // RTCW_VANILLA
 	int aa, bb;
 
 	aa = *( (int*)a );
@@ -1937,7 +1941,11 @@ netField_t playerStateFields[] =
 };
 
 #if defined RTCW_ET
+#ifdef RTCW_VANILLA
 static int QDECL qsort_playerstatefields( const void *a, const void *b ) {
+#else // RTCW_VANILLA
+static int qsort_playerstatefields( const void *a, const void *b ) {
+#endif // RTCW_VANILLA
 	int aa, bb;
 
 	aa = *( (int*)a );

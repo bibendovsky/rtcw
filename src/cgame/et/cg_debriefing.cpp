@@ -32,7 +32,11 @@ team_t CG_Debriefing_FindWinningTeam( void );
 team_t CG_Debriefing_FindOveralWinningTeam( void );
 team_t CG_Debriefing_FindWinningTeamForPos( int pos );
 
+#ifdef RTCW_VANILLA
 int QDECL CG_SortPlayersByXP( const void *a, const void *b );
+#else // RTCW_VANILLA
+int CG_SortPlayersByXP( const void *a, const void *b );
+#endif // RTCW_VANILLA
 
 #define DB_MASTER_FONT &cgs.media.limboFont2
 
@@ -1583,7 +1587,11 @@ void CG_DebriefingPlayerList_Draw( panel_button_t* button ) {
 
 
 
+#ifdef RTCW_VANILLA
 int QDECL CG_SortPlayersByXP( const void *a, const void *b ) {
+#else // RTCW_VANILLA
+int CG_SortPlayersByXP( const void *a, const void *b ) {
+#endif // RTCW_VANILLA
 	int ca = *(int*)a;
 	int cb = *(int*)b;
 

@@ -2311,7 +2311,11 @@ void CG_Letterbox( float xsize, float ysize, qboolean center );
 // cg_drawtools.c
 //
 void CG_AdjustFrom640( float *x, float *y, float *w, float *h );
+#ifdef RTCW_VANILLA
 void CG_FillRect( float x, float y, float width, float height, const float *color );
+#else // RTCW_VANILLA
+void CG_FillRect( float x, float y, float width, float height, const vec4_t color );
+#endif // RTCW_VANILLA
 void CG_HorizontalPercentBar( float x, float y, float width, float height, float percent );
 void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader );
 void CG_DrawPicST( float x, float y, float width, float height, float s0, float t0, float s1, float t1, qhandle_t hShader );

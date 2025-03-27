@@ -3099,12 +3099,16 @@ namespace jpgd {
 		m_eof_flag = false;
 		m_error_flag = false;
 
+#if 0 // rtcw
 #if defined(_MSC_VER)
 		m_pFile = NULL;
 		fopen_s(&m_pFile, Pfilename, "rb");
 #else
 		m_pFile = fopen(Pfilename, "rb");
 #endif
+#else // rtcw
+		m_pFile = fopen(Pfilename, "rb");
+#endif // rtcw
 		return m_pFile != NULL;
 	}
 

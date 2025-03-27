@@ -1013,7 +1013,11 @@ extern void FindIntermissionPoint ( void ) ;
 extern void MoveClientToIntermission ( gentity_t * ent ) ;
 extern void SendScoreboardMessageToAllClients ( void ) ;
 extern void CalculateRanks ( void ) ;
+#ifdef RTCW_VANILLA
 extern int QDECL SortRanks ( const void * a , const void * b ) ;
+#else // RTCW_VANILLA
+extern int SortRanks ( const void * a , const void * b ) ;
+#endif // RTCW_VANILLA
 extern void AdjustTournamentScores ( void ) ;
 extern void RemoveTournamentLoser ( void ) ;
 extern void AddTournamentPlayer ( void ) ;
