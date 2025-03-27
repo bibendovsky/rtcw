@@ -220,110 +220,104 @@ namespace
 class MinizIo
 {
 public:
-	MinizIo()
-		:
-		file_(),
-		position_(),
-		is_position_valid_()
-	{}
+	MinizIo();
+	~MinizIo();
 
-	~MinizIo()
-	{
-		close();
-	}
+	bool open(const char* file_name);
+	void close();
 
-	bool open(
-		const char* const file_name)
-	{
-		close();
+	bool is_open() const;
+	int64_t get_file_size() const;
 
-		if (!file_name || *file_name == '\0')
-		{
-			return false;
-		}
-
-		file_ = fopen(file_name, "rb");
-
-		if (file_ == NULL)
-		{
-			return false;
-		}
-
-		fseek(file_, 0, SEEK_END);
-		file_size_ = ftell(file_);
-
-		if (file_size_ < 0)
-		{
-			close();
-			return false;
-		}
-
-		return true;
-	}
-
-	void close()
-	{
-		if (file_ != NULL)
-		{
-			fclose(file_);
-			file_ = NULL;
-		}
-
-		position_ = 0;
-		is_position_valid_ = false;
-		file_size_ = 0;
-	}
-
-	bool is_open() const
-	{
-		return file_ != NULL && is_position_valid_;
-	}
-
-	int64_t get_file_size() const
-	{
-		return file_size_;
-	}
-
-	std::size_t read(
-		const int64_t position,
-		void* buffer_ptr,
-		const std::size_t count)
-	{
-		if (!is_open() || !buffer_ptr || count == 0)
-		{
-			return 0;
-		}
-
-		if (!is_position_valid_ || position != position_)
-		{
-			position_ = position;
-
-			if (position_ < 0 || position_ > LONG_MAX ||
-				fseek(file_, static_cast<long>(position_), SEEK_SET) != 0)
-			{
-				is_position_valid_ = false;
-				return 0;
-			}
-
-			is_position_valid_ = true;
-		}
-
-		const size_t read_result = fread(buffer_ptr, 1, count, file_);
-		position_ += count;
-		return read_result;
-	}
-
+	size_t read(int64_t position, void* buffer, size_t count);
 
 private:
 	FILE* file_;
-	int64_t position_;
-	bool is_position_valid_;
 	int64_t file_size_;
 
 private:
 	MinizIo(const MinizIo& that);
 	MinizIo& operator=(const MinizIo&);
-}; // MinizIo
+};
+
+// --------------------------------------------------------------------------
+
+MinizIo::MinizIo()
+	:
+	file_(),
+	file_size_()
+{}
+
+MinizIo::~MinizIo()
+{
+	close();
+}
+
+bool MinizIo::open(const char* file_name)
+{
+	close();
+
+	file_ = fopen(file_name, "rb");
+
+	if (file_ == NULL)
+	{
+		return false;
+	}
+
+	if (fseek(file_, 0, SEEK_END) != 0)
+	{
+		close();
+		return false;
+	}
+
+	file_size_ = ftell(file_);
+
+	if (file_size_ < 0)
+	{
+		close();
+		return false;
+	}
+
+	return true;
+}
+
+void MinizIo::close()
+{
+	if (file_ != NULL)
+	{
+		fclose(file_);
+		file_ = NULL;
+	}
+
+	file_size_ = 0;
+}
+
+bool MinizIo::is_open() const
+{
+	return file_ != NULL;
+}
+
+int64_t MinizIo::get_file_size() const
+{
+	return file_size_;
+}
+
+size_t MinizIo::read(int64_t position, void* buffer, const size_t count)
+{
+	if (!is_open() || position > LONG_MAX)
+	{
+		return 0;
+	}
+
+	if (fseek(file_, static_cast<long>(position), SEEK_SET) != 0)
+	{
+		return 0;
+	}
+
+	return fread(buffer, 1, count, file_);
+}
+
+// ==========================================================================
 
 class MinizZip
 {
