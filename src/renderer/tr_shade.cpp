@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // tr_shade.c
 
 // BBi
-#include <vector>
+#include "rtcw_vector_trivial.h"
 // BBi
 
 #include "tr_local.h"
@@ -56,7 +56,7 @@ const void* ogl_tess_col_array = NULL;
 const void* ogl_tess_tc0_array = NULL;
 const void* ogl_tess_tc1_array = NULL;
 
-std::vector<glIndex_t> ogl_index_buffer;
+rtcw::VectorTrivial<glIndex_t> ogl_index_buffer;
 
 
 } // namespace
@@ -249,7 +249,7 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 			}
 
 			if (!glConfigEx.use_arb_draw_elements_base_vertex) {
-				if (ogl_index_buffer.empty ())
+				if (ogl_index_buffer.is_empty ())
 					ogl_index_buffer.resize (SHADER_MAX_INDEXES);
 
 				for (int i = 0; i < numIndexes; ++i)

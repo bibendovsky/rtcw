@@ -38,9 +38,9 @@ If you have questions concerning this license or the applicable additional terms
 // BBi
 #include <algorithm>
 #include <memory>
-#include <vector>
 
 #include "rtcw_endian.h"
+#include "rtcw_vector_trivial.h"
 // BBi
 
 #include "g_local.h"
@@ -83,7 +83,7 @@ typedef void (*Function)();
 
 const int MAX_ENCODER_BUFFER_SIZE = 2 * sizeof (CastState32);
 
-std::vector<uint8_t> g_encoder_buffer;
+rtcw::VectorTrivial<uint8_t> g_encoder_buffer;
 
 int ver;
 
@@ -906,7 +906,7 @@ static void g_read_struct (T& dst_struct, int size, fileHandle_t file_handle)
 	else {
 		int decodedSize;
 
-		if (g_encoder_buffer.empty ())
+		if (g_encoder_buffer.is_empty ())
 			g_encoder_buffer.resize (MAX_ENCODER_BUFFER_SIZE);
 
 		trap_FS_Read (&decodedSize, sizeof (int), file_handle);
@@ -1505,7 +1505,7 @@ int s_save_encode (const T& dst_struct)
 		reinterpret_cast<const byte*> (&dst_struct) :
 		reinterpret_cast<const byte*> (&tmp_struct);
 
-	if (g_encoder_buffer.empty ())
+	if (g_encoder_buffer.is_empty ())
 		g_encoder_buffer.resize (MAX_ENCODER_BUFFER_SIZE);
 
 	uint8_t* out_bytes = &g_encoder_buffer[0];

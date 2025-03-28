@@ -42,9 +42,9 @@ If you have questions concerning this license or the applicable additional terms
 // BBi
 #include <algorithm>
 #include <memory>
-#include <vector>
 
 #include "rtcw_endian.h"
+#include "rtcw_vector_trivial.h"
 // BBi
 
 #include "q_shared.h"
@@ -77,7 +77,7 @@ namespace {
 		&static_cast<const aas_routingcache_t::Struct32*> (0)->traveltimes);
 	const size_t AAS_RCS_TT_DIFF = AAS_RCS_TT_SIZE - AAS_RCS_TT32_SIZE;
 
-	std::vector<byte> aas_rcs_buffer;
+	rtcw::VectorTrivial<byte> aas_rcs_buffer;
 
 	void aasWriteRcStruct (
 		aas_routingcache_t* rcStruct,

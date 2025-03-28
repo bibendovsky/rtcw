@@ -37,15 +37,15 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <algorithm>
 #include <memory>
-#include <vector>
 #include "SDL.h"
 #include "snd_local.h"
+#include "rtcw_vector_trivial.h"
 
 
 namespace {
 
 
-typedef std::vector<Uint8> Buffer;
+typedef rtcw::VectorTrivial<Uint8> Buffer;
 
 
 // SDL's audio buffer size in milliseconds.

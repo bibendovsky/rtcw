@@ -8,9 +8,9 @@
 
 
 #include <string>
-#include <vector>
 
 #include "jpge.h"
+#include "rtcw_vector_trivial.h"
 
 
 namespace rtcw
@@ -39,7 +39,7 @@ public:
 private:
 	class Exception;
 
-	typedef std::vector<unsigned char> Buffer;
+	typedef VectorTrivial<unsigned char> Buffer;
 
 	std::string error_message_;
 
