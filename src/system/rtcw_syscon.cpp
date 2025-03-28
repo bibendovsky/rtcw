@@ -5,9 +5,9 @@
 #include <algorithm>
 #include <new>
 #include "SDL.h"
+#include "rtcw_array_trivial.h"
 #include "rtcw_sdl_utility.h"
 #include "rtcw_syscon_font_16x8.h"
-#include "rtcw_array_trivial.h"
 #include "rtcw_vector_trivial.h"
 
 // ==========================================================================
@@ -996,11 +996,7 @@ bool Syscon::Impl::font_atlas_create(Uint32 sdl_texture_format)
 	typedef VectorTrivial<Uint32> FontAtlasPixels;
 
 	FontAtlasPixels font_atlas_pixels_;
-
-	if (!font_atlas_pixels_.resize_uninitialized(font_atlas_area))
-	{
-		set_error_message("Out of memory.");
-	}
+	font_atlas_pixels_.resize_uninitialized(font_atlas_area);
 
 	int glyph_cell_x = 0;
 	int glyph_cell_y = 0;
@@ -1569,11 +1565,12 @@ void Syscon::Impl::string_to_font_glyph_indices_clamped(const char* string, Vect
 	const int u8_length = static_cast<int>(strlen(string));
 	const int capacity = glyph_indices.get_capacity();
 
-	if (capacity <= 0 || !glyph_indices.resize_uninitialized(capacity))
+	if (capacity <= 0)
 	{
 		return;
 	}
 
+	glyph_indices.resize_uninitialized(capacity);
 	int cp_index = 0;
 
 	for (int i_u8 = 0; i_u8 < u8_length;)
@@ -1729,7 +1726,8 @@ bool Syscon::Impl::button_initialize(Button& button)
 {
 	button.is_highlighted = false;
 	button.is_pressed = false;
-	return button.glyph_indices.reserve(default_button_width_in_glyphs);
+	button.glyph_indices.reserve(default_button_width_in_glyphs);
+	return true;
 }
 
 void Syscon::Impl::button_calculate_metrics()
@@ -2275,17 +2273,8 @@ bool Syscon::Impl::ui_input_line_initialize()
 {
 	EditBox& edit_box = ui_input_line_;
 	edit_box_initialize(edit_box);
-
-	if (!edit_box.text.reserve(ui_input_line_max_size))
-	{
-		return false;
-	}
-
-	if (!edit_box.glyph_indices.reserve(ui_input_line_max_length))
-	{
-		return false;
-	}
-
+	edit_box.text.reserve(ui_input_line_max_size);
+	edit_box.glyph_indices.reserve(ui_input_line_max_length);
 	edit_box.text_callback = &Impl::ui_input_line_text_callback;
 	return true;
 }
@@ -2482,13 +2471,9 @@ void Syscon::Impl::scrollbar_render(const Scrollbar& scrollbar)
 
 bool Syscon::Impl::text_box_initialize(TextBox& text_box, int text_capacity)
 {
-	if (!text_box.text.reserve(text_capacity) ||
-		!text_box.glyph_indices.reserve(text_capacity) ||
-		!text_box.line_offsets.reserve(text_capacity))
-	{
-		return false;
-	}
-
+	text_box.text.reserve(text_capacity);
+	text_box.glyph_indices.reserve(text_capacity);
+	text_box.line_offsets.reserve(text_capacity);
 	text_box.is_highlighted = false;
 	text_box.border_color = color_text_box_border;
 	text_box.highlighted_border_color = color_text_box_border_highlighted;
@@ -3207,27 +3192,18 @@ void Syscon::Impl::render_controls()
 // ==========================================================================
 
 Syscon::Syscon()
-{
-	impl_ = static_cast<Impl*>(malloc(sizeof(Impl)));
-
-	if (impl_ != NULL)
-	{
-		::new (static_cast<void*>(impl_)) Impl();
-	}
-}
+	:
+	impl_(new Impl())
+{}
 
 Syscon::~Syscon()
 {
-	if (impl_ != NULL)
-	{
-		impl_->~Impl();
-		free(impl_);
-	}
+	delete impl_;
 }
 
 bool Syscon::is_initialized() const
 {
-	return impl_ != NULL && impl_->is_initialized();
+	return impl_->is_initialized();
 }
 
 const char* Syscon::get_error_message() const
@@ -3252,11 +3228,6 @@ const char* Syscon::get_text() const
 
 bool Syscon::initialize(Callback callback)
 {
-	if (impl_ == NULL)
-	{
-		return false;
-	}
-
 	if (!impl_->initialize(callback))
 	{
 		impl_->terminate();
@@ -3268,10 +3239,7 @@ bool Syscon::initialize(Callback callback)
 
 void Syscon::terminate()
 {
-	if (impl_ != NULL)
-	{
-		impl_->terminate();
-	}
+	impl_->terminate();
 }
 
 void Syscon::set_title(const char* title)

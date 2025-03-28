@@ -85,12 +85,7 @@ void syscon_input_callback(const char* text)
 
 	const int text_length = static_cast<int>(strlen(text));
 	const int text_length_with_tail = text_length + 2;
-
-	if (!syscon_input.reserve(text_length_with_tail))
-	{
-		return;
-	}
-
+	syscon_input.reserve(text_length_with_tail);
 	std::copy(text, &text[text_length], syscon_input.get_data());
 	syscon_input.resize_uninitialized(text_length_with_tail);
 	syscon_input[text_length + 0] = '\n';

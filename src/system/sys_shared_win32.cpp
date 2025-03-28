@@ -80,14 +80,7 @@ private:
 
 SysDirWin32* SysDirWin32::create(const char* path)
 {
-	SysDirWin32* sys_dir = static_cast<SysDirWin32*>(::malloc(sizeof(SysDirWin32)));
-
-	if (sys_dir == NULL)
-	{
-		return NULL;
-	}
-
-	::new (static_cast<void*>(sys_dir)) SysDirWin32(path);
+	SysDirWin32* sys_dir = new SysDirWin32(path);
 
 	if (!sys_dir->is_open())
 	{
@@ -100,8 +93,7 @@ SysDirWin32* SysDirWin32::create(const char* path)
 
 void SysDirWin32::destroy(SysDirWin32* sys_dir)
 {
-	sys_dir->~SysDirWin32();
-	::free(sys_dir);
+	delete sys_dir;
 }
 
 const SysDirEntry* SysDirWin32::read()

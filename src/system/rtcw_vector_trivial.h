@@ -6,36 +6,11 @@
 #include <assert.h>
 #include <limits.h>
 #include <stdlib.h>
-#include <string.h>
 #include <algorithm>
 
 // ==========================================================================
 
 namespace rtcw {
-
-namespace detail {
-
-template<typename T, int TMaxCapacity>
-struct VectorTrivialIsCapacityGreaterThanMax
-{
-	bool operator()(int capacity) const
-	{
-		return capacity > TMaxCapacity;
-	}
-};
-
-template<typename T>
-struct VectorTrivialIsCapacityGreaterThanMax<T, INT_MAX>
-{
-	bool operator()(int) const
-	{
-		return false;
-	}
-};
-
-} // namespace detail
-
-// --------------------------------------------------------------------------
 
 template<typename T>
 class VectorTrivial
@@ -51,20 +26,20 @@ public:
 	int get_size() const;
 	int get_capacity() const;
 	bool is_empty() const;
-	bool reserve(int new_capacity);
-	bool resize(int new_size);
-	bool resize(int new_size, const T& value);
-	bool resize_uninitialized(int new_size);
+	void reserve(int new_capacity);
+	void resize(int new_size);
+	void resize(int new_size, const T& value);
+	void resize_uninitialized(int new_size);
 	void clear();
-	bool insert_range(int index, const T* src_elements, int src_count);
-	bool erase(int index, int count);
+	void insert_range(int index, const T* src_elements, int src_count);
+	void erase(int index, int count);
 	const T& operator[](int index) const;
 	T& operator[](int index);
 	void swap(VectorTrivial& that);
 
 private:
 	static const int element_size = sizeof(T);
-	static const int max_capacity = INT_MAX / element_size;
+	static const int max_capacity = (INT_MAX - 1) / element_size;
 
 private:
 	static const T default_filler_;
@@ -74,7 +49,7 @@ private:
 
 private:
 	static void free_elements(void* elements);
-	bool resize_internal(int new_size, const T* value);
+	void resize_internal(int new_size, const T* value);
 };
 
 // --------------------------------------------------------------------------
@@ -104,13 +79,7 @@ VectorTrivial<T>::VectorTrivial(const VectorTrivial& that)
 		return;
 	}
 
-	elements_ = static_cast<T*>(malloc(static_cast<size_t>(that.size_ * element_size)));
-
-	if (elements_ == NULL)
-	{
-		return;
-	}
-
+	elements_ = static_cast<T*>(::operator new(that.size_ * sizeof(T)));
 	size_ = that.size_;
 	capacity_ = that.size_;
 }
@@ -161,53 +130,41 @@ bool VectorTrivial<T>::is_empty() const
 }
 
 template<typename T>
-bool VectorTrivial<T>::reserve(int new_capacity)
+void VectorTrivial<T>::reserve(int new_capacity)
 {
 	assert(new_capacity >= 0);
 
 	if (new_capacity <= capacity_)
 	{
-		return true;
+		return;
 	}
 
-	if (detail::VectorTrivialIsCapacityGreaterThanMax<T, max_capacity>()(new_capacity))
-	{
-		return false;
-	}
-
-	const int new_storage_size = new_capacity * element_size;
-	T* new_elements = static_cast<T*>(malloc(static_cast<size_t>(new_storage_size)));
-
-	if (new_elements == NULL)
-	{
-		return false;
-	}
-
+	assert(new_capacity <= max_capacity);
+	T* const new_elements = static_cast<T*>(::operator new(new_capacity * sizeof(T)));
 	const int old_elements_size = size_ * element_size;
-	memcpy(new_elements, elements_, old_elements_size);
+	std::copy(elements_, &elements_[old_elements_size], new_elements);
 
 	free_elements(elements_);
 	elements_ = new_elements;
 	capacity_ = new_capacity;
-	return true;
 }
 
 template<typename T>
-bool VectorTrivial<T>::resize(int new_size)
+void VectorTrivial<T>::resize(int new_size)
 {
-	return resize_internal(new_size, &default_filler_);
+	resize_internal(new_size, &default_filler_);
 }
 
 template<typename T>
-bool VectorTrivial<T>::resize(int new_size, const T& value)
+void VectorTrivial<T>::resize(int new_size, const T& value)
 {
-	return resize_internal(new_size, &value);
+	resize_internal(new_size, &value);
 }
 
 template<typename T>
-bool VectorTrivial<T>::resize_uninitialized(int new_size)
+void VectorTrivial<T>::resize_uninitialized(int new_size)
 {
-	return resize_internal(new_size, NULL);
+	resize_internal(new_size, NULL);
 }
 
 template<typename T>
@@ -217,25 +174,18 @@ void VectorTrivial<T>::clear()
 }
 
 template<typename T>
-bool VectorTrivial<T>::insert_range(int index, const T* src_elements, int src_count)
+void VectorTrivial<T>::insert_range(int index, const T* src_elements, int src_count)
 {
-	if (index < 0 || index > size_ ||
-		src_elements == NULL ||
-		src_count < 0 || src_count > max_capacity - size_)
-	{
-		return false;
-	}
+	assert(index >= 0 && index <= size_);
+	assert(src_elements != NULL);
+	assert(src_count >= 0 && src_count <= max_capacity - size_);
 
 	if (src_count == 0)
 	{
-		return true;
+		return;
 	}
 
-	if (!resize_internal(size_ + src_count, NULL))
-	{
-		return false;
-	}
-
+	resize_internal(size_ + src_count, NULL);
 	const int new_size = size_ + src_count;
 	const int move_count = size_ - index;
 
@@ -245,17 +195,14 @@ bool VectorTrivial<T>::insert_range(int index, const T* src_elements, int src_co
 	}
 
 	std::copy(src_elements, &src_elements[src_count], &elements_[index]);
-	return true;
 }
 
 template<typename T>
-bool VectorTrivial<T>::erase(int index, int count)
+void VectorTrivial<T>::erase(int index, int count)
 {
-	if (index < 0 || index >= size_ ||
-		count < 0 || count > size_ || index + count > size_)
-	{
-		return false;
-	}
+	assert(index >= 0 && index < size_);
+	assert(count >= 0 && count <= size_);
+	assert(index + count <= size_);
 
 	const int move_count = size_ - index - count;
 
@@ -265,7 +212,6 @@ bool VectorTrivial<T>::erase(int index, int count)
 	}
 
 	size_ -= count;
-	return true;
 }
 
 template<typename T>
@@ -293,24 +239,21 @@ void VectorTrivial<T>::swap(VectorTrivial& that)
 template<typename T>
 void VectorTrivial<T>::free_elements(void* elements)
 {
-	free(elements);
+	::operator delete(elements);
 }
 
 template<typename T>
-bool VectorTrivial<T>::resize_internal(int new_size, const T* value)
+void VectorTrivial<T>::resize_internal(int new_size, const T* value)
 {
 	assert(new_size >= 0);
 
 	if (new_size <= size_)
 	{
 		size_ = new_size;
-		return true;
+		return;
 	}
 
-	if (!reserve(new_size))
-	{
-		return false;
-	}
+	reserve(new_size);
 
 	if (value != NULL)
 	{
@@ -318,7 +261,6 @@ bool VectorTrivial<T>::resize_internal(int new_size, const T* value)
 	}
 
 	size_ = new_size;
-	return true;
 }
 
 } // namespace rtcw

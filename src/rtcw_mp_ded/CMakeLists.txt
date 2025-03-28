@@ -94,6 +94,8 @@ target_sources (
 		../qcommon/cm_public.h
 		../qcommon/qcommon.h
 		../qcommon/qfiles.h
+		../qcommon/rtcw_bit_array_single_unit.cpp
+		../qcommon/rtcw_bit_array_single_unit.h
 		../qcommon/vm_local.h
 		../renderer/anorms256.h
 		../renderer/qgl.h

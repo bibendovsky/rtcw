@@ -83,14 +83,7 @@ private:
 
 SysDirPosix* SysDirPosix::create(const char* path)
 {
-	SysDirPosix* sys_dir = static_cast<SysDirPosix*>(::malloc(sizeof(SysDirPosix)));
-
-	if (sys_dir == NULL)
-	{
-		return NULL;
-	}
-
-	::new (static_cast<void*>(sys_dir)) SysDirPosix(path);
+	SysDirPosix* sys_dir = new SysDirPosix(path);
 
 	if (!sys_dir->is_open())
 	{
@@ -103,8 +96,7 @@ SysDirPosix* SysDirPosix::create(const char* path)
 
 void SysDirPosix::destroy(SysDirPosix* sys_dir)
 {
-	sys_dir->~SysDirPosix();
-	::free(sys_dir);
+	delete sys_dir;
 }
 
 const SysDirEntry* SysDirPosix::read()
