@@ -14,7 +14,6 @@
 #include <fstream>
 #include <limits>
 #include <memory>
-#include <stack>
 #include <string>
 #include <utility>
 

@@ -1,23 +1,67 @@
 #include "rtcw_ogl_matrix_stack.h"
-#include <cassert>
+#include <assert.h>
+#include <stdio.h>
+#include <exception>
+#include "rtcw_array_trivial.h"
 
+namespace rtcw {
 
-namespace rtcw
+class OglMatrixStack::Impl
 {
+public:
+	static Matrix* allocate(int count);
 
+private:
+	static const int storage_capacity = model_view_max_depth + projection_max_depth;
 
-OglMatrixStack::OglMatrixStack()
+private:
+	typedef ArrayTrivial<Matrix, storage_capacity> Storage;
+
+private:
+	static Storage storage_;
+	static int storage_size_;
+};
+
+// --------------------------------------------------------------------------
+
+OglMatrixStack::Impl::Storage OglMatrixStack::Impl::storage_;
+int OglMatrixStack::Impl::storage_size_ = 0;
+
+// --------------------------------------------------------------------------
+
+OglMatrixStack::Matrix* OglMatrixStack::Impl::allocate(int count)
+{
+	assert(count >= 0);
+
+	if (storage_capacity - storage_size_ < count)
+	{
+		fputs("\n[rtcw::OglMatrixStack] Out of memory.\n", stderr);
+		assert(false && "Out of memory.");
+		std::terminate();
+	}
+
+	Matrix* const result = &storage_[storage_size_];
+	storage_size_ += count;
+	return result;
+}
+
+// ==========================================================================
+
+// FIXME
+OglMatrixStack::OglMatrixStack(int capacity)
 	:
-	stack_(),
+	stack_(Impl::allocate(capacity)),
+	stack_capacity_(capacity),
+	stack_size_(),
 	current_(Matrix::identity)
 {}
 
 void OglMatrixStack::pop()
 {
-	assert(!stack_.empty());
+	assert(stack_size_ > 0);
 
-	current_ = stack_.top();
-	stack_.pop();
+	current_ = stack_[stack_size_ - 1];
+	--stack_size_;
 }
 
 OglMatrixStack::Matrix& OglMatrixStack::pop_and_get()
@@ -26,22 +70,12 @@ OglMatrixStack::Matrix& OglMatrixStack::pop_and_get()
 	return get_current();
 }
 
-float* OglMatrixStack::pop_and_get_items()
-{
-	pop();
-	return get_current_items();
-}
-
 void OglMatrixStack::push()
 {
-	assert(static_cast<int>(stack_.size()) < get_max_depth());
+	assert(stack_size_ < stack_capacity_);
 
-	if (stack_.size() == get_max_depth())
-	{
-		return;
-	}
-
-	stack_.push(current_);
+	stack_[stack_size_] = current_;
+	++stack_size_;
 }
 
 OglMatrixStack::Matrix& OglMatrixStack::push_and_get()
@@ -57,13 +91,6 @@ void OglMatrixStack::push_and_set(
 	set_current(value);
 }
 
-void OglMatrixStack::push_and_set(
-	const float items[16])
-{
-	push();
-	set_current(items);
-}
-
 void OglMatrixStack::push_and_set_identity()
 {
 	push();
@@ -75,29 +102,17 @@ OglMatrixStack::Matrix& OglMatrixStack::get_current()
 	return current_;
 }
 
-float* OglMatrixStack::get_current_items()
-{
-	return current_.get_data();
-}
-
-const float* OglMatrixStack::get_current_items() const
-{
-	return current_.get_data();
-}
-
 const OglMatrixStack::Matrix& OglMatrixStack::get_current() const
 {
 	return current_;
 }
 
-void OglMatrixStack::set_current(
-	const Matrix& value)
+void OglMatrixStack::set_current(const Matrix& value)
 {
 	current_ = value;
 }
 
-void OglMatrixStack::set_current(
-	const float items[16])
+void OglMatrixStack::set_current(const float items[16])
 {
 	current_ = Matrix(
 		items[0], items[1], items[2], items[3],
@@ -106,10 +121,4 @@ void OglMatrixStack::set_current(
 		items[12], items[13], items[14], items[15]);
 }
 
-int OglMatrixStack::get_max_depth()
-{
-	return 1;
-}
-
-
-} // rtcw
+} // namespace rtcw

@@ -97,8 +97,8 @@ OglTessLayout ogl_tess2;
 GLuint ogl_tess2_vbo = 0;
 int ogl_tess2_base_vertex = 0;
 
-rtcw::OglMatrixStack ogl_model_view_stack;
-rtcw::OglMatrixStack ogl_projection_stack;
+rtcw::OglMatrixStack ogl_model_view_stack(rtcw::OglMatrixStack::model_view_max_depth);
+rtcw::OglMatrixStack ogl_projection_stack(rtcw::OglMatrixStack::projection_max_depth);
 // BBi
 
 glstate_t glState;
