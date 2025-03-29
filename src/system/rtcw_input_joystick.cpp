@@ -204,7 +204,7 @@ void Joystick::uninitialize(
 		instance_ = NULL;
 	}
 
-	buttons_states_.reset();
+	buttons_states_.clear();
 }
 
 void Joystick::handle_event(
@@ -246,7 +246,7 @@ void Joystick::handle_event(
 
 void Joystick::reset_state()
 {
-	if (!buttons_states_.any())
+	if (buttons_states_.is_clear())
 	{
 		return;
 	}
@@ -255,7 +255,7 @@ void Joystick::reset_state()
 
 	for (int i = 0; i < MAX_BUTTONS_STATES; ++i)
 	{
-		const bool state = buttons_states_.test(i);
+		const bool state = buttons_states_.is_set(i);
 
 		if (!state)
 			continue;
@@ -270,7 +270,7 @@ void Joystick::reset_state()
 		);
 	}
 
-	buttons_states_.reset();
+	buttons_states_.clear();
 }
 
 void Joystick::register_cvars()
@@ -312,7 +312,7 @@ void Joystick::handle_axis_event(
 	const int index = (value > threshold ? 1 : 0);
 	const int key_index = index * e.axis;
 
-	buttons_states_.flip(key_index);
+	buttons_states_.toggle(key_index);
 
 	Sys_QueEvent(
 		e.timestamp,
@@ -415,7 +415,7 @@ void Joystick::handle_hat_event(
 			continue;
 		}
 
-		buttons_states_.flip(index);
+		buttons_states_.toggle(index);
 
 		Sys_QueEvent(
 			e.timestamp,

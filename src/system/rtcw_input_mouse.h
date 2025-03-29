@@ -31,11 +31,10 @@ If you have questions concerning this license or the applicable additional terms
 #define RTCW_INPUT_MOUSE_INCLUDED
 
 
-#include <bitset>
-
 #include "SDL_events.h"
 
 #include "q_shared.h"
+#include "rtcw_bit_array_single_unit.h"
 
 
 extern cvar_t* in_mouse;
@@ -77,7 +76,7 @@ private:
 	static const int MAX_BUTTONS_COUNT = 5;
 
 
-	typedef std::bitset<MAX_BUTTONS_COUNT> ButtonsStates;
+	typedef BitArraySingleUnit<MAX_BUTTONS_COUNT> ButtonsStates;
 
 
 	bool is_initialized_;

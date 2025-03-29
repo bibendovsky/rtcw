@@ -113,7 +113,7 @@ void Mouse::uninitialize(
 
 	is_initialized_ = false;
 	is_activated_ = false;
-	buttons_states_.reset();
+	buttons_states_.clear();
 }
 
 void Mouse::handle_event(
@@ -208,7 +208,7 @@ void Mouse::update()
 
 void Mouse::reset_state()
 {
-	if (!buttons_states_.any())
+	if (buttons_states_.is_clear())
 	{
 		return;
 	}
@@ -217,7 +217,7 @@ void Mouse::reset_state()
 
 	for (int i = 0; i < MAX_BUTTONS_COUNT; ++i)
 	{
-		const bool state = buttons_states_.test(i);
+		const bool state = buttons_states_.is_set(i);
 
 		if (!state)
 		{
@@ -236,7 +236,7 @@ void Mouse::reset_state()
 		);
 	}
 
-	buttons_states_.reset();
+	buttons_states_.clear();
 }
 
 void Mouse::register_cvars()
@@ -262,8 +262,8 @@ void Mouse::handle_button_event(
 
 	const int game_button = get_game_button_by_sys_button(button);
 
-	buttons_states_.flip(state_index);
-	const bool state = buttons_states_.test(state_index);
+	buttons_states_.toggle(state_index);
+	const bool state = buttons_states_.is_set(state_index);
 
 	Sys_QueEvent(
 		e.timestamp,

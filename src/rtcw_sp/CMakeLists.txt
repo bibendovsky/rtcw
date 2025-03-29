@@ -93,6 +93,8 @@ target_sources (
 		../qcommon/cm_public.h
 		../qcommon/qcommon.h
 		../qcommon/qfiles.h
+		../qcommon/rtcw_bit_array_single_unit.cpp
+		../qcommon/rtcw_bit_array_single_unit.h
 		../qcommon/rtcw_c.h
 		../qcommon/rtcw_mod_value.h
 		../qcommon/vm_local.h
