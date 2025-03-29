@@ -10,8 +10,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
-#include <deque>
-#include <fstream>
 #include <limits>
 #include <memory>
 #include <string>
