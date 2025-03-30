@@ -2757,11 +2757,11 @@ A way to force a bus error for development reasons
 =================
 */
 static void Com_Crash_f( void ) {
-#if FIXME
+#ifdef RTCW_VANILLA
 	*( int * ) 0 = 0x12345678;
-#else
-	throw NULL;
-#endif // FIXME
+#else // RTCW_VANILLA
+	*static_cast<size_t*>(NULL) = 0x12345678;
+#endif // RTCW_VANILLA
 }
 
 #if defined RTCW_ET

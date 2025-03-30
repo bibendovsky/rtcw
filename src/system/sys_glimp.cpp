@@ -757,7 +757,6 @@ void GLimp_Init()
 	if (!is_succeed)
 	{
 		ri.Error(ERR_FATAL, "Failed to create a window.\n");
-		throw 0;
 	}
 
 	sys_main_window_id = SDL_GetWindowID(sys_gl_window);
