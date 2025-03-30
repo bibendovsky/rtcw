@@ -184,7 +184,7 @@ int JpegReader::get_height() const
 	return height_;
 }
 
-const std::string& JpegReader::get_error_message() const
+const String& JpegReader::get_error_message() const
 {
 	return error_message_;
 }

@@ -490,7 +490,7 @@ static int R_GetMaxTextureSize ()
 	return result;
 }
 
-std::string r_dbg_get_glsl_path()
+rtcw::String r_dbg_get_glsl_path()
 {
 	if (glConfigEx.is_path_ogl_2_x())
 	{
@@ -498,7 +498,7 @@ std::string r_dbg_get_glsl_path()
 	}
 	else
 	{
-		return std::string();
+		return rtcw::String();
 	}
 }
 
@@ -506,7 +506,7 @@ bool r_dbg_probe_programs()
 {
 	bool is_try_successfull = true;
 
-	const std::string glsl_dir = r_dbg_get_glsl_path();
+	const rtcw::String glsl_dir = r_dbg_get_glsl_path();
 
 	if (glsl_dir.empty())
 	{
@@ -537,7 +537,7 @@ void r_dbg_reload_programs_f()
 	ri.Printf(PRINT_ALL, "\n======== GLSL (debug) ========\n");
 	ri.Printf(PRINT_ALL, "%s...\n", "Trying to reload programs");
 
-	const std::string glsl_dir = r_dbg_get_glsl_path();
+	const rtcw::String glsl_dir = r_dbg_get_glsl_path();
 
 	if (glsl_dir.empty())
 	{

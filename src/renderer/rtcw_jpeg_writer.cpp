@@ -202,7 +202,7 @@ bool JpegWriter::encode(
 	return is_succeed;
 }
 
-const std::string& JpegWriter::get_error_message() const
+const String& JpegWriter::get_error_message() const
 {
 	return error_message_;
 }

@@ -97,6 +97,8 @@ target_sources (
 		../qcommon/rtcw_bit_array_single_unit.h
 		../qcommon/rtcw_c.h
 		../qcommon/rtcw_mod_value.h
+		../qcommon/rtcw_string.cpp
+		../qcommon/rtcw_string.h
 		../qcommon/vm_local.h
 		../renderer/anorms256.h
 		../renderer/glad.h

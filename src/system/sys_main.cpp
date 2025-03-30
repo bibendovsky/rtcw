@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "client.h"
 #include "qcommon.h"
 #include "sys_local.h"
+#include "rtcw_string.h"
 
 
 int totalMsec = 0;
@@ -51,9 +52,9 @@ extern "C" int main(
 			sdl_error_message = "";
 		}
 
-		const size_t sdl_error_message_size = std::string::traits_type::length(sdl_error_message);
+		const size_t sdl_error_message_size = rtcw::String::traits_type::length(sdl_error_message);
 
-		std::string error_message;
+		rtcw::String error_message;
 		error_message.reserve(sdl_error_message_size + 64);
 		error_message += "Failed to initialize SDL (";
 		error_message.append(sdl_error_message, sdl_error_message_size);
@@ -73,7 +74,7 @@ extern "C" int main(
 
 	const int command_line_reserve = 1024;
 
-	std::string command_line;
+	rtcw::String command_line;
 	command_line.reserve(command_line_reserve);
 
 	for (int i = 1; i < argc; ++i)

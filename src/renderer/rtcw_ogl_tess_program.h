@@ -2,6 +2,7 @@
 #define RTCW_OGL_TESS_PROGRAM_INCLUDED
 
 
+#include "rtcw_string.h"
 #include "rtcw_ogl_program.h"
 
 
@@ -37,8 +38,8 @@ public:
 
 
 	OglTessProgram(
-		const std::string& glsl_dir,
-		const std::string& base_name);
+		const String& glsl_dir,
+		const String& base_name);
 
 	OglTessProgram(
 		const char* v_shader_c_string,
@@ -48,8 +49,8 @@ public:
 
 
 	virtual OglProgram* create_new(
-		const std::string& glsl_dir,
-		const std::string& base_name);
+		const String& glsl_dir,
+		const String& base_name);
 
 	virtual OglProgram* create_new(
 		const char* v_shader_c_string,

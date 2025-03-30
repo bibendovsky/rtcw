@@ -43,7 +43,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <cstddef>
 
 #include <algorithm>
-#include <string>
 
 #include "rtcw_endian.h"
 

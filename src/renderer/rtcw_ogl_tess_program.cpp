@@ -8,8 +8,8 @@ namespace rtcw
 
 
 OglTessProgram::OglTessProgram(
-	const std::string& glsl_dir,
-	const std::string& base_name)
+	const String& glsl_dir,
+	const String& base_name)
 	:
 	OglProgram(glsl_dir, base_name),
 	a_pos_vec4(-1),
@@ -75,8 +75,8 @@ OglTessProgram::~OglTessProgram()
 }
 
 OglProgram* OglTessProgram::create_new(
-	const std::string& glsl_dir,
-	const std::string& base_name)
+	const String& glsl_dir,
+	const String& base_name)
 {
 	return new OglTessProgram(glsl_dir, base_name);
 }

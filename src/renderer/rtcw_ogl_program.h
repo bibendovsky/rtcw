@@ -2,9 +2,8 @@
 #define RTCW_OGL_PROGRAM_INCLUDED
 
 
-#include <string>
-
 #include "glad.h"
+#include "rtcw_string.h"
 
 
 namespace rtcw
@@ -22,8 +21,8 @@ public:
 
 
 	OglProgram(
-		const std::string& glsl_dir,
-		const std::string& base_name);
+		const String& glsl_dir,
+		const String& base_name);
 
 	OglProgram(
 		const char* v_shader_buffer,
@@ -58,8 +57,8 @@ protected:
 
 
 	SourceType source_type_;
-	std::string glsl_dir_;
-	std::string base_name_;
+	String glsl_dir_;
+	String base_name_;
 	const char* v_shader_c_string_;
 	const char* f_shader_c_string_;
 
@@ -68,8 +67,8 @@ protected:
 
 
 	virtual OglProgram* create_new(
-		const std::string& glsl_dir,
-		const std::string& base_name) = 0;
+		const String& glsl_dir,
+		const String& base_name) = 0;
 
 	virtual OglProgram* create_new(
 		const char* v_shader_buffer,
@@ -99,13 +98,13 @@ private:
 
 	ReloadShaderResult reload_shader(
 		const GLenum shader_type,
-		const std::string& file_name,
+		const String& file_name,
 		GLuint& shaderObject);
 
-	static std::string get_compile_log(
+	static String get_compile_log(
 		const GLuint shader_object);
 
-	std::string get_link_log();
+	String get_link_log();
 }; // class OglProgram
 
 

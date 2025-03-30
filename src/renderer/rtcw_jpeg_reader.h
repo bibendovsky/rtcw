@@ -7,9 +7,8 @@
 #define RTCW_JPEG_READER_INCLUDED
 
 
-#include <string>
-
 #include "jpgd.h"
+#include "rtcw_string.h"
 #include "rtcw_unique_ptr.h"
 
 
@@ -37,7 +36,7 @@ public:
 
 	int get_height() const;
 
-	const std::string& get_error_message() const;
+	const String& get_error_message() const;
 
 
 private:
@@ -46,7 +45,7 @@ private:
 	bool is_grayscale_;
 	rtcw::UniquePtr<jpgd::jpeg_decoder_mem_stream> stream_;
 	rtcw::UniquePtr<jpgd::jpeg_decoder> decoder_;
-	std::string error_message_;
+	String error_message_;
 
 	JpegReader(const JpegReader&);
 	JpegReader& operator=(const JpegReader&);

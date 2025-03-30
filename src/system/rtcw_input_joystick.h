@@ -31,8 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 #define RTCW_INPUT_JOYSTICK_INCLUDED
 
 
-#include <string>
-
 #include "SDL_events.h"
 
 #include "q_shared.h"

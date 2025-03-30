@@ -36,7 +36,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <math.h>
 
 #include <algorithm>
-#include <string>
 
 #include "SDL.h"
 
@@ -45,6 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "sys_events.h"
 #include "sys_local.h"
 #include "sys_shared.h"
+#include "rtcw_string.h"
 
 extern int Sys_Milliseconds();
 
@@ -444,9 +444,9 @@ extern int cl_connectedToPureServer;
 const char* Sys_GetDLLName(
 	const char* name)
 {
-	static const std::string bits(RTCW_ARCH_STRING);
+	static const rtcw::String bits(RTCW_ARCH_STRING);
 
-	static const std::string game(
+	static const rtcw::String game(
 #ifdef RTCW_SP
 		""
 #else
@@ -454,7 +454,7 @@ const char* Sys_GetDLLName(
 #endif
 	);
 
-	static const std::string demo(
+	static const rtcw::String demo(
 #ifndef WOLF_SP_DEMO
 		""
 #else
@@ -462,7 +462,7 @@ const char* Sys_GetDLLName(
 #endif
 	);
 
-	static const std::string ext(
+	static const rtcw::String ext(
 #ifdef __WIN32__
 		".dll"
 #else
@@ -470,7 +470,7 @@ const char* Sys_GetDLLName(
 #endif
 	);
 
-	static std::string buffer;
+	static rtcw::String buffer;
 
 	buffer = name + game + bits + demo + ext;
 
@@ -491,7 +491,7 @@ void* QDECL Sys_LoadDll(
 	const char* cdpath = Cvar_VariableString("fs_cdpath");
 	const char* gamedir = Cvar_VariableString("fs_game");
 
-	const std::string filename(Sys_GetDLLName(name));
+	const rtcw::String filename(Sys_GetDLLName(name));
 
 	// try gamepath first
 	char* fn = FS_BuildOSPath(basepath, gamedir, filename.c_str());

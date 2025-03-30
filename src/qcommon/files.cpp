@@ -40,12 +40,12 @@ If you have questions concerning this license or the applicable additional terms
 #endif // RTCW_XX
 
 #include <limits>
-#include <string>
 
 #include "miniz.h"
 
 #include "q_shared.h"
 #include "qcommon.h"
+#include "rtcw_string.h"
 #include "rtcw_unique_ptr.h"
 
 
@@ -324,7 +324,7 @@ class MinizZip
 public:
 	struct FileStat
 	{
-		std::string file_name_;
+		rtcw::String file_name_;
 		uint32_t crc_;
 		int compressed_size_;
 		int uncompressed_size_;
@@ -2911,7 +2911,7 @@ static pack_t* FS_LoadZipFile(
 {
 	fileInPack_t    *buildBuffer;
 	pack_t          *pack;
-	std::string filename_inzip;
+	rtcw::String filename_inzip;
 	int i, len;
 	int32_t hash;
 	int fs_numHeaderLongs;

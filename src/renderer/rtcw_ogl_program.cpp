@@ -8,8 +8,8 @@ namespace rtcw
 
 
 OglProgram::OglProgram(
-	const std::string& glsl_dir,
-	const std::string& base_name)
+	const String& glsl_dir,
+	const String& base_name)
 	:
 	program_(),
 	source_type_(source_type_file),
@@ -86,12 +86,12 @@ bool OglProgram::reload_internal()
 
 	if (source_type_ == source_type_file)
 	{
-		const std::string p_name = glsl_dir_ + base_name_;
+		const String p_name = glsl_dir_ + base_name_;
 
 		ri.Printf(PRINT_ALL, "\"%s\"\n", p_name.c_str());
 
-		const std::string v_name = p_name + "_vs.txt";
-		const std::string f_name = p_name + "_fs.txt";
+		const String v_name = p_name + "_vs.txt";
+		const String f_name = p_name + "_fs.txt";
 
 		const ReloadShaderResult v_result = reload_shader(GL_VERTEX_SHADER, v_name, ogl_vertex_shader_);
 
@@ -130,7 +130,7 @@ bool OglProgram::reload_internal()
 		glLinkProgram(program_);
 		glGetProgramiv(program_, GL_LINK_STATUS, &link_status);
 
-		std::string link_log = get_link_log();
+		String link_log = get_link_log();
 
 		if (link_status != GL_FALSE)
 		{
@@ -192,7 +192,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 {
 	ReloadShaderResult result = reload_result_none;
 
-	const GLint source_length = static_cast<GLint>(std::string::traits_type::length(shader_c_string));
+	const GLint source_length = static_cast<GLint>(String::traits_type::length(shader_c_string));
 
 	shader_object = 0;
 
@@ -211,7 +211,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 
 		glGetShaderiv(shader_object, GL_COMPILE_STATUS, &compile_status);
 
-		const std::string compile_log = get_compile_log(shader_object);
+		const String compile_log = get_compile_log(shader_object);
 
 		if (compile_status != GL_FALSE)
 		{
@@ -243,7 +243,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 
 OglProgram::ReloadShaderResult OglProgram::reload_shader(
 	const GLenum shader_type,
-	const std::string& file_name,
+	const String& file_name,
 	GLuint& shader_object)
 {
 	ReloadShaderResult result = reload_result_none;
@@ -269,7 +269,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 
 		glGetShaderiv(shader_object, GL_COMPILE_STATUS, &compile_status);
 
-		const std::string compile_log = get_compile_log(shader_object);
+		const String compile_log = get_compile_log(shader_object);
 
 		if (compile_status != GL_FALSE)
 		{
@@ -304,7 +304,7 @@ OglProgram::ReloadShaderResult OglProgram::reload_shader(
 	return result;
 }
 
-std::string OglProgram::get_compile_log(
+String OglProgram::get_compile_log(
 	const GLuint shader_object)
 {
 	GLint info_log_size = 0; // with a null terminator
@@ -313,19 +313,19 @@ std::string OglProgram::get_compile_log(
 
 	if (info_log_size <= 0)
 	{
-		return std::string();
+		return String();
 	}
 
 	GLsizei info_log_length = 0; // without a null terminator
 
-	std::string info_log;
+	String info_log;
 	info_log.resize(info_log_size);
 
 	glGetShaderInfoLog(shader_object, info_log_size, &info_log_length, &info_log[0]);
 
 	if (info_log_length == 0)
 	{
-		return std::string();
+		return String();
 	}
 
 	info_log.resize(info_log_length);
@@ -333,7 +333,7 @@ std::string OglProgram::get_compile_log(
 	return info_log;
 }
 
-std::string OglProgram::get_link_log()
+String OglProgram::get_link_log()
 {
 	GLint info_log_size = 0; // with a null terminator
 
@@ -341,20 +341,20 @@ std::string OglProgram::get_link_log()
 
 	if (info_log_size == 0)
 	{
-		return std::string();
+		return String();
 	}
 
 
 	GLsizei info_log_length = 0; // without a null terminator
 
-	std::string info_log;
+	String info_log;
 	info_log.resize(info_log_size);
 
 	glGetProgramInfoLog(program_, info_log_size, &info_log_length, &info_log[0]);
 
 	if (info_log_length == 0)
 	{
-		return std::string();
+		return String();
 	}
 
 	info_log.resize(info_log_length);

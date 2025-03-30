@@ -7,9 +7,8 @@
 #define RTCW_JPEG_WRITER_INCLUDE
 
 
-#include <string>
-
 #include "jpge.h"
+#include "rtcw_string.h"
 #include "rtcw_vector_trivial.h"
 
 
@@ -30,7 +29,7 @@ public:
 		void* dst_data,
 		int& dst_size);
 
-	const std::string& get_error_message() const;
+	const String& get_error_message() const;
 
 	static int estimate_dst_size(
 		int width,
@@ -41,7 +40,7 @@ private:
 
 	typedef VectorTrivial<unsigned char> Buffer;
 
-	std::string error_message_;
+	String error_message_;
 
 	Buffer line_buffer_;
 
