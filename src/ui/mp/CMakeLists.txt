@@ -76,7 +76,7 @@ install (
 	TARGETS
 		${PROJECT_NAME}
 	LIBRARY
-		DESTINATION sp-mp/main
+		DESTINATION mp/Main
 	RUNTIME
-		DESTINATION sp-mp/main
+		DESTINATION mp/Main
 )

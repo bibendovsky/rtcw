@@ -240,5 +240,5 @@ install (
 	TARGETS
 		${PROJECT_NAME}
 	RUNTIME
-		DESTINATION sp-mp
+		DESTINATION mp
 )
