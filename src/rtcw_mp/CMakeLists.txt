@@ -295,6 +295,21 @@ if (WIN32)
 			../win32/rtcw_mp.ico
 			../win32/rtcw_mp.rc
 	)
+
+	if (CMAKE_CXX_COMPILER_ID STREQUAL OpenWatcom)
+		add_custom_command(
+			TARGET ${PROJECT_NAME} POST_BUILD
+			COMMAND wrc.exe
+				/DRTCW_MP
+				/bt=nt
+				/i=$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32>
+				/fo=$<SHELL_PATH:${PROJECT_BINARY_DIR}/rtcw_mp.res>
+				$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32/rtcw_mp.rc>
+				$<SHELL_PATH:$<TARGET_FILE:${PROJECT_NAME}>>
+			COMMENT "[${PROJECT_NAME}] Embed resources."
+			VERBATIM
+		)
+	endif ()
 endif ()
 
 install (

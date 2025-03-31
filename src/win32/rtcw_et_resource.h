@@ -30,6 +30,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef RTCW_ET_RESOURCE_H
 #define RTCW_ET_RESOURCE_H
 
+#ifndef RT_MANIFEST
+	#define RT_MANIFEST 24
+#endif // RT_MANIFEST
 
 #if defined RTCW_ET
 	#define IDI_ICON1 (1)

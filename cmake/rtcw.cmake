@@ -103,9 +103,15 @@ function (rtcw_configure_target)
 					PROPERTIES
 						LINK_FLAGS -STACK:8388608
 				)
+
+				if (NOT (MSVC_VERSION LESS 1400))
+					set_target_properties(${ARGV0} PROPERTIES
+						LINK_FLAGS /MANIFEST:NO
+					)
 				endif ()
 			endif ()
 		endif ()
+	endif ()
 
 	target_compile_definitions (
 		${ARGV0}

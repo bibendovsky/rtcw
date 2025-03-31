@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "rtcw_et_resource.h"
 
+1 RT_MANIFEST "rtcw.manifest"
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 

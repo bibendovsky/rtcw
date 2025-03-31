@@ -31,6 +31,10 @@ If you have questions concerning this license or the applicable additional terms
 #define RTCW_MP_RESOURCE_H
 
 
+#ifndef RT_MANIFEST
+	#define RT_MANIFEST 24
+#endif // RT_MANIFEST
+
 #if defined RTCW_MP
 	#define IDI_ICON1 (1)
 #endif
