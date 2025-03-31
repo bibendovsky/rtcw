@@ -134,6 +134,8 @@ target_sources (
 		../system/rtcw_input_joystick.h
 		../system/rtcw_input_keyboard.h
 		../system/rtcw_input_mouse.h
+		../system/rtcw_window_rounded_corner_mgr.cpp
+		../system/rtcw_window_rounded_corner_mgr.h
 		../system/sys_events.h
 		../system/sys_input.h
 		../system/sys_local.h

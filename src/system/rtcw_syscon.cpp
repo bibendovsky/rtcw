@@ -9,6 +9,7 @@
 #include "rtcw_sdl_utility.h"
 #include "rtcw_syscon_font_16x8.h"
 #include "rtcw_vector_trivial.h"
+#include "rtcw_window_rounded_corner_mgr.h"
 
 // ==========================================================================
 
@@ -665,6 +666,8 @@ bool Syscon::Impl::initialize(Callback callback)
 		set_error_message_from_sdl("SDL_CreateWindow");
 		return false;
 	}
+
+	WindowRoundedCornerMgr::disable(sdl_window);
 
 	sdl_window_uptr_.reset(sdl_window);
 

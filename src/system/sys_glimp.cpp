@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "SDL_video.h"
 
 #include "tr_local.h"
+#include "rtcw_window_rounded_corner_mgr.h"
 
 
 SDL_Window* sys_gl_window;
@@ -620,6 +621,8 @@ void GLimp_Init()
 		{
 			ri.Error(ERR_FATAL, "Failed to create SDL window (%s).\n", SDL_GetError());
 		}
+
+		rtcw::WindowRoundedCornerMgr::disable(sys_gl_window);
 	}
 
 	bool is_support_gamma = false;

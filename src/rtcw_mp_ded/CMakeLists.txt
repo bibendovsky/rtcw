@@ -225,6 +225,8 @@ target_sources (
 		../system/rtcw_type_utility.h
 		../system/rtcw_vector_trivial.cpp
 		../system/rtcw_vector_trivial.h
+		../system/rtcw_window_rounded_corner_mgr.cpp
+		../system/rtcw_window_rounded_corner_mgr.h
 )
 
 if (WIN32)
