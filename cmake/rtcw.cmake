@@ -51,13 +51,15 @@ message (STATUS "[${PROJECT_NAME}] Enable static linking: ${RTCW_ENABLE_STATIC_L
 
 if (RTCW_ENABLE_STATIC_LINKING)
 	set(RTCW_TMP_SDL2_COMPONENTS "static")
+	set(RTCW_TMP_SDL2_NET_COMPONENTS "static")
 else ()
 	set(RTCW_TMP_SDL2_COMPONENTS "")
+	set(RTCW_TMP_SDL2_NET_COMPONENTS "")
 endif ()
 
 find_package(SDL2W 2.0.4 REQUIRED COMPONENTS ${RTCW_TMP_SDL2_COMPONENTS})
 
-find_package (SDL2W_net 2.0.1 REQUIRED)
+find_package (SDL2W_net 2.0.1 REQUIRED COMPONENTS ${RTCW_TMP_SDL2_NET_COMPONENTS})
 
 if (RTCW_CURL)
 	find_package (CURL 7.0.0 REQUIRED)
@@ -101,9 +103,9 @@ function (rtcw_configure_target)
 					PROPERTIES
 						LINK_FLAGS -STACK:8388608
 				)
+				endif ()
 			endif ()
 		endif ()
-	endif ()
 
 	target_compile_definitions (
 		${ARGV0}
