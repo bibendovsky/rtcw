@@ -23,6 +23,8 @@ public:
 	int length() const;
 	bool empty() const;
 	const char* c_str() const;
+	const char* data() const;
+	char* data();
 	const char& operator[](int index) const;
 	char& operator[](int index);
 
@@ -53,8 +55,6 @@ private:
 	char internal_storage_[internal_storage_capacity];
 
 private:
-	const char* get_data() const;
-	char* get_data();
 	char* ctor_initialize(int string_length);
 	void ctor_assign(const char* string);
 	void ctor_assign(const char* string, int string_length);

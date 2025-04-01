@@ -56,14 +56,24 @@ bool String::empty() const
 
 const char* String::c_str() const
 {
-	return get_data();
+	return data();
+}
+
+const char* String::data() const
+{
+	return external_storage_ != NULL ? external_storage_ : internal_storage_;
+}
+
+char* String::data()
+{
+	return const_cast<char*>(const_cast<const String*>(this)->data());
 }
 
 const char& String::operator[](int index) const
 {
 	assert(index >= 0 && index < length());
 
-	return get_data()[index];
+	return data()[index];
 }
 
 char& String::operator[](int index)
@@ -74,7 +84,7 @@ char& String::operator[](int index)
 void String::clear()
 {
 	length_ = 0;
-	get_data()[0] = '\0';
+	data()[0] = '\0';
 }
 
 void String::reserve(int new_capacity)
@@ -87,7 +97,7 @@ void String::reserve(int new_capacity)
 	}
 
 	char* const new_storage = static_cast<char*>(::operator new(static_cast<size_t>(new_capacity + 1)));
-	const char* const src_data = get_data();
+	const char* const src_data = data();
 	std::copy(src_data, &src_data[length() + 1], new_storage);
 	capacity_ = new_capacity;
 	external_storage_ = new_storage;
@@ -99,7 +109,7 @@ void String::resize(int new_length)
 
 	reserve(new_length);
 	const int old_length = length();
-	char* const dst_data = get_data();
+	char* const dst_data = data();
 	const int fill_count = std::max(new_length - old_length + 1, 1);
 	std::fill_n(&dst_data[old_length], fill_count, '\0');
 	length_ = new_length;
@@ -121,7 +131,7 @@ void String::append(const char* string, int string_length)
 	const int old_length = length();
 	const int new_length = old_length + string_length;
 	reserve(new_length);
-	char* const dst_data = get_data();
+	char* const dst_data = data();
 	std::copy(string, &string[string_length], &dst_data[old_length]);
 	dst_data[new_length] = '\0';
 	length_ = new_length;
@@ -133,16 +143,6 @@ void String::swap(String& that)
 	std::swap(length_, that.length_);
 	std::swap(external_storage_, that.external_storage_);
 	std::swap_ranges(internal_storage_, &internal_storage_[internal_storage_capacity], that.internal_storage_);
-}
-
-const char* String::get_data() const
-{
-	return external_storage_ != NULL ? external_storage_ : internal_storage_;
-}
-
-char* String::get_data()
-{
-	return const_cast<char*>(const_cast<const String*>(this)->get_data());
 }
 
 char* String::ctor_initialize(int string_length)
