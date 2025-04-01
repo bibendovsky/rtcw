@@ -102,7 +102,7 @@ install (
 	TARGETS
 		${PROJECT_NAME}
 	LIBRARY
-		DESTINATION mp/Main
+		DESTINATION mp/main
 	RUNTIME
-		DESTINATION mp/Main
+		DESTINATION mp/main
 )
