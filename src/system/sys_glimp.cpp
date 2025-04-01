@@ -525,11 +525,14 @@ void GLimp_Init()
 
 		if (is_fullscreen)
 		{
-#if _DEBUG
-			sdl_window_flags |= SDL_WINDOW_BORDERLESS;
-#else
-			sdl_window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-#endif
+			sdl_window_flags |= SDL_WINDOW_FULLSCREEN;
+		}
+		else
+		{
+			if (width == display_width && height == display_height)
+			{
+				sdl_window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+			}
 		}
 
 		sdl_result = SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
@@ -885,30 +888,54 @@ void GLimp_Activate (
 
 bool GLimp_SetFullscreen(bool value)
 {
-#if FIXME
 	ri.Printf(PRINT_ALL, "Trying to set %s mode without video restart...\n",
 		value ? "fullscreen" : "windowed");
 
-	if (sys_gl_window == NULL) {
+	if (sys_gl_window == NULL)
+	{
 		ri.Printf(PRINT_ALL, S_COLOR_YELLOW "  no main window.\n");
 		return false;
 	}
 
-	int sdl_result = 0;
+	const Uint32 sdl_current_flags = SDL_GetWindowFlags(sys_gl_window);
 
-	sdl_result = SDL_SetWindowFullscreen(
-		sys_gl_window,
-		value);
+	const bool is_current_fullscreen =
+		(sdl_current_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN;
 
-	if (sdl_result == 0) {
+	if (is_current_fullscreen == value)
+	{
+		ri.Printf(PRINT_ALL, "  nothing to change.\n");
+		return true;
+	}
+
+	Uint32 sdl_flags = 0;
+
+	if (value)
+	{
+		sdl_flags = SDL_WINDOW_FULLSCREEN;
+	}
+	else
+	{
+		SDL_DisplayMode sdl_display_mode;
+
+		if (SDL_GetDesktopDisplayMode(0, &sdl_display_mode) == 0)
+		{
+			if (sdl_display_mode.w == glConfig.vidWidth && sdl_display_mode.h == glConfig.vidHeight)
+			{
+				ri.Printf(PRINT_ALL, "  set borderless\n");
+				sdl_flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
+			}
+		}
+	}
+
+	const int sdl_result = SDL_SetWindowFullscreen(sys_gl_window, sdl_flags);
+
+	if (sdl_result == 0)
+	{
 		ri.Printf(PRINT_ALL, "  succeed.\n");
 		return true;
 	}
 
-	ri.Printf(PRINT_ALL, "  failed.\n");
+	ri.Printf(PRINT_ALL, "  failed. %s\n", SDL_GetError());
 	return false;
-#else
-	// Updating `glConfig` attributes not enough.
-	return false;
-#endif // FIXME
 }
