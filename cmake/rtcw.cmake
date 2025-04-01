@@ -83,6 +83,12 @@ function (rtcw_configure_target)
 			CXX_EXTENSIONS OFF
 	)
 
+	if (NOT ((MSVC AND (MSVC_VERSION LESS 1600)) OR (CMAKE_CXX_COMPILER_ID STREQUAL "OpenWatcom")))
+		set_target_properties(${ARGV0} PROPERTIES
+			COMPILE_FEATURES cxx_long_long_type
+		)
+	endif ()
+
 	get_target_property (RTCW_TMP_TARGET_TYPE ${ARGV0} TYPE)
 
 	unset(RTCW_TMP_IS_EXECUTABLE)
