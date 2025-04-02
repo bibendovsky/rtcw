@@ -10,6 +10,9 @@ message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 option (RTCW_SP "Build single-player." ON)
 message (STATUS "[${PROJECT_NAME}] Single-player: ${RTCW_SP}")
 
+option (RTCW_SP_DEMO "Build single-player demo." ON)
+message (STATUS "[${PROJECT_NAME}] Single-player: ${RTCW_SP_DEMO}")
+
 option (RTCW_MP "Build multi-player." ON)
 message (STATUS "[${PROJECT_NAME}] Multiplayer: ${RTCW_MP}")
 
@@ -26,7 +29,8 @@ if (NOT (RTCW_ET OR
 	RTCW_ET_DED OR
 	RTCW_MP OR
 	RTCW_MP_DED OR
-	RTCW_SP))
+	RTCW_SP OR
+	RTCW_SP_DEMO))
 	message (FATAL_ERROR "[${PROJECT_NAME}] Nothing to build!")
 endif ()
 
@@ -41,6 +45,13 @@ if (RTCW_SP)
 	add_subdirectory (src/game/sp)
 	add_subdirectory (src/ui/sp)
 	add_subdirectory (src/rtcw_sp)
+endif ()
+
+if (RTCW_SP_DEMO)
+	add_subdirectory (src/cgame/sp_demo)
+	add_subdirectory (src/game/sp_demo)
+	add_subdirectory (src/ui/sp_demo)
+	add_subdirectory (src/rtcw_sp_demo)
 endif ()
 
 if (RTCW_MP)

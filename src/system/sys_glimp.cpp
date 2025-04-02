@@ -600,7 +600,11 @@ void GLimp_Init()
 		const char* window_title =
 			"Return to Castle Wolfenstein ("
 #if defined RTCW_SP
+	#ifdef RTCW_SP_DEMO
+			"single-player demo"
+	#else
 			"single-player"
+	#endif
 #elif defined RTCW_MP
 			"multi-player"
 #elif defined RTCW_ET

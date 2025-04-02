@@ -109,7 +109,11 @@ If you have questions concerning this license or the applicable additional terms
 //#endif // RTCW_XX
 
 #if defined RTCW_SP
-#define RTCW_VERSION "RTCW-SP 0.99b (1.41)"
+#ifdef RTCW_SP_DEMO
+	#define RTCW_VERSION "RTCW-SP-D 0.99b (1.41)"
+#else
+	#define RTCW_VERSION "RTCW-SP 0.99b (1.41)"
+#endif
 #elif defined RTCW_MP
 #define RTCW_VERSION "RTCW-MP 0.99b (1.41b)"
 #else

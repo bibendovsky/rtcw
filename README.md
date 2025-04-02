@@ -1,5 +1,5 @@
 RTCW: One source port for all Return to Castle Wolfenstein games
-(singleplayer, multi-player, Enemy Territory)
+(single-player, single-player demo, multi-player, Enemy Territory)
 
 
 Minimum runtime requirements
