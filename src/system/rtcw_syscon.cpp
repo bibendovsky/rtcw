@@ -104,8 +104,15 @@ private:
 	static const int font_glyph_width = 8;
 	static const int font_glyph_height = 16;
 	static const int font_glyph_count = 190;
-	static const int font_atlas_width = 256;
-	static const int font_atlas_height = 128;
+
+
+	// GCC gives "undefined reference" error in debug build if it defined as static const.
+	enum
+	{
+		font_atlas_width = 256,
+		font_atlas_height = 128
+	};
+
 	static const int font_atlas_area = font_atlas_width * font_atlas_height;
 	static const int font_atlas_glyphs_per_width = font_atlas_width / font_glyph_width;
 	static const int font_atlas_glyphs_per_height = font_atlas_height / font_glyph_height;
@@ -163,7 +170,12 @@ private:
 
 	static const int default_edit_box_padding = 3;
 
-	static const int scrollbar_min_thumb_height = 4;
+	// GCC gives "undefined reference" error in debug build if it defined as static.
+	enum
+	{
+		scrollbar_min_thumb_height = 4
+	};
+
 	static const int scrollbar_arrow_width = 11;
 	static const int scrollbar_arrow_height = 9;
 	static const int scrollbar_button_height = 23;
@@ -2382,7 +2394,9 @@ void Syscon::Impl::scrollbar_update(Scrollbar& scrollbar)
 		return;
 	}
 
-	const int thumb_height = std::max((scrollbar.page_size * shaft_length) / max_value_delta, scrollbar_min_thumb_height);
+	const int thumb_height = std::max(
+		(scrollbar.page_size * shaft_length) / max_value_delta,
+		static_cast<int>(scrollbar_min_thumb_height));
 	const int thumb_offset = (scrollbar.value * shaft_length + max_value_delta - 1) / max_value_delta;
 
 	scrollbar.has_thumb = true;
