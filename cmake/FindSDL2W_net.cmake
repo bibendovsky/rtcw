@@ -1,7 +1,7 @@
 #[[
 SDL2W - CMake wrapper for SDL2.
 
-Copyright (c) 2020-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors.
+Copyright (c) 2020-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors.
 SPDX-License-Identifier: MIT
 
 Virtual components:
@@ -18,12 +18,14 @@ Targets:
 
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 
-set(SDL2W_NET_VERSION "1.0.4")
+set(SDL2W_NET_VERSION "1.0.5")
 message(STATUS "[SDL2W_net] Version: ${SDL2W_NET_VERSION}")
 
 set(SDL2W_NET_TMP_TARGET "${CMAKE_FIND_PACKAGE_NAME}::${CMAKE_FIND_PACKAGE_NAME}")
 
 set(SDL2W_SDL2_NET_DIR "" CACHE PATH "The directory with CMake files or the directory with MSVC / MinGW development builds. Leave empty to figure out the location of SDL2_net.")
+
+find_package(SDL2_net QUIET HINTS ${SDL2W_SDL2_NET_DIR})
 
 # Parse components.
 #
@@ -118,9 +120,39 @@ if (WIN32 AND SDL2W_SDL2_NET_DIR)
 	endif ()
 endif ()
 
-set(SDL2W_NET_TMP_FOUND_CONFIG FALSE)
+set(SDL2W_NET_TMP_FOUND_TARGETS FALSE)
+set(SDL2W_NET_TMP_SDL2_NET_TARGET "")
 
 if (NOT SDL2W_NET_TMP_FOUND_DEV_LIBS)
+	set(SDL2W_NET_TMP_HAS_SHARED_TARGET FALSE)
+	set(SDL2W_NET_TMP_HAS_STATIC_TARGET FALSE)
+
+	if (TARGET SDL2_net::SDL2_net)
+		set(SDL2W_NET_TMP_FOUND_TARGETS TRUE)
+		set(SDL2W_NET_TMP_HAS_SHARED_TARGET TRUE)
+		message(STATUS "[SDL2W_net] Found shared CMake target.")
+	endif ()
+
+	if (TARGET SDL2_net::SDL2_net-static)
+		set(SDL2W_NET_TMP_FOUND_TARGETS TRUE)
+		set(SDL2W_NET_TMP_HAS_STATIC_TARGET TRUE)
+		message(STATUS "[SDL2W_net] Found static CMake target.")
+	endif ()
+
+	if (SDL2W_NET_TMP_FOUND_TARGETS)
+		if (((NOT SDL2W_NET_TMP_HAS_SHARED_TARGET) AND SDL2W_NET_TMP_HAS_STATIC_TARGET) OR
+			(SDL2W_NET_TMP_USE_STATIC AND SDL2W_NET_TMP_HAS_STATIC_TARGET)
+			)
+			set(SDL2W_NET_TMP_SDL2_NET_TARGET "SDL2_net::SDL2_net-static")
+		else ()
+			set(SDL2W_NET_TMP_SDL2_NET_TARGET "SDL2_net::SDL2_net")
+		endif ()
+	endif ()
+endif ()
+
+set(SDL2W_NET_TMP_FOUND_CONFIG FALSE)
+
+if (NOT (SDL2W_NET_TMP_FOUND_DEV_LIBS OR SDL2W_NET_TMP_FOUND_TARGETS))
 	if (SDL2_net_FOUND)
 		message(STATUS "[SDL2W_net] Found pkg config.")
 
@@ -129,7 +161,6 @@ if (NOT SDL2W_NET_TMP_FOUND_DEV_LIBS)
 		message(FATAL_ERROR "[SDL2W_net] Pkg config not found.")
 	endif ()
 endif ()
-
 
 set(SDL2W_NET_TMP_VERSION_STRING "")
 
@@ -149,7 +180,11 @@ endif ()
 
 message(STATUS "[SDL2W_net] Libraries:")
 
-if (SDL2W_NET_TMP_FOUND_CONFIG)
+if (SDL2W_NET_TMP_FOUND_TARGETS)
+	get_target_property(SDL2W_NET_TMP_LOCATION ${SDL2W_NET_TMP_SDL2_NET_TARGET} LOCATION)
+	list(APPEND SDL2W_NET_TMP_SDL2_LINK_LIBS ${SDL2W_NET_TMP_LOCATION})
+	message(STATUS "[SDL2W_net]     \"${SDL2W_NET_TMP_LOCATION}\"")
+elseif (SDL2W_NET_TMP_FOUND_CONFIG)
 	if (MINGW)
 		if (SDL2W_NET_TMP_USE_STATIC)
 			set(SDL2W_NET_TMP_LOCATION ${SDL2_net_LIBRARY_DIRS}/libSDL2_net.a)
@@ -184,7 +219,9 @@ endif ()
 
 # Get includedirectories.
 #
-if (SDL2W_NET_TMP_FOUND_CONFIG)
+if (SDL2W_NET_TMP_FOUND_TARGETS)
+	get_target_property(SDL2W_NET_TMP_SDL2_INC_DIRS ${SDL2W_NET_TMP_SDL2_NET_TARGET} INTERFACE_INCLUDE_DIRECTORIES)
+elseif (SDL2W_NET_TMP_FOUND_CONFIG)
 	set(SDL2W_NET_TMP_SDL2_INC_DIRS ${SDL2_net_INCLUDE_DIRS})
 elseif (SDL2W_NET_TMP_FOUND_MSVC_LIBS)
 	set(SDL2W_NET_TMP_SDL2_INC_DIRS ${SDL2W_NET_TMP_MSVC_INCLUDE_DIR})
@@ -195,7 +232,7 @@ else ()
 endif ()
 
 
-# Find header filewith version.
+# Find header file with version.
 #
 if (NOT SDL2W_NET_TMP_SDL2_INC_DIRS)
 	message(FATAL_ERROR "[SDL2W_net] Empty includedirs list.")
@@ -307,7 +344,7 @@ include(FindPackageHandleStandardArgs)
 set(SDL2W_NET_TMP_REQUIRED_VARS "")
 
 if (SDL2W_NET_TMP_FOUND_TARGETS)
-	set(SDL2W_NET_TMP_REQUIRED_VARS SDL2_net_FOUND)
+	set(SDL2W_NET_TMP_REQUIRED_VARS SDL2W_NET_TMP_SDL2_NET_TARGET)
 elseif (SDL2W_NET_TMP_FOUND_CONFIG)
 	list(APPEND SDL2W_NET_TMP_REQUIRED_VARS SDL2_net_INCLUDE_DIRS)
 	list(APPEND SDL2W_NET_TMP_REQUIRED_VARS SDL2_net_LIBRARIES)
@@ -332,7 +369,7 @@ if (SDL2W_TMP_USE_STATIC)
 	list(APPEND SDL2W_TMP_SDL2_LINK_LIBS "${CMAKE_DL_LIBS}")
 endif ()
 
-if (WIN32 AND SDL2W_NET_TMP_USE_STATIC)
+if (WIN32)
 	list(APPEND SDL2W_NET_TMP_SDL2_LINK_LIBS "iphlpapi")
 	list(APPEND SDL2W_NET_TMP_SDL2_LINK_LIBS "ws2_32")
 endif ()

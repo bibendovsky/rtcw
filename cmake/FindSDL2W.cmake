@@ -1,7 +1,7 @@
 #[[
 SDL2W - CMake wrapper for SDL2.
 
-Copyright (c) 2018-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors.
+Copyright (c) 2018-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors.
 SPDX-License-Identifier: MIT
 
 
@@ -20,7 +20,7 @@ Targets:
 
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 
-set(SDL2W_VERSION "1.0.7")
+set(SDL2W_VERSION "1.0.8")
 message(STATUS "[SDL2W] Version: ${SDL2W_VERSION}")
 
 set(SDL2W_TMP_TARGET "${CMAKE_FIND_PACKAGE_NAME}::${CMAKE_FIND_PACKAGE_NAME}")
@@ -237,7 +237,7 @@ else ()
 endif ()
 
 
-# Find header filewith version.
+# Find header file with version.
 #
 if (NOT SDL2W_TMP_SDL2_INC_DIRS)
 	message(FATAL_ERROR "[SDL2W] Empty includedirs list.")
@@ -378,7 +378,7 @@ if (SDL2W_TMP_USE_STATIC)
 	list(APPEND SDL2W_TMP_SDL2_LINK_LIBS "${CMAKE_DL_LIBS}")
 endif ()
 
-if (WIN32 AND SDL2W_TMP_USE_STATIC)
+if (WIN32)
 	list(APPEND SDL2W_TMP_SDL2_LINK_LIBS "imm32")
 	list(APPEND SDL2W_TMP_SDL2_LINK_LIBS "setupapi")
 	list(APPEND SDL2W_TMP_SDL2_LINK_LIBS "version")
