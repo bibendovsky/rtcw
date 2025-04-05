@@ -127,14 +127,6 @@ function (rtcw_configure_target)
 			"RTCW_ARCH_STRING=\"${RTCW_ARCH_STRING}\""
 	)
 
-	if (MSVC)
-		target_compile_definitions (
-			${ARGV0}
-			PRIVATE
-				_CRT_SECURE_NO_WARNINGS
-		)
-	endif ()
-
 	if (RTCW_CURL AND RTCW_CURL_STATIC)
 		target_compile_definitions (
 			${ARGV0}
@@ -228,14 +220,6 @@ function (rtcw_configure_3rd_party_target)
 			CXX_STANDARD_REQUIRED ON
 			CXX_EXTENSIONS OFF
 	)
-
-	if (MSVC)
-		target_compile_definitions (
-			${ARGV0}
-			PRIVATE
-				_CRT_SECURE_NO_WARNINGS
-		)
-	endif ()
 
 	if (RTCW_MULTI_PROCESS_COMPILATION)
 		if (MSVC)
