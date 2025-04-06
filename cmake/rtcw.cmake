@@ -93,6 +93,12 @@ function (rtcw_configure_target)
 
 	unset(RTCW_TMP_IS_EXECUTABLE)
 
+	get_target_property(RTCW_TMP_LINK_FLAGS ${ARGV0} LINK_FLAGS)
+
+	if(NOT RTCW_TMP_LINK_FLAGS)
+		set(RTCW_TMP_LINK_FLAGS "")
+	endif()
+
 	if (RTCW_TMP_TARGET_TYPE STREQUAL "EXECUTABLE")
 		set(RTCW_TMP_IS_EXECUTABLE TRUE)
 
@@ -102,22 +108,30 @@ function (rtcw_configure_target)
 				PROPERTIES
 					WIN32_EXECUTABLE TRUE
 			)
-
-			if (MSVC)
-				set_target_properties (
-					${ARGV0}
-					PROPERTIES
-						LINK_FLAGS -STACK:8388608
-				)
-
-				if (NOT (MSVC_VERSION LESS 1400))
-					set_target_properties(${ARGV0} PROPERTIES
-						LINK_FLAGS /MANIFEST:NO
-					)
-				endif ()
-			endif ()
 		endif ()
+
+		############
+		# Stack size
+		if (WIN32)
+			if(MSVC)
+				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} /STACK:0x800000")
+			elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} -Wl,--stack,0x800000")
+			elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} -Wl,--stack,0x800000")
+			elseif(CMAKE_CXX_COMPILER_ID STREQUAL "OpenWatcom")
+				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} option stack=0x800000")
+			endif()
+		endif()
+
+		##############################
+		# Windows application manifest
+		if(MSVC AND (NOT (MSVC_VERSION LESS 1400)))
+			set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} /MANIFEST:NO")
+		endif()
 	endif ()
+
+	set_target_properties(${ARGV0} PROPERTIES LINK_FLAGS "${RTCW_TMP_LINK_FLAGS}")
 
 	target_compile_definitions (
 		${ARGV0}
