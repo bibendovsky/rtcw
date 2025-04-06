@@ -7,6 +7,12 @@ message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 
 add_executable (${PROJECT_NAME} "")
 
+add_custom_command(
+	TARGET ${PROJECT_NAME} POST_BUILD
+	COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:${PROJECT_NAME}>>
+	COMMENT "Strip executable."
+	VERBATIM
+)
 
 set_target_properties (
 	${PROJECT_NAME}
