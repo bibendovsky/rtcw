@@ -26,20 +26,38 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+// ==========================================================================
+// Language
 
-
-#if defined RTCW_SP
-
-
-#include <windows.h>
-
-#include "rtcw_sp_resource.h"
-
-1 RT_MANIFEST "rtcw.manifest"
+#define LANG_ENGLISH 0x09
+#define SUBLANG_ENGLISH_US 0x01
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
-IDI_ICON1 ICON DISCARDABLE "rtcw_sp.ico"
+
+// ==========================================================================
+// Manifest
+
+#define RT_MANIFEST 24
+
+1 RT_MANIFEST "rtcw.manifest"
 
 
-#endif // RTCW_SP
+// ==========================================================================
+// Main icon
+
+#define IDI_ICON1 1
+
+#ifdef RTCW_SP
+#define RTCW_RC_ICON_FILE_NAME "rtcw_sp.ico"
+#endif
+
+#ifdef RTCW_MP
+#define RTCW_RC_ICON_FILE_NAME "rtcw_mp.ico"
+#endif
+
+#ifdef RTCW_ET
+#define RTCW_RC_ICON_FILE_NAME "rtcw_et.ico"
+#endif
+
+IDI_ICON1 ICON DISCARDABLE RTCW_RC_ICON_FILE_NAME

@@ -26,21 +26,12 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#if defined(RTCW_SP)
-	#define RTCW_SYSCON_RESOURCE_HEADER "rtcw_sp_resource.h"
-#elif defined(RTCW_MP)
-	#define RTCW_SYSCON_RESOURCE_HEADER "rtcw_mp_resource.h"
-#elif defined(RTCW_ET)
-	#define RTCW_SYSCON_RESOURCE_HEADER "rtcw_et_resource.h"
-#endif // RTCW
-
 #include <algorithm>
 #include <string.h>
 #include "client.h"
 #include "sys_local.h"
 #include "rtcw_syscon.h"
 #include "rtcw_vector_trivial.h"
-#include RTCW_SYSCON_RESOURCE_HEADER
 
 namespace {
 

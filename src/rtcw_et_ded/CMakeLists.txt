@@ -135,16 +135,7 @@ target_sources (
 		../system/sys_shared.h
 		../ui/keycodes.h
 		../ui/ui_public.h
-		../win32/rtcw_et_resource.h
 )
-
-if (WIN32)
-	target_sources (
-		${PROJECT_NAME}
-		PRIVATE
-			../win32/rtcw_et_resource.h
-	)
-endif ()
 
 target_sources (
 	${PROJECT_NAME}
@@ -232,12 +223,7 @@ target_sources (
 )
 
 if (WIN32)
-	target_sources (
-		${PROJECT_NAME}
-		PRIVATE
-			../win32/rtcw_et.ico
-			../win32/rtcw_et.rc
-	)
+	target_sources(${PROJECT_NAME} PRIVATE ../win32/rtcw.rc)
 
 	if (CMAKE_CXX_COMPILER_ID STREQUAL OpenWatcom)
 		add_custom_command(
@@ -246,8 +232,8 @@ if (WIN32)
 				/DRTCW_ET
 				/bt=nt
 				/i=$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32>
-				/fo=$<SHELL_PATH:${PROJECT_BINARY_DIR}/rtcw_et.res>
-				$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32/rtcw_et.rc>
+				/fo=$<SHELL_PATH:${PROJECT_BINARY_DIR}/rtcw.res>
+				$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32/rtcw.rc>
 				$<SHELL_PATH:$<TARGET_FILE:${PROJECT_NAME}>>
 			COMMENT "[${PROJECT_NAME}] Embed resources."
 			VERBATIM
