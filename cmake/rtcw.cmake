@@ -6,20 +6,41 @@ cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 #
 # CPU architecture.
 #
-if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-	set (RTCW_ARCH_STRING "x86")
-elseif (CMAKE_SIZEOF_VOID_P EQUAL 8)
-	set (RTCW_ARCH_STRING "x64")
-else ()
-	unset (RTCW_ARCH_STRING)
-endif ()
+if(WIN32 AND NOT DEFINED RTCW_ARCH_X86_32 AND NOT DEFINED RTCW_ARCH_X86_64)
+	try_compile(RTCW_ARCH_X86_32
+		${CMAKE_CURRENT_BINARY_DIR}/cmake/try_compile
+		${CMAKE_SOURCE_DIR}/cmake/try_compile/is_x86_32.cpp
+		OUTPUT_VARIABLE RTCW_TRY_COMPILE_OUTPUT_RESULT
+	)
 
-if (RTCW_ARCH_STRING)
-	message (STATUS "[${PROJECT_NAME}] Arch: ${RTCW_ARCH_STRING}")
-else ()
-	message (FATAL_ERROR "[${PROJECT_NAME}] Unsupported platform.")
-endif ()
+	if(RTCW_ARCH_X86_32)
+		set(RTCW_ARCH_X86_32 TRUE CACHE INTERNAL "Architecture x86-32.")
+	else()
+		set(RTCW_ARCH_X86_32 FALSE CACHE INTERNAL "Architecture x86-32.")
+	endif()
 
+	try_compile(RTCW_ARCH_X86_64
+		${CMAKE_CURRENT_BINARY_DIR}/cmake/try_compile
+		${CMAKE_SOURCE_DIR}/cmake/try_compile/is_x86_64.cpp
+		OUTPUT_VARIABLE RTCW_TRY_COMPILE_OUTPUT_RESULT
+	)
+
+	if(RTCW_ARCH_X86_64)
+		set(RTCW_ARCH_X86_64 TRUE CACHE INTERNAL "Architecture x86-64.")
+	else()
+		set(RTCW_ARCH_X86_64 FALSE CACHE INTERNAL "Architecture x86-64.")
+	endif()
+endif()
+
+set(RTCW_ARCH_STRING "")
+
+if(RTCW_ARCH_X86_32)
+	set(RTCW_ARCH_STRING "x86")
+elseif(RTCW_ARCH_X86_64)
+	set(RTCW_ARCH_STRING "x64")
+endif()
+
+message(STATUS "[${PROJECT_NAME}] Architecture: ${RTCW_ARCH_STRING}")
 
 # Precompiled headers.
 #
