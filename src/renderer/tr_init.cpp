@@ -706,6 +706,8 @@ static const char* r_get_embeded_fragment_shader()
 		"uniform float fog_end;\n"
 		"\n"
 		"uniform float intensity;\n"
+		"uniform float overbright;\n"
+		"uniform float gamma;\n"
 		"\n"
 		"varying vec4 col; // interpolated color\n"
 		"varying vec2 tc[2]; // interpolated texture coords\n"
@@ -715,6 +717,11 @@ static const char* r_get_embeded_fragment_shader()
 		"vec4 apply_intensity(vec4 value)\n"
 		"{\n"
 		"    return vec4(clamp(value.rgb * intensity, vec3(0.0), vec3(1.0)), value.a);\n"
+		"}\n"
+		"\n"
+		"vec4 apply_gamma(vec4 value)\n"
+		"{\n"
+		"    return vec4(pow(value.rgb, vec3(1.0 / (overbright * gamma))), value.a);\n"
 		"}\n"
 		"\n"
 		"vec4 apply_tex_env(\n"
@@ -857,7 +864,7 @@ static const char* r_get_embeded_fragment_shader()
 		"        frag_color = apply_alpha_test(frag_color);\n"
 		"    }\n"
 		"\n"
-		"    gl_FragColor = frag_color;\n"
+		"    gl_FragColor = apply_gamma(frag_color);\n"
 		"}\n"
 	;
 
@@ -1211,10 +1218,17 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 		buffer[i + 2] = temp;
 	}
 
+#ifndef RTCW_VANILLA
+	if (glConfigEx.is_path_ogl_1_x())
+	{
+#endif // RTCW_VANILLA
 	// gamma correct
 	if ( ( tr.overbrightBits > 0 ) && glConfig.deviceSupportsGamma ) {
 		R_GammaCorrect( buffer + 18, glConfig.vidWidth * glConfig.vidHeight * 3 );
 	}
+#ifndef RTCW_VANILLA
+	}
+#endif // RTCW_VANILLA
 
 	ri.FS_WriteFile( fileName, buffer, c );
 
@@ -1233,10 +1247,17 @@ void R_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName )
 
 	glReadPixels( x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer );
 
+#ifndef RTCW_VANILLA
+	if (glConfigEx.is_path_ogl_1_x())
+	{
+#endif // RTCW_VANILLA
 	// gamma correct
 	if ( ( tr.overbrightBits > 0 ) && glConfig.deviceSupportsGamma ) {
 		R_GammaCorrect( buffer, glConfig.vidWidth * glConfig.vidHeight * 4 );
 	}
+#ifndef RTCW_VANILLA
+	}
+#endif // RTCW_VANILLA
 
 	ri.FS_WriteFile( fileName, buffer, 1 );     // create path
 	SaveJPG( fileName, 95, glConfig.vidWidth, glConfig.vidHeight, buffer );
@@ -1362,10 +1383,17 @@ void R_LevelShot( void ) {
 		}
 	}
 
+#ifndef RTCW_VANILLA
+	if (glConfigEx.is_path_ogl_1_x())
+	{
+#endif // RTCW_VANILLA
 	// gamma correct
 	if ( ( tr.overbrightBits > 0 ) && glConfig.deviceSupportsGamma ) {
 		R_GammaCorrect( buffer + 18, 128 * 128 * 3 );
 	}
+#ifndef RTCW_VANILLA
+	}
+#endif // RTCW_VANILLA
 
 	ri.FS_WriteFile( checkname, buffer, 128 * 128 * 3 + 18 );
 

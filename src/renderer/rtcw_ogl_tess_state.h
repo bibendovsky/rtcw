@@ -37,6 +37,8 @@ public:
 	rtcw::ModValue<cgm::Vec4> fog_color;
 
 	rtcw::ModValue<float> intensity;
+	rtcw::ModValue<float> overbright;
+	rtcw::ModValue<float> gamma;
 
 
 	OglTessState();

@@ -31,7 +31,9 @@ OglTessProgram::OglTessProgram(
 	u_fog_density(-1),
 	u_fog_start(-1),
 	u_fog_end(-1),
-	u_intensity(-1)
+	u_intensity(-1),
+	u_overbright(-1),
+	u_gamma(-1)
 {
 	u_tex_env_mode[0] = -1;
 	u_tex_env_mode[1] = -1;
@@ -63,7 +65,9 @@ OglTessProgram::OglTessProgram(
 	u_fog_density(-1),
 	u_fog_start(-1),
 	u_fog_end(-1),
-	u_intensity(-1)
+	u_intensity(-1),
+	u_overbright(-1),
+	u_gamma(-1)
 {
 	u_tex_env_mode[0] = -1;
 	u_tex_env_mode[1] = -1;
@@ -116,6 +120,8 @@ void OglTessProgram::unload_internal()
 	u_fog_start = -1;
 	u_fog_end = -1;
 	u_intensity = -1;
+	u_overbright = -1;
+	u_gamma = -1;
 
 	OglProgram::unload_internal();
 }
@@ -159,6 +165,8 @@ bool OglTessProgram::reload_internal()
 	u_fog_end = glGetUniformLocation(program_, "fog_end");
 
 	u_intensity = glGetUniformLocation(program_, "intensity");
+	u_overbright = glGetUniformLocation(program_, "overbright");
+	u_gamma = glGetUniformLocation(program_, "gamma");
 
 
 	if (a_col_vec4 >= 0)

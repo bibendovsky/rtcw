@@ -171,6 +171,13 @@ void R_FreeImageBuffer( void ) {
 ** R_GammaCorrect
 */
 void R_GammaCorrect( byte *buffer, int bufSize ) {
+#ifndef RTCW_VANILLA
+	if (!glConfigEx.is_path_ogl_1_x())
+	{
+		return;
+	}
+#endif // RTCW_VANILLA
+
 	int i;
 
 	for ( i = 0; i < bufSize; i++ ) {
@@ -562,6 +569,13 @@ lighting range
 ================
 */
 void R_LightScaleTexture( unsigned *in, int inwidth, int inheight, qboolean only_gamma ) {
+#ifndef RTCW_VANILLA
+	if (!glConfigEx.is_path_ogl_1_x())
+	{
+		return;
+	}
+#endif // RTCW_VANILLA
+
 	if ( only_gamma ) {
 		if ( !glConfig.deviceSupportsGamma ) {
 			int i, c;
@@ -587,43 +601,20 @@ void R_LightScaleTexture( unsigned *in, int inwidth, int inheight, qboolean only
 		c = inwidth * inheight;
 
 		if ( glConfig.deviceSupportsGamma ) {
-#ifndef RTCW_VANILLA
-			if (glConfigEx.is_path_ogl_1_x())
-			{
-#endif // RTCW_VANILLA
 			for ( i = 0 ; i < c ; i++, p += 4 )
 			{
 				p[0] = s_intensitytable[p[0]];
 				p[1] = s_intensitytable[p[1]];
 				p[2] = s_intensitytable[p[2]];
 			}
-#ifndef RTCW_VANILLA
-			}
-#endif // RTCW_VANILLA
 		} else
 		{
-#ifndef RTCW_VANILLA
-			if (glConfigEx.is_path_ogl_1_x())
-			{
-#endif // RTCW_VANILLA
 			for ( i = 0 ; i < c ; i++, p += 4 )
 			{
 				p[0] = s_gammatable[s_intensitytable[p[0]]];
 				p[1] = s_gammatable[s_intensitytable[p[1]]];
 				p[2] = s_gammatable[s_intensitytable[p[2]]];
 			}
-#ifndef RTCW_VANILLA
-			}
-			else
-			{
-				for (i = 0; i < c; ++i, p += 4)
-				{
-					p[0] = s_gammatable[p[0]];
-					p[1] = s_gammatable[p[1]];
-					p[2] = s_gammatable[p[2]];
-				}
-			}
-#endif // RTCW_VANILLA
 		}
 	}
 }
@@ -2994,6 +2985,11 @@ void R_SetColorMappings( void ) {
 
 	// setup the overbright lighting
 	tr.overbrightBits = r_overBrightBits->integer;
+
+#ifndef RTCW_VANILLA
+	if (glConfigEx.is_path_ogl_1_x())
+	{
+#endif // RTCW_VANILLA
 	if ( !glConfig.deviceSupportsGamma ) {
 		tr.overbrightBits = 0;      // need hardware gamma for overbright
 	}
@@ -3002,7 +2998,11 @@ void R_SetColorMappings( void ) {
 	if ( !glConfig.isFullscreen ) {
 		tr.overbrightBits = 0;
 	}
+#ifndef RTCW_VANILLA
+	}
+#endif // RTCW_VANILLA
 
+#ifdef RTCW_VANILLA
 	// allow 2 overbright bits in 24 bit, but only 1 in 16 bit
 	if ( glConfig.colorBits > 16 ) {
 		if ( tr.overbrightBits > 2 ) {
@@ -3013,6 +3013,9 @@ void R_SetColorMappings( void ) {
 			tr.overbrightBits = 1;
 		}
 	}
+#else // RTCW_VANILLA
+	tr.overbrightBits = std::min(tr.overbrightBits, 2);
+#endif // RTCW_VANILLA
 	if ( tr.overbrightBits < 0 ) {
 		tr.overbrightBits = 0;
 	}
@@ -3031,6 +3034,10 @@ void R_SetColorMappings( void ) {
 		ri.Cvar_Set( "r_gamma", "3.0" );
 	}
 
+#ifndef RTCW_VANILLA
+	if (glConfigEx.is_path_ogl_1_x())
+	{
+#endif // RTCW_VANILLA
 	g = r_gamma->value;
 
 	shift = tr.overbrightBits;
@@ -3062,11 +3069,19 @@ void R_SetColorMappings( void ) {
 	if ( glConfig.deviceSupportsGamma ) {
 		GLimp_SetGamma( s_gammatable, s_gammatable, s_gammatable );
 	}
-
 #ifndef RTCW_VANILLA
-	if (!glConfigEx.is_path_ogl_1_x())
+	}
+	else
 	{
+		tr.identityLight = 1.0F;
+		tr.identityLightByte = 255;
+
+		const int overbright_bits = std::min(std::max(r_overBrightBits->integer, 0), 2);
+		const float overbright = static_cast<float>(1 << overbright_bits);
+
 		ogl_tess_state.intensity.set(r_intensity->value);
+		ogl_tess_state.overbright.set(overbright);
+		ogl_tess_state.gamma.set(r_gamma->value);
 	}
 #endif // RTCW_VANILLA
 }

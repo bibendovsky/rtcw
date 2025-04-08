@@ -111,7 +111,11 @@ static void R_ColorShiftLightingBytes( byte in[4], byte out[4] ) {
 	int shift, r, g, b;
 
 	// shift the color data based on overbright range
+#ifdef RTCW_VANILLA
 	shift = r_mapOverBrightBits->integer - tr.overbrightBits;
+#else // RTCW_VANILLA
+	shift = std::max(r_mapOverBrightBits->integer - tr.overbrightBits, 0);
+#endif // RTCW_VANILLA
 
 	// shift the data based on overbright range
 	r = in[0] << shift;

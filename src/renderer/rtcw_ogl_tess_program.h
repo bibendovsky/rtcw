@@ -36,6 +36,8 @@ public:
 	int u_fog_start;
 	int u_fog_end;
 	int u_intensity;
+	int u_overbright;
+	int u_gamma;
 
 
 	OglTessProgram(
