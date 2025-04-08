@@ -530,48 +530,46 @@ void r_dbg_reload_programs_f()
 {
 	if (glConfigEx.is_path_ogl_1_x())
 	{
-		ri.Printf(PRINT_WARNING, "%s.\n", "Not supported for OpenGL 1.X");
+		ri.Printf(PRINT_WARNING, "Expected OpenGL v2.0+.\n");
 		return;
 	}
 
 	ri.Printf(PRINT_ALL, "\n======== GLSL (debug) ========\n");
-	ri.Printf(PRINT_ALL, "%s...\n", "Trying to reload programs");
+	ri.Printf(PRINT_ALL, "Reload the programs...\n");
 
 	const rtcw::String glsl_dir = r_dbg_get_glsl_path();
 
 	if (glsl_dir.empty())
 	{
-		ri.Printf(PRINT_WARNING, "Invalid OpenGL path value.\n");
+		ri.Printf(PRINT_WARNING, "Unspecified GLSL directory.\n");
 		return;
 	}
 
 	bool is_try_successfull = true;
-
 	ogl_tess_state.set_program(NULL);
 
-	if (!::ogl_tess_program)
+	if (ogl_tess_program == NULL)
 	{
 		ogl_tess_program = new rtcw::OglTessProgram(glsl_dir, "tess");
 	}
 
-	if (!ogl_tess_program)
+	if (ogl_tess_program != NULL)
 	{
 		is_try_successfull &= ogl_tess_program->try_reload();
 	}
 	else
 	{
 		is_try_successfull = false;
-		ri.Printf(PRINT_ALL, "%s.\n", "Out of memory");
+		ri.Printf(PRINT_ALL, "Out of memory.\n");
 	}
 
 	if (is_try_successfull)
 	{
-		ri.Printf(PRINT_ALL, "\n%s...\n", "Reloading programs");
 		ogl_tess_program->reload();
 	}
 
 	ogl_tess_state.set_program(ogl_tess_program);
-	ogl_tess_state.commit_changes();
+	ogl_tess_state.invalidate_and_commit();
 
 	ri.Printf(PRINT_ALL, "======== GLSL (debug) ========\n");
 }
@@ -868,7 +866,7 @@ bool r_probe_programs()
 	}
 #endif // _DEBUG
 
-	if (!::glConfigEx.is_path_ogl_2_x())
+	if (!glConfigEx.is_path_ogl_2_x())
 	{
 		ri.Printf(PRINT_WARNING, "No OpenGL 2.0+.\n");
 		return false;
@@ -898,42 +896,41 @@ void r_reload_programs_f()
 	}
 #endif // _DEBUG
 
-	if (!glConfigEx.is_path_ogl_2_x())
+	if (glConfigEx.is_path_ogl_1_x())
 	{
-		ri.Printf(PRINT_WARNING, "%s.\n", "No OpenGL 2.0+.\n");
+		ri.Printf(PRINT_WARNING, "Expected OpenGL v2.0+.\n");
 		return;
 	}
 
 	ri.Printf(PRINT_ALL, "\n======== GLSL ========\n");
-	ri.Printf(PRINT_ALL, "%s...\n", "Trying to reload programs");
+	ri.Printf(PRINT_ALL, "Reload the programs...\n");
 
 	bool is_try_successfull = true;
 
 	ogl_tess_state.set_program(NULL);
 
-	if (!::ogl_tess_program)
+	if (ogl_tess_program == NULL)
 	{
 		ogl_tess_program = new rtcw::OglTessProgram(r_get_embeded_vertex_shader(), r_get_embeded_fragment_shader());
 	}
 
-	if (ogl_tess_program)
+	if (ogl_tess_program != NULL)
 	{
 		is_try_successfull &= ogl_tess_program->try_reload();
 	}
 	else
 	{
 		is_try_successfull = false;
-		ri.Printf(PRINT_ALL, "%s.\n", "Out of memory");
+		ri.Printf(PRINT_ALL, "Out of memory.\n");
 	}
 
 	if (is_try_successfull)
 	{
-		ri.Printf(PRINT_ALL, "\n%s...\n", "Reloading programs");
 		ogl_tess_program->reload();
 	}
 
 	ogl_tess_state.set_program(ogl_tess_program);
-	ogl_tess_state.commit_changes();
+	ogl_tess_state.invalidate_and_commit();
 
 	ri.Printf(PRINT_ALL, "======== GLSL ========\n");
 }
