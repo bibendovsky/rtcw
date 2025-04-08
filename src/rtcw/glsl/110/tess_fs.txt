@@ -1,4 +1,3 @@
-
 //
 // Project: RTCW
 // Author: Boris I. Bendovsky
@@ -52,144 +51,144 @@ varying vec4 fog_fc; // interpolated fog coords
 
 
 vec4 apply_tex_env(
-	vec4 previous_color,
-	int env_index)
+    vec4 previous_color,
+    int env_index)
 {
-	vec4 result = previous_color;
-	vec4 texel = texture2D(tex_2d[env_index], tc[env_index]);
+    vec4 result = previous_color;
+    vec4 texel = texture2D((env_index == 0 ? tex_2d[0] : tex_2d[1]), tc[env_index]);
 
-	if (tex_env_mode[env_index] == GL_REPLACE)
-	{
-		result = texel;
-	}
-	else if (tex_env_mode[env_index] == GL_MODULATE)
-	{
-		result *= texel;
-	}
-	else if (tex_env_mode[env_index] == GL_DECAL)
-	{
-		result.rgb = mix(result.rgb, texel.rgb, texel.a);
-	}
-	else if (tex_env_mode[env_index] == GL_ADD)
-	{
-		result.rgb += texel.rgb;
-		result.a *= texel.a;
-	}
-	else
-	{
-		// invalid mode
-		result *= vec4(0.5, 0.0, 0.0, 1.0);
-	}
+    if (tex_env_mode[env_index] == GL_REPLACE)
+    {
+        result = texel;
+    }
+    else if (tex_env_mode[env_index] == GL_MODULATE)
+    {
+        result *= texel;
+    }
+    else if (tex_env_mode[env_index] == GL_DECAL)
+    {
+        result.rgb = mix(result.rgb, texel.rgb, texel.a);
+    }
+    else if (tex_env_mode[env_index] == GL_ADD)
+    {
+        result.rgb += texel.rgb;
+        result.a *= texel.a;
+    }
+    else
+    {
+        // invalid mode
+        result *= vec4(0.5, 0.0, 0.0, 1.0);
+    }
 
-	return result;
+    return result;
 }
 
 vec4 apply_alpha_test(
-	vec4 color)
+    vec4 color)
 {
-	float test_ref = clamp(alpha_test_ref, 0.0, 1.0);
+    float test_ref = clamp(alpha_test_ref, 0.0, 1.0);
 
-	if (alpha_test_func == GL_GEQUAL)
-	{
-		if (color.a < test_ref)
-		{
-			discard;
-		}
-	}
-	else if (alpha_test_func == GL_GREATER)
-	{
-		if (color.a <= test_ref)
-		{
-			discard;
-		}
-	}
-	else if (alpha_test_func == GL_LESS)
-	{
-		if (color.a >= test_ref)
-		{
-			discard;
-		}
-	}
-	else
-	{
-		// invalid function
-		color *= vec4(0.0, 0.5, 0.0, 1.0);
-	}
+    if (alpha_test_func == GL_GEQUAL)
+    {
+        if (color.a < test_ref)
+        {
+            discard;
+        }
+    }
+    else if (alpha_test_func == GL_GREATER)
+    {
+        if (color.a <= test_ref)
+        {
+            discard;
+        }
+    }
+    else if (alpha_test_func == GL_LESS)
+    {
+        if (color.a >= test_ref)
+        {
+            discard;
+        }
+    }
+    else
+    {
+        // invalid function
+        color *= vec4(0.0, 0.5, 0.0, 1.0);
+    }
 
-	return color;
+    return color;
 }
 
 vec4 apply_fog(
-	vec4 color)
+    vec4 color)
 {
-	float c;
+    float c;
 
-	if (fog_hint != GL_FASTEST)
-	{
-		vec4 r_fog_fc = fog_fc / fog_fc.w;
+    if (fog_hint != GL_FASTEST)
+    {
+        vec4 r_fog_fc = fog_fc / fog_fc.w;
 
-		if (fog_dist_mode == GL_EYE_RADIAL_NV)
-		{
-			c = length(r_fog_fc.xyz);
-		}
-		else if (fog_dist_mode == GL_EYE_PLANE)
-		{
-			c = fog_fc.z;
-		}
-		else
-		{
-			c = abs(fog_fc.z);
-		}
-	}
-	else
-	{
-		c = fog_vc;
-	}
+        if (fog_dist_mode == GL_EYE_RADIAL_NV)
+        {
+            c = length(r_fog_fc.xyz);
+        }
+        else if (fog_dist_mode == GL_EYE_PLANE)
+        {
+            c = fog_fc.z;
+        }
+        else
+        {
+            c = abs(fog_fc.z);
+        }
+    }
+    else
+    {
+        c = fog_vc;
+    }
 
 
-	float f = 1.0;
+    float f = 1.0;
 
-	if (fog_mode == GL_LINEAR)
-	{
-		float es = fog_end - fog_start;
+    if (fog_mode == GL_LINEAR)
+    {
+        float es = fog_end - fog_start;
 
-		if (es != 0.0)
-		{
-			f = (fog_end - c) / es;
-		}
-	}
-	else
-	{
-		f = exp(-fog_density * c);
-	}
+        if (es != 0.0)
+        {
+            f = (fog_end - c) / es;
+        }
+    }
+    else
+    {
+        f = exp(-fog_density * c);
+    }
 
-	f = clamp(f, 0.0, 1.0);
-	vec4 mixed_color = mix(fog_color, color, f);
+    f = clamp(f, 0.0, 1.0);
+    vec4 mixed_color = mix(fog_color, color, f);
 
-	return vec4(mixed_color.rgb, color.a);
+    return vec4(mixed_color.rgb, color.a);
 }
 
 
 void main()
 {
-	vec4 frag_color = primary_color * col;
+    vec4 frag_color = primary_color * col;
 
-	frag_color = apply_tex_env(frag_color, 0);
+    frag_color = apply_tex_env(frag_color, 0);
 
-	if (use_multitexturing)
-	{
-		frag_color = apply_tex_env(frag_color, 1);
-	}
+    if (use_multitexturing)
+    {
+        frag_color = apply_tex_env(frag_color, 1);
+    }
 
-	if (use_fog)
-	{
-		frag_color = apply_fog(frag_color);
-	}
+    if (use_fog)
+    {
+        frag_color = apply_fog(frag_color);
+    }
 
-	if (use_alpha_test)
-	{
-		frag_color = apply_alpha_test(frag_color);
-	}
+    if (use_alpha_test)
+    {
+        frag_color = apply_alpha_test(frag_color);
+    }
 
-	gl_FragColor = frag_color;
+    gl_FragColor = frag_color;
 }

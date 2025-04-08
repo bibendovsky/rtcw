@@ -1,0 +1,4 @@
+* text=auto
+
+tess_fs.txt text eol=crlf
+tess_vs.txt text eol=crlf

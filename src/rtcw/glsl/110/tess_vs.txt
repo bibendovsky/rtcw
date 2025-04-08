@@ -1,4 +1,3 @@
-
 //
 // Project: RTCW
 // Author: Boris I. Bendovsky
@@ -42,34 +41,34 @@ varying vec4 fog_fc; // interpolated fog coords
 
 void main()
 {
-	col = col_vec4;
-	tc[0] = tc0_vec2;
-	tc[1] = tc1_vec2;
+    col = col_vec4;
+    tc[0] = tc0_vec2;
+    tc[1] = tc1_vec2;
 
-	vec4 eye_pos = model_view_mat4 * pos_vec4;
+    vec4 eye_pos = model_view_mat4 * pos_vec4;
 
-	if (use_fog)
-	{
-		if (fog_hint != GL_FASTEST)
-		{
-			fog_fc = eye_pos;
-		}
-		else
-		{
-			if (fog_dist_mode == GL_EYE_RADIAL_NV)
-			{
-				fog_vc = length(eye_pos.xyz);
-			}
-			else if (fog_dist_mode == GL_EYE_PLANE)
-			{
-				fog_vc = eye_pos.z;
-			}
-			else
-			{
-				fog_vc = abs(eye_pos.z);
-			}
-		}
-	}
+    if (use_fog)
+    {
+        if (fog_hint != GL_FASTEST)
+        {
+            fog_fc = eye_pos;
+        }
+        else
+        {
+            if (fog_dist_mode == GL_EYE_RADIAL_NV)
+            {
+                fog_vc = length(eye_pos.xyz);
+            }
+            else if (fog_dist_mode == GL_EYE_PLANE)
+            {
+                fog_vc = eye_pos.z;
+            }
+            else
+            {
+                fog_vc = abs(eye_pos.z);
+            }
+        }
+    }
 
-	gl_Position = projection_mat4 * eye_pos;
+    gl_Position = projection_mat4 * eye_pos;
 }
