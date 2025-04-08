@@ -705,18 +705,24 @@ static const char* r_get_embeded_fragment_shader()
 		"uniform float fog_start;\n"
 		"uniform float fog_end;\n"
 		"\n"
+		"uniform float intensity;\n"
+		"\n"
 		"varying vec4 col; // interpolated color\n"
 		"varying vec2 tc[2]; // interpolated texture coords\n"
 		"varying float fog_vc; // interpolated calculated fog coords\n"
 		"varying vec4 fog_fc; // interpolated fog coords\n"
 		"\n"
+		"vec4 apply_intensity(vec4 value)\n"
+		"{\n"
+		"    return vec4(clamp(value.rgb * intensity, vec3(0.0), vec3(1.0)), value.a);\n"
+		"}\n"
 		"\n"
 		"vec4 apply_tex_env(\n"
 		"    vec4 previous_color,\n"
 		"    int env_index)\n"
 		"{\n"
 		"    vec4 result = previous_color;\n"
-		"    vec4 texel = texture2D((env_index == 0 ? tex_2d[0] : tex_2d[1]), tc[env_index]);\n"
+		"    vec4 texel = apply_intensity(texture2D((env_index == 0 ? tex_2d[0] : tex_2d[1]), tc[env_index]));\n"
 		"\n"
 		"    if (tex_env_mode[env_index] == GL_REPLACE)\n"
 		"    {\n"
@@ -852,7 +858,8 @@ static const char* r_get_embeded_fragment_shader()
 		"    }\n"
 		"\n"
 		"    gl_FragColor = frag_color;\n"
-		"}\n";
+		"}\n"
+	;
 
 	return result;
 }

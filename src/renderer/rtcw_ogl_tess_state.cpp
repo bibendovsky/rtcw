@@ -50,6 +50,8 @@ void OglTessState::set_default_values()
 	fog_start.set(0.0F);
 	fog_end.set(1.0F);
 	fog_color.set(cgm::Vec4());
+
+	intensity.set(1.0F);
 }
 
 void OglTessState::commit_changes()
@@ -73,7 +75,8 @@ void OglTessState::commit_changes()
 		fog_density.is_modified() ||
 		fog_start.is_modified() ||
 		fog_end.is_modified() ||
-		fog_color.is_modified()
+		fog_color.is_modified() ||
+		intensity.is_modified()
 	;
 
 	if (!has_changes)
@@ -279,6 +282,16 @@ void OglTessState::commit_changes()
 		fog_color.set_modified(false);
 	}
 
+	if (intensity.is_modified())
+	{
+		if (use_program && program_->u_intensity >= 0)
+		{
+			glUniform1f(program_->u_intensity, intensity.get());
+		}
+
+		intensity.set_modified(false);
+	}
+
 	if (use_program)
 	{
 		glUseProgram(0);
@@ -312,6 +325,8 @@ void OglTessState::invalidate()
 	fog_start.set_modified(true);
 	fog_end.set_modified(true);
 	fog_color.set_modified(true);
+
+	intensity.set_modified(true);
 }
 
 void OglTessState::invalidate_and_commit()

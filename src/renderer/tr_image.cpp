@@ -587,20 +587,43 @@ void R_LightScaleTexture( unsigned *in, int inwidth, int inheight, qboolean only
 		c = inwidth * inheight;
 
 		if ( glConfig.deviceSupportsGamma ) {
+#ifndef RTCW_VANILLA
+			if (glConfigEx.is_path_ogl_1_x())
+			{
+#endif // RTCW_VANILLA
 			for ( i = 0 ; i < c ; i++, p += 4 )
 			{
 				p[0] = s_intensitytable[p[0]];
 				p[1] = s_intensitytable[p[1]];
 				p[2] = s_intensitytable[p[2]];
 			}
+#ifndef RTCW_VANILLA
+			}
+#endif // RTCW_VANILLA
 		} else
 		{
+#ifndef RTCW_VANILLA
+			if (glConfigEx.is_path_ogl_1_x())
+			{
+#endif // RTCW_VANILLA
 			for ( i = 0 ; i < c ; i++, p += 4 )
 			{
 				p[0] = s_gammatable[s_intensitytable[p[0]]];
 				p[1] = s_gammatable[s_intensitytable[p[1]]];
 				p[2] = s_gammatable[s_intensitytable[p[2]]];
 			}
+#ifndef RTCW_VANILLA
+			}
+			else
+			{
+				for (i = 0; i < c; ++i, p += 4)
+				{
+					p[0] = s_gammatable[p[0]];
+					p[1] = s_gammatable[p[1]];
+					p[2] = s_gammatable[p[2]];
+				}
+			}
+#endif // RTCW_VANILLA
 		}
 	}
 }
@@ -3039,6 +3062,13 @@ void R_SetColorMappings( void ) {
 	if ( glConfig.deviceSupportsGamma ) {
 		GLimp_SetGamma( s_gammatable, s_gammatable, s_gammatable );
 	}
+
+#ifndef RTCW_VANILLA
+	if (!glConfigEx.is_path_ogl_1_x())
+	{
+		ogl_tess_state.intensity.set(r_intensity->value);
+	}
+#endif // RTCW_VANILLA
 }
 
 /*

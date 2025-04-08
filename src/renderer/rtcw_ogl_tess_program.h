@@ -35,6 +35,7 @@ public:
 	int u_fog_density;
 	int u_fog_start;
 	int u_fog_end;
+	int u_intensity;
 
 
 	OglTessProgram(

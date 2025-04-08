@@ -30,7 +30,8 @@ OglTessProgram::OglTessProgram(
 	u_fog_color(-1),
 	u_fog_density(-1),
 	u_fog_start(-1),
-	u_fog_end(-1)
+	u_fog_end(-1),
+	u_intensity(-1)
 {
 	u_tex_env_mode[0] = -1;
 	u_tex_env_mode[1] = -1;
@@ -61,7 +62,8 @@ OglTessProgram::OglTessProgram(
 	u_fog_color(-1),
 	u_fog_density(-1),
 	u_fog_start(-1),
-	u_fog_end(-1)
+	u_fog_end(-1),
+	u_intensity(-1)
 {
 	u_tex_env_mode[0] = -1;
 	u_tex_env_mode[1] = -1;
@@ -113,6 +115,7 @@ void OglTessProgram::unload_internal()
 	u_fog_density = -1;
 	u_fog_start = -1;
 	u_fog_end = -1;
+	u_intensity = -1;
 
 	OglProgram::unload_internal();
 }
@@ -154,6 +157,8 @@ bool OglTessProgram::reload_internal()
 	u_fog_density = glGetUniformLocation(program_, "fog_density");
 	u_fog_start = glGetUniformLocation(program_, "fog_start");
 	u_fog_end = glGetUniformLocation(program_, "fog_end");
+
+	u_intensity = glGetUniformLocation(program_, "intensity");
 
 
 	if (a_col_vec4 >= 0)

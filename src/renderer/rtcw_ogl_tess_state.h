@@ -36,6 +36,8 @@ public:
 	rtcw::ModValue<float> fog_end;
 	rtcw::ModValue<cgm::Vec4> fog_color;
 
+	rtcw::ModValue<float> intensity;
+
 
 	OglTessState();
 
