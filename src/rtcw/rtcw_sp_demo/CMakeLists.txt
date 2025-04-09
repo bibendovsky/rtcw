@@ -16,15 +16,6 @@ set_target_properties(rtcw_sp_demo PROPERTIES
 	OUTPUT_NAME "rtcw_sp_${RTCW_ARCH_STRING}_demo"
 )
 
-if(RTCW_BUILD_SDL2)
-	target_link_libraries(rtcw_sp_demo
-		PRIVATE
-			SDL2::SDL2main
-			SDL2::SDL2-static
-			rtcw::sdl2_net
-	)
-endif()
-
 target_include_directories(rtcw_sp_demo
 	PRIVATE
 		.

@@ -177,7 +177,14 @@ function(rtcw_configure_target)
 		)
 	endif()
 
-	if(NOT RTCW_BUILD_SDL2)
+	if(RTCW_BUILD_SDL2)
+		target_link_libraries(${ARGV0}
+			PRIVATE
+				$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:SDL2::SDL2main>
+				$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:SDL2::SDL2-static>
+				$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:rtcw::sdl2_net>
+		)
+	else()
 		target_link_libraries(${ARGV0}
 			PRIVATE
 				$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:SDL2W::SDL2Wmain>

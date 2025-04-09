@@ -16,15 +16,6 @@ set_target_properties(rtcw_mp_ded PROPERTIES
 	OUTPUT_NAME "rtcw_mp_ded_${RTCW_ARCH_STRING}"
 )
 
-if(RTCW_BUILD_SDL2)
-	target_link_libraries(rtcw_mp_ded
-		PRIVATE
-			SDL2::SDL2main
-			SDL2::SDL2-static
-			rtcw::sdl2_net
-	)
-endif()
-
 target_include_directories(rtcw_mp_ded
 	PRIVATE
 		.
