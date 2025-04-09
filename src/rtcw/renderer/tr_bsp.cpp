@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // tr_map.c
 
 #include "tr_local.h"
+#include "rtcw_endian.h"
 
 /*
 

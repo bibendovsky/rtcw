@@ -45,6 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "q_shared.h"
 #include "qcommon.h"
+#include "rtcw_endian.h"
 #include "rtcw_string.h"
 #include "rtcw_unique_ptr.h"
 

@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "q_shared.h"
 #include "qcommon.h"
 #include "client.h"
+#include "rtcw_endian.h"
 
 #if (!defined RTCW_SP) || ((defined RTCW_SP) && (defined DO_NET_ENCODE))
 /*

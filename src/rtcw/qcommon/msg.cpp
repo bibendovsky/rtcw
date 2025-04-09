@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "q_shared.h"
 #include "qcommon.h"
+#include "rtcw_endian.h"
 
 static huffman_t msgHuff;
 static qboolean msgInit = qfalse;

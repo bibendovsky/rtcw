@@ -48,6 +48,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "be_aas_funcs.h"
 #include "be_interface.h"
 #include "be_aas_def.h"
+#include "rtcw_endian.h"
 
 //#define AASFILEDEBUG
 

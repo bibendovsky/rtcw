@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // tr_models.c -- model loading and caching
 
 #include "tr_local.h"
+#include "rtcw_endian.h"
 
 #define LL( x ) x = rtcw::Endian::le( x )
 

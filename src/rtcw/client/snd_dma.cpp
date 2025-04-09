@@ -38,6 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "snd_local.h"
 #include "client.h"
+#include "rtcw_endian.h"
 
 void S_Play_f( void );
 void S_SoundList_f( void );

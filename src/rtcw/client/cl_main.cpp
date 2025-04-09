@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "client.h"
 #include <limits.h>
+#include "SDL_platform.h"
 
 #if defined RTCW_MP
 
@@ -42,6 +43,7 @@ cvar_t  *cl_wavefilerecord;
 cvar_t  *cl_wavefilerecord;
 #endif // RTCW_XX
 
+#include "rtcw_endian.h"
 #include "rtcw_vm_args.h"
 
 

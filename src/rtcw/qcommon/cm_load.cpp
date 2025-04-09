@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // cmodel.c -- model loading
 
 #include "cm_local.h"
+#include "rtcw_endian.h"
 
 #ifdef BSPC
 

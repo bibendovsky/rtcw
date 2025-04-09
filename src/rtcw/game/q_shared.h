@@ -44,8 +44,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <algorithm>
 
-#include "rtcw_endian.h"
-
 #include "rtcw_c.h"
 // BBi
 

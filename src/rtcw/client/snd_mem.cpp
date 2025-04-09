@@ -37,6 +37,7 @@ If you have questions concerning this license or the applicable additional terms
  *****************************************************************************/
 
 #include "snd_local.h"
+#include "rtcw_endian.h"
 
 #define DEF_COMSOUNDMEGS "24"    // (SA) upped for GD
 

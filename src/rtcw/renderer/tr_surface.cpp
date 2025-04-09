@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 // tr_surf.c
 #include "tr_local.h"
+#include "rtcw_endian.h"
 
 /*
 

@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "tr_local.h"
+#include "rtcw_endian.h"
 
 /*
  * Include file for users of JPEG library.

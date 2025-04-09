@@ -52,6 +52,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "snd_local.h"
 #endif // RTCW_XX
 
+#include "rtcw_endian.h"
 #include "rtcw_vm_args.h"
 
 

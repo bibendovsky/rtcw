@@ -46,6 +46,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "be_aas.h"
 #include "be_interface.h"
 #include "be_aas_def.h"
+#include "rtcw_endian.h"
 
 // ugly hack to turn off route-tables, can't find a way to check cvar's
 int disable_routetable = 0;

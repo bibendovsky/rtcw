@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "server.h"
 
+#include "rtcw_endian.h"
 #include "rtcw_vm_args.h"
 
 
