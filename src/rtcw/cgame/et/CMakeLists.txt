@@ -96,11 +96,9 @@ target_sources(rtcw_cgame_et
 		cg_view.cpp
 		cg_weapons.cpp
 		cg_window.cpp
+	PRIVATE
+		$<$<BOOL:${WIN32}>:cgame_et.def>
 )
-
-if(WIN32)
-	target_sources(rtcw_cgame_et PRIVATE cgame_et.def)
-endif()
 
 install(
 	TARGETS rtcw_cgame_et

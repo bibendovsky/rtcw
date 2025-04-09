@@ -279,6 +279,8 @@ target_sources(rtcw_et
 		../system/sys_syscon.cpp
 		../ui/keycodes.h
 		../ui/ui_public.h
+	PRIVATE
+		$<$<BOOL:${WIN32}>:../win32/rtcw.rc>
 )
 
 if(RTCW_CURL)
@@ -288,8 +290,6 @@ else()
 endif()
 
 if(WIN32)
-	target_sources(rtcw_et PRIVATE ../win32/rtcw.rc)
-
 	if(CMAKE_CXX_COMPILER_ID STREQUAL OpenWatcom)
 		add_custom_command(
 			TARGET rtcw_et POST_BUILD

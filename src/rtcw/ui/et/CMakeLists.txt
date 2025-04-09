@@ -52,11 +52,9 @@ target_sources(rtcw_ui_et
 		ui_shared.h
 		ui_syscalls.cpp
 		ui_util.cpp
+	PRIVATE
+		$<$<BOOL:${WIN32}>:ui_et.def>
 )
-
-if(WIN32)
-	target_sources(rtcw_ui_et PRIVATE ui_et.def)
-endif()
 
 install(
 	TARGETS rtcw_ui_et

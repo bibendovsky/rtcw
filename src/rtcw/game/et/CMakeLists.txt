@@ -122,11 +122,9 @@ target_sources(rtcw_game_et
 		g_utils.cpp
 		g_vote.cpp
 		g_weapon.cpp
+	PRIVATE
+		$<$<BOOL:${WIN32}>:game_et.def>
 )
-
-if(WIN32)
-	target_sources(rtcw_game_et PRIVATE game_et.def)
-endif()
 
 install(
 	TARGETS rtcw_game_et

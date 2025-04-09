@@ -74,11 +74,9 @@ target_sources(rtcw_cgame_sp
 		cg_trails.cpp
 		cg_view.cpp
 		cg_weapons.cpp
+	PRIVATE
+		$<$<BOOL:${WIN32}>:cgame_sp.def>
 )
-
-if(WIN32)
-	target_sources(rtcw_cgame_sp PRIVATE cgame_sp.def)
-endif()
 
 install(
 	TARGETS rtcw_cgame_sp
