@@ -1,22 +1,16 @@
-cmake_minimum_required (VERSION 3.5.0 FATAL_ERROR)
-project (rtcw_game_sp_demo VERSION 1.0.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
+project(rtcw_game_sp_demo VERSION 1.0.0 LANGUAGES CXX)
 
+message(STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 
-message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
+add_library(${PROJECT_NAME} SHARED "")
 
-
-add_library (${PROJECT_NAME} SHARED "")
-
-
-set_target_properties (
-	${PROJECT_NAME}
-	PROPERTIES
-		PREFIX ""
-		OUTPUT_NAME "qagame${RTCW_ARCH_STRING}_d"
+set_target_properties(${PROJECT_NAME} PROPERTIES
+	PREFIX ""
+	OUTPUT_NAME "qagame${RTCW_ARCH_STRING}_d"
 )
 
-target_include_directories (
-	${PROJECT_NAME}
+target_include_directories(${PROJECT_NAME}
 	PRIVATE
 		.
 		../sp
@@ -28,8 +22,7 @@ target_include_directories (
 		../../ui/sp
 )
 
-target_compile_definitions (
-	${PROJECT_NAME}
+target_compile_definitions(${PROJECT_NAME}
 	PRIVATE
 		GAMEDLL
 		WOLF_SP_DEMO
@@ -38,10 +31,9 @@ target_compile_definitions (
 		BUILDING_REF_GL
 )
 
-rtcw_configure_target (${PROJECT_NAME})
+rtcw_configure_target(${PROJECT_NAME})
 
-target_sources (
-	${PROJECT_NAME}
+target_sources(${PROJECT_NAME}
 	PRIVATE
 		../../botai/botai.h
 		../../botai/sp/ai_chat.h
@@ -78,8 +70,7 @@ target_sources (
 		../sp/g_team.h
 )
 
-target_sources (
-	${PROJECT_NAME}
+target_sources(${PROJECT_NAME}
 	PRIVATE
 		../../botai/sp/ai_chat.cpp
 		../../botai/sp/ai_cmd.cpp
@@ -134,19 +125,12 @@ target_sources (
 		../sp/g_weapon.cpp
 )
 
-if (WIN32)
-	target_sources (
-		${PROJECT_NAME}
-		PRIVATE
-			../sp/game_sp.def
-	)
-endif ()
+if(WIN32)
+	target_sources(${PROJECT_NAME} PRIVATE ../sp/game_sp.def)
+endif()
 
-install (
-	TARGETS
-		${PROJECT_NAME}
-	LIBRARY
-		DESTINATION sp_demo
-	RUNTIME
-		DESTINATION sp_demo
+install(
+	TARGETS ${PROJECT_NAME}
+	LIBRARY DESTINATION sp_demo
+	RUNTIME DESTINATION sp_demo
 )

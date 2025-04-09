@@ -1,11 +1,9 @@
-cmake_minimum_required (VERSION 3.5.0 FATAL_ERROR)
-project (rtcw_mp_ded VERSION 1.0.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
+project(rtcw_mp_ded VERSION 1.0.0 LANGUAGES CXX)
 
+message(STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 
-message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
-
-
-add_executable (${PROJECT_NAME} "")
+add_executable(${PROJECT_NAME} "")
 
 add_custom_command(
 	TARGET ${PROJECT_NAME} POST_BUILD
@@ -14,14 +12,11 @@ add_custom_command(
 	VERBATIM
 )
 
-set_target_properties (
-	${PROJECT_NAME}
-	PROPERTIES
-		OUTPUT_NAME "rtcw_mp_ded_${RTCW_ARCH_STRING}"
+set_target_properties(${PROJECT_NAME} PROPERTIES
+	OUTPUT_NAME "rtcw_mp_ded_${RTCW_ARCH_STRING}"
 )
 
-target_include_directories (
-	${PROJECT_NAME}
+target_include_directories(${PROJECT_NAME}
 	PRIVATE
 		.
 		../botai
@@ -35,8 +30,7 @@ target_include_directories (
 		../win32
 )
 
-target_compile_definitions (
-	${PROJECT_NAME}
+target_compile_definitions(${PROJECT_NAME}
 	PRIVATE
 		DEDICATED
 		DO_LIGHT_DEDICATED
@@ -44,10 +38,9 @@ target_compile_definitions (
 		RTCW_MP
 )
 
-rtcw_configure_target (${PROJECT_NAME})
+rtcw_configure_target(${PROJECT_NAME})
 
-target_sources (
-	${PROJECT_NAME}
+target_sources(${PROJECT_NAME}
 	PRIVATE
 		../botai/botai.h
 		../botlib/be_aas_bsp.h
@@ -141,8 +134,7 @@ target_sources (
 		../ui/ui_public.h
 )
 
-target_sources (
-	${PROJECT_NAME}
+target_sources(${PROJECT_NAME}
 	PRIVATE
 		../botlib/be_aas_bspq3.cpp
 		../botlib/be_aas_cluster.cpp
@@ -226,10 +218,10 @@ target_sources (
 		../system/rtcw_window_rounded_corner_mgr.h
 )
 
-if (WIN32)
+if(WIN32)
 	target_sources(${PROJECT_NAME} PRIVATE ../win32/rtcw.rc)
 
-	if (CMAKE_CXX_COMPILER_ID STREQUAL OpenWatcom)
+	if(CMAKE_CXX_COMPILER_ID STREQUAL OpenWatcom)
 		add_custom_command(
 			TARGET ${PROJECT_NAME} POST_BUILD
 			COMMAND wrc.exe
@@ -242,12 +234,10 @@ if (WIN32)
 			COMMENT "[${PROJECT_NAME}] Embed resources."
 			VERBATIM
 		)
-	endif ()
-endif ()
+	endif()
+endif()
 
-install (
-	TARGETS
-		${PROJECT_NAME}
-	RUNTIME
-		DESTINATION mp
+install(
+	TARGETS ${PROJECT_NAME}
+	RUNTIME DESTINATION mp
 )

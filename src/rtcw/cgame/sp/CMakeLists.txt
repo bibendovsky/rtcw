@@ -1,22 +1,16 @@
-cmake_minimum_required (VERSION 3.5.0 FATAL_ERROR)
-project (rtcw_cgame_sp VERSION 1.0.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
+project(rtcw_cgame_sp VERSION 1.0.0 LANGUAGES CXX)
 
+message(STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 
-message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
+add_library(${PROJECT_NAME} SHARED "")
 
-
-add_library (${PROJECT_NAME} SHARED "")
-
-
-set_target_properties (
-	${PROJECT_NAME}
-	PROPERTIES
-		PREFIX ""
-		OUTPUT_NAME "cgame${RTCW_ARCH_STRING}"
+set_target_properties(${PROJECT_NAME} PROPERTIES
+	PREFIX ""
+	OUTPUT_NAME "cgame${RTCW_ARCH_STRING}"
 )
 
-target_include_directories (
-	${PROJECT_NAME}
+target_include_directories(${PROJECT_NAME}
 	PRIVATE
 		.
 		../../cgame
@@ -28,17 +22,15 @@ target_include_directories (
 		../../ui/sp
 )
 
-target_compile_definitions (
-	${PROJECT_NAME}
+target_compile_definitions(${PROJECT_NAME}
 	PRIVATE
 		CGAMEDLL
 		RTCW_SP
 )
 
-rtcw_configure_target (${PROJECT_NAME})
+rtcw_configure_target(${PROJECT_NAME})
 
-target_sources (
-	${PROJECT_NAME}
+target_sources(${PROJECT_NAME}
 	PRIVATE
 		../../cgame/cg_public.h
 		../../cgame/tr_types.h
@@ -53,8 +45,7 @@ target_sources (
 		../../ui/sp/ui_shared.h
 )
 
-target_sources (
-	${PROJECT_NAME}
+target_sources(${PROJECT_NAME}
 	PRIVATE
 		../../game/q_math.cpp
 		../../game/q_shared.cpp
@@ -89,19 +80,12 @@ target_sources (
 		cg_weapons.cpp
 )
 
-if (WIN32)
-	target_sources (
-		${PROJECT_NAME}
-		PRIVATE
-			cgame_sp.def
-	)
-endif ()
+if(WIN32)
+	target_sources(${PROJECT_NAME} PRIVATE cgame_sp.def)
+endif()
 
-install (
-	TARGETS
-		${PROJECT_NAME}
-	LIBRARY
-		DESTINATION sp
-	RUNTIME
-		DESTINATION sp
+install(
+	TARGETS ${PROJECT_NAME}
+	LIBRARY DESTINATION sp
+	RUNTIME DESTINATION sp
 )

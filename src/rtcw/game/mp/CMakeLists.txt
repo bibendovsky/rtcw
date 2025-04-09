@@ -1,22 +1,16 @@
-cmake_minimum_required (VERSION 3.5.0 FATAL_ERROR)
-project (rtcw_game_mp VERSION 1.0.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
+project(rtcw_game_mp VERSION 1.0.0 LANGUAGES CXX)
 
+message(STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
 
-message (STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
+add_library(${PROJECT_NAME} SHARED "")
 
-
-add_library (${PROJECT_NAME} SHARED "")
-
-
-set_target_properties (
-	${PROJECT_NAME}
-	PROPERTIES
-		PREFIX ""
-		OUTPUT_NAME "qagame_mp_${RTCW_ARCH_STRING}"
+set_target_properties(${PROJECT_NAME} PROPERTIES
+	PREFIX ""
+	OUTPUT_NAME "qagame_mp_${RTCW_ARCH_STRING}"
 )
 
-target_include_directories (
-	${PROJECT_NAME}
+target_include_directories(${PROJECT_NAME}
 	PRIVATE
 		.
 		../../botai
@@ -27,18 +21,16 @@ target_include_directories (
 		../../ui/mp
 )
 
-target_compile_definitions (
-	${PROJECT_NAME}
+target_compile_definitions(${PROJECT_NAME}
 	PRIVATE
 		GAMEDLL
 		RTCW_MP
 		BUILDING_REF_GL
 )
 
-rtcw_configure_target (${PROJECT_NAME})
+rtcw_configure_target(${PROJECT_NAME})
 
-target_sources (
-	${PROJECT_NAME}
+target_sources(${PROJECT_NAME}
 	PRIVATE
 		../../botai/botai.h
 		../../botai/mp/ai_chat.h
@@ -73,8 +65,7 @@ target_sources (
 		g_team.h
 )
 
-target_sources (
-	${PROJECT_NAME}
+target_sources(${PROJECT_NAME}
 	PRIVATE
 		../../botai/mp/ai_chat.cpp
 		../../botai/mp/ai_cmd.cpp
@@ -130,19 +121,12 @@ target_sources (
 		g_weapon.cpp
 )
 
-if (WIN32)
-	target_sources (
-		${PROJECT_NAME}
-		PRIVATE
-			game_mp.def
-	)
-endif ()
+if(WIN32)
+	target_sources(${PROJECT_NAME} PRIVATE game_mp.def)
+endif()
 
-install (
-	TARGETS
-		${PROJECT_NAME}
-	LIBRARY
-		DESTINATION mp/main
-	RUNTIME
-		DESTINATION mp/main
+install(
+	TARGETS ${PROJECT_NAME}
+	LIBRARY DESTINATION mp/main
+	RUNTIME DESTINATION mp/main
 )
