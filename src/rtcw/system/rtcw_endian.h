@@ -7,7 +7,58 @@
 #define RTCW_ENDIAN_INCLUDED
 
 
-#include "SDL_endian.h"
+
+#define RTCW_ENDIAN_UNKNOWN 0
+
+#ifndef RTCW_ENDIAN_BIG
+	#define RTCW_ENDIAN_BIG 1
+#endif
+
+#ifndef RTCW_ENDIAN_LITTLE
+	#define RTCW_ENDIAN_LITTLE 2
+#endif
+
+#if RTCW_ENDIAN_UNKNOWN != 0 || RTCW_ENDIAN_BIG != 1 || RTCW_ENDIAN_LITTLE != 2
+	#error Invalid endian constants.
+#endif
+
+#ifndef RTCW_ENDIAN
+
+	#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
+		#define RTCW_ENDIAN RTCW_ENDIAN_LITTLE
+	#else
+
+		//
+		// __BYTE_ORDER__
+		//
+		#ifndef RTCW_ENDIAN
+			#if defined(__BYTE_ORDER__)
+				#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+					#define RTCW_ENDIAN RTCW_ENDIAN_BIG
+				#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+					#define RTCW_ENDIAN RTCW_ENDIAN_LITTLE
+				#endif
+			#endif
+		#endif
+
+		//
+		// __BIG_ENDIAN__ / __LITTLE_ENDIAN__
+		//
+		#ifndef RTCW_ENDIAN
+			#if defined(__BIG_ENDIAN__)
+				#define RTCW_ENDIAN RTCW_ENDIAN_BIG
+			#elif defined(__LITTLE_ENDIAN__)
+				#define RTCW_ENDIAN RTCW_ENDIAN_LITTLE
+			#endif
+		#endif
+
+	#endif
+
+#endif // RTCW_ENDIAN
+
+#ifndef RTCW_ENDIAN
+	#define RTCW_ENDIAN RTCW_ENDIAN_UNKNOWN
+#endif
 
 
 namespace rtcw
@@ -20,9 +71,9 @@ public:
 	// Returns "true" if system's endianness is big-endian.
 	static bool is_big()
 	{
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#if RTCW_ENDIAN == RTCW_ENDIAN_LITTLE
 		return false;
-#elif SDL_BYTEORDER == SDL_BIG_ENDIAN
+#elif RTCW_ENDIAN == RTCW_ENDIAN_BIG
 		return true;
 #endif
 	}
@@ -30,9 +81,9 @@ public:
 	// Returns "true" if system's endianness is little-endian.
 	static bool is_little()
 	{
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#if RTCW_ENDIAN == RTCW_ENDIAN_LITTLE
 		return true;
-#elif SDL_BYTEORDER == SDL_BIG_ENDIAN
+#elif RTCW_ENDIAN == RTCW_ENDIAN_BIG
 		return false;
 #endif
 	}
@@ -44,9 +95,9 @@ public:
 	static T le(
 		T value)
 	{
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#if RTCW_ENDIAN == RTCW_ENDIAN_LITTLE
 		return value;
-#elif SDL_BYTEORDER == SDL_BIG_ENDIAN
+#elif RTCW_ENDIAN == RTCW_ENDIAN_BIG
 		return le_be(value);
 #endif
 	}
@@ -74,9 +125,9 @@ public:
 	static T be(
 		T value)
 	{
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+#if RTCW_ENDIAN == RTCW_ENDIAN_BIG
 		return value;
-#elif SDL_BYTEORDER == SDL_LIL_ENDIAN
+#elif RTCW_ENDIAN == RTCW_ENDIAN_LITTLE
 		return le_be(value);
 #endif
 	}
@@ -104,7 +155,7 @@ public:
 	static void lei(
 		T& value)
 	{
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+#if RTCW_ENDIAN == RTCW_ENDIAN_BIG
 		lei_bei(value);
 #endif
 	}
@@ -130,7 +181,7 @@ public:
 	static void bei(
 		T& value)
 	{
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#if RTCW_ENDIAN == RTCW_ENDIAN_LITTLE
 		lei_bei(value);
 #endif
 	}
