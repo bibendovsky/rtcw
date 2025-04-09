@@ -41,29 +41,7 @@ endif()
 
 message(STATUS "[${PROJECT_NAME}] Architecture: ${RTCW_ARCH_STRING}")
 
-# Precompiled headers.
-#
-option(RTCW_USE_PCH "Enable precompiled headers if available." ON)
-message(STATUS "[${PROJECT_NAME}] Enable precompiled headers: ${RTCW_USE_PCH}")
-
-# Multi-process compilation.
-#
-option(RTCW_MULTI_PROCESS_COMPILATION "Enable multi-process compilation if available." ON)
-message(STATUS "[${PROJECT_NAME}] Enable multi-process compilation: ${RTCW_MULTI_PROCESS_COMPILATION}")
-
-option(RTCW_CURL "Enable cURL." ON)
-message(STATUS "[${PROJECT_NAME}] Enable cURL: ${RTCW_CURL}")
-
-option(RTCW_CURL_STATIC "Link cURL statically." ON)
-message(STATUS "[${PROJECT_NAME}] Link cURL statically: ${RTCW_CURL_STATIC}")
-
-# Static linking.
-#
-option(RTCW_ENABLE_STATIC_LINKING "Enable static linking." ON)
-message(STATUS "[${PROJECT_NAME}] Enable static linking: ${RTCW_ENABLE_STATIC_LINKING}")
-
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
