@@ -23,8 +23,8 @@ message(STATUS "[rtcw] Enemy Territory: ${RTCW_ET}")
 option(RTCW_ET_DED "Build Enemy Territory (dedicated)." ON)
 message(STATUS "[rtcw] Enemy Territory (dedicated): ${RTCW_ET_DED}")
 
-option(RTCW_BUILD_SDL2 "Build SDL2 from bundled source code." OFF)
-message(STATUS "[rtcw] Build SDL2: ${RTCW_BUILD_SDL2}")
+option(RTCW_BUILD_SDL2 "Build SDL2 libraries from bundled source code." OFF)
+message(STATUS "[rtcw] Build SDL2 libraries: ${RTCW_BUILD_SDL2}")
 
 if(NOT
 	(RTCW_ET OR
@@ -43,6 +43,7 @@ add_subdirectory(src/lib/miniz)
 
 if(RTCW_BUILD_SDL2)
 	add_subdirectory(src/lib/sdl2)
+	add_subdirectory(src/lib/sdl2_net)
 endif()
 
 if(RTCW_SP)

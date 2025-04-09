@@ -67,16 +67,18 @@ message(STATUS "[${PROJECT_NAME}] Enable static linking: ${RTCW_ENABLE_STATIC_LI
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-if(RTCW_ENABLE_STATIC_LINKING)
-	set(RTCW_TMP_SDL2_COMPONENTS "static")
-	set(RTCW_TMP_SDL2_NET_COMPONENTS "static")
-else()
-	set(RTCW_TMP_SDL2_COMPONENTS "")
-	set(RTCW_TMP_SDL2_NET_COMPONENTS "")
-endif()
+if(NOT RTCW_BUILD_SDL2)
+	if(RTCW_ENABLE_STATIC_LINKING)
+		set(RTCW_TMP_SDL2_COMPONENTS "static")
+		set(RTCW_TMP_SDL2_NET_COMPONENTS "static")
+	else()
+		set(RTCW_TMP_SDL2_COMPONENTS "")
+		set(RTCW_TMP_SDL2_NET_COMPONENTS "")
+	endif()
 
-find_package(SDL2W 2.0.4 REQUIRED COMPONENTS ${RTCW_TMP_SDL2_COMPONENTS})
-find_package(SDL2W_net 2.0.1 REQUIRED COMPONENTS ${RTCW_TMP_SDL2_NET_COMPONENTS})
+	find_package(SDL2W 2.0.4 REQUIRED COMPONENTS ${RTCW_TMP_SDL2_COMPONENTS})
+	find_package(SDL2W_net 2.0.1 REQUIRED COMPONENTS ${RTCW_TMP_SDL2_NET_COMPONENTS})
+endif()
 
 if(RTCW_CURL)
 	find_package(CURL 7.0.0 REQUIRED)
@@ -197,28 +199,20 @@ function(rtcw_configure_target)
 		)
 	endif()
 
-	if(RTCW_ENABLE_STATIC_LINKING)
-		if(WIN32)
-			target_link_libraries(${ARGV0}
-				PRIVATE
-					ws2_32
-					iphlpapi
-			)
-		endif()
-	endif()
-
 	if(NOT RTCW_BUILD_SDL2)
 		target_link_libraries(${ARGV0}
 			PRIVATE
 				$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:SDL2W::SDL2Wmain>
 				SDL2W::SDL2W
 				$<$<BOOL:${WIN32}>:winmm>
+				SDL2W_net::SDL2W_net
+				iphlpapi
+				ws2_32
 		)
 	endif()
 
 	target_link_libraries(${ARGV0}
 		PRIVATE
-			SDL2W_net::SDL2W_net
 			rtcw::miniz
 	)
 endfunction(rtcw_configure_target)

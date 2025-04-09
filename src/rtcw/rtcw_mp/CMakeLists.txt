@@ -21,6 +21,7 @@ if(RTCW_BUILD_SDL2)
 		PRIVATE
 			SDL2::SDL2main
 			SDL2::SDL2-static
+			rtcw::sdl2_net
 	)
 endif()
 
