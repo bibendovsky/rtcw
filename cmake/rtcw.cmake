@@ -212,7 +212,7 @@ function(rtcw_configure_target)
 			$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:SDL2W::SDL2Wmain>
 			SDL2W::SDL2W
 			SDL2W_net::SDL2W_net
-			rtcw_miniz
+			rtcw::miniz
 			$<$<BOOL:${WIN32}>:winmm>
 	)
 endfunction(rtcw_configure_target)

@@ -4,6 +4,7 @@ project(rtcw_miniz VERSION 1.0.0 LANGUAGES CXX)
 message(STATUS "[rtcw_miniz] Version: ${PROJECT_VERSION}")
 
 add_library(rtcw_miniz STATIC "")
+add_library(rtcw::miniz ALIAS rtcw_miniz)
 
 target_include_directories(rtcw_miniz PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
