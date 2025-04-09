@@ -16,6 +16,14 @@ set_target_properties(rtcw_et_ded PROPERTIES
 	OUTPUT_NAME "rtcw_et_ded_${RTCW_ARCH_STRING}"
 )
 
+if(RTCW_BUILD_SDL2)
+	target_link_libraries(rtcw_et_ded
+		PRIVATE
+			SDL2::SDL2main
+			SDL2::SDL2-static
+	)
+endif()
+
 target_include_directories(rtcw_et_ded
 	PRIVATE
 		.

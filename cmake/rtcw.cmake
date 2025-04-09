@@ -207,13 +207,19 @@ function(rtcw_configure_target)
 		endif()
 	endif()
 
+	if(NOT RTCW_BUILD_SDL2)
+		target_link_libraries(${ARGV0}
+			PRIVATE
+				$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:SDL2W::SDL2Wmain>
+				SDL2W::SDL2W
+				$<$<BOOL:${WIN32}>:winmm>
+		)
+	endif()
+
 	target_link_libraries(${ARGV0}
 		PRIVATE
-			$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:SDL2W::SDL2Wmain>
-			SDL2W::SDL2W
 			SDL2W_net::SDL2W_net
 			rtcw::miniz
-			$<$<BOOL:${WIN32}>:winmm>
 	)
 endfunction(rtcw_configure_target)
 
