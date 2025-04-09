@@ -1,16 +1,16 @@
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 project(rtcw_game_et VERSION 1.0.0 LANGUAGES CXX)
 
-message(STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
+message(STATUS "[rtcw_game_et] Version: ${PROJECT_VERSION}")
 
-add_library(${PROJECT_NAME} SHARED "")
+add_library(rtcw_game_et SHARED "")
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
+set_target_properties(rtcw_game_et PROPERTIES
 	PREFIX ""
 	OUTPUT_NAME "qagame_mp_${RTCW_ARCH_STRING}"
 )
 
-target_include_directories(${PROJECT_NAME}
+target_include_directories(rtcw_game_et
 	PRIVATE
 		.
 		../../botai
@@ -21,16 +21,16 @@ target_include_directories(${PROJECT_NAME}
 		../../ui/et
 )
 
-target_compile_definitions(${PROJECT_NAME}
+target_compile_definitions(rtcw_game_et
 	PRIVATE
 		GAMEDLL
 		RTCW_ET
 		BUILDING_REF_GL
 )
 
-rtcw_configure_target(${PROJECT_NAME})
+rtcw_configure_target(rtcw_game_et)
 
-target_sources(${PROJECT_NAME}
+target_sources(rtcw_game_et
 	PRIVATE
 		../../botai/botai.h
 		../../botai/et/ai_cmd.h
@@ -64,7 +64,7 @@ target_sources(${PROJECT_NAME}
 		g_team.h
 )
 
-target_sources(${PROJECT_NAME}
+target_sources(rtcw_game_et
 	PRIVATE
 		../../botai/et/ai_cmd.cpp
 		../../botai/et/ai_dmgoal_mp.cpp
@@ -129,11 +129,11 @@ target_sources(${PROJECT_NAME}
 )
 
 if(WIN32)
-	target_sources(${PROJECT_NAME} PRIVATE game_et.def)
+	target_sources(rtcw_game_et PRIVATE game_et.def)
 endif()
 
 install(
-	TARGETS ${PROJECT_NAME}
+	TARGETS rtcw_game_et
 	LIBRARY DESTINATION et/etmain
 	RUNTIME DESTINATION et/etmain
 )

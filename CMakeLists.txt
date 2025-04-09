@@ -3,25 +3,25 @@ project(rtcw VERSION 1.0.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-message(STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
+message(STATUS "[rtcw] Version: ${PROJECT_VERSION}")
 
 option(RTCW_SP "Build single-player." ON)
-message(STATUS "[${PROJECT_NAME}] Single-player: ${RTCW_SP}")
+message(STATUS "[rtcw] Single-player: ${RTCW_SP}")
 
 option(RTCW_SP_DEMO "Build single-player demo." ON)
-message(STATUS "[${PROJECT_NAME}] Single-player: ${RTCW_SP_DEMO}")
+message(STATUS "[rtcw] Single-player: ${RTCW_SP_DEMO}")
 
 option(RTCW_MP "Build multi-player." ON)
-message(STATUS "[${PROJECT_NAME}] Multiplayer: ${RTCW_MP}")
+message(STATUS "[rtcw] Multiplayer: ${RTCW_MP}")
 
 option(RTCW_MP_DED "Build multi-player (dedicated)." ON)
-message(STATUS "[${PROJECT_NAME}] Multiplayer (dedicated): ${RTCW_MP_DED}")
+message(STATUS "[rtcw] Multiplayer (dedicated): ${RTCW_MP_DED}")
 
 option(RTCW_ET "Build Enemy Territory." ON)
-message(STATUS "[${PROJECT_NAME}] Enemy Territory: ${RTCW_ET}")
+message(STATUS "[rtcw] Enemy Territory: ${RTCW_ET}")
 
 option(RTCW_ET_DED "Build Enemy Territory (dedicated)." ON)
-message(STATUS "[${PROJECT_NAME}] Enemy Territory (dedicated): ${RTCW_ET_DED}")
+message(STATUS "[rtcw] Enemy Territory (dedicated): ${RTCW_ET_DED}")
 
 if(NOT
 	(RTCW_ET OR
@@ -31,7 +31,7 @@ if(NOT
 		RTCW_SP OR
 		RTCW_SP_DEMO)
 	)
-	message(FATAL_ERROR "[${PROJECT_NAME}] Nothing to build!")
+	message(FATAL_ERROR "[rtcw] Nothing to build!")
 endif()
 
 include(rtcw)

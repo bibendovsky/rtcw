@@ -1,22 +1,22 @@
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 project(rtcw_sp VERSION 1.0.0 LANGUAGES CXX)
 
-message(STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
+message(STATUS "[rtcw_sp] Version: ${PROJECT_VERSION}")
 
-add_executable(${PROJECT_NAME} "")
+add_executable(rtcw_sp "")
 
 add_custom_command(
-	TARGET ${PROJECT_NAME} POST_BUILD
-	COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:${PROJECT_NAME}>>
+	TARGET rtcw_sp POST_BUILD
+	COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:rtcw_sp>>
 	COMMENT "Strip executable."
 	VERBATIM
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
+set_target_properties(rtcw_sp PROPERTIES
 	OUTPUT_NAME "rtcw_sp_${RTCW_ARCH_STRING}"
 )
 
-target_include_directories(${PROJECT_NAME}
+target_include_directories(rtcw_sp
 	PRIVATE
 		.
 		../botai
@@ -30,15 +30,15 @@ target_include_directories(${PROJECT_NAME}
 		../win32
 )
 
-target_compile_definitions(${PROJECT_NAME}
+target_compile_definitions(rtcw_sp
 	PRIVATE
 		BOTLIB
 		RTCW_SP
 )
 
-rtcw_configure_target(${PROJECT_NAME})
+rtcw_configure_target(rtcw_sp)
 
-target_sources(${PROJECT_NAME}
+target_sources(rtcw_sp
 	PRIVATE
 		../botai/botai.h
 		../botlib/aasfile.h
@@ -141,7 +141,7 @@ target_sources(${PROJECT_NAME}
 		../ui/ui_public.h
 )
 
-target_sources(${PROJECT_NAME}
+target_sources(rtcw_sp
 	PRIVATE
 		../botlib/be_aas_bspq3.cpp
 		../botlib/be_aas_cluster.cpp
@@ -284,25 +284,25 @@ target_sources(${PROJECT_NAME}
 )
 
 if(WIN32)
-	target_sources(${PROJECT_NAME} PRIVATE ../win32/rtcw.rc)
+	target_sources(rtcw_sp PRIVATE ../win32/rtcw.rc)
 
 	if(CMAKE_CXX_COMPILER_ID STREQUAL OpenWatcom)
 		add_custom_command(
-			TARGET ${PROJECT_NAME} POST_BUILD
+			TARGET rtcw_sp POST_BUILD
 			COMMAND wrc.exe
 				/DRTCW_SP
 				/bt=nt
 				/i=$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32>
 				/fo=$<SHELL_PATH:${PROJECT_BINARY_DIR}/rtcw.res>
 				$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32/rtcw.rc>
-				$<SHELL_PATH:$<TARGET_FILE:${PROJECT_NAME}>>
-			COMMENT "[${PROJECT_NAME}] Embed resources."
+				$<SHELL_PATH:$<TARGET_FILE:rtcw_sp>>
+			COMMENT "[rtcw_sp] Embed resources."
 			VERBATIM
 		)
 	endif()
 endif()
 
 install(
-	TARGETS ${PROJECT_NAME}
+	TARGETS rtcw_sp
 	RUNTIME DESTINATION sp
 )

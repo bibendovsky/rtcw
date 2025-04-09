@@ -1,16 +1,16 @@
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 project(rtcw_ui_mp VERSION 1.0.0 LANGUAGES CXX)
 
-message(STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
+message(STATUS "[rtcw_ui_mp] Version: ${PROJECT_VERSION}")
 
-add_library(${PROJECT_NAME} SHARED "")
+add_library(rtcw_ui_mp SHARED "")
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
+set_target_properties(rtcw_ui_mp PROPERTIES
 	PREFIX ""
 	OUTPUT_NAME "ui_mp_${RTCW_ARCH_STRING}"
 )
 
-target_include_directories(${PROJECT_NAME}
+target_include_directories(rtcw_ui_mp
 	PRIVATE
 		.
 		../../cgame
@@ -20,14 +20,14 @@ target_include_directories(${PROJECT_NAME}
 		../../ui
 )
 
-target_compile_definitions(${PROJECT_NAME}
+target_compile_definitions(rtcw_ui_mp
 	PRIVATE
 		RTCW_MP
 )
 
-rtcw_configure_target(${PROJECT_NAME})
+rtcw_configure_target(rtcw_ui_mp)
 
-target_sources(${PROJECT_NAME}
+target_sources(rtcw_ui_mp
 	PRIVATE
 		../../cgame/tr_types.h
 		../../game/bg_public.h
@@ -41,7 +41,7 @@ target_sources(${PROJECT_NAME}
 		ui_shared.h
 )
 
-target_sources(${PROJECT_NAME}
+target_sources(rtcw_ui_mp
 	PRIVATE
 		../../game/q_math.cpp
 		../../game/q_shared.cpp
@@ -56,11 +56,11 @@ target_sources(${PROJECT_NAME}
 )
 
 if(WIN32)
-	target_sources(${PROJECT_NAME} PRIVATE ui_mp.def)
+	target_sources(rtcw_ui_mp PRIVATE ui_mp.def)
 endif()
 
 install(
-	TARGETS ${PROJECT_NAME}
+	TARGETS rtcw_ui_mp
 	LIBRARY DESTINATION mp/main
 	RUNTIME DESTINATION mp/main
 )

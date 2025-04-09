@@ -1,22 +1,22 @@
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 project(rtcw_mp_ded VERSION 1.0.0 LANGUAGES CXX)
 
-message(STATUS "[${PROJECT_NAME}] Version: ${PROJECT_VERSION}")
+message(STATUS "[rtcw_mp_ded] Version: ${PROJECT_VERSION}")
 
-add_executable(${PROJECT_NAME} "")
+add_executable(rtcw_mp_ded "")
 
 add_custom_command(
-	TARGET ${PROJECT_NAME} POST_BUILD
-	COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:${PROJECT_NAME}>>
+	TARGET rtcw_mp_ded POST_BUILD
+	COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:rtcw_mp_ded>>
 	COMMENT "Strip executable."
 	VERBATIM
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
+set_target_properties(rtcw_mp_ded PROPERTIES
 	OUTPUT_NAME "rtcw_mp_ded_${RTCW_ARCH_STRING}"
 )
 
-target_include_directories(${PROJECT_NAME}
+target_include_directories(rtcw_mp_ded
 	PRIVATE
 		.
 		../botai
@@ -30,7 +30,7 @@ target_include_directories(${PROJECT_NAME}
 		../win32
 )
 
-target_compile_definitions(${PROJECT_NAME}
+target_compile_definitions(rtcw_mp_ded
 	PRIVATE
 		DEDICATED
 		DO_LIGHT_DEDICATED
@@ -38,9 +38,9 @@ target_compile_definitions(${PROJECT_NAME}
 		RTCW_MP
 )
 
-rtcw_configure_target(${PROJECT_NAME})
+rtcw_configure_target(rtcw_mp_ded)
 
-target_sources(${PROJECT_NAME}
+target_sources(rtcw_mp_ded
 	PRIVATE
 		../botai/botai.h
 		../botlib/be_aas_bsp.h
@@ -134,7 +134,7 @@ target_sources(${PROJECT_NAME}
 		../ui/ui_public.h
 )
 
-target_sources(${PROJECT_NAME}
+target_sources(rtcw_mp_ded
 	PRIVATE
 		../botlib/be_aas_bspq3.cpp
 		../botlib/be_aas_cluster.cpp
@@ -219,25 +219,25 @@ target_sources(${PROJECT_NAME}
 )
 
 if(WIN32)
-	target_sources(${PROJECT_NAME} PRIVATE ../win32/rtcw.rc)
+	target_sources(rtcw_mp_ded PRIVATE ../win32/rtcw.rc)
 
 	if(CMAKE_CXX_COMPILER_ID STREQUAL OpenWatcom)
 		add_custom_command(
-			TARGET ${PROJECT_NAME} POST_BUILD
+			TARGET rtcw_mp_ded POST_BUILD
 			COMMAND wrc.exe
 				/DRTCW_MP
 				/bt=nt
 				/i=$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32>
 				/fo=$<SHELL_PATH:${PROJECT_BINARY_DIR}/rtcw.res>
 				$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32/rtcw.rc>
-				$<SHELL_PATH:$<TARGET_FILE:${PROJECT_NAME}>>
-			COMMENT "[${PROJECT_NAME}] Embed resources."
+				$<SHELL_PATH:$<TARGET_FILE:rtcw_mp_ded>>
+			COMMENT "[rtcw_mp_ded] Embed resources."
 			VERBATIM
 		)
 	endif()
 endif()
 
 install(
-	TARGETS ${PROJECT_NAME}
+	TARGETS rtcw_mp_ded
 	RUNTIME DESTINATION mp
 )
