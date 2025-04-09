@@ -181,11 +181,12 @@ function(rtcw_configure_target)
 		target_link_libraries(${ARGV0}
 			PRIVATE
 				$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:SDL2W::SDL2Wmain>
-				SDL2W::SDL2W
-				$<$<BOOL:${WIN32}>:winmm>
-				SDL2W_net::SDL2W_net
-				iphlpapi
-				ws2_32
+				$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:SDL2W::SDL2W>
+				$<$<AND:$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>,$<BOOL:${WIN32}>>:winmm>
+			PRIVATE
+				$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:SDL2W_net::SDL2W_net>
+				$<$<AND:$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>,$<BOOL:${WIN32}>>:iphlpapi>
+				$<$<AND:$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>,$<BOOL:${WIN32}>>:ws2_32>
 		)
 	endif()
 
