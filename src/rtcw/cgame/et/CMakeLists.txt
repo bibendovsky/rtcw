@@ -33,34 +33,30 @@ rtcw_configure_target(rtcw_cgame_et)
 target_sources(rtcw_cgame_et
 	PRIVATE
 		../../cgame/cg_public.h
-		../../cgame/tr_types.h
 		../../cgame/et/cg_local.h
+		../../cgame/tr_types.h
 		../../game/bg_public.h
-		../../game/q_shared.h
-		../../game/surfaceflags.h
-		../../game/et/bg_local.h
-		../../qcommon/rtcw_vm_args.h
-		../../ui/keycodes.h
-		../../ui/et/menudef.h
-		../../ui/et/ui_shared.h
-)
-
-target_sources(rtcw_cgame_et
-	PRIVATE
-		../../game/q_math.cpp
-		../../game/q_shared.cpp
 		../../game/et/bg_animation.cpp
 		../../game/et/bg_animgroup.cpp
 		../../game/et/bg_campaign.cpp
 		../../game/et/bg_character.cpp
 		../../game/et/bg_classes.cpp
+		../../game/et/bg_local.h
 		../../game/et/bg_misc.cpp
 		../../game/et/bg_pmove.cpp
 		../../game/et/bg_slidemove.cpp
 		../../game/et/bg_sscript.cpp
 		../../game/et/bg_stats.cpp
 		../../game/et/bg_tracemap.cpp
+		../../game/q_math.cpp
+		../../game/q_shared.cpp
+		../../game/q_shared.h
+		../../game/surfaceflags.h
+		../../qcommon/rtcw_vm_args.h
+		../../ui/et/menudef.h
 		../../ui/et/ui_shared.cpp
+		../../ui/et/ui_shared.h
+		../../ui/keycodes.h
 		cg_atmospheric.cpp
 		cg_character.cpp
 		cg_commandmap.cpp

@@ -35,25 +35,20 @@ target_sources(rtcw_cgame_mp
 		../../cgame/cg_public.h
 		../../cgame/tr_types.h
 		../../game/bg_public.h
-		../../game/q_shared.h
-		../../game/surfaceflags.h
-		../../game/mp/bg_local.h
-		../../qcommon/rtcw_vm_args.h
-		../../ui/keycodes.h
-		../../ui/mp/menudef.h
-		../../ui/mp/ui_shared.h
-		cg_local.h
-)
-
-target_sources(rtcw_cgame_mp
-	PRIVATE
-		../../game/q_math.cpp
-		../../game/q_shared.cpp
 		../../game/mp/bg_animation.cpp
+		../../game/mp/bg_local.h
 		../../game/mp/bg_misc.cpp
 		../../game/mp/bg_pmove.cpp
 		../../game/mp/bg_slidemove.cpp
+		../../game/q_math.cpp
+		../../game/q_shared.cpp
+		../../game/q_shared.h
+		../../game/surfaceflags.h
+		../../qcommon/rtcw_vm_args.h
+		../../ui/keycodes.h
+		../../ui/mp/menudef.h
 		../../ui/mp/ui_shared.cpp
+		../../ui/mp/ui_shared.h
 		cg_consolecmds.cpp
 		cg_draw.cpp
 		cg_drawtools.cpp
@@ -62,6 +57,7 @@ target_sources(rtcw_cgame_mp
 		cg_event.cpp
 		cg_flamethrower.cpp
 		cg_info.cpp
+		cg_local.h
 		cg_localents.cpp
 		cg_main.cpp
 		cg_marks.cpp

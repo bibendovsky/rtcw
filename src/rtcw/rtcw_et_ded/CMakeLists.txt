@@ -44,28 +44,57 @@ target_sources(rtcw_et_ded
 		../botai/botai.h
 		../botlib/aasfile.h
 		../botlib/be_aas_bsp.h
+		../botlib/be_aas_bspq3.cpp
+		../botlib/be_aas_cluster.cpp
 		../botlib/be_aas_cluster.h
+		../botlib/be_aas_debug.cpp
 		../botlib/be_aas_debug.h
 		../botlib/be_aas_def.h
+		../botlib/be_aas_entity.cpp
 		../botlib/be_aas_entity.h
+		../botlib/be_aas_file.cpp
 		../botlib/be_aas_file.h
 		../botlib/be_aas_funcs.h
+		../botlib/be_aas_main.cpp
 		../botlib/be_aas_main.h
+		../botlib/be_aas_move.cpp
 		../botlib/be_aas_move.h
+		../botlib/be_aas_optimize.cpp
 		../botlib/be_aas_optimize.h
+		../botlib/be_aas_reach.cpp
 		../botlib/be_aas_reach.h
+		../botlib/be_aas_route.cpp
 		../botlib/be_aas_route.h
+		../botlib/be_aas_routealt.cpp
 		../botlib/be_aas_routealt.h
+		../botlib/be_aas_routetable.cpp
 		../botlib/be_aas_routetable.h
+		../botlib/be_aas_sample.cpp
 		../botlib/be_aas_sample.h
+		../botlib/be_ai_char.cpp
+		../botlib/be_ai_chat.cpp
+		../botlib/be_ai_gen.cpp
+		../botlib/be_ai_goal.cpp
+		../botlib/be_ai_move.cpp
+		../botlib/be_ai_weap.cpp
+		../botlib/be_ai_weight.cpp
 		../botlib/be_ai_weight.h
+		../botlib/be_ea.cpp
+		../botlib/be_interface.cpp
 		../botlib/be_interface.h
+		../botlib/l_crc.cpp
 		../botlib/l_crc.h
+		../botlib/l_libvar.cpp
 		../botlib/l_libvar.h
+		../botlib/l_log.cpp
 		../botlib/l_log.h
+		../botlib/l_memory.cpp
 		../botlib/l_memory.h
+		../botlib/l_precomp.cpp
 		../botlib/l_precomp.h
+		../botlib/l_script.cpp
 		../botlib/l_script.h
+		../botlib/l_struct.cpp
 		../botlib/l_struct.h
 		../botlib/l_utils.h
 		../cgame/cg_public.h
@@ -85,20 +114,41 @@ target_sources(rtcw_et_ded
 		../game/bg_public.h
 		../game/botlib.h
 		../game/g_public.h
+		../game/q_math.cpp
+		../game/q_shared.cpp
 		../game/q_shared.h
 		../game/surfaceflags.h
+		../null/null_client.cpp
+		../null/null_input.cpp
+		../null/null_snddma.cpp
+		../qcommon/cm_load.cpp
 		../qcommon/cm_local.h
+		../qcommon/cm_patch.cpp
 		../qcommon/cm_patch.h
+		../qcommon/cm_polylib.cpp
 		../qcommon/cm_polylib.h
 		../qcommon/cm_public.h
+		../qcommon/cm_test.cpp
+		../qcommon/cm_trace.cpp
+		../qcommon/cmd.cpp
+		../qcommon/common.cpp
+		../qcommon/cvar.cpp
 		../qcommon/dl_local.h
 		../qcommon/dl_public.h
+		../qcommon/files.cpp
+		../qcommon/files_posix.cpp
+		../qcommon/files_win32.cpp
+		../qcommon/huffman.cpp
+		../qcommon/md4.cpp
+		../qcommon/msg.cpp
+		../qcommon/net_chan.cpp
 		../qcommon/qcommon.h
 		../qcommon/qfiles.h
 		../qcommon/rtcw_bit_array_single_unit.cpp
 		../qcommon/rtcw_bit_array_single_unit.h
 		../qcommon/rtcw_string.cpp
 		../qcommon/rtcw_string.h
+		../qcommon/vm.cpp
 		../qcommon/vm_local.h
 		../renderer/anorms256.h
 		../renderer/qgl.h
@@ -117,77 +167,6 @@ target_sources(rtcw_et_ded
 		../renderer/tr_local.h
 		../renderer/tr_public.h
 		../server/server.h
-		../splines/math_angles.h
-		../splines/math_matrix.h
-		../splines/math_quaternion.h
-		../splines/math_vector.h
-		../splines/splines.h
-		../splines/util_list.h
-		../splines/util_str.h
-		../system/rtcw_endian.h
-		../system/rtcw_input_joystick.h
-		../system/rtcw_input_keyboard.h
-		../system/rtcw_input_mouse.h
-		../system/sys_events.h
-		../system/sys_input.h
-		../system/sys_local.h
-		../system/sys_shared.h
-		../ui/keycodes.h
-		../ui/ui_public.h
-)
-
-target_sources(rtcw_et_ded
-	PRIVATE
-		../botlib/be_aas_bspq3.cpp
-		../botlib/be_aas_cluster.cpp
-		../botlib/be_aas_debug.cpp
-		../botlib/be_aas_entity.cpp
-		../botlib/be_aas_file.cpp
-		../botlib/be_aas_main.cpp
-		../botlib/be_aas_move.cpp
-		../botlib/be_aas_optimize.cpp
-		../botlib/be_aas_reach.cpp
-		../botlib/be_aas_route.cpp
-		../botlib/be_aas_routealt.cpp
-		../botlib/be_aas_routetable.cpp
-		../botlib/be_aas_sample.cpp
-		../botlib/be_ai_char.cpp
-		../botlib/be_ai_chat.cpp
-		../botlib/be_ai_gen.cpp
-		../botlib/be_ai_goal.cpp
-		../botlib/be_ai_move.cpp
-		../botlib/be_ai_weap.cpp
-		../botlib/be_ai_weight.cpp
-		../botlib/be_ea.cpp
-		../botlib/be_interface.cpp
-		../botlib/l_crc.cpp
-		../botlib/l_libvar.cpp
-		../botlib/l_log.cpp
-		../botlib/l_memory.cpp
-		../botlib/l_precomp.cpp
-		../botlib/l_script.cpp
-		../botlib/l_struct.cpp
-		../game/q_math.cpp
-		../game/q_shared.cpp
-		../null/null_client.cpp
-		../null/null_input.cpp
-		../null/null_snddma.cpp
-		../qcommon/cm_load.cpp
-		../qcommon/cm_patch.cpp
-		../qcommon/cm_polylib.cpp
-		../qcommon/cm_test.cpp
-		../qcommon/cm_trace.cpp
-		../qcommon/cmd.cpp
-		../qcommon/common.cpp
-		../qcommon/cvar.cpp
-		../qcommon/files.cpp
-		../qcommon/files_posix.cpp
-		../qcommon/files_win32.cpp
-		../qcommon/huffman.cpp
-		../qcommon/md4.cpp
-		../qcommon/msg.cpp
-		../qcommon/net_chan.cpp
-		../qcommon/vm.cpp
 		../server/sv_bot.cpp
 		../server/sv_ccmds.cpp
 		../server/sv_client.cpp
@@ -197,15 +176,19 @@ target_sources(rtcw_et_ded
 		../server/sv_net_chan.cpp
 		../server/sv_snapshot.cpp
 		../server/sv_world.cpp
-		../system/sys_events.cpp
-		../system/sys_main.cpp
-		../system/sys_net.cpp
-		../system/sys_shared.cpp
-		../system/sys_shared_posix.cpp
-		../system/sys_shared_win32.cpp
-		../system/sys_syscon.cpp
+		../splines/math_angles.h
+		../splines/math_matrix.h
+		../splines/math_quaternion.h
+		../splines/math_vector.h
+		../splines/splines.h
+		../splines/util_list.h
+		../splines/util_str.h
 		../system/rtcw_array_trivial.cpp
 		../system/rtcw_array_trivial.h
+		../system/rtcw_endian.h
+		../system/rtcw_input_joystick.h
+		../system/rtcw_input_keyboard.h
+		../system/rtcw_input_mouse.h
 		../system/rtcw_sdl_utility.cpp
 		../system/rtcw_sdl_utility.h
 		../system/rtcw_syscon.cpp
@@ -218,6 +201,19 @@ target_sources(rtcw_et_ded
 		../system/rtcw_vector_trivial.h
 		../system/rtcw_window_rounded_corner_mgr.cpp
 		../system/rtcw_window_rounded_corner_mgr.h
+		../system/sys_events.cpp
+		../system/sys_events.h
+		../system/sys_input.h
+		../system/sys_local.h
+		../system/sys_main.cpp
+		../system/sys_net.cpp
+		../system/sys_shared.cpp
+		../system/sys_shared.h
+		../system/sys_shared_posix.cpp
+		../system/sys_shared_win32.cpp
+		../system/sys_syscon.cpp
+		../ui/keycodes.h
+		../ui/ui_public.h
 )
 
 if(WIN32)

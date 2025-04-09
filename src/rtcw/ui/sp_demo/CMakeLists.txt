@@ -34,26 +34,22 @@ target_sources(rtcw_ui_sp_demo
 	PRIVATE
 		../../cgame/tr_types.h
 		../../game/bg_public.h
+		../../game/q_math.cpp
+		../../game/q_shared.cpp
 		../../game/q_shared.h
+		../../game/sp/bg_misc.cpp
 		../../game/surfaceflags.h
 		../../qcommon/rtcw_vm_args.h
 		../../ui/keycodes.h
 		../../ui/ui_public.h
 		../sp/menudef.h
-		../sp/ui_local.h
-		../sp/ui_shared.h
-)
-
-target_sources(rtcw_ui_sp_demo
-	PRIVATE
-		../../game/q_math.cpp
-		../../game/q_shared.cpp
-		../../game/sp/bg_misc.cpp
 		../sp/ui_atoms.cpp
 		../sp/ui_gameinfo.cpp
+		../sp/ui_local.h
 		../sp/ui_main.cpp
 		../sp/ui_players.cpp
 		../sp/ui_shared.cpp
+		../sp/ui_shared.h
 		../sp/ui_syscalls.cpp
 		../sp/ui_util.cpp
 )

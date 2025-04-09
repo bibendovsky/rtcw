@@ -19,9 +19,5 @@ rtcw_configure_3rd_party_target(rtcw_miniz)
 target_sources(rtcw_miniz
 	PRIVATE
 		miniz.h
-)
-
-target_sources(rtcw_miniz
-	PRIVATE
 		rtcw_miniz.cpp
 )

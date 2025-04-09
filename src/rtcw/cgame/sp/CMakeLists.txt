@@ -33,27 +33,23 @@ rtcw_configure_target(rtcw_cgame_sp)
 target_sources(rtcw_cgame_sp
 	PRIVATE
 		../../cgame/cg_public.h
-		../../cgame/tr_types.h
 		../../cgame/sp/cg_local.h
+		../../cgame/tr_types.h
 		../../game/bg_public.h
-		../../game/q_shared.h
-		../../game/surfaceflags.h
-		../../game/sp/bg_local.h
-		../../qcommon/rtcw_vm_args.h
-		../../ui/keycodes.h
-		../../ui/sp/menudef.h
-		../../ui/sp/ui_shared.h
-)
-
-target_sources(rtcw_cgame_sp
-	PRIVATE
 		../../game/q_math.cpp
 		../../game/q_shared.cpp
+		../../game/q_shared.h
 		../../game/sp/bg_animation.cpp
+		../../game/sp/bg_local.h
 		../../game/sp/bg_misc.cpp
 		../../game/sp/bg_pmove.cpp
 		../../game/sp/bg_slidemove.cpp
+		../../game/surfaceflags.h
+		../../qcommon/rtcw_vm_args.h
+		../../ui/keycodes.h
+		../../ui/sp/menudef.h
 		../../ui/sp/ui_shared.cpp
+		../../ui/sp/ui_shared.h
 		cg_consolecmds.cpp
 		cg_draw.cpp
 		cg_drawtools.cpp

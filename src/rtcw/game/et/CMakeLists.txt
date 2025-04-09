@@ -33,13 +33,21 @@ rtcw_configure_target(rtcw_game_et)
 target_sources(rtcw_game_et
 	PRIVATE
 		../../botai/botai.h
+		../../botai/et/ai_cmd.cpp
 		../../botai/et/ai_cmd.h
 		../../botai/et/ai_distances.h
+		../../botai/et/ai_dmgoal_mp.cpp
 		../../botai/et/ai_dmgoal_mp.h
+		../../botai/et/ai_dmnet_mp.cpp
 		../../botai/et/ai_dmnet_mp.h
+		../../botai/et/ai_dmq3.cpp
 		../../botai/et/ai_dmq3.h
+		../../botai/et/ai_main.cpp
 		../../botai/et/ai_main.h
 		../../botai/et/ai_matrix.h
+		../../botai/et/ai_script.cpp
+		../../botai/et/ai_script_actions.cpp
+		../../botai/et/ai_team.cpp
 		../../botai/et/ai_team.h
 		../../botai/et/chars.h
 		../../botai/et/inv.h
@@ -56,31 +64,17 @@ target_sources(rtcw_game_et
 		../../game/bg_public.h
 		../../game/botlib.h
 		../../game/g_public.h
+		../../game/q_math.cpp
+		../../game/q_shared.cpp
 		../../game/q_shared.h
 		../../game/surfaceflags.h
 		../../qcommon/rtcw_vm_args.h
-		bg_local.h
-		g_local.h
-		g_team.h
-)
-
-target_sources(rtcw_game_et
-	PRIVATE
-		../../botai/et/ai_cmd.cpp
-		../../botai/et/ai_dmgoal_mp.cpp
-		../../botai/et/ai_dmnet_mp.cpp
-		../../botai/et/ai_dmq3.cpp
-		../../botai/et/ai_main.cpp
-		../../botai/et/ai_script.cpp
-		../../botai/et/ai_script_actions.cpp
-		../../botai/et/ai_team.cpp
-		../../game/q_math.cpp
-		../../game/q_shared.cpp
 		bg_animation.cpp
 		bg_animgroup.cpp
 		bg_campaign.cpp
 		bg_character.cpp
 		bg_classes.cpp
+		bg_local.h
 		bg_misc.cpp
 		bg_pmove.cpp
 		bg_slidemove.cpp
@@ -100,6 +94,7 @@ target_sources(rtcw_game_et
 		g_config.cpp
 		g_fireteams.cpp
 		g_items.cpp
+		g_local.h
 		g_main.cpp
 		g_match.cpp
 		g_mem.cpp
@@ -121,6 +116,7 @@ target_sources(rtcw_game_et
 		g_systemmsg.cpp
 		g_target.cpp
 		g_team.cpp
+		g_team.h
 		g_teammapdata.cpp
 		g_trigger.cpp
 		g_utils.cpp

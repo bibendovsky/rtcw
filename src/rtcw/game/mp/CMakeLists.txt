@@ -33,11 +33,17 @@ rtcw_configure_target(rtcw_game_mp)
 target_sources(rtcw_game_mp
 	PRIVATE
 		../../botai/botai.h
+		../../botai/mp/ai_chat.cpp
 		../../botai/mp/ai_chat.h
+		../../botai/mp/ai_cmd.cpp
 		../../botai/mp/ai_cmd.h
+		../../botai/mp/ai_dmnet.cpp
 		../../botai/mp/ai_dmnet.h
+		../../botai/mp/ai_dmq3.cpp
 		../../botai/mp/ai_dmq3.h
+		../../botai/mp/ai_main.cpp
 		../../botai/mp/ai_main.h
+		../../botai/mp/ai_team.cpp
 		../../botai/mp/ai_team.h
 		../../botai/mp/chars.h
 		../../botai/mp/inv.h
@@ -53,36 +59,24 @@ target_sources(rtcw_game_mp
 		../../game/be_ea.h
 		../../game/bg_public.h
 		../../game/botlib.h
-		../../game/g_public.h
-		../../game/q_shared.h
-		../../game/surfaceflags.h
 		../../game/et/bg_local.h
-		../../qcommon/rtcw_vm_args.h
-		ai_cast.h
-		ai_cast_fight.h
-		ai_cast_global.h
-		g_local.h
-		g_team.h
-)
-
-target_sources(rtcw_game_mp
-	PRIVATE
-		../../botai/mp/ai_chat.cpp
-		../../botai/mp/ai_cmd.cpp
-		../../botai/mp/ai_dmnet.cpp
-		../../botai/mp/ai_dmq3.cpp
-		../../botai/mp/ai_main.cpp
-		../../botai/mp/ai_team.cpp
+		../../game/g_public.h
 		../../game/q_math.cpp
 		../../game/q_shared.cpp
+		../../game/q_shared.h
+		../../game/surfaceflags.h
+		../../qcommon/rtcw_vm_args.h
 		ai_cast.cpp
+		ai_cast.h
 		ai_cast_characters.cpp
 		ai_cast_debug.cpp
 		ai_cast_events.cpp
 		ai_cast_fight.cpp
+		ai_cast_fight.h
 		ai_cast_func_attack.cpp
 		ai_cast_func_boss1.cpp
 		ai_cast_funcs.cpp
+		ai_cast_global.h
 		ai_cast_script.cpp
 		ai_cast_script_actions.cpp
 		ai_cast_script_ents.cpp
@@ -100,6 +94,7 @@ target_sources(rtcw_game_mp
 		g_cmds.cpp
 		g_combat.cpp
 		g_items.cpp
+		g_local.h
 		g_main.cpp
 		g_mem.cpp
 		g_misc.cpp
@@ -115,6 +110,7 @@ target_sources(rtcw_game_mp
 		g_syscalls.cpp
 		g_target.cpp
 		g_team.cpp
+		g_team.h
 		g_tramcar.cpp
 		g_trigger.cpp
 		g_utils.cpp
