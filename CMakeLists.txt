@@ -28,7 +28,7 @@ message(STATUS "[rtcw] Build SDL2 libraries: ${RTCW_BUILD_SDL2}")
 
 # Precompiled headers.
 #
-option(RTCW_USE_PCH "Enable precompiled headers if available." ON)
+option(RTCW_USE_PCH "Enable precompiled headers if available." OFF)
 message(STATUS "[${PROJECT_NAME}] Enable precompiled headers: ${RTCW_USE_PCH}")
 
 # Multi-process compilation.
