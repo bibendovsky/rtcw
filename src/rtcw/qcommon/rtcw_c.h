@@ -15,8 +15,8 @@ SPDX-License-Identifier: GPL-3.0
 // BBi
 
 
-#include <cmath>
-#include <cstdlib>
+#include <math.h>
+#include <stdlib.h>
 
 
 namespace c
@@ -26,134 +26,134 @@ namespace c
 inline int abs(
 	int x)
 {
-	return std::abs(x);
+	return ::abs(x);
 }
 
-inline std::div_t div(
+inline ::div_t div(
 	int numerator,
 	int denominator)
 {
-	return std::div(numerator, denominator);
+	return ::div(numerator, denominator);
 }
 
 inline double acos(
 	double x)
 {
-	return std::acos(x);
+	return ::acos(x);
 }
 
 inline double asin(
 	double x)
 {
-	return std::asin(x);
+	return ::asin(x);
 }
 
 inline double atan(
 	double x)
 {
-	return std::atan(x);
+	return ::atan(x);
 }
 
 inline double atan2(
 	double x,
 	double y)
 {
-	return std::atan2(x, y);
+	return ::atan2(x, y);
 }
 
 inline double cos(
 	double x)
 {
-	return std::cos(x);
+	return ::cos(x);
 }
 
 inline double sin(
 	double x)
 {
-	return std::sin(x);
+	return ::sin(x);
 }
 
 inline double tan(
 	double x)
 {
-	return std::tan(x);
+	return ::tan(x);
 }
 
 inline double exp(
 	double x)
 {
-	return std::exp(x);
+	return ::exp(x);
 }
 
 inline double frexp(
 	double value,
 	int* exp)
 {
-	return std::frexp(value, exp);
+	return ::frexp(value, exp);
 }
 
 inline double ldexp(
 	double x,
 	int exp)
 {
-	return std::ldexp(x, exp);
+	return ::ldexp(x, exp);
 }
 
 inline double log(
 	double x)
 {
-	return std::log(x);
+	return ::log(x);
 }
 
 inline double log10(
 	double x)
 {
-	return std::log10(x);
+	return ::log10(x);
 }
 
 inline double modf(
 	double value,
 	double* iptr)
 {
-	return std::modf(value, iptr);
+	return ::modf(value, iptr);
 }
 
 inline double fabs(
 	double x)
 {
-	return std::fabs(x);
+	return ::fabs(x);
 }
 
 inline double pow(
 	double x,
 	double y)
 {
-	return std::pow(x, y);
+	return ::pow(x, y);
 }
 
 inline double sqrt(
 	double x)
 {
-	return std::sqrt(x);
+	return ::sqrt(x);
 }
 
 inline double ceil(
 	double x)
 {
-	return std::ceil(x);
+	return ::ceil(x);
 }
 
 inline double floor(
 	double x)
 {
-	return std::floor(x);
+	return ::floor(x);
 }
 
 inline double fmod(
 	double x,
 	double y)
 {
-	return std::fmod(x, y);
+	return ::fmod(x, y);
 }
 
 

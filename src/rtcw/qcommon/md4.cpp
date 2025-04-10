@@ -9,7 +9,7 @@ SPDX-License-Identifier: GPL-3.0
 
 #include <stddef.h>
 #include <stdint.h>
-#include <cstring>
+#include <string.h>
 
 
 /* POINTER defines a generic pointer type */

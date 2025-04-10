@@ -12,7 +12,7 @@ SPDX-License-Identifier: GPL-3.0
 #ifndef RTCW_ENDIAN_INCLUDED
 #define RTCW_ENDIAN_INCLUDED
 
-
+#include <stddef.h>
 
 #define RTCW_ENDIAN_UNKNOWN 0
 
@@ -115,10 +115,10 @@ public:
 	>
 	static void le(
 		const T* src_data,
-		std::size_t count,
+		size_t count,
 		T* dst_data)
 	{
-		for (std::size_t i = 0; i < count; ++i)
+		for (size_t i = 0; i < count; ++i)
 		{
 			dst_data[i] = le(src_data[i]);
 		}
@@ -145,10 +145,10 @@ public:
 	>
 	static void be(
 		const T* src_data,
-		std::size_t count,
+		size_t count,
 		T* dst_data)
 	{
-		for (std::size_t i = 0; i < count; ++i)
+		for (size_t i = 0; i < count; ++i)
 		{
 			dst_data[i] = be(src_data[i]);
 		}
@@ -173,9 +173,9 @@ public:
 	>
 	static void lei(
 		T* data,
-		std::size_t count)
+		size_t count)
 	{
-		for (std::size_t i = 0; i < count; ++i)
+		for (size_t i = 0; i < count; ++i)
 		{
 			lei(data[i]);
 		}
@@ -199,9 +199,9 @@ public:
 	>
 	static void bei(
 		T* data,
-		std::size_t count)
+		size_t count)
 	{
-		for (std::size_t i = 0; i < count; ++i)
+		for (size_t i = 0; i < count; ++i)
 		{
 			bei(data[i]);
 		}
@@ -217,7 +217,7 @@ private:
 	{
 		T result;
 
-		for (std::size_t i = 0, j = sizeof(T) - 1; i < sizeof(T); ++i, --j)
+		for (size_t i = 0, j = sizeof(T) - 1; i < sizeof(T); ++i, --j)
 		{
 			(reinterpret_cast<char*>(&result))[i] =
 				(reinterpret_cast<const char*>(&value))[j];
@@ -233,7 +233,7 @@ private:
 	static void lei_bei(
 		T& value)
 	{
-		for (std::size_t i = 0, j = sizeof(T) - 1, n = sizeof(T) / 2; i < n; ++i, --j)
+		for (size_t i = 0, j = sizeof(T) - 1, n = sizeof(T) / 2; i < n; ++i, --j)
 		{
 			std::swap(
 				(reinterpret_cast<char*>(&value))[i],

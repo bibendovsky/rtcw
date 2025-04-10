@@ -5,7 +5,7 @@ SPDX-License-Identifier: GPL-3.0
 */
 
 #include "rtcw_ogl_tess_state.h"
-#include <cassert>
+#include <assert.h>
 #include "qgl.h"
 
 

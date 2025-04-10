@@ -19,7 +19,6 @@ SPDX-License-Identifier: GPL-3.0
 #include <string.h>
 #include <time.h>
 #include <inttypes.h>
-#include <cstddef>
 
 #include <algorithm>
 
@@ -158,15 +157,10 @@ SPDX-License-Identifier: GPL-3.0
 //
 //#endif
 
-#include <cassert>
-#include <cmath>
-#include <cstdio>
-#include <cstdarg>
-#include <cstring>
-#include <cstdlib>
-#include <ctime>
-#include <cctype>
-#include <climits>
+#include <assert.h>
+#include <math.h>
+#include <stdarg.h>
+#include <limits.h>
 
 #if defined RTCW_ET
 #include <float.h>

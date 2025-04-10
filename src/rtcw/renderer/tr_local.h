@@ -2841,10 +2841,10 @@ public:
 	static const GLvoid* TC1_PTR;
 	static const GLvoid* COL_PTR;
 
-	static const std::size_t POS_SIZE;
-	static const std::size_t TC0_SIZE;
-	static const std::size_t TC1_SIZE;
-	static const std::size_t COL_SIZE;
+	static const size_t POS_SIZE;
+	static const size_t TC0_SIZE;
+	static const size_t TC1_SIZE;
+	static const size_t COL_SIZE;
 
 	rtcw::cgm::Vec4 position[MAX_VERTEX_COUNT];
 	rtcw::cgm::Vec2 texture_coords[2][MAX_VERTEX_COUNT];

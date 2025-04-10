@@ -46,19 +46,19 @@ const GLvoid* OglTessLayout::COL_PTR =
 	reinterpret_cast<const GLvoid*> (OglTessLayout::COL_OFS);
 
 
-const std::size_t OglTessLayout::POS_SIZE =
+const size_t OglTessLayout::POS_SIZE =
 	offsetof (OglTessLayout, position[1]) -
 	offsetof (OglTessLayout, position[0]);
 
-const std::size_t OglTessLayout::TC0_SIZE =
+const size_t OglTessLayout::TC0_SIZE =
 	offsetof (OglTessLayout, texture_coords[0][1]) -
 	offsetof (OglTessLayout, texture_coords[0][0]);
 
-const std::size_t OglTessLayout::TC1_SIZE =
+const size_t OglTessLayout::TC1_SIZE =
 	offsetof (OglTessLayout, texture_coords[1][1]) -
 	offsetof (OglTessLayout, texture_coords[1][0]);
 
-const std::size_t OglTessLayout::COL_SIZE =
+const size_t OglTessLayout::COL_SIZE =
 	offsetof (OglTessLayout, color[1]) -
 	offsetof (OglTessLayout, color[0]);
 
