@@ -240,6 +240,8 @@ target_sources(rtcw_mp
 		../system/rtcw_array_trivial.cpp
 		../system/rtcw_array_trivial.h
 		../system/rtcw_endian.h
+		../system/rtcw_main.cpp
+		../system/rtcw_main.h
 		../system/rtcw_input_joystick.cpp
 		../system/rtcw_input_joystick.h
 		../system/rtcw_input_keyboard.cpp

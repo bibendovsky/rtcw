@@ -5,12 +5,14 @@ Copyright (c) 2012-2025 Boris I. Bendovsky bibendovsky@hotmail.com and Contribut
 SPDX-License-Identifier: GPL-3.0
 */
 
+#define SDL_MAIN_HANDLED
 
 #include "SDL.h"
 
 #include "client.h"
 #include "qcommon.h"
 #include "sys_local.h"
+#include "rtcw_main.h"
 #include "rtcw_string.h"
 
 
@@ -18,7 +20,7 @@ int totalMsec = 0;
 int countMsec = 0;
 
 
-extern "C" int main(
+int main(
 	int argc,
 	char* argv[])
 {

@@ -189,6 +189,8 @@ target_sources(rtcw_et_ded
 		../system/rtcw_input_joystick.h
 		../system/rtcw_input_keyboard.h
 		../system/rtcw_input_mouse.h
+		../system/rtcw_main.cpp
+		../system/rtcw_main.h
 		../system/rtcw_sdl_utility.cpp
 		../system/rtcw_sdl_utility.h
 		../system/rtcw_syscon.cpp

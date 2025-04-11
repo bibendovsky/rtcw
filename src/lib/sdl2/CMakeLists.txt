@@ -5,7 +5,7 @@ message(STATUS "[rtcw_sdl2] v${PROJECT_VERSION}")
 
 set(SDL2_DISABLE_INSTALL ON CACHE BOOL "Disable installation of SDL2" FORCE)
 set(SDL2_DISABLE_UNINSTALL ON CACHE BOOL "Disable uninstallation of SDL2" FORCE)
-set(SDL2_DISABLE_SDL2MAIN OFF CACHE BOOL "Disable building/installation of SDL2main" FORCE)
+set(SDL2_DISABLE_SDL2MAIN ON CACHE BOOL "Disable building/installation of SDL2main" FORCE)
 set(SDL_SHARED OFF CACHE BOOL "Build a shared version of the library" FORCE)
 set(SDL_STATIC ON CACHE BOOL "Build a static version of the library" FORCE)
 set(SDL_TEST OFF CACHE BOOL "Build the SDL2_test library" FORCE)
