@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-3.0
 #include "rtcw_window_rounded_corner_mgr.h"
 #ifdef _WIN32
 #include <stddef.h>
+#include <string.h>
 #include <windows.h>
 #include "SDL_syswm.h"
 #include "rtcw_unique_ptr.h"
@@ -73,7 +74,8 @@ WindowRoundedCornerMgr::Impl::~Impl()
 
 void WindowRoundedCornerMgr::Impl::disable(SDL_Window* sdl_window)
 {
-	SDL_SysWMinfo sdl_sys_wm_info = SDL_SysWMinfo();
+	SDL_SysWMinfo sdl_sys_wm_info;
+	memset(&sdl_sys_wm_info, 0, sizeof(SDL_SysWMinfo));
 	SDL_VERSION(&sdl_sys_wm_info.version);
 
 	if (SDL_GetWindowWMInfo(sdl_window, &sdl_sys_wm_info) != SDL_TRUE ||

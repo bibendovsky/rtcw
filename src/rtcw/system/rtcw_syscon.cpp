@@ -1669,11 +1669,13 @@ void Syscon::Impl::button_render_text(const Button& button, const SDL_Rect& clip
 	const int target_x_max = target_x_min + text_width;
 	const int target_y_min = clip_rect.y + (clip_rect.h - font_glyph_height_) / 2;
 
-	SDL_Rect glyph_atlas_rect = SDL_Rect();
+	SDL_Rect glyph_atlas_rect;
+	glyph_atlas_rect.x = 0;
+	glyph_atlas_rect.y = 0;
 	glyph_atlas_rect.w = font_glyph_width;
 	glyph_atlas_rect.h = font_glyph_height;
 
-	SDL_Rect glyph_target_rect = SDL_Rect();
+	SDL_Rect glyph_target_rect;
 	glyph_target_rect.x = target_x_min;
 	glyph_target_rect.y = target_y_min;
 	glyph_target_rect.w = font_glyph_width_;
@@ -1724,12 +1726,11 @@ void Syscon::Impl::ui_error_label_lay_out()
 {
 	TextBox& text_box = ui_error_label_;
 
-	SDL_Rect rect = SDL_Rect();
-
 	const int height =
 		error_label_line_count * font_glyph_height_ +
 		2 * (default_border_width + default_text_box_padding);
 
+	SDL_Rect rect;
 	rect.x = margin_;
 	rect.y = margin_;
 	rect.w = window_width_ - 2 * margin_;
@@ -1919,11 +1920,13 @@ void Syscon::Impl::edit_box_render_text(EditBox& edit_box)
 	const int target_x_min = clip_rect.x - edit_box.window_pixel_offset % glyph_placement_width;
 	const int target_x_max = clip_rect.x + clip_rect.w;
 
-	SDL_Rect glyph_atlas_rect = SDL_Rect();
+	SDL_Rect glyph_atlas_rect;
+	glyph_atlas_rect.x = 0;
+	glyph_atlas_rect.y = 0;
 	glyph_atlas_rect.w = font_glyph_width;
 	glyph_atlas_rect.h = font_glyph_height;
 
-	SDL_Rect glyph_target_rect = SDL_Rect();
+	SDL_Rect glyph_target_rect;
 	glyph_target_rect.x = target_x_min;
 	glyph_target_rect.y = clip_rect.y;
 	glyph_target_rect.w = font_glyph_width_;
@@ -1968,7 +1971,7 @@ void Syscon::Impl::edit_box_render_text_cursor(EditBox& edit_box)
 	const bool is_focused = focused_control_ == &edit_box;
 	const int v_padding = default_border_width + is_focused * default_extra_border_width + 1;
 
-	SDL_Rect clip_rect = SDL_Rect();
+	SDL_Rect clip_rect;
 	clip_rect.x = edit_box.text_rect.x;
 	clip_rect.y = edit_box.rect.y + v_padding;
 	clip_rect.w = edit_box.text_rect.w;
@@ -2285,7 +2288,8 @@ void Syscon::Impl::ui_quit_button_update_input_state()
 
 void Syscon::Impl::ui_quit_button_clicked_callback()
 {
-	SDL_Event sdl_event = SDL_Event();
+	SDL_Event sdl_event;
+	memset(&sdl_event, 0, sizeof(SDL_Event));
 	sdl_event.type = SDL_QUIT;
 	SDL_PushEvent(&sdl_event);
 }
@@ -2310,7 +2314,7 @@ void Syscon::Impl::ui_input_line_lay_out()
 	const int height = font_glyph_height_ + 2 * (default_border_width + default_edit_box_padding);
 	EditBox& edit_box = ui_input_line_;
 
-	SDL_Rect rect = SDL_Rect();
+	SDL_Rect rect;
 
 	rect.x = margin_;
 	rect.y = window_height_ - margin_ - button_height_ - margin_ - height;
@@ -2353,7 +2357,7 @@ void Syscon::Impl::ui_input_line_update_input_state()
 
 bool Syscon::Impl::scrollbar_initialize(Scrollbar& scrollbar)
 {
-	scrollbar = Scrollbar();
+	memset(&scrollbar, 0, sizeof(Scrollbar));
 	scrollbar.is_visible = true;
 	scrollbar.rect.w = default_scrollbar_width;
 	return true;
@@ -2767,11 +2771,14 @@ void Syscon::Impl::text_box_render_text(
 	const int target_x_max = text_box.text_rect.x + text_width;
 	const int target_y_max = text_box.text_rect.y + text_box.text_rect.h;
 
-	SDL_Rect glyph_atlas_rect = SDL_Rect();
+	SDL_Rect glyph_atlas_rect;
+	glyph_atlas_rect.x = 0;
+	glyph_atlas_rect.y = 0;
 	glyph_atlas_rect.w = font_glyph_width;
 	glyph_atlas_rect.h = font_glyph_height;
 
-	SDL_Rect glyph_target_rect = SDL_Rect();
+	SDL_Rect glyph_target_rect;
+	glyph_target_rect.x = 0;
 	glyph_target_rect.y = text_box.text_rect.y + top_offset;
 	glyph_target_rect.w = font_glyph_width_;
 	glyph_target_rect.h = font_glyph_height_;
@@ -3005,7 +3012,7 @@ bool Syscon::Impl::ui_log_initialize()
 void Syscon::Impl::ui_log_lay_out()
 {
 	TextBox& text_box = ui_log_;
-	SDL_Rect rect = SDL_Rect();
+	SDL_Rect rect;
 	rect.x = margin_;
 	rect.y = (is_error_mode_ ? ui_error_label_.rect.y + ui_error_label_.rect.h : 0) + margin_;
 	rect.w = window_width_ - 2 * margin_;

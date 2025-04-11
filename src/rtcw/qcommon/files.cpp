@@ -311,6 +311,17 @@ public:
 		bool is_directory_;
 		bool is_encrypted_;
 		bool is_supported_;
+
+		FileStat()
+			:
+			file_name_(),
+			crc_(),
+			compressed_size_(),
+			uncompressed_size_(),
+			is_directory_(),
+			is_encrypted_(),
+			is_supported_()
+		{}
 	}; // FileStat
 
 
@@ -432,7 +443,7 @@ public:
 		io_.close();
 		file_count_ = 0;
 
-		miniz_zip_ = mz_zip_archive();
+		memset(&miniz_zip_, 0, sizeof(mz_zip_archive));
 	}
 
 	bool is_open() const

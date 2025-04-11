@@ -683,7 +683,7 @@ void GLimp_Init()
 	}
 
 
-	glConfig = glconfig_t();
+	memset(&glConfig, 0, sizeof(glconfig_t));
 	glConfigEx.reset();
 
 	if (is_succeed)
@@ -768,7 +768,7 @@ void GLimp_Shutdown()
 
 	sys_main_window_id = 0;
 
-	glConfig = glconfig_t();
+	memset(&glConfig, 0, sizeof(glconfig_t));
 	glConfigEx.reset();
 
 	SDL_GL_UnloadLibrary();
