@@ -1291,7 +1291,11 @@ const char* Sys_GetDLLName(
 	const char* name);
 
 
-typedef int32_t (QDECL* DllEntryPoint)(intptr_t, ...);
+#ifdef RTCW_VANILLA
+typedef int (QDECL* DllEntryPoint)(int, ...);
+#else // RTCW_VANILLA
+typedef int (QDECL* DllEntryPoint)(intptr_t, ...);
+#endif // RTCW_VANILLA
 
 // fqpath param added 2/15/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
 void* QDECL Sys_LoadDll(

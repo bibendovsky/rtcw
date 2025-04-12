@@ -974,7 +974,11 @@ extern void trap_Endgame ( void ) ;
 extern void trap_Error ( const char * fmt ) ;
 extern void trap_Printf ( const char * fmt ) ;
 extern int PASSFLOAT ( float x ) ;
-extern "C" void dllEntry ( int32_t ( QDECL * syscallptr ) ( intptr_t arg , ... ) ) ;
+#ifdef RTCW_VANILLA
+void dllEntry ( int ( QDECL * syscallptr ) ( int arg , ... ) ) ;
+#else // RTCW_VANILLA
+extern "C" RTCW_DLLEXPORT void QDECL dllEntry ( int ( QDECL * syscallptr ) ( intptr_t arg , ... ) ) ;
+#endif // RTCW_VANILLA
 extern void G_RunFrame ( int levelTime ) ;
 extern void G_RunThink ( gentity_t * ent ) ;
 extern void CheckCvars ( void ) ;

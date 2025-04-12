@@ -455,14 +455,17 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
+#ifdef RTCW_VANILLA
 #if __GNUC__ >= 4
 #pragma GCC visibility push(default)
 #endif
-
-// BBi
-//int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6 ) {
-extern "C" intptr_t vmMain
-	(intptr_t command,
+int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6 ) {
+#if __GNUC__ >= 4
+#pragma GCC visibility pop
+#endif
+#else // RTCW_VANILLA
+extern "C" RTCW_DLLEXPORT int QDECL vmMain(
+	intptr_t command,
 	intptr_t arg0,
 	intptr_t arg1,
 	intptr_t arg2,
@@ -471,11 +474,8 @@ extern "C" intptr_t vmMain
 	intptr_t arg5,
 	intptr_t arg6)
 {
-// BBi
+#endif // RTCW_VANILLA
 
-#if __GNUC__ >= 4
-#pragma GCC visibility pop
-#endif
 	switch ( command ) {
 	case GAME_INIT:
 		G_InitGame( arg0, arg1, arg2 );

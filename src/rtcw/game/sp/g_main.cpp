@@ -255,10 +255,11 @@ This must be the very first function compiled into the .q3vm file
 ================
 */
 
-// BBi
-//int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6 ) {
-extern "C" intptr_t vmMain
-	(intptr_t command,
+#ifdef RTCW_VANILLA
+int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6 ) {
+#else // RTCW_VANILLA
+extern "C" RTCW_DLLEXPORT int QDECL vmMain(
+	intptr_t command,
 	intptr_t arg0,
 	intptr_t arg1,
 	intptr_t arg2,
@@ -267,7 +268,7 @@ extern "C" intptr_t vmMain
 	intptr_t arg5,
 	intptr_t arg6)
 {
-// BBi
+#endif // RTCW_VANILLA
 
 	switch ( command ) {
 	case GAME_INIT:

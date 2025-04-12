@@ -180,6 +180,24 @@ SPDX-License-Identifier: GPL-3.0
 
 #endif
 
+#ifndef RTCW_VANILLA
+#if defined(_WIN32)
+	#define RTCW_DLLEXPORT __declspec(dllexport)
+#elif __GNUC__ >= 4
+	#define RTCW_DLLEXPORT __attribute__((visibility("default")))
+#elif defined(__clang__)
+	#if __has_declspec_attribute(dllexport)
+		#define RTCW_DLLEXPORT __declspec(dllexport)
+	#else
+		#define RTCW_DLLEXPORT __attribute__((visibility("default")))
+	#endif
+#endif
+#endif // RTCW_VANILLA
+
+#ifndef RTCW_DLLEXPORT
+	#define RTCW_DLLEXPORT
+#endif
+
 typedef uint8_t byte;
 
 typedef int32_t qboolean;

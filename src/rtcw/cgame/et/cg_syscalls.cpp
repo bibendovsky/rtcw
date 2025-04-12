@@ -13,18 +13,25 @@ SPDX-License-Identifier: GPL-3.0
 
 #include "rtcw_vm_args.h"
 
-
-static int32_t ( QDECL * syscall )( intptr_t arg, ... ) = ( int32_t ( QDECL * )( intptr_t, ... ) ) - 1;
+#ifdef RTCW_VANILLA
+static int ( QDECL * syscall )( int arg, ... ) = ( int ( QDECL * )( int, ... ) ) - 1;
 
 #if __GNUC__ >= 4
 #pragma GCC visibility push(default)
 #endif
-extern "C" void dllEntry( int32_t ( QDECL  *syscallptr )( intptr_t arg,... ) ) {
+void dllEntry( int ( QDECL  *syscallptr )( int arg,... ) ) {
 	syscall = syscallptr;
 }
 #if __GNUC__ >= 4
 #pragma GCC visibility pop
 #endif
+#else // RTCW_VANILLA
+static int ( QDECL * syscall )( intptr_t arg, ... ) = ( int ( QDECL * )( intptr_t, ... ) ) - 1;
+
+extern "C" RTCW_DLLEXPORT void QDECL dllEntry( int ( QDECL  *syscallptr )( intptr_t arg,... ) ) {
+	syscall = syscallptr;
+}
+#endif // RTCW_VANILLA
 
 /*int PASSFLOAT( float x ) {
 	float	floatTemp;

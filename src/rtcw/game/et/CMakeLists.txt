@@ -10,6 +10,18 @@ set_target_properties(rtcw_game_et PROPERTIES
 	OUTPUT_NAME "qagame_mp_${RTCW_ARCH_STRING}"
 )
 
+if(WIN32 AND (CMAKE_CXX_COMPILER_ID STREQUAL "OpenWatcom"))
+	get_target_property(RTCW_TMP_LINK_FLAGS rtcw_game_et LINK_FLAGS)
+
+	if(NOT RTCW_TMP_LINK_FLAGS)
+		set(RTCW_TMP_LINK_FLAGS "")
+	endif()
+
+	set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} export dllEntry=_dllEntry,vmMain=_vmMain")
+
+	set_target_properties(rtcw_game_et PROPERTIES LINK_FLAGS "${RTCW_TMP_LINK_FLAGS}")
+endif()
+
 target_include_directories(rtcw_game_et
 	PRIVATE
 		.
@@ -122,8 +134,6 @@ target_sources(rtcw_game_et
 		g_utils.cpp
 		g_vote.cpp
 		g_weapon.cpp
-	PRIVATE
-		$<$<BOOL:${WIN32}>:game_et.def>
 )
 
 install(

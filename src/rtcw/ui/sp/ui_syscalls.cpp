@@ -14,16 +14,16 @@ SPDX-License-Identifier: GPL-3.0
 // this file is only included when building a dll
 // syscalls.asm is included instead when building a qvm
 
-// BBi
-//static int ( QDECL * syscall )( int arg, ... ) = ( int ( QDECL * )( int, ... ) ) - 1;
-static int32_t (QDECL* syscall) (intptr_t arg, ...) = (int32_t (QDECL*) (intptr_t, ...)) - 1;
-// BBi
+#ifdef RTCW_VANILLA
+static int ( QDECL * syscall )( int arg, ... ) = ( int ( QDECL * )( int, ... ) ) - 1;
 
-// BBi
-//void dllEntry( int ( QDECL *syscallptr )( int arg,... ) ) {
-extern "C" void dllEntry (int32_t (QDECL* syscallptr) (intptr_t arg, ...))
+void dllEntry( int ( QDECL *syscallptr )( int arg,... ) ) {
+#else // RTCW_VANILLA
+static int (QDECL* syscall) (intptr_t arg, ...) = (int (QDECL*) (intptr_t, ...)) - 1;
+
+extern "C" RTCW_DLLEXPORT void QDECL dllEntry (int (QDECL* syscallptr) (intptr_t arg, ...))
+#endif // RTCW_VANILLA
 {
-// BBi
 	syscall = syscallptr;
 }
 

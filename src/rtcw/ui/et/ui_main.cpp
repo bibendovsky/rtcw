@@ -249,13 +249,16 @@ void _UI_MouseEvent( int dx, int dy );
 void _UI_Refresh( int realtime );
 qboolean _UI_IsFullscreen( void );
 
+#ifdef RTCW_VANILLA
 #if __GNUC__ >= 4
 #pragma GCC visibility push(default)
 #endif
-
-// BBi
-//int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
-extern "C" intptr_t vmMain (
+int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
+#if __GNUC__ >= 4
+#pragma GCC visibility pop
+#endif
+#else // RTCW_VANILLA
+extern "C" RTCW_DLLEXPORT int QDECL vmMain(
 	intptr_t command,
 	intptr_t arg0,
 	intptr_t arg1,
@@ -270,11 +273,7 @@ extern "C" intptr_t vmMain (
 	intptr_t arg10,
 	intptr_t arg11)
 {
-// BBi
-
-#if __GNUC__ >= 4
-#pragma GCC visibility pop
-#endif
+#endif // RTCW_VANILLA
 
 	switch ( command ) {
 	case UI_GETAPIVERSION:

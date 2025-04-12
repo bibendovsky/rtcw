@@ -10,6 +10,18 @@ set_target_properties(rtcw_cgame_sp_demo PROPERTIES
 	OUTPUT_NAME "cgame${RTCW_ARCH_STRING}_d"
 )
 
+if(WIN32 AND (CMAKE_CXX_COMPILER_ID STREQUAL "OpenWatcom"))
+	get_target_property(RTCW_TMP_LINK_FLAGS rtcw_cgame_sp_demo LINK_FLAGS)
+
+	if(NOT RTCW_TMP_LINK_FLAGS)
+		set(RTCW_TMP_LINK_FLAGS "")
+	endif()
+
+	set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} export dllEntry=_dllEntry,vmMain=_vmMain")
+
+	set_target_properties(rtcw_cgame_sp_demo PROPERTIES LINK_FLAGS "${RTCW_TMP_LINK_FLAGS}")
+endif()
+
 target_include_directories(rtcw_cgame_sp_demo
 	PRIVATE
 		.
@@ -77,8 +89,6 @@ target_sources(rtcw_cgame_sp_demo
 		../sp/cg_trails.cpp
 		../sp/cg_view.cpp
 		../sp/cg_weapons.cpp
-	PRIVATE
-		$<$<BOOL:${WIN32}>:../sp/cgame_sp.def>
 )
 
 install(

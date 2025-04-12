@@ -10,6 +10,18 @@ set_target_properties(rtcw_ui_et PROPERTIES
 	OUTPUT_NAME "ui_mp_${RTCW_ARCH_STRING}"
 )
 
+if(WIN32 AND (CMAKE_CXX_COMPILER_ID STREQUAL "OpenWatcom"))
+	get_target_property(RTCW_TMP_LINK_FLAGS rtcw_ui_et LINK_FLAGS)
+
+	if(NOT RTCW_TMP_LINK_FLAGS)
+		set(RTCW_TMP_LINK_FLAGS "")
+	endif()
+
+	set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} export dllEntry=_dllEntry,vmMain=_vmMain")
+
+	set_target_properties(rtcw_ui_et PROPERTIES LINK_FLAGS "${RTCW_TMP_LINK_FLAGS}")
+endif()
+
 target_include_directories(rtcw_ui_et
 	PRIVATE
 		.
@@ -52,8 +64,6 @@ target_sources(rtcw_ui_et
 		ui_shared.h
 		ui_syscalls.cpp
 		ui_util.cpp
-	PRIVATE
-		$<$<BOOL:${WIN32}>:ui_et.def>
 )
 
 install(
