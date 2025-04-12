@@ -5,15 +5,8 @@ message(STATUS "[rtcw_mp_ded] Version: ${PROJECT_VERSION}")
 
 add_executable(rtcw_mp_ded "")
 
-add_custom_command(
-	TARGET rtcw_mp_ded POST_BUILD
-	COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:rtcw_mp_ded>>
-	COMMENT "Strip executable."
-	VERBATIM
-)
-
 set_target_properties(rtcw_mp_ded PROPERTIES
-	OUTPUT_NAME "rtcw_mp_ded_${RTCW_ARCH_STRING}"
+	RTCW_TAGS "mp;dedicated;exe"
 )
 
 target_include_directories(rtcw_mp_ded
@@ -214,26 +207,7 @@ target_sources(rtcw_mp_ded
 		../system/sys_syscon.cpp
 		../ui/keycodes.h
 		../ui/ui_public.h
-	PRIVATE
-		$<$<BOOL:${WIN32}>:../win32/rtcw.rc>
 )
-
-if(WIN32)
-	if(CMAKE_CXX_COMPILER_ID STREQUAL OpenWatcom)
-		add_custom_command(
-			TARGET rtcw_mp_ded POST_BUILD
-			COMMAND wrc.exe
-				/DRTCW_MP
-				/bt=nt
-				/i=$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32>
-				/fo=$<SHELL_PATH:${PROJECT_BINARY_DIR}/rtcw.res>
-				$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32/rtcw.rc>
-				$<SHELL_PATH:$<TARGET_FILE:rtcw_mp_ded>>
-			COMMENT "[rtcw_mp_ded] Embed resources."
-			VERBATIM
-		)
-	endif()
-endif()
 
 install(
 	TARGETS rtcw_mp_ded

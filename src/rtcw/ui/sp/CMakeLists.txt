@@ -6,21 +6,8 @@ message(STATUS "[rtcw_ui_sp] Version: ${PROJECT_VERSION}")
 add_library(rtcw_ui_sp SHARED "")
 
 set_target_properties(rtcw_ui_sp PROPERTIES
-	PREFIX ""
-	OUTPUT_NAME "ui${RTCW_ARCH_STRING}"
+	RTCW_TAGS "sp;ui;dll"
 )
-
-if(WIN32 AND (CMAKE_CXX_COMPILER_ID STREQUAL "OpenWatcom"))
-	get_target_property(RTCW_TMP_LINK_FLAGS rtcw_ui_sp LINK_FLAGS)
-
-	if(NOT RTCW_TMP_LINK_FLAGS)
-		set(RTCW_TMP_LINK_FLAGS "")
-	endif()
-
-	set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} export dllEntry=_dllEntry,vmMain=_vmMain")
-
-	set_target_properties(rtcw_ui_sp PROPERTIES LINK_FLAGS "${RTCW_TMP_LINK_FLAGS}")
-endif()
 
 target_include_directories(rtcw_ui_sp
 	PRIVATE

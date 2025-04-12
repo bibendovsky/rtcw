@@ -58,6 +58,11 @@ if(NOT
 	message(FATAL_ERROR "[rtcw] Nothing to build!")
 endif()
 
+define_property(GLOBAL PROPERTY RTCW_TAGS
+	BRIEF_DOCS "RTCW tag list."
+	FULL_DOCS "RTCW tag list."
+)
+
 include(rtcw)
 
 add_subdirectory(src/lib/miniz)

@@ -5,15 +5,8 @@ message(STATUS "[rtcw_sp] Version: ${PROJECT_VERSION}")
 
 add_executable(rtcw_sp "")
 
-add_custom_command(
-	TARGET rtcw_sp POST_BUILD
-	COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:rtcw_sp>>
-	COMMENT "Strip executable."
-	VERBATIM
-)
-
 set_target_properties(rtcw_sp PROPERTIES
-	OUTPUT_NAME "rtcw_sp_${RTCW_ARCH_STRING}"
+	RTCW_TAGS "sp;exe"
 )
 
 target_include_directories(rtcw_sp
@@ -279,26 +272,7 @@ target_sources(rtcw_sp
 		../system/sys_syscon.cpp
 		../ui/keycodes.h
 		../ui/ui_public.h
-	PRIVATE
-		$<$<BOOL:${WIN32}>:../win32/rtcw.rc>
 )
-
-if(WIN32)
-	if(CMAKE_CXX_COMPILER_ID STREQUAL OpenWatcom)
-		add_custom_command(
-			TARGET rtcw_sp POST_BUILD
-			COMMAND wrc.exe
-				/DRTCW_SP
-				/bt=nt
-				/i=$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32>
-				/fo=$<SHELL_PATH:${PROJECT_BINARY_DIR}/rtcw.res>
-				$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32/rtcw.rc>
-				$<SHELL_PATH:$<TARGET_FILE:rtcw_sp>>
-			COMMENT "[rtcw_sp] Embed resources."
-			VERBATIM
-		)
-	endif()
-endif()
 
 install(
 	TARGETS rtcw_sp

@@ -6,21 +6,8 @@ message(STATUS "[rtcw_game_mp] Version: ${PROJECT_VERSION}")
 add_library(rtcw_game_mp SHARED "")
 
 set_target_properties(rtcw_game_mp PROPERTIES
-	PREFIX ""
-	OUTPUT_NAME "qagame_mp_${RTCW_ARCH_STRING}"
+	RTCW_TAGS "mp;game;dll"
 )
-
-if(WIN32 AND (CMAKE_CXX_COMPILER_ID STREQUAL "OpenWatcom"))
-	get_target_property(RTCW_TMP_LINK_FLAGS rtcw_game_mp LINK_FLAGS)
-
-	if(NOT RTCW_TMP_LINK_FLAGS)
-		set(RTCW_TMP_LINK_FLAGS "")
-	endif()
-
-	set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} export dllEntry=_dllEntry,vmMain=_vmMain")
-
-	set_target_properties(rtcw_game_mp PROPERTIES LINK_FLAGS "${RTCW_TMP_LINK_FLAGS}")
-endif()
 
 target_include_directories(rtcw_game_mp
 	PRIVATE

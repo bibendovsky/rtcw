@@ -71,6 +71,8 @@ function(rtcw_configure_target)
 		message(FATAL_ERROR "Usage: rtcw_configure_target <target_name>")
 	endif()
 
+	get_target_property(RTCW_TMP_TAGS ${ARGV0} RTCW_TAGS)
+
 	set_target_properties(${ARGV0} PROPERTIES
 		CXX_STANDARD 98
 		CXX_STANDARD_REQUIRED ON
@@ -83,9 +85,7 @@ function(rtcw_configure_target)
 		)
 	endif()
 
-	get_target_property(RTCW_TMP_TARGET_TYPE ${ARGV0} TYPE)
-
-	unset(RTCW_TMP_IS_EXECUTABLE)
+	set(RTCW_TMP_IS_EXECUTABLE FALSE)
 
 	get_target_property(RTCW_TMP_LINK_FLAGS ${ARGV0} LINK_FLAGS)
 
@@ -93,37 +93,158 @@ function(rtcw_configure_target)
 		set(RTCW_TMP_LINK_FLAGS "")
 	endif()
 
-	if(RTCW_TMP_TARGET_TYPE STREQUAL "EXECUTABLE")
+	if("exe" IN_LIST RTCW_TMP_TAGS)
 		set(RTCW_TMP_IS_EXECUTABLE TRUE)
 
 		if(WIN32)
 			set_target_properties(${ARGV0} PROPERTIES
 				WIN32_EXECUTABLE TRUE
 			)
+
+			message(STATUS "[${ARGV0}] Set Windows subsystem.")
 		endif()
 
-		############
+		# ----------
 		# Stack size
 		if(WIN32)
+			set(RTCW_TMP_EXE_STACK_SIZE "0x800000")
+			set(RTCW_TMP_EXE_STACK_SIZE_IS_SET FALSE)
+
 			if(MSVC)
-				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} /STACK:0x800000")
+				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} /STACK:${RTCW_TMP_EXE_STACK_SIZE}")
+				set(RTCW_TMP_EXE_STACK_SIZE_IS_SET TRUE)
 			elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} -Wl,--stack,0x800000")
+				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} -Wl,--stack,${RTCW_TMP_EXE_STACK_SIZE}")
+				set(RTCW_TMP_EXE_STACK_SIZE_IS_SET TRUE)
 			elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} -Wl,--stack,0x800000")
+				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} -Wl,--stack,${RTCW_TMP_EXE_STACK_SIZE}")
+				set(RTCW_TMP_EXE_STACK_SIZE_IS_SET TRUE)
 			elseif(CMAKE_CXX_COMPILER_ID STREQUAL "OpenWatcom")
-				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} option stack=0x800000")
+				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} option stack=${RTCW_TMP_EXE_STACK_SIZE}")
+				set(RTCW_TMP_EXE_STACK_SIZE_IS_SET TRUE)
+			endif()
+
+			if(RTCW_TMP_EXE_STACK_SIZE_IS_SET)
+				message(STATUS "[${ARGV0}] Set stack size: ${RTCW_TMP_EXE_STACK_SIZE}")
 			endif()
 		endif()
 
-		##############################
+		# ----------------------------
 		# Windows application manifest
 		if(MSVC AND (NOT (MSVC_VERSION LESS 1400)))
 			set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} /MANIFEST:NO")
 		endif()
+
+		add_custom_command(
+			TARGET ${ARGV0} POST_BUILD
+			COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:${ARGV0}>>
+			COMMENT $<$<CONFIG:RELEASE>:"[${ARGV0}] Strip executable.">
+			VERBATIM
+		)
+
+		# -------------
+		# Add resources
+		if(WIN32)
+			target_sources(${ARGV0} PRIVATE ../win32/rtcw.rc)
+			message(STATUS "[${ARGV0}] Add resource files.")
+
+			if(CMAKE_CXX_COMPILER_ID STREQUAL OpenWatcom)
+				set(RTCW_TMP_DEFINES "")
+
+				if("sp" IN_LIST RTCW_TMP_TAGS)
+					set(RTCW_TMP_DEFINES "RTCW_SP")
+				elseif("mp" IN_LIST RTCW_TMP_TAGS)
+					set(RTCW_TMP_DEFINES "RTCW_MP")
+				elseif("et" IN_LIST RTCW_TMP_TAGS)
+					set(RTCW_TMP_DEFINES "RTCW_ET")
+				endif()
+
+				if(RTCW_TMP_DEFINES)
+					add_custom_command(
+						TARGET ${ARGV0} POST_BUILD
+						COMMAND wrc.exe
+							"/D${RTCW_TMP_DEFINES}"
+							/bt=nt
+							/i=$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32>
+							/fo=$<SHELL_PATH:${PROJECT_BINARY_DIR}/rtcw.res>
+							$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32/rtcw.rc>
+							$<SHELL_PATH:$<TARGET_FILE:${ARGV0}>>
+						COMMENT "[${ARGV0}][OpenWatcom] Embed resources."
+						VERBATIM
+					)
+				endif()
+			endif()
+		endif()
+	endif()
+
+	if("dll" IN_LIST RTCW_TMP_TAGS)
+		if(WIN32 AND (CMAKE_CXX_COMPILER_ID STREQUAL "OpenWatcom"))
+			message(STATUS "[${ARGV0}][OpenWatcom] Fix DLL exports.")
+			set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} export dllEntry=_dllEntry,vmMain=_vmMain")
+		endif()
 	endif()
 
 	set_target_properties(${ARGV0} PROPERTIES LINK_FLAGS "${RTCW_TMP_LINK_FLAGS}")
+
+	# -----------------------------------------
+	# Output name
+	set(RTCW_TMP_OUTPUT_NAME "")
+
+	if("dll" IN_LIST RTCW_TMP_TAGS)
+		if("cgame" IN_LIST RTCW_TMP_TAGS)
+			set(RTCW_TMP_OUTPUT_NAME "cgame")
+		elseif("game" IN_LIST RTCW_TMP_TAGS)
+			set(RTCW_TMP_OUTPUT_NAME "qagame")
+		elseif("ui" IN_LIST RTCW_TMP_TAGS)
+			set(RTCW_TMP_OUTPUT_NAME "ui")
+		endif()
+
+		if(RTCW_TMP_OUTPUT_NAME AND ("sp" IN_LIST RTCW_TMP_TAGS))
+		elseif(RTCW_TMP_OUTPUT_NAME AND (("mp" IN_LIST RTCW_TMP_TAGS) OR ("et" IN_LIST RTCW_TMP_TAGS)))
+			set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}_mp")
+		endif()
+	elseif("exe" IN_LIST RTCW_TMP_TAGS)
+		if("sp" IN_LIST RTCW_TMP_TAGS)
+			set(RTCW_TMP_OUTPUT_NAME "sp")
+		elseif("mp" IN_LIST RTCW_TMP_TAGS)
+			set(RTCW_TMP_OUTPUT_NAME "mp")
+		elseif("et" IN_LIST RTCW_TMP_TAGS)
+			set(RTCW_TMP_OUTPUT_NAME "et")
+		endif()
+
+		if(RTCW_TMP_OUTPUT_NAME AND ("dedicated" IN_LIST RTCW_TMP_TAGS))
+			set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}_ded")
+		endif()
+		
+		if(RTCW_TMP_OUTPUT_NAME AND ("demo" IN_LIST RTCW_TMP_TAGS))
+			set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}_demo")
+		endif()
+
+		if(RTCW_TMP_OUTPUT_NAME)
+			set(RTCW_TMP_OUTPUT_NAME "rtcw_${RTCW_TMP_OUTPUT_NAME}")
+		endif()
+	endif()
+
+	if (RTCW_TMP_OUTPUT_NAME AND RTCW_ARCH_STRING)
+		if("exe" IN_LIST RTCW_TMP_TAGS OR ("dll" IN_LIST RTCW_TMP_TAGS AND (("mp" IN_LIST RTCW_TMP_TAGS) OR ("et" IN_LIST RTCW_TMP_TAGS))))
+			set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}_")
+		endif()
+
+		set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}${RTCW_ARCH_STRING}")
+	endif()
+
+	if(RTCW_TMP_OUTPUT_NAME AND ("dll" IN_LIST RTCW_TMP_TAGS) AND ("demo" IN_LIST RTCW_TMP_TAGS))
+		set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}_d")
+	endif()
+
+	if(RTCW_TMP_OUTPUT_NAME)
+		set_target_properties(${ARGV0} PROPERTIES
+			PREFIX ""
+			OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}"
+		)
+
+		message(STATUS "[${ARGV0}] Output name: ${RTCW_TMP_OUTPUT_NAME}")
+	endif()
 
 	target_compile_definitions(${ARGV0}
 		PRIVATE
