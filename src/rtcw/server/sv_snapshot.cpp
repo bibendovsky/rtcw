@@ -246,9 +246,6 @@ SV_QsortEntityNumbers
 */
 #ifdef RTCW_VANILLA
 static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
-#else // RTCW_VANILLA
-static int SV_QsortEntityNumbers( const void *a, const void *b ) {
-#endif // RTCW_VANILLA
 	int *ea, *eb;
 
 	ea = (int *)a;
@@ -264,6 +261,20 @@ static int SV_QsortEntityNumbers( const void *a, const void *b ) {
 
 	return 1;
 }
+#else // RTCW_VANILLA
+namespace {
+
+// The qsort implementation may compare for same values.
+// Check for duplicates after the sorting.
+int SV_QsortEntityNumbers(const void* a, const void* b)
+{
+	const int ea = *static_cast<const int*>(a);
+	const int eb = *static_cast<const int*>(b);
+	return ea - eb;
+}
+
+} // namespace
+#endif // RTCW_VANILLA
 
 
 /*
@@ -765,6 +776,18 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	// of an entity being included twice.
 	qsort( entityNumbers.snapshotEntities, entityNumbers.numSnapshotEntities,
 		   sizeof( entityNumbers.snapshotEntities[0] ), SV_QsortEntityNumbers );
+
+// { RTCW
+// The qsort implementation may compare for same values.
+// Check for duplicates after the sorting.
+	for (i = 1; i < entityNumbers.numSnapshotEntities; ++i)
+	{
+		if (entityNumbers.snapshotEntities[i] == entityNumbers.snapshotEntities[i - 1])
+		{
+			Com_Error(ERR_DROP, "SV_QsortEntityStates: duplicated entity");
+		}
+	}
+// } RTCW
 
 	// now that all viewpoint's areabits have been OR'd together, invert
 	// all of them to make it a mask vector, which is what the renderer wants
