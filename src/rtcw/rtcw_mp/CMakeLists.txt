@@ -148,6 +148,8 @@ target_sources(rtcw_mp
 		../qcommon/qfiles.h
 		../qcommon/rtcw_bit_array_single_unit.cpp
 		../qcommon/rtcw_bit_array_single_unit.h
+		../qcommon/rtcw_setjmp.cpp
+		../qcommon/rtcw_setjmp.h
 		../qcommon/rtcw_string.cpp
 		../qcommon/rtcw_string.h
 		../qcommon/vm.cpp

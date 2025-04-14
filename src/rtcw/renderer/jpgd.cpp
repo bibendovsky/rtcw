@@ -640,7 +640,11 @@ namespace jpgd {
 	{
 		m_error_code = status;
 		free_all_blocks();
+#ifdef RTCW_VANILLA
 		longjmp(m_jmp_state, status);
+#else // RTCW_VANILLA
+		RTCW_LONGJMP(m_jmp_state, status);
+#endif // RTCW_VANILLA
 	}
 		
 	void* jpeg_decoder::alloc(size_t nSize, bool zero)
@@ -2124,7 +2128,11 @@ namespace jpgd {
 
 	int jpeg_decoder::decode_next_mcu_row()
 	{
+#ifdef RTCW_VANILLA
 		if (::setjmp(m_jmp_state))
+#else // RTCW_VANILLA
+		if (RTCW_SETJMP(m_jmp_state))
+#endif // RTCW_VANILLA
 			return JPGD_FAILED;
 
 		const bool chroma_y_filtering = ((m_flags & cFlagBoxChromaFiltering) == 0) && ((m_scan_type == JPGD_YH2V2) || (m_scan_type == JPGD_YH1V2));
@@ -3040,7 +3048,11 @@ namespace jpgd {
 
 	jpeg_decoder::jpeg_decoder(jpeg_decoder_stream* pStream, uint32_t flags)
 	{
+#ifdef RTCW_VANILLA
 		if (::setjmp(m_jmp_state))
+#else // RTCW_VANILLA
+		if (RTCW_SETJMP(m_jmp_state))
+#endif // RTCW_VANILLA
 			return;
 		decode_init(pStream, flags);
 	}
@@ -3053,7 +3065,11 @@ namespace jpgd {
 		if (m_error_code)
 			return JPGD_FAILED;
 
+#ifdef RTCW_VANILLA
 		if (::setjmp(m_jmp_state))
+#else // RTCW_VANILLA
+		if (RTCW_SETJMP(m_jmp_state))
+#endif // RTCW_VANILLA
 			return JPGD_FAILED;
 
 		decode_start();
