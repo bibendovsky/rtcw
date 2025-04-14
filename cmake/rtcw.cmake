@@ -135,13 +135,6 @@ function(rtcw_configure_target)
 			set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} /MANIFEST:NO")
 		endif()
 
-		add_custom_command(
-			TARGET ${ARGV0} POST_BUILD
-			COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:${ARGV0}>>
-			COMMENT $<$<CONFIG:RELEASE>:"[${ARGV0}] Strip executable.">
-			VERBATIM
-		)
-
 		# -------------
 		# Add resources
 		if(WIN32)
@@ -182,6 +175,15 @@ function(rtcw_configure_target)
 			message(STATUS "[${ARGV0}][OpenWatcom] Fix DLL exports.")
 			set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} export dllEntry=_dllEntry,vmMain=_vmMain")
 		endif()
+	endif()
+
+	if(("exe" IN_LIST RTCW_TMP_TAGS) OR ("dll" IN_LIST RTCW_TMP_TAGS))
+		add_custom_command(
+			TARGET ${ARGV0} POST_BUILD
+			COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:${ARGV0}>>
+			COMMENT $<$<CONFIG:RELEASE>:"[${ARGV0}] Strip executable.">
+			VERBATIM
+		)
 	endif()
 
 	set_target_properties(${ARGV0} PROPERTIES LINK_FLAGS "${RTCW_TMP_LINK_FLAGS}")
