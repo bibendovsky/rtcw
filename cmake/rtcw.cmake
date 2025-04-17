@@ -203,7 +203,7 @@ function(rtcw_configure_target)
 		add_custom_command(
 			TARGET ${ARGV0} POST_BUILD
 			COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:${ARGV0}>>
-			COMMENT $<$<CONFIG:RELEASE>:"[${ARGV0}] Strip executable.">
+			COMMENT "[${ARGV0}] Strip executable."
 			VERBATIM
 		)
 	endif()
