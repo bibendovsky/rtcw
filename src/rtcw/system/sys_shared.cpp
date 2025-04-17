@@ -513,11 +513,28 @@ void* QDECL Sys_LoadDll(
 		libHandle = SDL_LoadObject(fn);
 	}
 
+#if 0
 	if (libHandle == NULL)
 	{
 		strcpy(fn, filename.c_str());
 		libHandle = SDL_LoadObject(fn);
 	}
+#else
+	if (libHandle == NULL)
+	{
+		fn = FS_BuildOSPath(basepath, ".", filename.c_str());
+		libHandle = SDL_LoadObject(fn);
+	}
+
+	if (libHandle == NULL)
+	{
+		if (cdpath[0] != '\0')
+		{
+			fn = FS_BuildOSPath(cdpath, ".", filename.c_str());
+			libHandle = SDL_LoadObject(fn);
+		}
+	}
+#endif
 
 	if (libHandle == NULL)
 	{
