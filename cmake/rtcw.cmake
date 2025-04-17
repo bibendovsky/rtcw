@@ -5,12 +5,23 @@ cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 #
 # CPU architecture.
 #
-if(WIN32 AND NOT DEFINED RTCW_ARCH_X86_32 AND NOT DEFINED RTCW_ARCH_X86_64)
+if((NOT DEFINED RTCW_ARCH_X86_32) OR (NOT DEFINED RTCW_ARCH_X86_64))
+	message(STATUS "[${PROJECT_NAME}] Checking for x86.")
+	set(RTCW_TRY_COMPILE_OUTPUT_RESULT "")
+
 	try_compile(RTCW_ARCH_X86_32
 		${CMAKE_CURRENT_BINARY_DIR}/cmake/try_compile
 		${CMAKE_SOURCE_DIR}/cmake/try_compile/is_x86_32.cpp
 		OUTPUT_VARIABLE RTCW_TRY_COMPILE_OUTPUT_RESULT
 	)
+
+	#[[
+	if(RTCW_TRY_COMPILE_OUTPUT_RESULT)
+		message(STATUS "<<<<<<<< TRY COMPILE RESULT <<<<<<<<")
+		message(STATUS "${RTCW_TRY_COMPILE_OUTPUT_RESULT}")
+		message(STATUS ">>>>>>>> TRY COMPILE RESULT >>>>>>>>")
+	endif()
+	]]
 
 	if(RTCW_ARCH_X86_32)
 		set(RTCW_ARCH_X86_32 TRUE CACHE INTERNAL "Architecture x86-32.")
@@ -18,11 +29,22 @@ if(WIN32 AND NOT DEFINED RTCW_ARCH_X86_32 AND NOT DEFINED RTCW_ARCH_X86_64)
 		set(RTCW_ARCH_X86_32 FALSE CACHE INTERNAL "Architecture x86-32.")
 	endif()
 
+	message(STATUS "[${PROJECT_NAME}] Checking for x86_64.")
+	set(RTCW_TRY_COMPILE_OUTPUT_RESULT "")
+
 	try_compile(RTCW_ARCH_X86_64
 		${CMAKE_CURRENT_BINARY_DIR}/cmake/try_compile
 		${CMAKE_SOURCE_DIR}/cmake/try_compile/is_x86_64.cpp
 		OUTPUT_VARIABLE RTCW_TRY_COMPILE_OUTPUT_RESULT
 	)
+
+	#[[
+	if(RTCW_TRY_COMPILE_OUTPUT_RESULT)
+		message(STATUS "<<<<<<<< TRY COMPILE RESULT <<<<<<<<")
+		message(STATUS "${RTCW_TRY_COMPILE_OUTPUT_RESULT}")
+		message(STATUS ">>>>>>>> TRY COMPILE RESULT >>>>>>>>")
+	endif()
+	]]
 
 	if(RTCW_ARCH_X86_64)
 		set(RTCW_ARCH_X86_64 TRUE CACHE INTERNAL "Architecture x86-64.")
