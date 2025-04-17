@@ -67,8 +67,20 @@ vec4 apply_tex_env(
     vec4 previous_color,
     int env_index)
 {
+    vec2 texel_tc = tc[env_index];
+    vec4 texel;
+
+    if (env_index == 0)
+    {
+        texel = texture2D(tex_2d[0], texel_tc);
+    }
+    else
+    {
+        texel = texture2D(tex_2d[1], texel_tc);
+    }
+
+    texel = apply_intensity(texel);
     vec4 result = previous_color;
-    vec4 texel = apply_intensity(texture2D((env_index == 0 ? tex_2d[0] : tex_2d[1]), tc[env_index]));
 
     if (tex_env_mode[env_index] == GL_REPLACE)
     {
