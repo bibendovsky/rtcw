@@ -3512,6 +3512,9 @@ endif()
 
 if(SDL_STATIC)
   add_library(SDL2-static STATIC ${SOURCE_FILES})
+  # { rtcw
+  rtcw_configure_static_linking(SDL2-static)
+  # } rtcw
   add_dependencies(SDL2-static sdl_headers_copy)
   # alias target for in-tree builds
   add_library(SDL2::SDL2-static ALIAS SDL2-static)

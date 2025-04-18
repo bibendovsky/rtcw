@@ -88,10 +88,50 @@ endif()
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+function(rtcw_configure_static_linking)
+	if(NOT (${ARGC} EQUAL 1))
+		message(FATAL_ERROR "Usage: rtcw_configure_static_linking <target_name>")
+	endif()
+
+	if(RTCW_ENABLE_STATIC_LINKING)
+		target_compile_options(${ARGV0}
+			PRIVATE
+				$<$<AND:$<BOOL:${MSVC}>,$<CONFIG:DEBUG>>:/MTd>
+				$<$<AND:$<BOOL:${MSVC}>,$<NOT:$<CONFIG:DEBUG>>>:/MT>
+			PRIVATE
+				$<$<AND:$<BOOL:${WIN32}>,$<C_COMPILER_ID:OpenWatcom>>:-bm>
+				$<$<AND:$<BOOL:${WIN32}>,$<CXX_COMPILER_ID:OpenWatcom>>:-bm>
+		)
+
+		target_link_libraries(${ARGV0}
+			PRIVATE
+				$<$<AND:$<BOOL:${WIN32}>,$<C_COMPILER_ID:Clang>>:-static>
+				$<$<AND:$<BOOL:${WIN32}>,$<CXX_COMPILER_ID:Clang>>:-static>
+			PRIVATE
+				$<$<AND:$<BOOL:${WIN32}>,$<C_COMPILER_ID:GNU>>:-static>
+				$<$<AND:$<BOOL:${WIN32}>,$<CXX_COMPILER_ID:GNU>>:-static>
+			PRIVATE
+				$<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<C_COMPILER_ID:Clang>>:-static-libgcc>
+				$<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<CXX_COMPILER_ID:Clang>>:-static-libstdc++>
+				$<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<CXX_COMPILER_ID:Clang>>:-static-libgcc>
+			PRIVATE
+				$<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<C_COMPILER_ID:GNU>>:-static-libgcc>
+				$<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<CXX_COMPILER_ID:GNU>>:-static-libstdc++>
+				$<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<CXX_COMPILER_ID:GNU>>:-static-libgcc>
+		)
+	endif()
+endfunction(rtcw_configure_static_linking)
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 function(rtcw_configure_target)
 	if(NOT (${ARGC} EQUAL 1))
 		message(FATAL_ERROR "Usage: rtcw_configure_target <target_name>")
 	endif()
+
+	rtcw_configure_static_linking(${ARGV0})
 
 	get_target_property(RTCW_TMP_TAGS ${ARGV0} RTCW_TAGS)
 
@@ -293,16 +333,6 @@ function(rtcw_configure_target)
 		endif()
 	endif()
 
-	if(RTCW_ENABLE_STATIC_LINKING)
-		if(MSVC)
-			target_compile_options(${ARGV0}
-				PRIVATE
-					$<$<CONFIG:DEBUG>:-MTd>
-					$<$<NOT:$<CONFIG:DEBUG>>:-MT>
-			)
-		endif()
-	endif()
-
 	if(RTCW_USE_PCH AND NOT (${CMAKE_VERSION} VERSION_LESS "3.16"))
 		target_precompile_headers(${ARGV0} PRIVATE rtcw_pch.h)
 	endif()
@@ -370,15 +400,7 @@ function(rtcw_configure_3rd_party_target)
 		endif()
 	endif()
 
-	if(RTCW_ENABLE_STATIC_LINKING)
-		if(MSVC)
-			target_compile_options(${ARGV0}
-				PRIVATE
-					$<$<CONFIG:DEBUG>:-MTd>
-					$<$<NOT:$<CONFIG:DEBUG>>:-MT>
-			)
-		endif()
-	endif()
+	rtcw_configure_static_linking(${ARGV0})
 endfunction(rtcw_configure_3rd_party_target)
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

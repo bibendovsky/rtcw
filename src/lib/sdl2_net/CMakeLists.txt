@@ -6,20 +6,14 @@ message(STATUS "[rtcw_sdl2_net] v${PROJECT_VERSION}")
 add_library(rtcw_sdl2_net STATIC "")
 add_library(rtcw::sdl2_net ALIAS rtcw_sdl2_net)
 
+rtcw_configure_static_linking(rtcw_sdl2_net)
+
 target_link_libraries(rtcw_sdl2_net
 	PRIVATE
 		SDL2::SDL2-static
 		$<$<BOOL:${WIN32}>:iphlpapi>
 		$<$<BOOL:${WIN32}>:ws2_32>
 )
-
-if(RTCW_ENABLE_STATIC_LINKING AND MSVC)
-	target_compile_options(rtcw_sdl2_net
-		PRIVATE
-			$<$<CONFIG:DEBUG>:-MTd>
-			$<$<NOT:$<CONFIG:DEBUG>>:-MT>
-	)
-endif()
 
 target_include_directories(rtcw_sdl2_net PUBLIC include)
 

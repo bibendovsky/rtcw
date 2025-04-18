@@ -10,6 +10,6 @@ set(SDL_SHARED OFF CACHE BOOL "Build a shared version of the library" FORCE)
 set(SDL_STATIC ON CACHE BOOL "Build a static version of the library" FORCE)
 set(SDL_TEST OFF CACHE BOOL "Build the SDL2_test library" FORCE)
 set(SDL_TESTS OFF CACHE BOOL "Build the test directory" FORCE)
-set(SDL_FORCE_STATIC_VCRT ${RTCW_ENABLE_STATIC_LINKING} CACHE BOOL "Force /MT for static VC runtimes" FORCE)
+set(SDL_FORCE_STATIC_VCRT OFF CACHE BOOL "Force /MT for static VC runtimes" FORCE)
 
 add_subdirectory(src)
