@@ -239,7 +239,7 @@ function(rtcw_configure_target)
 		endif()
 	endif()
 
-	if(("exe" IN_LIST RTCW_TMP_TAGS) OR ("dll" IN_LIST RTCW_TMP_TAGS))
+	if(CMAKE_STRIP AND (("exe" IN_LIST RTCW_TMP_TAGS) OR ("dll" IN_LIST RTCW_TMP_TAGS)))
 		add_custom_command(
 			TARGET ${ARGV0} POST_BUILD
 			COMMAND $<$<CONFIG:RELEASE>:${CMAKE_STRIP}> $<$<CONFIG:RELEASE>:$<TARGET_FILE:${ARGV0}>>
