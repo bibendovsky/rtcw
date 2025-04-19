@@ -7,6 +7,11 @@ add_library(rtcw_game_sp_demo SHARED "")
 
 set_target_properties(rtcw_game_sp_demo PROPERTIES
 	RTCW_TAGS "sp;demo;game;dll"
+	RTCW_VERSION "${PROJECT_VERSION}"
+	RTCW_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}"
+	RTCW_VERSION_MINOR "${PROJECT_VERSION_MINOR}"
+	RTCW_VERSION_PATCH "${PROJECT_VERSION_PATCH}"
+	RTCW_VERSION_TWEAK "${PROJECT_VERSION_TWEAK}"
 )
 
 target_include_directories(rtcw_game_sp_demo

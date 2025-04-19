@@ -7,6 +7,11 @@ add_executable(rtcw_et "")
 
 set_target_properties(rtcw_et PROPERTIES
 	RTCW_TAGS "et;exe"
+	RTCW_VERSION "${PROJECT_VERSION}"
+	RTCW_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}"
+	RTCW_VERSION_MINOR "${PROJECT_VERSION_MINOR}"
+	RTCW_VERSION_PATCH "${PROJECT_VERSION_PATCH}"
+	RTCW_VERSION_TWEAK "${PROJECT_VERSION_TWEAK}"
 )
 
 target_include_directories(rtcw_et

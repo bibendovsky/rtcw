@@ -5,6 +5,14 @@ Copyright (c) 2012-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-3.0
 */
 
+#ifdef RC_INVOKED
+
+// ==========================================================================
+// Utility
+
+#define QUOTE_(str) #str
+#define QUOTE(str) QUOTE_(str)
+
 // ==========================================================================
 // Language
 
@@ -17,26 +25,76 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // ==========================================================================
 // Manifest
 
+#ifdef RTCW_RC_HAS_MANIFEST
+
 #define RT_MANIFEST 24
 
 1 RT_MANIFEST "rtcw.manifest"
+
+#endif // RTCW_RC_HAS_MANIFEST
 
 
 // ==========================================================================
 // Main icon
 
+#ifdef RTCW_RC_HAS_ICON
+
 #define IDI_ICON1 1
+#define RTCW_RC_ICON_FILE_NAME_STRING QUOTE(RTCW_RC_ICON_FILE_NAME)
 
-#ifdef RTCW_SP
-#define RTCW_RC_ICON_FILE_NAME "rtcw_sp.ico"
+IDI_ICON1 ICON DISCARDABLE RTCW_RC_ICON_FILE_NAME_STRING
+
+#endif // RTCW_RC_HAS_ICON
+
+// ==========================================================================
+// Version
+
+#ifdef RTCW_RC_HAS_VERSION
+
+#define VS_VERSION_INFO 1
+#define VS_FFI_FILEFLAGSMASK 0x0000003FL
+
+#ifdef NDEBUG
+	#define VER_DBG 0
+#else
+	#define VER_DBG 1
 #endif
 
-#ifdef RTCW_MP
-#define RTCW_RC_ICON_FILE_NAME "rtcw_mp.ico"
-#endif
+#define VOS_NT 0x00040000L
+#define VFT_DRV 0x00000003L
+#define VFT2_DRV_SYSTEM 0x00000007L
 
-#ifdef RTCW_ET
-#define RTCW_RC_ICON_FILE_NAME "rtcw_et.ico"
-#endif
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION RTCW_RC_VERSION_MAJOR, RTCW_RC_VERSION_MINOR, RTCW_RC_VERSION_PATCH
+PRODUCTVERSION RTCW_RC_VERSION_MAJOR, RTCW_RC_VERSION_MINOR, RTCW_RC_VERSION_PATCH
+FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+FILEFLAGS VER_DBG
+FILEOS VOS_NT
+FILETYPE VFT_DRV
+FILESUBTYPE VFT2_DRV_SYSTEM
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "040904B0"
+		BEGIN
+			VALUE "Comments", QUOTE(RTCW_RC_INTERNAL_NAME)
+			VALUE "CompanyName", L"Boris I. Bendovsky"
+			VALUE "FileDescription", QUOTE(RTCW_RC_INTERNAL_NAME)
+			VALUE "FileVersion", QUOTE(RTCW_RC_VERSION)
+			VALUE "InternalName", QUOTE(RTCW_RC_INTERNAL_NAME)
+			VALUE "LegalCopyright", L"Copyright (c) 2012-2025 Boris I. Bendovsky bibendovsky@hotmail.com and Contributors"
+			VALUE "OriginalFilename", QUOTE(RTCW_RC_ORIGINAL_FILENAME)
+			VALUE "ProductName", L"RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory"
+			VALUE "ProductVersion", QUOTE(RTCW_RC_VERSION)
+		END
+	END
 
-IDI_ICON1 ICON DISCARDABLE RTCW_RC_ICON_FILE_NAME
+	BLOCK "VarFileInfo"
+	BEGIN
+		VALUE "Translation", 0x0409, 1200
+	END
+END
+
+#endif // RTCW_RC_HAS_VERSION
+
+#endif // RC_INVOKED

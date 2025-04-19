@@ -126,11 +126,199 @@ endfunction(rtcw_configure_static_linking)
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+function(rtcw_configure_output_name)
+	if(NOT (${ARGC} EQUAL 1))
+		message(FATAL_ERROR "Usage: rtcw_configure_output_name <target_name>")
+	endif()
+
+	get_target_property(RTCW_TMP_TAGS ${ARGV0} RTCW_TAGS)
+
+	set(RTCW_TMP_OUTPUT_NAME "")
+
+	if("dll" IN_LIST RTCW_TMP_TAGS)
+		if("cgame" IN_LIST RTCW_TMP_TAGS)
+			set(RTCW_TMP_OUTPUT_NAME "cgame")
+		elseif("game" IN_LIST RTCW_TMP_TAGS)
+			set(RTCW_TMP_OUTPUT_NAME "qagame")
+		elseif("ui" IN_LIST RTCW_TMP_TAGS)
+			set(RTCW_TMP_OUTPUT_NAME "ui")
+		endif()
+
+		if(RTCW_TMP_OUTPUT_NAME AND ("sp" IN_LIST RTCW_TMP_TAGS))
+		elseif(RTCW_TMP_OUTPUT_NAME AND (("mp" IN_LIST RTCW_TMP_TAGS) OR ("et" IN_LIST RTCW_TMP_TAGS)))
+			set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}_mp")
+		endif()
+	elseif("exe" IN_LIST RTCW_TMP_TAGS)
+		if("sp" IN_LIST RTCW_TMP_TAGS)
+			set(RTCW_TMP_OUTPUT_NAME "sp")
+		elseif("mp" IN_LIST RTCW_TMP_TAGS)
+			set(RTCW_TMP_OUTPUT_NAME "mp")
+		elseif("et" IN_LIST RTCW_TMP_TAGS)
+			set(RTCW_TMP_OUTPUT_NAME "et")
+		endif()
+
+		if(RTCW_TMP_OUTPUT_NAME AND ("dedicated" IN_LIST RTCW_TMP_TAGS))
+			set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}_ded")
+		endif()
+		
+		if(RTCW_TMP_OUTPUT_NAME AND ("demo" IN_LIST RTCW_TMP_TAGS))
+			set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}_demo")
+		endif()
+
+		if(RTCW_TMP_OUTPUT_NAME)
+			set(RTCW_TMP_OUTPUT_NAME "rtcw_${RTCW_TMP_OUTPUT_NAME}")
+		endif()
+	endif()
+
+	if (RTCW_TMP_OUTPUT_NAME AND RTCW_ARCH_STRING)
+		if("exe" IN_LIST RTCW_TMP_TAGS OR ("dll" IN_LIST RTCW_TMP_TAGS AND (("mp" IN_LIST RTCW_TMP_TAGS) OR ("et" IN_LIST RTCW_TMP_TAGS))))
+			set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}_")
+		endif()
+
+		set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}${RTCW_ARCH_STRING}")
+	endif()
+
+	if(RTCW_TMP_OUTPUT_NAME AND ("dll" IN_LIST RTCW_TMP_TAGS) AND ("demo" IN_LIST RTCW_TMP_TAGS))
+		set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}_d")
+	endif()
+
+	if(RTCW_TMP_OUTPUT_NAME)
+		set_target_properties(${ARGV0} PROPERTIES
+			PREFIX ""
+			OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}"
+		)
+
+		message(STATUS "[${ARGV0}] Output name: ${RTCW_TMP_OUTPUT_NAME}")
+	endif()
+endfunction(rtcw_configure_output_name)
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+function(rtcw_configure_resources)
+	if(NOT (${ARGC} EQUAL 1))
+		message(FATAL_ERROR "Usage: rtcw_configure_resources <target_name>")
+	endif()
+
+	if(NOT WIN32)
+		return()
+	endif()
+
+	message(STATUS "[${ARGV0}] Add resource files.")
+
+	set(RTCW_TMP_IS_EXE FALSE)
+	set(RTCW_TMP_IS_DLL FALSE)
+	set(RTCW_TMP_RC_SOURCE_DIR "")
+	get_target_property(RTCW_TMP_TAGS ${ARGV0} RTCW_TAGS)
+	get_target_property(RTCW_TMP_SOURCE_DIR ${ARGV0} SOURCE_DIR)
+	get_target_property(RTCW_TMP_BINARY_DIR ${ARGV0} BINARY_DIR)
+
+	if("exe" IN_LIST RTCW_TMP_TAGS)
+		set(RTCW_TMP_IS_EXE TRUE)
+		set(RTCW_TMP_RC_SOURCE_DIR ${RTCW_TMP_SOURCE_DIR}/../win32)
+		set(RTCW_TMP_RC_SOURCE_FILE_PATH /rtcw.rc)
+	elseif("dll" IN_LIST RTCW_TMP_TAGS)
+		set(RTCW_TMP_IS_DLL TRUE)
+		set(RTCW_TMP_RC_SOURCE_DIR ${RTCW_TMP_SOURCE_DIR}/../../win32)
+	else()
+		return()
+	endif()
+
+	set(RTCW_TMP_RC_SOURCE_FILE_PATH "${RTCW_TMP_RC_SOURCE_DIR}/rtcw.rc")
+
+	get_target_property(RTCW_TMP_OUTPUT_NAME ${ARGV0} OUTPUT_NAME)
+
+	get_target_property(RTCW_TMP_OUTPUT_NAME_SUFFIX ${ARGV0} SUFFIX)
+
+	if(NOT RTCW_TMP_OUTPUT_NAME_SUFFIX)
+		set(RTCW_TMP_OUTPUT_NAME_SUFFIX ".exe")
+	endif()
+
+	set(RTCW_TMP_RC_ICON_FILE_NAME "")
+
+	if("sp" IN_LIST RTCW_TMP_TAGS)
+		set(RTCW_TMP_RC_ICON_FILE_NAME rtcw_sp.ico)
+	elseif("mp" IN_LIST RTCW_TMP_TAGS)
+		set(RTCW_TMP_RC_ICON_FILE_NAME rtcw_mp.ico)
+	elseif("et" IN_LIST RTCW_TMP_TAGS)
+		set(RTCW_TMP_RC_ICON_FILE_NAME rtcw_et.ico)
+	else()
+		message(FATAL_ERROR "[${ARGV0}] Unknown RC icon file name.")
+	endif()
+
+	get_target_property(RTCW_TMP_RC_VERSION ${ARGV0} RTCW_VERSION)
+	get_target_property(RTCW_TMP_RC_VERSION_MAJOR ${ARGV0} RTCW_VERSION_MAJOR)
+	get_target_property(RTCW_TMP_RC_VERSION_MINOR ${ARGV0} RTCW_VERSION_MINOR)
+	get_target_property(RTCW_TMP_RC_VERSION_PATCH ${ARGV0} RTCW_VERSION_PATCH)
+
+	target_sources(${ARGV0} PRIVATE ${RTCW_TMP_RC_SOURCE_FILE_PATH})
+
+	if(CMAKE_CXX_COMPILER_ID STREQUAL OpenWatcom)
+		set(RTCW_TMP_RC_BINARY_FILE_PATH ${RTCW_TMP_BINARY_DIR}/rtcw.res)
+
+		set(RTCW_TMP_DEFINES "")
+
+		if("sp" IN_LIST RTCW_TMP_TAGS)
+			set(RTCW_TMP_DEFINES "RTCW_SP")
+		elseif("mp" IN_LIST RTCW_TMP_TAGS)
+			set(RTCW_TMP_DEFINES "RTCW_MP")
+		elseif("et" IN_LIST RTCW_TMP_TAGS)
+			set(RTCW_TMP_DEFINES "RTCW_ET")
+		endif()
+
+		if(RTCW_TMP_DEFINES)
+			add_custom_command(
+				TARGET ${ARGV0} POST_BUILD
+				COMMAND wrc.exe
+					"/D${RTCW_TMP_DEFINES}"
+					$<$<BOOL:RTCW_TMP_IS_EXE>:/DRTCW_RC_HAS_MANIFEST>
+					$<$<BOOL:RTCW_TMP_IS_EXE>:/DRTCW_RC_HAS_ICON>
+					$<$<BOOL:RTCW_TMP_IS_EXE>:/DRTCW_RC_ICON_FILE_NAME=${RTCW_TMP_RC_ICON_FILE_NAME}>
+					"/DRTCW_RC_HAS_VERSION"
+					"/DRTCW_RC_VERSION=${RTCW_TMP_RC_VERSION}"
+					"/DRTCW_RC_VERSION_MAJOR=${RTCW_TMP_RC_VERSION_MAJOR}"
+					"/DRTCW_RC_VERSION_MINOR=${RTCW_TMP_RC_VERSION_MINOR}"
+					"/DRTCW_RC_VERSION_PATCH=${RTCW_TMP_RC_VERSION_PATCH}"
+					"/DRTCW_RC_INTERNAL_NAME=${RTCW_TMP_OUTPUT_NAME}"
+					"/DRTCW_RC_ORIGINAL_FILENAME=${RTCW_TMP_OUTPUT_NAME}${RTCW_TMP_OUTPUT_NAME_SUFFIX}"
+					/bt=nt
+					/i=$<SHELL_PATH:${RTCW_TMP_RC_SOURCE_DIR}>
+					/fo=$<SHELL_PATH:${RTCW_TMP_RC_BINARY_FILE_PATH}>
+					$<SHELL_PATH:${RTCW_TMP_RC_SOURCE_FILE_PATH}>
+					$<SHELL_PATH:$<TARGET_FILE:${ARGV0}>>
+				COMMENT "[${ARGV0}][OpenWatcom] Embed resources."
+				VERBATIM
+			)
+		endif()
+	else()
+		target_compile_definitions(${ARGV0}
+			PRIVATE
+				$<$<BOOL:RTCW_TMP_IS_EXE>:RTCW_RC_HAS_MANIFEST>
+				$<$<BOOL:RTCW_TMP_IS_EXE>:RTCW_RC_HAS_ICON>
+				$<$<BOOL:RTCW_TMP_IS_EXE>:RTCW_RC_ICON_FILE_NAME=${RTCW_TMP_RC_ICON_FILE_NAME}>
+				RTCW_RC_HAS_VERSION
+				RTCW_RC_VERSION=${RTCW_TMP_RC_VERSION}
+				RTCW_RC_VERSION_MAJOR=${RTCW_TMP_RC_VERSION_MAJOR}
+				RTCW_RC_VERSION_MINOR=${RTCW_TMP_RC_VERSION_MINOR}
+				RTCW_RC_VERSION_PATCH=${RTCW_TMP_RC_VERSION_PATCH}
+				RTCW_RC_INTERNAL_NAME=${RTCW_TMP_OUTPUT_NAME}
+				RTCW_RC_ORIGINAL_FILENAME=${RTCW_TMP_OUTPUT_NAME}${RTCW_TMP_OUTPUT_NAME_SUFFIX}
+		)
+	endif()
+endfunction(rtcw_configure_resources)
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 function(rtcw_configure_target)
 	if(NOT (${ARGC} EQUAL 1))
 		message(FATAL_ERROR "Usage: rtcw_configure_target <target_name>")
 	endif()
 
+	rtcw_configure_output_name(${ARGV0})
+	rtcw_configure_resources(${ARGV0})
 	rtcw_configure_static_linking(${ARGV0})
 
 	get_target_property(RTCW_TMP_TAGS ${ARGV0} RTCW_TAGS)
@@ -196,40 +384,6 @@ function(rtcw_configure_target)
 		if(MSVC AND (NOT (MSVC_VERSION LESS 1400)))
 			set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} /MANIFEST:NO")
 		endif()
-
-		# -------------
-		# Add resources
-		if(WIN32)
-			target_sources(${ARGV0} PRIVATE ../win32/rtcw.rc)
-			message(STATUS "[${ARGV0}] Add resource files.")
-
-			if(CMAKE_CXX_COMPILER_ID STREQUAL OpenWatcom)
-				set(RTCW_TMP_DEFINES "")
-
-				if("sp" IN_LIST RTCW_TMP_TAGS)
-					set(RTCW_TMP_DEFINES "RTCW_SP")
-				elseif("mp" IN_LIST RTCW_TMP_TAGS)
-					set(RTCW_TMP_DEFINES "RTCW_MP")
-				elseif("et" IN_LIST RTCW_TMP_TAGS)
-					set(RTCW_TMP_DEFINES "RTCW_ET")
-				endif()
-
-				if(RTCW_TMP_DEFINES)
-					add_custom_command(
-						TARGET ${ARGV0} POST_BUILD
-						COMMAND wrc.exe
-							"/D${RTCW_TMP_DEFINES}"
-							/bt=nt
-							/i=$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32>
-							/fo=$<SHELL_PATH:${PROJECT_BINARY_DIR}/rtcw.res>
-							$<SHELL_PATH:${PROJECT_SOURCE_DIR}/../win32/rtcw.rc>
-							$<SHELL_PATH:$<TARGET_FILE:${ARGV0}>>
-						COMMENT "[${ARGV0}][OpenWatcom] Embed resources."
-						VERBATIM
-					)
-				endif()
-			endif()
-		endif()
 	endif()
 
 	if("dll" IN_LIST RTCW_TMP_TAGS)
@@ -249,66 +403,6 @@ function(rtcw_configure_target)
 	endif()
 
 	set_target_properties(${ARGV0} PROPERTIES LINK_FLAGS "${RTCW_TMP_LINK_FLAGS}")
-
-	# -----------------------------------------
-	# Output name
-	set(RTCW_TMP_OUTPUT_NAME "")
-
-	if("dll" IN_LIST RTCW_TMP_TAGS)
-		if("cgame" IN_LIST RTCW_TMP_TAGS)
-			set(RTCW_TMP_OUTPUT_NAME "cgame")
-		elseif("game" IN_LIST RTCW_TMP_TAGS)
-			set(RTCW_TMP_OUTPUT_NAME "qagame")
-		elseif("ui" IN_LIST RTCW_TMP_TAGS)
-			set(RTCW_TMP_OUTPUT_NAME "ui")
-		endif()
-
-		if(RTCW_TMP_OUTPUT_NAME AND ("sp" IN_LIST RTCW_TMP_TAGS))
-		elseif(RTCW_TMP_OUTPUT_NAME AND (("mp" IN_LIST RTCW_TMP_TAGS) OR ("et" IN_LIST RTCW_TMP_TAGS)))
-			set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}_mp")
-		endif()
-	elseif("exe" IN_LIST RTCW_TMP_TAGS)
-		if("sp" IN_LIST RTCW_TMP_TAGS)
-			set(RTCW_TMP_OUTPUT_NAME "sp")
-		elseif("mp" IN_LIST RTCW_TMP_TAGS)
-			set(RTCW_TMP_OUTPUT_NAME "mp")
-		elseif("et" IN_LIST RTCW_TMP_TAGS)
-			set(RTCW_TMP_OUTPUT_NAME "et")
-		endif()
-
-		if(RTCW_TMP_OUTPUT_NAME AND ("dedicated" IN_LIST RTCW_TMP_TAGS))
-			set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}_ded")
-		endif()
-		
-		if(RTCW_TMP_OUTPUT_NAME AND ("demo" IN_LIST RTCW_TMP_TAGS))
-			set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}_demo")
-		endif()
-
-		if(RTCW_TMP_OUTPUT_NAME)
-			set(RTCW_TMP_OUTPUT_NAME "rtcw_${RTCW_TMP_OUTPUT_NAME}")
-		endif()
-	endif()
-
-	if (RTCW_TMP_OUTPUT_NAME AND RTCW_ARCH_STRING)
-		if("exe" IN_LIST RTCW_TMP_TAGS OR ("dll" IN_LIST RTCW_TMP_TAGS AND (("mp" IN_LIST RTCW_TMP_TAGS) OR ("et" IN_LIST RTCW_TMP_TAGS))))
-			set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}_")
-		endif()
-
-		set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}${RTCW_ARCH_STRING}")
-	endif()
-
-	if(RTCW_TMP_OUTPUT_NAME AND ("dll" IN_LIST RTCW_TMP_TAGS) AND ("demo" IN_LIST RTCW_TMP_TAGS))
-		set(RTCW_TMP_OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}_d")
-	endif()
-
-	if(RTCW_TMP_OUTPUT_NAME)
-		set_target_properties(${ARGV0} PROPERTIES
-			PREFIX ""
-			OUTPUT_NAME "${RTCW_TMP_OUTPUT_NAME}"
-		)
-
-		message(STATUS "[${ARGV0}] Output name: ${RTCW_TMP_OUTPUT_NAME}")
-	endif()
 
 	target_compile_definitions(${ARGV0}
 		PRIVATE
