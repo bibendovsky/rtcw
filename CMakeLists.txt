@@ -5,6 +5,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 message(STATUS "[rtcw] Version: ${PROJECT_VERSION}")
 
+include(GetGitHeadHash)
+get_git_hash(${CMAKE_CURRENT_SOURCE_DIR} RTCW_GIT_HASH)
+message(STATUS "[rtcw] Git hash: ${RTCW_GIT_HASH}")
+
 option(RTCW_SP "Build single-player." ON)
 message(STATUS "[rtcw] Single-player: ${RTCW_SP}")
 
