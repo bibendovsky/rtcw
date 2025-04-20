@@ -86,17 +86,17 @@ SPDX-License-Identifier: GPL-3.0
 
 #if defined RTCW_SP
 #ifdef RTCW_SP_DEMO
-	#define RTCW_VERSION "RTCW-SP-D 0.99b (1.41)"
+	#define RTCW_VERSION "RTCW-SP-D " RTCW_VERSION_NUMBER
 #else
-	#define RTCW_VERSION "RTCW-SP 0.99b (1.41)"
+	#define RTCW_VERSION "RTCW-SP " RTCW_VERSION_NUMBER
 #endif
 #elif defined RTCW_MP
-#define RTCW_VERSION "RTCW-MP 0.99b (1.41b)"
+#define RTCW_VERSION "RTCW-MP " RTCW_VERSION_NUMBER
 #else
 #ifndef PRE_RELEASE_DEMO
-#define RTCW_VERSION "RTCW-ET 0.99b (2.60d)"
+#define RTCW_VERSION "RTCW-ET " RTCW_VERSION_NUMBER
 #else
-#define RTCW_VERSION "RTCW-ET 0.99b (2.32)"
+#define RTCW_VERSION "RTCW-ET " RTCW_VERSION_NUMBER
 #endif // PRE_RELEASE_DEMO
 
 #define CONFIG_NAME "etconfig.cfg"

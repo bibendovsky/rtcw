@@ -316,6 +316,7 @@ function(rtcw_configure_target)
 	rtcw_configure_static_linking(${ARGV0})
 
 	get_target_property(RTCW_TMP_TAGS ${ARGV0} RTCW_TAGS)
+	get_target_property(RTCW_TMP_VERSION ${ARGV0} RTCW_VERSION)
 
 	set_target_properties(${ARGV0} PROPERTIES
 		CXX_STANDARD 98
@@ -403,6 +404,7 @@ function(rtcw_configure_target)
 			__STDC_LIMIT_MACROS __STDC_CONSTANT_MACROS # stdint.h
 			__STDC_FORMAT_MACROS # inttypes.h
 			"RTCW_ARCH_STRING=\"${RTCW_ARCH_STRING}\""
+			RTCW_VERSION_NUMBER="${RTCW_TMP_VERSION}+${RTCW_GIT_HASH}"
 	)
 
 	if(RTCW_CURL AND RTCW_CURL_STATIC)
