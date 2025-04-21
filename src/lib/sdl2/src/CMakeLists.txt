@@ -2078,8 +2078,10 @@ elseif(WINDOWS)
     endif()
   endif()
 
-  enable_language(RC)
-  file(GLOB VERSION_SOURCES ${SDL2_SOURCE_DIR}/src/main/windows/*.rc)
+  # { rtcw
+  #enable_language(RC)
+  #file(GLOB VERSION_SOURCES ${SDL2_SOURCE_DIR}/src/main/windows/*.rc)
+  # } rtcw
   file(GLOB SDLMAIN_SOURCES ${SDL2_SOURCE_DIR}/src/main/windows/*.c)
   if(MINGW OR CYGWIN)
     if(NOT SDL2_DISABLE_SDL2MAIN)

@@ -55,10 +55,12 @@ extern SDL_mutex_impl_t SDL_mutex_impl_active;
     {                \
         0            \
     }
+#ifndef __WATCOMC__ /* rtcw */
 typedef struct _SRWLOCK
 {
     PVOID Ptr;
 } SRWLOCK, *PSRWLOCK;
+#endif /* __WATCOMC__ */ /* rtcw */
 #endif
 
 typedef struct SDL_mutex_srw

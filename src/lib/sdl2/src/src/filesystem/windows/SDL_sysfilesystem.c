@@ -26,6 +26,9 @@
 /* System dependent filesystem routines                                */
 
 #include "../../core/windows/SDL_windows.h"
+#ifdef __WATCOMC__ /* rtcw */
+#include <shellapi.h>
+#endif /* __WATCOMC__ */ /* rtcw */
 #include <shlobj.h>
 
 #include "SDL_error.h"

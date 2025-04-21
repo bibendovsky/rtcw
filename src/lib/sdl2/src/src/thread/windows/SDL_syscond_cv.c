@@ -55,10 +55,12 @@ static SDL_cond_impl_t SDL_cond_impl_active = { 0 };
     {                           \
         0                       \
     }
+#ifndef __WATCOMC__ /* rtcw */
 typedef struct CONDITION_VARIABLE
 {
     PVOID Ptr;
 } CONDITION_VARIABLE, *PCONDITION_VARIABLE;
+#endif /* __WATCOMC__ */ /* rtcw */
 #endif
 
 #ifdef __WINRT__
