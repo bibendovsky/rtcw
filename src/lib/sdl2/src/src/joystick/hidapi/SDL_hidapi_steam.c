@@ -156,10 +156,14 @@ typedef struct
 #define offsetof(s, m) (size_t) & (((s *)0)->m)
 
 #ifdef DEBUG_STEAM_CONTROLLER
+#if 0 /* rtcw */
 #define DPRINTF(format, ...) printf(format, ##__VA_ARGS__)
+#endif /* rtcw */
 #define HEXDUMP(ptr, len)    hexdump(ptr, len)
 #else
+#if 0 /* rtcw */
 #define DPRINTF(format, ...)
+#endif /* rtcw */
 #define HEXDUMP(ptr, len)
 #endif
 #define printf SDL_Log
@@ -243,7 +247,9 @@ static int WriteSegmentToSteamControllerPacketAssembler(SteamControllerPacketAss
             return -1;
         }
 
+#if 0 /* rtcw */
         DPRINTF("GOT PACKET HEADER = 0x%x\n", uSegmentHeader);
+#endif /* rtcw */
 
         if (!(uSegmentHeader & REPORT_SEGMENT_DATA_FLAG)) {
             // We get empty segments, just ignore them
@@ -255,8 +261,10 @@ static int WriteSegmentToSteamControllerPacketAssembler(SteamControllerPacketAss
 
             if (nSegmentNumber) {
                 // This happens occasionally
+#if 0 /* rtcw */
                 DPRINTF("Bad segment number, got %d, expected %d\n",
                         nSegmentNumber, pAssembler->nExpectedSegmentNumber);
+#endif /* rtcw */
                 return -1;
             }
         }
@@ -289,7 +297,9 @@ static int SetFeatureReport(SDL_hid_device *dev, unsigned char uBuffer[65], int 
     int nRet = -1;
     bool bBle = true; // only wireless/BLE for now, though macOS could do wired in the future
 
+#if 0 /* rtcw */
     DPRINTF("SetFeatureReport %p %p %d\n", dev, uBuffer, nActualDataLen);
+#endif /* rtcw */
 
     if (bBle) {
         int nSegmentNumber = 0;
@@ -318,7 +328,9 @@ static int SetFeatureReport(SDL_hid_device *dev, unsigned char uBuffer[65], int 
             nSegmentNumber++;
 
             nRet = SDL_hid_send_feature_report(dev, uPacketBuffer, sizeof(uPacketBuffer));
+#if 0 /* rtcw */
             DPRINTF("SetFeatureReport() ret = %d\n", nRet);
+#endif /* rtcw */
         }
     }
 
@@ -330,7 +342,9 @@ static int GetFeatureReport(SDL_hid_device *dev, unsigned char uBuffer[65])
     int nRet = -1;
     bool bBle = true;
 
+#if 0 /* rtcw */
     DPRINTF("GetFeatureReport( %p %p )\n", dev, uBuffer);
+#endif /* rtcw */
 
     if (bBle) {
         int nRetries = 0;
@@ -354,7 +368,9 @@ static int GetFeatureReport(SDL_hid_device *dev, unsigned char uBuffer[65])
             uSegmentBuffer[0] = BLE_REPORT_NUMBER;
             nRet = SDL_hid_get_feature_report(dev, uSegmentBuffer, ucBytesToRead);
 
+#if 0 /* rtcw */
             DPRINTF("GetFeatureReport ble ret=%d\n", nRet);
+#endif /* rtcw */
             HEXDUMP(uSegmentBuffer, nRet);
 
             // Zero retry counter if we got data
@@ -388,13 +404,17 @@ static int ReadResponse(SDL_hid_device *dev, uint8_t uBuffer[65], int nExpectedR
 {
     int nRet = GetFeatureReport(dev, uBuffer);
 
+#if 0 /* rtcw */
     DPRINTF("ReadResponse( %p %p %d )\n", dev, uBuffer, nExpectedResponse);
+#endif /* rtcw */
 
     if (nRet < 0) {
         return nRet;
     }
 
+#if 0 /* rtcw */
     DPRINTF("ReadResponse got %d bytes of data: ", nRet);
+#endif /* rtcw */
     HEXDUMP(uBuffer, nRet);
 
     if (uBuffer[1] != nExpectedResponse) {
@@ -418,7 +438,9 @@ static bool ResetSteamController(SDL_hid_device *dev, bool bSuppressErrorSpew, u
     FeatureReportMsg *msg;
     uint32_t unUpdateRateUS = 9000; // Good default rate
 
+#if 0 /* rtcw */
     DPRINTF("ResetSteamController hid=%p\n", dev);
+#endif /* rtcw */
 
     buf[0] = 0;
     buf[1] = ID_GET_ATTRIBUTES_VALUES;

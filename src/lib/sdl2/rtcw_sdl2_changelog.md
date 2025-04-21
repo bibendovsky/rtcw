@@ -10,4 +10,5 @@
 - *src/dynapi/SDL_dynapi.h*: Disable dynamic API.
 - *CMakeLists.txt*: Configure static linking.
 - *CMakeLists.txt*: Fix using DXSDK_DIR in older CMake.
-- *CMakeLists.txt*: Don use use multi-process compilation for Visual C++ 7.1 (2003) or lower.
+- *CMakeLists.txt*: Don't use use multi-process compilation for Visual C++ 7.1 (2003) or lower.
+- *src/joystick/hidapi/SDL_hidapi_steam.c*: Disable DPRINTF.
