@@ -7,7 +7,7 @@
 
 ### Changed
 - Directory layout.
-- *src/SDLnetsys.h*: Check for predefined macro "_WIN32" too.
+- *src/SDLnetsys.h*: Define WIN32 and __WIN32__ if _WIN32 defined.
 
 ### Added
 - Custom CMake script.

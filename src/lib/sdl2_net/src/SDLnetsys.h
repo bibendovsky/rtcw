@@ -19,6 +19,18 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
+/* rtcw */
+#if defined(_WIN32)
+	#if !defined(WIN32)
+		#define WIN32
+	#endif
+
+	#if !defined(__WIN32__)
+		#define __WIN32__
+	#endif
+#endif
+/* rtcw */
+
 /* Include normal system headers */
 #if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
 #define _DARWIN_C_SOURCE
@@ -35,7 +47,7 @@
 #endif
 
 /* Include system network headers */
-#if defined(__WIN32__) || defined(WIN32) /* rtcw */ || defined(_WIN32) /* rtcw */
+#if defined(__WIN32__) || defined(WIN32)
 #define __USE_W32_SOCKETS
 #include <winsock2.h>
 #include <ws2tcpip.h>
