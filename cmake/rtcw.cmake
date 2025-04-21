@@ -446,12 +446,14 @@ function(rtcw_configure_target)
 		target_link_libraries(${ARGV0}
 			PRIVATE
 				$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:SDL2::SDL2-static>
+				$<$<AND:$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>,$<BOOL:${WIN32}>>:dxguid>
 				$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:rtcw::sdl2_net>
 		)
 	else()
 		target_link_libraries(${ARGV0}
 			PRIVATE
 				$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:SDL2W::SDL2W>
+				$<$<AND:$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>,$<BOOL:${WIN32}>>:dxguid>
 				$<$<AND:$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>,$<BOOL:${WIN32}>>:winmm>
 			PRIVATE
 				$<$<BOOL:${RTCW_TMP_IS_EXECUTABLE}>:SDL2W_net::SDL2W_net>
