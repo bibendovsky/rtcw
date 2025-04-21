@@ -35,7 +35,7 @@
 #endif
 
 /* Include system network headers */
-#if defined(__WIN32__) || defined(WIN32)
+#if defined(__WIN32__) || defined(WIN32) /* rtcw */ || defined(_WIN32) /* rtcw */
 #define __USE_W32_SOCKETS
 #include <winsock2.h>
 #include <ws2tcpip.h>
