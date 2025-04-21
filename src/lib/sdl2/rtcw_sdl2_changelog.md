@@ -9,3 +9,4 @@
 - *CMakeLists.txt*: Enforce C++ to build macOS release.
 - *src/dynapi/SDL_dynapi.h*: Disable dynamic API.
 - *CMakeLists.txt*: Configure static linking.
+- *CMakeLists.txt*: Fix using DXSDK_DIR in older CMake.
