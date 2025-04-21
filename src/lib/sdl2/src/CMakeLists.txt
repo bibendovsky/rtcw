@@ -263,7 +263,10 @@ if(NOT ("$ENV{CFLAGS}" STREQUAL ""))
 endif()
 
 # Build in parallel under Visual Studio. Not enabled by default.
-if(MSVC AND NOT USE_CLANG)
+# { rtcw
+#if(MSVC AND NOT USE_CLANG)
+if(MSVC AND (MSVC_VERSION GREATER 1310) AND NOT USE_CLANG)
+# } rtcw
   target_compile_options(sdl-build-options INTERFACE "/MP")
 endif()
 
