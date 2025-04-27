@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
-project(rtcw VERSION 1.0.0)
+project(rtcw)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-message(STATUS "[rtcw] Version: ${PROJECT_VERSION}")
+message(STATUS "[rtcw]")
 
 include(GetGitHeadHash)
 get_git_hash(${CMAKE_CURRENT_SOURCE_DIR} RTCW_GIT_HASH)

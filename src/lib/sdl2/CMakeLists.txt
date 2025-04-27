@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
-project(rtcw_sdl2 VERSION 1.0.0 LANGUAGES NONE)
 
-message(STATUS "[rtcw_sdl2] v${PROJECT_VERSION}")
+message(STATUS "[rtcw_sdl2]")
 
 set(SDL2_DISABLE_INSTALL ON CACHE BOOL "Disable installation of SDL2" FORCE)
 set(SDL2_DISABLE_UNINSTALL ON CACHE BOOL "Disable uninstallation of SDL2" FORCE)
