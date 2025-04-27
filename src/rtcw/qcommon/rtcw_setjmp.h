@@ -21,9 +21,9 @@ SPDX-License-Identifier: GPL-3.0
 #else
 	#include <setjmp.h>
 
-	typedef jmp_buf RTCW_JMP_BUF;
-	#define RTCW_SETJMP(env) setjmp(env)
-	#define RTCW_LONGJMP(env, status) longjmp(env, status)
+	typedef ::jmp_buf RTCW_JMP_BUF;
+	#define RTCW_SETJMP(env) ::setjmp(env)
+	#define RTCW_LONGJMP(env, status) ::longjmp(env, status)
 #endif
 
 #endif // RTCW_SETJMP_INCLUDED
