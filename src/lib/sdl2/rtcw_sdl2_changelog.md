@@ -16,3 +16,4 @@
 - *src/thread/windows/SDL_syscond_cv.c*: Do not define CONDITION_VARIABLE for OpenWatcom.
 - *src/thread/windows/SDL_sysmutex_c.h*: Do not define SRWLOCK for OpenWatcom.
 - *CMakeLists.txt*: Disable resource files for Windows.
+- *CMakeLists.txt*: Link to dxguid.lib when using non-WindowsSDK DirectX.

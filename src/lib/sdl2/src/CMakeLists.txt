@@ -1844,6 +1844,9 @@ elseif(WINDOWS)
         file(TO_CMAKE_PATH "$ENV{DXSDK_DIR}\\Include" SDL2_TMP_DXSDK_INCLUDE_DIR)
         target_include_directories(sdl-build-options INTERFACE "${SDL2_TMP_DXSDK_INCLUDE_DIR}")
         # } rtcw
+        # { rtcw
+        target_link_libraries(sdl-build-options INTERFACE dxguid)
+        # } rtcw
       endif()
     endif()
     set(CMAKE_REQUIRED_FLAGS ${ORIG_CMAKE_REQUIRED_FLAGS})
