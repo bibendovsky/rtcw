@@ -196,6 +196,58 @@ endfunction(rtcw_configure_output_name)
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+function(rtcw_configure_stack)
+	if(NOT (${ARGC} EQUAL 1))
+		message(FATAL_ERROR "Usage: rtcw_configure_stack <target_name>")
+	endif()
+
+	if(NOT WIN32)
+		return()
+	endif()
+
+	get_target_property(RTCW_TMP_TAGS ${ARGV0} RTCW_TAGS)
+
+	if("exe" IN_LIST RTCW_TMP_TAGS)
+		get_target_property(RTCW_TMP_LINK_FLAGS ${ARGV0} LINK_FLAGS)
+
+		if(NOT RTCW_TMP_LINK_FLAGS)
+			set(RTCW_TMP_LINK_FLAGS "")
+		endif()
+
+		set(RTCW_TMP_EXE_STACK_SIZE "0x800000")
+		set(RTCW_TMP_EXE_STACK_SIZE_IS_SET FALSE)
+
+		if(MSVC)
+			set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} /STACK:${RTCW_TMP_EXE_STACK_SIZE}")
+			set(RTCW_TMP_EXE_STACK_SIZE_IS_SET TRUE)
+		elseif((CMAKE_C_COMPILER_ID STREQUAL "GNU") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+			set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} -Wl,--stack,${RTCW_TMP_EXE_STACK_SIZE}")
+			set(RTCW_TMP_EXE_STACK_SIZE_IS_SET TRUE)
+		elseif((CMAKE_C_COMPILER_ID STREQUAL "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
+			set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} -Wl,--stack,${RTCW_TMP_EXE_STACK_SIZE}")
+			set(RTCW_TMP_EXE_STACK_SIZE_IS_SET TRUE)
+		elseif((CMAKE_CXX_COMPILER_ID STREQUAL "OpenWatcom") OR (CMAKE_CXX_COMPILER_ID STREQUAL "OpenWatcom"))
+			set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} option stack=${RTCW_TMP_EXE_STACK_SIZE}")
+			set(RTCW_TMP_EXE_STACK_SIZE_IS_SET TRUE)
+		endif()
+
+		if(RTCW_TMP_EXE_STACK_SIZE_IS_SET)
+			message(STATUS "[${ARGV0}] Set stack size: ${RTCW_TMP_EXE_STACK_SIZE}")
+			set_target_properties(${ARGV0} PROPERTIES LINK_FLAGS "${RTCW_TMP_LINK_FLAGS}")
+		endif()
+	endif()
+
+	target_compile_options(${ARGV0}
+		PRIVATE
+			$<$<C_COMPILER_ID:OpenWatcom>:-sg> # Generate calls to grow the stack
+			$<$<CXX_COMPILER_ID:OpenWatcom>:-sg> # Generate calls to grow the stack
+	)
+endfunction(rtcw_configure_stack)
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 function(rtcw_configure_resources)
 	if(NOT (${ARGC} EQUAL 1))
 		message(FATAL_ERROR "Usage: rtcw_configure_resources <target_name>")
@@ -312,6 +364,7 @@ function(rtcw_configure_target)
 	endif()
 
 	rtcw_configure_output_name(${ARGV0})
+	rtcw_configure_stack(${ARGV0})
 	rtcw_configure_resources(${ARGV0})
 	rtcw_configure_static_linking(${ARGV0})
 
@@ -347,31 +400,6 @@ function(rtcw_configure_target)
 			)
 
 			message(STATUS "[${ARGV0}] Set Windows subsystem.")
-		endif()
-
-		# ----------
-		# Stack size
-		if(WIN32)
-			set(RTCW_TMP_EXE_STACK_SIZE "0x800000")
-			set(RTCW_TMP_EXE_STACK_SIZE_IS_SET FALSE)
-
-			if(MSVC)
-				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} /STACK:${RTCW_TMP_EXE_STACK_SIZE}")
-				set(RTCW_TMP_EXE_STACK_SIZE_IS_SET TRUE)
-			elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} -Wl,--stack,${RTCW_TMP_EXE_STACK_SIZE}")
-				set(RTCW_TMP_EXE_STACK_SIZE_IS_SET TRUE)
-			elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} -Wl,--stack,${RTCW_TMP_EXE_STACK_SIZE}")
-				set(RTCW_TMP_EXE_STACK_SIZE_IS_SET TRUE)
-			elseif(CMAKE_CXX_COMPILER_ID STREQUAL "OpenWatcom")
-				set(RTCW_TMP_LINK_FLAGS "${RTCW_TMP_LINK_FLAGS} option stack=${RTCW_TMP_EXE_STACK_SIZE}")
-				set(RTCW_TMP_EXE_STACK_SIZE_IS_SET TRUE)
-			endif()
-
-			if(RTCW_TMP_EXE_STACK_SIZE_IS_SET)
-				message(STATUS "[${ARGV0}] Set stack size: ${RTCW_TMP_EXE_STACK_SIZE}")
-			endif()
 		endif()
 	endif()
 
@@ -490,6 +518,7 @@ function(rtcw_configure_3rd_party_target)
 		endif()
 	endif()
 
+	rtcw_configure_stack(${ARGV0})
 	rtcw_configure_static_linking(${ARGV0})
 endfunction(rtcw_configure_3rd_party_target)
 

@@ -6,6 +6,7 @@ message(STATUS "[rtcw_sdl2_net] v${PROJECT_VERSION}")
 add_library(rtcw_sdl2_net STATIC "")
 add_library(rtcw::sdl2_net ALIAS rtcw_sdl2_net)
 
+rtcw_configure_stack(rtcw_sdl2_net)
 rtcw_configure_static_linking(rtcw_sdl2_net)
 
 target_link_libraries(rtcw_sdl2_net
