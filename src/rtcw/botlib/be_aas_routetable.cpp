@@ -73,11 +73,7 @@ void *AAS_RT_GetClearedMemory( uint32_t size ) {
 	// this will be a non-issue once we transfer the remnants of the routetable over to the aasworld
 
 #if !defined RTCW_ET
-	// BBi
-	//ptr = malloc( size );
-	ptr = new byte[size];
-	// BBi
-
+	ptr = malloc( size );
 	memset( ptr, 0, size );
 #else
 	//ptr = malloc (size);
@@ -94,11 +90,7 @@ void AAS_RT_FreeMemory( void *ptr ) {
 
 	// FreeMemory( ptr );
 	// Ryan - 01102k
-
-	// BBi
-	//free( ptr );
-	delete [] static_cast<byte*> (ptr);
-	// BBi
+	free( ptr );
 
 	memorycount -= before - totalmemorysize;
 }

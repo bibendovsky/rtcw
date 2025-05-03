@@ -997,10 +997,7 @@ void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 	// probably won't work on a mac... Its only for developers anyway...
 #endif // RTCW_XX
 
-	// BBi
-	//buf = static_cast<byte*> (malloc( len ));
-	buf = new byte[len];
-	// BBi
+	buf = static_cast<byte*> (malloc( len ));
 
 	if ( fread( buf, 1, len, f ) != len ) {
 		Com_Error( ERR_FATAL, "Short read in FS_Copyfiles()\n" );
@@ -1015,10 +1012,7 @@ void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 	if ( !f ) {
 
 #if !defined RTCW_SP
-		// BBi
-		//free( buf );    //DAJ free as well
-		delete [] buf; //DAJ free as well
-		// BBi
+		free( buf );    //DAJ free as well
 #endif // RTCW_XX
 
 		return;
@@ -1027,11 +1021,7 @@ void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 		Com_Error( ERR_FATAL, "Short write in FS_Copyfiles()\n" );
 	}
 	fclose( f );
-
-	// BBi
-	//free( buf );
-	delete [] buf;
-	// BBi
+	free( buf );
 }
 
 #if defined RTCW_SP
@@ -1061,11 +1051,7 @@ void FS_CopyFileOS( char *from, char *to ) {
 
 	// we are using direct malloc instead of Z_Malloc here, so it
 	// probably won't work on a mac... Its only for developers anyway...
-
-	// BBi
-	//buf = static_cast<byte*> (malloc( len ));
-	buf = new byte[len];
-	// BBi
+	buf = static_cast<byte*> (malloc( len ));
 
 	if ( fread( buf, 1, len, f ) != len ) {
 		Com_Error( ERR_FATAL, "Short read in FS_Copyfiles()\n" );
@@ -1084,11 +1070,7 @@ void FS_CopyFileOS( char *from, char *to ) {
 		Com_Error( ERR_FATAL, "Short write in FS_Copyfiles()\n" );
 	}
 	fclose( f );
-
-	// BBi
-	//free( buf );
-	delete [] buf;
-	// BBi
+	free( buf );
 }
 #endif // RTCW_XX
 
@@ -1581,20 +1563,14 @@ qboolean FS_FileCompare( const char *s1, const char *s2 ) {
 
 	// now do a binary compare
 
-	// BBi
-	//b1 = static_cast<byte*> (malloc( len1 ));
-	b1 = new byte[len1];
-	// BBi
+	b1 = static_cast<byte*> (malloc( len1 ));
 
 	if ( fread( b1, 1, len1, f1 ) != len1 ) {
 		Com_Error( ERR_FATAL, "Short read in FS_FileCompare()\n" );
 	}
 	fclose( f1 );
 
-	// BBi
-	//b2 = static_cast<byte*> (malloc( len2 ));
-	b2 = new byte[len2];
-	// BBi
+	b2 = static_cast<byte*> (malloc( len2 ));
 
 	if ( fread( b2, 1, len2, f2 ) != len2 ) {
 		Com_Error( ERR_FATAL, "Short read in FS_FileCompare()\n" );
@@ -1607,30 +1583,16 @@ qboolean FS_FileCompare( const char *s1, const char *s2 ) {
 	for ( pos = 0; pos < len1; pos++, p1++, p2++ )
 	{
 		if ( *p1 != *p2 ) {
-
-			// BBi
-			//free( b1 );
-			//free( b2 );
-
-			delete [] b1;
-			delete [] b2;
-			// BBi
-
+			free( b1 );
+			free( b2 );
 			return qfalse;
 		}
 	}
 	//}
 
 	// they are identical
-
-	// BBi
-	//free( b1 );
-	//free( b2 );
-
-	delete [] b1;
-	delete [] b2;
-	// BBi
-
+	free( b1 );
+	free( b2 );
 	return qtrue;
 }
 #endif // RTCW_XX
@@ -5536,10 +5498,7 @@ unsigned int FS_ChecksumOSPath( char *OSPath ) {
 	len = ftell( f );
 	fseek( f, 0, SEEK_SET );
 
-	// BBi
-	//buf = static_cast<byte*> (malloc( len ));
-	buf = new byte[len];
-	// BBi
+	buf = static_cast<byte*> (malloc( len ));
 
 	if ( fread( buf, 1, len, f ) != len ) {
 		Com_Error( ERR_FATAL, "short read in FS_ChecksumOSPath\n" );
@@ -5549,12 +5508,7 @@ unsigned int FS_ChecksumOSPath( char *OSPath ) {
 	// Com_BlockChecksum returns an indian-dependent value
 	// (better fix would have to be doing the LittleLong inside that function..)
 	checksum = rtcw::Endian::le( Com_BlockChecksum( buf, len ) );
-
-	// BBi
-	//free( buf );
-	delete [] buf;
-	// BBi
-
+	free( buf );
 	return checksum;
 }
 #endif // RTCW_XX

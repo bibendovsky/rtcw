@@ -4243,10 +4243,7 @@ void *R_CacheShaderAlloc( int size ) {
 		//return malloc( size );
 
 #if !defined RTCW_MP
-		// BBi
-		//return malloc( size );
-		return new byte[size];
-		// BBi
+		return malloc( size );
 #else
 		return ri.Z_Malloc( size );
 #endif // RTCW_XX
@@ -4269,10 +4266,7 @@ void R_CacheShaderFree( void *ptr ) {
 		//free( ptr );
 
 #if !defined RTCW_MP
-		// BBi
-		//free( ptr );
-		delete [] static_cast<byte*> (ptr);
-		// BBi
+		free( ptr );
 #else
 		ri.Free( ptr );
 #endif // RTCW_XX

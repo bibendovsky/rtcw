@@ -5893,11 +5893,7 @@ static trans_t* AllocTrans( char *original, char *translated[MAX_LANGUAGES] ) {
 	trans_t *t;
 	int i;
 
-	// BBi
-	//t = static_cast<trans_t*> (malloc( sizeof( trans_t ) ));
-	t = new trans_t;
-	// BBi
-
+	t = static_cast<trans_t*> (malloc( sizeof( trans_t ) ));
 	memset( t, 0, sizeof( trans_t ) );
 
 	if ( original ) {
@@ -6171,10 +6167,7 @@ void CL_LoadTransTable( const char *fileName ) {
 	// Gordon: shouldn't this be a z_malloc or something?
 #endif // RTCW_XX
 
-	// BBi
-	//text = static_cast<char*> (malloc( len + 1 ));
-	text = new char[len + 1];
-	// BBi
+	text = static_cast<char*> (malloc( len + 1 ));
 
 	if ( !text ) {
 		return;
@@ -6321,11 +6314,7 @@ void CL_LoadTransTable( const char *fileName ) {
 	}
 
 	// cleanup
-
-	// BBi
-	//free( text );
-	delete [] text;
-	// BBi
+	free( text );
 }
 
 /*
@@ -6339,12 +6328,7 @@ void CL_ReloadTranslation() {
 
 	for ( i = 0; i < FILE_HASH_SIZE; i++ ) {
 		if ( transTable[i] ) {
-
-			// BBi
-			//free( transTable[i] );
-			delete transTable[i];
-			// BBi
-
+			free( transTable[i] );
 		}
 	}
 

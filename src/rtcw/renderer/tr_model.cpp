@@ -2416,7 +2416,7 @@ void* R_Hunk_Begin ()
 	hunkmaxsize = R_HUNK_SIZE;
 
 	if (membase == 0) {
-		membase = new byte[R_HUNK_SIZE];
+		membase = static_cast<byte*>(malloc(R_HUNK_SIZE));
 
 		if (membase == 0)
 			ri.Error (ERR_DROP, "R_Hunk_Begin: reserve failed");
@@ -2548,7 +2548,7 @@ void R_Hunk_End ()
 #endif // RTCW_XX
 
 	if (membase != 0) {
-		delete [] membase;
+		free(membase);
 		membase = 0;
 	}
 }

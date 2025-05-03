@@ -1053,12 +1053,7 @@ Z_Free
 void Z_Free( void *ptr ) {
 
 #if defined RTCW_SP
-
-	// BBi
-	//free( ptr );
-	delete [] static_cast<byte*> (ptr);
-	// BBi
-
+	free( ptr );
 #else
 	memblock_t  *block, *other;
 	memzone_t *zone;
@@ -1133,12 +1128,7 @@ Z_Malloc
 ================
 */
 void *Z_Malloc( int size ) {
-
-	// BBi
-	//void *buf = malloc( size );
-	byte* buf = new byte[size];
-	// BBi
-
+	void *buf = malloc( size );
 	Com_Memset( buf, 0, size );
 	return buf;
 }
@@ -1942,10 +1932,7 @@ void Com_InitHunkMemory( void ) {
 		s_hunkTotal = cv->integer * 1024 * 1024;
 	}
 
-	// BBi
-	//s_hunkData = static_cast<byte*> (malloc( s_hunkTotal + 31 ));
-	s_hunkData = new byte[s_hunkTotal];
-	// BBi
+	s_hunkData = static_cast<byte*> (malloc( s_hunkTotal + 31 ));
 
 	if ( !s_hunkData ) {
 		Com_Error( ERR_FATAL, "Hunk data failed to allocate %i megs", s_hunkTotal / ( 1024 * 1024 ) );
