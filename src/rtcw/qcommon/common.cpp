@@ -1938,10 +1938,12 @@ void Com_InitHunkMemory( void ) {
 		Com_Error( ERR_FATAL, "Hunk data failed to allocate %i megs", s_hunkTotal / ( 1024 * 1024 ) );
 	}
 
-	// BBi
-	//// cacheline align
-	//s_hunkData = ( byte * )( ( (int)s_hunkData + 31 ) & ~31 );
-	// BBi
+	// cacheline align
+#ifdef RTCW_VANILLA
+	s_hunkData = ( byte * )( ( (int)s_hunkData + 31 ) & ~31 );
+#else // RTCW_VANILLA
+	s_hunkData = reinterpret_cast<byte*>((reinterpret_cast<size_t>(s_hunkData) + 31) & ~size_t(31));
+#endif // RTCW_VANILLA
 
 	Hunk_Clear();
 
