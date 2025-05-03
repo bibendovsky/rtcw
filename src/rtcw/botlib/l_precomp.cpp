@@ -1163,14 +1163,7 @@ int PC_WhiteSpaceBeforeToken( token_t *token ) {
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-#ifndef __GNUC__
 void PC_ClearTokenWhiteSpace( token_t *token ) {
-#else // __GNUC__
-// Without 'volatile' keyword the function causes SEGFAULT in the x86_64 release build.
-// Reason: MOVAPS instruction.
-// Tested on MinGW-w64/MSYS2 GCC 14.2.0, Clang 20.1.2.
-void PC_ClearTokenWhiteSpace( volatile token_t *token ) {
-#endif // __GNUC__
 	token->whitespace_p = NULL;
 	token->endwhitespace_p = NULL;
 	token->linescrossed = 0;
