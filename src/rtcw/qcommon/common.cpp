@@ -1962,7 +1962,7 @@ void Com_InitHunkMemory( void ) {
 #ifdef RTCW_VANILLA
 	s_hunkData = ( byte * )( ( (int)s_hunkData + 31 ) & ~31 );
 #else // RTCW_VANILLA
-	s_hunkData = reinterpret_cast<byte*>((reinterpret_cast<size_t>(s_hunkData) + 31) & ~size_t(31));
+	s_hunkData = reinterpret_cast<byte*>((reinterpret_cast<size_t>(s_hunkData) + 31) & ~(size_t(31)));
 #endif // RTCW_VANILLA
 
 	Hunk_Clear();
