@@ -14,6 +14,8 @@ SPDX-License-Identifier: GPL-3.0
  *
  *****************************************************************************/
 
+#ifdef RTCW_VANILLA
+
 #ifdef _DEBUG
 
 #if defined RTCW_SP
@@ -69,3 +71,33 @@ void PrintMemoryLabels( void );
 int MemoryByteSize( void *ptr );
 //free all allocated memory
 void DumpMemory( void );
+
+#else // RTCW_VANILLA
+
+//allocate a memory block of the given size
+void* GetMemory(int size);
+//allocate a memory block of the given size and clear it
+void* GetClearedMemory(int size);
+//
+#ifdef BSPC
+#define GetHunkMemory GetMemory
+#define GetClearedHunkMemory GetClearedMemory
+#else // BSPC
+//allocate a memory block of the given size
+void* GetHunkMemory(int size);
+//allocate a memory block of the given size and clear it
+void* GetClearedHunkMemory(int size);
+#endif // BSPC
+
+//free the given memory block
+void FreeMemory(void* ptr);
+//prints the total used memory size
+void PrintUsedMemorySize();
+//print all memory blocks with label
+void PrintMemoryLabels();
+//returns the size of the memory block in bytes
+int MemoryByteSize(void* ptr);
+//free all allocated memory
+void DumpMemory();
+
+#endif // RTCW_VANILLA

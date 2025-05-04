@@ -14,6 +14,8 @@ SPDX-License-Identifier: GPL-3.0
  *
  *****************************************************************************/
 
+#ifdef RTCW_VANILLA
+
 #include "q_shared.h"
 #include "botlib.h"
 #include "l_log.h"
@@ -429,3 +431,130 @@ void PrintMemoryLabels( void ) {
 } //end of the function PrintMemoryLabels
 
 #endif
+
+#else // RTCW_VANILLA
+
+#include <assert.h>
+#include <limits.h>
+#include <stdlib.h>
+#include <string.h>
+#include "q_shared.h"
+#include "botlib.h"
+#include "be_interface.h"
+#include "l_memory.h"
+
+namespace {
+
+const unsigned int MEM_ID = 0x12345678U;
+const unsigned int HUNK_ID = 0x87654321U;
+
+union Header
+{
+	unsigned int id;
+	unsigned char alignment_[16];
+};
+
+const int header_size = sizeof(Header);
+
+typedef void* (*AllocateFunc)(int);
+
+template<typename T>
+inline void maybe_unused(T&)
+{}
+
+void* allocate(int size, unsigned int id, AllocateFunc allocate_func)
+{
+	if (size < 0 || INT_MAX - size < header_size)
+	{
+		assert(false && "Negative size or size too big.");
+		return NULL;
+	}
+
+	void* const raw = allocate_func(header_size + size);
+
+	if (raw == NULL)
+	{
+		return NULL;
+	}
+
+	Header* header = static_cast<Header*>(raw);
+	header->id = id;
+	return &static_cast<unsigned char*>(raw)[header_size];
+}
+
+} // namespace
+
+void* GetMemory(int size)
+{
+	return allocate(size, MEM_ID, botimport.GetMemory);
+}
+
+void* GetClearedMemory(int size)
+{
+	void* const ptr = GetMemory(size);
+
+	if (ptr != NULL)
+	{
+		memset(ptr, 0, static_cast<size_t>(size));
+	}
+
+	return ptr;
+}
+
+void* GetHunkMemory(int size)
+{
+	return allocate(size, HUNK_ID, botimport.HunkAlloc);
+}
+
+void* GetClearedHunkMemory(int size)
+{
+	void* const ptr = GetHunkMemory(size);
+
+	if (ptr != NULL)
+	{
+		memset(ptr, 0, static_cast<size_t>(size));
+	}
+
+	return ptr;
+}
+
+void FreeMemory(void* ptr)
+{
+	if (ptr == NULL)
+	{
+		return;
+	}
+
+	Header* const header = &static_cast<Header*>(ptr)[-1];
+
+	switch (header->id)
+	{
+		case MEM_ID:
+			botimport.FreeMemory(header);
+			break;
+
+		case HUNK_ID:
+			break;
+
+		default:
+			assert(false && "Invalid block id.");
+			break;
+	}
+}
+
+void PrintUsedMemorySize()
+{}
+
+void PrintMemoryLabels()
+{}
+
+int MemoryByteSize(void* ptr)
+{
+	maybe_unused(ptr);
+	return -1;
+}
+
+void DumpMemory()
+{}
+
+#endif // RTCW_VANILLA

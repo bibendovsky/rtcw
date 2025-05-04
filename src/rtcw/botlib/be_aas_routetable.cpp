@@ -41,9 +41,11 @@ int disable_routetable = 0;
 // enable this to disable Rocket/BFG Jumping, Grapple Hook
 #define FILTER_TRAVEL
 
+#ifdef RTCW_VANILLA
 // hmm, is there a cleaner way of finding out memory usage?
 extern int totalmemorysize;
 static int memorycount, cachememory;
+#endif // RTCW_VANILLA
 
 // globals to reduce function parameters
 static unsigned short int *filtered_areas, childcount, num_parents;
@@ -59,7 +61,9 @@ unsigned short CRC_ProcessString( unsigned char *data, int length );
 void *AAS_RT_GetClearedMemory( uint32_t size ) {
 	void *ptr;
 
+#ifdef RTCW_VANILLA
 	memorycount += size;
+#endif // RTCW_VANILLA
 
 	// ptr = GetClearedMemory(size);
 
@@ -84,15 +88,19 @@ void *AAS_RT_GetClearedMemory( uint32_t size ) {
 }
 
 void AAS_RT_FreeMemory( void *ptr ) {
+#ifdef RTCW_VANILLA
 	int before;
 
 	before = totalmemorysize;
+#endif // RTCW_VANILLA
 
 	// FreeMemory( ptr );
 	// Ryan - 01102k
 	free( ptr );
 
+#ifdef RTCW_VANILLA
 	memorycount -= before - totalmemorysize;
+#endif // RTCW_VANILLA
 }
 
 void AAS_RT_PrintMemoryUsage() {
@@ -446,7 +454,9 @@ qboolean AAS_RT_ReadRouteTable( fileHandle_t fp ) {
 
 	botimport.Print( PRT_MESSAGE, "Total Parents: %d\n", routetable->numParents );
 	botimport.Print( PRT_MESSAGE, "Total Children: %d\n", routetable->numChildren );
+#ifdef RTCW_VANILLA
 	botimport.Print( PRT_MESSAGE, "Total Memory Used: %d\n", memorycount );
+#endif // RTCW_VANILLA
 
 #ifdef DEBUG_READING_TIME
 	botimport.Print( PRT_MESSAGE, "Route-Table read time: %i\n", Sys_MilliSeconds() - pretime );
@@ -548,8 +558,10 @@ void AAS_RT_BuildRouteTable( void ) {
 	childcount = 0;
 	num_parents = 0;
 
+#ifdef RTCW_VANILLA
 	memorycount = 0;
 	cachememory = 0;
+#endif // RTCW_VANILLA
 
 	filtered_areas = (unsigned short int *) AAS_RT_GetClearedMemory( ( *aasworld ).numareas * sizeof( unsigned short int ) );
 	rev_filtered_areas = (unsigned short int *) AAS_RT_GetClearedMemory( ( *aasworld ).numareas * sizeof( unsigned short int ) );
@@ -938,7 +950,9 @@ void AAS_RT_BuildRouteTable( void ) {
 	botimport.Print( PRT_MESSAGE, "Child Areas: %i\nTotal Parents: %i\nAverage VisAreas: %i\n", (int)childcount, num_parents, (int)( childcount / num_parents ) );
 	botimport.Print( PRT_MESSAGE, "NoRoute Ratio: %i%%\n", (int)( ( 100.0 * noroutecount ) / ( 1.0 * childcount * childcount ) ) );
 
+#ifdef RTCW_VANILLA
 	memoryend = memorycount;
+#endif // RTCW_VANILLA
 
 	// clear allocated memory
 
@@ -1003,8 +1017,10 @@ void AAS_RT_BuildRouteTable( void ) {
 	// check how much memory we've used, and intend to keep
 	AAS_RT_PrintMemoryUsage();
 
+#ifdef RTCW_VANILLA
 	botimport.Print( PRT_MESSAGE, "Route-Table Permanent Memory Usage: %i\n", memorycount );
 	botimport.Print( PRT_MESSAGE, "Route-Table Calculation Usage: %i\n", memoryend + cachememory );
+#endif // RTCW_VANILLA
 	botimport.Print( PRT_MESSAGE, "---------------------------------\n" );
 }
 
