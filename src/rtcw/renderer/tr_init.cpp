@@ -1882,110 +1882,24 @@ void R_Register( void ) {
 	r_ati_truform_tess              = ri.Cvar_Get( "r_ati_truform_tess", "1", CVAR_ARCHIVE | CVAR_UNSAFE );
 #endif // RTCW_XX
 #else
-	r_glDriver = ri.Cvar_Get(
-		"r_glDriver",
-		OPENGL_DRIVER_NAME,
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
-
-	r_allowExtensions = ri.Cvar_Get(
-		"r_allowExtensions",
-		"1",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
-
-	r_ext_compressed_textures = ri.Cvar_Get(
-		"r_ext_compressed_textures",
-		"1",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	); // (SA) ew, a spelling change I missed from the missionpack
-
-	r_ext_gamma_control = ri.Cvar_Get(
-		"r_ext_gamma_control",
-		"1",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
-
-	r_ext_multitexture = ri.Cvar_Get(
-		"r_ext_multitexture",
-		"1",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
-
-	r_ext_compiled_vertex_array = ri.Cvar_Get(
-		"r_ext_compiled_vertex_array",
-		"1",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
-
-	r_glIgnoreWicked3D = ri.Cvar_Get(
-		"r_glIgnoreWicked3D",
-		"0",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
-
-//----(SA)	added
-	r_ext_ATI_pntriangles = ri.Cvar_Get(
-		"r_ext_ATI_pntriangles",
-		"0",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	); //----(SA)	default to '0'
-
-	r_ati_truform_tess = ri.Cvar_Get(
-		"r_ati_truform_tess",
-		"1",
-		CVAR_ARCHIVE
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
+	r_glDriver = ri.Cvar_Get("r_glDriver", OPENGL_DRIVER_NAME, CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
+	r_allowExtensions = ri.Cvar_Get("r_allowExtensions", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
+	r_ext_compressed_textures = ri.Cvar_Get("r_ext_compressed_textures", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE); // (SA) ew, a spelling change I missed from the missionpack
+	r_ext_gamma_control = ri.Cvar_Get("r_ext_gamma_control", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
+	r_ext_multitexture = ri.Cvar_Get("r_ext_multitexture", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
+	r_ext_compiled_vertex_array = ri.Cvar_Get("r_ext_compiled_vertex_array", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
+	r_glIgnoreWicked3D = ri.Cvar_Get("r_glIgnoreWicked3D", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
+	//----(SA)	added
+	r_ext_ATI_pntriangles = ri.Cvar_Get("r_ext_ATI_pntriangles", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE); //----(SA)	default to '0'
+	r_ati_truform_tess = ri.Cvar_Get("r_ati_truform_tess", "1", CVAR_ARCHIVE | CVAR_UNSAFE);
 #endif // FIXME
 
 // BBi
 //#if defined RTCW_ET
 // BBi
 
-	r_ati_truform_normalmode = ri.Cvar_Get(
-		"r_ati_truform_normalmode",
-		"GL_PN_TRIANGLES_NORMAL_MODE_LINEAR",
-		CVAR_ARCHIVE
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // FIXME
-	);
-
-	r_ati_truform_pointmode = ri.Cvar_Get(
-		"r_ati_truform_pointmode",
-		"GL_PN_TRIANGLES_POINT_MODE_LINEAR",
-		CVAR_ARCHIVE
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // FIXME
-	);
+	r_ati_truform_normalmode = ri.Cvar_Get("r_ati_truform_normalmode", "GL_PN_TRIANGLES_NORMAL_MODE_LINEAR", CVAR_ARCHIVE | CVAR_UNSAFE);
+	r_ati_truform_pointmode = ri.Cvar_Get("r_ati_truform_pointmode", "GL_PN_TRIANGLES_POINT_MODE_LINEAR", CVAR_ARCHIVE | CVAR_UNSAFE);
 
 // BBi
 //#endif // RTCW_XX
@@ -2002,24 +1916,10 @@ void R_Register( void ) {
 
 	// BBi
 	//r_ati_fsaa_samples              = ri.Cvar_Get( "r_ati_fsaa_samples", "1", CVAR_ARCHIVE | CVAR_UNSAFE );        //DAJ valids are 1, 2, 4
-	r_ati_fsaa_samples = ri.Cvar_Get(
-		"r_ati_fsaa_samples",
-		"0",
-		CVAR_ARCHIVE
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
+	r_ati_fsaa_samples = ri.Cvar_Get("r_ati_fsaa_samples", "0", CVAR_ARCHIVE | CVAR_UNSAFE);
 
 	//r_ext_texture_filter_anisotropic    = ri.Cvar_Get( "r_ext_texture_filter_anisotropic", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
-	r_ext_texture_filter_anisotropic = ri.Cvar_Get(
-		"r_ext_texture_filter_anisotropic",
-		"1",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
+	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
 	// BBi
 
 #if FIXME
@@ -2031,14 +1931,7 @@ void R_Register( void ) {
 	r_ext_NV_fog_dist                   = ri.Cvar_Get( "r_ext_NV_fog_dist", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
 #endif // RTCW_XX
 #else
-	r_ext_NV_fog_dist = ri.Cvar_Get(
-		"r_ext_NV_fog_dist",
-		"1",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
+	r_ext_NV_fog_dist = ri.Cvar_Get("r_ext_NV_fog_dist", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
 #endif // FIXME
 
 #if FIXME
@@ -2048,39 +1941,20 @@ void R_Register( void ) {
 	r_nv_fogdist_mode                   = ri.Cvar_Get( "r_nv_fogdist_mode", "GL_EYE_RADIAL_NV", CVAR_ARCHIVE | CVAR_UNSAFE );  // default to 'looking good'
 #endif // RTCW_XX
 #else
-	r_nv_fogdist_mode = ri.Cvar_Get(
-		"r_nv_fogdist_mode",
-		"GL_EYE_RADIAL_NV",
-		CVAR_ARCHIVE
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	); // default to 'looking good'
+	// default to 'looking good'
+	r_nv_fogdist_mode = ri.Cvar_Get("r_nv_fogdist_mode", "GL_EYE_RADIAL_NV", CVAR_ARCHIVE | CVAR_UNSAFE);
 #endif // FIXME
 
 //----(SA)	end
 
-	r_ext_texture_env_add = ri.Cvar_Get(
-		"r_ext_texture_env_add",
-		"1",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
+	r_ext_texture_env_add = ri.Cvar_Get("r_ext_texture_env_add", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
 
 // BBi
 //#if defined RTCW_ET
 // BBi
 
-	r_clampToEdge = ri.Cvar_Get(
-		"r_clampToEdge",
-		"1",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	); // ydnar: opengl 1.2 GL_CLAMP_TO_EDGE support
+	// ydnar: opengl 1.2 GL_CLAMP_TO_EDGE support
+	r_clampToEdge = ri.Cvar_Get("r_clampToEdge", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
 
 // BBi
 //#endif // RTCW_XX
@@ -2149,42 +2023,12 @@ void R_Register( void ) {
 	r_stereo = ri.Cvar_Get( "r_stereo", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
 #endif // RTCW_XX
 #else
-	r_texturebits = ri.Cvar_Get(
-		"r_texturebits",
-		"0",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
-
-	r_colorbits = ri.Cvar_Get(
-		"r_colorbits",
-		"0",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
-
-	r_stereo = ri.Cvar_Get(
-		"r_stereo",
-		"0",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
+	r_texturebits = ri.Cvar_Get("r_texturebits", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
+	r_colorbits = ri.Cvar_Get("r_colorbits", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
+	r_stereo = ri.Cvar_Get("r_stereo", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
 #endif // FIXME
 
-	r_stencilbits = ri.Cvar_Get(
-		"r_stencilbits",
-		"0",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
+	r_stencilbits = ri.Cvar_Get("r_stencilbits", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
 
 #if FIXME
 #if !defined RTCW_ET
@@ -2195,20 +2039,8 @@ void R_Register( void ) {
 	r_overBrightBits = ri.Cvar_Get( "r_overBrightBits", "0", CVAR_ARCHIVE | CVAR_LATCH ); // Arnout: disable overbrightbits by default
 #endif // RTCW_XX
 #else
-	r_depthbits = ri.Cvar_Get(
-		"r_depthbits",
-		"0",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
-
-	r_overBrightBits = ri.Cvar_Get(
-		"r_overBrightBits",
-		"0",
-		CVAR_ARCHIVE | CVAR_LATCH
-	); // Arnout: disable overbrightbits by default
+	r_depthbits = ri.Cvar_Get("r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
+	r_overBrightBits = ri.Cvar_Get("r_overBrightBits", "0", CVAR_ARCHIVE | CVAR_LATCH); // Arnout: disable overbrightbits by default
 #endif // FIXME
 
 // BBi
@@ -2242,14 +2074,7 @@ void R_Register( void ) {
 	r_mode = ri.Cvar_Get( "r_mode", "4", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE );
 #endif // RTCW_XX
 #else
-	r_mode = ri.Cvar_Get(
-		"r_mode",
-		"4",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
+	r_mode = ri.Cvar_Get("r_mode", "4", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
 #endif // FIXME
 
 // BBi
@@ -2277,14 +2102,7 @@ void R_Register( void ) {
 	r_uiFullScreen = ri.Cvar_Get( "r_uifullscreen", "0", 0 );
 	r_subdivisions = ri.Cvar_Get( "r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH );
 
-	r_smp = ri.Cvar_Get(
-		"r_smp",
-		"0",
-		CVAR_ARCHIVE | CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
+	r_smp = ri.Cvar_Get("r_smp", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_UNSAFE);
 
 #if FIXME
 #if !defined RTCW_ET
@@ -2320,14 +2138,7 @@ void R_Register( void ) {
 	r_displayRefresh = ri.Cvar_Get( "r_displayRefresh", "0", CVAR_LATCH | CVAR_UNSAFE );
 #endif // RTCW_XX
 #else
-	r_displayRefresh = ri.Cvar_Get(
-		"r_displayRefresh",
-		"0",
-		CVAR_LATCH
-#if defined RTCW_ET
-		| CVAR_UNSAFE
-#endif // RTCW_XX
-	);
+	r_displayRefresh = ri.Cvar_Get("r_displayRefresh", "0", CVAR_LATCH | CVAR_UNSAFE);
 #endif // FIXME
 
 #if FIXME

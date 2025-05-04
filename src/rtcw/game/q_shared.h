@@ -1125,8 +1125,10 @@ default values.
 #define CVAR_WOLFINFO       2048    // DHM - NERVE :: Like userinfo, but for wolf multiplayer info
 #endif // RTCW_XX
 
-#if defined RTCW_ET
+// RTCW_ET
 #define CVAR_UNSAFE         4096    // ydnar: unsafe system cvars (renderer, sound settings, anything that might cause a crash)
+
+#if defined RTCW_ET
 #define CVAR_SERVERINFO_NOUPDATE        8192    // gordon: WONT automatically send this to clients, but server browsers will see it
 #endif // RTCW_XX
 
