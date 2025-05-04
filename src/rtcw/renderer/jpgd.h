@@ -6,11 +6,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#ifdef RTCW_VANILLA
 #include <setjmp.h>
-#else // RTCW_VANILLA
-#include "rtcw_setjmp.h"
-#endif // RTCW_VANILLA
 #include <assert.h>
 #include <stdint.h>
 
@@ -197,11 +193,7 @@ namespace jpgd
 			char m_data[1];
 		};
 
-#ifdef RTCW_VANILLA
-		jmp_buf m_jmp_state;
-#else // RTCW_VANILLA
-		RTCW_JMP_BUF m_jmp_state;
-#endif // RTCW_VANILLA
+		::jmp_buf m_jmp_state;
 		uint32_t m_flags;
 		mem_block* m_pMem_blocks;
 		int m_image_x_size;

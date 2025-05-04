@@ -156,8 +156,6 @@ target_sources(rtcw_sp
 		../qcommon/rtcw_bit_array_single_unit.h
 		../qcommon/rtcw_c.h
 		../qcommon/rtcw_mod_value.h
-		../qcommon/rtcw_setjmp.cpp
-		../qcommon/rtcw_setjmp.h
 		../qcommon/rtcw_string.cpp
 		../qcommon/rtcw_string.h
 		../qcommon/vm.cpp

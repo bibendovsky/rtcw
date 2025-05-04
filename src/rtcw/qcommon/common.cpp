@@ -10,11 +10,7 @@ SPDX-License-Identifier: GPL-3.0
 #include "q_shared.h"
 #include "qcommon.h"
 #include "SDL_events.h"
-#ifdef RTCW_VANILLA
 #include <setjmp.h>
-#else // RTCW_VANILLA
-#include "rtcw_setjmp.h"
-#endif // RTCW_VANILLA
 
 #if defined RTCW_SP
 #define MAXPRINTMSG 4096
@@ -48,12 +44,7 @@ char    *com_argv[MAX_NUM_ARGVS + 1];
 extern char cl_cdkey[34];
 #endif // RTCW_XX
 
-#ifdef RTCW_VANILLA
-jmp_buf abortframe;     // an ERR_DROP occured, exit the entire frame
-#else // RTCW_VANILLA
-RTCW_JMP_BUF abortframe;     // an ERR_DROP occured, exit the entire frame
-#endif // RTCW_VANILLA
-
+::jmp_buf abortframe;     // an ERR_DROP occured, exit the entire frame
 
 FILE *debuglogfile;
 static fileHandle_t logfile;
@@ -138,6 +129,14 @@ qboolean com_errorEntered;
 qboolean com_fullyInitialized;
 
 char com_errorMessage[MAXPRINTMSG];
+
+#ifndef RTCW_VANILLA
+namespace {
+
+int com_soft_error_code = 0;
+
+} // namespace
+#endif // RTCW_VANILLA
 
 void Com_WriteConfig_f( void );
 void CIN_CloseAllVideos();
@@ -433,15 +432,12 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 		Cvar_Set( "com_errorMessage", com_errorMessage );
 	}
 
+#ifdef RTCW_VANILLA
 	if ( code == ERR_SERVERDISCONNECT ) {
 		CL_Disconnect( qtrue );
 		CL_FlushMemory();
 		com_errorEntered = qfalse;
-#ifdef RTCW_VANILLA
 		longjmp( abortframe, -1 );
-#else // RTCW_VANILLA
-		RTCW_LONGJMP(abortframe, -1);
-#endif // RTCW_VANILLA
 
 #if defined RTCW_SP
 	} else if ( code == ERR_ENDGAME ) {  //----(SA)	added
@@ -452,12 +448,8 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 			com_errorEntered = qfalse;
 			CL_EndgameMenu();
 		}
-#ifdef RTCW_VANILLA
 		longjmp( abortframe, -1 );
-#else // RTCW_VANILLA
-		RTCW_LONGJMP(abortframe, -1);
-#endif // RTCW_VANILLA
-#endif // RTCW_XX
+#endif // RTCW_SP
 
 	} else if ( code == ERR_DROP || code == ERR_DISCONNECT ) {
 		Com_Printf( "********************\nERROR: %s\n********************\n", com_errorMessage );
@@ -465,11 +457,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 		CL_Disconnect( qtrue );
 		CL_FlushMemory();
 		com_errorEntered = qfalse;
-#ifdef RTCW_VANILLA
 		longjmp( abortframe, -1 );
-#else // RTCW_VANILLA
-		RTCW_LONGJMP(abortframe, -1);
-#endif // RTCW_VANILLA
 	} else if ( code == ERR_NEED_CD ) {
 		SV_Shutdown( "Server didn't have CD\n" );
 		if ( com_cl_running && com_cl_running->integer ) {
@@ -480,11 +468,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 		} else {
 			Com_Printf( "Server didn't have CD\n" );
 		}
-#ifdef RTCW_VANILLA
 		longjmp( abortframe, -1 );
-#else // RTCW_VANILLA
-		RTCW_LONGJMP(abortframe, -1);
-#endif // RTCW_VANILLA
 
 #if defined RTCW_ET
 #ifndef DEDICATED
@@ -495,19 +479,55 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 		if ( !Q_stricmpn( com_errorMessage, "Server is full", 14 ) && CL_NextUpdateServer() ) {
 			CL_GetAutoUpdate();
 		} else {
-#ifdef RTCW_VANILLA
 			longjmp( abortframe, -1 );
-#else // RTCW_VANILLA
-			RTCW_LONGJMP(abortframe, -1);
-#endif // RTCW_VANILLA
 		}
 #endif
-#endif // RTCW_XX
+#endif // RTCW_ET
 
 	} else {
 		CL_Shutdown();
 		SV_Shutdown( va( "Server fatal crashed: %s\n", com_errorMessage ) );
 	}
+
+#else // RTCW_VANILLA
+
+	if (
+#ifdef RTCW_SP
+		code == ERR_ENDGAME ||
+#endif // RTCW_SP
+		code == ERR_SERVERDISCONNECT ||
+		code == ERR_DROP ||
+		code == ERR_DISCONNECT ||
+		code == ERR_NEED_CD)
+	{
+		com_soft_error_code = code;
+		::longjmp( abortframe, -1 );
+	}
+#ifdef RTCW_ET
+#ifndef DEDICATED
+	else if (code == ERR_AUTOUPDATE)
+	{
+		if ( !Q_stricmpn( com_errorMessage, "Server is full", 14 ) && CL_NextUpdateServer() )
+		{
+			CL_Disconnect( qtrue );
+			CL_FlushMemory();
+			com_errorEntered = qfalse;
+			CL_GetAutoUpdate();
+		}
+		else
+		{
+			com_soft_error_code = code;
+			::longjmp( abortframe, -1 );
+		}
+	}
+#endif // DEDICATED
+#endif // RTCW_ET
+	else
+	{
+		CL_Shutdown();
+		SV_Shutdown( va( "Server fatal crashed: %s\n", com_errorMessage ) );
+	}
+#endif // RTCW_VANILLA
 
 #if !defined RTCW_ET
 	Com_Shutdown();
@@ -3090,12 +3110,7 @@ void Com_Init( char *commandLine ) {
 	Com_Printf("%s %s %s\n", RTCW_VERSION, SDL_GetPlatform(), __DATE__);
 	// BBi
 
-#ifdef RTCW_VANILLA
-	if ( setjmp( abortframe ) ) {
-#else // RTCW_VANILLA
-	if (RTCW_SETJMP(abortframe))
-	{
-#endif // RTCW_VANILLA
+	if ( ::setjmp( abortframe ) ) {
 		Sys_Error( "Error during initialization" );
 	}
 
@@ -3614,6 +3629,68 @@ int Com_ModifyMsec( int msec ) {
 	return msec;
 }
 
+#ifndef RTCW_VANILLA
+namespace {
+
+void com_handle_soft_error()
+{
+	switch (com_soft_error_code)
+	{
+		case ERR_SERVERDISCONNECT:
+			CL_Disconnect( qtrue );
+			CL_FlushMemory();
+			com_errorEntered = qfalse;
+			break;
+
+#ifdef RTCW_SP
+		case ERR_ENDGAME:
+			//----(SA)	added
+			SV_Shutdown( "endgame" );
+			if ( com_cl_running && com_cl_running->integer ) {
+				CL_Disconnect( qtrue );
+				CL_FlushMemory();
+				com_errorEntered = qfalse;
+				CL_EndgameMenu();
+			}
+			break;
+#endif // RTCW_SP
+
+		case ERR_DROP:
+		case ERR_DISCONNECT:
+			Com_Printf( "********************\nERROR: %s\n********************\n", com_errorMessage );
+			SV_Shutdown( va( "Server crashed: %s\n",  com_errorMessage ) );
+			CL_Disconnect( qtrue );
+			CL_FlushMemory();
+			com_errorEntered = qfalse;
+			break;
+
+		case ERR_NEED_CD:
+			SV_Shutdown( "Server didn't have CD\n" );
+			if ( com_cl_running && com_cl_running->integer ) {
+				CL_Disconnect( qtrue );
+				CL_FlushMemory();
+				com_errorEntered = qfalse;
+				CL_CDDialog();
+			} else {
+				Com_Printf( "Server didn't have CD\n" );
+			}
+			break;
+
+#ifdef RTCW_ET
+#ifndef DEDICATED
+		case ERR_AUTOUPDATE:
+			CL_Disconnect( qtrue );
+			CL_FlushMemory();
+			com_errorEntered = qfalse;
+			break;
+#endif // DEDICATED
+#endif // RTCW_ET
+	}
+}
+
+} // namespace
+#endif // RTCW_VANILLA
+
 /*
 =================
 Com_Frame
@@ -3636,11 +3713,13 @@ void Com_Frame( void ) {
 	static qboolean watchWarn = qfalse;
 #endif // RTCW_XX
 
-#ifdef RTCW_VANILLA
-	if ( setjmp( abortframe ) ) {
-#else // RTCW_VANILLA
-	if (RTCW_SETJMP(abortframe))
-	{
+#ifndef RTCW_VANILLA
+	com_soft_error_code = 0;
+#endif // RTCW_VANILLA
+
+	if ( ::setjmp( abortframe ) ) {
+#ifndef RTCW_VANILLA
+		com_handle_soft_error();
 #endif // RTCW_VANILLA
 		return;         // an ERR_DROP was thrown
 	}
