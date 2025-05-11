@@ -2207,12 +2207,8 @@ int FS_DeleteDir( const char *dirname, qboolean nonEmpty, qboolean recursive ) {
 		for ( i = 0; i < nFiles; i++ ) {
 			ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, va( "%s/%s", dirname, pFiles[i] ) );
 
-#if FIXME
-			if ( remove( ospath ) == -1 ) {  // failure
-#else
 			if (!FS_Remove(ospath))
 			{
-#endif // FIXME
 				return 0;
 			}
 		}
@@ -2221,12 +2217,8 @@ int FS_DeleteDir( const char *dirname, qboolean nonEmpty, qboolean recursive ) {
 
 	ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, dirname );
 
-#if FIXME
-	if ( Q_rmdir( ospath ) == 0 ) {
-#else
 	if (FS_Remove(ospath))
 	{
-#endif // FIXME
 		return 1;
 	}
 
@@ -2282,15 +2274,11 @@ int FS_Delete( const char *filename ) {
 	ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, filename );
 
 #if !defined RTCW_ET
-#if FIXME
-	if ( remove( ospath ) != -1 ) {  // success
-#else
 	if (FS_Remove(ospath))
 	{
-#endif // FIXME
 		return 1;
 	}
-#else
+#else // RTCW_ET
 	stat = FS_OSStatFile( ospath );
 	if ( stat == -1 ) {
 		return 0;
@@ -2299,16 +2287,12 @@ int FS_Delete( const char *filename ) {
 	if ( stat == 1 ) {
 		return( FS_DeleteDir( filename, qtrue, qtrue ) );
 	} else {
-#if FIXME
-		if ( remove( ospath ) != -1 ) {  // success
-#else
 		if (FS_Remove(ospath))
 		{
-#endif // FIXME
 			return 1;
 		}
 	}
-#endif // RTCW_XX
+#endif // RTCW_ET
 
 	return 0;
 }
