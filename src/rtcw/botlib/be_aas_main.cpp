@@ -375,23 +375,11 @@ int AAS_LoadMap( const char *mapname ) {
 
 		strncpy( this_mapname, mapname, 256 );
 
-#if FIXME
-#if !defined RTCW_ET
-		strncat( this_mapname, "_b", 256 );
-		sprintf( intstr, "%i", i );
-		strncat( this_mapname, intstr, 256 );
-#else
-		//strncat( this_mapname, "_b", 256 );
-		//sprintf( intstr, "%i", i );
-		//strncat( this_mapname, intstr, 256 );
-#endif // RTCW_XX
-#else
 #if !defined RTCW_ET
 		strncat(this_mapname, "_b", 255);
 		sprintf(intstr, "%i", i);
 		strncat(this_mapname, intstr, 255);
 #endif // RTCW_XX
-#endif // FIXME
 
 		//if no mapname is provided then the string indexes are updated
 		if ( !mapname ) {

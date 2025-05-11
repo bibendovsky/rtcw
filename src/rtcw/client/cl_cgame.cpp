@@ -1461,15 +1461,6 @@ int32_t CL_CgameSystemCalls (
 		);
 
 	case CG_SETUSERCMDVALUE:
-#if FIXME
-#if defined RTCW_SP
-		CL_SetUserCmdValue( args[1], args[2], VMF(3), args[4] );    //----(SA)	modified	// NERVE - SMF - added fourth arg [cld]
-#elif defined RTCW_MP
-		CL_SetUserCmdValue( args[1], args[2], VMF(3), args[4], args[5] );
-#else
-		CL_SetUserCmdValue( args[1], args[2], VMF(3), args[4] );
-#endif // RTCW_XX
-#else
 		//----(SA)	modified
 		// NERVE - SMF - added fourth arg [cld]
 		CL_SetUserCmdValue(
@@ -1480,8 +1471,7 @@ int32_t CL_CgameSystemCalls (
 #if defined RTCW_MP
 			,
 			rtcw::from_vm_arg<int>(args[5])
-#endif // RTCW_XX
-#endif // FIXME
+#endif // RTCW_MP
 		);
 
 		return 0;

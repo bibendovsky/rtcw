@@ -144,17 +144,7 @@ cvar_t  *r_drawfoliage;     // ydnar
 // BBi
 
 cvar_t  *r_speeds;
-
-#if FIXME
-#if defined RTCW_SP
-cvar_t  *r_fullbright;
-#else
-//cvar_t	*r_fullbright; // JPW NERVE removed per atvi request
-#endif // RTCW_XX
-#else
-cvar_t  *r_fullbright;
-#endif // FIXME
-
+cvar_t  *r_fullbright; // JPW NERVE removed per atvi request
 cvar_t  *r_novis;
 cvar_t  *r_nocull;
 cvar_t  *r_facePlaneCull;

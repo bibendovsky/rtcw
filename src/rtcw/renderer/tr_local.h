@@ -1808,17 +1808,7 @@ extern cvar_t  *r_textureAnisotropy;
 
 extern cvar_t  *r_offsetFactor;
 extern cvar_t  *r_offsetUnits;
-
-#if FIXME
-#if defined RTCW_SP
-extern cvar_t  *r_fullbright;                   // avoid lightmap pass
-#elif defined RTCW_MP
-//extern	cvar_t	*r_fullbright;					// avoid lightmap pass // JPW NERVE removed per atvi request
-#endif // RTCW_XX
-#else
-extern cvar_t* r_fullbright; // avoid lightmap pass
-#endif // FIXME
-
+extern cvar_t* r_fullbright; // avoid lightmap pass // JPW NERVE removed per atvi request
 extern cvar_t  *r_lightmap;                     // render lightmaps only
 
 // BBi

@@ -1108,26 +1108,12 @@ void    Cvar_Update( vmCvar_t *vmCvar ) {
 	vmCvar->modificationCount = cv->modificationCount;
 	// bk001129 - mismatches.
 	if ( strlen( cv->string ) + 1 > MAX_CVAR_VALUE_STRING ) {
-
-#if FIXME
-#if !defined RTCW_ET
-		Com_Error( ERR_DROP, "Cvar_Update: src %s length %d exceeds MAX_CVAR_VALUE_STRING",
-#else
-		Com_Error( ERR_DROP, "Cvar_Update: src %s length %d exceeds MAX_CVAR_VALUE_STRING(%d)",
-#endif // RTCW_XX
-
-				   cv->string,
-				   strlen( cv->string ),
-				   sizeof( vmCvar->string ) );
-#else
 		Com_Error(
 			ERR_DROP,
 			"Cvar_Update: src %s length %" PRIdPTR " exceeds MAX_CVAR_VALUE_STRING(%" PRIdPTR ")",
 			cv->string,
-			strlen( cv->string ),
-			sizeof( vmCvar->string )
-		);
-#endif // FIXME
+			strlen(cv->string),
+			sizeof(vmCvar->string));
 	}
 	// bk001212 - Q_strncpyz guarantees zero padding and dest[MAX_CVAR_VALUE_STRING-1]==0
 	// bk001129 - paranoia. Never trust the destination string.
