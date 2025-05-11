@@ -403,17 +403,9 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 		char *cleaned = Cvar_ClearForeignCharacters( value );
 		if ( strcmp( value, cleaned ) ) {
 #ifdef DEDICATED
-#if FIXME
-			Com_Printf( FOREIGN_MSG );
-#else
 			Com_Printf( "%s", FOREIGN_MSG );
-#endif // FIXME
-#else
-#if FIXME
-			Com_Printf( CL_TranslateStringBuf( FOREIGN_MSG ) );
 #else
 			Com_Printf( "%s", CL_TranslateStringBuf( FOREIGN_MSG ) );
-#endif // FIXME
 #endif
 			Com_Printf( "Using %s instead of %s\n", cleaned, value );
 			return Cvar_Set2( var_name, cleaned, force );
