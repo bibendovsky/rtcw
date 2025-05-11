@@ -914,11 +914,7 @@ void SV_SendClientGameState( client_t *client ) {
 
 #if !defined RTCW_SP
 	// NERVE - SMF - debug info
-#if FIXME
-	Com_DPrintf( "Sending %i bytes in gamestate to client: %i\n", msg.cursize, client - svs.clients );
-#else
 	Com_DPrintf( "Sending %i bytes in gamestate to client: %" PRIdPTR "\n", msg.cursize, client - svs.clients );
-#endif // FIXME
 #endif // RTCW_XX
 
 	// deliver this to the client
@@ -1000,11 +996,7 @@ Abort a download if in progress
 */
 void SV_StopDownload_f( client_t *cl ) {
 	if ( *cl->downloadName ) {
-#if FIXME
-		Com_DPrintf( "clientDownload: %d : file \"%s\" aborted\n", cl - svs.clients, cl->downloadName );
-#else
 		Com_DPrintf( "clientDownload: %" PRIdPTR " : file \"%s\" aborted\n", cl - svs.clients, cl->downloadName );
-#endif // FIXME
 	}
 
 	SV_CloseDownload( cl );
@@ -1035,19 +1027,11 @@ void SV_NextDownload_f( client_t *cl ) {
 	int block = atoi( Cmd_Argv( 1 ) );
 
 	if ( block == cl->downloadClientBlock ) {
-#if FIXME
-		Com_DPrintf( "clientDownload: %d : client acknowledge of block %d\n", cl - svs.clients, block );
-#else
 		Com_DPrintf( "clientDownload: %" PRIdPTR " : client acknowledge of block %d\n", cl - svs.clients, block );
-#endif // FIXME
 
 		// Find out if we are done.  A zero-length block indicates EOF
 		if ( cl->downloadBlockSize[cl->downloadClientBlock % MAX_DOWNLOAD_WINDOW] == 0 ) {
-#if FIXME
-			Com_Printf( "clientDownload: %d : file \"%s\" completed\n", cl - svs.clients, cl->downloadName );
-#else
 			Com_Printf( "clientDownload: %" PRIdPTR " : file \"%s\" completed\n", cl - svs.clients, cl->downloadName );
-#endif // FIXME
 			SV_CloseDownload( cl );
 			return;
 		}
@@ -1246,20 +1230,12 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg ) {
 		// We open the file here
 
 #if !defined RTCW_ET
-#if FIXME
-		Com_Printf( "clientDownload: %d : begining \"%s\"\n", cl - svs.clients, cl->downloadName );
-#else
 		Com_Printf( "clientDownload: %" PRIdPTR " : begining \"%s\"\n", cl - svs.clients, cl->downloadName );
-#endif // FIXME
 #else
 		//bani - prevent duplicate download notifications
 		if ( cl->downloadnotify & DLNOTIFY_BEGIN ) {
 			cl->downloadnotify &= ~DLNOTIFY_BEGIN;
-#if FIXME
-			Com_Printf( "clientDownload: %d : beginning \"%s\"\n", cl - svs.clients, cl->downloadName );
-#else
 			Com_Printf( "clientDownload: %" PRIdPTR " : beginning \"%s\"\n", cl - svs.clients, cl->downloadName );
-#endif // FIXME
 		}
 #endif // RTCW_XX
 
@@ -1313,15 +1289,10 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg ) {
 
 			// cannot auto-download file
 			if ( idPack ) {
-#if FIXME
-				Com_Printf( "clientDownload: %d : \"%s\" cannot download id pk3 files\n", cl - svs.clients, cl->downloadName );
-#else
 				Com_Printf(
 					"clientDownload: %" PRIdPTR " : \"%s\" cannot download id pk3 files\n",
 					cl - svs.clients,
-					cl->downloadName
-				);
-#endif // FIXME
+					cl->downloadName);
 
 #if defined RTCW_SP
 				if ( missionPack ) {
@@ -1342,11 +1313,7 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg ) {
 			} else {
 #endif // RTCW_XX
 
-#if FIXME
-				Com_Printf( "clientDownload: %d : \"%s\" download disabled", cl - svs.clients, cl->downloadName );
-#else
 				Com_Printf( "clientDownload: %" PRIdPTR " : \"%s\" download disabled", cl - svs.clients, cl->downloadName );
-#endif // FIXME
 
 				if ( sv_pure->integer ) {
 					Com_sprintf( errorMessage, sizeof( errorMessage ), "Could not download \"%s\" because autodownloading is disabled on the server.\n\n"
@@ -1447,15 +1414,10 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg ) {
 		cl->bWWWDl = qfalse;
 		cl->downloadSize = FS_SV_FOpenFileRead( cl->downloadName, &cl->download );
 		if ( cl->downloadSize <= 0 ) {
-#if FIXME
-			Com_Printf( "clientDownload: %d : \"%s\" file not found on server\n", cl - svs.clients, cl->downloadName );
-#else
 			Com_Printf(
 				"clientDownload: %" PRIdPTR " : \"%s\" file not found on server\n",
 				cl - svs.clients,
-				cl->downloadName
-			);
-#endif // FIXME
+				cl->downloadName);
 			Com_sprintf( errorMessage, sizeof( errorMessage ), "File \"%s\" not found on server for autodownloading.\n", cl->downloadName );
 			SV_BadDownload( cl, msg );
 			MSG_WriteString( msg, errorMessage ); // (could SV_DropClient isntead?)
@@ -1591,15 +1553,10 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg ) {
 			MSG_WriteData( msg, cl->downloadBlocks[curindex], cl->downloadBlockSize[curindex] );
 		}
 
-#if FIXME
-		Com_DPrintf( "clientDownload: %d : writing block %d\n", cl - svs.clients, cl->downloadXmitBlock );
-#else
 		Com_DPrintf(
 			"clientDownload: %" PRIdPTR " : writing block %d\n",
 			cl - svs.clients,
-			cl->downloadXmitBlock
-		);
-#endif // FIXME
+			cl->downloadXmitBlock);
 
 		// Move on to the next block
 		// It will get sent with next snap shot.  The rate will keep us in line.
@@ -2531,11 +2488,7 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 	if ( c != clc_EOF ) {
 #endif // RTCW_XX
 
-#if FIXME
-		Com_Printf( "WARNING: bad command byte for client %i\n", cl - svs.clients );
-#else
 		Com_Printf( "WARNING: bad command byte for client %" PRIiPTR "\n", cl - svs.clients );
-#endif // FIXME
 	}
 
 #if defined RTCW_ET

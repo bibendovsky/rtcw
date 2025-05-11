@@ -1926,11 +1926,7 @@ int32_t CL_CgameSystemCalls (
 #endif // RTCW_XX
 
 	default:
-#if FIXME
-		Com_Error( ERR_DROP, "Bad cgame system trap: %i", args[0] );
-#else
 		Com_Error( ERR_DROP, "Bad cgame system trap: %" PRIiPTR, args[0] );
-#endif // FIXME
 	}
 	return 0;
 }
