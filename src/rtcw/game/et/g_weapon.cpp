@@ -1175,11 +1175,7 @@ static qboolean TryConstructing( gentity_t *ent ) {
 				{
 					gentity_t* tent = NULL;
 					while ( ( tent = G_Find( tent, FOFS( target ), constructible->targetname ) ) != NULL ) {
-#if FIXME
-						if ( ( tent->s.eType == ET_OID_TRIGGER ) ) {
-#else
 						if ( tent->s.eType == ET_OID_TRIGGER ) {
-#endif // FIXME
 							e->parent = tent;
 						}
 					}
@@ -1362,11 +1358,7 @@ void AutoBuildConstruction( gentity_t* constructible ) {
 			e->s.eType = ET_EXPLOSIVE_INDICATOR;
 
 			while ( ( tent = G_Find( tent, FOFS( target ), constructible->targetname ) ) != NULL ) {
-#if FIXME
-				if ( ( tent->s.eType == ET_OID_TRIGGER ) ) {
-#else
 				if ( tent->s.eType == ET_OID_TRIGGER ) {
-#endif // FIXME
 					if ( tent->spawnflags & 8 ) {
 						e->s.eType = ET_TANK_INDICATOR;
 					}
@@ -1377,11 +1369,7 @@ void AutoBuildConstruction( gentity_t* constructible ) {
 			{
 				gentity_t* tent = NULL;
 				while ( ( tent = G_Find( tent, FOFS( target ), constructible->targetname ) ) != NULL ) {
-#if FIXME
-					if ( ( tent->s.eType == ET_OID_TRIGGER ) ) {
-#else
 					if ( tent->s.eType == ET_OID_TRIGGER ) {
-#endif // FIXME
 						e->parent = tent;
 					}
 				}
@@ -1878,11 +1866,7 @@ evilbanigoto:
 						continue;
 					}
 
-#if FIXME
-					if ( ( hit->s.eType == ET_OID_TRIGGER ) ) {
-#else
 					if ( hit->s.eType == ET_OID_TRIGGER ) {
-#endif // FIXME
 						if ( !( hit->spawnflags & ( AXIS_OBJECTIVE | ALLIED_OBJECTIVE ) ) ) {
 							continue;
 						}
@@ -1953,12 +1937,7 @@ evilbanigoto:
 					if ( !( hit->r.contents & CONTENTS_TRIGGER ) ) {
 						continue;
 					}
-#if FIXME
-					if ( ( hit->s.eType == ET_OID_TRIGGER ) ) {
-#else
 					if ( hit->s.eType == ET_OID_TRIGGER ) {
-#endif // FIXME
-
 						if ( !( hit->spawnflags & ( AXIS_OBJECTIVE | ALLIED_OBJECTIVE ) ) ) {
 							continue;
 						}
@@ -2122,12 +2101,7 @@ evilbanigoto:
 						if ( !( hit->r.contents & CONTENTS_TRIGGER ) ) {
 							continue;
 						}
-#if FIXME
-						if ( ( hit->s.eType == ET_OID_TRIGGER ) ) {
-#else
 						if ( hit->s.eType == ET_OID_TRIGGER ) {
-#endif // FIXME
-
 							if ( !( hit->spawnflags & ( AXIS_OBJECTIVE | ALLIED_OBJECTIVE ) ) ) {
 								continue;
 							}
