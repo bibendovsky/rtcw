@@ -2367,12 +2367,6 @@ image_t *R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 					ri.Printf( PRINT_DEVELOPER, "WARNING: reused image %s with mixed allowPicmip parm\n", name );
 				}
 
-#if defined RTCW_SP
-				if ( image->characterMIP != characterMIP ) {
-					ri.Printf( PRINT_DEVELOPER, "WARNING: reused image %s with mixed characterMIP parm\n", name );
-				}
-#endif // RTCW_XX
-
 				if ( image->wrapClampMode != glWrapClampMode ) {
 					ri.Printf( PRINT_ALL, "WARNING: reused image %s with mixed glWrapClampMode parm\n", name );
 				}

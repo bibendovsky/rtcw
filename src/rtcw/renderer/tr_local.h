@@ -94,10 +94,6 @@ typedef struct image_s {
 	qboolean mipmap;
 	qboolean allowPicmip;
 
-#if defined RTCW_SP
-	qboolean characterMIP;      // independant 'character' mip scale ----(SA)	added
-#endif // RTCW_XX
-
 	int wrapClampMode;              // GL_CLAMP or GL_REPEAT
 
 	int hash;           // for fast building of the backupHash
