@@ -1595,11 +1595,7 @@ void CalculateRanks( void ) {
 	level.numPlayingClients = 0;
 	level.numVotingClients = 0;     // don't count bots
 
-#if FIXME
-	for ( i = 0; i < TEAM_NUM_TEAMS; i++ ) {
-#else
 	for ( i = 0; i < 2; i++ ) {
-#endif // FIXME
 		level.numteamVotingClients[i] = 0;
 	}
 

@@ -1507,11 +1507,7 @@ void CalculateRanks( void ) {
 	level.numFinalDead[0] = 0;      // NERVE - SMF
 	level.numFinalDead[1] = 0;      // NERVE - SMF
 
-#if FIXME
-	for ( i = 0; i < TEAM_NUM_TEAMS; i++ ) {
-#else
 	for ( i = 0; i < 2; i++ ) {
-#endif
 		level.numteamVotingClients[i] = 0;
 	}
 

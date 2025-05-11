@@ -1080,11 +1080,7 @@ int PC_Directive_include( source_t *source ) {
 			if ( token.type == TT_PUNCTUATION && *token.string == '>' ) {
 				break;
 			}
-#if FIXME
-			strncat( path, token.string, _MAX_PATH );
-#else
 			strncat( path, token.string, _MAX_PATH - 1 );
-#endif // FIXME
 		} //end while
 		if ( *token.string != '>' ) {
 			SourceWarning( source, "#include missing trailing >" );

@@ -5006,11 +5006,7 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	Q_strncpyz( info, MSG_ReadString( msg ), MAX_INFO_STRING );
 	if ( strlen( info ) ) {
 		if ( info[strlen( info ) - 1] != '\n' ) {
-#if FIXME
-			strncat( info, "\n", sizeof( info ) );
-#else
 			strncat( info, "\n", sizeof( info ) - 1 );
-#endif // FIXME
 		}
 		Com_Printf( "%s: %s", NET_AdrToString( from ), info );
 	}

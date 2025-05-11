@@ -525,11 +525,7 @@ void BotTeamAI( bot_state_t *bs ) {
 			trap_BotEnterChat( bs->cs, bs->client, CHAT_TEAM );
 			ClientName( bs->client, netname, sizeof( netname ) );
 			strncpy( bs->teamleader, netname, sizeof( bs->teamleader ) );
-#if FIXME
-			bs->teamleader[sizeof( bs->teamleader )] = '\0';
-#else
 			bs->teamleader[sizeof( bs->teamleader ) - 1] = '\0';
-#endif // FIXME
 			bs->becometeamleader_time = 0;
 		}
 		return;
