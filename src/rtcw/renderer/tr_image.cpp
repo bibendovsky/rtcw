@@ -1308,39 +1308,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	// Ridah
 	image = tr.images[tr.numImages] = static_cast<image_t*> (R_CacheImageAlloc( sizeof( image_t ) ));
 
-// BBi
-//#if !defined RTCW_ET
-//	image->texnum = 1024 + tr.numImages;
-//
-//	// Ridah
-//	if ( r_cacheShaders->integer ) {
-//		R_FindFreeTexnum( image );
-//	}
-//#else
-//	// ydnar: not exactly sure why this mechanism is here at all, but it's generating
-//	// bad texture names (not that the rest of the code is a saint, but hey...)
-//	//%	image->texnum = 1024 + tr.numImages;
-//
-//	// Ridah
-//	//%	if (r_cacheShaders->integer) {
-//	//%		R_FindFreeTexnum(image);
-//	//%	}
-//#endif // RTCW_XX
-// BBi
-
-	// done.
-
-// BBi
-//#if defined RTCW_ET
-// BBi
-
-	// ydnar: ok, let's try the recommended way
 	glGenTextures( 1, &image->texnum );
-
-// BBi
-//#endif // RTCW_XX
-// BBi
-
 
 	tr.numImages++;
 
@@ -4286,18 +4254,8 @@ R_PurgeImage
 ===============
 */
 void R_PurgeImage( image_t *image ) {
-
-#if !defined RTCW_ET
-#if FIXME
-	texnumImages[image->texnum - 1024] = NULL;
-#else
-	texnumImages[image->texnum] = NULL;
-#endif // FIXME
-#else
-	//%	texnumImages[image->texnum - 1024] = NULL;
-#endif // RTCW_XX
-
 	glDeleteTextures( 1, &image->texnum );
+	image->texnum = 0;
 
 	R_CacheImageFree( image );
 
