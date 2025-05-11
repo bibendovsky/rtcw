@@ -2979,11 +2979,7 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime
 			snd.nextMusicTrackType = 0; // be quiet at the next opportunity
 
 			// clear out looping sound in current music so that it'll stop when it's done
-#if FIXME
-			if ( ss && ss->loop ) {
-#else
 			if ( ss ) {
-#endif // FIXME
 				ss->loop[0] = 0;    // clear loop
 			}
 
@@ -3432,11 +3428,7 @@ float S_StartStreamingSound( const char *intro, const char *loop, int entnum, in
 
 	}
 
-#if FIXME
-	if ( ss->loop && loop ) {
-#else
 	if ( loop ) {
-#endif // FIXME
 		Q_strncpyz( ss->loop, loop, sizeof( ss->loop ) - 4 );
 	} else {
 		ss->loop[0] = 0;
@@ -3914,11 +3906,7 @@ void S_UpdateStreamingSounds( void ) {
 					break;  // this is now the music ss->file, no need to re-start next time through
 				} else {
 					// loop
-#if FIXME
-					if ( ss->loop && ss->loop[0] ) {
-#else
 					if ( ss->loop[0] ) {
-#endif // FIXME
 						if ( ss->looped ) {
 							char dump[16];
 							FS_Seek(ss->file, 0, FS_SEEK_SET);
@@ -3966,11 +3954,7 @@ void S_UpdateStreamingSounds( void ) {
 					}
 				}
 #else
-#if FIXME
-				if ( ss->loop && ss->loop[0] ) {
-#else
 				if ( ss->loop[0] ) {
-#endif // FIXME
 					// loop
 					if ( looped ) {
 						// already looped once

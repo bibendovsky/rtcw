@@ -949,11 +949,7 @@ static void CG_ServerCommand( void ) {
 		int fadeTime = 0;   // default to instant start
 
 		Q_strncpyz( text, CG_Argv( 2 ), MAX_SAY_TEXT );
-#if FIXME
-		if ( text && strlen( text ) ) {
-#else
 		if ( strlen( text ) ) {
-#endif // FIXME
 			fadeTime = atoi( text );
 		}
 
@@ -970,11 +966,7 @@ static void CG_ServerCommand( void ) {
 		int fadeTime = 0;   // default to instant start
 
 		Q_strncpyz( text, CG_Argv( 2 ), MAX_SAY_TEXT );
-#if FIXME
-		if ( text && strlen( text ) ) {
-#else
 		if ( strlen( text ) ) {
-#endif // FIXME
 			fadeTime = atoi( text );
 		}
 
@@ -986,11 +978,7 @@ static void CG_ServerCommand( void ) {
 		int fadeTime = 0;   // default to instant stop
 
 		Q_strncpyz( text, CG_Argv( 1 ), MAX_SAY_TEXT );
-#if FIXME
-		if ( text && strlen( text ) ) {
-#else
 		if ( strlen( text ) ) {
-#endif // FIXME
 			fadeTime = atoi( text );
 		}
 		trap_S_FadeBackgroundTrack( 0.0f, fadeTime, 0 );

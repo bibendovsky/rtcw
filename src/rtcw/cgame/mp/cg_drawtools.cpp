@@ -124,13 +124,7 @@ void CG_FilledBar( float x, float y, float w, float h, float *startColor, float 
 		if ( endColor ) {
 			endColor[3] *= cg_hudAlpha.value;
 		}
-#if FIXME
-		if ( backgroundcolor ) {
-			backgroundcolor[3] *= cg_hudAlpha.value;
-		}
-#else
 		backgroundcolor[3] *= cg_hudAlpha.value;
-#endif // FIXME
 	}
 
 	if ( flags & BAR_LERP_COLOR ) {
