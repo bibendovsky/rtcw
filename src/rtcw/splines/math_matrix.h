@@ -66,11 +66,7 @@ ID_INLINE mat3_t::mat3_t() {
 }
 
 ID_INLINE mat3_t::mat3_t( float src[ 3 ][ 3 ] ) {
-#if FIXME
-	memcpy( mat, src, sizeof( src ) );
-#else
 	memcpy( mat, src, 3 * 3 * sizeof( float ) );
-#endif // FIXME
 }
 
 ID_INLINE mat3_t::mat3_t( idVec3 const &x, idVec3 const &y, idVec3 const &z ) {

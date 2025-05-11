@@ -757,12 +757,10 @@ void BG_ParseConditionBits( const char **text_pp, animStringItem_t *stringTable,
 
 	//indexBits = 0;
 	currentString[0] = '\0';
-#if FIXME
-	memset( result, 0, sizeof( result ) );
-#else
-	memset( result, 0, 2 * sizeof( int ) );
-#endif // FIXME
-	memset( tempBits, 0, sizeof( tempBits ) );
+	result[0] = 0;
+	result[1] = 0;
+	tempBits[0] = 0;
+	tempBits[1] = 0;
 
 	while ( !endFlag ) {
 
