@@ -149,11 +149,7 @@ qboolean Bot_ScriptAction_SetAccumToPlayerCount( bot_state_t *bs, const char* pa
 		if ( !g_entities[i].client ) {
 			continue;
 		}
-#if FIXME
-		if ( !g_entities[i].client->pers.connected != CON_CONNECTED ) {
-#else
-		if ( !(g_entities[i].client->pers.connected != CON_CONNECTED) ) {
-#endif // FIXME
+		if ( g_entities[i].client->pers.connected == CON_CONNECTED ) {
 			continue;
 		}
 		validPlayers[i] = 1;

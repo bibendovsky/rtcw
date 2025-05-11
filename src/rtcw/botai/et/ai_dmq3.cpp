@@ -5455,11 +5455,7 @@ void BotMoveToIntermission( int client ) {
 	int winner;                             // DHM - Nerve
 	bot_state_t *bs;
 
-#if FIXME
-	if ( !g_entities[client].r.svFlags & SVF_BOT ) {
-#else
 	if ( (g_entities[client].r.svFlags & SVF_BOT) == 0 ) {
-#endif // FIXME
 		return;
 	}
 

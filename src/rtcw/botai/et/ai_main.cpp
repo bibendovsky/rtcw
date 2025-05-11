@@ -686,11 +686,7 @@ int BotTravelFlagsForClient( int client ) {
 	int tfl;
 	gclient_t *cl = &level.clients[client];
 	//
-#if FIXME
-	if ( !cl || !cl->pers.connected == CON_CONNECTED ) {
-#else
-	if ( !cl || !(cl->pers.connected == CON_CONNECTED) ) {
-#endif // FIXME
+	if ( !cl || cl->pers.connected != CON_CONNECTED ) {
 		return 0;
 	}
 	//
@@ -2641,11 +2637,7 @@ void BotDebugViewClient( int client ) {
 	if ( lastChange < level.time && lastChange > level.time - 5000 ) {
 		return;
 	}
-#if FIXME
-	if ( !level.clients[0].pers.connected == CON_CONNECTED ) {
-#else
-	if ( !(level.clients[0].pers.connected == CON_CONNECTED) ) {
-#endif // FIXME
+	if ( level.clients[0].pers.connected != CON_CONNECTED ) {
 		return;
 	}
 	if ( g_entities[0].r.svFlags & SVF_BOT ) {

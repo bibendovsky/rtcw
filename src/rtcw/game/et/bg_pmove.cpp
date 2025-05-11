@@ -3233,11 +3233,7 @@ static void PM_Weapon( void ) {
 
 	// check for dead player
 	if ( pm->ps->stats[STAT_HEALTH] <= 0 ) {
-#if FIXME
-		if ( !pm->ps->pm_flags & PMF_LIMBO ) {
-#else
 		if ( (pm->ps->pm_flags & PMF_LIMBO) == 0 ) {
-#endif // FIXME
 			PM_CoolWeapons();
 		}
 
