@@ -1107,11 +1107,7 @@ static qboolean G_LoadCampaignsFromFile( const char *filename ) {
 	handle = trap_PC_LoadSource( filename );
 
 	if ( !handle ) {
-#if FIXME
-		G_Printf( va( S_COLOR_RED "file not found: %s\n", filename ) );
-#else
 		G_Printf( S_COLOR_RED "file not found: %s\n", filename );
-#endif // FIXME
 		return qfalse;
 	}
 
@@ -1140,11 +1136,7 @@ static qboolean G_LoadCampaignsFromFile( const char *filename ) {
 			}
 
 			if ( *token.string != '{' ) {
-#if FIXME
-				G_Printf( va( S_COLOR_RED "unexpected token '%s' inside: %s\n", token.string, filename ) );
-#else
 				G_Printf( S_COLOR_RED "unexpected token '%s' inside: %s\n", token.string, filename );
-#endif // FIXME
 				trap_PC_FreeSource( handle );
 				return qfalse;
 			}
@@ -1152,21 +1144,13 @@ static qboolean G_LoadCampaignsFromFile( const char *filename ) {
 					!Q_stricmp( token.string, "description" ) ||
 					!Q_stricmp( token.string, "image" ) ) {
 			if ( ( s = PC_String_Parse( handle ) ) == NULL ) {
-#if FIXME
-				G_Printf( va( S_COLOR_RED "unexpected end of file inside: %s\n", filename ) );
-#else
 				G_Printf( S_COLOR_RED "unexpected end of file inside: %s\n", filename );
-#endif // FIXME
 				trap_PC_FreeSource( handle );
 				return qfalse;
 			}
 		} else if ( !Q_stricmp( token.string, "shortname" ) ) {
 			if ( ( s = PC_String_Parse( handle ) ) == NULL ) {
-#if FIXME
-				G_Printf( va( S_COLOR_RED "unexpected end of file inside: %s\n", filename ) );
-#else
 				G_Printf( S_COLOR_RED "unexpected end of file inside: %s\n", filename );
-#endif // FIXME
 				trap_PC_FreeSource( handle );
 				return qfalse;
 			} else {
@@ -1174,11 +1158,7 @@ static qboolean G_LoadCampaignsFromFile( const char *filename ) {
 			}
 		} else if ( !Q_stricmp( token.string, "next" ) ) {
 			if ( ( s = PC_String_Parse( handle ) ) == NULL ) {
-#if FIXME
-				G_Printf( va( S_COLOR_RED "unexpected end of file inside: %s\n", filename ) );
-#else
 				G_Printf( S_COLOR_RED "unexpected end of file inside: %s\n", filename );
-#endif // FIXME
 				trap_PC_FreeSource( handle );
 				return qfalse;
 			} else {
@@ -1186,11 +1166,7 @@ static qboolean G_LoadCampaignsFromFile( const char *filename ) {
 			}
 		} else if ( !Q_stricmp( token.string, "type" ) ) {
 			if ( !trap_PC_ReadToken( handle, &token ) ) {
-#if FIXME
-				G_Printf( va( S_COLOR_RED "unexpected end of file inside: %s\n", filename ) );
-#else
 				G_Printf( S_COLOR_RED "unexpected end of file inside: %s\n", filename );
-#endif // FIXME
 				trap_PC_FreeSource( handle );
 				return qfalse;
 			}

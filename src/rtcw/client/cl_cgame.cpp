@@ -373,11 +373,7 @@ rescan:
 #else
 		// NERVE - SMF - allow server to indicate why they were disconnected
 		if ( argc >= 2 ) {
-#if FIXME
-			Com_Error( ERR_SERVERDISCONNECT, va( "Server Disconnected - %s", Cmd_Argv( 1 ) ) );
-#else
 			Com_Error( ERR_SERVERDISCONNECT, "Server Disconnected - %s", Cmd_Argv( 1 ) );
-#endif // FIXME
 		} else {
 			Com_Error( ERR_SERVERDISCONNECT,"Server disconnected\n" );
 		}
