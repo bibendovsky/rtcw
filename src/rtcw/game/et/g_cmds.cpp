@@ -1024,11 +1024,7 @@ qboolean G_IsHeavyWeapon( weapon_t weap ) {
 int G_TeamCount( gentity_t* ent, weapon_t weap ) {
 	int i, j, cnt;
 
-#if FIXME
-	if ( weap == -1 ) { // we aint checking for a weapon, so always include ourselves
-#else
 	if ( weap == static_cast<weapon_t>(-1) ) { // we aint checking for a weapon, so always include ourselves
-#endif // FIXME
 		cnt = 1;
 	} else { // we ARE checking for a weapon, so ignore ourselves
 		cnt = 0;
@@ -1045,11 +1041,7 @@ int G_TeamCount( gentity_t* ent, weapon_t weap ) {
 			continue;
 		}
 
-#if FIXME
-		if ( weap != -1 ) {
-#else
 		if ( weap != static_cast<weapon_t>(-1) ) {
-#endif // FIXME
 			if ( level.clients[j].sess.playerWeapon != weap && level.clients[j].sess.latchPlayerWeapon != weap ) {
 				continue;
 			}

@@ -2485,11 +2485,7 @@ void CG_Debreifing2_Awards_Draw( panel_button_t* button ) {
 	}
 
 	for ( i = 0; i < NUM_ENDGAME_AWARDS; i++ ) {
-#if FIXME
-		if ( cgs.dbAwardTeams[ i ] == -1 ) {
-#else
 		if ( cgs.dbAwardTeams[ i ] == static_cast<team_t>(-1) ) {
-#endif // FIXME
 			continue;
 		}
 

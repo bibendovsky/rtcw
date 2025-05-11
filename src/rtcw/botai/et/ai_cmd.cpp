@@ -175,11 +175,7 @@ float BotGetTime( bot_match_t *match ) {
 		//match it to find out if the time is in seconds or minutes
 		if ( trap_BotFindMatch( timestring, &timematch, MTCONTEXT_TIME ) ) {
 			if ( timematch.type == MSG_FOREVER ) {
-#if FIXME
-				t = 99999999;
-#else
-				t = 100000000.0F;
-#endif // FIXME
+				t = static_cast<float>(99999999);
 			} else {
 				trap_BotMatchVariable( &timematch, TIME, timestring, MAX_MESSAGE_SIZE );
 				if ( timematch.type == MSG_MINUTES ) {

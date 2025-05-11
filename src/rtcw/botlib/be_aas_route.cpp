@@ -1093,11 +1093,7 @@ int AAS_FreeOldestCache( void ) {
 	aas_routingcache_t *cache, *bestcache;
 
 	freed = qfalse;
-#if FIXME
-	besttime = 999999999;
-#else
-	besttime = 1000000000.0F;
-#endif // FIXME
+	besttime = static_cast<float>(999999999);
 	bestcache = NULL;
 	bestcluster = 0;
 	bestarea = 0;
@@ -1152,11 +1148,7 @@ int AAS_FreeOldestCache( void ) {
 		AAS_FreeRoutingCache( cache );
 		freed = qtrue;
 	} //end if
-#if FIXME
-	besttime = 999999999;
-#else
-	besttime = 1000000000.0F;
-#endif // FIXME
+	besttime = static_cast<float>(999999999);
 	bestcache = NULL;
 	bestarea = 0;
 

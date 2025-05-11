@@ -2102,12 +2102,7 @@ void R_Init( void ) {
 	//Swap_Init();
 	// BBi
 
-#if FIXME
-	if ( (int)tess.xyz & 15 ) {
-#else
-	if ((reinterpret_cast<uintptr_t>(tess.xyz) & 15) != 0)
-	{
-#endif // FIXME
+	if ((reinterpret_cast<uintptr_t>(tess.xyz) & 15) != 0) {
 		Com_Printf( "WARNING: tess.xyz not 16 byte aligned\n" );
 	}
 	memset( tess.constantColor255, 255, sizeof( tess.constantColor255 ) );
