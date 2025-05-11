@@ -156,11 +156,7 @@ void CG_AddLightstyle( centity_t *cent ) {
 	int otime;
 	int lastch, nextch;
 
-#if FIXME
-	if ( !cent->dl_stylestring ) {
-#else
-	if ( (*cent->dl_stylestring) == '\0' ) {
-#endif // FIXME
+	if ( cent->dl_stylestring[0] == '\0' ) {
 		return;
 	}
 

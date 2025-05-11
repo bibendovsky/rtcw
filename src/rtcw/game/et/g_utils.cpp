@@ -864,11 +864,7 @@ G_ProcessTagConnect
 ==================
 */
 void G_ProcessTagConnect( gentity_t *ent, qboolean clearAngles ) {
-#if FIXME
-	if ( !ent->tagName ) {
-#else
-	if ( (*ent->tagName) == '\0' ) {
-#endif // FIXME
+	if ( ent->tagName[0] == '\0' ) {
 		G_Error( "G_ProcessTagConnect: NULL ent->tagName\n" );
 	}
 	if ( !ent->tagParent ) {
@@ -1348,11 +1344,7 @@ void G_ParseCampaigns( void ) {
 
 			trap_Argv( 0, buf, sizeof( buf ) );
 
-#if FIXME
-			if ( !buf ) { // command not found, throw error
-#else
-			if ( (*buf) == '\0' ) { // command not found, throw error
-#endif // FIXME
+			if ( buf[0] == '\0' ) { // command not found, throw error
 				G_Error( "Usage 'map <mapname>\n'" );
 			}
 

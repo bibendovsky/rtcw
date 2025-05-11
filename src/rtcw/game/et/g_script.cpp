@@ -975,11 +975,7 @@ void script_mover_aas_blocking( gentity_t *ent ) {
 
 void script_mover_spawn( gentity_t *ent ) {
 	if ( ent->spawnflags & 128 ) {
-#if FIXME
-		if ( !ent->tagBuffer ) {
-#else
-		if ( (*ent->tagBuffer) == '\0' ) {
-#endif // FIXME
+		if ( ent->tagBuffer[0] == '\0' ) {
 			ent->nextTrain = ent;
 		} else {
 			gentity_t* tent = G_FindByTargetname( NULL, ent->tagBuffer );
