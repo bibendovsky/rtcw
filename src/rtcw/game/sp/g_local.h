@@ -1319,11 +1319,7 @@ extern level_locals_t level;
 extern gentity_t g_entities[MAX_GENTITIES];
 extern gentity_t       *g_camEnt;
 
-#if FIXME
-#define FOFS( x ) ( (int)&( ( (gentity_t *)0 )->x ) )
-#else
 #define FOFS(x) (static_cast<int>(offsetof(gentity_t, x)))
-#endif // FIXME
 
 extern vmCvar_t g_gametype;
 

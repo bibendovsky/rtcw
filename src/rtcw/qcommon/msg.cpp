@@ -1117,11 +1117,7 @@ typedef struct {
 } netField_t;
 
 // using the stringizing operator to save typing...
-#if FIXME
-#define NETF( x ) # x,(int)&( (entityState_t*)0 )->x
-#else
 #define NETF(x) # x, static_cast<int>(offsetof(entityState_t, x))
-#endif // FIXME
 
 netField_t entityStateFields[] =
 {
@@ -1789,11 +1785,7 @@ player_state_t communication
 */
 
 // using the stringizing operator to save typing...
-#if FIXME
-#define PSF( x ) # x,(int)&( (playerState_t*)0 )->x
-#else
 #define PSF(x) # x, static_cast<int>(offsetof(playerState_t, x))
-#endif // FIXME
 
 netField_t playerStateFields[] =
 {

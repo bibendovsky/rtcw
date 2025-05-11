@@ -33,13 +33,8 @@ SPDX-License-Identifier: GPL-3.0
 //#define DEBUG_AI_WEAP
 
 //structure field offsets
-#if FIXME
-#define WEAPON_OFS( x ) (int)&( ( (weaponinfo_t *)0 )->x )
-#define PROJECTILE_OFS( x ) (int)&( ( (projectileinfo_t *)0 )->x )
-#else
 #define WEAPON_OFS(x) (static_cast<int>(offsetof(weaponinfo_t, x)))
 #define PROJECTILE_OFS(x) (static_cast<int>(offsetof(projectileinfo_t, x)))
-#endif // FIXME
 
 //weapon definition
 fielddef_t weaponinfo_fields[] =

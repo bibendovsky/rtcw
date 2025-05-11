@@ -1606,11 +1606,7 @@ extern gentity_t g_entities[];          //DAJ was explicit set to MAX_ENTITIES
 extern g_campaignInfo_t g_campaigns[];
 extern int saveGamePending;
 
-#if FIXME
-#define FOFS( x ) ( (int)&( ( (gentity_t *)0 )->x ) )
-#else
 #define FOFS(x) (static_cast<int>(offsetof(gentity_t, x)))
-#endif // FIXME
 
 extern vmCvar_t g_gametype;
 
@@ -2233,11 +2229,7 @@ void InitialServerEntitySetup();
 g_serverEntity_t *FindServerEntity( g_serverEntity_t *from, int fieldofs, char *match );
 
 
-#if FIXME
-#define SE_FOFS( x ) ( (int)&( ( (g_serverEntity_t *)0 )->x ) )
-#else
 #define SE_FOFS(x) (static_cast<int>(offsetof(g_serverEntity_t, x)))
-#endif // FIXME
 
 
 // Match settings
