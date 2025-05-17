@@ -1392,8 +1392,6 @@ Cmd_Argc() / Cmd_Argv()
 static void CG_ServerCommand( void ) {
 	const char  *cmd;
 	char text[MAX_SAY_TEXT];
-	char arg_1_buffer[MAX_STRING_CHARS];
-	char arg_2_buffer[MAX_STRING_CHARS];
 
 	cmd = CG_Argv( 0 );
 
@@ -1570,10 +1568,7 @@ static void CG_ServerCommand( void ) {
 
 	if ( Q_stricmp( cmd, "remapShader" ) == 0 ) {
 		if ( trap_Argc() == 4 ) {
-			Q_strncpyz(arg_1_buffer, CG_Argv( 1 ), MAX_STRING_CHARS);
-			Q_strncpyz(arg_2_buffer, CG_Argv( 2 ), MAX_STRING_CHARS);
-
-			trap_R_RemapShader( arg_1_buffer, arg_2_buffer, CG_Argv( 3 ) );
+			trap_R_RemapShader( CG_Argv( 1 ), CG_Argv( 2 ), CG_Argv( 3 ) );
 		}
 	}
 

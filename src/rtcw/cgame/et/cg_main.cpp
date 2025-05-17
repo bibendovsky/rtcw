@@ -742,6 +742,7 @@ void QDECL Com_Printf( const char *msg, ... ) {
 CG_Argv
 ================
 */
+#ifdef RTCW_VANILLA
 const char *CG_Argv( int arg ) {
 	static char buffer[MAX_STRING_CHARS];
 
@@ -749,7 +750,18 @@ const char *CG_Argv( int arg ) {
 
 	return buffer;
 }
-
+#else // RTCW_VANILLA
+const char* CG_Argv(int arg)
+{
+	const int max_buffers = 4; // Must be power of two.
+	static int buffer_index = 0;
+	static char buffers[max_buffers][MAX_STRING_CHARS];
+	char* const buffer = buffers[buffer_index];
+	buffer_index = (buffer_index + 1) & (max_buffers - 1);
+	trap_Argv(arg, buffer, MAX_STRING_CHARS);
+	return buffer;
+}
+#endif // RTCW_VANILLA
 
 // Cleans a string for filesystem compatibility
 void CG_nameCleanFilename( const char *pszIn, char *pszOut, unsigned int dwOutSize ) {
