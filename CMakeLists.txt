@@ -76,6 +76,8 @@ if(RTCW_BUILD_SDL2)
 	add_subdirectory(src/lib/sdl2_net)
 endif()
 
+add_subdirectory(src/lib/rtcw)
+
 if(RTCW_SP)
 	add_subdirectory(src/rtcw/cgame/sp)
 	add_subdirectory(src/rtcw/game/sp)

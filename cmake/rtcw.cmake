@@ -491,6 +491,7 @@ function(rtcw_configure_target)
 	target_link_libraries(${ARGV0}
 		PRIVATE
 			rtcw::miniz
+			rtcw::rtcw
 	)
 endfunction(rtcw_configure_target)
 

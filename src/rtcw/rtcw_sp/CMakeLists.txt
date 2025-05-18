@@ -152,12 +152,6 @@ target_sources(rtcw_sp
 		../qcommon/net_chan.cpp
 		../qcommon/qcommon.h
 		../qcommon/qfiles.h
-		../qcommon/rtcw_bit_array_single_unit.cpp
-		../qcommon/rtcw_bit_array_single_unit.h
-		../qcommon/rtcw_c.h
-		../qcommon/rtcw_mod_value.h
-		../qcommon/rtcw_string.cpp
-		../qcommon/rtcw_string.h
 		../qcommon/vm.cpp
 		../qcommon/vm_local.h
 		../renderer/anorms256.h
@@ -168,14 +162,6 @@ target_sources(rtcw_sp
 		../renderer/jpge.cpp
 		../renderer/jpge.h
 		../renderer/qgl.h
-		../renderer/rtcw_cgm_clip_space.cpp
-		../renderer/rtcw_cgm_clip_space.h
-		../renderer/rtcw_cgm_mat.cpp
-		../renderer/rtcw_cgm_mat.h
-		../renderer/rtcw_cgm_transform.cpp
-		../renderer/rtcw_cgm_transform.h
-		../renderer/rtcw_cgm_vec.cpp
-		../renderer/rtcw_cgm_vec.h
 		../renderer/rtcw_jpeg_reader.cpp
 		../renderer/rtcw_jpeg_reader.h
 		../renderer/rtcw_jpeg_writer.cpp
@@ -239,9 +225,6 @@ target_sources(rtcw_sp
 		../splines/util_list.h
 		../splines/util_str.cpp
 		../splines/util_str.h
-		../system/rtcw_array_trivial.cpp
-		../system/rtcw_array_trivial.h
-		../system/rtcw_endian.h
 		../system/rtcw_input_joystick.cpp
 		../system/rtcw_input_joystick.h
 		../system/rtcw_input_keyboard.cpp
@@ -256,10 +239,6 @@ target_sources(rtcw_sp
 		../system/rtcw_syscon.h
 		../system/rtcw_syscon_font_16x8.cpp
 		../system/rtcw_syscon_font_16x8.h
-		../system/rtcw_type_utility.cpp
-		../system/rtcw_type_utility.h
-		../system/rtcw_vector_trivial.cpp
-		../system/rtcw_vector_trivial.h
 		../system/rtcw_window_rounded_corner_mgr.cpp
 		../system/rtcw_window_rounded_corner_mgr.h
 		../system/sys_events.cpp

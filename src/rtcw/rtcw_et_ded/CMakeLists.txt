@@ -142,22 +142,10 @@ target_sources(rtcw_et_ded
 		../qcommon/net_chan.cpp
 		../qcommon/qcommon.h
 		../qcommon/qfiles.h
-		../qcommon/rtcw_bit_array_single_unit.cpp
-		../qcommon/rtcw_bit_array_single_unit.h
-		../qcommon/rtcw_string.cpp
-		../qcommon/rtcw_string.h
 		../qcommon/vm.cpp
 		../qcommon/vm_local.h
 		../renderer/anorms256.h
 		../renderer/qgl.h
-		../renderer/rtcw_cgm_clip_space.cpp
-		../renderer/rtcw_cgm_clip_space.h
-		../renderer/rtcw_cgm_mat.cpp
-		../renderer/rtcw_cgm_mat.h
-		../renderer/rtcw_cgm_transform.cpp
-		../renderer/rtcw_cgm_transform.h
-		../renderer/rtcw_cgm_vec.cpp
-		../renderer/rtcw_cgm_vec.h
 		../renderer/rtcw_ogl_matrix_stack.h
 		../renderer/rtcw_ogl_program.h
 		../renderer/rtcw_ogl_tess_program.h
@@ -181,9 +169,6 @@ target_sources(rtcw_et_ded
 		../splines/splines.h
 		../splines/util_list.h
 		../splines/util_str.h
-		../system/rtcw_array_trivial.cpp
-		../system/rtcw_array_trivial.h
-		../system/rtcw_endian.h
 		../system/rtcw_input_joystick.h
 		../system/rtcw_input_keyboard.h
 		../system/rtcw_input_mouse.h
@@ -195,10 +180,6 @@ target_sources(rtcw_et_ded
 		../system/rtcw_syscon.h
 		../system/rtcw_syscon_font_16x8.cpp
 		../system/rtcw_syscon_font_16x8.h
-		../system/rtcw_type_utility.cpp
-		../system/rtcw_type_utility.h
-		../system/rtcw_vector_trivial.cpp
-		../system/rtcw_vector_trivial.h
 		../system/rtcw_window_rounded_corner_mgr.cpp
 		../system/rtcw_window_rounded_corner_mgr.h
 		../system/sys_events.cpp
