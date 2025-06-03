@@ -1199,6 +1199,7 @@ static qboolean AnimParseAnimConfig( playerInfo_t *animModelInfo, const char *fi
 
 	return qtrue;           // NERVE - SMF - blah
 
+#ifdef RTCW_VANILLA
 	// check for head anims
 	token = COM_Parse( &text_p );
 	if ( token && token[0] ) {
@@ -1249,6 +1250,7 @@ static qboolean AnimParseAnimConfig( playerInfo_t *animModelInfo, const char *fi
 	}
 
 	return qtrue;
+#endif // RTCW_VANILLA
 }
 
 /*

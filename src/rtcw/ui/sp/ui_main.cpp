@@ -2964,6 +2964,7 @@ static qboolean UI_Effects_HandleKey( int flags, float *special, int key ) {
 
 
 //----(SA)	added
+#ifdef RTCW_VANILLA
 static qboolean UI_SavegameName_HandleKey( int flags, float *special, int key ) {
 
 	// disable
@@ -2993,6 +2994,12 @@ static qboolean UI_SavegameName_HandleKey( int flags, float *special, int key ) 
 	}
 	return qfalse;
 }
+#else // RTCW_VANILLA
+static qboolean UI_SavegameName_HandleKey(int, float*, int)
+{
+	return qfalse;
+}
+#endif // RTCW_VANILLA
 //----(SA)	end
 
 

@@ -1437,7 +1437,7 @@ void SP5_Fire( gentity_t *ent, float aimSpreadScale ) {
 	}
 }
 
-
+#ifdef RTCW_VANILLA
 void RubbleFlagCheck( gentity_t *ent, trace_t tr ) {
 	qboolean is_valid = qfalse;
 	int type = 0;
@@ -1493,6 +1493,10 @@ void RubbleFlagCheck( gentity_t *ent, trace_t tr ) {
 	}
 
 }
+#else // RTCW_VANILLA
+void RubbleFlagCheck(gentity_t*, trace_t)
+{}
+#endif // RTCW_VANILLA
 
 /*
 ==============

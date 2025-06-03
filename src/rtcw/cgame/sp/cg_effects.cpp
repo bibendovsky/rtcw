@@ -18,6 +18,7 @@ CG_BubbleTrail
 Bullets shot underwater
 ==================
 */
+#ifdef RTCW_VANILLA
 void CG_BubbleTrail( vec3_t start, vec3_t end, float size, float spacing ) {
 	vec3_t move;
 	vec3_t vec;
@@ -73,6 +74,10 @@ void CG_BubbleTrail( vec3_t start, vec3_t end, float size, float spacing ) {
 		VectorAdd( move, vec, move );
 	}
 }
+#else // RTCW_VANILLA
+void CG_BubbleTrail(vec3_t, vec3_t, float, float)
+{}
+#endif // RTCW_VANILLA
 
 /*
 =====================
@@ -165,6 +170,7 @@ CG_SpawnEffect
 Player teleporting in or out
 ==================
 */
+#ifdef RTCW_VANILLA
 void CG_SpawnEffect( vec3_t org ) {
 	localEntity_t   *le;
 	refEntity_t     *re;
@@ -192,7 +198,10 @@ void CG_SpawnEffect( vec3_t org ) {
 	VectorCopy( org, re->origin );
 	re->origin[2] -= 24;
 }
-
+#else // RTCW_VANILLA
+void CG_SpawnEffect(vec3_t)
+{}
+#endif // RTCW_VANILLA
 
 
 
@@ -1439,8 +1448,10 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 //		if(deadFrac > 1)
 		return;
 
+#ifdef RTCW_VANILLA
 		startAlpha *= ( 1.0f - deadFrac );
 		endAlpha *= ( 1.0f - deadFrac );
+#endif // RTCW_VANILLA
 	}
 
 

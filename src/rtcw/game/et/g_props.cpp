@@ -259,6 +259,7 @@ void PGUNsparks_use( gentity_t *ent, gentity_t *self, gentity_t *activator ) {
 
 }
 
+#ifdef RTCW_VANILLA
 void Psparks_think( gentity_t *ent ) {
 	gentity_t   *tent;
 
@@ -281,6 +282,10 @@ void Psparks_think( gentity_t *ent ) {
 
 	ent->nextthink = level.time + FRAMETIME + ent->delay + ( rand() % 600 );
 }
+#else // RTCW_VANILLA
+void Psparks_think(gentity_t*)
+{}
+#endif // RTCW_VANILLA
 
 void sparks_angles_think( gentity_t *ent ) {
 
@@ -315,6 +320,7 @@ void SP_props_sparks( gentity_t *ent ) {
 	ent->think = G_FreeEntity;
 	return;
 
+#ifdef RTCW_VANILLA
 	G_SetOrigin( ent, ent->s.origin );
 	ent->r.svFlags = 0;
 	ent->s.eType = ET_GENERAL;
@@ -345,7 +351,7 @@ void SP_props_sparks( gentity_t *ent ) {
 	}
 
 	trap_LinkEntity( ent );
-
+#endif // RTCW_VANILLA
 }
 
 /*QUAKED props_gunsparks (.8 .46 .16) (-8 -8 -8) (8 8 8)
@@ -1799,6 +1805,7 @@ this will ensure that the oil sprite will show up where you want it
 ( be sure to put it on the floor )
 the default is in the middle of the barrel on the floor
 */
+#ifdef RTCW_VANILLA
 void Props_Barrel_Touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	return; // barrels cant move
 
@@ -1806,6 +1813,10 @@ void Props_Barrel_Touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		Props_Chair_Touch( self, other, trace );
 	}
 }
+#else // RTCW_VANILLA
+void Props_Barrel_Touch(gentity_t*, gentity_t*, trace_t*)
+{}
+#endif // RTCW_VANILLA
 
 void Props_Barrel_Animate( gentity_t *ent ) {
 	float ratio;
@@ -1954,6 +1965,7 @@ qboolean validOilSlickSpawnPoint( vec3_t point, gentity_t *ent ) {
 
 }
 
+#ifdef RTCW_VANILLA
 void SP_OilParticles( gentity_t *ent ) {
 	gentity_t *OilLeak;
 	vec3_t point;
@@ -1990,7 +2002,10 @@ void SP_OilParticles( gentity_t *ent ) {
 	trap_LinkEntity( OilLeak );
 
 }
-
+#else // RTCW_VANILLA
+void SP_OilParticles(gentity_t*)
+{}
+#endif // RTCW_VANILLA
 
 void Props_Barrel_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point ) {
 
@@ -2424,6 +2439,7 @@ void flippy_table_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 
 }
 
+#ifdef RTCW_VANILLA
 void flippy_table_animate( gentity_t *ent ) {
 	return;
 
@@ -2437,6 +2453,10 @@ void flippy_table_animate( gentity_t *ent ) {
 		ent->nextthink = level.time + ( FRAMETIME / 2 );
 	}
 }
+#else // RTCW_VANILLA
+void flippy_table_animate(gentity_t*)
+{}
+#endif // RTCW_VANILLA
 
 void props_flippy_table_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
 	ent->think = flippy_table_animate;

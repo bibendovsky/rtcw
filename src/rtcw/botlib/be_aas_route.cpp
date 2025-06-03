@@ -5537,6 +5537,7 @@ void AAS_UpdateTeamDeath( void ) {
 AAS_RecordTeamDeathArea
 ===================
 */
+#ifdef RTCW_VANILLA
 void AAS_RecordTeamDeathArea( vec3_t srcpos, int srcarea, int team, int teamCount, int travelflags ) {
 	int i, nextareanum, badtravelflags, numreach, k;
 	aas_routingupdate_t *updateliststart, *updatelistend, *curupdate, *nextupdate;
@@ -5648,5 +5649,9 @@ void AAS_RecordTeamDeathArea( vec3_t srcpos, int srcarea, int team, int teamCoun
 	  //
 	return;
 }
+#else // RTCW_VANILLA
+void AAS_RecordTeamDeathArea(vec3_t, int, int, int, int)
+{}
+#endif // RTCW_VANILLA
 #endif // RTCW_XX
 

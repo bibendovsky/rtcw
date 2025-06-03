@@ -119,7 +119,9 @@ static client_t *SV_GetPlayerByNum( void ) {
 	}
 	return cl;
 
+#ifdef RTCW_VANILLA
 	return NULL;
+#endif // RTCW_VANILLA
 }
 #else
 // fretn unused

@@ -656,6 +656,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 
 //----(SA)	added (testing)
 		case EV_FIRE_QUICKGREN:
+#ifdef RTCW_VANILLA
 			break;  // quickgren gone
 			{
 				// don't fire if on mounted weapon
@@ -666,6 +667,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 				CalcMuzzlePoints( ent, WP_GRENADE_LAUNCHER );
 				weapon_grenadelauncher_fire( ent, WP_GRENADE_LAUNCHER );
 			}
+#endif // RTCW_VANILLA
 			break;
 //----(SA)	end
 

@@ -2930,7 +2930,7 @@ void R_FindLightGridBounds( vec3_t mins, vec3_t maxs ) {
 
 
 
-
+#ifdef RTCW_VANILLA
 	ClearBounds( mins, maxs );
 
 // wrong!
@@ -3006,6 +3006,7 @@ void R_FindLightGridBounds( vec3_t mins, vec3_t maxs ) {
 		VectorCopy( w->bmodels[0].bounds[0], mins );
 		VectorCopy( w->bmodels[0].bounds[1], maxs );
 	}
+#endif // RTCW_VANILLA
 }
 
 /*

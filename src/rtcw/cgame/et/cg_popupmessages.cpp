@@ -560,7 +560,9 @@ qhandle_t CG_GetPMItemIcon( centity_t* cent ) {
 		return cgs.media.pmImages[cent->currentState.effect1Time];
 	}
 
+#ifdef RTCW_VANILLA
 	return 0;
+#endif // RTCW_VANILLA
 }
 
 

@@ -2301,6 +2301,7 @@ void Hunk_ClearTempMemory( void ) {
 Hunk_Trash
 =================
 */
+#ifdef RTCW_VANILLA
 void Hunk_Trash( void ) {
 
 #if defined RTCW_ET
@@ -2378,6 +2379,7 @@ void Hunk_Trash( void ) {
 #endif // RTCW_XX
 
 }
+#endif // RTCW_VANILLA
 
 /*
 ===================================================================

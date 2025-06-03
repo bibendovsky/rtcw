@@ -1076,6 +1076,7 @@ const char *AIFunc_WarriorZombieSight( cast_state_t *cs ) {
 AIFunc_WarriorZombieSightStart
 ================
 */
+#ifdef RTCW_VANILLA
 const char *AIFunc_WarriorZombieSightStart( cast_state_t *cs ) {
 	gentity_t *ent;
 
@@ -1096,6 +1097,12 @@ const char *AIFunc_WarriorZombieSightStart( cast_state_t *cs ) {
 	cs->aifunc = AIFunc_WarriorZombieSight;
 	return "AIFunc_WarriorZombieSight";
 }
+#else // RTCW_VANILLA
+const char* AIFunc_WarriorZombieSightStart(cast_state_t*)
+{
+	return NULL;
+}
+#endif // RTCW_VANILLA
 
 /*
 ================

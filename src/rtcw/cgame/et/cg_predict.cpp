@@ -418,6 +418,7 @@ static void CG_InterpolatePlayerState( qboolean grabAngles ) {
 CG_TouchItem
 ===================
 */
+#ifdef RTCW_VANILLA
 static void CG_TouchItem( centity_t *cent ) {
 	gitem_t     *item;
 
@@ -512,6 +513,10 @@ static void CG_TouchItem( centity_t *cent ) {
 		}
 	}
 }
+#else // RTCW_VANILLA
+static void CG_TouchItem(centity_t*)
+{}
+#endif // RTCW_VANILLA
 
 void CG_AddDirtBulletParticles( vec3_t origin, vec3_t dir, int speed, int duration, int count, float randScale, float width, float height, float alpha, qhandle_t shader );
 

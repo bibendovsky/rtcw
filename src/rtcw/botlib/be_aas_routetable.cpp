@@ -490,6 +490,7 @@ int AAS_RT_NumParentLinks( aas_area_childlocaldata_t *child ) {
 //===========================================================================
 void AAS_CreateAllRoutingCache( void );
 
+#ifdef RTCW_VANILLA
 void AAS_RT_BuildRouteTable( void ) {
 	int i,j,k;
 	aas_area_t *srcarea;
@@ -1023,6 +1024,10 @@ void AAS_RT_BuildRouteTable( void ) {
 #endif // RTCW_VANILLA
 	botimport.Print( PRT_MESSAGE, "---------------------------------\n" );
 }
+#else // RTCW_VANILLA
+void AAS_RT_BuildRouteTable()
+{}
+#endif // RTCW_VANILLA
 
 //===========================================================================
 //	free permanent memory used by route-table system

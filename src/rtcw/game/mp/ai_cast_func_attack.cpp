@@ -731,6 +731,7 @@ const char *AIFunc_BlackGuardAttack1Start( cast_state_t *cs ) {
 	G_Printf( "TODO: black guard kick attack\n" );
 	return NULL;
 
+#ifdef RTCW_VANILLA
 	//
 	ent = &g_entities[cs->entityNum];
 	//
@@ -739,6 +740,7 @@ const char *AIFunc_BlackGuardAttack1Start( cast_state_t *cs ) {
 	//
 	cs->aifunc = AIFunc_BlackGuardAttack1;
 	return "AIFunc_BlackGuardAttack1";
+#endif // RTCW_VANILLA
 }
 
 
@@ -906,6 +908,7 @@ const char *AIFunc_WarriorZombieSight( cast_state_t *cs ) {
 AIFunc_WarriorZombieSightStart
 ================
 */
+#ifdef RTCW_VANILLA
 const char *AIFunc_WarriorZombieSightStart( cast_state_t *cs ) {
 	gentity_t *ent;
 
@@ -926,6 +929,12 @@ const char *AIFunc_WarriorZombieSightStart( cast_state_t *cs ) {
 	cs->aifunc = AIFunc_WarriorZombieSight;
 	return "AIFunc_WarriorZombieSight";
 }
+#else // RTCW_VANILLA
+const char* AIFunc_WarriorZombieSightStart(cast_state_t*)
+{
+	return NULL;
+}
+#endif // RTCW_VANILLA
 
 /*
 ================

@@ -717,6 +717,7 @@ CG_DrawNotify
 #define NOTIFYLOC_X 0
 #define NOTIFYLOC_Y_SP 128
 
+#ifdef RTCW_VANILLA
 static void CG_DrawNotify( void ) {
 	int w, h;
 	int i, len;
@@ -785,6 +786,10 @@ static void CG_DrawNotify( void ) {
 		}
 	}
 }
+#else // RTCW_VANILLA
+static void CG_DrawNotify()
+{}
+#endif // RTCW_VANILLA
 
 /*
 ===============================================================================
@@ -3305,8 +3310,8 @@ void CG_Fade( int r, int g, int b, int a, int time, int duration ) {
 	if ( cgs.fadeStartTime + cgs.fadeDuration <= cg.time ) {
 		cgs.fadeAlphaCurrent = cgs.fadeAlpha;
 	}
+#ifdef RTCW_VANILLA
 	return;
-
 
 	if ( time <= 0 ) {  // do instantly
 		cg.fadeRate = 1;
@@ -3320,6 +3325,7 @@ void CG_Fade( int r, int g, int b, int a, int time, int duration ) {
 	cg.fadeColor2[ 1 ] = ( float )g / 255.0f;
 	cg.fadeColor2[ 2 ] = ( float )b / 255.0f;
 	cg.fadeColor2[ 3 ] = ( float )a / 255.0f;
+#endif // RTCW_VANILLA
 }
 
 /*

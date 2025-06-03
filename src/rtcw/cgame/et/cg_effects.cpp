@@ -170,6 +170,7 @@ CG_SpawnEffect
 Player teleporting in or out
 ==================
 */
+#ifdef RTCW_VANILLA
 void CG_SpawnEffect( vec3_t org ) {
 	localEntity_t   *le;
 	refEntity_t     *re;
@@ -197,6 +198,10 @@ void CG_SpawnEffect( vec3_t org ) {
 	VectorCopy( org, re->origin );
 	re->origin[2] -= 24;
 }
+#else // RTCW_VANILLA
+void CG_SpawnEffect(vec3_t)
+{}
+#endif // RTCW_VANILLA
 
 qhandle_t getTestShader( void ) {
 	switch ( rand() % 2 ) {

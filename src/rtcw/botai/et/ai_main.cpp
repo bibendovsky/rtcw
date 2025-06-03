@@ -189,6 +189,7 @@ int BotAI_GetSnapshotEntity( int clientNum, int sequence, entityState_t *state )
 BotAI_BotInitialChat
 ==================
 */
+#ifdef RTCW_VANILLA
 void QDECL BotAI_BotInitialChat( bot_state_t *bs, const char *type, ... ) {
 	int i, mcontext;
 	va_list ap;
@@ -214,6 +215,10 @@ void QDECL BotAI_BotInitialChat( bot_state_t *bs, const char *type, ... ) {
 
 	trap_BotInitialChat( bs->cs, type, mcontext, vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7] );
 }
+#else // RTCW_VANILLA
+void QDECL BotAI_BotInitialChat(bot_state_t*, const char*, ...)
+{}
+#endif // RTCW_VANILLA
 
 /*
 ==============
@@ -2380,6 +2385,7 @@ G_SetAASBlockingEntity
   Adjusts routing so AI knows it can't move through this entity
 ===============
 */
+#ifdef RTCW_VANILLA
 void G_SetAASBlockingEntity( gentity_t *ent, int blocking ) {
 	// Gordon: short circuit this as we dont need it
 	return;
@@ -2434,6 +2440,10 @@ void G_SetAASBlockingEntity( gentity_t *ent, int blocking ) {
 		VectorCopy( ent->r.absmax, ent->AASblocking_maxs );
 	}
 }
+#else // RTCW_VANILLA
+void G_SetAASBlockingEntity(gentity_t*, int)
+{}
+#endif // RTCW_VANILLA
 
 /*
 ===================
@@ -2442,6 +2452,7 @@ BotRecordTeamDeath
   Allows the AAS to make dangerous routes more costly, therefore bots will avoid them when possible
 ===================
 */
+#ifdef RTCW_VANILLA
 void BotRecordTeamDeath( int client ) {
 	vec3_t org;
 	int area, travelflags, teamCount, team;
@@ -2464,7 +2475,10 @@ void BotRecordTeamDeath( int client ) {
 	//
 	trap_AAS_RecordTeamDeathArea( org, area, team, teamCount, travelflags );
 }
-
+#else // RTCW_VANILLA
+void BotRecordTeamDeath(int)
+{}
+#endif // RTCW_VANILLA
 
 /*
 ===============

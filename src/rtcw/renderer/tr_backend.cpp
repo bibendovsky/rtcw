@@ -909,6 +909,7 @@ void RB_ZombieFXInit( void ) {
 	memset( zombieFleshHitVerts, 0, sizeof( zombieFleshHitVerts ) );
 }
 
+#ifdef RTCW_VANILLA
 void RB_ZombieFXAddNewHit( int entityNum, const vec3_t hitPos, const vec3_t hitDir ) {
 	int part = 0;
 
@@ -943,7 +944,12 @@ void RB_ZombieFXAddNewHit( int entityNum, const vec3_t hitPos, const vec3_t hitD
 	VectorCopy( hitDir, zombieFleshHitVerts[entityNum][part].newHitDir[zombieFleshHitVerts[entityNum][part].numNewHits] );
 	zombieFleshHitVerts[entityNum][part].numNewHits++;
 }
+#else // RTCW_VANILLA
+void RB_ZombieFXAddNewHit(int, const vec3_t, const vec3_t)
+{}
+#endif // RTCW_VANILLA
 
+#ifdef RTCW_VANILLA
 void RB_ZombieFXProcessNewHits( trZombieFleshHitverts_t *fleshHitVerts, int oldNumVerts, int numSurfVerts ) {
 	float *xyzTrav, *normTrav;
 	vec3_t hitPos, hitDir, v, testDir;
@@ -1046,7 +1052,12 @@ hitCheckDone:
 	// we've processed any new hits
 	fleshHitVerts->numNewHits = 0;
 }
+#else // RTCW_VANILLA
+void RB_ZombieFXProcessNewHits(trZombieFleshHitverts_t*, int, int)
+{}
+#endif // RTCW_VANILLA
 
+#ifdef RTCW_VANILLA
 void RB_ZombieFXShowFleshHits( trZombieFleshHitverts_t *fleshHitVerts, int oldNumVerts, int numSurfVerts ) {
 	byte *vertColors;
 	unsigned short *vertHits;
@@ -1067,7 +1078,12 @@ void RB_ZombieFXShowFleshHits( trZombieFleshHitverts_t *fleshHitVerts, int oldNu
 		}
 	}
 }
+#else // RTCW_VANILLA
+void RB_ZombieFXShowFleshHits(trZombieFleshHitverts_t*, int, int)
+{}
+#endif // RTCW_VANILLA
 
+#ifdef RTCW_VANILLA
 void RB_ZombieFXDecompose( int oldNumVerts, int numSurfVerts, float deltaTimeScale ) {
 	byte *vertColors;
 	float   *xyz, *norm;
@@ -1096,6 +1112,10 @@ void RB_ZombieFXDecompose( int oldNumVerts, int numSurfVerts, float deltaTimeSca
 		VectorMA( xyz, -2.0 * deltaTimeScale, norm, xyz );
 	}
 }
+#else // RTCW_VANILLA
+void RB_ZombieFXDecompose(int, int, float)
+{}
+#endif // RTCW_VANILLA
 
 void RB_ZombieFXFullAlpha( int oldNumVerts, int numSurfVerts ) {
 	byte *vertColors;
@@ -1108,6 +1128,7 @@ void RB_ZombieFXFullAlpha( int oldNumVerts, int numSurfVerts ) {
 	}
 }
 
+#ifdef RTCW_VANILLA
 void RB_ZombieFX( int part, drawSurf_t *drawSurf, int oldNumVerts, int oldNumIndex ) {
 	int numSurfVerts;
 	float deltaTime;
@@ -1181,6 +1202,10 @@ void RB_ZombieFX( int part, drawSurf_t *drawSurf, int oldNumVerts, int oldNumInd
 	}
 
 }
+#else // RTCW_VANILLA
+void RB_ZombieFX(int, drawSurf_t*, int, int)
+{}
+#endif // RTCW_VANILLA
 #endif // RTCW_XX
 
 

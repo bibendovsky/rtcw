@@ -1369,6 +1369,7 @@ int trap_BotChatLength( int chatstate ) {
 	);
 }
 
+#ifdef RTCW_VANILLA
 void trap_BotEnterChat( int chatstate, int client, int sendto ) {
 	// RF, disabled
 	return;
@@ -1379,6 +1380,10 @@ void trap_BotEnterChat( int chatstate, int client, int sendto ) {
 		rtcw::to_vm_arg(sendto)
 	);
 }
+#else // RTCW_VANILLA
+void trap_BotEnterChat(int, int, int)
+{}
+#endif // RTCW_VANILLA
 
 void trap_BotGetChatMessage( int chatstate, char *buf, int size ) {
 	syscall(

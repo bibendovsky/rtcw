@@ -2689,6 +2689,7 @@ static qboolean CG_DrawFollow( void ) {
 CG_DrawAmmoWarning
 =================
 */
+#ifdef RTCW_VANILLA
 static void CG_DrawAmmoWarning( void ) {
 	const char  *s;
 	int w;
@@ -2714,6 +2715,10 @@ static void CG_DrawAmmoWarning( void ) {
 	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 	CG_DrawBigString( 320 - w / 2, 64, s, 1.0F );
 }
+#else // RTCW_VANILLA
+static void CG_DrawAmmoWarning()
+{}
+#endif // RTCW_VANILLA
 
 /*
 =================
@@ -3230,7 +3235,7 @@ void CG_Fade( int r, int g, int b, int a, int time, int duration ) {
 		cgs.scrFadeAlphaCurrent = cgs.scrFadeAlpha;
 	}
 
-
+#ifdef RTCW_VANILLA
 	return;
 
 
@@ -3246,6 +3251,7 @@ void CG_Fade( int r, int g, int b, int a, int time, int duration ) {
 	cg.fadeColor2[ 1 ] = ( float )g / 255.0f;
 	cg.fadeColor2[ 2 ] = ( float )b / 255.0f;
 	cg.fadeColor2[ 3 ] = ( float )a / 255.0f;
+#endif // RTCW_VANILLA
 }
 
 

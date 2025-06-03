@@ -972,6 +972,7 @@ void SP_trigger_objective_info( gentity_t *ent ) {
 // dhm - end
 
 // JPW NERVE -- field which is acted upon (cgame side) by screenshakes to drop dust particles
+#ifdef RTCW_VANILLA
 void trigger_concussive_touch( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	return; // FIXME this should be NULLed out in SP_trigger_concussive_dust after everything works
 	G_Printf( "hit concussive ent %d mins=%f,%f,%f maxs=%f,%f,%f\n",ent,
@@ -982,6 +983,10 @@ void trigger_concussive_touch( gentity_t *ent, gentity_t *other, trace_t *trace 
 			  ent->r.maxs[1],
 			  ent->r.maxs[2] );
 }
+#else // RTCW_VANILLA
+void trigger_concussive_touch(gentity_t*, gentity_t*, trace_t*)
+{}
+#endif // RTCW_VANILLA
 
 /*QUAKED trigger_concussive_dust (.5 .5 .5) ?
 Allows client side prediction of teleportation events.

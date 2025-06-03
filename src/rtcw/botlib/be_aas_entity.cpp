@@ -437,18 +437,16 @@ int AAS_NextEntity( int entnum ) {
 AAS_EntityInArea
 ============
 */
+#ifdef RTCW_SP
+int AAS_IsEntityInArea(int, int, int)
+{
+	// RF, not functional (doesnt work with multiple areas)
+	return qfalse;
+}
+#else // RTCW_SP
 int AAS_IsEntityInArea( int entnumIgnore, int entnumIgnore2, int areanum ) {
 	aas_link_t *link;
 	aas_entity_t *ent;
-
-#if !defined RTCW_ET
-//	int i;
-#endif // RTCW_XX
-
-#if defined RTCW_SP
-	// RF, not functional (doesnt work with multiple areas)
-	return qfalse;
-#endif // RTCW_XX
 
 	for ( link = ( *aasworld ).arealinkedentities[areanum]; link; link = link->next_ent )
 	{
@@ -492,6 +490,7 @@ int AAS_IsEntityInArea( int entnumIgnore, int entnumIgnore2, int areanum ) {
 */
 	return qfalse;
 }
+#endif // RTCW_SP
 
 /*
 =============

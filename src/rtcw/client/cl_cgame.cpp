@@ -1077,9 +1077,8 @@ int32_t CL_CgameSystemCalls (
 	case CG_S_STOPLOOPINGSOUND:
 		// RF, not functional anymore, since we reverted to old looping code
 		//S_StopLoopingSound(args[1]);
-#endif // RTCW_XX
-
 		return 0;
+#endif // RTCW_XX
 
 	case CG_S_UPDATEENTITYPOSITION:
 		S_UpdateEntityPosition(
@@ -1479,9 +1478,8 @@ int32_t CL_CgameSystemCalls (
 			VMF(2),
 			VMF(3)
 		);
-#endif // RTCW_XX
-
 		return 0;
+#endif // RTCW_XX
 
 	case CG_MEMORY_REMAINING:
 		return Hunk_MemoryRemaining();

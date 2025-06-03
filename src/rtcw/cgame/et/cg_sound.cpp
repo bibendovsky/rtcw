@@ -133,7 +133,9 @@ int CG_SoundPickOldestRandomSound( soundScript_t *sound, vec3_t org, int entnum 
 		} else {
 			return trap_S_StartStreamingSound( oldestSound->sounds[pos].filename, sound->looping ? oldestSound->sounds[pos].filename : NULL, entnum, sound->channel, sound->attenuation );
 		}
+#ifdef RTCW_VANILLA
 		oldestSound->lastPlayed = cg.time;
+#endif // RTCW_VANILLA
 	} else {
 		CG_Error( "Unable to locate a valid sound for soundScript: %s\n", sound->name );
 	}

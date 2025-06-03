@@ -1938,6 +1938,7 @@ static float CG_TeslaSpinAngle( centity_t *cent ) {
 
 	return AngleMod( angle );
 
+#ifdef RTCW_VANILLA
 //----(SA)	trying new tesla effect scheme for MK
 //	angle = -(cent->pe.barrelAngle + delta * TESLA_SPINSPEED);
 //	cent->pe.barrelAngle = AngleMod( angle );
@@ -1974,6 +1975,7 @@ static float CG_TeslaSpinAngle( centity_t *cent ) {
 	}
 
 	return angle;
+#endif // RTCW_VANILLA
 }
 
 
@@ -2414,6 +2416,7 @@ void CG_PlayerTeslaCoilFire( centity_t *cent, vec3_t flashorigin ) {
 CG_AddProtoWeapons
 ==============
 */
+#ifdef RTCW_VANILLA
 void CG_AddProtoWeapons( refEntity_t *parent, playerState_t *ps, centity_t *cent ) {
 	refEntity_t gun;
 
@@ -2430,6 +2433,10 @@ void CG_AddProtoWeapons( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	CG_PositionEntityOnTag( &gun, parent, "tag_armright", 0, NULL );
 	CG_AddWeaponWithPowerups( &gun, cent->currentState.powerups, ps, cent );
 }
+#else // RTCW_VANILLA
+void CG_AddProtoWeapons(refEntity_t*, playerState_t*, centity_t*)
+{}
+#endif // RTCW_VANILLA
 //----(SA)	end
 
 
@@ -3697,6 +3704,7 @@ int getEquivWeapon( int weapnum ) {
 CG_WeaponSuggest
 ==============
 */
+#ifdef RTCW_VANILLA
 void CG_WeaponSuggest( int weap ) {
 	int bank, cycle;
 
@@ -3713,7 +3721,10 @@ void CG_WeaponSuggest( int weap ) {
 	cg.lastWeapSelInBank[bank] = weap;      // make this weap first priority in that bank
 
 }
-
+#else // RTCW_VANILLA
+void CG_WeaponSuggest(int)
+{}
+#endif // RTCW_VANILLA
 
 /*
 ==============
@@ -5248,11 +5259,12 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, in
 
 			break;  // (SA) testing
 
+#ifdef RTCW_VANILLA
 			// play a water splash
 			mod = cgs.media.waterSplashModel;
 			shader = cgs.media.waterSplashShader;
 			duration = 250;
-
+#endif // RTCW_VANILLA
 		}
 
 		// Ridah, optimization, only spawn the bullet hole if we are close

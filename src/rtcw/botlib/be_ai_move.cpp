@@ -1451,14 +1451,15 @@ int Intersection( vec2_t p1, vec2_t p2, vec2_t p3, vec2_t p4, vec2_t out ) {
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
+#ifdef RTCW_SP
+void BotCheckBlocked(bot_movestate_t*, vec3_t, int, bot_moveresult_t*)
+{
+	// RF, not required for Wolf AI
+}
+#else // RTCW_SP
 void BotCheckBlocked( bot_movestate_t *ms, vec3_t dir, int checkbottom, bot_moveresult_t *result ) {
 	vec3_t mins, maxs, end, up = {0, 0, 1};
 	bsp_trace_t trace;
-
-#if defined RTCW_SP
-	// RF, not required for Wolf AI
-	return;
-#endif // RTCW_XX
 
 	//test for entities obstructing the bot's path
 	AAS_PresenceTypeBoundingBox( ms->presencetype, mins, maxs );
@@ -1505,6 +1506,7 @@ void BotCheckBlocked( bot_movestate_t *ms, vec3_t dir, int checkbottom, bot_move
 		} //end if
 	} //end else
 } //end of the function BotCheckBlocked
+#endif // RTCW_SP
 //===========================================================================
 //
 // Parameter:			-

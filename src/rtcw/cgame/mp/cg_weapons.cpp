@@ -5020,10 +5020,12 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, in
 // jpw
 			break;  // (SA) testing
 
+#ifdef RTCW_VANILLA
 			// play a water splash
 			mod = cgs.media.waterSplashModel;
 			shader = cgs.media.waterSplashShader;
 			duration = 250;
+#endif // RTCW_VANILLA
 		}
 
 		// Ridah, optimization, only spawn the bullet hole if we are close

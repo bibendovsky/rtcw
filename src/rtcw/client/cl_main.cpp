@@ -3941,8 +3941,7 @@ qboolean CL_NextUpdateServer( void ) {
 #ifdef _DEBUG
 	Com_Printf( S_COLOR_MAGENTA "Autoupdate hardcoded OFF in debug build\n" );
 	return qfalse;
-#endif
-
+#else // _DEBUG
 	while ( cls.autoUpdateServerChecked[cls.autoupdatServerFirstIndex] ) {
 		cls.autoupdatServerIndex++;
 
@@ -3975,6 +3974,7 @@ qboolean CL_NextUpdateServer( void ) {
 				 rtcw::Endian::be ( cls.autoupdateServer.port ) );
 
 	return qtrue;
+#endif // _DEBUG
 }
 #endif // RTCW_XX
 

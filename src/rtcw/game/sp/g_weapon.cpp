@@ -751,7 +751,7 @@ void Tesla_Fire( gentity_t *ent ) {
 }
 
 
-
+#ifdef RTCW_VANILLA
 void RubbleFlagCheck( gentity_t *ent, trace_t tr ) {
 	qboolean is_valid = qfalse;
 	int type = 0;
@@ -807,6 +807,10 @@ void RubbleFlagCheck( gentity_t *ent, trace_t tr ) {
 	}
 
 }
+#else // RTCW_VANILLA
+void RubbleFlagCheck(gentity_t*, trace_t)
+{}
+#endif // RTCW_VANILLA
 
 /*
 ==============
@@ -1242,6 +1246,7 @@ gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenType ) {
 Zombie spit
 =====================
 */
+#ifdef RTCW_VANILLA
 void weapon_zombiespit( gentity_t *ent ) {
 	gentity_t *m;
 
@@ -1258,6 +1263,10 @@ void weapon_zombiespit( gentity_t *ent ) {
 
 
 }
+#else // RTCW_VANILLA
+void weapon_zombiespit(gentity_t*)
+{}
+#endif // RTCW_VANILLA
 
 /*
 =====================

@@ -3083,6 +3083,7 @@ float G_GetWeaponSpread( int weapon ) {
 #define K43SCOPE_SPREAD G_GetWeaponSpread( WP_K43_SCOPE )
 #define K43SCOPE_DAMAGE G_GetWeaponDamage( WP_K43_SCOPE )
 
+#ifdef RTCW_VANILLA
 void RubbleFlagCheck( gentity_t *ent, trace_t tr ) {
 	qboolean is_valid = qfalse;
 	int type = 0;
@@ -3136,6 +3137,10 @@ void RubbleFlagCheck( gentity_t *ent, trace_t tr ) {
 		}
 	}
 }
+#else // RTCW_VANILLA
+void RubbleFlagCheck(gentity_t*, trace_t)
+{}
+#endif // RTCW_VANILLA
 
 /*
 ==============

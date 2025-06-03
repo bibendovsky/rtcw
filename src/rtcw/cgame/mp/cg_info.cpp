@@ -23,6 +23,7 @@ static qhandle_t loadingItemIcons[MAX_LOADING_ITEM_ICONS];
 CG_DrawLoadingIcons
 ===================
 */
+#ifdef RTCW_VANILLA
 static void CG_DrawLoadingIcons( void ) {
 	int n;
 	int x, y;
@@ -45,7 +46,10 @@ static void CG_DrawLoadingIcons( void ) {
 		CG_DrawPic( x, y, 32, 32, loadingItemIcons[n] );
 	}
 }
-
+#else // RTCW_VANILLA
+static void CG_DrawLoadingIcons()
+{}
+#endif // RTCW_VANILLA
 
 /*
 ======================
@@ -77,6 +81,7 @@ void CG_LoadingItem( int itemNum ) {
 		return;
 	}
 
+#ifdef RTCW_VANILLA
 //----(SA)	Max Kaufman request that we don't show any pacifier stuff for items
 	return;
 //----(SA)	end
@@ -87,6 +92,7 @@ void CG_LoadingItem( int itemNum ) {
 	}
 
 	CG_LoadingString( item->pickup_name );
+#endif // RTCW_VANILLA
 }
 
 /*
