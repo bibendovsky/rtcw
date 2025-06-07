@@ -1,5 +1,4 @@
 - Check for FIXME and TODO
-- Modify licenses for merged code.
 - Recheck code for merge:
     game/ai_cast_func_boss1.c
         AIFunc_FlameZombie_Portal
@@ -15,6 +14,4 @@
 - Exclude source files from dedicated builds with preprocessor.
 - Gfx lags for windowed mode (x64 SP, x64 MP).
 - Use fixed-size types.
-- Try to toggle between fake fullscreen mode and windowed mode without restarting the video subsystem.
 - `memory.log`
-- Support `CVAR_UNSAFE` in all games.
