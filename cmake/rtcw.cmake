@@ -298,14 +298,10 @@ function(rtcw_configure_resources)
 		message(FATAL_ERROR "[${ARGV0}] Unknown RC icon file name.")
 	endif()
 
-	get_target_property(RTCW_TMP_RC_VERSION ${ARGV0} RTCW_VERSION)
-	get_target_property(RTCW_TMP_RC_VERSION_MAJOR ${ARGV0} RTCW_VERSION_MAJOR)
-	get_target_property(RTCW_TMP_RC_VERSION_MINOR ${ARGV0} RTCW_VERSION_MINOR)
-	get_target_property(RTCW_TMP_RC_VERSION_PATCH ${ARGV0} RTCW_VERSION_PATCH)
-
-	if(RTCW_GIT_HASH)
-		set(RTCW_TMP_RC_VERSION "${RTCW_TMP_RC_VERSION}+${RTCW_GIT_HASH}")
-	endif()
+	set(RTCW_TMP_RC_VERSION ${RTCW_PACKAGE_VERSION})
+	set(RTCW_TMP_RC_VERSION_MAJOR ${RTCW_PACKAGE_VERSION_MAJOR})
+	set(RTCW_TMP_RC_VERSION_MINOR ${RTCW_PACKAGE_VERSION_MINOR})
+	set(RTCW_TMP_RC_VERSION_PATCH ${RTCW_PACKAGE_VERSION_PATCH})
 
 	target_sources(${ARGV0} PRIVATE ${RTCW_TMP_RC_SOURCE_FILE_PATH})
 
@@ -369,7 +365,7 @@ function(rtcw_configure_target)
 	rtcw_configure_static_linking(${ARGV0})
 
 	get_target_property(RTCW_TMP_TAGS ${ARGV0} RTCW_TAGS)
-	get_target_property(RTCW_TMP_VERSION ${ARGV0} RTCW_VERSION)
+	set(RTCW_TMP_VERSION ${RTCW_PACKAGE_VERSION})
 
 	set_target_properties(${ARGV0} PROPERTIES
 		CXX_STANDARD 98
@@ -432,7 +428,7 @@ function(rtcw_configure_target)
 			__STDC_LIMIT_MACROS __STDC_CONSTANT_MACROS # stdint.h
 			__STDC_FORMAT_MACROS # inttypes.h
 			"RTCW_ARCH_STRING=\"${RTCW_ARCH_STRING}\""
-			RTCW_VERSION_NUMBER="${RTCW_TMP_VERSION}+${RTCW_GIT_HASH}"
+			RTCW_VERSION_NUMBER="${RTCW_TMP_VERSION}"
 	)
 
 	if(RTCW_CURL AND RTCW_CURL_STATIC)
