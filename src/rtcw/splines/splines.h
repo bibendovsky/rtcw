@@ -18,7 +18,6 @@ SPDX-License-Identifier: GPL-3.0
 #include "util_list.h"
 #include "util_str.h"
 #include "math_vector.h"
-#include <stdint.h> // FIXME
 
 typedef int fileHandle_t;
 
@@ -197,8 +196,8 @@ void clear() {
 	activeColor.set( 1.0, 0.0, 0.0 );
 }
 
-void initPosition( int32_t startTime, int32_t totalTime );
-const idVec3 *getPosition( int32_t time );
+void initPosition( int startTime, int totalTime );
+const idVec3 *getPosition( int time );
 
 
 void draw( bool editMode );
@@ -309,11 +308,11 @@ bool validTime() {
 	return (bool)( splineTime.Num() > 0 && splineTime.Num() == splinePoints.Num() );
 }
 
-void setTime( int32_t t ) {
+void setTime( int t ) {
 	time = t;
 }
 
-void setBaseTime( int32_t t ) {
+void setBaseTime( int t ) {
 	baseTime = t;
 }
 
@@ -329,21 +328,21 @@ float granularity;
 bool editMode;
 bool dirty;
 int activeSegment;
-int32_t baseTime;
-int32_t time;
+int baseTime;
+int time;
 friend class idCamera;
 };
 
 // time in milliseconds
 // velocity where 1.0 equal rough walking speed
 struct idVelocity {
-	idVelocity( int32_t start, int32_t duration, float s ) {
+	idVelocity( int start, int duration, float s ) {
 		startTime = start;
 		time = duration;
 		speed = s;
 	}
-	int32_t startTime;
-	int32_t time;
+	int startTime;
+	int time;
 	float speed;
 };
 
@@ -389,7 +388,7 @@ idCameraPosition() {
 	name = "position";
 }
 
-idCameraPosition( int32_t t ) {
+idCameraPosition( int t ) {
 	time = t;
 }
 
@@ -409,15 +408,15 @@ enum positionType {
 };
 
 
-virtual void start( int32_t t ) {
+virtual void start( int t ) {
 	startTime = t;
 }
 
-int32_t getTime() {
+int getTime() {
 	return time;
 }
 
-virtual void setTime( int32_t t ) {
+virtual void setTime( int t ) {
 	time = t;
 }
 
@@ -425,8 +424,8 @@ float getBaseVelocity() {
 	return baseVelocity;
 }
 
-float getVelocity( int32_t t ) {
-	int32_t check = t - startTime;
+float getVelocity( int t ) {
+	int check = t - startTime;
 	for ( int i = 0; i < velocities.Num(); i++ ) {
 		if ( check >= velocities[i]->startTime && check <= velocities[i]->startTime + velocities[i]->time ) {
 			return velocities[i]->speed;
@@ -435,11 +434,11 @@ float getVelocity( int32_t t ) {
 	return baseVelocity;
 }
 
-void addVelocity( int32_t start, int32_t duration, float speed ) {
+void addVelocity( int start, int duration, float speed ) {
 	velocities.Append( new idVelocity( start, duration, speed ) );
 }
 
-virtual const idVec3 *getPosition( int32_t t ) {
+virtual const idVec3 *getPosition( int t ) {
 	assert( true );
 	return NULL;
 }
@@ -481,8 +480,8 @@ void calcVelocity( float distance ) {
 
 protected:
 static const char* positionStr[POSITION_COUNT];
-int32_t startTime;
-int32_t time;
+int startTime;
+int time;
 idCameraPosition::positionType type;
 idStr name;
 bool editMode;
@@ -518,7 +517,7 @@ virtual void addPoint( const float x, const float y, const float z ) {
 
 ~idFixedPosition() {
 }
-virtual const idVec3 *getPosition( int32_t t ) {
+virtual const idVec3 *getPosition( int t ) {
 	return &pos;
 }
 
@@ -559,7 +558,7 @@ idInterpolatedPosition() : idCameraPosition() {
 	init();
 }
 
-idInterpolatedPosition( idVec3 start, idVec3 end, int32_t time ) : idCameraPosition( time ) {
+idInterpolatedPosition( idVec3 start, idVec3 end, int time ) : idCameraPosition( time ) {
 	init();
 	startPos = start;
 	endPos = end;
@@ -568,7 +567,7 @@ idInterpolatedPosition( idVec3 start, idVec3 end, int32_t time ) : idCameraPosit
 ~idInterpolatedPosition() {
 }
 
-virtual const idVec3 *getPosition( int32_t t );
+virtual const idVec3 *getPosition( int t );
 
 void parse( const char *( *text ) );
 void write( fileHandle_t file, const char *name );
@@ -614,7 +613,7 @@ virtual void draw( bool editMode ) {
 	glEnd();
 }
 
-virtual void start( int32_t t ) {
+virtual void start( int t ) {
 	idCameraPosition::start( t );
 	lastTime = startTime;
 	distSoFar = 0.0;
@@ -627,7 +626,7 @@ protected:
 bool first;
 idVec3 startPos;
 idVec3 endPos;
-int32_t lastTime;
+int lastTime;
 float distSoFar;
 };
 
@@ -642,14 +641,14 @@ idSplinePosition() : idCameraPosition() {
 	init();
 }
 
-idSplinePosition( int32_t time ) : idCameraPosition( time ) {
+idSplinePosition( int time ) : idCameraPosition( time ) {
 	init();
 }
 
 ~idSplinePosition() {
 }
 
-virtual void start( int32_t t ) {
+virtual void start( int t ) {
 	idCameraPosition::start( t );
 	target.initPosition( t, time );
 	lastTime = startTime;
@@ -663,7 +662,7 @@ virtual void start( int32_t t ) {
 //}
 #endif // RTCW_XX
 
-virtual const idVec3 *getPosition( int32_t t );
+virtual const idVec3 *getPosition( int t );
 
 #if !defined RTCW_SP
 //virtual const idVec3 *getPosition(long t) const {
@@ -703,7 +702,7 @@ virtual void updateSelection( const idVec3 &move ) {
 
 protected:
 idSplineList target;
-int32_t lastTime;
+int lastTime;
 float distSoFar;
 };
 
@@ -722,7 +721,7 @@ idCameraFOV( int v ) {
 	fov = v;
 }
 
-idCameraFOV( int s, int e, int32_t t ) {
+idCameraFOV( int s, int e, int t ) {
 	startFOV = s;
 	endFOV = e;
 	length = t;
@@ -736,7 +735,7 @@ void setFOV( float f ) {
 	fov = f;
 }
 
-float getFOV( int32_t t ) {
+float getFOV( int t ) {
 	if ( length ) {
 		float percent = ( t - startTime ) / length;
 		if ( percent < 0.0 ) {
@@ -755,7 +754,7 @@ float getFOV( int32_t t ) {
 	return fov;
 }
 
-void start( int32_t t ) {
+void start( int t ) {
 	startTime = t;
 }
 
@@ -835,7 +834,7 @@ idCameraEvent() {
 	time = 0;
 }
 
-idCameraEvent( eventType t, const char *param, int32_t n ) {
+idCameraEvent( eventType t, const char *param, int n ) {
 	type = t;
 	paramStr = param;
 	time = n;
@@ -856,11 +855,11 @@ const char *getParam() {
 	return paramStr.c_str();
 }
 
-int32_t getTime() {
+int getTime() {
 	return time;
 }
 
-void setTime( int32_t n ) {
+void setTime( int n ) {
 	time = n;
 }
 
@@ -878,7 +877,7 @@ bool getTriggered() {
 protected:
 eventType type;
 idStr paramStr;
-int32_t time;
+int time;
 bool triggered;
 
 };
@@ -928,7 +927,7 @@ idCameraDef() {
 	clear();
 }
 
-void addEvent( idCameraEvent::eventType t, const char *param, int32_t time );
+void addEvent( idCameraEvent::eventType t, const char *param, int time );
 
 void addEvent( idCameraEvent *event );
 
@@ -1018,15 +1017,15 @@ float getTotalTime() {
 	return totalTime;
 }
 
-void startCamera( int32_t t );
+void startCamera( int t );
 void stopCamera() {
 	cameraRunning = true;
 }
 void getActiveSegmentInfo( int segment, idVec3 &origin, idVec3 &direction, float *fv );
 
-bool getCameraInfo( int32_t time, idVec3 &origin, idVec3 &direction, float *fv );
+bool getCameraInfo( int time, idVec3 &origin, idVec3 &direction, float *fv );
 qboolean getCameraInfo( int camNum, int time, float *origin, float *angles, float *fov );
-bool getCameraInfo( int32_t time, float *origin, float *direction, float *fv ) {
+bool getCameraInfo( int time, float *origin, float *direction, float *fv ) {
 	idVec3 org, dir;
 	org[0] = origin[0];
 	org[1] = origin[1];
@@ -1148,7 +1147,7 @@ idCameraFOV fov;
 int activeTarget;
 float totalTime;
 float baseTime;
-int32_t startTime;
+int startTime;
 
 bool cameraEdit;
 bool editMode;
