@@ -155,6 +155,7 @@ target_sources(rtcw_mp
 		../renderer/jpgd.h
 		../renderer/jpge.cpp
 		../renderer/jpge.h
+		../renderer/khrplatform.h
 		../renderer/qgl.h
 		../renderer/rtcw_jpeg_reader.cpp
 		../renderer/rtcw_jpeg_reader.h

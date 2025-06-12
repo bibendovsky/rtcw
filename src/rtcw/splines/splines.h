@@ -10,7 +10,7 @@ SPDX-License-Identifier: GPL-3.0
 
 //extern "C" {
 #ifdef Q3RADIANT
-  #include "../::gl.h"
+  #include "../::gl.h" // FIXME
 #else
   #include "qgl.h"
 #endif
@@ -18,6 +18,7 @@ SPDX-License-Identifier: GPL-3.0
 #include "util_list.h"
 #include "util_str.h"
 #include "math_vector.h"
+#include <stdint.h> // FIXME
 
 typedef int fileHandle_t;
 

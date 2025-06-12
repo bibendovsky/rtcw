@@ -582,62 +582,60 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		r_textureMode->modified = qfalse;
 	}
 
-// BBi
-//#if defined RTCW_SP
-//	//
-//	// ATI stuff
-//	//
-//
-//	// TRUFORM
-//	if ( qglPNTrianglesiATI ) {
-//
-//		// tess
-//		if ( r_ati_truform_tess->modified ) {
-//			r_ati_truform_tess->modified = qfalse;
-//			// cap if necessary
-//			if ( r_ati_truform_tess->value > glConfig.ATIMaxTruformTess ) {
-//				ri.Cvar_Set( "r_ati_truform_tess", va( "%d",glConfig.ATIMaxTruformTess ) );
-//			}
-//
-//			qglPNTrianglesiATI( GL_PN_TRIANGLES_TESSELATION_LEVEL_ATI, r_ati_truform_tess->value );
-//		}
-//
-//		// point mode
-//		if ( r_ati_truform_pointmode->modified ) {
-//			r_ati_truform_pointmode->modified = qfalse;
-//			// GR - shorten the mode name
-//			if ( !Q_stricmp( r_ati_truform_pointmode->string, "LINEAR" ) ) {
-//				glConfig.ATIPointMode = (int)GL_PN_TRIANGLES_POINT_MODE_LINEAR_ATI;
-//				// GR - fix point mode change
-//			} else if ( !Q_stricmp( r_ati_truform_pointmode->string, "CUBIC" ) ) {
-//				glConfig.ATIPointMode = (int)GL_PN_TRIANGLES_POINT_MODE_CUBIC_ATI;
-//			} else {
-//				// bogus value, set to valid
-//				glConfig.ATIPointMode = (int)GL_PN_TRIANGLES_POINT_MODE_CUBIC_ATI;
-//				ri.Cvar_Set( "r_ati_truform_pointmode", "LINEAR" );
-//			}
-//			qglPNTrianglesiATI( GL_PN_TRIANGLES_POINT_MODE_ATI, glConfig.ATIPointMode );
-//		}
-//
-//		// normal mode
-//		if ( r_ati_truform_normalmode->modified ) {
-//			r_ati_truform_normalmode->modified = qfalse;
-//			// GR - shorten the mode name
-//			if ( !Q_stricmp( r_ati_truform_normalmode->string, "LINEAR" ) ) {
-//				glConfig.ATINormalMode = (int)GL_PN_TRIANGLES_NORMAL_MODE_LINEAR_ATI;
-//				// GR - fix normal mode change
-//			} else if ( !Q_stricmp( r_ati_truform_normalmode->string, "QUADRATIC" ) ) {
-//				glConfig.ATINormalMode = (int)GL_PN_TRIANGLES_NORMAL_MODE_QUADRATIC_ATI;
-//			} else {
-//				// bogus value, set to valid
-//				glConfig.ATINormalMode = (int)GL_PN_TRIANGLES_NORMAL_MODE_LINEAR_ATI;
-//				ri.Cvar_Set( "r_ati_truform_normalmode", "LINEAR" );
-//			}
-//			qglPNTrianglesiATI( GL_PN_TRIANGLES_NORMAL_MODE_ATI, glConfig.ATINormalMode );
-//		}
-//	}
-//#endif // RTCW_XX
-// BBi
+#ifdef RTCW_SP
+	//
+	// ATI stuff
+	//
+
+	// TRUFORM
+	if ( glPNTrianglesiATI ) {
+
+		// tess
+		if ( r_ati_truform_tess->modified ) {
+			r_ati_truform_tess->modified = qfalse;
+			// cap if necessary
+			if ( r_ati_truform_tess->value > glConfig.ATIMaxTruformTess ) {
+				ri.Cvar_Set( "r_ati_truform_tess", va( "%d",glConfig.ATIMaxTruformTess ) );
+			}
+
+			glPNTrianglesiATI( GL_PN_TRIANGLES_TESSELATION_LEVEL_ATI, r_ati_truform_tess->value );
+		}
+
+		// point mode
+		if ( r_ati_truform_pointmode->modified ) {
+			r_ati_truform_pointmode->modified = qfalse;
+			// GR - shorten the mode name
+			if ( Q_stricmp( r_ati_truform_pointmode->string, "LINEAR" ) == 0 ) {
+				glConfig.ATIPointMode = GL_PN_TRIANGLES_POINT_MODE_LINEAR_ATI;
+				// GR - fix point mode change
+			} else if ( Q_stricmp( r_ati_truform_pointmode->string, "CUBIC" ) == 0 ) {
+				glConfig.ATIPointMode = GL_PN_TRIANGLES_POINT_MODE_CUBIC_ATI;
+			} else {
+				// bogus value, set to valid
+				glConfig.ATIPointMode = GL_PN_TRIANGLES_POINT_MODE_CUBIC_ATI;
+				ri.Cvar_Set( "r_ati_truform_pointmode", "LINEAR" );
+			}
+			glPNTrianglesiATI( GL_PN_TRIANGLES_POINT_MODE_ATI, glConfig.ATIPointMode );
+		}
+
+		// normal mode
+		if ( r_ati_truform_normalmode->modified ) {
+			r_ati_truform_normalmode->modified = qfalse;
+			// GR - shorten the mode name
+			if ( !Q_stricmp( r_ati_truform_normalmode->string, "LINEAR" ) ) {
+				glConfig.ATINormalMode = GL_PN_TRIANGLES_NORMAL_MODE_LINEAR_ATI;
+				// GR - fix normal mode change
+			} else if ( !Q_stricmp( r_ati_truform_normalmode->string, "QUADRATIC" ) ) {
+				glConfig.ATINormalMode = GL_PN_TRIANGLES_NORMAL_MODE_QUADRATIC_ATI;
+			} else {
+				// bogus value, set to valid
+				glConfig.ATINormalMode = GL_PN_TRIANGLES_NORMAL_MODE_LINEAR_ATI;
+				ri.Cvar_Set( "r_ati_truform_normalmode", "LINEAR" );
+			}
+			glPNTrianglesiATI( GL_PN_TRIANGLES_NORMAL_MODE_ATI, glConfig.ATINormalMode );
+		}
+	}
+#endif // RTCW_SP
 
 // BBi
 //#if defined RTCW_ET

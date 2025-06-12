@@ -1628,22 +1628,20 @@ void GL_SetDefaultState( void ) {
 
 //----(SA)	added.
 
-// BBi
-//	// ATI pn_triangles
-//	if ( qglPNTrianglesiATI ) {
-//		int maxtess;
-//		// get max supported tesselation
-//		qglGetIntegerv( GL_MAX_PN_TRIANGLES_TESSELATION_LEVEL_ATI, (GLint*)&maxtess );
-//		glConfig.ATIMaxTruformTess = maxtess;
-//		// cap if necessary
-//		if ( r_ati_truform_tess->value > maxtess ) {
-//			ri.Cvar_Set( "r_ati_truform_tess", va( "%d", maxtess ) );
-//		}
-//
-//		// set Wolf defaults
-//		qglPNTrianglesiATI( GL_PN_TRIANGLES_TESSELATION_LEVEL_ATI, r_ati_truform_tess->value );
-//	}
-// BBi
+	// ATI pn_triangles
+	if ( glPNTrianglesiATI ) {
+		GLint maxtess = 0;
+		// get max supported tesselation
+		glGetIntegerv( GL_MAX_PN_TRIANGLES_TESSELATION_LEVEL_ATI, &maxtess );
+		glConfig.ATIMaxTruformTess = maxtess;
+		// cap if necessary
+		if ( r_ati_truform_tess->value > maxtess ) {
+			ri.Cvar_Set( "r_ati_truform_tess", va( "%d", maxtess ) );
+		}
+
+		// set Wolf defaults
+		glPNTrianglesiATI( GL_PN_TRIANGLES_TESSELATION_LEVEL_ATI, static_cast<GLint>(r_ati_truform_tess->value) );
+	}
 
 //----(SA)	end
 
@@ -1772,17 +1770,15 @@ void GfxInfo_f( void ) {
 	ri.Printf( PRINT_ALL, "texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0] );
 	ri.Printf( PRINT_ALL, "compressed textures: %s\n", enablestrings[glConfig.textureCompression != TC_NONE] );
 
-// BBi
-//#if defined RTCW_SP
-//	ri.Printf( PRINT_ALL, "ATI truform: %s\n", enablestrings[qglPNTrianglesiATI != 0] );
-//	if ( qglPNTrianglesiATI ) {
-////DAJ bogus at this point		ri.Printf( PRINT_ALL, "MAX_PN_TRIANGLES_TESSELATION_LEVEL_ATI: %d\n", glConfig.ATIMaxTruformTess );
-//		ri.Printf( PRINT_ALL, "Truform Tess: %d\n", r_ati_truform_tess->integer );
-//		ri.Printf( PRINT_ALL, "Truform Point Mode: %s\n", r_ati_truform_pointmode->string );
-//		ri.Printf( PRINT_ALL, "Truform Normal Mode: %s\n", r_ati_truform_normalmode->string );
-//	}
-//#endif // RTCW_XX
-// BBi
+#ifdef RTCW_SP
+	ri.Printf( PRINT_ALL, "ATI truform: %s\n", enablestrings[glPNTrianglesiATI != 0] );
+	if ( glPNTrianglesiATI ) {
+//DAJ bogus at this point		ri.Printf( PRINT_ALL, "MAX_PN_TRIANGLES_TESSELATION_LEVEL_ATI: %d\n", glConfig.ATIMaxTruformTess );
+		ri.Printf( PRINT_ALL, "Truform Tess: %d\n", r_ati_truform_tess->integer );
+		ri.Printf( PRINT_ALL, "Truform Point Mode: %s\n", r_ati_truform_pointmode->string );
+		ri.Printf( PRINT_ALL, "Truform Normal Mode: %s\n", r_ati_truform_normalmode->string );
+	}
+#endif // RTCW_SP
 
 // BBi
 //#if defined RTCW_ET

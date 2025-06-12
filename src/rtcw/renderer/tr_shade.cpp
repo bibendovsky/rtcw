@@ -2217,15 +2217,13 @@ void RB_StageIteratorGeneric( void ) {
 	// set GL fog
 	SetIteratorFog();
 
-// BBi
-//#if defined RTCW_SP
-//	if ( glPNTrianglesiATI && tess.ATI_tess ) {
-//		// RF< so we can send the normals as an array
-//		glEnableClientState( GL_NORMAL_ARRAY );
-//		glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
-//	}
-//#endif // RTCW_XX
-// BBi
+#ifdef RTCW_SP
+	if ( glPNTrianglesiATI && tess.ATI_tess ) {
+		// RF< so we can send the normals as an array
+		glEnableClientState( GL_NORMAL_ARRAY );
+		glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
+	}
+#endif // RTCW_SP
 
 	//
 	// set face culling appropriately
@@ -2283,16 +2281,14 @@ void RB_StageIteratorGeneric( void ) {
 		// BBi
 	}
 
-// BBi
-//#if defined RTCW_SP
-//	// RF, send normals only if required
-//	// This must be done first, since we can't change the arrays once they have been
-//	// locked
-//	if ( glPNTrianglesiATI && tess.ATI_tess ) {
-//		glNormalPointer( GL_FLOAT, 16, input->normal );
-//	}
-//#endif // RTCW_XX
-// BBi
+#ifdef RTCW_SP
+	// RF, send normals only if required
+	// This must be done first, since we can't change the arrays once they have been
+	// locked
+	if ( glPNTrianglesiATI && tess.ATI_tess ) {
+		glNormalPointer( GL_FLOAT, 16, input->normal );
+	}
+#endif // RTCW_SP
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
@@ -2389,15 +2385,13 @@ void RB_StageIteratorGeneric( void ) {
 		glDisable( GL_POLYGON_OFFSET_FILL );
 	}
 
-// BBi
-//#if defined RTCW_SP
-//	// turn truform back off
-//	if ( glPNTrianglesiATI && tess.ATI_tess ) {
-//		glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
-//		glDisableClientState( GL_NORMAL_ARRAY );
-//	}
-//#endif // RTCW_XX
-// BBi
+#ifdef RTCW_SP
+	// turn truform back off
+	if ( glPNTrianglesiATI && tess.ATI_tess ) {
+		glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
+		glDisableClientState( GL_NORMAL_ARRAY );
+	}
+#endif // RTCW_SP
 
 }
 
@@ -2454,15 +2448,13 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	}
 	// BBi
 
-// BBi
-//#if defined RTCW_SP
-//	if ( glPNTrianglesiATI && tess.ATI_tess ) {
-//		glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
-//		glEnableClientState( GL_NORMAL_ARRAY );         // RF< so we can send the normals as an array
-//		glNormalPointer( GL_FLOAT, 16, input->normal );
-//	}
-//#endif // RTCW_XX
-// BBi
+#ifdef RTCW_SP
+	if ( glPNTrianglesiATI && tess.ATI_tess ) {
+		glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
+		glEnableClientState( GL_NORMAL_ARRAY );         // RF< so we can send the normals as an array
+		glNormalPointer( GL_FLOAT, 16, input->normal );
+	}
+#endif // RTCW_SP
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
@@ -2536,13 +2528,11 @@ void RB_StageIteratorVertexLitTexture( void ) {
 	}
 	// BBi
 
-// BBi
-//#if defined RTCW_SP
-//	if ( glPNTrianglesiATI && tess.ATI_tess )
-//	{ glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
-//	}
-//#endif // RTCW_XX
-// BBi
+#ifdef RTCW_SP
+	if ( glPNTrianglesiATI && tess.ATI_tess )
+	{ glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
+	}
+#endif // RTCW_SP
 
 }
 
@@ -2588,14 +2578,12 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 
 	glVertexPointer( 3, GL_FLOAT, 16, input->xyz );
 
-// BBi
-//#if defined RTCW_SP
-//	if ( glPNTrianglesiATI && tess.ATI_tess ) {
-//		glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
-//		glNormalPointer( GL_FLOAT, 16, input->normal );
-//	}
-//#endif // RTCW_XX
-// BBi
+#ifdef RTCW_SP
+	if ( glPNTrianglesiATI && tess.ATI_tess ) {
+		glEnable( GL_PN_TRIANGLES_ATI ); // ATI PN-Triangles extension
+		glNormalPointer( GL_FLOAT, 16, input->normal );
+	}
+#endif // RTCW_SP
 
 #ifdef REPLACE_MODE
 	glDisableClientState( GL_COLOR_ARRAY );
@@ -2776,13 +2764,11 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	}
 	// BBi
 
-// BBi
-//#if defined RTCW_SP
-//	if ( glPNTrianglesiATI && tess.ATI_tess )
-//	{ glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
-//	}
-//#endif // RTCW_XX
-// BBi
+#ifdef RTCW_SP
+	if ( glPNTrianglesiATI && tess.ATI_tess )
+	{ glDisable( GL_PN_TRIANGLES_ATI );    // ATI PN-Triangles extension
+	}
+#endif // RTCW_SP
 
 }
 
