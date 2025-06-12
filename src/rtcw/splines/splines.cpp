@@ -90,6 +90,7 @@ idCameraDef *g_splineList = &splineList;
 
 idVec3 idSplineList::zero( 0,0,0 );
 
+#ifdef RTCW_VANILLA
 void glLabeledPoint( idVec3 &color, idVec3 &point, float size, const char *label ) {
 	glColor3fv( color );
 	glPointSize( size );
@@ -103,7 +104,6 @@ void glLabeledPoint( idVec3 &color, idVec3 &point, float size, const char *label
 	glRasterPos3fv( v );
 	glCallLists( strlen( label ), GL_UNSIGNED_BYTE, label );
 }
-
 
 void glBox( idVec3 &color, idVec3 &point, float size ) {
 	idVec3 mins( point );
@@ -148,7 +148,6 @@ void splineTest() {
 void splineDraw() {
 	//g_splineList->addToRenderer();
 }
-
 
 //extern void D_DebugLine( const idVec3 &color, const idVec3 &start, const idVec3 &end );
 
@@ -215,6 +214,7 @@ void idSplineList::addToRenderer() {
 		}
 	}
 }
+#endif // RTCW_VANILLA
 
 void idSplineList::buildSpline() {
 	//int start = Sys_Milliseconds();
@@ -236,7 +236,7 @@ void idSplineList::buildSpline() {
 	//Com_Printf("Spline build took %f seconds\n", (float)(Sys_Milliseconds() - start) / 1000);
 }
 
-
+#ifdef RTCW_VANILLA
 void idSplineList::draw( bool editMode ) {
 	int i;
 	idVec4 yellow( 1, 1, 0, 1 );
@@ -292,6 +292,7 @@ void idSplineList::draw( bool editMode ) {
 	}
 
 }
+#endif // RTCW_VANILLA
 
 float idSplineList::totalDistance() {
 

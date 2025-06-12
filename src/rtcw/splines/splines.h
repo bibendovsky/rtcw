@@ -8,6 +8,7 @@ SPDX-License-Identifier: GPL-3.0
 #ifndef __SPLINES_H
 #define __SPLINES_H
 
+#ifdef RTCW_VANILLA
 //extern "C" {
 #ifdef Q3RADIANT
   #include "../qgl.h"
@@ -15,6 +16,7 @@ SPDX-License-Identifier: GPL-3.0
   #include "qgl.h"
 #endif
 //}
+#endif // RTCW_VANILLA
 #include "util_list.h"
 #include "util_str.h"
 #include "math_vector.h"
@@ -135,12 +137,14 @@ virtual void updateSelection( const idVec3 &move ) {
 	}
 }
 
+#ifdef RTCW_VANILLA
 void drawSelection() {
 	int count = selectedPoints.Num();
 	for ( int i = 0; i < count; i++ ) {
 		glBox( red, *getPoint( selectedPoints[i] ), 4 );
 	}
 }
+#endif // RTCW_VANILLA
 
 protected:
 idList<int> selectedPoints;
@@ -200,8 +204,10 @@ void initPosition( int startTime, int totalTime );
 const idVec3 *getPosition( int time );
 
 
+#ifdef RTCW_VANILLA
 void draw( bool editMode );
 void addToRenderer();
+#endif // RTCW_VANILLA
 
 void setSelectedPoint( idVec3 *p );
 idVec3 *getSelectedPoint() {
@@ -443,7 +449,9 @@ virtual const idVec3 *getPosition( int t ) {
 	return NULL;
 }
 
+#ifdef RTCW_VANILLA
 virtual void draw( bool editMode ) {};
+#endif // RTCW_VANILLA
 
 virtual void parse( const char *( *text ) ) {};
 virtual void write( fileHandle_t file, const char *name );
@@ -465,7 +473,9 @@ virtual void stopEdit() {       //DAJ added void
 	editMode = false;
 }
 
+#ifdef RTCW_VANILLA
 virtual void draw() {};
+#endif // RTCW_VANILLA
 
 const char *typeStr() {
 	return positionStr[static_cast<int>( type )];
@@ -536,9 +546,11 @@ virtual idVec3 *getPoint( int index ) {
 	return &pos;
 }
 
+#ifdef RTCW_VANILLA
 virtual void draw( bool editMode ) {
 	glLabeledPoint( blue, pos, ( editMode ) ? 5 : 3, "Fixed point" );
 }
+#endif // RTCW_VANILLA
 
 protected:
 idVec3 pos;
@@ -604,6 +616,7 @@ virtual void addPoint( const idVec3 &v ) {
 	}
 }
 
+#ifdef RTCW_VANILLA
 virtual void draw( bool editMode ) {
 	glLabeledPoint( blue, startPos, ( editMode ) ? 5 : 3, "Start interpolated" );
 	glLabeledPoint( blue, endPos, ( editMode ) ? 5 : 3, "End interpolated" );
@@ -612,6 +625,7 @@ virtual void draw( bool editMode ) {
 	glVertex3fv( endPos );
 	glEnd();
 }
+#endif // RTCW_VANILLA
 
 virtual void start( int t ) {
 	idCameraPosition::start( t );
@@ -691,9 +705,11 @@ virtual void addPoint( const float x, const float y, const float z ) {
 	target.addPoint( x, y, z );
 }
 
+#ifdef RTCW_VANILLA
 virtual void draw( bool editMode ) {
 	target.draw( editMode );
 }
+#endif // RTCW_VANILLA
 
 virtual void updateSelection( const idVec3 &move ) {
 	idCameraPosition::updateSelection( move );
@@ -1043,6 +1059,7 @@ bool getCameraInfo( int time, float *origin, float *direction, float *fv ) {
 	return b;
 }
 
+#ifdef RTCW_VANILLA
 void draw( bool editMode ) {
 	// gcc doesn't allow casting away from bools
 	// why?  I've no idea...
@@ -1054,6 +1071,7 @@ void draw( bool editMode ) {
 		}
 	}
 }
+#endif // RTCW_VANILLA
 
 #if !defined RTCW_SP
 /*
