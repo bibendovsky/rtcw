@@ -139,13 +139,6 @@ target_sources(rtcw_et_ded
 		../qcommon/qfiles.h
 		../qcommon/vm.cpp
 		../qcommon/vm_local.h
-		../renderer/anorms256.h
-		../renderer/qgl.h
-		../renderer/rtcw_ogl_matrix_stack.h
-		../renderer/rtcw_ogl_program.h
-		../renderer/rtcw_ogl_tess_program.h
-		../renderer/rtcw_ogl_tess_state.h
-		../renderer/tr_local.h
 		../renderer/tr_public.h
 		../server/server.h
 		../server/sv_bot.cpp
@@ -164,9 +157,6 @@ target_sources(rtcw_et_ded
 		../splines/splines.h
 		../splines/util_list.h
 		../splines/util_str.h
-		../system/rtcw_input_joystick.h
-		../system/rtcw_input_keyboard.h
-		../system/rtcw_input_mouse.h
 		../system/rtcw_main.cpp
 		../system/rtcw_main.h
 		../system/rtcw_sdl_utility.cpp

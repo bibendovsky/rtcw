@@ -152,13 +152,12 @@ target_sources(rtcw_sp_demo
 		../qcommon/vm.cpp
 		../qcommon/vm_local.h
 		../renderer/anorms256.h
-		../renderer/glad.cpp
-		../renderer/glad.h
 		../renderer/jpgd.cpp
 		../renderer/jpgd.h
 		../renderer/jpge.cpp
 		../renderer/jpge.h
-		../renderer/khrplatform.h
+		../renderer/KHR/khrplatform.h
+		../renderer/qgl.cpp
 		../renderer/qgl.h
 		../renderer/rtcw_jpeg_reader.cpp
 		../renderer/rtcw_jpeg_reader.h

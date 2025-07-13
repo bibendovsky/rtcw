@@ -7,8 +7,7 @@ SPDX-License-Identifier: GPL-3.0
 #ifndef RTCW_OGL_PROGRAM_INCLUDED
 #define RTCW_OGL_PROGRAM_INCLUDED
 
-
-#include "glad.h"
+#include "qgl.h"
 #include "rtcw_string.h"
 
 

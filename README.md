@@ -16,7 +16,6 @@ Minimum compiling requirements
 Third party use
 ---------------
 
-- [glad](http://github.com/Dav1dde/glad)
 - [jpeg-compressor](http://github.com/richgel999/jpeg-compressor)
 - [libcurl](http://curl.haxx.se/libcurl)
 - [miniz](http://github.com/richgel999/miniz)
