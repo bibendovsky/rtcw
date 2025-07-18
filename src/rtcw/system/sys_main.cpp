@@ -8,50 +8,53 @@ SPDX-License-Identifier: GPL-3.0
 #define SDL_MAIN_HANDLED
 
 #include "SDL.h"
-
+#include <stdlib.h>
 #include "client.h"
 #include "qcommon.h"
 #include "sys_local.h"
 #include "rtcw_main.h"
+#include "rtcw_sdl_utility.h"
 #include "rtcw_string.h"
 
 
 int totalMsec = 0;
 int countMsec = 0;
 
+namespace {
+
+void sys_show_sdl_error(const char* prefix)
+{
+	const int prefix_length = rtcw::String::traits_type::length(prefix);
+	const char* const sdl_error_string = SDL_GetError();
+	const int sdl_error_string_length = rtcw::String::traits_type::length(sdl_error_string);
+	rtcw::String error_string;
+	error_string.reserve(prefix_length + sdl_error_string_length);
+	error_string.append(prefix, prefix_length);
+	error_string.append(sdl_error_string, sdl_error_string_length);
+
+	SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "%s", error_string.c_str());
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "rtcw", error_string.c_str(), NULL);
+}
+
+} // namespace
 
 int main(
 	int argc,
 	char* argv[])
 {
-	if (SDL_Init(0) != 0)
+	rtcw::SdlSystem sdl_system;
+
+	if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0)
 	{
-		const char* sdl_error_message = SDL_GetError();
-
-		if (sdl_error_message == NULL)
-		{
-			sdl_error_message = "";
-		}
-
-		const size_t sdl_error_message_size = rtcw::String::traits_type::length(sdl_error_message);
-
-		rtcw::String error_message;
-		error_message.reserve(sdl_error_message_size + 64);
-		error_message += "Failed to initialize SDL (";
-		error_message.append(sdl_error_message, sdl_error_message_size);
-		error_message += ").";
-
-		SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "%s", error_message.c_str());
-
-		SDL_ShowSimpleMessageBox(
-			SDL_MESSAGEBOX_ERROR,
-			"rtcw",
-			error_message.c_str(),
-			NULL);
-
-		return 1;
+		sys_show_sdl_error("[VIDEO] ");
+		return EXIT_FAILURE;
 	}
 
+	if (SDL_GL_LoadLibrary(NULL) != 0)
+	{
+		sys_show_sdl_error("[GL-LIBRARY] ");
+		return EXIT_FAILURE;
+	}
 
 	const int command_line_reserve = 1024;
 

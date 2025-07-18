@@ -362,7 +362,6 @@ private:
 	bool has_mouse_focus_;
 	bool has_keyboard_focus_;
 	Callback callback_;
-	SdlSubsystem sdl_subsystem_;
 	SdlWindowUPtr sdl_window_uptr_;
 	SdlRendererUPtr sdl_renderer_uptr_;
 	Uint32 sdl_window_id_;
@@ -588,7 +587,6 @@ Syscon::Impl::Impl()
 	has_mouse_focus_(),
 	has_keyboard_focus_(),
 	callback_(),
-	sdl_subsystem_(),
 	sdl_window_uptr_(),
 	sdl_renderer_uptr_(),
 	sdl_window_id_(),
@@ -645,16 +643,6 @@ const char* Syscon::Impl::get_text() const
 bool Syscon::Impl::initialize(Callback callback)
 {
 	set_error_message("Not initialized.");
-
-	// Initialize SDL video subsystem.
-	//
-	if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0)
-	{
-		set_error_message_from_sdl("SDL_InitSubSystem");
-		return false;
-	}
-
-	sdl_subsystem_.reset(SDL_INIT_VIDEO);
 
 	SDL_version sdl_version_rt;
 	SDL_GetVersion(&sdl_version_rt);
@@ -782,7 +770,6 @@ void Syscon::Impl::terminate()
 	font_atlas_.reset();
 	sdl_renderer_uptr_.reset();
 	sdl_window_uptr_.reset();
-	sdl_subsystem_.reset();
 }
 
 void Syscon::Impl::set_title(const char* title)

@@ -50,24 +50,8 @@ bool Keyboard::initialize()
 {
 	uninitialize(true);
 
-
 	Com_Printf("Initializing keyboard input...\n");
-
-	int sdl_result = 0;
-
-	if (SDL_WasInit(SDL_INIT_VIDEO) == 0)
-	{
-		sdl_result = SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-		if (sdl_result != 0)
-		{
-			Com_Printf(S_COLOR_RED "  %s\n", SDL_GetError());
-			return false;
-		}
-	}
-
 	is_initialized_ = true;
-
 	return true;
 }
 

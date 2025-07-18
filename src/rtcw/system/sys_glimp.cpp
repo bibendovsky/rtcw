@@ -394,17 +394,6 @@ void GLimp_Init()
 	bool is_succeed = true;
 	int sdl_result = 0;
 
-	if (is_succeed)
-	{
-		sdl_result = SDL_GL_LoadLibrary(NULL);
-
-		if (sdl_result != 0)
-		{
-			is_succeed = false;
-			ri.Error(ERR_FATAL, "Failed to load OpenGL library: %s\n", SDL_GetError());
-		}
-	}
-
 	int display_width = 0;
 	int display_height = 0;
 	int display_refresh_rate = 0;
@@ -731,7 +720,6 @@ void GLimp_Shutdown()
 	memset(&glConfig, 0, sizeof(glconfig_t));
 	glConfigEx.reset();
 
-	SDL_GL_UnloadLibrary();
 	qgl_shutdown();
 }
 
