@@ -999,8 +999,7 @@ void RB_DrawSun( void ) {
 			backEnd.viewParms.orientation.origin[1],
 			backEnd.viewParms.orientation.origin[2]));
 
-		ogl_tess_state.model_view.set (matrix);
-		ogl_tess_state.commit_changes ();
+		ogl_tess_state.model_view = matrix;
 	} else {
 // BBi
 
@@ -1197,9 +1196,7 @@ void RB_DrawSun( void ) {
 //#if defined RTCW_ET
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.model_view.set (
-			ogl_model_view_stack.pop_and_get ());
-		ogl_tess_state.commit_changes ();
+		ogl_tess_state.model_view = ogl_model_view_stack.pop_and_get();
 	} else {
 	// BBi
 
@@ -1277,12 +1274,13 @@ void RB_StageIteratorSky( void ) {
 					backEnd.viewParms.orientation.origin[1],
 					backEnd.viewParms.orientation.origin[2]));
 
-			ogl_tess_state.model_view.set(matrix);
+			ogl_tess_state.model_view = matrix;
 
-			ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(
-				tr.identityLight, tr.identityLight, tr.identityLight, 1.0F));
-
-			ogl_tess_state.commit_changes ();
+			ogl_tess_state.primary_color = rtcw::cgm::Vec4(
+				tr.identityLight,
+				tr.identityLight,
+				tr.identityLight,
+				1.0F);
 		} else {
 		// BBi
 
@@ -1318,9 +1316,7 @@ void RB_StageIteratorSky( void ) {
 
 		// BBi
 		if (!glConfigEx.is_path_ogl_1_x ()) {
-			ogl_tess_state.model_view.set (
-				ogl_model_view_stack.pop_and_get ());
-			ogl_tess_state.commit_changes ();
+			ogl_tess_state.model_view = ogl_model_view_stack.pop_and_get();
 		} else {
 		// BBi
 
@@ -1347,12 +1343,13 @@ void RB_StageIteratorSky( void ) {
 					backEnd.viewParms.orientation.origin[1],
 					backEnd.viewParms.orientation.origin[2]));
 
-			ogl_tess_state.model_view.set(matrix);
+			ogl_tess_state.model_view = matrix;
 
-			ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(
-				tr.identityLight, tr.identityLight, tr.identityLight, 1.0F));
-
-			ogl_tess_state.commit_changes ();
+			ogl_tess_state.primary_color = rtcw::cgm::Vec4(
+				tr.identityLight,
+				tr.identityLight,
+				tr.identityLight,
+				1.0F);
 		} else {
 		// BBi
 
@@ -1388,9 +1385,7 @@ void RB_StageIteratorSky( void ) {
 
 		// BBi
 		if (!glConfigEx.is_path_ogl_1_x ()) {
-			ogl_tess_state.model_view.set (
-				ogl_model_view_stack.pop_and_get ());
-			ogl_tess_state.commit_changes ();
+			ogl_tess_state.model_view = ogl_model_view_stack.pop_and_get();
 		} else {
 		// BBi
 

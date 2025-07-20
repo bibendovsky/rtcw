@@ -307,9 +307,8 @@ void RB_ShadowFinish( void ) {
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
 		ogl_model_view_stack.set_current(rtcw::cgm::Mat4::identity);
-		ogl_tess_state.model_view.set(ogl_model_view_stack.get_current());
-		ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(0.6F, 0.6F, 0.6F, 1.0F));
-		ogl_tess_state.commit_changes ();
+		ogl_tess_state.model_view = ogl_model_view_stack.get_current();
+		ogl_tess_state.primary_color = rtcw::cgm::Vec4(0.6F, 0.6F, 0.6F, 1.0F);
 	} else {
 	// BBi
 
@@ -335,8 +334,7 @@ void RB_ShadowFinish( void ) {
 
 		ogl_tess2_draw (GL_TRIANGLE_STRIP, 4, false, false);
 
-		ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(1.0F, 1.0F, 1.0F, 1.0F));
-		ogl_tess_state.commit_changes ();
+		ogl_tess_state.primary_color = rtcw::cgm::Vec4(1.0F, 1.0F, 1.0F, 1.0F);
 	} else {
 	// BBi
 

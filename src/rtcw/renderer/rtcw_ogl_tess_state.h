@@ -9,73 +9,95 @@ SPDX-License-Identifier: GPL-3.0
 
 #include "rtcw_cgm_mat.h"
 #include "rtcw_cgm_vec.h"
-#include "rtcw_mod_value.h"
 #include "rtcw_ogl_tess_program.h"
 
-namespace rtcw
-{
-
+namespace rtcw {
 
 class OglTessState
 {
 public:
-	rtcw::ModValue<cgm::Mat4> projection;
-	rtcw::ModValue<cgm::Mat4> model_view;
+	cgm::Mat4 old_projection;
+	cgm::Mat4 projection;
 
-	rtcw::ModValue<bool> use_multitexturing;
+	cgm::Mat4 old_model_view;
+	cgm::Mat4 model_view;
 
-	rtcw::ModValue<GLint> tex_2d[2];
-	rtcw::ModValue<GLenum> tex_env_mode[2];
+	bool old_use_multitexturing;
+	bool use_multitexturing;
 
-	rtcw::ModValue<cgm::Vec4> primary_color;
+	GLint old_tex_2d[2];
+	GLint tex_2d[2];
 
-	rtcw::ModValue<bool> use_alpha_test;
-	rtcw::ModValue<GLenum> alpha_test_func;
-	rtcw::ModValue<float> alpha_test_ref;
+	GLenum old_tex_env_mode[2];
+	GLenum tex_env_mode[2];
 
-	rtcw::ModValue<bool> use_fog;
-	rtcw::ModValue<GLenum> fog_mode;
-	rtcw::ModValue<GLenum> fog_dist_mode;
-	rtcw::ModValue<GLenum> fog_hint;
-	rtcw::ModValue<float> fog_density;
-	rtcw::ModValue<float> fog_start;
-	rtcw::ModValue<float> fog_end;
-	rtcw::ModValue<cgm::Vec4> fog_color;
+	cgm::Vec4 old_primary_color;
+	cgm::Vec4 primary_color;
 
-	rtcw::ModValue<float> intensity;
-	rtcw::ModValue<float> overbright;
-	rtcw::ModValue<float> gamma;
+	bool old_use_alpha_test;
+	bool use_alpha_test;
 
+	GLenum old_alpha_test_func;
+	GLenum alpha_test_func;
 
+	float old_alpha_test_ref;
+	float alpha_test_ref;
+
+	bool old_use_fog;
+	bool use_fog;
+
+	GLenum old_fog_mode;
+	GLenum fog_mode;
+
+	GLenum old_fog_dist_mode;
+	GLenum fog_dist_mode;
+
+	GLenum old_fog_hint;
+	GLenum fog_hint;
+
+	float old_fog_density;
+	float fog_density;
+
+	float old_fog_start;
+	float fog_start;
+
+	float old_fog_end;
+	float fog_end;
+
+	cgm::Vec4 old_fog_color;
+	cgm::Vec4 fog_color;
+
+	float old_intensity;
+	float intensity;
+
+	float old_overbright;
+	float overbright;
+
+	float old_gamma;
+	float gamma;
+
+public:
 	OglTessState();
+	~OglTessState() {}
 
-	~OglTessState();
-
-
-	void set_program(
-		rtcw::OglTessProgram* program);
-
+	void use_program();
+	void set_program(rtcw::OglTessProgram* program);
 	void set_default_values();
-
 	void commit_changes();
-
 	void invalidate();
-
 	void invalidate_and_commit();
 
-
 private:
+	bool is_dirty_;
 	rtcw::OglTessProgram* program_;
 
+private:
+	OglTessState(const OglTessState&);
+	OglTessState& operator=(const OglTessState&);
 
 	bool is_program_valid() const;
+};
 
-	OglTessState(const OglTessState& that);
-	OglTessState& operator = (const OglTessState& that);
-}; // OglTessState
-
-
-} // rtcw
-
+} // namespace rtcw
 
 #endif // !RTCW_OGL_TESS_STATE_INCLUDED

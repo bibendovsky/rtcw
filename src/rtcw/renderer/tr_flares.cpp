@@ -578,9 +578,8 @@ void RB_RenderFlares( void ) {
 			-99999.0F,
 			99999.0F));
 
-		ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
-		ogl_tess_state.projection.set (ogl_projection_stack.get_current ());
-		ogl_tess_state.commit_changes ();
+		ogl_tess_state.model_view = ogl_model_view_stack.get_current();
+		ogl_tess_state.projection = ogl_projection_stack.get_current();
 	} else {
 	// BBi
 
@@ -607,9 +606,8 @@ void RB_RenderFlares( void ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.model_view.set (ogl_model_view_stack.pop_and_get ());
-		ogl_tess_state.projection.set (ogl_projection_stack.pop_and_get ());
-		ogl_tess_state.commit_changes ();
+		ogl_tess_state.model_view = ogl_model_view_stack.pop_and_get();
+		ogl_tess_state.projection = ogl_projection_stack.pop_and_get();
 	} else {
 	// BBi
 

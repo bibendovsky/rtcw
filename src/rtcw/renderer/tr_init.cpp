@@ -538,6 +538,7 @@ void r_dbg_reload_programs_f()
 	}
 
 	ogl_tess_state.set_program(ogl_tess_program);
+	ogl_tess_state.use_program();
 	ogl_tess_state.invalidate_and_commit();
 
 	ri.Printf(PRINT_ALL, "======== GLSL (debug) ========\n");
@@ -926,6 +927,7 @@ void r_reload_programs_f()
 	}
 
 	ogl_tess_state.set_program(ogl_tess_program);
+	ogl_tess_state.use_program();
 	ogl_tess_state.invalidate_and_commit();
 
 	ri.Printf(PRINT_ALL, "======== GLSL ========\n");
@@ -1534,7 +1536,7 @@ void GL_SetDefaultState( void ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.primary_color.set (rtcw::cgm::Vec4(1.0F, 1.0F, 1.0F, 1.0F));
+		ogl_tess_state.primary_color = rtcw::cgm::Vec4(1.0F, 1.0F, 1.0F, 1.0F);
 	} else {
 	// BBi
 
@@ -1589,9 +1591,9 @@ void GL_SetDefaultState( void ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.tex_2d[0].set (0);
-		ogl_tess_state.tex_2d[1].set (1);
-		ogl_tess_state.use_multitexturing.set (false);
+		ogl_tess_state.tex_2d[0] = 0;
+		ogl_tess_state.tex_2d[1] = 1;
+		ogl_tess_state.use_multitexturing = false;
 	}
 	// BBi
 
@@ -1644,10 +1646,6 @@ void GL_SetDefaultState( void ) {
 	}
 
 //----(SA)	end
-
-	// BBi
-	ogl_tess_state.commit_changes ();
-	// BBi
 }
 
 

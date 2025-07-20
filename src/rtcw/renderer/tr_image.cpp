@@ -2985,9 +2985,9 @@ void R_SetColorMappings( void ) {
 		const int overbright_bits = std::min(std::max(r_overBrightBits->integer, 0), 2);
 		const float overbright = static_cast<float>(1 << overbright_bits);
 
-		ogl_tess_state.intensity.set(r_intensity->value);
-		ogl_tess_state.overbright.set(overbright);
-		ogl_tess_state.gamma.set(r_gamma->value);
+		ogl_tess_state.intensity = r_intensity->value;
+		ogl_tess_state.overbright = overbright;
+		ogl_tess_state.gamma = r_gamma->value;
 	}
 #endif // RTCW_VANILLA
 }

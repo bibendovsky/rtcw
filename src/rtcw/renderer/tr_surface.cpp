@@ -626,8 +626,7 @@ void RB_SurfaceBeam( void ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(1.0F, 0.0F, 0.0F, 1.0F));
-		ogl_tess_state.commit_changes ();
+		ogl_tess_state.primary_color = rtcw::cgm::Vec4(1.0F, 0.0F, 0.0F, 1.0F);
 
 		int vertex_index = 0;
 		const float* v;

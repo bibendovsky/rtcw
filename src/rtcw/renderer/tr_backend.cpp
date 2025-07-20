@@ -27,102 +27,116 @@ static float s_flipMatrix[16] = {
 
 
 // BBi
-void ogl_tess2_draw (GLenum mode, int vertex_count,
-	bool use_texture_coords, bool use_color)
+void ogl_tess2_draw(GLenum mode, int vertex_count, bool use_texture_coords, bool use_color)
 {
 	if (vertex_count <= 0)
+	{
 		return;
+	}
 
 	if (ogl_tess_program->program_ == 0)
+	{
 		return;
+	}
 
 	if (ogl_tess2_vbo == 0)
+	{
 		return;
+	}
 
-	bool use_pos_array = (ogl_tess_program->a_pos_vec4 >= 0);
-	bool use_tc0_array = use_texture_coords &&
-		(ogl_tess_program->a_pos_vec4 >= 0);
-	bool use_col_array = use_color &&
-		(ogl_tess_program->a_col_vec4 >= 0);
+	const bool use_pos_array = ogl_tess_program->a_pos_vec4 >= 0;
+	const bool use_tc0_array = use_texture_coords && ogl_tess_program->a_pos_vec4 >= 0;
+	const bool use_col_array = use_color && ogl_tess_program->a_col_vec4 >= 0;
 
-	if ((!use_pos_array) && (!use_tc0_array) && (!use_col_array))
+	if (!use_pos_array && !use_tc0_array && !use_col_array)
+	{
 		return;
+	}
 
-
-	if ((ogl_tess2_base_vertex + vertex_count) >
-		OglTessLayout::MAX_VERTEX_COUNT)
+	if (ogl_tess2_base_vertex + vertex_count > OglTessLayout::MAX_VERTEX_COUNT)
 	{
 		ogl_tess2_base_vertex = 0;
 	}
 
-	glUseProgram (ogl_tess_program->program_);
-
+	ogl_tess_state.commit_changes();
 	glBindBuffer (GL_ARRAY_BUFFER, ogl_tess2_vbo);
 
-	if (use_pos_array) {
-		glBufferSubData (GL_ARRAY_BUFFER,
-			OglTessLayout::POS_OFS +
-				(ogl_tess2_base_vertex * OglTessLayout::POS_SIZE),
+	// position
+	if (use_pos_array)
+	{
+		glBufferSubData(
+			GL_ARRAY_BUFFER,
+			OglTessLayout::POS_OFS + (ogl_tess2_base_vertex * OglTessLayout::POS_SIZE),
 			vertex_count * OglTessLayout::POS_SIZE,
 			ogl_tess2.position);
-	}
 
-	if (use_tc0_array) {
-		glBufferSubData (GL_ARRAY_BUFFER,
-			OglTessLayout::TC0_OFS +
-				(ogl_tess2_base_vertex * OglTessLayout::TC0_SIZE),
-			vertex_count * OglTessLayout::TC0_SIZE,
-			ogl_tess2.texture_coords[0]);
-	}
-
-	if (use_col_array) {
-		glBufferSubData (GL_ARRAY_BUFFER,
-			OglTessLayout::COL_OFS +
-				(ogl_tess2_base_vertex * OglTessLayout::COL_SIZE),
-			vertex_count * OglTessLayout::COL_SIZE,
-			ogl_tess2.color);
-	}
-
-	// position
-	if (use_pos_array) {
-		glVertexAttribPointer (ogl_tess_program->a_pos_vec4, 3, GL_FLOAT,
-			GL_FALSE, OglTessLayout::POS_SIZE,
+		glVertexAttribPointer(
+			ogl_tess_program->a_pos_vec4,
+			3,
+			GL_FLOAT,
+			GL_FALSE,
+			static_cast<GLsizei>(OglTessLayout::POS_SIZE),
 			OglTessLayout::POS_PTR);
 
-		glEnableVertexAttribArray (ogl_tess_program->a_pos_vec4);
+		glEnableVertexAttribArray(ogl_tess_program->a_pos_vec4);
 	}
 
 	// texture coordinates (0)
-	if (use_tc0_array) {
-		glVertexAttribPointer (ogl_tess_program->a_tc0_vec2, 2, GL_FLOAT,
-			GL_FALSE, 0, OglTessLayout::TC0_PTR);
+	if (use_tc0_array)
+	{
+		glBufferSubData(
+			GL_ARRAY_BUFFER,
+			OglTessLayout::TC0_OFS + (ogl_tess2_base_vertex * OglTessLayout::TC0_SIZE),
+			vertex_count * OglTessLayout::TC0_SIZE,
+			ogl_tess2.texture_coords[0]);
 
-		glEnableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
+		glVertexAttribPointer(
+			ogl_tess_program->a_tc0_vec2,
+			2,
+			GL_FLOAT,
+			GL_FALSE,
+			0,
+			OglTessLayout::TC0_PTR);
+
+		glEnableVertexAttribArray(ogl_tess_program->a_tc0_vec2);
 	}
 
 	// color
-	if (use_col_array) {
-		glVertexAttribPointer (ogl_tess_program->a_col_vec4, 4,
-			GL_UNSIGNED_BYTE, GL_TRUE, 0,
+	if (use_col_array)
+	{
+		glBufferSubData(
+			GL_ARRAY_BUFFER,
+			OglTessLayout::COL_OFS + (ogl_tess2_base_vertex * OglTessLayout::COL_SIZE),
+			vertex_count * OglTessLayout::COL_SIZE,
+			ogl_tess2.color);
+
+		glVertexAttribPointer(
+			ogl_tess_program->a_col_vec4,
+			4,
+			GL_UNSIGNED_BYTE,
+			GL_TRUE,
+			0,
 			OglTessLayout::COL_PTR);
 
-		glEnableVertexAttribArray (ogl_tess_program->a_col_vec4);
+		glEnableVertexAttribArray(ogl_tess_program->a_col_vec4);
 	}
 
-	glDrawArrays (mode, ogl_tess2_base_vertex, vertex_count);
-
-	glUseProgram (0);
+	glDrawArrays(mode, ogl_tess2_base_vertex, vertex_count);
 
 	if (use_pos_array)
-		glDisableVertexAttribArray (ogl_tess_program->a_pos_vec4);
+	{
+		glDisableVertexAttribArray(ogl_tess_program->a_pos_vec4);
+	}
 
 	if (use_tc0_array)
-		glDisableVertexAttribArray (ogl_tess_program->a_tc0_vec2);
+	{
+		glDisableVertexAttribArray(ogl_tess_program->a_tc0_vec2);
+	}
 
 	if (use_col_array)
-		glDisableVertexAttribArray (ogl_tess_program->a_col_vec4);
-
-	glBindBuffer (GL_ARRAY_BUFFER, 0);
+	{
+		glDisableVertexAttribArray(ogl_tess_program->a_col_vec4);
+	}
 
 	ogl_tess2_base_vertex += vertex_count;
 }
@@ -283,7 +297,7 @@ void GL_TexEnv( int env ) {
 	case GL_MODULATE:
 		// BBi
 		if (!glConfigEx.is_path_ogl_1_x ()) {
-			ogl_tess_state.tex_env_mode[tu].set (GL_MODULATE);
+			ogl_tess_state.tex_env_mode[tu] = GL_MODULATE;
 		} else {
 		// BBi
 
@@ -297,7 +311,7 @@ void GL_TexEnv( int env ) {
 	case GL_REPLACE:
 		// BBi
 		if (!glConfigEx.is_path_ogl_1_x ()) {
-			ogl_tess_state.tex_env_mode[tu].set (GL_REPLACE);
+			ogl_tess_state.tex_env_mode[tu] = GL_REPLACE;
 		} else {
 		// BBi
 
@@ -311,7 +325,7 @@ void GL_TexEnv( int env ) {
 	case GL_DECAL:
 		// BBi
 		if (!glConfigEx.is_path_ogl_1_x ()) {
-			ogl_tess_state.tex_env_mode[tu].set (GL_DECAL);
+			ogl_tess_state.tex_env_mode[tu] = GL_DECAL;
 		} else {
 		// BBi
 
@@ -325,7 +339,7 @@ void GL_TexEnv( int env ) {
 	case GL_ADD:
 		// BBi
 		if (!glConfigEx.is_path_ogl_1_x ()) {
-			ogl_tess_state.tex_env_mode[tu].set (GL_ADD);
+			ogl_tess_state.tex_env_mode[tu] = GL_ADD;
 		} else {
 		// BBi
 
@@ -340,11 +354,6 @@ void GL_TexEnv( int env ) {
 		ri.Error( ERR_DROP, "GL_TexEnv: invalid env '%d' passed\n", env );
 		break;
 	}
-
-	// BBi
-	if (!glConfigEx.is_path_ogl_1_x ())
-		ogl_tess_state.commit_changes ();
-	// BBi
 }
 
 /*
@@ -499,7 +508,7 @@ void GL_State( uint32_t stateBits ) {
 		case 0:
 			// BBi
 			if (!glConfigEx.is_path_ogl_1_x ()) {
-				ogl_tess_state.use_alpha_test.set (false);
+				ogl_tess_state.use_alpha_test = false;
 			} else {
 			// BBi
 
@@ -513,9 +522,9 @@ void GL_State( uint32_t stateBits ) {
 		case GLS_ATEST_GT_0:
 			// BBi
 			if (!glConfigEx.is_path_ogl_1_x ()) {
-				ogl_tess_state.use_alpha_test.set (true);
-				ogl_tess_state.alpha_test_func.set (GL_GREATER);
-				ogl_tess_state.alpha_test_ref.set (0.0F);
+				ogl_tess_state.use_alpha_test = true;
+				ogl_tess_state.alpha_test_func = GL_GREATER;
+				ogl_tess_state.alpha_test_ref = 0.0F;
 			} else {
 			// BBi
 
@@ -530,9 +539,9 @@ void GL_State( uint32_t stateBits ) {
 		case GLS_ATEST_LT_80:
 			// BBi
 			if (!glConfigEx.is_path_ogl_1_x ()) {
-				ogl_tess_state.use_alpha_test.set (true);
-				ogl_tess_state.alpha_test_func.set (GL_LESS);
-				ogl_tess_state.alpha_test_ref.set (0.5F);
+				ogl_tess_state.use_alpha_test = true;
+				ogl_tess_state.alpha_test_func = GL_LESS;
+				ogl_tess_state.alpha_test_ref = 0.5F;
 			} else {
 			// BBi
 
@@ -547,9 +556,9 @@ void GL_State( uint32_t stateBits ) {
 		case GLS_ATEST_GE_80:
 			// BBi
 			if (!glConfigEx.is_path_ogl_1_x ()) {
-				ogl_tess_state.use_alpha_test.set (true);
-				ogl_tess_state.alpha_test_func.set (GL_GEQUAL);
-				ogl_tess_state.alpha_test_ref.set (0.5F);
+				ogl_tess_state.use_alpha_test = true;
+				ogl_tess_state.alpha_test_func = GL_GEQUAL;
+				ogl_tess_state.alpha_test_ref = 0.5F;
 			} else {
 			// BBi
 
@@ -565,11 +574,6 @@ void GL_State( uint32_t stateBits ) {
 			assert( 0 );
 			break;
 		}
-
-		// BBi
-		if (!glConfigEx.is_path_ogl_1_x ())
-			ogl_tess_state.commit_changes ();
-		// BBi
 	}
 
 	glState.glStateBits = stateBits;
@@ -603,9 +607,7 @@ static void SetViewportAndScissor( void ) {
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
 		ogl_projection_stack.set_current (backEnd.viewParms.projectionMatrix);
-
-		ogl_tess_state.projection.set (ogl_projection_stack.get_current ());
-		ogl_tess_state.commit_changes ();
+		ogl_tess_state.projection = ogl_projection_stack.get_current();
 	} else {
 	// BBi
 
@@ -852,8 +854,7 @@ void RB_BeginDrawingView( void ) {
 		// BBi
 		if (!glConfigEx.is_path_ogl_1_x ()) {
 			ogl_model_view_stack.set_current (s_flipMatrix);
-			ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
-			ogl_tess_state.commit_changes ();
+			ogl_tess_state.model_view = ogl_model_view_stack.get_current();
 		} else {
 		// BBi
 
@@ -1425,9 +1426,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 //#endif // RTCW_XX
 			if (!glConfigEx.is_path_ogl_1_x ()) {
 				ogl_model_view_stack.set_current (matrix);
-
-				ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
-				ogl_tess_state.commit_changes ();
+				ogl_tess_state.model_view = ogl_model_view_stack.get_current();
 			} else
 				glLoadMatrixf (matrix);
 // BBi
@@ -1503,8 +1502,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
 		ogl_model_view_stack.set_current (backEnd.viewParms.world.modelMatrix);
-		ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
-		ogl_tess_state.commit_changes ();
+		ogl_tess_state.model_view = ogl_model_view_stack.get_current();
 	} else {
 	// BBi
 
@@ -1562,9 +1560,8 @@ void    RB_SetGL2D( void ) {
 			0.0F,
 			1.0F));
 
-		ogl_tess_state.model_view.set (ogl_model_view_stack.get_current ());
-		ogl_tess_state.projection.set (ogl_projection_stack.get_current ());
-		ogl_tess_state.commit_changes ();
+		ogl_tess_state.model_view = ogl_model_view_stack.get_current();
+		ogl_tess_state.projection = ogl_projection_stack.get_current();
 	} else {
 	// BBi
 
@@ -1585,8 +1582,7 @@ void    RB_SetGL2D( void ) {
 #if defined RTCW_SP
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.use_fog.set (false);
-		ogl_tess_state.commit_changes ();
+		ogl_tess_state.use_fog = false;
 	} else {
 	// BBi
 
@@ -1679,13 +1675,11 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(
+		ogl_tess_state.primary_color = rtcw::cgm::Vec4(
 			tr.identityLight,
 			tr.identityLight,
 			tr.identityLight,
-			1.0F));
-
-		ogl_tess_state.commit_changes ();
+			1.0F);
 	} else {
 	// BBi
 

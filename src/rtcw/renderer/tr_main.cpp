@@ -96,17 +96,18 @@ void R_Fog( glfog_t *curfog ) {
 #endif // RTCW_XX
 		}
 
-		ogl_tess_state.fog_mode.set (curfog->mode);
-		ogl_tess_state.fog_dist_mode.set (glConfig.NVFogMode);
-		ogl_tess_state.fog_hint.set (curfog->hint);
-		ogl_tess_state.fog_density.set (curfog->density);
-		ogl_tess_state.fog_start.set (fog_start);
-		ogl_tess_state.fog_end.set (fog_end);
+		ogl_tess_state.fog_mode = curfog->mode;
+		ogl_tess_state.fog_dist_mode = glConfig.NVFogMode;
+		ogl_tess_state.fog_hint = curfog->hint;
+		ogl_tess_state.fog_density = curfog->density;
+		ogl_tess_state.fog_start = fog_start;
+		ogl_tess_state.fog_end = fog_end;
 
-		ogl_tess_state.fog_color.set(rtcw::cgm::Vec4(
-			curfog->color[0], curfog->color[1], curfog->color[2], curfog->color[3]));
-
-		ogl_tess_state.commit_changes ();
+		ogl_tess_state.fog_color = rtcw::cgm::Vec4(
+			curfog->color[0],
+			curfog->color[1],
+			curfog->color[2],
+			curfog->color[3]);
 	} else {
 	// BBi
 
@@ -199,8 +200,7 @@ void R_FogOff( void ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.use_fog.set (false);
-		ogl_tess_state.commit_changes ();
+		ogl_tess_state.use_fog = false;
 	} else {
 	// BBi
 
@@ -257,8 +257,7 @@ void R_FogOn( void ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.use_fog.set (true);
-		ogl_tess_state.commit_changes ();
+		ogl_tess_state.use_fog = true;
 	} else {
 	// BBi
 
@@ -2467,13 +2466,11 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(
+		ogl_tess_state.primary_color = rtcw::cgm::Vec4(
 			static_cast<float>(color % 2),
 			static_cast<float>((color / 2) % 2),
 			static_cast<float>((color / 4) % 2),
-			1.0F));
-
-		ogl_tess_state.commit_changes ();
+			1.0F);
 
 		for (i = 0; i < numPoints; ++i) {
 			const float* v = points + (3 * i);
@@ -2501,8 +2498,7 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 
 	// BBi
 	if (!glConfigEx.is_path_ogl_1_x ()) {
-		ogl_tess_state.primary_color.set(rtcw::cgm::Vec4(1.0F, 10.0F, 1.0F, 1.0F));
-		ogl_tess_state.commit_changes ();
+		ogl_tess_state.primary_color = rtcw::cgm::Vec4(1.0F, 1.0F, 1.0F, 1.0F);
 
 		for (i = 0; i < numPoints; ++i) {
 			const float* v = points + (3 * i);
