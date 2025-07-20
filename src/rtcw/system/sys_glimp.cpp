@@ -6,6 +6,8 @@ SPDX-License-Identifier: GPL-3.0
 */
 
 
+#include <ctype.h>
+#include <string.h>
 #include <algorithm>
 #include <memory>
 
@@ -37,64 +39,396 @@ const int FALLBACK_WIDTH = 640;
 const int FALLBACK_HEIGHT = 480;
 
 enum ExtensionStatus {
-	EXT_STATUS_FOUND,
-	EXT_STATUS_MISSED,
-	EXT_STATUS_IGNORED,
+	EXT_STATUS_USING,
+	EXT_STATUS_NOT_FOUND,
+	EXT_STATUS_IGNORING,
 }; // enum ExtensionStatus
 
+// ======================================
+
+class GlVersion
+{
+public:
+	GlVersion();
+	GlVersion(int version_major, int version_minor);
+	GlVersion(const GlVersion& that);
+	GlVersion& operator=(const GlVersion& that);
+
+	bool is_empty() const;
+	int get_major() const;
+	int get_minor() const;
+
+	bool operator>=(const GlVersion& that) const;
+
+private:
+	unsigned char value_;
+};
+
+// --------------------------------------
+
+GlVersion::GlVersion()
+	:
+	value_()
+{}
+
+GlVersion::GlVersion(int version_major, int version_minor)
+	:
+	value_(static_cast<unsigned char>(version_major * 10 + version_minor))
+{}
+
+GlVersion::GlVersion(const GlVersion& that)
+{
+	value_ = that.value_;
+}
+
+GlVersion& GlVersion::operator=(const GlVersion& that)
+{
+	value_ = that.value_;
+	return *this;
+}
+
+bool GlVersion::is_empty() const
+{
+	return value_ == 0;
+}
+
+int GlVersion::get_major() const
+{
+	return value_ / 10;
+}
+
+int GlVersion::get_minor() const
+{
+	return value_ % 10;
+}
+
+bool GlVersion::operator>=(const GlVersion& that) const
+{
+	return value_ >= that.value_;
+}
+
+// ======================================
+
+struct GlFunctionInfo
+{
+	const char* name;
+	void** function_ptr;
+};
+
+// ======================================
 
 SDL_GLContext gl_context;
+GlVersion glimp_gl_version;
 
+// ======================================
 
-bool gl_is_2_x_capable()
+template<typename T>
+void maybe_unused(const T&)
+{}
+
+// ======================================
+
+template<typename TDst, typename TSrc>
+TDst glimp_bit_cast(const TSrc& src)
 {
-	if (!(SDL_GL_ExtensionSupported("GL_ARB_multitexture") &&
-		SDL_GL_ExtensionSupported("GL_ARB_shader_objects") &&
-		SDL_GL_ExtensionSupported("GL_ARB_vertex_buffer_object") &&
-		SDL_GL_ExtensionSupported("GL_ARB_vertex_program") &&
-		SDL_GL_ExtensionSupported("GL_ARB_vertex_shader")))
+	const size_t size = sizeof(TSrc);
+	typedef char Sanity[2 * (size == sizeof(TDst)) - 1];
+	TDst dst;
+	memcpy(&dst, &src, size);
+	return dst;
+}
+
+template<typename TDst, typename TSrc>
+void glimp_bit_cast(const TSrc& src, TDst& dst)
+{
+	const size_t size = sizeof(TSrc);
+	typedef char Sanity[2 * (size == sizeof(TDst)) - 1];
+	memcpy(&dst, &src, size);
+}
+
+template<typename TProc>
+bool glimp_gl_get_proc_address(const char* proc_name, TProc& proc)
+{
+	glimp_bit_cast(SDL_GL_GetProcAddress(proc_name), proc);
+	return proc != NULL;
+}
+
+#define RTCW_GLIMP_GL_GET_PROC_ADDRESS(symbol) glimp_gl_get_proc_address(#symbol, symbol)
+
+// ======================================
+
+GlVersion glimp_get_gl_version()
+{
+	SDL_GL_ResetAttributes();
+
+	SDL_Window* const sdl_window = SDL_CreateWindow(
+		NULL,
+		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED,
+		FALLBACK_WIDTH,
+		FALLBACK_HEIGHT,
+		SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
+
+	if (sdl_window != NULL)
 	{
-		return false;
+		SDL_GLContext const sdl_gl_context = SDL_GL_CreateContext(sdl_window);
+
+		if (sdl_gl_context != NULL)
+		{
+			PFNGLGETSTRINGPROC impl_glGetString = NULL;
+			glimp_gl_get_proc_address("glGetString", impl_glGetString);
+
+			if (impl_glGetString != NULL)
+			{
+				const char* const gl_version_string = reinterpret_cast<const char*>(impl_glGetString(GL_VERSION));
+
+				if (gl_version_string != NULL &&
+					isdigit(gl_version_string[0]) &&
+					gl_version_string[1] == '.' &&
+					isdigit(gl_version_string[2]) &&
+					(gl_version_string[3] == ' ' || gl_version_string[3] == '.'))
+				{
+					const int version_major = gl_version_string[0] - '0';
+					const int version_minor = gl_version_string[2] - '0';
+					return GlVersion(version_major, version_minor);
+				}
+			}
+
+			SDL_GL_DeleteContext(sdl_gl_context);
+		}
+
+		SDL_DestroyWindow(sdl_window);
 	}
 
-	if (!(glActiveTexture &&
-		glAttachShader &&
-		glBindBuffer &&
-		glBufferData &&
-		glBufferSubData &&
-		glCompileShader &&
-		glCreateProgram &&
-		glCreateShader &&
-		glDeleteBuffers &&
-		glDeleteProgram &&
-		glDeleteShader &&
-		glDisableVertexAttribArray &&
-		glEnableVertexAttribArray &&
-		glGenBuffers &&
-		glGetAttribLocation &&
-		glGetProgramInfoLog &&
-		glGetProgramiv &&
-		glGetShaderInfoLog &&
-		glGetShaderiv &&
-		glGetUniformLocation &&
-		glLinkProgram &&
-		glShaderSource &&
-		glUniform1f &&
-		glUniform1i &&
-		glUniform4fv &&
-		glUniformMatrix4fv &&
-		glUseProgram &&
-		glVertexAttrib2f &&
-		glVertexAttrib4f &&
-		glVertexAttribPointer))
+	return GlVersion();
+}
+
+// ======================================
+
+bool glimp_load_gl_functions(const char* message_color, GlFunctionInfo* gl_function_infos)
+{
+	const bool is_white_color = strcmp(message_color, S_COLOR_WHITE) == 0;
+	bool is_failed = false;
+
+	for (int i_gl_function_info = 0; ; ++i_gl_function_info)
 	{
+		GlFunctionInfo& gl_function_info = gl_function_infos[i_gl_function_info];
+
+		if (gl_function_info.name == NULL)
+		{
+			break;
+		}
+
+		if (gl_function_info.function_ptr == NULL)
+		{
+			continue;
+		}
+
+		void* const function = SDL_GL_GetProcAddress(gl_function_info.name);
+
+		if (function == NULL)
+		{
+			is_failed = true;
+
+			if (is_white_color)
+			{
+				ri.Printf(PRINT_ALL, "  missing %s\n", gl_function_info.name);
+			}
+			else
+			{
+				ri.Printf(PRINT_ALL, "  %smissing %s%s\n", message_color, gl_function_info.name, S_COLOR_WHITE);
+			}
+		}
+
+		*gl_function_info.function_ptr = function;
+	}
+
+	if (is_failed)
+	{
+		for (int i_gl_function_info = 0; ; ++i_gl_function_info)
+		{
+			GlFunctionInfo& gl_function_info = gl_function_infos[i_gl_function_info];
+
+			if (gl_function_info.name == NULL || gl_function_info.function_ptr == NULL)
+			{
+				break;
+			}
+
+			*gl_function_info.function_ptr = NULL;
+		}
+
 		return false;
 	}
 
 	return true;
 }
 
-void gl_print_extension(
+// ======================================
+
+void glimp_initialize_gl1_essential_functions()
+{
+	GlFunctionInfo gl_function_infos[] =
+	{
+#define RTCW_MACRO(symbol) {#symbol, glimp_bit_cast<void**>(&symbol)}
+
+		// OpenGL v1.0
+		//
+		RTCW_MACRO(glAlphaFunc),
+		RTCW_MACRO(glBegin),
+		RTCW_MACRO(glBlendFunc),
+		RTCW_MACRO(glCallList),
+		RTCW_MACRO(glCallLists),
+		RTCW_MACRO(glClear),
+		RTCW_MACRO(glClearColor),
+		RTCW_MACRO(glClearDepth),
+		RTCW_MACRO(glClearStencil),
+		RTCW_MACRO(glClipPlane),
+		RTCW_MACRO(glColor3f),
+		RTCW_MACRO(glColor3fv),
+		RTCW_MACRO(glColor4f),
+		RTCW_MACRO(glColor4fv),
+		RTCW_MACRO(glColor4ubv),
+		RTCW_MACRO(glColorMask),
+		RTCW_MACRO(glCullFace),
+		RTCW_MACRO(glDepthFunc),
+		RTCW_MACRO(glDepthMask),
+		RTCW_MACRO(glDepthRange),
+		RTCW_MACRO(glDisable),
+		RTCW_MACRO(glDrawBuffer),
+		RTCW_MACRO(glEnable),
+		RTCW_MACRO(glEnd),
+		RTCW_MACRO(glFinish),
+		RTCW_MACRO(glFogf),
+		RTCW_MACRO(glFogfv),
+		RTCW_MACRO(glFogi),
+		RTCW_MACRO(glGetError),
+		RTCW_MACRO(glGetFloatv),
+		RTCW_MACRO(glGetIntegerv),
+		RTCW_MACRO(glGetString),
+		RTCW_MACRO(glGetTexLevelParameteriv),
+		RTCW_MACRO(glHint),
+		RTCW_MACRO(glLineWidth),
+		RTCW_MACRO(glListBase),
+		RTCW_MACRO(glLoadIdentity),
+		RTCW_MACRO(glLoadMatrixf),
+		RTCW_MACRO(glMatrixMode),
+		RTCW_MACRO(glOrtho),
+		RTCW_MACRO(glPointSize),
+		RTCW_MACRO(glPolygonMode),
+		RTCW_MACRO(glPopAttrib),
+		RTCW_MACRO(glPopMatrix),
+		RTCW_MACRO(glPushAttrib),
+		RTCW_MACRO(glPushMatrix),
+		RTCW_MACRO(glRasterPos3fv),
+		RTCW_MACRO(glReadPixels),
+		RTCW_MACRO(glScissor),
+		RTCW_MACRO(glShadeModel),
+		RTCW_MACRO(glStencilFunc),
+		RTCW_MACRO(glStencilMask),
+		RTCW_MACRO(glStencilOp),
+		RTCW_MACRO(glTexCoord2f),
+		RTCW_MACRO(glTexCoord2fv),
+		RTCW_MACRO(glTexEnvf),
+		RTCW_MACRO(glTexImage2D),
+		RTCW_MACRO(glTexParameterf),
+		RTCW_MACRO(glTexParameterfv),
+		RTCW_MACRO(glTexParameteri),
+		RTCW_MACRO(glTranslatef),
+		RTCW_MACRO(glVertex2f),
+		RTCW_MACRO(glVertex3f),
+		RTCW_MACRO(glVertex3fv),
+		RTCW_MACRO(glViewport),
+
+		// OpenGL v1.1
+		//
+		RTCW_MACRO(glArrayElement),
+		RTCW_MACRO(glBindTexture),
+		RTCW_MACRO(glColorPointer),
+		RTCW_MACRO(glCopyTexImage2D),
+		RTCW_MACRO(glDeleteTextures),
+		RTCW_MACRO(glDisableClientState),
+		RTCW_MACRO(glDrawArrays),
+		RTCW_MACRO(glDrawElements),
+		RTCW_MACRO(glEnableClientState),
+		RTCW_MACRO(glGenTextures),
+		RTCW_MACRO(glNormalPointer),
+		RTCW_MACRO(glPolygonOffset),
+		RTCW_MACRO(glTexCoordPointer),
+		RTCW_MACRO(glTexSubImage2D),
+		RTCW_MACRO(glVertexPointer),
+
+#undef RTCW_MACRO
+
+		// End-of-entries.
+		//
+		{NULL, NULL}
+	};
+
+	if (!glimp_load_gl_functions(S_COLOR_RED, gl_function_infos))
+	{
+		ri.Error(ERR_FATAL, "Failed to initialize OpenGL 1.X essential functions\n");
+	}
+}
+
+// ======================================
+
+bool glimp_initialize_gl2_functions()
+{
+	const bool is_gl2 = glimp_gl_version >= GlVersion(2, 0);
+
+	if (!is_gl2)
+	{
+		return false;
+	}
+
+	GlFunctionInfo gl_function_infos[] =
+	{
+#define RTCW_MACRO(symbol) {#symbol, glimp_bit_cast<void**>(&symbol)}
+
+		RTCW_MACRO(glActiveTexture),
+		RTCW_MACRO(glBindBuffer),
+		RTCW_MACRO(glBufferData),
+		RTCW_MACRO(glBufferSubData),
+		RTCW_MACRO(glDeleteBuffers),
+		RTCW_MACRO(glGenBuffers),
+		RTCW_MACRO(glAttachShader),
+		RTCW_MACRO(glCompileShader),
+		RTCW_MACRO(glCreateProgram),
+		RTCW_MACRO(glCreateShader),
+		RTCW_MACRO(glDeleteProgram),
+		RTCW_MACRO(glDeleteShader),
+		RTCW_MACRO(glDisableVertexAttribArray),
+		RTCW_MACRO(glEnableVertexAttribArray),
+		RTCW_MACRO(glGetAttribLocation),
+		RTCW_MACRO(glGetProgramInfoLog),
+		RTCW_MACRO(glGetProgramiv),
+		RTCW_MACRO(glGetShaderInfoLog),
+		RTCW_MACRO(glGetShaderiv),
+		RTCW_MACRO(glGetUniformLocation),
+		RTCW_MACRO(glLinkProgram),
+		RTCW_MACRO(glShaderSource),
+		RTCW_MACRO(glUniform1f),
+		RTCW_MACRO(glUniform1i),
+		RTCW_MACRO(glUniform4fv),
+		RTCW_MACRO(glUniformMatrix4fv),
+		RTCW_MACRO(glUseProgram),
+		RTCW_MACRO(glVertexAttrib2f),
+		RTCW_MACRO(glVertexAttrib4f),
+		RTCW_MACRO(glVertexAttribPointer),
+
+#undef RTCW_MACRO
+
+		// End-of-entries.
+		//
+		{NULL, NULL}
+	};
+
+	return glimp_load_gl_functions(S_COLOR_WHITE, gl_function_infos);
+}
+
+// ======================================
+
+void glimp_print_extension(
 	ExtensionStatus status,
 	const char* extension_name)
 {
@@ -109,17 +443,17 @@ void gl_print_extension(
 	const char* color_mark = NULL;
 
 	switch (status) {
-	case EXT_STATUS_FOUND:
+	case EXT_STATUS_USING:
 		status_mark = "+";
 		color_mark = S_COLOR_GREEN;
 		break;
 
-	case EXT_STATUS_MISSED:
+	case EXT_STATUS_NOT_FOUND:
 		status_mark = "-";
 		color_mark = S_COLOR_RED;
 		break;
 
-	case EXT_STATUS_IGNORED:
+	case EXT_STATUS_IGNORING:
 		status_mark = "*";
 		color_mark = S_COLOR_YELLOW;
 		break;
@@ -139,242 +473,574 @@ void gl_print_extension(
 		extension_name);
 }
 
-void gl_print_found_extension(const char* extension_name)
+void glimp_print_using_extension(const char* extension_name)
 {
-	gl_print_extension(EXT_STATUS_FOUND, extension_name);
+	glimp_print_extension(EXT_STATUS_USING, extension_name);
 }
 
-void gl_print_missed_extension(const char* extension_name)
+void glimp_print_not_found_extension(const char* extension_name)
 {
-	gl_print_extension(EXT_STATUS_MISSED, extension_name);
+	glimp_print_extension(EXT_STATUS_NOT_FOUND, extension_name);
 }
 
-void gl_print_ignored_extension(const char* extension_name)
+void glimp_print_ignoring_extension(const char* extension_name)
 {
-	gl_print_extension(EXT_STATUS_IGNORED, extension_name);
+	glimp_print_extension(EXT_STATUS_IGNORING, extension_name);
 }
 
-void gl_probe_swap_control()
+// ======================================
+
+void glimp_initialize_gl_arb_texture_compression_extension()
 {
-	const int old_swap_interval = SDL_GL_GetSwapInterval();
+	typedef char Sanity1[2 * (GL_COMPRESSED_RGB == GL_COMPRESSED_RGB_ARB) - 1];
+	typedef char Sanity2[2 * (GL_COMPRESSED_RGBA == GL_COMPRESSED_RGBA_ARB) - 1];
 
-	const int adaptive_result = SDL_GL_SetSwapInterval(-1);
-	glConfigEx.has_adaptive_swap_control_ = (adaptive_result == 0);
+	const char* const gl_arb_texture_compression_string = "GL_ARB_texture_compression";
+	const bool is_gl13 = glimp_gl_version >= GlVersion(1, 3);
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
 
-	const int off_result = SDL_GL_SetSwapInterval(0);
-	const int on_result = SDL_GL_SetSwapInterval(1);
-	glConfigEx.has_swap_control_ = (off_result == 0 && on_result == 0);
+	if (is_gl13 || SDL_GL_ExtensionSupported(gl_arb_texture_compression_string))
+	{
+		extension_status = EXT_STATUS_IGNORING;
 
-	const int old_result = SDL_GL_SetSwapInterval(old_swap_interval);
-	static_cast<void>(old_result);
+		if (r_ext_compressed_textures->integer != 0)
+		{
+			extension_status = EXT_STATUS_USING;
+			glConfig.textureCompression = TC_ARB;
+		}
+	}
+
+	glimp_print_extension(extension_status, gl_arb_texture_compression_string);
 }
+
+void glimp_initialize_ext_texture_compression_s3tc_extension()
+{
+	const char* const gl_ext_texture_compression_s3tc_string = "GL_EXT_texture_compression_s3tc";
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
+
+	if (SDL_GL_ExtensionSupported(gl_ext_texture_compression_s3tc_string))
+	{
+		extension_status = EXT_STATUS_IGNORING;
+
+		if (r_ext_compressed_textures->integer != 0)
+		{
+			glConfig.textureCompression = TC_EXT_COMP_S3TC;
+			extension_status = EXT_STATUS_USING;
+		}
+	}
+
+	glimp_print_extension(extension_status, gl_ext_texture_compression_s3tc_string);
+}
+
+void glimp_initialize_gl_s3_s3tc_extension()
+{
+	const char* const gl_s3_s3tc_string = "GL_S3_s3tc";
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
+
+	if (SDL_GL_ExtensionSupported(gl_s3_s3tc_string))
+	{
+		extension_status = EXT_STATUS_IGNORING;
+
+		if (r_ext_compressed_textures->integer != 0)
+		{
+			glConfig.textureCompression = TC_S3TC;
+			extension_status = EXT_STATUS_USING;
+		}
+	}
+
+	glimp_print_extension(extension_status, gl_s3_s3tc_string);
+}
+
+void glimp_initialize_gl_xxx_texture_compression_extensions()
+{
+	typedef void (* Function)();
+
+	const Function functions[] =
+	{
+		glimp_initialize_gl_arb_texture_compression_extension,
+		glimp_initialize_ext_texture_compression_s3tc_extension,
+		glimp_initialize_gl_s3_s3tc_extension,
+		NULL
+	};
+
+	glConfig.textureCompression = TC_NONE;
+
+	for (int i_function = 0; functions[i_function] != NULL; ++i_function)
+	{
+		functions[i_function]();
+
+		if (glConfig.textureCompression != TC_NONE)
+		{
+			break;
+		}
+	}
+}
+
+// ======================================
+
+void glimp_initialize_gl_arb_texture_env_add_extension()
+{
+	const char* const gl_arb_texture_env_add_string = "GL_ARB_texture_env_add";
+	const bool is_gl13 = glimp_gl_version >= GlVersion(1, 3);
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
+
+	if (is_gl13 || SDL_GL_ExtensionSupported(gl_arb_texture_env_add_string))
+	{
+		extension_status = EXT_STATUS_IGNORING;
+
+		if (r_ext_texture_env_add->integer != 0)
+		{
+			glConfig.textureEnvAddAvailable = true;
+			extension_status = EXT_STATUS_USING;
+		}
+	}
+
+	glimp_print_extension(extension_status, gl_arb_texture_env_add_string);
+}
+
+void glimp_initialize_gl_ext_texture_env_add_extension()
+{
+	const char* const gl_ext_texture_env_add_string = "GL_EXT_texture_env_add";
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
+
+	if (SDL_GL_ExtensionSupported(gl_ext_texture_env_add_string))
+	{
+		extension_status = EXT_STATUS_IGNORING;
+
+		if (r_ext_texture_env_add->integer != 0)
+		{
+			glConfig.textureEnvAddAvailable = true;
+			extension_status = EXT_STATUS_USING;
+		}
+	}
+
+	glimp_print_extension(extension_status, gl_ext_texture_env_add_string);
+}
+
+void glimp_initialize_gl_xxx_texture_env_add_extensions()
+{
+	typedef void (* Function)();
+
+	const Function functions[] =
+	{
+		glimp_initialize_gl_arb_texture_env_add_extension,
+		glimp_initialize_gl_ext_texture_env_add_extension,
+		NULL
+	};
+
+	glConfig.textureEnvAddAvailable = false;
+
+	for (int i_function = 0; functions[i_function] != NULL; ++i_function)
+	{
+		functions[i_function]();
+
+		if (glConfig.textureEnvAddAvailable)
+		{
+			break;
+		}
+	}
+}
+
+// ======================================
+
+void glimp_probe_swap_control()
+{
+	const int current_mode = SDL_GL_GetSwapInterval();
+
+	const int adaptive_mode = SDL_GL_SetSwapInterval(-1);
+	glConfigEx.has_adaptive_swap_control_ = (adaptive_mode == 0);
+
+	const int off_mode = SDL_GL_SetSwapInterval(0);
+	const int on_mode = SDL_GL_SetSwapInterval(1);
+	glConfigEx.has_swap_control_ = (off_mode == 0 && on_mode == 0);
+
+	const int new_mode = SDL_GL_SetSwapInterval(current_mode);
+	maybe_unused(new_mode);
+}
+
+void glimp_initialize_xxx_ext_swap_control_extension()
+{
+	const char* const xxx_ext_swap_control_string = "XXX_EXT_swap_control";
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
+
+	if (glConfigEx.has_swap_control_)
+	{
+		r_swapInterval->modified = true;
+		extension_status = EXT_STATUS_USING;
+	}
+
+	glimp_print_extension(extension_status, xxx_ext_swap_control_string);
+}
+
+void glimp_initialize_xxx_ext_swap_control_tear_extension()
+{
+	const char* const xxx_ext_swap_control_tear_string = "XXX_EXT_swap_control_tear";
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
+
+	if (glConfigEx.has_adaptive_swap_control_)
+	{
+		r_swapInterval->modified = true;
+		extension_status = EXT_STATUS_USING;
+	}
+
+	glimp_print_extension(extension_status, xxx_ext_swap_control_tear_string);
+}
+
+void glimp_initialize_xxx_ext_swap_control_extensions()
+{
+	glimp_probe_swap_control();
+	glimp_initialize_xxx_ext_swap_control_extension();
+	glimp_initialize_xxx_ext_swap_control_tear_extension();
+}
+
+// ======================================
+
+void glimp_initialize_gl_arb_multitexture_extension()
+{
+	typedef char Sanity[2 * (GL_MAX_TEXTURE_UNITS == GL_MAX_TEXTURE_UNITS_ARB) - 1];
+	const bool is_gl13 = glimp_gl_version >= GlVersion(1, 3);
+	const char* const gl_arb_multitexture_string = "GL_ARB_multitexture";
+
+	glConfig.maxActiveTextures = 0;
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
+
+	if (is_gl13 || SDL_GL_ExtensionSupported(gl_arb_multitexture_string))
+	{
+		extension_status = EXT_STATUS_IGNORING;
+
+		if (r_ext_multitexture->integer != 0)
+		{
+			GLint gl_max_texture_units = 0;
+			glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &gl_max_texture_units);
+			const bool has_enough_texture_units = gl_max_texture_units >= 2;
+
+			if (!has_enough_texture_units)
+			{
+				ri.Printf(PRINT_ALL, "  %d < 2 texture units\n", gl_max_texture_units);
+			}
+
+			GlFunctionInfo gl_function_infos[] =
+			{
+#define RTCW_MACRO0(x) #x
+#define RTCW_MACRO(symbol) {is_gl13 ? #symbol : RTCW_MACRO0(symbol##ARB), glimp_bit_cast<void**>(&symbol)}
+
+				RTCW_MACRO(glActiveTexture),
+				RTCW_MACRO(glClientActiveTexture),
+				RTCW_MACRO(glMultiTexCoord2f),
+
+#undef RTCW_MACRO0
+#undef RTCW_MACRO
+
+				{NULL, NULL}
+			};
+
+			if (has_enough_texture_units &&
+				glimp_load_gl_functions(S_COLOR_WHITE, gl_function_infos))
+			{
+				glConfig.maxActiveTextures = gl_max_texture_units;
+				glConfigEx.use_arb_multitexture_ = true;
+				extension_status = EXT_STATUS_USING;
+			}
+		}
+	}
+
+	glimp_print_extension(extension_status, gl_arb_multitexture_string);
+}
+
+// ======================================
+
+void glimp_initialize_gl_ext_compiled_vertex_array_extension()
+{
+	const char* const gl_ext_compiled_vertex_array_string = "GL_EXT_compiled_vertex_array";
+
+	glConfigEx.use_ext_compiled_vertex_array_ = false;
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
+
+	if (SDL_GL_ExtensionSupported(gl_ext_compiled_vertex_array_string))
+	{
+		extension_status = EXT_STATUS_IGNORING;
+
+		if (r_ext_compiled_vertex_array->integer != 0)
+		{
+			GlFunctionInfo gl_function_infos[] =
+			{
+#define RTCW_MACRO(symbol) {#symbol, glimp_bit_cast<void**>(&symbol)}
+
+				RTCW_MACRO(glLockArraysEXT),
+				RTCW_MACRO(glUnlockArraysEXT),
+
+#undef RTCW_MACRO
+
+				{NULL, NULL}
+			};
+
+			if (glimp_load_gl_functions(S_COLOR_WHITE, gl_function_infos))
+			{
+				glConfigEx.use_ext_compiled_vertex_array_ = true;
+				extension_status = EXT_STATUS_USING;
+			}
+		}
+	}
+
+	glimp_print_extension(extension_status, gl_ext_compiled_vertex_array_string);
+}
+
+// ======================================
+
+#ifdef RTCW_SP
+void glimp_initialize_gl_ati_pn_triangles_extension()
+{
+	const char* const gl_ati_pn_triangles_string = "GL_ATI_pn_triangles";
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
+
+	if (SDL_GL_ExtensionSupported(gl_ati_pn_triangles_string))
+	{
+		extension_status = EXT_STATUS_IGNORING;
+
+		if (r_ext_ATI_pntriangles->integer != 0)
+		{
+			GlFunctionInfo gl_function_infos[] =
+			{
+#define RTCW_MACRO(symbol) {#symbol, glimp_bit_cast<void**>(&symbol)}
+
+				RTCW_MACRO(glPNTrianglesiATI),
+				RTCW_MACRO(glPNTrianglesfATI),
+
+#undef RTCW_MACRO
+
+				{NULL, NULL}
+			};
+
+			if (glimp_load_gl_functions(S_COLOR_WHITE, gl_function_infos))
+			{
+				extension_status = EXT_STATUS_USING;
+			}
+		}
+	}
+
+	glimp_print_extension(extension_status, gl_ati_pn_triangles_string);
+}
+#endif // RTCW_SP
+
+// ======================================
+
+void glimp_initialize_gl_arb_texture_filter_anisotropic_extension()
+{
+	const char* const gl_arb_texture_filter_anisotropic_string = "GL_ARB_texture_filter_anisotropic";
+	const bool is_gl46 = glimp_gl_version >= GlVersion(4, 6);
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
+
+	if (is_gl46 || SDL_GL_ExtensionSupported(gl_arb_texture_filter_anisotropic_string))
+	{
+		extension_status = EXT_STATUS_IGNORING;
+
+		if (r_ext_texture_filter_anisotropic->integer != 0)
+		{
+			glConfig.anisotropicAvailable = true;
+			extension_status = EXT_STATUS_USING;
+		}
+	}
+
+	glimp_print_extension(extension_status, gl_arb_texture_filter_anisotropic_string);
+}
+
+void glimp_initialize_gl_ext_texture_filter_anisotropic_extension()
+{
+	const char* const gl_ext_texture_filter_anisotropic_string = "GL_EXT_texture_filter_anisotropic";
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
+
+	if (SDL_GL_ExtensionSupported(gl_ext_texture_filter_anisotropic_string))
+	{
+		extension_status = EXT_STATUS_IGNORING;
+
+		if (r_ext_texture_filter_anisotropic->integer != 0)
+		{
+			glConfig.anisotropicAvailable = true;
+			extension_status = EXT_STATUS_USING;
+		}
+	}
+
+	glimp_print_extension(extension_status, gl_ext_texture_filter_anisotropic_string);
+}
+
+void glimp_initialize_gl_xxx_texture_filter_anisotropic_extensions()
+{
+	typedef char Sanity1[2 * (GL_TEXTURE_MAX_ANISOTROPY == GL_TEXTURE_MAX_ANISOTROPY_EXT) - 1];
+	typedef char Sanity2[2 * (GL_MAX_TEXTURE_MAX_ANISOTROPY == GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT) - 1];
+
+	typedef void (* Function)();
+
+	const Function functions[] =
+	{
+		glimp_initialize_gl_arb_texture_filter_anisotropic_extension,
+		glimp_initialize_gl_ext_texture_filter_anisotropic_extension,
+		NULL
+	};
+
+	glConfig.anisotropicAvailable = false;
+
+	for (int i_function = 0; functions[i_function] != NULL; ++i_function)
+	{
+		functions[i_function]();
+
+		if (glConfig.anisotropicAvailable)
+		{
+			break;
+		}
+	}
+}
+
+// ======================================
+
+void glimp_initialize_gl_nv_fog_distance_extension()
+{
+	const char* const gl_nv_fog_distance_string = "GL_NV_fog_distance";
+
+	glConfig.NVFogAvailable = false;
+	glConfig.NVFogMode = 0;
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
+
+	if (SDL_GL_ExtensionSupported(gl_nv_fog_distance_string))
+	{
+		extension_status = EXT_STATUS_IGNORING;
+
+		if (r_ext_NV_fog_dist->integer != 0)
+		{
+			glConfig.NVFogAvailable = true;
+			extension_status = EXT_STATUS_USING;
+		}
+	}
+
+	if (extension_status != EXT_STATUS_USING)
+	{
+		ri.Cvar_Set("r_ext_NV_fog_dist", "0");
+	}
+
+	glimp_print_extension(extension_status, gl_nv_fog_distance_string);
+}
+
+// ======================================
+
+void glimp_initialize_gl_arb_draw_elements_base_vertex_extension()
+{
+	const bool is_gl32 = glimp_gl_version >= GlVersion(3, 2);
+	const char* const gl_arb_draw_elements_base_vertex_string = "GL_ARB_draw_elements_base_vertex";
+
+	if (is_gl32 || SDL_GL_ExtensionSupported(gl_arb_draw_elements_base_vertex_string))
+	{
+		GlFunctionInfo gl_function_infos[] =
+		{
+#define RTCW_MACRO0(x) #x
+#define RTCW_MACRO(symbol) {is_gl32 ? #symbol : RTCW_MACRO0(symbol##ARB), glimp_bit_cast<void**>(&symbol)}
+
+			RTCW_MACRO(glDrawElementsBaseVertex),
+
+#undef RTCW_MACRO0
+#undef RTCW_MACRO
+
+			{NULL, NULL}
+		};
+
+		if (glimp_load_gl_functions(S_COLOR_WHITE, gl_function_infos))
+		{
+			glConfigEx.use_arb_draw_elements_base_vertex = true;
+			glimp_print_using_extension(gl_arb_draw_elements_base_vertex_string);
+		}
+		else
+		{
+			glimp_print_not_found_extension(gl_arb_draw_elements_base_vertex_string);
+		}
+	}
+	else
+	{
+		glimp_print_not_found_extension(gl_arb_draw_elements_base_vertex_string);
+	}
+}
+
+// ======================================
+
+void glimp_initialize_gl_arb_framebuffer_object_extension()
+{
+	const char* const gl_arb_framebuffer_object_string = "GL_ARB_framebuffer_object";
+	const bool is_gl30 = glimp_gl_version >= GlVersion(3, 0);
+
+	if (is_gl30 || SDL_GL_ExtensionSupported(gl_arb_framebuffer_object_string))
+	{
+		GlFunctionInfo gl_function_infos[] =
+		{
+#define RTCW_MACRO0(x) #x
+#define RTCW_MACRO(symbol) {is_gl30 ? #symbol : RTCW_MACRO0(symbol##ARB), glimp_bit_cast<void**>(&symbol)}
+
+			RTCW_MACRO(glGenerateMipmap),
+
+#undef RTCW_MACRO0
+#undef RTCW_MACRO
+
+			{NULL, NULL}
+		};
+
+		if (glimp_load_gl_functions(S_COLOR_WHITE, gl_function_infos))
+		{
+			glConfigEx.use_arb_framebuffer_object_ = true;
+			glimp_print_using_extension(gl_arb_framebuffer_object_string);
+		}
+		else
+		{
+			glimp_print_not_found_extension(gl_arb_framebuffer_object_string);
+		}
+	}
+	else
+	{
+		glimp_print_not_found_extension(gl_arb_framebuffer_object_string);
+	}
+}
+
+// ======================================
+
+void glimp_initialize_gl_arb_texture_non_power_of_two_extension()
+{
+	const char* const gl_arb_texture_non_power_of_two_string = "GL_ARB_texture_non_power_of_two";
+	const bool is_gl20 = glimp_gl_version >= GlVersion(2, 0);
+
+	if (is_gl20 || SDL_GL_ExtensionSupported(gl_arb_texture_non_power_of_two_string))
+	{
+		glConfigEx.use_arb_texture_non_power_of_two_ = true;
+		glimp_print_using_extension(gl_arb_texture_non_power_of_two_string);
+	}
+	else
+	{
+		glimp_print_not_found_extension(gl_arb_texture_non_power_of_two_string);
+	}
+}
+
+// ======================================
 
 void gl_initialize_extensions()
 {
 	if (r_allowExtensions->integer == 0)
 	{
-		ri.Printf(PRINT_ALL, S_COLOR_YELLOW "Ignoring OpenGL extensions\n");
+		ri.Printf(PRINT_ALL, "*** IGNORING OPENGL EXTENSIONS ***\n");
 		return;
 	}
 
 	ri.Printf(PRINT_ALL, "Initializing OpenGL extensions\n");
-	ri.Printf(PRINT_ALL, "(Legend: [+] found; [-] not found; [*] ignored)\n");
+	ri.Printf(PRINT_ALL, "(Legend: [+] using; [-] not found; [*] ignoring)\n");
 
-	const char* const gl_arb_texture_compression_string = "GL_ARB_texture_compression";
-	const char* const gl_ext_texture_compression_s3tc_string = "GL_EXT_texture_compression_s3tc";
-	const char* const gl_s3_s3tc_string = "GL_S3_s3tc";
-	const char* const gl_ext_texture_env_add_string = "GL_EXT_texture_env_add";
-	const char* const xxx_ext_swap_control_string = "XXX_EXT_swap_control";
-	const char* const xxx_ext_swap_control_tear_string = "XXX_EXT_swap_control_tear";
-	const char* const gl_arb_multitexture_string = "GL_ARB_multitexture";
-	const char* const gl_ext_compiled_vertex_array_string = "GL_EXT_compiled_vertex_array";
-	const char* const gl_nv_fog_distance_string = "GL_NV_fog_distance";
-	const char* const gl_ext_texture_filter_anisotropic_string = "GL_EXT_texture_filter_anisotropic";
-	const char* const gl_arb_framebuffer_object_string = "GL_ARB_framebuffer_object";
-	const char* const gl_arb_draw_elements_base_vertex_string = "GL_ARB_draw_elements_base_vertex";
+	glimp_initialize_gl_xxx_texture_compression_extensions();
+	glimp_initialize_gl_xxx_texture_env_add_extensions();
+	glimp_initialize_xxx_ext_swap_control_extensions();
+	glimp_initialize_gl_arb_multitexture_extension();
+	glimp_initialize_gl_ext_compiled_vertex_array_extension();
+#ifdef RTCW_SP
+	glimp_initialize_gl_ati_pn_triangles_extension();
+#endif // RTCW_SP
+	glimp_initialize_gl_xxx_texture_filter_anisotropic_extensions();
+	glimp_initialize_gl_nv_fog_distance_extension();
 
-	if (SDL_GL_ExtensionSupported(gl_arb_texture_compression_string))
-	{
-		if (r_ext_compressed_textures->integer != 0)
-		{
-			glConfig.textureCompression = TC_ARB;
-			gl_print_found_extension(gl_arb_texture_compression_string);
-		}
-		else
-		{
-			gl_print_ignored_extension(gl_arb_texture_compression_string);
-		}
-	}
-	else if (SDL_GL_ExtensionSupported(gl_ext_texture_compression_s3tc_string))
-	{
-		if (r_ext_compressed_textures->integer != 0)
-		{
-			glConfig.textureCompression = TC_EXT_COMP_S3TC;
-			gl_print_found_extension(gl_ext_texture_compression_s3tc_string);
-		}
-		else
-		{
-			gl_print_ignored_extension(gl_ext_texture_compression_s3tc_string);
-		}
-	}
-	else if (SDL_GL_ExtensionSupported(gl_s3_s3tc_string))
-	{
-		if (r_ext_compressed_textures->integer != 0)
-		{
-			glConfig.textureCompression = TC_S3TC;
-			gl_print_found_extension(gl_s3_s3tc_string);
-		}
-		else
-		{
-			gl_print_ignored_extension(gl_s3_s3tc_string);
-		}
-	}
-	else
-	{
-		gl_print_missed_extension("any supported texture compression");
-	}
-
-	if (SDL_GL_ExtensionSupported(gl_ext_texture_env_add_string))
-	{
-		if (r_ext_texture_env_add->integer != 0)
-		{
-			glConfig.textureEnvAddAvailable = true;
-			gl_print_found_extension(gl_ext_texture_env_add_string);
-		}
-		else
-		{
-			glConfig.textureEnvAddAvailable = false;
-			gl_print_ignored_extension(gl_ext_texture_env_add_string);
-		}
-	}
-	else
-	{
-		gl_print_missed_extension(gl_ext_texture_env_add_string);
-	}
-
-	gl_probe_swap_control();
-
-	if (glConfigEx.has_swap_control_)
-	{
-		r_swapInterval->modified = true;
-		gl_print_found_extension(xxx_ext_swap_control_string);
-	}
-	else
-	{
-		gl_print_missed_extension(xxx_ext_swap_control_string);
-	}
-
-	if (glConfigEx.has_adaptive_swap_control_)
-	{
-		r_swapInterval->modified = true;
-		gl_print_found_extension(xxx_ext_swap_control_tear_string);
-	}
-	else
-	{
-		gl_print_missed_extension(xxx_ext_swap_control_tear_string);
-	}
-
-	if (SDL_GL_ExtensionSupported(gl_arb_multitexture_string))
-	{
-		if (r_ext_multitexture->integer != 0)
-		{
-			glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glConfig.maxActiveTextures);
-
-			if (glConfig.maxActiveTextures > 1)
-			{
-				glConfigEx.use_arb_multitexture_ = true;
-				gl_print_found_extension(gl_arb_multitexture_string);
-			}
-			else
-			{
-				gl_print_missed_extension("GL_ARB_multitexture/units less than 2");
-			}
-		}
-		else
-		{
-			gl_print_ignored_extension(gl_arb_multitexture_string);
-		}
-	}
-	else
-	{
-		gl_print_missed_extension(gl_arb_multitexture_string);
-	}
-
-	if (SDL_GL_ExtensionSupported("GL_EXT_compiled_vertex_array"))
-	{
-		if (r_ext_compiled_vertex_array->integer != 0)
-		{
-			glConfigEx.use_ext_compiled_vertex_array_ = true;
-			gl_print_found_extension(gl_ext_compiled_vertex_array_string);
-		}
-		else
-		{
-			gl_print_ignored_extension(gl_ext_compiled_vertex_array_string);
-		}
-	}
-	else
-	{
-		gl_print_missed_extension(gl_ext_compiled_vertex_array_string);
-	}
-
-	if (SDL_GL_ExtensionSupported(gl_nv_fog_distance_string))
-	{
-		if (r_ext_NV_fog_dist->integer != 0)
-		{
-			glConfig.NVFogAvailable = true;
-			gl_print_found_extension(gl_nv_fog_distance_string);
-		}
-		else
-		{
-			ri.Cvar_Set("r_ext_NV_fog_dist", "0");
-			gl_print_ignored_extension(gl_nv_fog_distance_string);
-		}
-	}
-	else
-	{
-		ri.Cvar_Set("r_ext_NV_fog_dist", "0");
-		gl_print_missed_extension(gl_nv_fog_distance_string);
-	}
-
-	if (SDL_GL_ExtensionSupported(gl_ext_texture_filter_anisotropic_string))
-	{
-		if (r_ext_texture_filter_anisotropic->integer != 0)
-		{
-			glConfig.anisotropicAvailable = true;
-			gl_print_found_extension(gl_ext_texture_filter_anisotropic_string);
-		}
-		else
-		{
-			gl_print_ignored_extension(gl_ext_texture_filter_anisotropic_string);
-		}
-	}
-	else
-	{
-		gl_print_missed_extension(gl_ext_texture_filter_anisotropic_string);
-	}
-
-	if (SDL_GL_ExtensionSupported(gl_arb_framebuffer_object_string))
-	{
-		glConfigEx.use_arb_framebuffer_object_ = true;
-		glConfigEx.use_arb_texture_non_power_of_two_ = true;
-		gl_print_found_extension(gl_arb_framebuffer_object_string);
-	}
-	else
-	{
-		gl_print_missed_extension(gl_arb_framebuffer_object_string);
-	}
-
-	if (SDL_GL_ExtensionSupported(gl_arb_draw_elements_base_vertex_string))
-	{
-		glConfigEx.use_arb_draw_elements_base_vertex = true;
-		gl_print_found_extension(gl_arb_draw_elements_base_vertex_string);
-	}
-	else
-	{
-		gl_print_missed_extension(gl_arb_draw_elements_base_vertex_string);
-	}
-
-	glConfigEx.is_2_x_capable_ = gl_is_2_x_capable();
+	glimp_initialize_gl_arb_draw_elements_base_vertex_extension();
+	glimp_initialize_gl_arb_framebuffer_object_extension();
+	glimp_initialize_gl_arb_texture_non_power_of_two_extension();
+	glConfigEx.is_2_x_capable_ = glimp_initialize_gl2_functions();
 }
 
 } // namespace
@@ -390,6 +1056,8 @@ void GLimp_Init()
 	r_maskMinidriver = ri.Cvar_Get("r_maskMinidriver", "0", 0);
 
 	ri.Cvar_Get("r_lastValidRenderer", "(uninitialized)", CVAR_ARCHIVE);
+
+	glimp_gl_version = glimp_get_gl_version();
 
 	bool is_succeed = true;
 	int sdl_result = 0;
@@ -592,7 +1260,7 @@ void GLimp_Init()
 
 	if (is_succeed)
 	{
-		is_succeed = qgl_init();
+		glimp_initialize_gl1_essential_functions();
 	}
 
 	if (is_succeed)
@@ -719,8 +1387,6 @@ void GLimp_Shutdown()
 
 	memset(&glConfig, 0, sizeof(glconfig_t));
 	glConfigEx.reset();
-
-	qgl_shutdown();
 }
 
 void GLimp_EndFrame()

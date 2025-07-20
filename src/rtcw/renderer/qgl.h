@@ -12648,9 +12648,4 @@ extern PFNGLSIGNALVKFENCENVPROC glSignalVkFenceNV;
 extern PFNGLFRAMEBUFFERPARAMETERIMESAPROC glFramebufferParameteriMESA;
 extern PFNGLGETFRAMEBUFFERPARAMETERIVMESAPROC glGetFramebufferParameterivMESA;
 
-// ======================================
-
-bool qgl_init();
-void qgl_shutdown();
-
 #endif /* QGL_H_INCLUDED */
