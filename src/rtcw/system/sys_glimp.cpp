@@ -386,6 +386,7 @@ bool glimp_initialize_gl2_functions()
 #define RTCW_MACRO(symbol) {#symbol, glimp_bit_cast<void**>(&symbol)}
 
 		RTCW_MACRO(glActiveTexture),
+		RTCW_MACRO(glBindAttribLocation),
 		RTCW_MACRO(glBindBuffer),
 		RTCW_MACRO(glBufferData),
 		RTCW_MACRO(glBufferSubData),
@@ -397,6 +398,7 @@ bool glimp_initialize_gl2_functions()
 		RTCW_MACRO(glCreateShader),
 		RTCW_MACRO(glDeleteProgram),
 		RTCW_MACRO(glDeleteShader),
+		RTCW_MACRO(glDetachShader),
 		RTCW_MACRO(glDisableVertexAttribArray),
 		RTCW_MACRO(glEnableVertexAttribArray),
 		RTCW_MACRO(glGetAttribLocation),
@@ -405,6 +407,8 @@ bool glimp_initialize_gl2_functions()
 		RTCW_MACRO(glGetShaderInfoLog),
 		RTCW_MACRO(glGetShaderiv),
 		RTCW_MACRO(glGetUniformLocation),
+		RTCW_MACRO(glIsProgram),
+		RTCW_MACRO(glIsShader),
 		RTCW_MACRO(glLinkProgram),
 		RTCW_MACRO(glShaderSource),
 		RTCW_MACRO(glUniform1f),

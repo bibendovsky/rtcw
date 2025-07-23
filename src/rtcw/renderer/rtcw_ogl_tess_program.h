@@ -7,17 +7,12 @@ SPDX-License-Identifier: GPL-3.0
 #ifndef RTCW_OGL_TESS_PROGRAM_INCLUDED
 #define RTCW_OGL_TESS_PROGRAM_INCLUDED
 
-
 #include "rtcw_string.h"
 #include "rtcw_ogl_program.h"
 
+namespace rtcw {
 
-namespace rtcw
-{
-
-
-class OglTessProgram :
-	public OglProgram
+class OglTessProgram : public OglProgram
 {
 public:
 	int a_pos_vec4;
@@ -45,42 +40,29 @@ public:
 	int u_overbright;
 	int u_gamma;
 
-
-	OglTessProgram(
-		const String& glsl_dir,
-		const String& base_name);
-
-	OglTessProgram(
-		const char* v_shader_c_string,
-		const char* f_shader_c_string);
+	OglTessProgram(const String& glsl_dir, const String& base_name);
+	OglTessProgram(const char* vertex_shader_source, const char* fragment_shader_source);
 
 	virtual ~OglTessProgram();
 
+	virtual OglProgram* create_new(const String& glsl_dir, const String& base_name);
+	virtual OglProgram* create_new(const char* vertex_shader_source, const char* fragment_shader_source);
 
-	virtual OglProgram* create_new(
-		const String& glsl_dir,
-		const String& base_name);
+private:
+	virtual bool do_reload();
+	virtual void do_unload();
 
-	virtual OglProgram* create_new(
-		const char* v_shader_c_string,
-		const char* f_shader_c_string);
-
+private:
+	static const char* const impl_attribute_names_[max_vertex_attributes];
 
 private:
 	OglTessProgram(const OglTessProgram&);
 	OglTessProgram& operator=(const OglTessProgram&);
 
 	void unload_internal();
-
 	bool reload_internal();
-
-	virtual bool do_reload();
-
-	virtual void do_unload();
 };
 
+} // namespace rtcw
 
-} // rtcw
-
-
-#endif // !RTCW_OGL_TESS_PROGRAM_INCLUDED
+#endif // RTCW_OGL_TESS_PROGRAM_INCLUDED

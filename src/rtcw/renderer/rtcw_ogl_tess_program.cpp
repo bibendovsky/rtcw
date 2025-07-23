@@ -6,16 +6,20 @@ SPDX-License-Identifier: GPL-3.0
 
 #include "rtcw_ogl_tess_program.h"
 #include "qgl.h"
+#include "tr_local.h"
 #include "rtcw_ogl_program.h"
 
+namespace rtcw {
 
-namespace rtcw
+const char* const OglTessProgram::impl_attribute_names_[max_vertex_attributes] =
 {
+	"pos_vec4",
+	"col_vec4",
+	"tc0_vec2",
+	"tc1_vec2"
+};
 
-
-OglTessProgram::OglTessProgram(
-	const String& glsl_dir,
-	const String& base_name)
+OglTessProgram::OglTessProgram(const String& glsl_dir, const String& base_name)
 	:
 	OglProgram(glsl_dir, base_name),
 	a_pos_vec4(-1),
@@ -45,13 +49,13 @@ OglTessProgram::OglTessProgram(
 	u_tex_env_mode[1] = -1;
 	u_tex_2d[0] = -1;
 	u_tex_2d[1] = -1;
+
+	attribute_names_ = impl_attribute_names_;
 }
 
-OglTessProgram::OglTessProgram(
-	const char* v_shader_c_string,
-	const char* f_shader_c_string)
+OglTessProgram::OglTessProgram(const char* vertex_shader_source, const char* fragment_shader_source)
 	:
-	OglProgram(v_shader_c_string, f_shader_c_string),
+	OglProgram(vertex_shader_source, fragment_shader_source),
 	a_pos_vec4(-1),
 	a_col_vec4(-1),
 	a_tc0_vec2(-1),
@@ -79,6 +83,8 @@ OglTessProgram::OglTessProgram(
 	u_tex_env_mode[1] = -1;
 	u_tex_2d[0] = -1;
 	u_tex_2d[1] = -1;
+
+	attribute_names_ = impl_attribute_names_;
 }
 
 OglTessProgram::~OglTessProgram()
@@ -86,18 +92,14 @@ OglTessProgram::~OglTessProgram()
 	OglTessProgram::unload_internal();
 }
 
-OglProgram* OglTessProgram::create_new(
-	const String& glsl_dir,
-	const String& base_name)
+OglProgram* OglTessProgram::create_new(const String& glsl_dir, const String& base_name)
 {
 	return new OglTessProgram(glsl_dir, base_name);
 }
 
-OglProgram* OglTessProgram::create_new(
-	const char* v_shader_c_string,
-	const char* f_shader_c_string)
+OglProgram* OglTessProgram::create_new(const char* vertex_shader_source, const char* fragment_shader_source)
 {
-	return new OglTessProgram(v_shader_c_string, f_shader_c_string);
+	return new OglTessProgram(vertex_shader_source, fragment_shader_source);
 }
 
 void OglTessProgram::unload_internal()
@@ -145,6 +147,15 @@ bool OglTessProgram::reload_internal()
 	a_col_vec4 = glGetAttribLocation(program_, "col_vec4");
 	a_tc0_vec2 = glGetAttribLocation(program_, "tc0_vec2");
 	a_tc1_vec2 = glGetAttribLocation(program_, "tc1_vec2");
+
+	if (a_pos_vec4 >= max_vertex_attributes ||
+		a_col_vec4 >= max_vertex_attributes ||
+		a_tc0_vec2 >= max_vertex_attributes ||
+		a_tc1_vec2 >= max_vertex_attributes)
+	{
+		ri.Printf(PRINT_ALL, "Attribute location out of range.\n");
+		return false;
+	}
 
 	u_projection_mat4 = glGetUniformLocation(program_, "projection_mat4");
 	u_model_view_mat4 = glGetUniformLocation(program_, "model_view_mat4");
@@ -203,5 +214,4 @@ void OglTessProgram::do_unload()
 	unload_internal();
 }
 
-
-} // rtcw
+} // namespace rtcw

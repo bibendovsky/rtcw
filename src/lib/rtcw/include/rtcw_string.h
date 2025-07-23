@@ -37,9 +37,10 @@ public:
 	void clear();
 	void reserve(int new_capacity);
 	void resize(int new_length);
-	void append(char ch);
-	void append(const char* string);
-	void append(const char* string, int string_length);
+	String& append(char ch);
+	String& append(const char* string);
+	String& append(const char* string, int string_length);
+	String& append(const String& string);
 	void swap(String& that);
 
 private:
@@ -71,6 +72,7 @@ private:
 
 String& operator+=(String& a, char b);
 String& operator+=(String& a, const char* b);
+String& operator+=(String& a, const String& b);
 
 // --------------------------------------------------------------------------
 

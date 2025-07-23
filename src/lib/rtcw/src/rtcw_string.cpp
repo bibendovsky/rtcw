@@ -121,18 +121,18 @@ void String::resize(int new_length)
 	length_ = new_length;
 }
 
-void String::append(char ch)
+String& String::append(char ch)
 {
-	append(&ch, 1);
+	return append(&ch, 1);
 }
 
-void String::append(const char* string)
+String& String::append(const char* string)
 {
 	const int string_length = traits_type::length(string);
-	append(string, string_length);
+	return append(string, string_length);
 }
 
-void String::append(const char* string, int string_length)
+String& String::append(const char* string, int string_length)
 {
 	const int old_length = length();
 	const int new_length = old_length + string_length;
@@ -141,6 +141,12 @@ void String::append(const char* string, int string_length)
 	std::copy(string, &string[string_length], &dst_data[old_length]);
 	dst_data[new_length] = '\0';
 	length_ = new_length;
+	return *this;
+}
+
+String& String::append(const String& string)
+{
+	return append(string.data(), string.length());
 }
 
 void String::swap(String& that)
@@ -199,6 +205,12 @@ String& operator+=(String& a, char b)
 }
 
 String& operator+=(String& a, const char* b)
+{
+	a.append(b);
+	return a;
+}
+
+String& operator+=(String& a, const String& b)
 {
 	a.append(b);
 	return a;
