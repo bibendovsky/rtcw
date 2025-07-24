@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-3.0
 #ifndef RTCW_OGL_TESS_STATE_INCLUDED
 #define RTCW_OGL_TESS_STATE_INCLUDED
 
+#include "rtcw_array_trivial.h"
 #include "rtcw_cgm_mat.h"
 #include "rtcw_cgm_vec.h"
 #include "rtcw_ogl_tess_program.h"
@@ -15,6 +16,12 @@ namespace rtcw {
 
 class OglTessState
 {
+private:
+	typedef char Sanity[2 * (OglProgram::max_vertex_attributes <= 16) - 1];
+
+public:
+	typedef unsigned int EnabledVertexAttribArrays;
+
 public:
 	cgm::Mat4 old_projection;
 	cgm::Mat4 projection;
@@ -76,6 +83,9 @@ public:
 	float old_gamma;
 	float gamma;
 
+	EnabledVertexAttribArrays old_enabled_vertex_attrib_arrays;
+	EnabledVertexAttribArrays enabled_vertex_attrib_arrays;
+
 public:
 	OglTessState();
 	~OglTessState() {}
@@ -86,6 +96,8 @@ public:
 	void commit_changes();
 	void invalidate();
 	void invalidate_and_commit();
+	void disable_all_vertex_attrib_arrays();
+	void enable_vertex_attrib_array(int array_index);
 
 private:
 	bool is_dirty_;

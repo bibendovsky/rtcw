@@ -189,6 +189,8 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 		return;
 	}
 
+	ogl_tess_state.disable_all_vertex_attrib_arrays();
+
 	if (ogl_tess_base_vertex + ogl_tess_vertex_count > OglTessLayout::MAX_VERTEX_COUNT)
 	{
 		ogl_tess_base_vertex = 0;
@@ -207,7 +209,6 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 		}
 	}
 
-	ogl_tess_state.commit_changes();
 	glBindBuffer(GL_ARRAY_BUFFER, ogl_tess_vbo);
 
 	// position
@@ -227,7 +228,7 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 			static_cast<GLsizei>(OglTessLayout::POS_SIZE),
 			OglTessLayout::POS_PTR);
 
-		glEnableVertexAttribArray(ogl_tess_program->a_pos_vec4);
+		ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_pos_vec4);
 	}
 
 	// texture coordinates (0)
@@ -247,7 +248,7 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 			0,
 			OglTessLayout::TC0_PTR);
 
-		glEnableVertexAttribArray(ogl_tess_program->a_tc0_vec2);
+		ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_tc0_vec2);
 	}
 
 	// texture coordinates (1)
@@ -267,7 +268,7 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 			0,
 			OglTessLayout::TC1_PTR);
 
-		glEnableVertexAttribArray(ogl_tess_program->a_tc1_vec2);
+		ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_tc1_vec2);
 	}
 
 	// color
@@ -287,8 +288,10 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 			0,
 			OglTessLayout::COL_PTR);
 
-		glEnableVertexAttribArray(ogl_tess_program->a_col_vec4);
+		ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_col_vec4);
 	}
+
+	ogl_tess_state.commit_changes();
 
 	if (glConfigEx.use_arb_draw_elements_base_vertex)
 	{
@@ -297,26 +300,6 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 	else
 	{
 		glDrawElements(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, &ogl_index_buffer[0]);
-	}
-
-	if (use_pos_array)
-	{
-		glDisableVertexAttribArray(ogl_tess_program->a_pos_vec4);
-	}
-
-	if (use_tc0_array)
-	{
-		glDisableVertexAttribArray(ogl_tess_program->a_tc0_vec2);
-	}
-
-	if (use_tc1_array)
-	{
-		glDisableVertexAttribArray(ogl_tess_program->a_tc1_vec2);
-	}
-
-	if (use_col_array)
-	{
-		glDisableVertexAttribArray(ogl_tess_program->a_col_vec4);
 	}
 
 	ogl_tess_base_vertex += ogl_tess_vertex_count;

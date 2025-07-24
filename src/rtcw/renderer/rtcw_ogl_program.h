@@ -16,6 +16,9 @@ namespace rtcw {
 class OglProgram
 {
 public:
+	static const int max_vertex_attributes = 4;
+
+public:
 	// GL program object.
 	GLuint program_;
 
@@ -29,8 +32,6 @@ public:
 	void unload();
 
 protected:
-	static const int max_vertex_attributes = 4;
-
 	enum SourceType
 	{
 		source_type_none,

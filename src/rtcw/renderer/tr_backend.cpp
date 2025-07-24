@@ -53,12 +53,13 @@ void ogl_tess2_draw(GLenum mode, int vertex_count, bool use_texture_coords, bool
 		return;
 	}
 
+	ogl_tess_state.disable_all_vertex_attrib_arrays();
+
 	if (ogl_tess2_base_vertex + vertex_count > OglTessLayout::MAX_VERTEX_COUNT)
 	{
 		ogl_tess2_base_vertex = 0;
 	}
 
-	ogl_tess_state.commit_changes();
 	glBindBuffer (GL_ARRAY_BUFFER, ogl_tess2_vbo);
 
 	// position
@@ -78,7 +79,7 @@ void ogl_tess2_draw(GLenum mode, int vertex_count, bool use_texture_coords, bool
 			static_cast<GLsizei>(OglTessLayout::POS_SIZE),
 			OglTessLayout::POS_PTR);
 
-		glEnableVertexAttribArray(ogl_tess_program->a_pos_vec4);
+		ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_pos_vec4);
 	}
 
 	// texture coordinates (0)
@@ -98,7 +99,7 @@ void ogl_tess2_draw(GLenum mode, int vertex_count, bool use_texture_coords, bool
 			0,
 			OglTessLayout::TC0_PTR);
 
-		glEnableVertexAttribArray(ogl_tess_program->a_tc0_vec2);
+		ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_tc0_vec2);
 	}
 
 	// color
@@ -118,26 +119,11 @@ void ogl_tess2_draw(GLenum mode, int vertex_count, bool use_texture_coords, bool
 			0,
 			OglTessLayout::COL_PTR);
 
-		glEnableVertexAttribArray(ogl_tess_program->a_col_vec4);
+		ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_col_vec4);
 	}
 
+	ogl_tess_state.commit_changes();
 	glDrawArrays(mode, ogl_tess2_base_vertex, vertex_count);
-
-	if (use_pos_array)
-	{
-		glDisableVertexAttribArray(ogl_tess_program->a_pos_vec4);
-	}
-
-	if (use_tc0_array)
-	{
-		glDisableVertexAttribArray(ogl_tess_program->a_tc0_vec2);
-	}
-
-	if (use_col_array)
-	{
-		glDisableVertexAttribArray(ogl_tess_program->a_col_vec4);
-	}
-
 	ogl_tess2_base_vertex += vertex_count;
 }
 // BBi

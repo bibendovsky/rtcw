@@ -63,6 +63,8 @@ void OglTessState::set_default_values()
 	intensity = 1.0F;
 	overbright = 1.0F;
 	gamma = 1.0F;
+
+	disable_all_vertex_attrib_arrays();
 }
 
 void OglTessState::commit_changes()
@@ -289,6 +291,32 @@ void OglTessState::commit_changes()
 		old_gamma = gamma;
 	}
 
+	if (is_dirty_ || enabled_vertex_attrib_arrays != old_enabled_vertex_attrib_arrays)
+	{
+		for (int i_array_index = 0; i_array_index < OglProgram::max_vertex_attributes; ++i_array_index)
+		{
+			const EnabledVertexAttribArrays mask = 1U << i_array_index;
+			const EnabledVertexAttribArrays old_value = old_enabled_vertex_attrib_arrays & mask;
+			const EnabledVertexAttribArrays new_value = enabled_vertex_attrib_arrays & mask;
+
+			if (is_dirty_ || new_value != old_value)
+			{
+				const GLuint gl_array_index = static_cast<GLuint>(i_array_index);
+
+				if (new_value)
+				{
+					glEnableVertexAttribArray(gl_array_index);
+				}
+				else
+				{
+					glDisableVertexAttribArray(gl_array_index);
+				}
+			}
+		}
+
+		old_enabled_vertex_attrib_arrays = enabled_vertex_attrib_arrays;
+	}
+
 	is_dirty_ = false;
 }
 
@@ -306,6 +334,16 @@ void OglTessState::invalidate_and_commit()
 bool OglTessState::is_program_valid() const
 {
 	return program_ != NULL && program_->program_ != 0;
+}
+
+void OglTessState::disable_all_vertex_attrib_arrays()
+{
+	enabled_vertex_attrib_arrays = 0;
+}
+
+void OglTessState::enable_vertex_attrib_array(int array_index)
+{
+	enabled_vertex_attrib_arrays |= 1U << array_index;
 }
 
 } // namespace rtcw
