@@ -98,9 +98,12 @@ public:
 	void invalidate_and_commit();
 	void disable_all_vertex_attrib_arrays();
 	void enable_vertex_attrib_array(int array_index);
+	void mask_vertex_attrib_arrays();
+	void unmask_vertex_attrib_arrays();
 
 private:
 	bool is_dirty_;
+	bool vertex_attrib_arrays_masked_;
 	rtcw::OglTessProgram* program_;
 
 private:
@@ -112,4 +115,4 @@ private:
 
 } // namespace rtcw
 
-#endif // !RTCW_OGL_TESS_STATE_INCLUDED
+#endif // RTCW_OGL_TESS_STATE_INCLUDED

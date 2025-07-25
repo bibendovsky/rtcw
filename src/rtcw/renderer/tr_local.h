@@ -2847,6 +2847,22 @@ extern GLuint ogl_tess2_vbo;
 extern int ogl_tess2_base_vertex;
 extern OglTessLayout ogl_tess2;
 
+const int ogl_tess_default_vao_index = 0;
+const int ogl_tess_default_vao_count = 1;
+
+const int ogl_tess_vao_base_index = ogl_tess_default_vao_index + ogl_tess_default_vao_count;
+const int ogl_tess_vao_count = (1 << 3) - 1;
+
+const int ogl_tess2_vao_base_index = ogl_tess_vao_base_index + ogl_tess_vao_count;
+const int ogl_tess2_vao_count = (1 << 2) - 1;
+
+const int ogl_tess_vao_total_count = ogl_tess_default_vao_count + ogl_tess_vao_count + ogl_tess2_vao_count;
+
+typedef GLuint OglTessVaos[ogl_tess_vao_total_count];
+
+extern bool ogl_tess_use_vao;
+extern OglTessVaos ogl_tess_vaos;
+
 void ogl_tess2_draw (GLenum mode, int vertex_count,
 	bool use_texture_coords, bool use_color);
 

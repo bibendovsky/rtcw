@@ -76,6 +76,9 @@ OglTessLayout ogl_tess2;
 GLuint ogl_tess2_vbo = 0;
 int ogl_tess2_base_vertex = 0;
 
+bool ogl_tess_use_vao = false;
+OglTessVaos ogl_tess_vaos;
+
 rtcw::OglMatrixStack ogl_model_view_stack(rtcw::OglMatrixStack::model_view_max_depth);
 rtcw::OglMatrixStack ogl_projection_stack(rtcw::OglMatrixStack::projection_max_depth);
 // BBi
@@ -933,6 +936,183 @@ void r_reload_programs_f()
 	ri.Printf(PRINT_ALL, "======== GLSL ========\n");
 }
 
+namespace {
+
+void r_destroy_tess_vertex_array_objects()
+{
+	glBindVertexArray(0);
+	glDeleteVertexArrays(ogl_tess_vao_total_count, ogl_tess_vaos);
+	std::fill_n(ogl_tess_vaos, ogl_tess_vao_total_count, GLuint());
+}
+
+bool r_create_tess_vertex_array_objects()
+{
+	std::fill_n(ogl_tess_vaos, ogl_tess_vao_total_count, GLuint());
+	glGenVertexArrays(ogl_tess_vao_total_count, ogl_tess_vaos);
+	bool failed = false;
+
+	for (int i_vao = 0; i_vao < ogl_tess_vao_total_count; ++i_vao)
+	{
+		const GLuint gl_vao = ogl_tess_vaos[i_vao];
+		glBindVertexArray(gl_vao);
+
+		if (!glIsVertexArray(gl_vao))
+		{
+			failed = true;
+			break;
+		}
+	}
+
+	if (failed)
+	{
+		r_destroy_tess_vertex_array_objects();
+		ri.Printf(
+			PRINT_ALL,
+			"%sFailed to create GL vertex array objects.%s\n",
+			S_COLOR_YELLOW,
+			S_COLOR_WHITE);
+		return false;
+	}
+
+	glBindVertexArray(0);
+	return true;
+}
+
+void r_initialize_tess_vertex_array_objects()
+{
+	for (int permutation = 1; permutation <= ogl_tess_vao_count; ++permutation)
+	{
+		const bool use_tc0_array = (permutation & (1 << 0)) != 0;
+		const bool use_tc1_array = (permutation & (1 << 1)) != 0;
+		const bool use_col_array = (permutation & (1 << 2)) != 0;
+		assert(use_tc0_array || use_tc1_array || use_col_array);
+		const int vao_index = ogl_tess_vao_base_index + permutation - 1;
+		GLuint& gl_vao = ogl_tess_vaos[vao_index];
+
+		glBindVertexArray(gl_vao);
+		glBindBuffer(GL_ARRAY_BUFFER, ogl_tess_vbo);
+
+		// position
+		glVertexAttribPointer(
+			/* index */      ogl_tess_program->a_pos_vec4,
+			/* size */       3,
+			/* type */       GL_FLOAT,
+			/* normalized */ GL_FALSE,
+			/* stride */     static_cast<GLsizei>(OglTessLayout::POS_SIZE),
+			/* pointer */    OglTessLayout::POS_PTR);
+
+		glEnableVertexAttribArray(ogl_tess_program->a_pos_vec4);
+
+		// texture coordinates (0)
+		if (use_tc0_array)
+		{
+			glVertexAttribPointer(
+				/* index */      ogl_tess_program->a_tc0_vec2,
+				/* size */       2,
+				/* type */       GL_FLOAT,
+				/* normalized */ GL_FALSE,
+				/* stride */     0,
+				/* pointer */    OglTessLayout::TC0_PTR);
+
+			glEnableVertexAttribArray(ogl_tess_program->a_tc0_vec2);
+		}
+
+		// texture coordinates (1)
+		if (use_tc1_array)
+		{
+			glVertexAttribPointer(
+				/* index */      ogl_tess_program->a_tc1_vec2,
+				/* size */       2,
+				/* type */       GL_FLOAT,
+				/* normalized */ GL_FALSE,
+				/* stride */     0,
+				/* pointer */    OglTessLayout::TC1_PTR);
+
+			glEnableVertexAttribArray(ogl_tess_program->a_tc1_vec2);
+		}
+
+		// color
+		if (use_col_array)
+		{
+			glVertexAttribPointer(
+				/* index */      ogl_tess_program->a_col_vec4,
+				/* size */       4,
+				/* type */       GL_UNSIGNED_BYTE,
+				/* normalized */ GL_TRUE,
+				/* stride */     0,
+				/* pointer */    OglTessLayout::COL_PTR);
+
+			glEnableVertexAttribArray(ogl_tess_program->a_col_vec4);
+		}
+	}
+
+	glBindVertexArray(0);
+}
+
+void r_initialize_tess2_vertex_array_objects()
+{
+	for (int permutation = 1; permutation <= ogl_tess2_vao_count; ++permutation)
+	{
+		const bool use_tc0_array = (permutation & (1 << 0)) != 0;
+		const bool use_col_array = (permutation & (1 << 1)) != 0;
+		assert(use_tc0_array || use_col_array);
+		const int vao_index = ogl_tess2_vao_base_index + permutation - 1;
+		const GLuint gl_vao = ogl_tess_vaos[vao_index];
+
+		glBindVertexArray(gl_vao);
+		glBindBuffer(GL_ARRAY_BUFFER, ogl_tess2_vbo);
+
+		// position
+		glVertexAttribPointer(
+			/* index */      ogl_tess_program->a_pos_vec4,
+			/* size */       3,
+			/* type */       GL_FLOAT,
+			/* normalized */ GL_FALSE,
+			/* stride */     static_cast<GLsizei>(OglTessLayout::POS_SIZE),
+			/* pointer */    OglTessLayout::POS_PTR);
+
+		glEnableVertexAttribArray(ogl_tess_program->a_pos_vec4);
+
+		// texture coordinates (0)
+		if (use_tc0_array)
+		{
+			glVertexAttribPointer(
+				/* index */      ogl_tess_program->a_tc0_vec2,
+				/* size */       2,
+				/* type */       GL_FLOAT,
+				/* normalized */ GL_FALSE,
+				/* stride */     0,
+				/* pointer */    OglTessLayout::TC0_PTR);
+
+			glEnableVertexAttribArray(ogl_tess_program->a_tc0_vec2);
+		}
+
+		// color
+		if (use_col_array)
+		{
+			glVertexAttribPointer(
+				/* index */      ogl_tess_program->a_col_vec4,
+				/* size */       4,
+				/* type */       GL_UNSIGNED_BYTE,
+				/* normalized */ GL_TRUE,
+				/* stride */     0,
+				/* pointer */    OglTessLayout::COL_PTR);
+
+			glEnableVertexAttribArray(ogl_tess_program->a_col_vec4);
+		}
+	}
+
+	glBindVertexArray(0);
+}
+
+void r_initialize_tess_default_vertex_array_object()
+{
+	const GLuint gl_vao = ogl_tess_vaos[ogl_tess_default_vao_index];
+	glBindVertexArray(gl_vao);
+}
+
+} // namespace
+
 static void r_tess_initialize ()
 {
 	GLsizeiptr vbo_size = sizeof (OglTessLayout);
@@ -949,10 +1129,31 @@ static void r_tess_initialize ()
 
 	ogl_tess_base_vertex = 0;
 	ogl_tess2_base_vertex = 0;
+
+	ogl_tess_use_vao = false;
+
+	if (glConfigEx.use_gl_arb_vertex_array_object)
+	{
+		if (r_create_tess_vertex_array_objects())
+		{
+			r_initialize_tess_vertex_array_objects();
+			r_initialize_tess2_vertex_array_objects();
+			r_initialize_tess_default_vertex_array_object();
+
+			ogl_tess_use_vao = true;
+			ogl_tess_state.mask_vertex_attrib_arrays();
+		}
+	}
 }
 
 static void r_tess_uninitialize ()
 {
+	if (ogl_tess_use_vao)
+	{
+		r_destroy_tess_vertex_array_objects();
+		ogl_tess_state.unmask_vertex_attrib_arrays();
+	}
+
 	glDeleteBuffers (1, &ogl_tess_vbo);
 	ogl_tess_vbo = 0;
 

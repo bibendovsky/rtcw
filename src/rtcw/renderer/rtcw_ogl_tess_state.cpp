@@ -291,7 +291,8 @@ void OglTessState::commit_changes()
 		old_gamma = gamma;
 	}
 
-	if (is_dirty_ || enabled_vertex_attrib_arrays != old_enabled_vertex_attrib_arrays)
+	if (!vertex_attrib_arrays_masked_ &&
+		(is_dirty_ || enabled_vertex_attrib_arrays != old_enabled_vertex_attrib_arrays))
 	{
 		for (int i_array_index = 0; i_array_index < OglProgram::max_vertex_attributes; ++i_array_index)
 		{
@@ -344,6 +345,16 @@ void OglTessState::disable_all_vertex_attrib_arrays()
 void OglTessState::enable_vertex_attrib_array(int array_index)
 {
 	enabled_vertex_attrib_arrays |= 1U << array_index;
+}
+
+void OglTessState::mask_vertex_attrib_arrays()
+{
+	vertex_attrib_arrays_masked_ = true;
+}
+
+void OglTessState::unmask_vertex_attrib_arrays()
+{
+	vertex_attrib_arrays_masked_ = false;
 }
 
 } // namespace rtcw

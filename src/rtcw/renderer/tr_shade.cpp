@@ -164,7 +164,7 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 {
 	const int vertex_count = ogl_tess_vertex_count;
 
-	if (vertex_count <= 0)
+	if (vertex_count == 0)
 	{
 		return;
 	}
@@ -184,12 +184,10 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 	const bool use_tc1_array = ogl_tess_use_tc1_array && ogl_tess_program->a_tc1_vec2 >= 0;
 	const bool use_col_array = ogl_tess_use_col_array && ogl_tess_program->a_col_vec4 >= 0;
 
-	if (!use_pos_array && !use_tc0_array && !use_tc1_array && !use_col_array)
+	if (!use_pos_array || (!use_tc0_array && !use_tc1_array && !use_col_array))
 	{
 		return;
 	}
-
-	ogl_tess_state.disable_all_vertex_attrib_arrays();
 
 	if (ogl_tess_base_vertex + ogl_tess_vertex_count > OglTessLayout::MAX_VERTEX_COUNT)
 	{
@@ -211,9 +209,68 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 
 	glBindBuffer(GL_ARRAY_BUFFER, ogl_tess_vbo);
 
-	// position
-	if (use_pos_array)
+	if (ogl_tess_use_vao)
 	{
+		const int vao_index = (use_tc0_array << 0 | use_tc1_array << 1 | use_col_array << 2) +
+			ogl_tess_vao_base_index - 1;
+		const GLuint gl_vao = ogl_tess_vaos[vao_index];
+
+		// position
+		glBufferSubData(
+			GL_ARRAY_BUFFER,
+			OglTessLayout::POS_OFS + (ogl_tess_base_vertex * OglTessLayout::POS_SIZE),
+			vertex_count * OglTessLayout::POS_SIZE,
+			ogl_tess_pos_array);
+
+		// texture coordinates (0)
+		if (use_tc0_array)
+		{
+			glBufferSubData(
+				GL_ARRAY_BUFFER,
+				OglTessLayout::TC0_OFS + (ogl_tess_base_vertex * OglTessLayout::TC0_SIZE),
+				vertex_count * OglTessLayout::TC0_SIZE,
+				ogl_tess_tc0_array);
+		}
+
+		// texture coordinates (1)
+		if (use_tc1_array)
+		{
+			glBufferSubData(
+				GL_ARRAY_BUFFER,
+				OglTessLayout::TC1_OFS + (ogl_tess_base_vertex * OglTessLayout::TC1_SIZE),
+				vertex_count * OglTessLayout::TC1_SIZE,
+				ogl_tess_tc1_array);
+		}
+
+		// color
+		if (use_col_array)
+		{
+			glBufferSubData(
+				GL_ARRAY_BUFFER,
+				OglTessLayout::COL_OFS + (ogl_tess_base_vertex * OglTessLayout::COL_SIZE),
+				vertex_count * OglTessLayout::COL_SIZE,
+				ogl_tess_col_array);
+		}
+
+		ogl_tess_state.commit_changes();
+		glBindVertexArray(gl_vao);
+
+		if (glConfigEx.use_arb_draw_elements_base_vertex)
+		{
+			glDrawElementsBaseVertex(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, indexes, ogl_tess_base_vertex);
+		}
+		else
+		{
+			glDrawElements(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, &ogl_index_buffer[0]);
+		}
+
+		glBindVertexArray(ogl_tess_vaos[ogl_tess_default_vao_index]);
+	}
+	else
+	{
+		ogl_tess_state.disable_all_vertex_attrib_arrays();
+
+		// position
 		glBufferSubData(
 			GL_ARRAY_BUFFER,
 			OglTessLayout::POS_OFS + (ogl_tess_base_vertex * OglTessLayout::POS_SIZE),
@@ -229,77 +286,77 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 			OglTessLayout::POS_PTR);
 
 		ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_pos_vec4);
-	}
 
-	// texture coordinates (0)
-	if (use_tc0_array)
-	{
-		glBufferSubData(
-			GL_ARRAY_BUFFER,
-			OglTessLayout::TC0_OFS + (ogl_tess_base_vertex * OglTessLayout::TC0_SIZE),
-			vertex_count * OglTessLayout::TC0_SIZE,
-			ogl_tess_tc0_array);
+		// texture coordinates (0)
+		if (use_tc0_array)
+		{
+			glBufferSubData(
+				GL_ARRAY_BUFFER,
+				OglTessLayout::TC0_OFS + (ogl_tess_base_vertex * OglTessLayout::TC0_SIZE),
+				vertex_count * OglTessLayout::TC0_SIZE,
+				ogl_tess_tc0_array);
 
-		glVertexAttribPointer(
-			ogl_tess_program->a_tc0_vec2,
-			2,
-			GL_FLOAT,
-			GL_FALSE,
-			0,
-			OglTessLayout::TC0_PTR);
+			glVertexAttribPointer(
+				ogl_tess_program->a_tc0_vec2,
+				2,
+				GL_FLOAT,
+				GL_FALSE,
+				0,
+				OglTessLayout::TC0_PTR);
 
-		ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_tc0_vec2);
-	}
+			ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_tc0_vec2);
+		}
 
-	// texture coordinates (1)
-	if (use_tc1_array)
-	{
-		glBufferSubData(
-			GL_ARRAY_BUFFER,
-			OglTessLayout::TC1_OFS + (ogl_tess_base_vertex * OglTessLayout::TC1_SIZE),
-			vertex_count * OglTessLayout::TC1_SIZE,
-			ogl_tess_tc1_array);
+		// texture coordinates (1)
+		if (use_tc1_array)
+		{
+			glBufferSubData(
+				GL_ARRAY_BUFFER,
+				OglTessLayout::TC1_OFS + (ogl_tess_base_vertex * OglTessLayout::TC1_SIZE),
+				vertex_count * OglTessLayout::TC1_SIZE,
+				ogl_tess_tc1_array);
 
-		glVertexAttribPointer(
-			ogl_tess_program->a_tc1_vec2,
-			2,
-			GL_FLOAT,
-			GL_FALSE,
-			0,
-			OglTessLayout::TC1_PTR);
+			glVertexAttribPointer(
+				ogl_tess_program->a_tc1_vec2,
+				2,
+				GL_FLOAT,
+				GL_FALSE,
+				0,
+				OglTessLayout::TC1_PTR);
 
-		ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_tc1_vec2);
-	}
+			ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_tc1_vec2);
+		}
 
-	// color
-	if (use_col_array)
-	{
-		glBufferSubData(
-			GL_ARRAY_BUFFER,
-			OglTessLayout::COL_OFS + (ogl_tess_base_vertex * OglTessLayout::COL_SIZE),
-			vertex_count * OglTessLayout::COL_SIZE,
-			ogl_tess_col_array);
+		// color
+		if (use_col_array)
+		{
+			glBufferSubData(
+				GL_ARRAY_BUFFER,
+				OglTessLayout::COL_OFS + (ogl_tess_base_vertex * OglTessLayout::COL_SIZE),
+				vertex_count * OglTessLayout::COL_SIZE,
+				ogl_tess_col_array);
 
-		glVertexAttribPointer(
-			ogl_tess_program->a_col_vec4,
-			4,
-			GL_UNSIGNED_BYTE,
-			GL_TRUE,
-			0,
-			OglTessLayout::COL_PTR);
+			glVertexAttribPointer(
+				ogl_tess_program->a_col_vec4,
+				4,
+				GL_UNSIGNED_BYTE,
+				GL_TRUE,
+				0,
+				OglTessLayout::COL_PTR);
 
-		ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_col_vec4);
-	}
+			ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_col_vec4);
+		}
 
-	ogl_tess_state.commit_changes();
+		ogl_tess_state.commit_changes();
 
-	if (glConfigEx.use_arb_draw_elements_base_vertex)
-	{
-		glDrawElementsBaseVertex(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, indexes, ogl_tess_base_vertex);
-	}
-	else
-	{
-		glDrawElements(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, &ogl_index_buffer[0]);
+		if (glConfigEx.use_arb_draw_elements_base_vertex)
+		{
+			glDrawElementsBaseVertex(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, indexes, ogl_tess_base_vertex);
+		}
+		else
+		{
+			glDrawElements(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, &ogl_index_buffer[0]);
+		}
 	}
 
 	ogl_tess_base_vertex += ogl_tess_vertex_count;

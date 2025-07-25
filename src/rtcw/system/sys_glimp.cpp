@@ -1019,6 +1019,44 @@ void glimp_initialize_gl_arb_texture_non_power_of_two_extension()
 
 // ======================================
 
+void glimp_initialize_gl_arb_vertex_array_object_extension()
+{
+	const char* const gl_arb_vertex_array_object_string = "GL_ARB_vertex_array_object";
+	const bool is_gl30 = glimp_gl_version >= GlVersion(3, 0);
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
+
+	glConfigEx.use_gl_arb_vertex_array_object = false;
+
+	if (is_gl30 || SDL_GL_ExtensionSupported(gl_arb_vertex_array_object_string))
+	{
+		GlFunctionInfo gl_function_infos[] =
+		{
+#define RTCW_MACRO0(x) #x
+#define RTCW_MACRO(symbol) {is_gl30 ? #symbol : RTCW_MACRO0(symbol##ARB), glimp_bit_cast<void**>(&symbol)}
+
+			RTCW_MACRO(glBindVertexArray),
+			RTCW_MACRO(glDeleteVertexArrays),
+			RTCW_MACRO(glGenVertexArrays),
+			RTCW_MACRO(glIsVertexArray),
+
+#undef RTCW_MACRO0
+#undef RTCW_MACRO
+
+			{NULL, NULL}
+		};
+
+		if (glimp_load_gl_functions(S_COLOR_WHITE, gl_function_infos))
+		{
+			glConfigEx.use_gl_arb_vertex_array_object = true;
+			extension_status = EXT_STATUS_USING;
+		}
+	}
+
+	glimp_print_extension(extension_status, gl_arb_vertex_array_object_string);
+}
+
+// ======================================
+
 void gl_initialize_extensions()
 {
 	if (r_allowExtensions->integer == 0)
@@ -1044,6 +1082,8 @@ void gl_initialize_extensions()
 	glimp_initialize_gl_arb_draw_elements_base_vertex_extension();
 	glimp_initialize_gl_arb_framebuffer_object_extension();
 	glimp_initialize_gl_arb_texture_non_power_of_two_extension();
+	glimp_initialize_gl_arb_vertex_array_object_extension();
+
 	glConfigEx.is_2_x_capable_ = glimp_initialize_gl2_functions();
 }
 

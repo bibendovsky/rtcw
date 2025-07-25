@@ -400,6 +400,7 @@ public:
 	bool use_arb_draw_elements_base_vertex;
 	bool has_swap_control_;
 	bool has_adaptive_swap_control_;
+	bool use_gl_arb_vertex_array_object;
 	bool is_2_x_capable_;
 	RendererPath renderer_path_;
 
