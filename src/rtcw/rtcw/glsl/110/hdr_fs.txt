@@ -1,0 +1,52 @@
+//
+// Project: RTCW
+// Author: Boris I. Bendovsky
+//
+// Shader type: fragment
+// Purpose: HDR
+//
+
+#version 110
+
+const int cctf_id_srgb = 1; // sRGB
+const int cctf_id_gamma = 2; // pow(x, gamma)
+
+uniform sampler2D tex_2d; // texture
+uniform int cctf_id; // identifier of color component transfer function
+uniform float cctf_gamma; // an exponent of gamma CCTF
+uniform float sdr_white_level; // Relative SDR white level to 80 nits
+
+varying vec2 tc; // interpolated texture coord
+
+vec3 linear_to_srgb(vec3 x)
+{
+    // https://en.wikipedia.org/wiki/SRGB
+    return mix(pow((x + 0.055) / 1.055, vec3(2.4)), x / 12.92, vec3(lessThanEqual(x, vec3(0.04045))));
+}
+
+vec3 linear_to_gamma(vec3 x, float power)
+{
+    return pow(x, vec3(power));
+}
+
+vec3 apply_cctf(vec3 x)
+{
+    if (cctf_id == cctf_id_srgb)
+    {
+        return linear_to_srgb(x);
+    }
+    else if (cctf_id == cctf_id_gamma)
+    {
+        return linear_to_gamma(x, cctf_gamma);
+    }
+    else
+    {
+        return x;
+    }
+}
+
+void main()
+{
+    vec4 texel = texture2D(tex_2d, tc);
+    gl_FragColor = vec4(apply_cctf(texel.rgb) * sdr_white_level, texel.a);
+}

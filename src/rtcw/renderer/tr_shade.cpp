@@ -231,6 +231,10 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 				vertex_count * OglTessLayout::TC0_SIZE,
 				ogl_tess_tc0_array);
 		}
+		else
+		{
+			glVertexAttrib2f(ogl_tess_program->a_tc0_vec2, 0.0F, 0.0F);
+		}
 
 		// texture coordinates (1)
 		if (use_tc1_array)
@@ -240,6 +244,10 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 				OglTessLayout::TC1_OFS + (ogl_tess_base_vertex * OglTessLayout::TC1_SIZE),
 				vertex_count * OglTessLayout::TC1_SIZE,
 				ogl_tess_tc1_array);
+		}
+		else
+		{
+			glVertexAttrib2f(ogl_tess_program->a_tc1_vec2, 0.0F, 0.0F);
 		}
 
 		// color
@@ -251,8 +259,12 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 				vertex_count * OglTessLayout::COL_SIZE,
 				ogl_tess_col_array);
 		}
+		else
+		{
+			glVertexAttrib4f(ogl_tess_program->a_col_vec4, 1.0F, 1.0F, 1.0F, 1.0F);
+		}
 
-		ogl_tess_state.commit_changes();
+		ogl_tess_state.commit();
 		glBindVertexArray(gl_vao);
 
 		if (glConfigEx.use_arb_draw_elements_base_vertex)
@@ -268,7 +280,10 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 	}
 	else
 	{
-		ogl_tess_state.disable_all_vertex_attrib_arrays();
+		for (GLuint i_array = 0; i_array < rtcw::OglProgram::max_vertex_attributes; ++i_array)
+		{
+			glDisableVertexAttribArray(i_array);
+		}
 
 		// position
 		glBufferSubData(
@@ -285,7 +300,7 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 			static_cast<GLsizei>(OglTessLayout::POS_SIZE),
 			OglTessLayout::POS_PTR);
 
-		ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_pos_vec4);
+		glEnableVertexAttribArray(ogl_tess_program->a_pos_vec4);
 
 		// texture coordinates (0)
 		if (use_tc0_array)
@@ -304,7 +319,11 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 				0,
 				OglTessLayout::TC0_PTR);
 
-			ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_tc0_vec2);
+			glEnableVertexAttribArray(ogl_tess_program->a_tc0_vec2);
+		}
+		else
+		{
+			glVertexAttrib2f(ogl_tess_program->a_tc0_vec2, 0.0F, 0.0F);
 		}
 
 		// texture coordinates (1)
@@ -324,7 +343,11 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 				0,
 				OglTessLayout::TC1_PTR);
 
-			ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_tc1_vec2);
+			glEnableVertexAttribArray(ogl_tess_program->a_tc1_vec2);
+		}
+		else
+		{
+			glVertexAttrib2f(ogl_tess_program->a_tc1_vec2, 0.0F, 0.0F);
 		}
 
 		// color
@@ -344,10 +367,14 @@ void ogl_tess_draw_elements(int numIndexes, const glIndex_t* indexes)
 				0,
 				OglTessLayout::COL_PTR);
 
-			ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_col_vec4);
+			glEnableVertexAttribArray(ogl_tess_program->a_col_vec4);
+		}
+		else
+		{
+			glVertexAttrib4f(ogl_tess_program->a_col_vec4, 1.0F, 1.0F, 1.0F, 1.0F);
 		}
 
-		ogl_tess_state.commit_changes();
+		ogl_tess_state.commit();
 
 		if (glConfigEx.use_arb_draw_elements_base_vertex)
 		{

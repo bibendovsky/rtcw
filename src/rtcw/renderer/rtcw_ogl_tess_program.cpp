@@ -185,22 +185,6 @@ bool OglTessProgram::reload_internal()
 	u_overbright = glGetUniformLocation(program_, "overbright");
 	u_gamma = glGetUniformLocation(program_, "gamma");
 
-
-	if (a_col_vec4 >= 0)
-	{
-		glVertexAttrib4f(a_col_vec4, 1.0F, 1.0F, 1.0F, 1.0F);
-	}
-
-	if (a_tc0_vec2 >= 0)
-	{
-		glVertexAttrib2f(a_tc0_vec2, 0.0F, 0.0F);
-	}
-
-	if (a_tc1_vec2 >= 0)
-	{
-		glVertexAttrib2f(a_tc1_vec2, 0.0F, 0.0F);
-	}
-
 	return true;
 }
 

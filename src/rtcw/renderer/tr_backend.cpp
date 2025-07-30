@@ -81,6 +81,10 @@ void ogl_tess2_draw(GLenum mode, int vertex_count, bool use_texture_coords, bool
 				vertex_count * OglTessLayout::TC0_SIZE,
 				ogl_tess2.texture_coords[0]);
 		}
+		else
+		{
+			glVertexAttrib2f(ogl_tess_program->a_tc0_vec2, 0.0F, 0.0F);
+		}
 
 		// color
 		if (use_col_array)
@@ -91,15 +95,22 @@ void ogl_tess2_draw(GLenum mode, int vertex_count, bool use_texture_coords, bool
 				vertex_count * OglTessLayout::COL_SIZE,
 				ogl_tess2.color);
 		}
+		else
+		{
+			glVertexAttrib4f(ogl_tess_program->a_col_vec4, 1.0F, 1.0F, 1.0F, 1.0F);
+		}
 
-		ogl_tess_state.commit_changes();
+		ogl_tess_state.commit();
 		glBindVertexArray(gl_vao);
 		glDrawArrays(mode, ogl_tess2_base_vertex, vertex_count);
 		glBindVertexArray(ogl_tess_vaos[ogl_tess_default_vao_index]);
 	}
 	else
 	{
-		ogl_tess_state.disable_all_vertex_attrib_arrays();
+		for (GLuint i_array = 0; i_array < rtcw::OglProgram::max_vertex_attributes; ++i_array)
+		{
+			glDisableVertexAttribArray(i_array);
+		}
 
 		// position
 		glBufferSubData(
@@ -116,7 +127,7 @@ void ogl_tess2_draw(GLenum mode, int vertex_count, bool use_texture_coords, bool
 			static_cast<GLsizei>(OglTessLayout::POS_SIZE),
 			OglTessLayout::POS_PTR);
 
-		ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_pos_vec4);
+		glEnableVertexAttribArray(ogl_tess_program->a_pos_vec4);
 
 		// texture coordinates (0)
 		if (use_tc0_array)
@@ -135,7 +146,11 @@ void ogl_tess2_draw(GLenum mode, int vertex_count, bool use_texture_coords, bool
 				0,
 				OglTessLayout::TC0_PTR);
 
-			ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_tc0_vec2);
+			glEnableVertexAttribArray(ogl_tess_program->a_tc0_vec2);
+		}
+		else
+		{
+			glVertexAttrib2f(ogl_tess_program->a_tc0_vec2, 0.0F, 0.0F);
 		}
 
 		// color
@@ -155,10 +170,14 @@ void ogl_tess2_draw(GLenum mode, int vertex_count, bool use_texture_coords, bool
 				0,
 				OglTessLayout::COL_PTR);
 
-			ogl_tess_state.enable_vertex_attrib_array(ogl_tess_program->a_col_vec4);
+			glEnableVertexAttribArray(ogl_tess_program->a_col_vec4);
+		}
+		else
+		{
+			glVertexAttrib4f(ogl_tess_program->a_col_vec4, 1.0F, 1.0F, 1.0F, 1.0F);
 		}
 
-		ogl_tess_state.commit_changes();
+		ogl_tess_state.commit();
 		glDrawArrays(mode, ogl_tess2_base_vertex, vertex_count);
 	}
 
@@ -2126,7 +2145,10 @@ const void  *RB_DrawBuffer( const void *data ) {
 
 	cmd = (const drawBufferCommand_t *)data;
 
-	glDrawBuffer( cmd->buffer );
+	if (glConfigEx.is_path_ogl_1_x())
+	{
+		glDrawBuffer( cmd->buffer );
+	}
 
 	// clear screen for debugging
 	if ( r_clear->integer ) {
@@ -2503,9 +2525,13 @@ const void  *RB_SwapBuffers( const void *data ) {
 		ri.Hunk_FreeTempMemory( stencilReadback );
 	}
 
-
 	if ( !glState.finishCalled ) {
 		glFinish();
+	}
+
+	if (glConfigEx.has_offscreen)
+	{
+		r_present_offscreen();
 	}
 
 	//GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );

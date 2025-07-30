@@ -8,7 +8,8 @@ SPDX-License-Identifier: GPL-3.0
 // tr_init.c -- functions that are not called every frame
 
 #include "tr_local.h"
-
+#include "rtcw_hdr_mgr.h"
+#include "rtcw_unique_ptr.h"
 
 #if !defined RTCW_ET
 //#ifdef __USEA3D
@@ -63,6 +64,8 @@ const size_t OglTessLayout::COL_SIZE =
 	offsetof (OglTessLayout, color[0]);
 
 
+rtcw::UniquePtr<rtcw::HdrMgr> r_hdr_mgr_uptr;
+
 GlConfigEx glConfigEx;
 
 rtcw::OglTessState ogl_tess_state;
@@ -81,6 +84,8 @@ OglTessVaos ogl_tess_vaos;
 
 rtcw::OglMatrixStack ogl_model_view_stack(rtcw::OglMatrixStack::model_view_max_depth);
 rtcw::OglMatrixStack ogl_projection_stack(rtcw::OglMatrixStack::projection_max_depth);
+
+rtcw::OglHdrProgram* ogl_hdr_program = NULL;
 // BBi
 
 glstate_t glState;
@@ -348,6 +353,68 @@ int max_polyverts;
 // Works in debug builds only.
 cvar_t* r_dbg_use_glsl_shader_files;
 
+/*
+HDR support.
+
+Values:
+  - "0": Disables HDR support.
+  - Non-zero integer: Enables HDR support.
+
+Default value: "1"
+*/
+cvar_t* r_hdr;
+
+/*
+HDR detection mode.
+
+Values:
+  - "auto": Tries to detect if HDR enabled automatically.
+  - "always": Assumes HDR is always enabled. Useful when auto-detection not implemented.
+
+Default value: "auto"
+*/
+cvar_t* r_hdr_detection;
+
+/*
+HDR color component transfer function.
+
+Values:
+  - "srgb": sRGB (https://en.wikipedia.org/wiki/SRGB)
+  - "gamma" A power function where the exponent specified by the appropriate cvar.
+
+Default value: "srgb"
+*/
+cvar_t* r_hdr_cctf;
+
+/*
+An exponent for gamma HDR color component transfer function.
+Formula: y = pow(x, gamma), where gamma is the exponent.
+
+Range: [1.0 .. 3.0]
+Default value: "2.2"
+*/
+cvar_t* r_hdr_cctf_gamma;
+
+/*
+User specified SDR white level relative to the baseline 80 nits.
+Formula: sdr_white_level = sdr_white_level_in_nits / 80 nits
+
+Range: [0.25 .. 6.25]
+Default value: "1.0"
+*/
+cvar_t* r_hdr_sdr_white_level;
+
+/*
+Overrides auto-detection of SDR white level.
+Useful when auto-detection not implemented.
+
+Valid values:
+- "0" - uses auto-detected value.
+- "1" - uses a value from the appropriate cvar.
+Default value: 0
+*/
+cvar_t* r_hdr_override_sdr_white_level;
+
 vec4hack_t tess_xyz[SHADER_MAX_VERTEXES];
 vec4hack_t tess_normal[SHADER_MAX_VERTEXES];
 vec2hack_t tess_texCoords0[SHADER_MAX_VERTEXES];
@@ -462,6 +529,16 @@ static int R_GetMaxTextureSize ()
 	return result;
 }
 
+void r_invalidate_hdr_cvars()
+{
+	r_hdr->modified = true;
+	r_hdr_detection->modified = true;
+	r_hdr_cctf->modified = true;
+	r_hdr_cctf_gamma->modified = true;
+	r_hdr_sdr_white_level->modified = true;
+	r_hdr_override_sdr_white_level->modified = true;
+}
+
 rtcw::String r_dbg_get_glsl_path()
 {
 	if (glConfigEx.is_path_ogl_2_x())
@@ -525,9 +602,15 @@ void r_dbg_reload_programs_f()
 		ogl_tess_program = new rtcw::OglTessProgram(glsl_dir, "tess");
 	}
 
-	if (ogl_tess_program != NULL)
+	if (ogl_hdr_program == NULL)
+	{
+		ogl_hdr_program = new rtcw::OglHdrProgram(glsl_dir, "hdr");
+	}
+
+	if (ogl_tess_program != NULL && ogl_hdr_program != NULL)
 	{
 		is_try_successfull &= ogl_tess_program->try_reload();
+		is_try_successfull &= ogl_hdr_program->try_reload();
 	}
 	else
 	{
@@ -538,17 +621,17 @@ void r_dbg_reload_programs_f()
 	if (is_try_successfull)
 	{
 		ogl_tess_program->reload();
+		ogl_hdr_program->reload();
 	}
 
 	ogl_tess_state.set_program(ogl_tess_program);
-	ogl_tess_state.use_program();
-	ogl_tess_state.invalidate_and_commit();
+	r_invalidate_hdr_cvars();
 
 	ri.Printf(PRINT_ALL, "======== GLSL (debug) ========\n");
 }
 
 
-static const char* r_get_embeded_vertex_shader()
+static const char* r_get_embeded_tess_vertex_shader()
 {
 	static const char* const result =
 		"//\n"
@@ -559,9 +642,7 @@ static const char* r_get_embeded_vertex_shader()
 		"// Purpose: Generic drawing.\n"
 		"//\n"
 		"\n"
-		"\n"
 		"#version 110\n"
-		"\n"
 		"\n"
 		"// Known GL constants.\n"
 		"const int GL_DONT_CARE = 0x1100;\n"
@@ -571,7 +652,6 @@ static const char* r_get_embeded_vertex_shader()
 		"const int GL_NONE = 0x0000;\n"
 		"const int GL_EYE_PLANE = 0x2502;\n"
 		"const int GL_EYE_RADIAL_NV = 0x855B;\n"
-		"\n"
 		"\n"
 		"attribute vec4 pos_vec4; // position\n"
 		"attribute vec4 col_vec4; // color\n"
@@ -590,7 +670,6 @@ static const char* r_get_embeded_vertex_shader()
 		"varying vec2 tc[2]; // interpolated texture coords\n"
 		"varying float fog_vc; // interpolated calculated fog coords\n"
 		"varying vec4 fog_fc; // interpolated fog coords\n"
-		"\n"
 		"\n"
 		"void main()\n"
 		"{\n"
@@ -624,12 +703,13 @@ static const char* r_get_embeded_vertex_shader()
 		"    }\n"
 		"\n"
 		"    gl_Position = projection_mat4 * eye_pos;\n"
-		"}\n";
+		"}\n"
+	;
 
 	return result;
 }
 
-static const char* r_get_embeded_fragment_shader()
+static const char* r_get_embeded_tess_fragment_shader()
 {
 	static const char* const result =
 		"//\n"
@@ -640,9 +720,7 @@ static const char* r_get_embeded_fragment_shader()
 		"// Purpose: Generic drawing.\n"
 		"//\n"
 		"\n"
-		"\n"
 		"#version 110\n"
-		"\n"
 		"\n"
 		"// Known constants.\n"
 		"const int GL_ADD = 0x0104;\n"
@@ -659,7 +737,6 @@ static const char* r_get_embeded_fragment_shader()
 		"const int GL_MODULATE = 0x2100;\n"
 		"const int GL_NICEST = 0x1102;\n"
 		"const int GL_REPLACE = 0x1E01;\n"
-		"\n"
 		"\n"
 		"uniform vec4 primary_color; // primary color\n"
 		"uniform bool use_alpha_test; // alpha test switch\n"
@@ -849,13 +926,107 @@ static const char* r_get_embeded_fragment_shader()
 		"        frag_color = apply_alpha_test(frag_color);\n"
 		"    }\n"
 		"\n"
-		"    gl_FragColor = apply_gamma(frag_color);\n"
+		"    frag_color = apply_gamma(frag_color);\n"
+		"\n"
+		"    gl_FragColor = frag_color;\n"
 		"}\n"
 		"\n"
 	;
 
 	return result;
 }
+
+namespace {
+
+static const char* r_get_embeded_hdr_vertex_shader()
+{
+	static const char* const result =
+		"//\n"
+		"// Project: RTCW\n"
+		"// Author: Boris I. Bendovsky\n"
+		"//\n"
+		"// Shader type: vertex\n"
+		"// Purpose: HDR\n"
+		"//\n"
+		"\n"
+		"#version 110\n"
+		"\n"
+		"attribute vec2 pos_vec2; // position\n"
+		"attribute vec2 tc_vec2; // texture coord\n"
+		"\n"
+		"varying vec2 tc; // interpolated texture coord\n"
+		"\n"
+		"void main()\n"
+		"{\n"
+		"    tc = tc_vec2;\n"
+		"    gl_Position = vec4(pos_vec2, 0.0, 1.0);\n"
+		"}\n"
+	;
+
+	return result;
+}
+
+static const char* r_get_embeded_hdr_fragment_shader()
+{
+	static const char* const result =
+		"//\n"
+		"// Project: RTCW\n"
+		"// Author: Boris I. Bendovsky\n"
+		"//\n"
+		"// Shader type: fragment\n"
+		"// Purpose: HDR\n"
+		"//\n"
+		"\n"
+		"#version 110\n"
+		"\n"
+		"const int cctf_id_srgb = 1; // sRGB\n"
+		"const int cctf_id_gamma = 2; // pow(x, gamma)\n"
+		"\n"
+		"uniform sampler2D tex_2d; // texture\n"
+		"uniform int cctf_id; // identifier of color component transfer function\n"
+		"uniform float cctf_gamma; // an exponent of gamma CCTF\n"
+		"uniform float sdr_white_level; // Relative SDR white level to 80 nits\n"
+		"\n"
+		"varying vec2 tc; // interpolated texture coord\n"
+		"\n"
+		"vec3 linear_to_srgb(vec3 x)\n"
+		"{\n"
+		"    // https://en.wikipedia.org/wiki/SRGB\n"
+		"    return mix(pow((x + 0.055) / 1.055, vec3(2.4)), x / 12.92, vec3(lessThanEqual(x, vec3(0.04045))));\n"
+		"}\n"
+		"\n"
+		"vec3 linear_to_gamma(vec3 x, float power)\n"
+		"{\n"
+		"    return pow(x, vec3(power));\n"
+		"}\n"
+		"\n"
+		"vec3 apply_cctf(vec3 x)\n"
+		"{\n"
+		"    if (cctf_id == cctf_id_srgb)\n"
+		"    {\n"
+		"        return linear_to_srgb(x);\n"
+		"    }\n"
+		"    else if (cctf_id == cctf_id_gamma)\n"
+		"    {\n"
+		"        return linear_to_gamma(x, cctf_gamma);\n"
+		"    }\n"
+		"    else\n"
+		"    {\n"
+		"        return x;\n"
+		"    }\n"
+		"}\n"
+		"\n"
+		"void main()\n"
+		"{\n"
+		"    vec4 texel = texture2D(tex_2d, tc);\n"
+		"    gl_FragColor = vec4(apply_cctf(texel.rgb) * sdr_white_level, texel.a);\n"
+		"}\n"
+	;
+
+	return result;
+}
+
+} // namespace
 
 bool r_probe_programs()
 {
@@ -874,12 +1045,14 @@ bool r_probe_programs()
 
 	bool is_try_successfull = true;
 
-	rtcw::OglTessProgram tess_program(r_get_embeded_vertex_shader(), r_get_embeded_fragment_shader());
+	rtcw::OglTessProgram tess_program(r_get_embeded_tess_vertex_shader(), r_get_embeded_tess_fragment_shader());
+	rtcw::OglHdrProgram hdr_program(r_get_embeded_hdr_vertex_shader(), r_get_embeded_hdr_fragment_shader());
 
 	ri.Printf(PRINT_ALL, "\n======== GLSL probe ========\n");
 	ri.Printf(PRINT_ALL, "%s...\n", "Trying to reload programs");
 
 	is_try_successfull &= tess_program.try_reload();
+	is_try_successfull &= hdr_program.try_reload();
 
 	ri.Printf(PRINT_ALL, "======== GLSL probe ========\n");
 
@@ -911,12 +1084,20 @@ void r_reload_programs_f()
 
 	if (ogl_tess_program == NULL)
 	{
-		ogl_tess_program = new rtcw::OglTessProgram(r_get_embeded_vertex_shader(), r_get_embeded_fragment_shader());
+		ogl_tess_program = new rtcw::OglTessProgram(r_get_embeded_tess_vertex_shader(), r_get_embeded_tess_fragment_shader());
 	}
 
-	if (ogl_tess_program != NULL)
+	if (ogl_hdr_program == NULL)
+	{
+		ogl_hdr_program = new rtcw::OglHdrProgram(
+			r_get_embeded_hdr_vertex_shader(),
+			r_get_embeded_hdr_fragment_shader());
+	}
+
+	if (ogl_tess_program != NULL && ogl_hdr_program != NULL)
 	{
 		is_try_successfull &= ogl_tess_program->try_reload();
+		is_try_successfull &= ogl_hdr_program->try_reload();
 	}
 	else
 	{
@@ -927,11 +1108,11 @@ void r_reload_programs_f()
 	if (is_try_successfull)
 	{
 		ogl_tess_program->reload();
+		ogl_hdr_program->reload();
 	}
 
 	ogl_tess_state.set_program(ogl_tess_program);
-	ogl_tess_state.use_program();
-	ogl_tess_state.invalidate_and_commit();
+	r_invalidate_hdr_cvars();
 
 	ri.Printf(PRINT_ALL, "======== GLSL ========\n");
 }
@@ -1141,7 +1322,6 @@ static void r_tess_initialize ()
 			r_initialize_tess_default_vertex_array_object();
 
 			ogl_tess_use_vao = true;
-			ogl_tess_state.mask_vertex_attrib_arrays();
 		}
 	}
 }
@@ -1151,15 +1331,621 @@ static void r_tess_uninitialize ()
 	if (ogl_tess_use_vao)
 	{
 		r_destroy_tess_vertex_array_objects();
-		ogl_tess_state.unmask_vertex_attrib_arrays();
 	}
 
-	glDeleteBuffers (1, &ogl_tess_vbo);
+	if (glDeleteBuffers != NULL)
+	{
+		glDeleteBuffers (1, &ogl_tess_vbo);
+	}
+
 	ogl_tess_vbo = 0;
 
-	glDeleteBuffers (1, &ogl_tess2_vbo);
+	if (glDeleteBuffers != NULL)
+	{
+		glDeleteBuffers (1, &ogl_tess2_vbo);
+	}
+
 	ogl_tess2_vbo = 0;
 }
+
+namespace {
+
+GLuint r_offscreen_color_target = 0;
+GLuint r_offscreen_depth_stencil_target = 0;
+GLuint r_offscreen_framebuffer = 0;
+GLuint r_offscreen_vbo = 0;
+GLuint r_offscreen_vao = 0;
+float r_offscreen_sdr_white_level = 1.0F;
+
+struct ROffscreenVertex
+{
+	float pos[2];
+	float tc[2];
+};
+
+void r_initialize_rgba_mode()
+{
+	glConfigEx.is_default_framebuffer_float = false;
+
+	if (glConfigEx.use_gl_arb_color_buffer_float)
+	{
+		GLboolean gl_rgba_float_mode_arb = GL_FALSE;
+		glGetBooleanv(GL_RGBA_FLOAT_MODE_ARB, &gl_rgba_float_mode_arb);
+		glConfigEx.is_default_framebuffer_float = gl_rgba_float_mode_arb == GL_TRUE;
+	}
+
+	ri.Printf(PRINT_ALL, "Floating-point color format of swapchain: %s\n",
+		glConfigEx.is_default_framebuffer_float ? "yes" : "no");
+}
+
+GLuint r_create_offscreen_color_gl_texture()
+{
+	glBindTexture(GL_TEXTURE_2D, 0);
+	GLuint gl_texture = 0;
+	glGenTextures(1, &gl_texture);
+	glBindTexture(GL_TEXTURE_2D, gl_texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+
+	glTexImage2D(
+		/* target */         GL_TEXTURE_2D,
+		/* level */          0,
+		/* internalformat */ GL_RGBA8,
+		/* width */          glConfig.vidWidth,
+		/* height */         glConfig.vidHeight,
+		/* border */         0,
+		/* format */         GL_RGBA,
+		/* type */           GL_UNSIGNED_BYTE,
+		/* pixels */         NULL
+	);
+
+	if (!glIsTexture(gl_texture))
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDeleteTextures(1, &gl_texture);
+		return 0;
+	}
+
+	return gl_texture;
+}
+
+bool r_create_offscreen_color_texture_target()
+{
+	r_offscreen_color_target = r_create_offscreen_color_gl_texture();
+
+	if (r_offscreen_color_target == 0)
+	{
+		return false;
+	}
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, r_offscreen_color_target);
+	glActiveTexture(GL_TEXTURE0);
+	return true;
+}
+
+bool r_create_offscreen_depth_stencil_renderbuffer_target()
+{
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	r_offscreen_depth_stencil_target = 0;
+	glGenRenderbuffers(1, &r_offscreen_depth_stencil_target);
+	glBindRenderbuffer(GL_RENDERBUFFER, r_offscreen_depth_stencil_target);
+
+	if (!glIsRenderbuffer(r_offscreen_depth_stencil_target))
+	{
+		return false;
+	}
+
+	glRenderbufferStorage(
+		/* target */         GL_RENDERBUFFER,
+		/* internalformat */ GL_DEPTH24_STENCIL8,
+		/* width */          glConfig.vidWidth,
+		/* height */         glConfig.vidHeight
+	);
+
+	return true;
+}
+
+bool r_create_offscreen_framebuffer()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	r_offscreen_framebuffer = 0;
+	glGenFramebuffers(1, &r_offscreen_framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, r_offscreen_framebuffer);
+
+	if (!glIsFramebuffer(r_offscreen_framebuffer))
+	{
+		return false;
+	}
+
+	glFramebufferTexture2D(
+		/* target */     GL_FRAMEBUFFER,
+		/* attachment */ GL_COLOR_ATTACHMENT0,
+		/* textarget */  GL_TEXTURE_2D,
+		/* texture */    r_offscreen_color_target,
+		/* level */      0
+	);
+
+	glFramebufferRenderbuffer(
+		/* target */             GL_FRAMEBUFFER,
+		/* attachment */         GL_DEPTH_STENCIL_ATTACHMENT,
+		/* renderbuffertarget */ GL_RENDERBUFFER,
+		/* renderbuffer */       r_offscreen_depth_stencil_target
+	);
+
+	const GLenum framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+	if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
+	{
+		r_offscreen_framebuffer = 0;
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDeleteFramebuffers(1, &r_offscreen_framebuffer);
+		return false;
+	}
+
+	return true;
+}
+
+bool r_create_offscreen_vbo()
+{
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	r_offscreen_vbo = 0;
+	glGenBuffers(1, &r_offscreen_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, r_offscreen_vbo);
+
+	if (!glIsBuffer(r_offscreen_vbo))
+	{
+		return false;
+	}
+
+	const ROffscreenVertex vertices[4] =
+	{
+		// left-top
+		{{-1.0F,  1.0F}, {0.0F, 1.0F}},
+		// left-bottom
+		{{-1.0F, -1.0F}, {0.0F, 0.0F}},
+		// right-top
+		{{ 1.0F,  1.0F}, {1.0F, 1.0F}},
+		// right-bottom
+		{{ 1.0F, -1.0F}, {1.0F, 0.0F}},
+	};
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	return true;
+}
+
+bool r_create_offscreen_vao()
+{
+	glBindVertexArray(0);
+	r_offscreen_vao = 0;
+	glGenVertexArrays(1, &r_offscreen_vao);
+	glBindVertexArray(r_offscreen_vao);
+
+	if (!glIsVertexArray(r_offscreen_vao))
+	{
+		return false;
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, r_offscreen_vbo);
+
+	// position
+	//
+	glVertexAttribPointer(
+		/* index */      ogl_hdr_program->a_pos_vec2,
+		/* size */       2,
+		/* type */       GL_FLOAT,
+		/* normalized */ GL_FALSE,
+		/* stride */     sizeof(ROffscreenVertex),
+		/* pointer */    reinterpret_cast<const void*>(offsetof(ROffscreenVertex, pos)));
+
+	glEnableVertexAttribArray(ogl_hdr_program->a_pos_vec2);
+
+	// texture coordinates
+	//
+	glVertexAttribPointer(
+		/* index */      ogl_hdr_program->a_tc_vec2,
+		/* size */       2,
+		/* type */       GL_FLOAT,
+		/* normalized */ GL_FALSE,
+		/* stride */     sizeof(ROffscreenVertex),
+		/* pointer */    reinterpret_cast<const void*>(offsetof(ROffscreenVertex, tc)));
+
+	glEnableVertexAttribArray(ogl_hdr_program->a_tc_vec2);
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	return true;
+}
+
+void r_terminate_offscreen()
+{
+	glConfigEx.has_offscreen = false;
+
+	if (r_offscreen_framebuffer != 0)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDeleteFramebuffers(1, &r_offscreen_framebuffer);
+		r_offscreen_framebuffer = 0;
+	}
+
+	if (r_offscreen_depth_stencil_target != 0)
+	{
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+		glDeleteRenderbuffers(1, &r_offscreen_depth_stencil_target);
+		r_offscreen_depth_stencil_target = 0;
+	}
+
+	if (r_offscreen_color_target != 0)
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDeleteTextures(1, &r_offscreen_color_target);
+		r_offscreen_color_target = 0;
+	}
+
+	if (r_offscreen_vbo != 0)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glDeleteBuffers(1, &r_offscreen_vbo);
+		r_offscreen_vbo = 0;
+	}
+
+	if (r_offscreen_vao != 0)
+	{
+		if (glConfigEx.use_gl_arb_vertex_array_object)
+		{
+			glBindVertexArray(0);
+			glDeleteVertexArrays(1, &r_offscreen_vao);
+		}
+
+		r_offscreen_vao = 0;
+	}
+}
+
+bool r_update_offscreen_sdr_white_level()
+{
+	r_offscreen_sdr_white_level = r_hdr_mgr_uptr->get_sdr_white_level_float();
+	return true;
+}
+
+void r_initialize_offscreen()
+{
+	glConfigEx.has_offscreen = false;
+
+	if (
+		glConfig.maxActiveTextures <= 2 ||
+		!glConfigEx.is_2_x_capable_ ||
+		!glConfigEx.use_arb_framebuffer_object_ ||
+		!glConfigEx.use_arb_texture_non_power_of_two_)
+	{
+		return;
+	}
+
+	const bool is_hdr_allowed = r_hdr->integer != 0;
+	const bool is_hdr_always_detected = strcmp(r_hdr_detection->string, "always") == 0;
+	const bool is_hdr_auto_detected = strcmp(r_hdr_detection->string, "auto") == 0;
+	const bool is_hdr_unknown_detected = !is_hdr_always_detected && !is_hdr_auto_detected;
+	const bool is_hdr_cctf_srgb = strcmp(r_hdr_cctf->string, "srgb") == 0;
+	const bool is_hdr_cctf_gamma = strcmp(r_hdr_cctf->string, "gamma") == 0;
+	const bool is_hdr_cctf_unknown = !is_hdr_cctf_srgb && !is_hdr_cctf_gamma;
+	const bool is_hdr_enabled = r_hdr_mgr_uptr->is_hdr_enabled();
+	const float sdr_white_level = r_hdr_mgr_uptr->get_sdr_white_level_float();
+	const float sdr_white_level_nits = sdr_white_level * 80.0F;
+	const bool is_override_sdr_white_level = r_hdr_override_sdr_white_level->integer != 0;
+
+	ri.Printf(PRINT_ALL, "HDR support: %s\n", is_hdr_allowed ? "on" : "off");
+
+	ri.Printf(PRINT_ALL, "HDR detection: %s%s%s%s\n",
+		is_hdr_always_detected ? "always" : "auto",
+		is_hdr_unknown_detected ? " (" : "",
+		is_hdr_unknown_detected ? r_hdr_detection->string : "",
+		is_hdr_unknown_detected ? ")" : "");
+
+	ri.Printf(PRINT_ALL, "HDR enabled: %s\n", is_hdr_enabled ? "yes" : "no");
+
+	ri.Printf(PRINT_ALL, "HDR color component transfer function: %s%s%s%s\n",
+		is_hdr_cctf_gamma ? "gamma" : "srgb",
+		is_hdr_cctf_unknown ? " (" : "",
+		is_hdr_cctf_unknown ? r_hdr_cctf->string : "",
+		is_hdr_cctf_unknown ? ")" : "");
+
+	ri.Printf(PRINT_ALL, "HDR value for gamma CCTF: %f (%s)\n", r_hdr_cctf_gamma->value, r_hdr_cctf_gamma->string);
+	ri.Printf(PRINT_ALL, "SDR white level: %f (%f nits)\n", sdr_white_level, sdr_white_level_nits);
+	ri.Printf(PRINT_ALL, "Override SDR white level: %s\n", is_override_sdr_white_level ? "yes" : "no");
+
+	if (!glConfigEx.is_default_framebuffer_float ||
+		!is_hdr_allowed ||
+		!(is_hdr_always_detected || is_hdr_enabled) ||
+		!r_create_offscreen_color_texture_target() ||
+		!r_create_offscreen_depth_stencil_renderbuffer_target() ||
+		!r_create_offscreen_framebuffer() ||
+		!r_create_offscreen_vbo() ||
+		(glConfigEx.use_gl_arb_vertex_array_object && !r_create_offscreen_vao()) ||
+		!r_update_offscreen_sdr_white_level())
+	{
+		ri.Printf(PRINT_ALL, "Skipping HDR processing.\n");
+		r_terminate_offscreen();
+		return;
+	}
+
+	glConfigEx.has_offscreen = true;
+	r_invalidate_hdr_cvars();
+}
+
+void r_clear_gl_errors()
+{
+	for (int i = 0; i < 32; ++i)
+	{
+		const GLenum gl_error_code = glGetError();
+
+		if (gl_error_code == GL_NO_ERROR)
+		{
+			break;
+		}
+	}
+}
+
+void r_assert_no_gl_errors()
+{
+	bool was_error = false;
+
+	for (int i = 0; i < 32; ++i)
+	{
+		const GLenum gl_error_code = glGetError();
+
+		if (gl_error_code == GL_NO_ERROR)
+		{
+			break;
+		}
+
+		was_error = true;
+	}
+
+	assert(!was_error);
+}
+
+} // namespace
+
+void r_present_offscreen()
+{
+	glClampColor(GL_CLAMP_VERTEX_COLOR, GL_FALSE);
+	glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
+	glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
+
+	const bool blend_enabled = glIsEnabled(GL_BLEND) != 0;
+	glDisable(GL_BLEND);
+
+	const bool cull_face = glIsEnabled(GL_CULL_FACE) != 0;
+	glDisable(GL_CULL_FACE);
+
+	const bool depth_test = glIsEnabled(GL_DEPTH_TEST) != 0;
+	glDisable(GL_DEPTH_TEST);
+
+	const bool scissor_test = glIsEnabled(GL_SCISSOR_TEST) != 0;
+	glDisable(GL_SCISSOR_TEST);
+
+	const bool stencil_test = glIsEnabled(GL_STENCIL_TEST) != 0;
+	glDisable(GL_STENCIL_TEST);
+
+	GLboolean gl_depth_writemask = GL_FALSE;
+	glGetBooleanv(GL_DEPTH_WRITEMASK, &gl_depth_writemask);
+	glDepthMask(GL_FALSE);
+
+	GLint gl_polygon_mode[2] = {0, 0};
+	glGetIntegerv(GL_POLYGON_MODE, gl_polygon_mode);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	GLint gl_stencil_writemask = 0;
+	glGetIntegerv(GL_STENCIL_WRITEMASK, &gl_stencil_writemask);
+	glStencilMask(0);
+
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glUseProgram(ogl_hdr_program->program_);
+
+	glUniform1i(ogl_hdr_program->u_tex_2d, 2);
+
+	if (r_hdr_cctf->modified || r_hdr_cctf_gamma->modified)
+	{
+		r_hdr_cctf->modified = false;
+		r_hdr_cctf_gamma->modified = false;
+
+		enum CctfId
+		{
+			cctf_id_none = 0,
+			cctf_id_srgb = 1,
+			cctf_id_gamma = 2
+		};
+
+		int cctf_id = cctf_id_none;
+
+		if (strcmp(r_hdr_cctf->string, "srgb") == 0)
+		{
+			cctf_id = cctf_id_srgb;
+		}
+		else if (strcmp(r_hdr_cctf->string, "gamma") == 0)
+		{
+			cctf_id = cctf_id_gamma;
+		}
+		else
+		{
+			cctf_id = cctf_id_srgb;
+
+			ri.Printf(
+				PRINT_ALL,
+				"%sUnknown HDR color component transfer function (%s).%s\n",
+				S_COLOR_YELLOW,
+				r_hdr_cctf->string,
+				S_COLOR_WHITE);
+		}
+
+		const float cctf_gamma_min = 1.0F;
+		const float cctf_gamma_max = 3.0F;
+
+		float cctf_gamma = r_hdr_cctf_gamma->value;
+
+		if (cctf_gamma < cctf_gamma_min)
+		{
+			cctf_gamma = cctf_gamma_min;
+		}
+		else if (cctf_gamma > cctf_gamma_max)
+		{
+			cctf_gamma = cctf_gamma_max;
+		}
+
+		glUniform1i(ogl_hdr_program->u_cctf_id, cctf_id);
+		glUniform1f(ogl_hdr_program->u_cctf_gamma, cctf_gamma);
+	}
+
+	if (r_hdr_override_sdr_white_level->modified || r_hdr_sdr_white_level->modified)
+	{
+		r_hdr_override_sdr_white_level->modified = false;
+		r_hdr_sdr_white_level->modified = false;
+
+		const float sdr_white_level_min = 0.25F;
+		const float sdr_white_level_max = 6.25F;
+
+		float sdr_white_level;
+
+		if (r_hdr_override_sdr_white_level->integer != 0)
+		{
+			sdr_white_level = r_hdr_sdr_white_level->value;
+		}
+		else
+		{
+			sdr_white_level = r_offscreen_sdr_white_level;
+		}
+
+		if (sdr_white_level < sdr_white_level_min)
+		{
+			sdr_white_level = sdr_white_level_min;
+		}
+		else if (sdr_white_level > sdr_white_level_max)
+		{
+			sdr_white_level = sdr_white_level_max;
+		}
+
+		glUniform1f(ogl_hdr_program->u_sdr_white_level, sdr_white_level);
+	}
+
+	if (ogl_tess_use_vao)
+	{
+		glBindVertexArray(r_offscreen_vao);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glBindVertexArray(ogl_tess_vaos[ogl_tess_default_vao_index]);
+		//glBindVertexArray(0);
+	}
+	else
+	{
+		for (GLuint i_array = 0; i_array < rtcw::OglProgram::max_vertex_attributes; ++i_array)
+		{
+			glDisableVertexAttribArray(i_array);
+		}
+
+		glBindBuffer(GL_ARRAY_BUFFER, r_offscreen_vbo);
+
+		// position
+		//
+		glVertexAttribPointer(
+			/* index */      ogl_hdr_program->a_pos_vec2,
+			/* size */       2,
+			/* type */       GL_FLOAT,
+			/* normalized */ GL_FALSE,
+			/* stride */     sizeof(ROffscreenVertex),
+			/* pointer */    reinterpret_cast<const void*>(offsetof(ROffscreenVertex, pos))
+		);
+
+		glEnableVertexAttribArray(ogl_hdr_program->a_pos_vec2);
+
+		// texture coordinates
+		//
+		glVertexAttribPointer(
+			/* index */      ogl_hdr_program->a_tc_vec2,
+			/* size */       2,
+			/* type */       GL_FLOAT,
+			/* normalized */ GL_FALSE,
+			/* stride */     sizeof(ROffscreenVertex),
+			/* pointer */    reinterpret_cast<const void*>(offsetof(ROffscreenVertex, tc))
+		);
+
+		glEnableVertexAttribArray(ogl_hdr_program->a_tc_vec2);
+
+		// commit
+		//
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	glUseProgram(0);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, r_offscreen_framebuffer);
+
+	if (blend_enabled)
+	{
+		glEnable(GL_BLEND);
+	}
+	else
+	{
+		glDisable(GL_BLEND);
+	}
+
+	if (cull_face)
+	{
+		glEnable(GL_CULL_FACE);
+	}
+	else
+	{
+		glDisable(GL_CULL_FACE);
+	}
+
+	if (depth_test)
+	{
+		glEnable(GL_DEPTH_TEST);
+	}
+	else
+	{
+		glDisable(GL_DEPTH_TEST);
+	}
+
+	if (scissor_test)
+	{
+		glEnable(GL_SCISSOR_TEST);
+	}
+	else
+	{
+		glDisable(GL_SCISSOR_TEST);
+	}
+
+	if (stencil_test)
+	{
+		glEnable(GL_STENCIL_TEST);
+	}
+	else
+	{
+		glDisable(GL_STENCIL_TEST);
+	}
+
+	glDepthMask(gl_depth_writemask);
+
+	if (gl_polygon_mode[0] == gl_polygon_mode[1])
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, gl_polygon_mode[0]);
+	}
+	else
+	{
+		glPolygonMode(GL_FRONT, gl_polygon_mode[0]);
+		glPolygonMode(GL_BACK, gl_polygon_mode[1]);
+	}
+
+	glStencilMask(static_cast<GLuint>(gl_stencil_writemask));
+
+	glClampColor(GL_CLAMP_VERTEX_COLOR, GL_TRUE);
+	glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_TRUE);
+	glClampColor(GL_CLAMP_READ_COLOR, GL_TRUE);
+}
+
 // BBi
 
 /*
@@ -1226,6 +2012,8 @@ static void InitOpenGL( void ) {
 	if (!glConfigEx.is_path_ogl_1_x()) {
 		r_reload_programs_f();
 		r_tess_initialize();
+		r_initialize_rgba_mode();
+		r_initialize_offscreen();
 
 		ri.Cvar_Set("r_ext_NV_fog_dist", "1");
 		ri.Printf(PRINT_ALL, "Emulating %s...\n", "GL_NV_fog_distance");
@@ -1728,7 +2516,7 @@ void GL_SetDefaultState( void ) {
 
 
 	// BBi
-	ogl_tess_state.set_default_values ();
+	ogl_tess_state.reset ();
 	// BBi
 
 	glClearDepth( 1.0f );
@@ -2230,6 +3018,12 @@ void R_Register( void ) {
 	r_maxpolyverts = ri.Cvar_Get( "r_maxpolyverts", va( "%d", MAX_POLYVERTS ), 0 );
 	r_highQualityVideo = ri.Cvar_Get( "r_highQualityVideo", "1", CVAR_ARCHIVE);
 	r_dbg_use_glsl_shader_files = ri.Cvar_Get("r_dbg_use_glsl_shader_files", "0", CVAR_ARCHIVE | CVAR_CHEAT);
+	r_hdr = ri.Cvar_Get("r_hdr", "1", CVAR_ARCHIVE);
+	r_hdr_detection = ri.Cvar_Get("r_hdr_detection", "auto", CVAR_ARCHIVE);
+	r_hdr_cctf = ri.Cvar_Get("r_hdr_cctf", "srgb", CVAR_ARCHIVE);
+	r_hdr_cctf_gamma = ri.Cvar_Get("r_hdr_cctf_gamma", "2.2", CVAR_ARCHIVE);
+	r_hdr_sdr_white_level = ri.Cvar_Get("r_hdr_sdr_white_level", "1.0", CVAR_ARCHIVE);
+	r_hdr_override_sdr_white_level = ri.Cvar_Get("r_hdr_override_sdr_white_level", "0", CVAR_ARCHIVE);
 
 	// make sure all the commands added here are also
 	// removed in R_Shutdown
@@ -2263,6 +3057,8 @@ void R_Init( void ) {
 	int i;
 
 	ri.Printf( PRINT_ALL, "----- R_Init -----\n" );
+
+	r_hdr_mgr_uptr.reset(rtcw::make_hdr_mgr());
 
 	// clear all our internal state
 	memset( &tr, 0, sizeof( tr ) );
@@ -2467,6 +3263,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	if (!glConfigEx.is_path_ogl_1_x ()) {
 		r_shutdown_programs ();
 		r_tess_uninitialize ();
+		r_terminate_offscreen();
 	}
 	// BBi
 
@@ -2485,6 +3282,10 @@ void RE_Shutdown( qboolean destroyWindow ) {
 #endif // RTCW_XX
 
 	}
+
+	// BBi
+	r_hdr_mgr_uptr.reset();
+	// BBi
 
 	tr.registered = qfalse;
 }

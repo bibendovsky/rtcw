@@ -5,6 +5,14 @@ echo ========================================
 echo Validate GLSL (v1.10) shaders
 echo ========================================
 
+glslangValidator.exe -S frag -d --no-link hdr_fs.txt
+if %errorlevel% neq 0 goto l_exit
+
+glslangValidator.exe -S vert -d --no-link hdr_vs.txt
+if %errorlevel% neq 0 goto l_exit
+
+rem ----------------
+
 glslangValidator.exe -S frag -d --no-link tess_fs.txt
 if %errorlevel% neq 0 goto l_exit
 

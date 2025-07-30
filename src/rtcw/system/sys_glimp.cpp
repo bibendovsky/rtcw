@@ -11,11 +11,17 @@ SPDX-License-Identifier: GPL-3.0
 #include <algorithm>
 #include <memory>
 
+#include "SDL_version.h"
 #include "SDL_video.h"
 
 #include "tr_local.h"
 #include "rtcw_window_rounded_corner_mgr.h"
 
+#if SDL_VERSION_ATLEAST(2, 24, 0)
+#	define RTCW_SDL_AT_LEAST_2_24_0 1
+#else
+#	define RTCW_SDL_AT_LEAST_2_24_0 0
+#endif
 
 SDL_Window* sys_gl_window;
 Uint32 sys_main_window_id = 0;
@@ -301,6 +307,7 @@ void glimp_initialize_gl1_essential_functions()
 		RTCW_MACRO(glFogf),
 		RTCW_MACRO(glFogfv),
 		RTCW_MACRO(glFogi),
+		RTCW_MACRO(glGetBooleanv),
 		RTCW_MACRO(glGetError),
 		RTCW_MACRO(glGetFloatv),
 		RTCW_MACRO(glGetIntegerv),
@@ -351,6 +358,7 @@ void glimp_initialize_gl1_essential_functions()
 		RTCW_MACRO(glDrawElements),
 		RTCW_MACRO(glEnableClientState),
 		RTCW_MACRO(glGenTextures),
+		RTCW_MACRO(glIsTexture),
 		RTCW_MACRO(glNormalPointer),
 		RTCW_MACRO(glPolygonOffset),
 		RTCW_MACRO(glTexCoordPointer),
@@ -407,6 +415,8 @@ bool glimp_initialize_gl2_functions()
 		RTCW_MACRO(glGetShaderInfoLog),
 		RTCW_MACRO(glGetShaderiv),
 		RTCW_MACRO(glGetUniformLocation),
+		RTCW_MACRO(glIsBuffer),
+		RTCW_MACRO(glIsEnabled),
 		RTCW_MACRO(glIsProgram),
 		RTCW_MACRO(glIsShader),
 		RTCW_MACRO(glLinkProgram),
@@ -975,7 +985,26 @@ void glimp_initialize_gl_arb_framebuffer_object_extension()
 #define RTCW_MACRO0(x) #x
 #define RTCW_MACRO(symbol) {is_gl30 ? #symbol : RTCW_MACRO0(symbol##ARB), glimp_bit_cast<void**>(&symbol)}
 
+			RTCW_MACRO(glBindFramebuffer),
+			RTCW_MACRO(glBindRenderbuffer),
+			RTCW_MACRO(glBlitFramebuffer),
+			RTCW_MACRO(glCheckFramebufferStatus),
+			RTCW_MACRO(glDeleteFramebuffers),
+			RTCW_MACRO(glDeleteRenderbuffers),
+			RTCW_MACRO(glFramebufferRenderbuffer),
+			RTCW_MACRO(glFramebufferTexture1D),
+			RTCW_MACRO(glFramebufferTexture2D),
+			RTCW_MACRO(glFramebufferTexture3D),
+			RTCW_MACRO(glFramebufferTextureLayer),
+			RTCW_MACRO(glGenFramebuffers),
+			RTCW_MACRO(glGenRenderbuffers),
 			RTCW_MACRO(glGenerateMipmap),
+			RTCW_MACRO(glGetFramebufferAttachmentParameteriv),
+			RTCW_MACRO(glGetRenderbufferParameteriv),
+			RTCW_MACRO(glIsFramebuffer),
+			RTCW_MACRO(glIsRenderbuffer),
+			RTCW_MACRO(glRenderbufferStorage),
+			RTCW_MACRO(glRenderbufferStorageMultisample),
 
 #undef RTCW_MACRO0
 #undef RTCW_MACRO
@@ -1057,6 +1086,67 @@ void glimp_initialize_gl_arb_vertex_array_object_extension()
 
 // ======================================
 
+void glimp_initialize_gl_arb_color_buffer_float_extension()
+{
+	typedef char Sanity1[2 * (GL_CLAMP_VERTEX_COLOR == GL_CLAMP_VERTEX_COLOR_ARB) - 1];
+	typedef char Sanity2[2 * (GL_CLAMP_FRAGMENT_COLOR == GL_CLAMP_FRAGMENT_COLOR_ARB) - 1];
+	typedef char Sanity3[2 * (GL_CLAMP_READ_COLOR == GL_CLAMP_READ_COLOR_ARB) - 1];
+
+	const char* const gl_arb_color_buffer_float_string = "GL_ARB_color_buffer_float";
+	const bool is_gl30 = glimp_gl_version >= GlVersion(3, 0);
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
+
+	glConfigEx.use_gl_arb_color_buffer_float = false;
+
+	if (is_gl30 || SDL_GL_ExtensionSupported(gl_arb_color_buffer_float_string))
+	{
+		GlFunctionInfo gl_function_infos[] =
+		{
+#define RTCW_MACRO0(x) #x
+#define RTCW_MACRO(symbol) {is_gl30 ? #symbol : RTCW_MACRO0(symbol##ARB), glimp_bit_cast<void**>(&symbol)}
+
+			RTCW_MACRO(glClampColor),
+
+#undef RTCW_MACRO0
+#undef RTCW_MACRO
+
+			{NULL, NULL}
+		};
+
+		if (glimp_load_gl_functions(S_COLOR_WHITE, gl_function_infos))
+		{
+			glConfigEx.use_gl_arb_color_buffer_float = true;
+			extension_status = EXT_STATUS_USING;
+		}
+	}
+
+	glimp_print_extension(extension_status, gl_arb_color_buffer_float_string);
+}
+
+// ======================================
+
+void glimp_initialize_gl_arb_texture_float_extension()
+{
+	typedef char Sanity1[2 * (GL_RGB16F == GL_RGB16F_ARB) - 1];
+	typedef char Sanity2[2 * (GL_RGBA16F == GL_RGBA16F_ARB) - 1];
+
+	const char* const gl_arb_texture_float_string = "GL_ARB_texture_float";
+	const bool is_gl30 = glimp_gl_version >= GlVersion(3, 0);
+	ExtensionStatus extension_status = EXT_STATUS_NOT_FOUND;
+
+	glConfigEx.use_gl_arb_texture_float = false;
+
+	if (is_gl30 || SDL_GL_ExtensionSupported(gl_arb_texture_float_string))
+	{
+		glConfigEx.use_gl_arb_texture_float = true;
+		extension_status = EXT_STATUS_USING;
+	}
+
+	glimp_print_extension(extension_status, gl_arb_texture_float_string);
+}
+
+// ======================================
+
 void gl_initialize_extensions()
 {
 	if (r_allowExtensions->integer == 0)
@@ -1083,6 +1173,8 @@ void gl_initialize_extensions()
 	glimp_initialize_gl_arb_framebuffer_object_extension();
 	glimp_initialize_gl_arb_texture_non_power_of_two_extension();
 	glimp_initialize_gl_arb_vertex_array_object_extension();
+	glimp_initialize_gl_arb_color_buffer_float_extension();
+	glimp_initialize_gl_arb_texture_float_extension();
 
 	glConfigEx.is_2_x_capable_ = glimp_initialize_gl2_functions();
 }
@@ -1162,112 +1254,125 @@ void GLimp_Init()
 
 	if (is_succeed)
 	{
-		Uint32 sdl_window_flags =
-			SDL_WINDOW_OPENGL |
-			SDL_WINDOW_HIDDEN
-			;
+		const bool has_sdl_gl_floatbuffers = RTCW_SDL_AT_LEAST_2_24_0;
+		const bool is_hdr_supported = has_sdl_gl_floatbuffers && r_hdr->integer != 0;
 
-		if (is_fullscreen)
+		for (int i_try = 0, n_try = 1 + is_hdr_supported; i_try < n_try; ++i_try)
 		{
-			sdl_window_flags |= SDL_WINDOW_FULLSCREEN;
-		}
-		else
-		{
-			if (width == display_width && height == display_height)
+			Uint32 sdl_window_flags = SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL;
+
+			if (is_fullscreen)
 			{
-				sdl_window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+				sdl_window_flags |= SDL_WINDOW_FULLSCREEN;
 			}
-		}
-
-		SDL_GL_ResetAttributes();
-		sdl_result = SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-		sdl_result = SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-		sdl_result = SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-		sdl_result = SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-		sdl_result = SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-		sdl_result = SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-		sdl_result = SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-		sdl_result = SDL_GL_SetAttribute(SDL_GL_STEREO, is_stereo);
-
-		int sdl_x = 0;
-		int sdl_y = 0;
-
-		if (is_fullscreen)
-		{
-			sdl_x = SDL_WINDOWPOS_CENTERED;
-			sdl_y = SDL_WINDOWPOS_CENTERED;
-
-			sdl_width = display_width;
-			sdl_height = display_height;
-		}
-		else
-		{
-			const cvar_t* x_cvar = ri.Cvar_Get("vid_xpos", "0", 0);
-			sdl_x = x_cvar->integer;
-
-			if (sdl_x < 0)
+			else
 			{
-				sdl_x = 0;
-			}
-			else if (sdl_x > display_width - 1)
-			{
-				sdl_x = display_width - 1;
+				if (width == display_width && height == display_height)
+				{
+					sdl_window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+				}
 			}
 
-			const cvar_t* y_cvar = ri.Cvar_Get("vid_ypos", "0", 0);
-			sdl_y = y_cvar->integer;
+			SDL_GL_ResetAttributes();
+			sdl_result = SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+			sdl_result = SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+			sdl_result = SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+			sdl_result = SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+			sdl_result = SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+			sdl_result = SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+			sdl_result = SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+			sdl_result = SDL_GL_SetAttribute(SDL_GL_STEREO, is_stereo);
 
-			if (sdl_y < 0)
+			if (is_hdr_supported && i_try == 0)
 			{
-				sdl_y = 0;
-			}
-			else if (sdl_y > display_height - 1)
-			{
-				sdl_y = display_height - 1;
+				sdl_result = SDL_GL_SetAttribute(SDL_GL_FLOATBUFFERS, SDL_TRUE);
 			}
 
-			if (sdl_x == 0)
+			int sdl_x = 0;
+			int sdl_y = 0;
+
+			if (is_fullscreen)
 			{
 				sdl_x = SDL_WINDOWPOS_CENTERED;
-			}
-
-			if (sdl_y == 0)
-			{
 				sdl_y = SDL_WINDOWPOS_CENTERED;
+
+				sdl_width = display_width;
+				sdl_height = display_height;
+			}
+			else
+			{
+				const cvar_t* x_cvar = ri.Cvar_Get("vid_xpos", "0", 0);
+				sdl_x = x_cvar->integer;
+
+				if (sdl_x < 0)
+				{
+					sdl_x = 0;
+				}
+				else if (sdl_x > display_width - 1)
+				{
+					sdl_x = display_width - 1;
+				}
+
+				const cvar_t* y_cvar = ri.Cvar_Get("vid_ypos", "0", 0);
+				sdl_y = y_cvar->integer;
+
+				if (sdl_y < 0)
+				{
+					sdl_y = 0;
+				}
+				else if (sdl_y > display_height - 1)
+				{
+					sdl_y = display_height - 1;
+				}
+
+				if (sdl_x == 0)
+				{
+					sdl_x = SDL_WINDOWPOS_CENTERED;
+				}
+
+				if (sdl_y == 0)
+				{
+					sdl_y = SDL_WINDOWPOS_CENTERED;
+				}
+
+				sdl_width = width;
+				sdl_height = height;
 			}
 
-			sdl_width = width;
-			sdl_height = height;
-		}
+			sdl_aspect_ratio = static_cast<float>(sdl_width) / static_cast<float>(sdl_height);
 
-		sdl_aspect_ratio = static_cast<float>(sdl_width) / static_cast<float>(sdl_height);
-
-		const char* window_title =
-			"Return to Castle Wolfenstein ("
-#if defined RTCW_SP
-	#ifdef RTCW_SP_DEMO
-			"single-player demo"
+			const char* const window_title =
+				"Return to Castle Wolfenstein ("
+	#if defined RTCW_SP
+		#ifdef RTCW_SP_DEMO
+				"single-player demo"
+		#else
+				"single-player"
+		#endif
+	#elif defined RTCW_MP
+				"multi-player"
+	#elif defined RTCW_ET
+				"Enemy Territory"
 	#else
-			"single-player"
-	#endif
-#elif defined RTCW_MP
-			"multi-player"
-#elif defined RTCW_ET
-			"Enemy Territory"
-#else
-			"???"
-#endif // RTCW_XX
-			")"
-		;
+				"???"
+	#endif // RTCW_XX
+				")"
+			;
 
-		sys_gl_window = SDL_CreateWindow(
-			window_title,
-			sdl_x,
-			sdl_y,
-			sdl_width,
-			sdl_height,
-			sdl_window_flags
-		);
+			sys_gl_window = SDL_CreateWindow(
+				window_title,
+				sdl_x,
+				sdl_y,
+				sdl_width,
+				sdl_height,
+				sdl_window_flags
+			);
+
+			if (sys_gl_window != NULL)
+			{
+				break;
+			}
+		}
 
 		if (sys_gl_window == NULL)
 		{

@@ -6,9 +6,7 @@
 // Purpose: Generic drawing.
 //
 
-
 #version 110
-
 
 // Known GL constants.
 const int GL_DONT_CARE = 0x1100;
@@ -18,7 +16,6 @@ const int GL_NICEST = 0x1102;
 const int GL_NONE = 0x0000;
 const int GL_EYE_PLANE = 0x2502;
 const int GL_EYE_RADIAL_NV = 0x855B;
-
 
 attribute vec4 pos_vec4; // position
 attribute vec4 col_vec4; // color
@@ -37,7 +34,6 @@ varying vec4 col; // interpolated color
 varying vec2 tc[2]; // interpolated texture coords
 varying float fog_vc; // interpolated calculated fog coords
 varying vec4 fog_fc; // interpolated fog coords
-
 
 void main()
 {

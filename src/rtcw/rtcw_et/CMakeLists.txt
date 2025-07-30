@@ -164,6 +164,12 @@ target_sources(rtcw_et
 		../renderer/rtcw_jpeg_reader.h
 		../renderer/rtcw_jpeg_writer.cpp
 		../renderer/rtcw_jpeg_writer.h
+		../renderer/rtcw_hdr_mgr.cpp
+		../renderer/rtcw_hdr_mgr.h
+		../renderer/rtcw_hdr_mgr_null.cpp
+		../renderer/rtcw_hdr_mgr_win32.cpp
+		../renderer/rtcw_ogl_hdr_program.cpp
+		../renderer/rtcw_ogl_hdr_program.h
 		../renderer/rtcw_ogl_matrix_stack.cpp
 		../renderer/rtcw_ogl_matrix_stack.h
 		../renderer/rtcw_ogl_program.cpp

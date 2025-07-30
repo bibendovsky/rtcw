@@ -9,6 +9,7 @@ SPDX-License-Identifier: GPL-3.0
 
 #include "sys_shared.h"
 #include <assert.h>
+#include <errno.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>

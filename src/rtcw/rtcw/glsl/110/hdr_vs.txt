@@ -1,0 +1,20 @@
+//
+// Project: RTCW
+// Author: Boris I. Bendovsky
+//
+// Shader type: vertex
+// Purpose: HDR
+//
+
+#version 110
+
+attribute vec2 pos_vec2; // position
+attribute vec2 tc_vec2; // texture coord
+
+varying vec2 tc; // interpolated texture coord
+
+void main()
+{
+    tc = tc_vec2;
+    gl_Position = vec4(pos_vec2, 0.0, 1.0);
+}

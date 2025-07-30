@@ -401,7 +401,11 @@ public:
 	bool has_swap_control_;
 	bool has_adaptive_swap_control_;
 	bool use_gl_arb_vertex_array_object;
+	bool use_gl_arb_color_buffer_float;
+	bool use_gl_arb_texture_float;
 	bool is_2_x_capable_;
+	bool is_default_framebuffer_float;
+	bool has_offscreen;
 	RendererPath renderer_path_;
 
 	void reset()

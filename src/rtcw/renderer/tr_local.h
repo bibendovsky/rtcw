@@ -18,10 +18,14 @@ SPDX-License-Identifier: GPL-3.0
 
 // BBi GLSL
 #include "rtcw_cgm_vec.h"
+#include "rtcw_ogl_hdr_program.h"
 #include "rtcw_ogl_tess_program.h"
 #include "rtcw_ogl_tess_state.h"
 #include "rtcw_ogl_matrix_stack.h"
 // BBi
+
+#include "rtcw_hdr_mgr.h"
+#include "rtcw_unique_ptr.h"
 
 #define GL_INDEX_TYPE       GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;
@@ -1879,6 +1883,9 @@ extern cvar_t   *r_wolffog;
 // done
 
 extern cvar_t  *r_highQualityVideo;
+
+extern cvar_t* r_hdr;
+
 //====================================================================
 
 float R_NoiseGet4f( float x, float y, float z, float t );
@@ -2873,7 +2880,12 @@ void r_reload_programs_f ();
 extern rtcw::OglMatrixStack ogl_model_view_stack;
 extern rtcw::OglMatrixStack ogl_projection_stack;
 
+extern rtcw::OglHdrProgram* ogl_hdr_program;
+
+extern rtcw::UniquePtr<rtcw::HdrMgr> r_hdr_mgr_uptr;
+
 bool r_probe_programs ();
+void r_present_offscreen();
 // BBi
 
 #endif //TR_LOCAL_H (THIS MUST BE LAST!!)

@@ -6,9 +6,7 @@
 // Purpose: Generic drawing.
 //
 
-
 #version 110
-
 
 // Known constants.
 const int GL_ADD = 0x0104;
@@ -25,7 +23,6 @@ const int GL_LINEAR = 0x2601;
 const int GL_MODULATE = 0x2100;
 const int GL_NICEST = 0x1102;
 const int GL_REPLACE = 0x1E01;
-
 
 uniform vec4 primary_color; // primary color
 uniform bool use_alpha_test; // alpha test switch
@@ -215,5 +212,7 @@ void main()
         frag_color = apply_alpha_test(frag_color);
     }
 
-    gl_FragColor = apply_gamma(frag_color);
+    frag_color = apply_gamma(frag_color);
+
+    gl_FragColor = frag_color;
 }
