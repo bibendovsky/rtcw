@@ -226,7 +226,8 @@ String operator+(const String& a, const char* b)
 
 String operator+(const char* a, const String& b)
 {
-	return b + a;
+	const int a_length = String::traits_type::length(a);
+	return String(String::ConcatenateTag(), a, a_length, b.c_str(), b.length());
 }
 
 String operator+(const String& a, const String& b)
