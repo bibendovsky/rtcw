@@ -11,16 +11,28 @@ SPDX-License-Identifier: GPL-3.0
 	* Add server as referring URL
 */
 
-
+#ifdef RTCW_VANILLA
 #ifdef __MACOS__
 #include <curl/curl.h>
 #else
 #include "curl/curl.h"
 #endif
+#else // RTCW_VANILLA
+#ifdef _WIN32
+#	define NOMINMAX
+#	define WIN32_LEAN_AND_MEAN
+#endif // _WIN32
+#include "curl/curl.h"
+#endif // RTCW_VANILLA
 
 #include "q_shared.h"
 #include "qcommon.h"
 #include "dl_public.h"
+
+#ifndef RTCW_VANILLA
+#include "SDL_loadso.h"
+#include "rtcw_curl_loader.h"
+#endif // RTCW_VANILLA
 
 #define APP_NAME        "ID_DOWNLOAD"
 #define APP_VERSION     "2.0"
@@ -31,6 +43,63 @@ static int dl_initialized = 0;
 static CURLM *dl_multi = NULL;
 static CURL *dl_request = NULL;
 static FILE *dl_file = NULL;
+
+#ifndef RTCW_VANILLA
+namespace {
+
+void* dl_curl_library = NULL;
+
+class CurlLoaderImpl : public rtcw::CurlLoader
+{
+public:
+	CurlLoaderImpl() {}
+	virtual ~CurlLoaderImpl() {}
+
+private:
+	bool do_load_library();
+	void do_unload_library();
+	void* do_get_proc_address(const char* symbol_name);
+};
+
+bool CurlLoaderImpl::do_load_library()
+{
+	const char* const library_path = Cvar_VariableString("cl_curl_library");
+	dl_curl_library = SDL_LoadObject(library_path);
+
+	if (dl_curl_library == NULL)
+	{
+		Com_Printf("%s\n", SDL_GetError());
+		return false;
+	}
+
+	return true;
+}
+
+void CurlLoaderImpl::do_unload_library()
+{
+	if (dl_curl_library == NULL)
+	{
+		return;
+	}
+
+	SDL_UnloadObject(dl_curl_library);
+	dl_curl_library = NULL;
+}
+
+void* CurlLoaderImpl::do_get_proc_address(const char* symbol_name)
+{
+	if (dl_curl_library == NULL)
+	{
+		return NULL;
+	}
+
+	return SDL_LoadFunction(dl_curl_library, symbol_name);
+}
+
+CurlLoaderImpl dl_curl_loader;
+
+} // namespace
+#endif // RTCW_VANILLA
 
 /*
 ** Write to file
@@ -56,6 +125,10 @@ void DL_InitDownload() {
 		return;
 	}
 
+#ifndef RTCW_VANILLA
+	rtcw::global_curl_loader = &dl_curl_loader;
+#endif // RTCW_VANILLA
+
 	/* Make sure curl has initialized, so the cleanup doesn't get confused */
 	curl_global_init( CURL_GLOBAL_ALL );
 
@@ -80,6 +153,10 @@ void DL_Shutdown() {
 	dl_multi = NULL;
 
 	curl_global_cleanup();
+
+#ifndef RTCW_VANILLA
+	rtcw::global_curl_loader = NULL;
+#endif // RTCW_VANILLA
 
 	dl_initialized = 0;
 }

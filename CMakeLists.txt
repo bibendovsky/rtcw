@@ -53,9 +53,6 @@ message(STATUS "[${PROJECT_NAME}] Enable multi-process compilation: ${RTCW_MULTI
 option(RTCW_CURL "Enable cURL." ON)
 message(STATUS "[${PROJECT_NAME}] Enable cURL: ${RTCW_CURL}")
 
-option(RTCW_CURL_STATIC "Link cURL statically." ON)
-message(STATUS "[${PROJECT_NAME}] Link cURL statically: ${RTCW_CURL_STATIC}")
-
 # Static linking.
 #
 option(RTCW_ENABLE_STATIC_LINKING "Enable static linking." ON)
@@ -80,6 +77,10 @@ define_property(GLOBAL PROPERTY RTCW_TAGS
 include(rtcw)
 
 add_subdirectory(src/lib/miniz)
+
+if(RTCW_CURL AND RTCW_ET)
+	add_subdirectory(src/lib/rtcw_curl)
+endif()
 
 if(RTCW_BUILD_SDL2)
 	add_subdirectory(src/lib/sdl2)

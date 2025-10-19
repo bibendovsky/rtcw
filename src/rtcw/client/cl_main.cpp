@@ -126,6 +126,10 @@ cvar_t  *cl_waveoffset; //bani
 cvar_t  *cl_packetloss; //bani
 cvar_t  *cl_packetdelay;    //bani
 //extern qboolean sv_cheats;  //bani
+
+#ifndef RTCW_VANILLA
+cvar_t* cl_curl_library;
+#endif // RTCW_VANILLA
 #endif // RTCW_XX
 
 
@@ -4396,6 +4400,21 @@ void CL_Init( void ) {
 	//bani
 	cl_packetloss = Cvar_Get( "cl_packetloss", "0", CVAR_CHEAT );
 	cl_packetdelay = Cvar_Get( "cl_packetdelay", "0", CVAR_CHEAT );
+
+
+	const char* const cl_curl_library_default_value =
+#if defined(_WIN64)
+		"libcurl-x64.dll"
+#elif defined(_WIN32)
+		"libcurl.dll"
+#elif defined(__APPLE__)
+		"libcurl.dylib"
+#else
+		"libcurl.so"
+#endif
+	;
+
+	cl_curl_library = Cvar_Get("cl_curl_library", cl_curl_library_default_value, CVAR_ARCHIVE);
 #endif // RTCW_XX
 
 	Cvar_Get( "cl_maxPing", "800", CVAR_ARCHIVE );

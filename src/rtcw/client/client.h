@@ -543,6 +543,10 @@ extern cvar_t  *cl_defaultProfile;
 //bani
 //FIXME WTF?!? boolean and cvar_t variables with a same name
 //extern qboolean sv_cheats;
+
+#ifndef RTCW_VANILLA
+extern cvar_t* cl_curl_library;
+#endif // RTCW_VANILLA
 #endif // RTCW_XX
 
 //=================================================

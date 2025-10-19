@@ -80,10 +80,6 @@ if(NOT RTCW_BUILD_SDL2)
 	find_package(SDL2W_net 2.0.1 REQUIRED COMPONENTS ${RTCW_TMP_SDL2_NET_COMPONENTS})
 endif()
 
-if(RTCW_CURL)
-	find_package(CURL 7.0.0 REQUIRED)
-endif()
-
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -431,13 +427,6 @@ function(rtcw_configure_target)
 			RTCW_VERSION_NUMBER="${RTCW_TMP_VERSION}"
 	)
 
-	if(RTCW_CURL AND RTCW_CURL_STATIC)
-		target_compile_definitions(${ARGV0}
-			PRIVATE
-				CURL_STATICLIB
-		)
-	endif()
-
 	if(RTCW_MULTI_PROCESS_COMPILATION)
 		if(MSVC)
 			target_compile_options(${ARGV0}
@@ -452,18 +441,7 @@ function(rtcw_configure_target)
 	endif()
 
 	if(RTCW_CURL)
-		if(WIN32)
-			target_link_libraries(${ARGV0}
-				PRIVATE
-					crypt32
-					wldap32
-			)
-		endif()
-
-		target_link_libraries(${ARGV0}
-			PRIVATE
-				CURL::libcurl
-		)
+		target_link_libraries(${ARGV0} PRIVATE rtcw::curl)
 	endif()
 
 	if(RTCW_BUILD_SDL2)
