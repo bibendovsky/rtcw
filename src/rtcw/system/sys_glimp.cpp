@@ -34,7 +34,6 @@ cvar_t* r_maskMinidriver;
 
 #ifdef RTCW_ET
 int gl_NormalFontBase = 0;
-static qboolean fontbase_init = qfalse;
 #endif // RTCW_XX
 
 
@@ -59,10 +58,6 @@ public:
 	GlVersion(int version_major, int version_minor);
 	GlVersion(const GlVersion& that);
 	GlVersion& operator=(const GlVersion& that);
-
-	bool is_empty() const;
-	int get_major() const;
-	int get_minor() const;
 
 	bool operator>=(const GlVersion& that) const;
 
@@ -91,21 +86,6 @@ GlVersion& GlVersion::operator=(const GlVersion& that)
 {
 	value_ = that.value_;
 	return *this;
-}
-
-bool GlVersion::is_empty() const
-{
-	return value_ == 0;
-}
-
-int GlVersion::get_major() const
-{
-	return value_ / 10;
-}
-
-int GlVersion::get_minor() const
-{
-	return value_ % 10;
 }
 
 bool GlVersion::operator>=(const GlVersion& that) const
@@ -138,7 +118,11 @@ template<typename TDst, typename TSrc>
 TDst glimp_bit_cast(const TSrc& src)
 {
 	const size_t size = sizeof(TSrc);
-	typedef char Sanity[2 * (size == sizeof(TDst)) - 1];
+	struct Validator
+	{
+		bool validate_size[2 * (size == sizeof(TDst)) - 1];
+	};
+	maybe_unused(Validator().validate_size);
 	TDst dst;
 	memcpy(&dst, &src, size);
 	return dst;
@@ -148,7 +132,11 @@ template<typename TDst, typename TSrc>
 void glimp_bit_cast(const TSrc& src, TDst& dst)
 {
 	const size_t size = sizeof(TSrc);
-	typedef char Sanity[2 * (size == sizeof(TDst)) - 1];
+	struct Validator
+	{
+		bool validate_size[2 * (size == sizeof(TDst)) - 1];
+	};
+	maybe_unused(Validator().validate_size);
 	memcpy(&dst, &src, size);
 }
 
@@ -497,17 +485,21 @@ void glimp_print_not_found_extension(const char* extension_name)
 	glimp_print_extension(EXT_STATUS_NOT_FOUND, extension_name);
 }
 
+#if 0 // FIXME Remove or use.
 void glimp_print_ignoring_extension(const char* extension_name)
 {
 	glimp_print_extension(EXT_STATUS_IGNORING, extension_name);
 }
+#endif
 
 // ======================================
 
 void glimp_initialize_gl_arb_texture_compression_extension()
 {
-	typedef char Sanity1[2 * (GL_COMPRESSED_RGB == GL_COMPRESSED_RGB_ARB) - 1];
-	typedef char Sanity2[2 * (GL_COMPRESSED_RGBA == GL_COMPRESSED_RGBA_ARB) - 1];
+	const char validate_GL_COMPRESSED_RGB[2 * (GL_COMPRESSED_RGB == GL_COMPRESSED_RGB_ARB) - 1] = {0};
+	maybe_unused(validate_GL_COMPRESSED_RGB);
+	const char validate_GL_COMPRESSED_RGBA[2 * (GL_COMPRESSED_RGBA == GL_COMPRESSED_RGBA_ARB) - 1] = {0};
+	maybe_unused(validate_GL_COMPRESSED_RGBA);
 
 	const char* const gl_arb_texture_compression_string = "GL_ARB_texture_compression";
 	const bool is_gl13 = glimp_gl_version >= GlVersion(1, 3);
@@ -711,7 +703,8 @@ void glimp_initialize_xxx_ext_swap_control_extensions()
 
 void glimp_initialize_gl_arb_multitexture_extension()
 {
-	typedef char Sanity[2 * (GL_MAX_TEXTURE_UNITS == GL_MAX_TEXTURE_UNITS_ARB) - 1];
+	const char validate_GL_MAX_TEXTURE_UNITS[2 * (GL_MAX_TEXTURE_UNITS == GL_MAX_TEXTURE_UNITS_ARB) - 1] = {0};
+	maybe_unused(validate_GL_MAX_TEXTURE_UNITS);
 	const bool is_gl13 = glimp_gl_version >= GlVersion(1, 3);
 	const char* const gl_arb_multitexture_string = "GL_ARB_multitexture";
 
@@ -879,8 +872,10 @@ void glimp_initialize_gl_ext_texture_filter_anisotropic_extension()
 
 void glimp_initialize_gl_xxx_texture_filter_anisotropic_extensions()
 {
-	typedef char Sanity1[2 * (GL_TEXTURE_MAX_ANISOTROPY == GL_TEXTURE_MAX_ANISOTROPY_EXT) - 1];
-	typedef char Sanity2[2 * (GL_MAX_TEXTURE_MAX_ANISOTROPY == GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT) - 1];
+	const char validate_GL_TEXTURE_MAX_ANISOTROPY[2 * (GL_TEXTURE_MAX_ANISOTROPY == GL_TEXTURE_MAX_ANISOTROPY_EXT) - 1] = {0};
+	maybe_unused(validate_GL_TEXTURE_MAX_ANISOTROPY);
+	const bool validate_GL_MAX_TEXTURE_MAX_ANISOTROPY[2 * (GL_MAX_TEXTURE_MAX_ANISOTROPY == GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT) - 1] = {0};
+	maybe_unused(validate_GL_MAX_TEXTURE_MAX_ANISOTROPY);
 
 	typedef void (* Function)();
 
@@ -1088,9 +1083,12 @@ void glimp_initialize_gl_arb_vertex_array_object_extension()
 
 void glimp_initialize_gl_arb_color_buffer_float_extension()
 {
-	typedef char Sanity1[2 * (GL_CLAMP_VERTEX_COLOR == GL_CLAMP_VERTEX_COLOR_ARB) - 1];
-	typedef char Sanity2[2 * (GL_CLAMP_FRAGMENT_COLOR == GL_CLAMP_FRAGMENT_COLOR_ARB) - 1];
-	typedef char Sanity3[2 * (GL_CLAMP_READ_COLOR == GL_CLAMP_READ_COLOR_ARB) - 1];
+	const char validate_GL_CLAMP_VERTEX_COLOR[2 * (GL_CLAMP_VERTEX_COLOR == GL_CLAMP_VERTEX_COLOR_ARB) - 1] = {0};
+	maybe_unused(validate_GL_CLAMP_VERTEX_COLOR);
+	const char validate_GL_CLAMP_FRAGMENT_COLOR[2 * (GL_CLAMP_FRAGMENT_COLOR == GL_CLAMP_FRAGMENT_COLOR_ARB) - 1] = {0};
+	maybe_unused(validate_GL_CLAMP_FRAGMENT_COLOR);
+	const char validate_GL_CLAMP_READ_COLOR[2 * (GL_CLAMP_READ_COLOR == GL_CLAMP_READ_COLOR_ARB) - 1] = {0};
+	maybe_unused(validate_GL_CLAMP_READ_COLOR);
 
 	const char* const gl_arb_color_buffer_float_string = "GL_ARB_color_buffer_float";
 	const bool is_gl30 = glimp_gl_version >= GlVersion(3, 0);
@@ -1127,8 +1125,10 @@ void glimp_initialize_gl_arb_color_buffer_float_extension()
 
 void glimp_initialize_gl_arb_texture_float_extension()
 {
-	typedef char Sanity1[2 * (GL_RGB16F == GL_RGB16F_ARB) - 1];
-	typedef char Sanity2[2 * (GL_RGBA16F == GL_RGBA16F_ARB) - 1];
+	const char validate_GL_RGB16F[2 * (GL_RGB16F == GL_RGB16F_ARB) - 1] = {0};
+	maybe_unused(validate_GL_RGB16F);
+	const char validate_GL_RGBA16F[2 * (GL_RGBA16F == GL_RGBA16F_ARB) - 1] = {0};
+	maybe_unused(validate_GL_RGBA16F);
 
 	const char* const gl_arb_texture_float_string = "GL_ARB_texture_float";
 	const bool is_gl30 = glimp_gl_version >= GlVersion(3, 0);
@@ -1224,7 +1224,6 @@ void GLimp_Init()
 	int width = 0;
 	int height = 0;
 	float aspect_ratio = 0.0F;
-	bool is_native_mode = false;
 	const bool is_fullscreen = (r_fullscreen->integer != 0);
 	const bool is_stereo = (r_stereo->integer != 0);
 
@@ -1599,9 +1598,9 @@ void GLimp_SetGamma(
 	uint16_t table[3][256];
 
 	for (int i = 0; i < 256; ++i) {
-		table[0][i] = (static_cast<uint16_t>(red[i]) << 8) | red[i];
-		table[1][i] = (static_cast<uint16_t>(green[i]) << 8) | green[i];
-		table[2][i] = (static_cast<uint16_t>(blue[i]) << 8) | blue[i];
+		table[0][i] = static_cast<uint16_t>((red[i] << 8) | red[i]);
+		table[1][i] = static_cast<uint16_t>((green[i] << 8) | green[i]);
+		table[2][i] = static_cast<uint16_t>((blue[i] << 8) | blue[i]);
 	}
 
 	// enforce constantly increasing
@@ -1630,8 +1629,8 @@ void GLimp_Activate (
 	bool is_activated,
 	bool is_minimized)
 {
-	static_cast<void>(is_activated);
-	static_cast<void>(is_minimized);
+	maybe_unused(is_activated);
+	maybe_unused(is_minimized);
 }
 
 bool GLimp_SetFullscreen(bool value)
