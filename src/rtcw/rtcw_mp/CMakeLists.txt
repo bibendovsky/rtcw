@@ -259,5 +259,5 @@ target_sources(rtcw_mp
 
 install(
 	TARGETS rtcw_mp
-	RUNTIME DESTINATION mp
+	RUNTIME DESTINATION .
 )

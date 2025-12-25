@@ -263,5 +263,5 @@ target_sources(rtcw_sp_demo
 
 install(
 	TARGETS rtcw_sp_demo
-	RUNTIME DESTINATION sp_demo
+	RUNTIME DESTINATION .
 )

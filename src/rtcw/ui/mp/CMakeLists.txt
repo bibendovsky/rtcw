@@ -52,6 +52,6 @@ target_sources(rtcw_ui_mp
 
 install(
 	TARGETS rtcw_ui_mp
-	LIBRARY DESTINATION mp/main
-	RUNTIME DESTINATION mp/main
+	LIBRARY DESTINATION main
+	RUNTIME DESTINATION main
 )

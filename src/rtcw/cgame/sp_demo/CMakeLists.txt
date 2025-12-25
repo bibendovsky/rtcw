@@ -80,6 +80,6 @@ target_sources(rtcw_cgame_sp_demo
 
 install(
 	TARGETS rtcw_cgame_sp_demo
-	LIBRARY DESTINATION sp_demo
-	RUNTIME DESTINATION sp_demo
+	LIBRARY DESTINATION .
+	RUNTIME DESTINATION .
 )

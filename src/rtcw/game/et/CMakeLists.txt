@@ -125,6 +125,6 @@ target_sources(rtcw_game_et
 
 install(
 	TARGETS rtcw_game_et
-	LIBRARY DESTINATION et/etmain
-	RUNTIME DESTINATION et/etmain
+	LIBRARY DESTINATION etmain
+	RUNTIME DESTINATION etmain
 )

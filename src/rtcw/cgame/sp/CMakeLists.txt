@@ -77,6 +77,6 @@ target_sources(rtcw_cgame_sp
 
 install(
 	TARGETS rtcw_cgame_sp
-	LIBRARY DESTINATION sp
-	RUNTIME DESTINATION sp
+	LIBRARY DESTINATION .
+	RUNTIME DESTINATION .
 )

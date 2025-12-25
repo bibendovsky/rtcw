@@ -55,6 +55,6 @@ target_sources(rtcw_ui_sp_demo
 
 install(
 	TARGETS rtcw_ui_sp_demo
-	LIBRARY DESTINATION sp_demo
-	RUNTIME DESTINATION sp_demo
+	LIBRARY DESTINATION .
+	RUNTIME DESTINATION .
 )

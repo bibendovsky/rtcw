@@ -271,5 +271,5 @@ endif()
 
 install(
 	TARGETS rtcw_et
-	RUNTIME DESTINATION et
+	RUNTIME DESTINATION .
 )

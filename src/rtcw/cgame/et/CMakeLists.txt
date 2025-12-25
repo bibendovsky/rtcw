@@ -99,6 +99,6 @@ target_sources(rtcw_cgame_et
 
 install(
 	TARGETS rtcw_cgame_et
-	LIBRARY DESTINATION et/etmain
-	RUNTIME DESTINATION et/etmain
+	LIBRARY DESTINATION etmain
+	RUNTIME DESTINATION etmain
 )

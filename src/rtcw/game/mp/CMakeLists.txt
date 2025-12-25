@@ -118,6 +118,6 @@ target_sources(rtcw_game_mp
 
 install(
 	TARGETS rtcw_game_mp
-	LIBRARY DESTINATION mp/main
-	RUNTIME DESTINATION mp/main
+	LIBRARY DESTINATION main
+	RUNTIME DESTINATION main
 )

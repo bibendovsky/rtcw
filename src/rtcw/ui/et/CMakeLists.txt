@@ -55,6 +55,6 @@ target_sources(rtcw_ui_et
 
 install(
 	TARGETS rtcw_ui_et
-	LIBRARY DESTINATION et/etmain
-	RUNTIME DESTINATION et/etmain
+	LIBRARY DESTINATION etmain
+	RUNTIME DESTINATION etmain
 )
