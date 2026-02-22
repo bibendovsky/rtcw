@@ -1,7 +1,7 @@
 /*
 Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
 Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company.
-Copyright (c) 2012-2025 Boris I. Bendovsky bibendovsky@hotmail.com and Contributors
+Copyright (c) 2012-2026 Boris I. Bendovsky bibendovsky@hotmail.com and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
 
@@ -45,58 +45,55 @@ static CURL *dl_request = NULL;
 static FILE *dl_file = NULL;
 
 #ifndef RTCW_VANILLA
+namespace rtcw {
 namespace {
 
 void* dl_curl_library = NULL;
 
-class CurlLoaderImpl : public rtcw::CurlLoader
+// =====================================
+
+class CurlLoaderImpl : public CurlLoader
 {
 public:
-	CurlLoaderImpl() {}
-	virtual ~CurlLoaderImpl() {}
-
-private:
-	bool do_load_library();
-	void do_unload_library();
-	void* do_get_proc_address(const char* symbol_name);
+	virtual bool load_library();
+	virtual void unload_library();
+	virtual void* get_proc_address(const char* symbol_name);
 };
 
-bool CurlLoaderImpl::do_load_library()
+// -------------------------------------
+
+bool CurlLoaderImpl::load_library()
 {
 	const char* const library_path = Cvar_VariableString("cl_curl_library");
+	SDL_UnloadObject(dl_curl_library);
 	dl_curl_library = SDL_LoadObject(library_path);
-
 	if (dl_curl_library == NULL)
 	{
 		Com_Printf("%s\n", SDL_GetError());
 		return false;
 	}
-
 	return true;
 }
 
-void CurlLoaderImpl::do_unload_library()
+void CurlLoaderImpl::unload_library()
 {
-	if (dl_curl_library == NULL)
-	{
-		return;
-	}
-
 	SDL_UnloadObject(dl_curl_library);
 	dl_curl_library = NULL;
 }
 
-void* CurlLoaderImpl::do_get_proc_address(const char* symbol_name)
+void* CurlLoaderImpl::get_proc_address(const char* symbol_name)
 {
-	if (dl_curl_library == NULL)
-	{
-		return NULL;
-	}
-
 	return SDL_LoadFunction(dl_curl_library, symbol_name);
 }
 
-CurlLoaderImpl dl_curl_loader;
+} // namespace
+} // namespace rtcw
+
+// =====================================
+
+namespace {
+
+rtcw::CurlLoaderImpl dl_curl_loader;
 
 } // namespace
 #endif // RTCW_VANILLA
