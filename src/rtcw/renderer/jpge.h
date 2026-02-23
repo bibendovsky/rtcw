@@ -63,7 +63,9 @@ namespace jpge
 	class output_stream
 	{
 	public:
+#if 0 // RTCW
 		virtual ~output_stream() { };
+#endif // RTCW
 		virtual bool put_buf(const void* Pbuf, int len) = 0;
 		template<class T> inline bool put_obj(const T& obj) { return put_buf(&obj, sizeof(T)); }
 	};
