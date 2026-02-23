@@ -3068,6 +3068,7 @@ namespace jpgd {
 		free_all_blocks();
 	}
 
+#if 0 // RTCW
 	jpeg_decoder_file_stream::jpeg_decoder_file_stream()
 	{
 		m_pFile = NULL;
@@ -3099,16 +3100,12 @@ namespace jpgd {
 		m_eof_flag = false;
 		m_error_flag = false;
 
-#if 0 // rtcw
 #if defined(_MSC_VER)
 		m_pFile = NULL;
 		fopen_s(&m_pFile, Pfilename, "rb");
 #else
 		m_pFile = fopen(Pfilename, "rb");
 #endif
-#else // rtcw
-		m_pFile = fopen(Pfilename, "rb");
-#endif // rtcw
 		return m_pFile != NULL;
 	}
 
@@ -3141,6 +3138,7 @@ namespace jpgd {
 
 		return bytes_read;
 	}
+#endif // RTCW
 
 	bool jpeg_decoder_mem_stream::open(const uint8* pSrc_data, uint size)
 	{
@@ -3270,6 +3268,7 @@ namespace jpgd {
 		return pImage_data;
 	}
 
+#if 0 // RTCW
 	unsigned char* decompress_jpeg_image_from_memory(const unsigned char* pSrc_data, int src_data_size, int* width, int* height, int* actual_comps, int req_comps, uint32_t flags)
 	{
 		jpgd::jpeg_decoder_mem_stream mem_stream(pSrc_data, src_data_size);
@@ -3283,5 +3282,6 @@ namespace jpgd {
 			return NULL;
 		return decompress_jpeg_image_from_stream(&file_stream, width, height, actual_comps, req_comps, flags);
 	}
+#endif
 
 } // namespace jpgd

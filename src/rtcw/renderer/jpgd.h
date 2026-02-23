@@ -5,7 +5,9 @@
 #define JPEG_DECODER_H
 
 #include <stdlib.h>
+#if 0 // RTCW
 #include <stdio.h>
+#endif // RTCW
 #include <setjmp.h>
 #include <assert.h>
 #include <stdint.h>
@@ -29,6 +31,7 @@ namespace jpgd
 	typedef unsigned int   uint;
 	typedef   signed int   int32;
 
+#if 0 // RTCW
 	// Loads a JPEG image from a memory buffer or a file.
 	// req_comps can be 1 (grayscale), 3 (RGB), or 4 (RGBA).
 	// On return, width/height will be set to the image's dimensions, and actual_comps will be set to the either 1 (grayscale) or 3 (RGB).
@@ -36,6 +39,7 @@ namespace jpgd
 	// Requesting a 8 or 32bpp image is currently a little faster than 24bpp because the jpeg_decoder class itself currently always unpacks to either 8 or 32bpp.
 	unsigned char* decompress_jpeg_image_from_memory(const unsigned char* pSrc_data, int src_data_size, int* width, int* height, int* actual_comps, int req_comps, uint32_t flags = 0);
 	unsigned char* decompress_jpeg_image_from_file(const char* pSrc_filename, int* width, int* height, int* actual_comps, int req_comps, uint32_t flags = 0);
+#endif // RTCW
 
 	// Success/failure error codes.
 	enum jpgd_status
@@ -60,7 +64,9 @@ namespace jpgd
 	{
 	public:
 		jpeg_decoder_stream() { }
+#if 0 // RTCW
 		virtual ~jpeg_decoder_stream() { }
+#endif // RTCW
 
 		// The read() method is called when the internal input buffer is empty.
 		// Parameters:
@@ -72,6 +78,7 @@ namespace jpgd
 		virtual int read(uint8* pBuf, int max_bytes_to_read, bool* pEOF_flag) = 0;
 	};
 
+#if 0 // RTCW
 	// stdio FILE stream class.
 	class jpeg_decoder_file_stream : public jpeg_decoder_stream
 	{
@@ -90,6 +97,7 @@ namespace jpgd
 
 		virtual int read(uint8* pBuf, int max_bytes_to_read, bool* pEOF_flag);
 	};
+#endif // RTCW
 
 	// Memory stream class.
 	class jpeg_decoder_mem_stream : public jpeg_decoder_stream
@@ -101,7 +109,9 @@ namespace jpgd
 		jpeg_decoder_mem_stream() : m_pSrc_data(NULL), m_ofs(0), m_size(0) { }
 		jpeg_decoder_mem_stream(const uint8* pSrc_data, uint size) : m_pSrc_data(pSrc_data), m_ofs(0), m_size(size) { }
 
+#if 0 // RTCW
 		virtual ~jpeg_decoder_mem_stream() { }
+#endif // RTCW
 
 		bool open(const uint8* pSrc_data, uint size);
 		void close() { m_pSrc_data = NULL; m_ofs = 0; m_size = 0; }
