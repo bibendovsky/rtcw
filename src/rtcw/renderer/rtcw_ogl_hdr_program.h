@@ -1,8 +1,10 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
+
+// HDR GLSL program
 
 #ifndef RTCW_OGL_HDR_PROGRAM_INCLUDED
 #define RTCW_OGL_HDR_PROGRAM_INCLUDED
@@ -24,20 +26,19 @@ public:
 
 	OglHdrProgram(const String& glsl_dir, const String& base_name);
 	OglHdrProgram(const char* vertex_shader_source, const char* fragment_shader_source);
+	~OglHdrProgram();
 
-	virtual ~OglHdrProgram();
+	virtual void destroy();
+	virtual bool reload();
+	virtual void unload();
 
+protected:
 	virtual OglProgram* create_new(const String& glsl_dir, const String& base_name);
 	virtual OglProgram* create_new(const char* vertex_shader_source, const char* fragment_shader_source);
 
 private:
-	virtual bool do_reload();
-	virtual void do_unload();
-
-private:
 	static const char* const impl_attribute_names_[max_vertex_attributes];
 
-private:
 	OglHdrProgram(const OglHdrProgram&);
 	OglHdrProgram& operator=(const OglHdrProgram&);
 

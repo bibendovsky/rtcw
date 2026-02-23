@@ -1,8 +1,10 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
-Copyright (c) 2012-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
+
+// Default GLSL program
 
 #ifndef RTCW_OGL_TESS_PROGRAM_INCLUDED
 #define RTCW_OGL_TESS_PROGRAM_INCLUDED
@@ -42,20 +44,20 @@ public:
 
 	OglTessProgram(const String& glsl_dir, const String& base_name);
 	OglTessProgram(const char* vertex_shader_source, const char* fragment_shader_source);
+	~OglTessProgram();
 
-	virtual ~OglTessProgram();
+	virtual void destroy();
+	virtual bool reload();
+	virtual void unload();
 
+
+protected:
 	virtual OglProgram* create_new(const String& glsl_dir, const String& base_name);
 	virtual OglProgram* create_new(const char* vertex_shader_source, const char* fragment_shader_source);
 
 private:
-	virtual bool do_reload();
-	virtual void do_unload();
-
-private:
 	static const char* const impl_attribute_names_[max_vertex_attributes];
 
-private:
 	OglTessProgram(const OglTessProgram&);
 	OglTessProgram& operator=(const OglTessProgram&);
 
