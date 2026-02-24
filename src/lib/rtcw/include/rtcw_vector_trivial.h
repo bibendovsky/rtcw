@@ -1,20 +1,18 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
-Copyright (c) 2012-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2012-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
+
+// Vector for trivial types
 
 #ifndef RTCW_VECTOR_TRIVIAL_INCLUDED
 #define RTCW_VECTOR_TRIVIAL_INCLUDED
 
-// Dynamic array for trivial types.
-
-#include <assert.h>
-#include <limits.h>
-#include <stdlib.h>
+#include "rtcw_memory.h"
+#include <cassert>
+#include <climits>
 #include <algorithm>
-
-// ==========================================================================
 
 namespace rtcw {
 
@@ -47,23 +45,21 @@ private:
 	static const int element_size = sizeof(T);
 	static const int max_capacity = (INT_MAX - 1) / element_size;
 
-private:
 	static const T default_filler_;
 	T* elements_;
 	int size_;
 	int capacity_;
 
-private:
 	static void free_elements(void* elements);
 	void resize_internal(int new_size, const T* value);
 };
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
 template<typename T>
 const T VectorTrivial<T>::default_filler_ = T();
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
 template<typename T>
 VectorTrivial<T>::VectorTrivial()
@@ -84,8 +80,7 @@ VectorTrivial<T>::VectorTrivial(const VectorTrivial& that)
 	{
 		return;
 	}
-
-	elements_ = static_cast<T*>(::operator new(that.size_ * sizeof(T)));
+	elements_ = static_cast<T*>(mem::allocate(that.size_ * sizeof(T)));
 	size_ = that.size_;
 	capacity_ = that.size_;
 }
@@ -139,17 +134,14 @@ template<typename T>
 void VectorTrivial<T>::reserve(int new_capacity)
 {
 	assert(new_capacity >= 0);
-
 	if (new_capacity <= capacity_)
 	{
 		return;
 	}
-
 	assert(new_capacity <= max_capacity);
-	T* const new_elements = static_cast<T*>(::operator new(new_capacity * sizeof(T)));
+	T* const new_elements = static_cast<T*>(mem::allocate(new_capacity * sizeof(T)));
 	const int old_elements_size = size_ * element_size;
-	std::copy(elements_, &elements_[old_elements_size], new_elements);
-
+	std::copy(elements_, elements_ + old_elements_size, new_elements);
 	free_elements(elements_);
 	elements_ = new_elements;
 	capacity_ = new_capacity;
@@ -185,21 +177,17 @@ void VectorTrivial<T>::insert_range(int index, const T* src_elements, int src_co
 	assert(index >= 0 && index <= size_);
 	assert(src_elements != NULL);
 	assert(src_count >= 0 && src_count <= max_capacity - size_);
-
 	if (src_count == 0)
 	{
 		return;
 	}
-
 	resize_internal(size_ + src_count, NULL);
 	const int new_size = size_ + src_count;
 	const int move_count = size_ - index;
-
 	for (int i = 0; i < move_count; ++i)
 	{
 		elements_[new_size - 1 - i] = elements_[index + move_count - 1 - i];
 	}
-
 	std::copy(src_elements, &src_elements[src_count], &elements_[index]);
 }
 
@@ -209,14 +197,11 @@ void VectorTrivial<T>::erase(int index, int count)
 	assert(index >= 0 && index < size_);
 	assert(count >= 0 && count <= size_);
 	assert(index + count <= size_);
-
 	const int move_count = size_ - index - count;
-
 	for (int i = 0; i < move_count; ++i)
 	{
 		elements_[index + i] = elements_[index + count + i];
 	}
-
 	size_ -= count;
 }
 
@@ -245,27 +230,23 @@ void VectorTrivial<T>::swap(VectorTrivial& that)
 template<typename T>
 void VectorTrivial<T>::free_elements(void* elements)
 {
-	::operator delete(elements);
+	mem::deallocate(elements);
 }
 
 template<typename T>
 void VectorTrivial<T>::resize_internal(int new_size, const T* value)
 {
 	assert(new_size >= 0);
-
 	if (new_size <= size_)
 	{
 		size_ = new_size;
 		return;
 	}
-
 	reserve(new_size);
-
 	if (value != NULL)
 	{
-		std::fill_n(&elements_[size_], new_size - size_, *value);
+		std::fill_n(elements_ + size_, new_size - size_, *value);
 	}
-
 	size_ = new_size;
 }
 
