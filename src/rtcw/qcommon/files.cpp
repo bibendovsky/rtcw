@@ -1869,7 +1869,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 					if (uniqueFILE)
 					{
 						// open a new file on the pakfile
-						rtcw::UniquePtr<MinizZip> miniz_zip_uptr(new MinizZip());
+						rtcw::UniquePtr<MinizZip, rtcw::UniquePtrDefaultDeleter<MinizZip> > miniz_zip_uptr(new MinizZip());
 
 						if (!miniz_zip_uptr->open(pak->pakFilename))
 						{
@@ -2857,7 +2857,7 @@ static pack_t* FS_LoadZipFile(
 
 	fs_numHeaderLongs = 0;
 
-	rtcw::UniquePtr<MinizZip> miniz_zip_uptr(new MinizZip());
+	rtcw::UniquePtr<MinizZip, rtcw::UniquePtrDefaultDeleter<MinizZip> > miniz_zip_uptr(new MinizZip());
 
 	if (!miniz_zip_uptr->open(zipfile))
 	{

@@ -63,8 +63,7 @@ const size_t OglTessLayout::COL_SIZE =
 	offsetof (OglTessLayout, color[1]) -
 	offsetof (OglTessLayout, color[0]);
 
-
-rtcw::UniquePtr<rtcw::HdrMgr> r_hdr_mgr_uptr;
+rtcw::UniquePtr<rtcw::HdrMgr, rtcw::HdrMgrDeleter> r_hdr_mgr_uptr;
 
 GlConfigEx glConfigEx;
 

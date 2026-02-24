@@ -30,7 +30,7 @@ private:
 	static const DWORD WIN32_DWMWA_WINDOW_CORNER_PREFERENCE = 33;
 
 private:
-	typedef UniquePtr<WindowRoundedCornerMgr::Impl> Instance;
+	typedef UniquePtr<WindowRoundedCornerMgr::Impl, UniquePtrDefaultDeleter<WindowRoundedCornerMgr::Impl> > Instance;
 
 	typedef HRESULT (WINAPI * PFNDWMSETWINDOWATTRIBUTEPROC)(
 		HWND hwnd,

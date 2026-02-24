@@ -1,18 +1,29 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
-Copyright (c) 2012-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2012-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
 
 #ifndef RTCW_UNIQUE_PTR_INCLUDED
 #define RTCW_UNIQUE_PTR_INCLUDED
 
-#include <assert.h>
-#include <stddef.h>
+#include <cassert>
+#include <cstddef>
 
 namespace rtcw {
 
 template<typename T>
+struct UniquePtrDefaultDeleter
+{
+	void operator()(T* pointer) const
+	{
+		delete pointer;
+	}
+};
+
+// =====================================
+
+template<typename T, typename TDeleter>
 class UniquePtr
 {
 public:
@@ -36,7 +47,7 @@ public:
 	void reset(U* ptr)
 	{
 		assert(ptr == NULL || (ptr != NULL && ptr_ != ptr));
-		delete ptr_;
+		TDeleter()(ptr_);
 		ptr_ = ptr;
 	}
 
@@ -48,42 +59,42 @@ private:
 	UniquePtr& operator=(UniquePtr& rhs);
 };
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
-template<typename T>
-UniquePtr<T>::UniquePtr()
+template<typename T, typename TDeleter>
+UniquePtr<T, TDeleter>::UniquePtr()
 	:
 	ptr_()
 {}
 
-template<typename T>
-UniquePtr<T>::~UniquePtr()
+template<typename T, typename TDeleter>
+UniquePtr<T, TDeleter>::~UniquePtr()
 {
-	delete ptr_;
+	TDeleter()(ptr_);
 }
 
-template<typename T>
-T* UniquePtr<T>::get() const
-{
-	return ptr_;
-}
-
-template<typename T>
-T* UniquePtr<T>::operator->() const
+template<typename T, typename TDeleter>
+T* UniquePtr<T, TDeleter>::get() const
 {
 	return ptr_;
 }
 
-template<typename T>
-T* UniquePtr<T>::release()
+template<typename T, typename TDeleter>
+T* UniquePtr<T, TDeleter>::operator->() const
+{
+	return ptr_;
+}
+
+template<typename T, typename TDeleter>
+T* UniquePtr<T, TDeleter>::release()
 {
 	T* result = ptr_;
 	ptr_ = NULL;
 	return result;
 }
 
-template<typename T>
-void UniquePtr<T>::reset()
+template<typename T, typename TDeleter>
+void UniquePtr<T, TDeleter>::reset()
 {
 	reset(static_cast<T*>(NULL));
 }
