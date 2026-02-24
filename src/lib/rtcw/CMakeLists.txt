@@ -20,6 +20,7 @@ target_sources(rtcw_rtcw
 		include/rtcw_cgm_transform.h
 		include/rtcw_cgm_vec.h
 		include/rtcw_endian.h
+		include/rtcw_memory.h
 		include/rtcw_mod_value.h
 		include/rtcw_string.h
 		include/rtcw_type_utility.h
@@ -32,6 +33,7 @@ target_sources(rtcw_rtcw
 		src/rtcw_cgm_mat.cpp
 		src/rtcw_cgm_transform.cpp
 		src/rtcw_cgm_vec.cpp
+		src/rtcw_memory.cpp
 		src/rtcw_string.cpp
 		src/rtcw_type_utility.cpp
 		src/rtcw_vector_trivial.cpp
