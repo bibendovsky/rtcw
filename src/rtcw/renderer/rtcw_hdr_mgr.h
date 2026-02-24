@@ -1,6 +1,6 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
 
@@ -12,22 +12,27 @@ namespace rtcw {
 class HdrMgr
 {
 public:
-	HdrMgr() {}
-	virtual ~HdrMgr() {}
+	// Destroys the object.
+	virtual void destroy() = 0;
 
 	// Returns "true" if HDR enabled on primary display or "false" otherwise.
-	bool is_hdr_enabled();
+	virtual bool is_hdr_enabled() = 0;
 
-	// Returns a relative SDR white level to the reference one (80 nits).
+	// Returns a relative SDR white level to the reference one (80 nits) as double.
+	// Formula: sdr_white_factor = sdr_white_level_in_nits / 80.0nits
+	virtual double get_sdr_white_level_double() = 0;
+
+	// Returns a relative SDR white level to the reference one (80 nits) as float.
 	// Formula: sdr_white_factor = sdr_white_level_in_nits / 80.0nits
 	float get_sdr_white_level_float();
-
-private:
-	virtual bool do_is_hdr_enabled() = 0;
-	virtual double do_get_sdr_white_level_double() = 0;
 };
 
-// ======================================
+// =====================================
+
+struct HdrMgrDeleter
+{
+	void operator()(HdrMgr* hdr_mgr) const;
+};
 
 HdrMgr* make_hdr_mgr();
 
