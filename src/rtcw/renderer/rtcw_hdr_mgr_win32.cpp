@@ -1,6 +1,6 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
 
@@ -13,6 +13,7 @@ SPDX-License-Identifier: GPL-3.0
 #define COBJMACROS
  
 #include "rtcw_hdr_mgr.h"
+#include "rtcw_memory.h"
 #include <cassert>
 #include <cstddef>
 #include <windows.h>
@@ -474,7 +475,7 @@ UninitializedVector<T>::UninitializedVector()
 template<typename T>
 UninitializedVector<T>::~UninitializedVector()
 {
-	::operator delete(elements_);
+	mem::deallocate(elements_);
 }
 
 template<typename T>
@@ -507,9 +508,8 @@ void UninitializedVector<T>::resize(int new_size)
 {
 	if (new_size > capacity_)
 	{
-		::operator delete(elements_);
-		elements_ = NULL;
-		elements_ = static_cast<T*>(::operator new(new_size * sizeof(T)));
+		mem::deallocate(elements_);
+		elements_ = static_cast<T*>(mem::allocate(new_size * sizeof(T)));
 		capacity_ = new_size;
 	}
 	size_ = new_size;
@@ -521,7 +521,11 @@ class HdrMgrImpl : public HdrMgr
 {
 public:
 	HdrMgrImpl();
-	virtual ~HdrMgrImpl();
+	~HdrMgrImpl();
+
+	virtual void destroy();
+	virtual bool is_hdr_enabled();
+	virtual double get_sdr_white_level_double();
 
 private:
 	typedef HRESULT (WINAPI* PFN_CreateDXGIFactory)(REFIID riid, void** ppFactory);
@@ -554,9 +558,6 @@ private:
 	PFN_DisplayConfigGetDeviceInfo DisplayConfigGetDeviceInfo_;
 	PFN_GetDisplayConfigBufferSizes GetDisplayConfigBufferSizes_;
 	PFN_QueryDisplayConfig QueryDisplayConfig_;
-
-	virtual bool do_is_hdr_enabled();
-	virtual double do_get_sdr_white_level_double();
 
 	void do_get_sdr_white_level_double_internal(double& level);
 
@@ -620,7 +621,12 @@ HdrMgrImpl::~HdrMgrImpl()
 	}
 }
 
-bool HdrMgrImpl::do_is_hdr_enabled()
+void HdrMgrImpl::destroy()
+{
+	mem::delete_object_unchecked(this);
+}
+
+bool HdrMgrImpl::is_hdr_enabled()
 {
 	typedef ComUPtr<IDXGIFactory> DxgiFactoryComUPtr;
 	typedef ComUPtr<IDXGIAdapter> DxgiAdapterComUPtr;
@@ -669,7 +675,7 @@ bool HdrMgrImpl::do_is_hdr_enabled()
 	return color_space == DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020;
 }
 
-double HdrMgrImpl::do_get_sdr_white_level_double()
+double HdrMgrImpl::get_sdr_white_level_double()
 {
 	double level;
 	do_get_sdr_white_level_double_internal(level);
@@ -746,7 +752,7 @@ FARPROC HdrMgrImpl::get_user32_dll_symbol(const char* symbol_name) const
 
 HdrMgr* make_hdr_mgr()
 {
-	return new HdrMgrImpl();
+	return mem::new_object<HdrMgrImpl>();
 }
 
 } // namespace rtcw
