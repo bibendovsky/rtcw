@@ -229,7 +229,11 @@ void idSplineList::buildSpline() {
 				y += controlPoints[i - ( 3 - j )]->y * calcSpline( j, tension );
 				z += controlPoints[i - ( 3 - j )]->z * calcSpline( j, tension );
 			}
+#ifdef RTCW_VANILLA
 			splinePoints.Append( new idVec3( x, y, z ) );
+#else
+			splinePoints.Append(rtcw::mem::new_object_3<idVec3>(x, y, z));
+#endif
 		}
 	}
 	dirty = false;
@@ -386,7 +390,16 @@ void idSplineList::setSelectedPoint( idVec3 *p ) {
 }
 
 const idVec3 *idSplineList::getPosition( int t ) {
+#ifdef RTCW_VANILLA
 	static idVec3 interpolatedPos;
+#else // RTCW_VANILLA
+	static idVec3* interpolatedPos_ptr = NULL;
+	if (interpolatedPos_ptr == NULL)
+	{
+		interpolatedPos_ptr = rtcw::mem::new_object<idVec3>();
+	}
+	idVec3& interpolatedPos = *interpolatedPos_ptr;
+#endif // RTCW_VANILLA
 //	static long lastTime = -1; // TTimo unused
 
 	int count = splineTime.Num();
@@ -839,30 +852,58 @@ void idCameraDef::parse( const char *( *text )  ) {
 		if ( Q_stricmp( token, "time" ) == 0 ) {
 			baseTime = Com_ParseFloat( text );
 		} else if ( Q_stricmp( token, "camera_fixed" ) == 0 )        {
+#ifdef RTCW_VANILLA
 			cameraPosition = new idFixedPosition();
+#else // RTCW_VANILLA
+			cameraPosition = rtcw::mem::new_object<idFixedPosition>();
+#endif // RTCW_VANILLA
 			cameraPosition->parse( text );
 		} else if ( Q_stricmp( token, "camera_interpolated" ) == 0 )        {
+#ifdef RTCW_VANILLA
 			cameraPosition = new idInterpolatedPosition();
+#else // RTCW_VANILLA
+			cameraPosition = rtcw::mem::new_object<idInterpolatedPosition>();
+#endif // RTCW_VANILLA
 			cameraPosition->parse( text );
 		} else if ( Q_stricmp( token, "camera_spline" ) == 0 )        {
+#ifdef RTCW_VANILLA
 			cameraPosition = new idSplinePosition();
+#else // RTCW_VANILLA
+			cameraPosition = rtcw::mem::new_object<idSplinePosition>();
+#endif // RTCW_VANILLA
 			cameraPosition->parse( text );
 		} else if ( Q_stricmp( token, "target_fixed" ) == 0 )        {
+#ifdef RTCW_VANILLA
 			idFixedPosition *pos = new idFixedPosition();
+#else // RTCW_VANILLA
+			idFixedPosition* const pos = rtcw::mem::new_object<idFixedPosition>();
+#endif // RTCW_VANILLA
 			pos->parse( text );
 			targetPositions.Append( pos );
 		} else if ( Q_stricmp( token, "target_interpolated" ) == 0 )        {
+#ifdef RTCW_VANILLA
 			idInterpolatedPosition *pos = new idInterpolatedPosition();
+#else // RTCW_VANILLA
+			idInterpolatedPosition* const pos = rtcw::mem::new_object<idInterpolatedPosition>();
+#endif // RTCW_VANILLA
 			pos->parse( text );
 			targetPositions.Append( pos );
 		} else if ( Q_stricmp( token, "target_spline" ) == 0 )        {
+#ifdef RTCW_VANILLA
 			idSplinePosition *pos = new idSplinePosition();
+#else // RTCW_VANILLA
+			idSplinePosition* const pos = rtcw::mem::new_object<idSplinePosition>();
+#endif // RTCW_VANILLA
 			pos->parse( text );
 			targetPositions.Append( pos );
 		} else if ( Q_stricmp( token, "fov" ) == 0 )        {
 			fov.parse( text );
 		} else if ( Q_stricmp( token, "event" ) == 0 )        {
+#ifdef RTCW_VANILLA
 			idCameraEvent *event = new idCameraEvent();
+#else // RTCW_VANILLA
+			idCameraEvent* const event = rtcw::mem::new_object<idCameraEvent>();
+#endif // RTCW_VANILLA
 			event->parse( text );
 			addEvent( event );
 		}
@@ -873,7 +914,11 @@ void idCameraDef::parse( const char *( *text )  ) {
 	if ( !cameraPosition ) {
 		Com_Printf( "no camera position specified\n" );
 		// prevent a crash later on
+#ifdef RTCW_VANILLA
 		cameraPosition = new idFixedPosition();
+#else // RTCW_VANILLA
+		cameraPosition = rtcw::mem::new_object<idFixedPosition>();
+#endif // RTCW_VANILLA
 	}
 
 	Com_UngetToken();
@@ -950,7 +995,11 @@ void idCameraDef::addEvent( idCameraEvent *event ) {
 
 }
 void idCameraDef::addEvent( idCameraEvent::eventType t, const char *param, int time ) {
+#ifdef RTCW_VANILLA
 	addEvent( new idCameraEvent( t, param, time ) );
+#else // RTCW_VANILLA
+	addEvent(rtcw::mem::new_object_3<idCameraEvent>(t, param, time));
+#endif // RTCW_VANILLA
 	buildCamera();
 }
 
@@ -1045,7 +1094,16 @@ const char *idCameraPosition::positionStr[] = {
 
 
 const idVec3 *idInterpolatedPosition::getPosition( int t ) {
+#ifdef RTCW_VANILLA
 	static idVec3 interpolatedPos;
+#else // RTCW_VANILLA
+	static idVec3* interpolatedPos_ptr = NULL;
+	if (interpolatedPos_ptr == NULL)
+	{
+		interpolatedPos_ptr = rtcw::mem::new_object<idVec3>();
+	}
+	idVec3& interpolatedPos = *interpolatedPos_ptr;
+#endif // RTCW_VANILLA
 
 #if !defined RTCW_MP
 	float percent = 0.0;
@@ -1409,7 +1467,17 @@ void idCameraDef::addTarget( const char *name, idCameraPosition::positionType ty
 }
 
 const idVec3 *idSplinePosition::getPosition( int t ) {
+#ifdef RTCW_VANILLA
 	static idVec3 interpolatedPos;
+#else // RTCW_VANILLA
+	static idVec3* interpolatedPos_ptr = NULL;
+	if (interpolatedPos_ptr == NULL)
+	{
+		interpolatedPos_ptr = rtcw::mem::new_object<idVec3>();
+	}
+	idVec3& interpolatedPos = *interpolatedPos_ptr;
+#endif // RTCW_VANILLA
+
 
 	float velocity = getVelocity( t );
 	float timePassed = t - lastTime;

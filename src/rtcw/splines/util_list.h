@@ -8,8 +8,19 @@ SPDX-License-Identifier: GPL-3.0
 #ifndef __UTIL_LIST_H__
 #define __UTIL_LIST_H__
 
+#ifndef RTCW_VANILLA
+#include "rtcw_memory.h"
+#endif // RTCW_VANILLA
+#ifdef RTCW_VANILLA
 #include <stdlib.h>
 #include <assert.h>
+#else // RTCW_VANILLA
+#include <cassert>
+#include <cstddef>
+#endif // RTCW_VANILLA
+#ifndef RTCW_VANILLA
+#include <cstring>
+#endif // RTCW_VANILLA
 
 template< class type >
 class idList {
@@ -72,7 +83,11 @@ idList<type>::Clear
 template< class type >
 inline void idList<type>::Clear( void ) {
 	if ( m_list ) {
+#ifdef RTCW_VANILLA
 		delete[] m_list;
+#else // RTCW_VANILLA
+		rtcw::mem::deallocate(m_list);
+#endif // RTCW_VANILLA
 	}
 
 	m_list  = NULL;
@@ -177,13 +192,24 @@ inline void idList<type>::Resize( int size ) {
 		m_num = m_size;
 	}
 
+#ifdef RTCW_VANILLA
 	m_list = new type[ m_size ];
+#else // RTCW_VANILLA
+	m_list = static_cast<type*>(rtcw::mem::allocate(m_size * sizeof(type)));
+#endif // RTCW_VANILLA
 	for ( i = 0; i < m_num; i++ ) {
 		m_list[ i ] = temp[ i ];
 	}
+#ifndef RTCW_VANILLA
+	std::memset(m_list + m_num, 0, static_cast<std::size_t>(m_size - m_num) * sizeof(type));
+#endif // RTCW_VANILLA
 
 	if ( temp ) {
+#ifdef RTCW_VANILLA
 		delete[] temp;
+#else // RTCW_VANILLA
+		rtcw::mem::deallocate(temp);
+#endif // RTCW_VANILLA
 	}
 }
 
