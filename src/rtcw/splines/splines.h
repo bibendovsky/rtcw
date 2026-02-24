@@ -20,6 +20,11 @@ SPDX-License-Identifier: GPL-3.0
 #include "util_list.h"
 #include "util_str.h"
 #include "math_vector.h"
+#ifndef RTCW_VANILLA
+#include "rtcw_memory.h"
+#include <cstddef>
+#include <cstdlib>
+#endif // RTCW_VANILLA
 
 typedef int fileHandle_t;
 
@@ -34,8 +39,15 @@ public:
 idPointListInterface() {
 	selectedPoints.Clear();
 };
+#ifdef RTCW_VANILLA
 virtual ~idPointListInterface() {
 };
+#else // RTCW_VANILLA
+virtual void destroy()
+{
+	std::abort();
+}
+#endif // RTCW_VANILLA
 
 virtual int numPoints() {
 	return 0;
@@ -171,14 +183,22 @@ idSplineList( const char *p ) {
 
 void clearControl() {
 	for ( int i = 0; i < controlPoints.Num(); i++ ) {
+#ifdef RTCW_VANILLA
 		delete controlPoints[i];
+#else // RTCW_VANILLA
+		rtcw::mem::deallocate(controlPoints[i]);
+#endif // RTCW_VANILLA
 	}
 	controlPoints.Clear();
 }
 
 void clearSpline() {
 	for ( int i = 0; i < splinePoints.Num(); i++ ) {
+#ifdef RTCW_VANILLA
 		delete splinePoints[i];
+#else // RTCW_VANILLA
+		rtcw::mem::deallocate(splinePoints[i]);
+#endif // RTCW_VANILLA
 	}
 	splinePoints.Clear();
 }
@@ -215,12 +235,20 @@ idVec3 *getSelectedPoint() {
 }
 
 void addPoint( const idVec3 &v ) {
+#ifdef RTCW_VANILLA
 	controlPoints.Append( new idVec3( v ) );
+#else // RTCW_VANILLA
+	controlPoints.Append(rtcw::mem::new_object_1<idVec3>(v));
+#endif // RTCW_VANILLA
 	dirty = true;
 }
 
 void addPoint( float x, float y, float z ) {
+#ifdef RTCW_VANILLA
 	controlPoints.Append( new idVec3( x, y, z ) );
+#else // RTCW_VANILLA
+	controlPoints.Append(rtcw::mem::new_object_3<idVec3>(x, y, z));
+#endif // RTCW_VANILLA
 	dirty = true;
 }
 
@@ -362,7 +390,11 @@ virtual void clearVelocities() {
 	// TTimo: MSVCism
 	int i;
 	for ( i = 0; i < velocities.Num(); i++ ) {
+#ifdef RTCW_VANILLA
 		delete velocities[i];
+#else // RTCW_VANILLA
+		rtcw::mem::delete_object(velocities[i]);
+#endif // RTCW_VANILLA
 		velocities[i] = NULL;
 	}
 	velocities.Clear();
@@ -378,7 +410,11 @@ virtual void clear() {
 virtual void clear() {
 	editMode = false;
 	for ( int i = 0; i < velocities.Num(); i++ ) {
+#ifdef RTCW_VANILLA
 		delete velocities[i];
+#else // RTCW_VANILLA
+		rtcw::mem::delete_object(velocities[i]);
+#endif // RTCW_VANILLA
 		velocities[i] = NULL;
 	}
 	velocities.Clear();
@@ -398,10 +434,20 @@ idCameraPosition( int t ) {
 	time = t;
 }
 
+#ifdef RTCW_VANILLA
 virtual ~idCameraPosition() {
+#else // RTCW_VANILLA
+~idCameraPosition() {
+#endif // RTCW_VANILLA
 	clear();
 }
 
+#ifndef RTCW_VANILLA
+virtual void destroy()
+{
+	rtcw::mem::delete_object_unchecked(this);
+}
+#endif // RTCW_VANILLA
 
 // this can be done with RTTI syntax but i like the derived classes setting a type
 // makes serialization a bit easier to see
@@ -441,7 +487,11 @@ float getVelocity( int t ) {
 }
 
 void addVelocity( int start, int duration, float speed ) {
+#ifdef RTCW_VANILLA
 	velocities.Append( new idVelocity( start, duration, speed ) );
+#else // RTCW_VANILLA
+	velocities.Append(rtcw::mem::new_object_3<idVelocity>(start, duration, speed));
+#endif // RTCW_VANILLA
 }
 
 virtual const idVec3 *getPosition( int t ) {
@@ -527,6 +577,14 @@ virtual void addPoint( const float x, const float y, const float z ) {
 
 ~idFixedPosition() {
 }
+
+#ifndef RTCW_VANILLA
+virtual void destroy()
+{
+	rtcw::mem::delete_object_unchecked(this);
+}
+#endif // RTCW_VANILLA
+
 virtual const idVec3 *getPosition( int t ) {
 	return &pos;
 }
@@ -578,6 +636,13 @@ idInterpolatedPosition( idVec3 start, idVec3 end, int time ) : idCameraPosition(
 
 ~idInterpolatedPosition() {
 }
+
+#ifndef RTCW_VANILLA
+virtual void destroy()
+{
+	rtcw::mem::delete_object_unchecked(this);
+}
+#endif // RTCW_VANILLA
 
 virtual const idVec3 *getPosition( int t );
 
@@ -661,6 +726,13 @@ idSplinePosition( int time ) : idCameraPosition( time ) {
 
 ~idSplinePosition() {
 }
+
+#ifndef RTCW_VANILLA
+virtual void destroy()
+{
+	rtcw::mem::delete_object_unchecked(this);
+}
+#endif // RTCW_VANILLA
 
 virtual void start( int t ) {
 	idCameraPosition::start( t );
@@ -911,17 +983,30 @@ void clear() {
 	fov.setFOV( 90 );
 	int i;
 	for ( i = 0; i < targetPositions.Num(); i++ ) {
+#ifdef RTCW_VANILLA
 		delete targetPositions[i];
+#else // RTCW_VANILLA
+		rtcw::mem::destroy_object(targetPositions[i]);
+#endif // RTCW_VANILLA
 	}
 	for ( i = 0; i < events.Num(); i++ ) {
+#ifdef RTCW_VANILLA
 		delete events[i];
+#else // RTCW_VANILLA
+		rtcw::mem::delete_object(events[i]);
+#endif // RTCW_VANILLA
 	}
+#ifdef RTCW_VANILLA
 	delete cameraPosition;
+#else // RTCW_VANILLA
+	rtcw::mem::destroy_object(cameraPosition);
+#endif // RTCW_VANILLA
 	cameraPosition = NULL;
 	events.Clear();
 	targetPositions.Clear();
 }
 
+#ifdef RTCW_VANILLA
 idCameraPosition *startNewCamera( idCameraPosition::positionType type ) {
 	clear();
 	if ( type == idCameraPosition::SPLINE ) {
@@ -933,6 +1018,25 @@ idCameraPosition *startNewCamera( idCameraPosition::positionType type ) {
 	}
 	return cameraPosition;
 }
+#else // RTCW_VANILLA
+idCameraPosition* startNewCamera(idCameraPosition::positionType type)
+{
+	clear();
+	switch (type)
+	{
+		case idCameraPosition::SPLINE:
+			cameraPosition = rtcw::mem::new_object<idSplinePosition>();
+			break;
+		case idCameraPosition::INTERPOLATED:
+			cameraPosition = rtcw::mem::new_object<idInterpolatedPosition>();
+			break;
+		default:
+			cameraPosition = rtcw::mem::new_object<idFixedPosition>();
+			break;
+	}
+	return cameraPosition;
+}
+#endif // RTCW_VANILLA
 
 idCameraDef() {
 	cameraPosition = NULL;
@@ -970,6 +1074,7 @@ void buildCamera();
 //}
 #endif // RTCW_XX
 
+#ifdef RTCW_VANILLA
 static idCameraPosition *newFromType( idCameraPosition::positionType t ) {
 	switch ( t ) {
 	case idCameraPosition::FIXED: return new idFixedPosition();
@@ -980,6 +1085,18 @@ static idCameraPosition *newFromType( idCameraPosition::positionType t ) {
 	};
 	return NULL;
 }
+#else // RTCW_VANILLA
+static idCameraPosition* newFromType(idCameraPosition::positionType t)
+{
+	switch (t)
+	{
+		case idCameraPosition::FIXED: return rtcw::mem::new_object<idFixedPosition>();
+		case idCameraPosition::INTERPOLATED: return rtcw::mem::new_object<idInterpolatedPosition>();
+		case idCameraPosition::SPLINE: return rtcw::mem::new_object<idSplinePosition>();
+		default: return NULL;
+	};
+}
+#endif // RTCW_VANILLA
 
 void addTarget( const char *name, idCameraPosition::positionType type );
 
@@ -1148,7 +1265,11 @@ void setName( const char *p ) {
 
 idCameraPosition *getPositionObj() {
 	if ( cameraPosition == NULL ) {
+#ifdef RTCW_VANILLA
 		cameraPosition = new idFixedPosition();
+#else // RTCW_VANILLA
+		cameraPosition = rtcw::mem::new_object<idFixedPosition>();
+#endif // RTCW_VANILLA
 	}
 	return cameraPosition;
 }
