@@ -1,20 +1,21 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
-Copyright (c) 2012-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
 
 #include "rtcw_string.h"
-#include <assert.h>
-#include <stddef.h>
-#include <string.h>
+#include "rtcw_memory.h"
+#include <cassert>
+#include <cstddef>
+#include <cstring>
 #include <algorithm>
 
 namespace rtcw {
 
 int String::traits_type::length(const char* string)
 {
-	return static_cast<int>(strlen(string));
+	return static_cast<int>(std::strlen(string));
 }
 
 String::String()
@@ -39,7 +40,6 @@ String::String(const String& that)
 String& String::operator=(const String& that)
 {
 	assert(&that != this);
-
 	String copy(that);
 	swap(copy);
 	return *this;
@@ -47,7 +47,7 @@ String& String::operator=(const String& that)
 
 String::~String()
 {
-	::operator delete(external_storage_);
+	mem::deallocate(external_storage_);
 }
 
 int String::length() const
@@ -78,7 +78,6 @@ char* String::data()
 const char& String::operator[](int index) const
 {
 	assert(index >= 0 && index < length());
-
 	return data()[index];
 }
 
@@ -96,13 +95,11 @@ void String::clear()
 void String::reserve(int new_capacity)
 {
 	assert(new_capacity >= 0);
-
 	if (new_capacity <= capacity_)
 	{
 		return;
 	}
-
-	char* const new_storage = static_cast<char*>(::operator new(static_cast<size_t>(new_capacity + 1)));
+	char* const new_storage = static_cast<char*>(mem::allocate(new_capacity + 1));
 	const char* const src_data = data();
 	std::copy(src_data, &src_data[length() + 1], new_storage);
 	capacity_ = new_capacity;
@@ -112,7 +109,6 @@ void String::reserve(int new_capacity)
 void String::resize(int new_length)
 {
 	assert(new_length >= 0);
-
 	reserve(new_length);
 	const int old_length = length();
 	char* const dst_data = data();
@@ -160,7 +156,6 @@ void String::swap(String& that)
 char* String::ctor_initialize(int string_length)
 {
 	length_ = string_length;
-
 	if (string_length <= internal_storage_max_length)
 	{
 		capacity_ = internal_storage_max_length;
@@ -170,7 +165,7 @@ char* String::ctor_initialize(int string_length)
 	else
 	{
 		capacity_ = string_length;
-		external_storage_ = static_cast<char*>(::operator new(static_cast<size_t>(string_length + 1)));
+		external_storage_ = static_cast<char*>(mem::allocate(string_length + 1));
 		return external_storage_;
 	}
 }

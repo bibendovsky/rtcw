@@ -1,13 +1,11 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
-Copyright (c) 2012-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
 
 #ifndef RTCW_STRING_INCLUDED
 #define RTCW_STRING_INCLUDED
-
-#include <stddef.h>
 
 namespace rtcw {
 
@@ -48,33 +46,29 @@ private:
 	friend String operator+(const char* a, const String& b);
 	friend String operator+(const String& a, const String& b);
 
-private:
 	struct ConcatenateTag {};
 
-private:
 	static const int internal_storage_max_length = 15;
 	static const int internal_storage_capacity = internal_storage_max_length + 1;
 
-private:
 	int capacity_; // Without NUL.
 	int length_; // Without NUL.
 	char* external_storage_;
 	char internal_storage_[internal_storage_capacity];
 
-private:
 	char* ctor_initialize(int string_length);
 	void ctor_assign(const char* string);
 	void ctor_assign(const char* string, int string_length);
 	String(ConcatenateTag, const char* a_string, int a_length, const char* b_string, int b_length);
 };
 
-// ==========================================================================
+// =====================================
 
 String& operator+=(String& a, char b);
 String& operator+=(String& a, const char* b);
 String& operator+=(String& a, const String& b);
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
 String operator+(const String& a, const char* b);
 String operator+(const char* a, const String& b);
