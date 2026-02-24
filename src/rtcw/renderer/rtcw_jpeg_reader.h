@@ -49,8 +49,8 @@ private:
 	int width_;
 	int height_;
 	bool is_grayscale_;
-	rtcw::UniquePtr<jpgd::jpeg_decoder_mem_stream> stream_;
-	rtcw::UniquePtr<jpgd::jpeg_decoder> decoder_;
+	rtcw::UniquePtr<jpgd::jpeg_decoder_mem_stream, UniquePtrDefaultDeleter<jpgd::jpeg_decoder_mem_stream> > stream_;
+	rtcw::UniquePtr<jpgd::jpeg_decoder, UniquePtrDefaultDeleter<jpgd::jpeg_decoder> > decoder_;
 	String error_message_;
 
 	JpegReader(const JpegReader&);

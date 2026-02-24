@@ -2882,7 +2882,7 @@ extern rtcw::OglMatrixStack ogl_projection_stack;
 
 extern rtcw::OglHdrProgram* ogl_hdr_program;
 
-extern rtcw::UniquePtr<rtcw::HdrMgr> r_hdr_mgr_uptr;
+extern rtcw::UniquePtr<rtcw::HdrMgr, rtcw::HdrMgrDeleter> r_hdr_mgr_uptr;
 
 bool r_probe_programs ();
 void r_present_offscreen();

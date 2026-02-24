@@ -193,12 +193,14 @@ bool OglProgram::do_try_reload()
 {
 	if (source_type_ == source_type_file)
 	{
-		rtcw::UniquePtr<OglProgram> instance(create_new(glsl_dir_, base_name_));
+		rtcw::UniquePtr<OglProgram, UniquePtrDefaultDeleter<OglProgram> > instance(
+			create_new(glsl_dir_, base_name_));
 		return instance->reload();
 	}
 	else if (source_type_ == source_type_c_string)
 	{
-		rtcw::UniquePtr<OglProgram> instance(create_new(vertex_shader_source_, fragment_shader_source_));
+		rtcw::UniquePtr<OglProgram, UniquePtrDefaultDeleter<OglProgram> > instance(
+			create_new(vertex_shader_source_, fragment_shader_source_));
 		return instance->reload();
 	}
 	else
