@@ -1,7 +1,7 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
 Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company.
-Copyright (c) 2012-2025 Boris I. Bendovsky bibendovsky@hotmail.com and Contributors
+Copyright (c) 2012-2026 Boris I. Bendovsky bibendovsky@hotmail.com and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
 
@@ -9,6 +9,7 @@ SPDX-License-Identifier: GPL-3.0
 
 #include "tr_local.h"
 #include "rtcw_hdr_mgr.h"
+#include "rtcw_memory.h"
 #include "rtcw_unique_ptr.h"
 
 #if !defined RTCW_ET
@@ -598,12 +599,12 @@ void r_dbg_reload_programs_f()
 
 	if (ogl_tess_program == NULL)
 	{
-		ogl_tess_program = new rtcw::OglTessProgram(glsl_dir, "tess");
+		ogl_tess_program = rtcw::mem::new_object_2<rtcw::OglTessProgram>(glsl_dir, "tess");
 	}
 
 	if (ogl_hdr_program == NULL)
 	{
-		ogl_hdr_program = new rtcw::OglHdrProgram(glsl_dir, "hdr");
+		ogl_hdr_program = rtcw::mem::new_object_2<rtcw::OglHdrProgram>(glsl_dir, "hdr");
 	}
 
 	if (ogl_tess_program != NULL && ogl_hdr_program != NULL)
@@ -1083,12 +1084,14 @@ void r_reload_programs_f()
 
 	if (ogl_tess_program == NULL)
 	{
-		ogl_tess_program = new rtcw::OglTessProgram(r_get_embeded_tess_vertex_shader(), r_get_embeded_tess_fragment_shader());
+		ogl_tess_program = rtcw::mem::new_object_2<rtcw::OglTessProgram>(
+			r_get_embeded_tess_vertex_shader(),
+			r_get_embeded_tess_fragment_shader());
 	}
 
 	if (ogl_hdr_program == NULL)
 	{
-		ogl_hdr_program = new rtcw::OglHdrProgram(
+		ogl_hdr_program = rtcw::mem::new_object_2<rtcw::OglHdrProgram>(
 			r_get_embeded_hdr_vertex_shader(),
 			r_get_embeded_hdr_fragment_shader());
 	}
@@ -3189,7 +3192,7 @@ void R_PurgeCache( void ) {
 // BBi
 static void r_shutdown_programs ()
 {
-	delete ogl_tess_program;
+	rtcw::mem::destroy_object(ogl_tess_program);
 	ogl_tess_program = NULL;
 }
 // BBi
