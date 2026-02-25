@@ -1,7 +1,7 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
 Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company.
-Copyright (c) 2012-2025 Boris I. Bendovsky bibendovsky@hotmail.com and Contributors
+Copyright (c) 2012-2026 Boris I. Bendovsky bibendovsky@hotmail.com and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
 
@@ -10,9 +10,16 @@ SPDX-License-Identifier: GPL-3.0
 #ifndef __UTIL_STR_H__
 #define __UTIL_STR_H__
 
+#ifdef RTCW_VANILLA
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
+#else // RTCW_VANILLA
+#include "rtcw_memory.h"
+#include <cassert>
+#include <stdio.h>
+#include <string.h>
+#endif // RTCW_VANILLA
 
 
 void TestStringClass();
@@ -23,16 +30,24 @@ public:
 strdata () : len( 0 ), refcount( 0 ), data( NULL ), alloced( 0 ) {
 }
 ~strdata () {
+#ifdef RTCW_VANILLA
 	if ( data ) {
 		delete [] data;
 	}
+#else // RTCW_VANILLA
+	rtcw::mem::deallocate(data);
+#endif // RTCW_VANILLA
 }
 
 void AddRef() { refcount++; }
 bool DelRef() {      // True if killed
 	refcount--;
 	if ( refcount < 0 ) {
+#ifdef RTCW_VANILLA
 		delete this;
+#else // RTCW_VANILLA
+		rtcw::mem::delete_object_unchecked(this);
+#endif // RTCW_VANILLA
 		return true;
 	}
 

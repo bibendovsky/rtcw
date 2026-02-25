@@ -1,7 +1,7 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
 Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company.
-Copyright (c) 2012-2025 Boris I. Bendovsky bibendovsky@hotmail.com and Contributors
+Copyright (c) 2012-2026 Boris I. Bendovsky bibendovsky@hotmail.com and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
 
@@ -12,6 +12,7 @@ SPDX-License-Identifier: GPL-3.0
 #include <ctype.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
 
 
 static const int STR_ALLOC_GRAN = 20;
@@ -335,7 +336,11 @@ void idStr::EnsureDataWritable
 	olddata = m_data;
 	len = length();
 
+#ifdef RTCW_VANILLA
 	m_data = new strdata;
+#else // RTCW_VANILLA
+	m_data = rtcw::mem::new_object<strdata>();
+#endif // RTCW_VANILLA
 
 	EnsureAlloced( len + 1, false );
 	strncpy( m_data->data, olddata->data, len + 1 );
@@ -347,7 +352,11 @@ void idStr::EnsureDataWritable
 void idStr::EnsureAlloced( int amount, bool keepold ) {
 
 	if ( !m_data ) {
+#ifdef RTCW_VANILLA
 		m_data = new strdata();
+#else // RTCW_VANILLA
+		m_data = rtcw::mem::new_object<strdata>();
+#endif // RTCW_VANILLA
 	}
 
 	// Now, let's make sure it's writable
@@ -374,13 +383,22 @@ void idStr::EnsureAlloced( int amount, bool keepold ) {
 		m_data->alloced = newsize;
 	}
 
+#if RTCW_VANILLA
 	newbuffer = new char[m_data->alloced];
+#else // RTCW_VANILLA
+	newbuffer = static_cast<char*>(rtcw::mem::allocate(m_data->alloced));
+	memset(newbuffer, 0, m_data->alloced);
+#endif // RTCW_VANILLA
 	if ( wasalloced && keepold ) {
 		strcpy( newbuffer, m_data->data );
 	}
 
 	if ( m_data->data ) {
+#if RTCW_VANILLA
 		delete [] m_data->data;
+#else // RTCW_VANILLA
+		rtcw::mem::deallocate(m_data->data);
+#endif // RTCW_VANILLA
 	}
 	m_data->data = newbuffer;
 }
