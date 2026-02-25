@@ -1,7 +1,7 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
 Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company.
-Copyright (c) 2012-2025 Boris I. Bendovsky bibendovsky@hotmail.com and Contributors
+Copyright (c) 2012-2026 Boris I. Bendovsky bibendovsky@hotmail.com and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
 
@@ -18,13 +18,15 @@ SPDX-License-Identifier: GPL-3.0
 #define MP_LEGACY_PAK 0x7776DC09
 #endif // RTCW_XX
 
-#include <limits>
+#include <climits>
+#include <cstring>
 
 #include "miniz.h"
 
 #include "q_shared.h"
 #include "qcommon.h"
 #include "rtcw_endian.h"
+#include "rtcw_memory.h"
 #include "rtcw_string.h"
 #include "rtcw_unique_ptr.h"
 
@@ -304,30 +306,35 @@ class MinizZip
 public:
 	struct FileStat
 	{
-		rtcw::String file_name_;
-		uint32_t crc_;
-		int compressed_size_;
-		int uncompressed_size_;
-		bool is_directory_;
-		bool is_encrypted_;
-		bool is_supported_;
+		rtcw::String file_name;
+		uint32_t crc;
+		int compressed_size;
+		int uncompressed_size;
+		bool is_directory;
+		bool is_encrypted;
+		bool is_supported;
 
 		FileStat()
 			:
-			file_name_(),
-			crc_(),
-			compressed_size_(),
-			uncompressed_size_(),
-			is_directory_(),
-			is_encrypted_(),
-			is_supported_()
+			file_name(),
+			crc(),
+			compressed_size(),
+			uncompressed_size(),
+			is_directory(),
+			is_encrypted(),
+			is_supported()
 		{}
-	}; // FileStat
-
+	};
 
 	class File
 	{
 	public:
+		explicit File(mz_zip_reader_extract_iter_state* miniz_file_state)
+			:
+			miniz_file_state_(miniz_file_state),
+			position_()
+		{}
+
 		~File()
 		{
 			close();
@@ -338,20 +345,15 @@ public:
 			return miniz_file_state_ != NULL;
 		}
 
-		int read(
-			void* buffer_ptr,
-			const int count)
+		int read(void* buffer_ptr, int count)
 		{
-			if (!is_open() || !buffer_ptr || count <= 0)
+			if (!is_open() || buffer_ptr == NULL || count <= 0)
 			{
 				return 0;
 			}
-
 			const int read_result = static_cast<int>(mz_zip_reader_extract_iter_read(miniz_file_state_, buffer_ptr, count));
-
 			position_ += read_result;
-
-			return static_cast<int>(read_result);
+			return read_result;
 		}
 
 		int get_position() const
@@ -359,35 +361,22 @@ public:
 			return position_;
 		}
 
-
 	private:
-		friend class MinizZip;
-
-
 		mz_zip_reader_extract_iter_state* miniz_file_state_;
 		int position_;
 
 		File(const File&);
 		File& operator=(const File&);
 
-
-		explicit File(
-			mz_zip_reader_extract_iter_state* miniz_file_state)
-			:
-			miniz_file_state_(miniz_file_state),
-			position_()
-		{}
-
 		void close()
 		{
-			if (miniz_file_state_)
+			if (miniz_file_state_ != NULL)
 			{
-				static_cast<void>(mz_zip_reader_extract_iter_free(miniz_file_state_));
+				mz_zip_reader_extract_iter_free(miniz_file_state_);
 				miniz_file_state_ = NULL;
 			}
 		}
-	}; // File
-
+	};
 
 	MinizZip()
 		:
@@ -402,37 +391,28 @@ public:
 		close();
 	}
 
-
-	bool open(
-		const char* const file_name)
+	bool open(const char* file_name)
 	{
 		close();
-
 		if (!io_.open(file_name))
 		{
 			return false;
 		}
-
 		miniz_zip_.m_pIO_opaque = &io_;
 		miniz_zip_.m_pRead = miniz_file_read_func;
-
-		if (!::mz_zip_reader_init(&miniz_zip_, io_.get_file_size(), MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY))
+		if (!mz_zip_reader_init(&miniz_zip_, io_.get_file_size(), MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY))
 		{
 			close();
 			return false;
 		}
-
 		const mz_uint miniz_file_count = mz_zip_reader_get_num_files(&miniz_zip_);
-
-		if (miniz_file_count > static_cast<mz_uint>(std::numeric_limits<int>::max()))
+		if (miniz_file_count > INT_MAX)
 		{
 			close();
 			return false;
 		}
-
 		is_open_ = true;
 		file_count_ = static_cast<int>(miniz_file_count);
-
 		return true;
 	}
 
@@ -442,8 +422,7 @@ public:
 		mz_zip_reader_end(&miniz_zip_);
 		io_.close();
 		file_count_ = 0;
-
-		memset(&miniz_zip_, 0, sizeof(mz_zip_archive));
+		std::memset(&miniz_zip_, 0, sizeof(mz_zip_archive));
 	}
 
 	bool is_open() const
@@ -451,23 +430,19 @@ public:
 		return is_open_;
 	}
 
-	File* open_file(
-		const int file_index)
+	File* open_file(int file_index)
 	{
 		if (!is_open() || file_index < 0 || file_index >= file_count_)
 		{
 			return NULL;
 		}
-
 		mz_zip_reader_extract_iter_state* miniz_file_state =
 			mz_zip_reader_extract_iter_new(&miniz_zip_, static_cast<mz_uint>(file_index), 0);
-
-		if (!miniz_file_state)
+		if (miniz_file_state == NULL)
 		{
 			return NULL;
 		}
-
-		return new File(miniz_file_state);
+		return rtcw::mem::new_object_1<File>(miniz_file_state);
 	}
 
 	int get_file_count() const
@@ -481,53 +456,40 @@ public:
 		{
 			return 0;
 		}
-
 		int size = 0;
-
 		for (int i = 0; i < file_count_; ++i)
 		{
-			const int file_name_size = static_cast<int>(
-				mz_zip_reader_get_filename(&miniz_zip_, static_cast<mz_uint>(i), NULL, 0));
-
+			const int file_name_size = static_cast<int>(mz_zip_reader_get_filename(&miniz_zip_, static_cast<mz_uint>(i), NULL, 0));
 			if (file_name_size == 0)
 			{
 				return 0;
 			}
-
 			size += file_name_size;
 		}
-
 		return size;
 	}
 
-	FileStat get_file_stat(
-		const int file_index)
+	FileStat get_file_stat(const int file_index)
 	{
 		if (!is_open_ || file_index < 0 || file_index >= file_count_)
 		{
 			return FileStat();
 		}
-
 		mz_zip_archive_file_stat miniz_file_stat;
-
-		if (!::mz_zip_reader_file_stat(&miniz_zip_, static_cast<mz_uint>(file_index), &miniz_file_stat))
+		if (!mz_zip_reader_file_stat(&miniz_zip_, static_cast<mz_uint>(file_index), &miniz_file_stat))
 		{
 			return FileStat();
 		}
-
 		FileStat file_stat;
-
-		file_stat.file_name_ = miniz_file_stat.m_filename;
-		file_stat.crc_ = miniz_file_stat.m_crc32;
-		file_stat.compressed_size_ = static_cast<int>(miniz_file_stat.m_comp_size);
-		file_stat.uncompressed_size_ = static_cast<int>(miniz_file_stat.m_uncomp_size);
-		file_stat.is_directory_ = (miniz_file_stat.m_is_directory != MZ_FALSE);
-		file_stat.is_encrypted_ = (miniz_file_stat.m_is_encrypted != MZ_FALSE);
-		file_stat.is_supported_ = (miniz_file_stat.m_is_supported != MZ_FALSE);
-
+		file_stat.file_name = miniz_file_stat.m_filename;
+		file_stat.crc = miniz_file_stat.m_crc32;
+		file_stat.compressed_size = static_cast<int>(miniz_file_stat.m_comp_size);
+		file_stat.uncompressed_size = static_cast<int>(miniz_file_stat.m_uncomp_size);
+		file_stat.is_directory = (miniz_file_stat.m_is_directory != MZ_FALSE);
+		file_stat.is_encrypted = (miniz_file_stat.m_is_encrypted != MZ_FALSE);
+		file_stat.is_supported = (miniz_file_stat.m_is_supported != MZ_FALSE);
 		return file_stat;
 	}
-
 
 private:
 	bool is_open_;
@@ -538,34 +500,33 @@ private:
 	MinizZip(const MinizZip&);
 	MinizZip& operator=(const MinizZip&);
 
-	mz_zip_reader_extract_iter_state* open_file_internal(
-		const int file_index)
+	mz_zip_reader_extract_iter_state* open_file_internal(int file_index)
 	{
 		if (!is_open_ || file_index < 0 || file_index >= file_count_)
 		{
 			return NULL;
 		}
-
 		return mz_zip_reader_extract_iter_new(&miniz_zip_, static_cast<mz_uint>(file_index), 0);
 	}
 
-	static size_t miniz_file_read_func(
-		void* opaque,
-		mz_uint64 position,
-		void* buffer_ptr,
-		size_t count)
+	static size_t miniz_file_read_func(void* opaque, mz_uint64 position, void* buffer_ptr, size_t count)
 	{
 		if (!opaque)
 		{
 			return 0;
 		}
-
 		MinizIo& miniz_io = *static_cast<MinizIo*>(opaque);
-
 		return miniz_io.read(static_cast<int64_t>(position), buffer_ptr, count);
 	}
-}; // MinizZip
+};
 
+struct MinizZipDeleter
+{
+	void operator()(MinizZip* miniz_zip) const
+	{
+		rtcw::mem::delete_object(miniz_zip);
+	}
+};
 
 } // namespace
 
@@ -1366,12 +1327,12 @@ void FS_FCloseFile( fileHandle_t f ) {
 	{
 		qfile_gut& file = fsh[f].handleFiles.file;
 
-		delete file.miniz_file_ptr_;
+		rtcw::mem::delete_object(file.miniz_file_ptr_);
 		file.miniz_file_ptr_ = NULL;
 
 		if (fsh[f].handleFiles.unique)
 		{
-			delete file.miniz_zip_ptr_;
+			rtcw::mem::delete_object(file.miniz_zip_ptr_);
 			file.miniz_zip_ptr_ = NULL;
 		}
 
@@ -1869,7 +1830,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 					if (uniqueFILE)
 					{
 						// open a new file on the pakfile
-						rtcw::UniquePtr<MinizZip, rtcw::UniquePtrDefaultDeleter<MinizZip> > miniz_zip_uptr(new MinizZip());
+						rtcw::UniquePtr<MinizZip, MinizZipDeleter> miniz_zip_uptr(rtcw::mem::new_object<MinizZip>());
 
 						if (!miniz_zip_uptr->open(pak->pakFilename))
 						{
@@ -1902,7 +1863,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 
 					const MinizZip::FileStat file_info = miniz_zip_ptr->get_file_stat(pakFile->miniz_file_index_);
 
-					return file_info.uncompressed_size_;
+					return file_info.uncompressed_size;
 				}
 				pakFile = pakFile->next;
 			} while ( pakFile != NULL );
@@ -2529,7 +2490,7 @@ int FS_Seek( fileHandle_t f, int32_t offset, int origin ) {
 
 		// Worst case: reopen zip file stream and possibly skip some bytes.
 		//
-		delete file.miniz_file_ptr_;
+		rtcw::mem::delete_object(file.miniz_file_ptr_);
 		file.miniz_file_ptr_ = file.miniz_zip_ptr_->open_file(fsh[f].zipFilePos);
 
 		if (!file.miniz_file_ptr_)
@@ -2857,7 +2818,7 @@ static pack_t* FS_LoadZipFile(
 
 	fs_numHeaderLongs = 0;
 
-	rtcw::UniquePtr<MinizZip, rtcw::UniquePtrDefaultDeleter<MinizZip> > miniz_zip_uptr(new MinizZip());
+	rtcw::UniquePtr<MinizZip, MinizZipDeleter> miniz_zip_uptr(rtcw::mem::new_object<MinizZip>());
 
 	if (!miniz_zip_uptr->open(zipfile))
 	{
@@ -2907,12 +2868,12 @@ static pack_t* FS_LoadZipFile(
 	{
 		const MinizZip::FileStat file_info = pack->miniz_zip_ptr_->get_file_stat(i);
 
-		if (file_info.uncompressed_size_ > 0)
+		if (file_info.uncompressed_size > 0)
 		{
-			fs_headerLongs[fs_numHeaderLongs++] = static_cast<int>(file_info.crc_);
+			fs_headerLongs[fs_numHeaderLongs++] = static_cast<int>(file_info.crc);
 		}
 
-		filename_inzip = file_info.file_name_;
+		filename_inzip = file_info.file_name;
 		Q_strlwr(&filename_inzip[0]);
 		hash = FS_HashFileName(filename_inzip.c_str(), pack->hashSize);
 		buildBuffer[i].name = namePtr;
@@ -4083,7 +4044,7 @@ void FS_Shutdown( qboolean closemfp ) {
 		next = p->next;
 
 		if ( p->pack ) {
-			delete p->pack->miniz_zip_ptr_;
+			rtcw::mem::delete_object(p->pack->miniz_zip_ptr_);
 
 			Z_Free( p->pack->buildBuffer );
 			Z_Free( p->pack );
