@@ -1,7 +1,7 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
 Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company.
-Copyright (c) 2012-2025 Boris I. Bendovsky bibendovsky@hotmail.com and Contributors
+Copyright (c) 2012-2026 Boris I. Bendovsky bibendovsky@hotmail.com and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
 
@@ -23,6 +23,7 @@ SPDX-License-Identifier: GPL-3.0
 #include "sys_events.h"
 #include "sys_local.h"
 #include "sys_shared.h"
+#include "rtcw_memory.h"
 #include "rtcw_string.h"
 
 extern int Sys_Milliseconds();
@@ -423,36 +424,41 @@ extern int cl_connectedToPureServer;
 const char* Sys_GetDLLName(
 	const char* name)
 {
-	static const rtcw::String bits(RTCW_ARCH_STRING);
-
-	static const rtcw::String game(
+	static const char* const bits = RTCW_ARCH_STRING;
+	static const char* const game =
 #ifdef RTCW_SP
 		""
 #else
 		"_mp_"
 #endif
-	);
-
-	static const rtcw::String demo(
+	;
+	static const char* const demo =
 #ifndef WOLF_SP_DEMO
 		""
 #else
 		"_d"
 #endif
-	);
-
-	static const rtcw::String ext(
+	;
+	static const char* const ext =
 #ifdef __WIN32__
 		".dll"
 #else
 		".so"
 #endif
-	);
-
-	static rtcw::String buffer;
-
-	buffer = name + game + bits + demo + ext;
-
+	;
+	static rtcw::String* buffer_ptr = NULL;
+	if (buffer_ptr == NULL)
+	{
+		buffer_ptr = rtcw::mem::new_object<rtcw::String>();
+	}
+	rtcw::String& buffer = *buffer_ptr;
+	buffer.clear();
+	buffer.reserve(64);
+	buffer += name;
+	buffer += game;
+	buffer += bits;
+	buffer += demo;
+	buffer += ext;
 	return buffer.c_str();
 }
 
