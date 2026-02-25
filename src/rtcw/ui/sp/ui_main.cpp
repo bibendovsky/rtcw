@@ -1144,12 +1144,7 @@ static void UI_LoadTranslationStrings( void ) {
 		if ( !token[0] ) {
 			break;
 		}
-
-		// BBi
-		//translateStrings[i].localname = static_cast<char*> (malloc( strlen( token ) + 1 ));
-		translateStrings[i].localname = new char [strlen (token) + 1];
-		// BBi
-
+		translateStrings[i].localname = static_cast<char*> (malloc( strlen( token ) + 1 ));
 		strcpy( translateStrings[i].localname, token );
 	}
 }
