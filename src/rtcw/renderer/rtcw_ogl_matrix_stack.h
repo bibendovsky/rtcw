@@ -1,6 +1,6 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
-Copyright (c) 2012-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
 
@@ -17,10 +17,8 @@ public:
 	static const int model_view_max_depth = 32;
 	static const int projection_max_depth = 2;
 
-public:
 	typedef cgm::Mat4 Matrix;
 
-public:
 	explicit OglMatrixStack(int capacity);
 
 	// Pops a top matrix from the stack and replaces by it a current one.
@@ -60,14 +58,12 @@ public:
 private:
 	class Impl;
 
-private:
 	Matrix* stack_;
 	int stack_capacity_;
 	int stack_size_;
 
 	Matrix current_;
 
-private:
 	OglMatrixStack(const OglMatrixStack& that);
 	OglMatrixStack& operator=(const OglMatrixStack& that);
 };
