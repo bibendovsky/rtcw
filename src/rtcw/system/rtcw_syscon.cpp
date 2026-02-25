@@ -1,17 +1,17 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
-Copyright (c) 2012-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2012-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
 
 #include "rtcw_syscon.h"
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cassert>
+#include <cstddef>
+#include <cstring>
 #include <algorithm>
-#include <new>
 #include "SDL.h"
 #include "rtcw_array_trivial.h"
+#include "rtcw_memory.h"
 #include "rtcw_sdl_utility.h"
 #include "rtcw_syscon_font_16x8.h"
 #include "rtcw_vector_trivial.h"
@@ -940,8 +940,8 @@ void Syscon::Impl::set_error_message(const char* prefix, const char* message)
 
 	if (prefix != NULL)
 	{
-		const int prefix_length = std::min(static_cast<int>(strlen(prefix)), error_message_max_length - offset);
-		memcpy(&error_message_[offset], prefix, static_cast<size_t>(prefix_length));
+		const int prefix_length = std::min(static_cast<int>(std::strlen(prefix)), error_message_max_length - offset);
+		std::memcpy(&error_message_[offset], prefix, static_cast<std::size_t>(prefix_length));
 		offset += prefix_length;
 	}
 
@@ -962,8 +962,8 @@ void Syscon::Impl::set_error_message(const char* prefix, const char* message)
 
 	if (message != NULL)
 	{
-		const int message_length = std::min(static_cast<int>(strlen(message)), error_message_max_length - offset);
-		memcpy(&error_message_[offset], message, static_cast<size_t>(message_length));
+		const int message_length = std::min(static_cast<int>(std::strlen(message)), error_message_max_length - offset);
+		std::memcpy(&error_message_[offset], message, static_cast<std::size_t>(message_length));
 		offset += message_length;
 	}
 
@@ -1570,7 +1570,7 @@ void Syscon::Impl::calculate_metrics()
 
 void Syscon::Impl::string_to_font_glyph_indices_clamped(const char* string, VectorU8& glyph_indices)
 {
-	const int u8_length = static_cast<int>(strlen(string));
+	const int u8_length = static_cast<int>(std::strlen(string));
 	const int capacity = glyph_indices.get_capacity();
 
 	if (capacity <= 0)
@@ -2276,7 +2276,7 @@ void Syscon::Impl::ui_quit_button_update_input_state()
 void Syscon::Impl::ui_quit_button_clicked_callback()
 {
 	SDL_Event sdl_event;
-	memset(&sdl_event, 0, sizeof(SDL_Event));
+	std::memset(&sdl_event, 0, sizeof(SDL_Event));
 	sdl_event.type = SDL_QUIT;
 	SDL_PushEvent(&sdl_event);
 }
@@ -2344,7 +2344,7 @@ void Syscon::Impl::ui_input_line_update_input_state()
 
 bool Syscon::Impl::scrollbar_initialize(Scrollbar& scrollbar)
 {
-	memset(&scrollbar, 0, sizeof(Scrollbar));
+	std::memset(&scrollbar, 0, sizeof(Scrollbar));
 	scrollbar.is_visible = true;
 	scrollbar.rect.w = default_scrollbar_width;
 	return true;
@@ -2673,7 +2673,7 @@ void Syscon::Impl::text_box_markup(TextBox& text_box)
 
 void Syscon::Impl::text_box_append_text(TextBox& text_box, const char* text)
 {
-	const int incoming_length = static_cast<int>(strlen(text));
+	const int incoming_length = static_cast<int>(std::strlen(text));
 
 	if (incoming_length == 0)
 	{
@@ -3210,12 +3210,12 @@ void Syscon::Impl::render_controls()
 
 Syscon::Syscon()
 	:
-	impl_(new Impl())
+	impl_(mem::new_object<Impl>())
 {}
 
 Syscon::~Syscon()
 {
-	delete impl_;
+	mem::delete_object(impl_);
 }
 
 bool Syscon::is_initialized() const
