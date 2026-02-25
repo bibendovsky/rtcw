@@ -5,6 +5,7 @@ SPDX-License-Identifier: GPL-3.0
 */
 
 #include "rtcw_ogl_tess_state.h"
+#include <cstddef>
 
 namespace rtcw {
 
