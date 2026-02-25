@@ -1,14 +1,14 @@
 /*
 RTCW: Unofficial source port of Return to Castle Wolfenstein and Wolfenstein: Enemy Territory
-Copyright (c) 2012-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-3.0
 */
 
 #include "rtcw_ogl_matrix_stack.h"
-#include <assert.h>
-#include <stdio.h>
-#include <exception>
 #include "rtcw_array_trivial.h"
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
 
 namespace rtcw {
 
@@ -20,38 +20,34 @@ public:
 private:
 	static const int storage_capacity = model_view_max_depth + projection_max_depth;
 
-private:
 	typedef ArrayTrivial<Matrix, storage_capacity> Storage;
 
-private:
 	static Storage storage_;
 	static int storage_size_;
 };
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
 OglMatrixStack::Impl::Storage OglMatrixStack::Impl::storage_;
 int OglMatrixStack::Impl::storage_size_ = 0;
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
 OglMatrixStack::Matrix* OglMatrixStack::Impl::allocate(int count)
 {
 	assert(count >= 0);
-
 	if (storage_capacity - storage_size_ < count)
 	{
-		fputs("\n[rtcw::OglMatrixStack] Out of memory.\n", stderr);
+		std::fputs("\n[rtcw::OglMatrixStack] Out of memory.\n", stderr);
 		assert(false && "Out of memory.");
-		std::terminate();
+		std::abort();
 	}
-
 	Matrix* const result = &storage_[storage_size_];
 	storage_size_ += count;
 	return result;
 }
 
-// ==========================================================================
+// =====================================
 
 // FIXME
 OglMatrixStack::OglMatrixStack(int capacity)
@@ -65,7 +61,6 @@ OglMatrixStack::OglMatrixStack(int capacity)
 void OglMatrixStack::pop()
 {
 	assert(stack_size_ > 0);
-
 	current_ = stack_[stack_size_ - 1];
 	--stack_size_;
 }
@@ -79,7 +74,6 @@ OglMatrixStack::Matrix& OglMatrixStack::pop_and_get()
 void OglMatrixStack::push()
 {
 	assert(stack_size_ < stack_capacity_);
-
 	stack_[stack_size_] = current_;
 	++stack_size_;
 }
@@ -90,8 +84,7 @@ OglMatrixStack::Matrix& OglMatrixStack::push_and_get()
 	return get_current();
 }
 
-void OglMatrixStack::push_and_set(
-	const Matrix& value)
+void OglMatrixStack::push_and_set(const Matrix& value)
 {
 	push();
 	set_current(value);
