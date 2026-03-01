@@ -257,6 +257,10 @@ const char *String_Alloc( const char *p ) {
 		int ph = strPoolIndex;
 		strcpy( &strPool[strPoolIndex], p );
 		strPoolIndex += len + 1;
+#if 1 // BBi Align for possible vectorization.
+		const int alignment = 16;
+		strPoolIndex = ((strPoolIndex + alignment - 1) / alignment) * alignment;
+#endif // BBi
 
 		str = strHandle[hash];
 		last = str;
