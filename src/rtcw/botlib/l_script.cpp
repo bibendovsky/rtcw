@@ -1154,15 +1154,9 @@ char PS_NextWhiteSpaceChar( script_t *script ) {
 //============================================================================
 void StripDoubleQuotes( char *string ) {
 	if ( *string == '\"' ) {
-
-#if !defined RTCW_ET
-		strcpy( string, string + 1 );
-#else
 		//strcpy(string, string+1);
 		// rain - strcpy arguments cannot overlap, memmove string+1 and NUL
 		memmove( string, string + 1, strlen( string + 1 ) + 1 );
-#endif // RTCW_XX
-
 	} //end if
 	if ( string[strlen( string ) - 1] == '\"' ) {
 		string[strlen( string ) - 1] = '\0';
